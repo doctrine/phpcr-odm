@@ -1,0 +1,8 @@
+<phpunit bootstrap="./TestInit.php">
+    <php>
+        <var name="DOCTRINE_PHPCR_REPOSITORY" value="http://127.0.0.1:8080/server/" />
+        <var name="DOCTRINE_PHPCR_USER" value="" />
+        <var name="DOCTRINE_PHPCR_PASS" value="" />
+        <var name="DOCTRINE_PHPCR_WORKSPACE" value="tests" />
+    </php>
+</phpunit>

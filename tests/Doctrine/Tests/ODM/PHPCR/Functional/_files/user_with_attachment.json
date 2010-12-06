@@ -1,0 +1,14 @@
+{
+   "_id": "user_with_attachment",
+   "_attachments":
+   {
+        "foo.txt":
+        {
+            "content_type":"text\/plain",
+            "data": "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+        }
+    },
+    "doctrine_metadata": {
+        "type": "Doctrine\Tests\Models\CMS\CmsUser"
+    }
+}
