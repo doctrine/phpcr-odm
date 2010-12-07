@@ -13,9 +13,6 @@ namespace Doctrine\ODM\PHPCR\Mapping;
  */
 class ClassMetadata
 {
-    const IDGENERATOR_UUID = 1;
-    const IDGENERATOR_ASSIGNED = 2;
-
     const TO_ONE = 5;
     const TO_MANY = 10;
     const ONE_TO_ONE = 1;
@@ -29,8 +26,6 @@ class ClassMetadata
     const CASCADE_DETACH  = 8;
     const CASCADE_REFRESH = 16;
     const CASCADE_ALL     = 31;
-
-    public $idGenerator = self::IDGENERATOR_UUID;
 
     /**
      * READ-ONLY: The field name of the document identifier.
@@ -260,7 +255,7 @@ class ClassMetadata
      *
      * - type - The Doctrine Type of this field.
      * - fieldName - The name of the property/field on the mapped php class
-     * - name - The JSON key of this field in the PHPCR document
+     * - name - The Property key of this field in the PHPCR document
      * - id - True for an ID field.
      *
      * @param array $mapping The mapping information.
@@ -307,7 +302,7 @@ class ClassMetadata
 
         $mapping['sourceDocument'] = $this->name;
         if (!isset($mapping['targetDocument'])) {
-            throw new MappingException("You have to specify a 'targetDocument' class for the '" . $this->name . "#". $mapping['jsonName']."' association.");
+            throw new MappingException("You have to specify a 'targetDocument' class for the '" . $this->name . "' association.");
         }
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
@@ -342,7 +337,6 @@ class ClassMetadata
     private function storeAssociationMapping($mapping)
     {
         $this->associationsMappings[$mapping['fieldName']] = $mapping;
-        $this->jsonNames[$mapping['jsonName']] = $mapping['fieldName'];
     }
 
     /**
@@ -442,7 +436,10 @@ class ClassMetadata
         $serialized = array(
             'fieldMappings',
             'identifier',
-            'jsonName',
+            'path',
+            'node',
+            'nodeType',
+            'alias',
             'namespace', // TODO: REMOVE
             'db',
             'collection',
