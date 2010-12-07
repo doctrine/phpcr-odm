@@ -6,7 +6,7 @@ use Doctrine\Common\Annotations\Annotation;
 
 final class Document extends Annotation
 {
-    public $type = 'nt:unstructured';
+    public $nodeType = 'nt:unstructured';
     public $alias;
     public $repositoryClass;
 }
