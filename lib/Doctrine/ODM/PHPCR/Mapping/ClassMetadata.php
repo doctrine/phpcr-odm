@@ -67,6 +67,13 @@ class ClassMetadata
     public $path;
 
     /**
+     * READ-ONLY: The field name of the node
+     *
+     * @var string
+     */
+    public $node;
+
+    /**
      * The name of the custom repository class used for the document class.
      * (Optional).
      *
@@ -279,6 +286,13 @@ class ClassMetadata
         $this->validateAndCompleteFieldMapping($mapping);
 
         $this->path = $mapping['fieldName'];
+    }
+
+    public function mapNode(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping);
+
+        $this->node = $mapping['fieldName'];
     }
 
     protected function validateAndCompleteFieldMapping($mapping)

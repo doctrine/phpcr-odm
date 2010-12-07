@@ -5,12 +5,16 @@ namespace Doctrine\Tests\Models\CMS;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @Document
+ * @Document(alias="cms_user")
  */
 class CmsUser
 {
     /** @Id */
     public $id;
+    /** @Path */
+    public $path;
+    /** @Node */
+    public $node;
     /** @String */
     public $status;
     /** @String */

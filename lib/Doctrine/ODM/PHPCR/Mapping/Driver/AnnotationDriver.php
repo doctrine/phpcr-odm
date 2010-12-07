@@ -106,8 +106,8 @@ class AnnotationDriver implements Driver
         $reflClass = $class->getReflectionClass();
 
         $classAnnotations = $this->reader->getClassAnnotations($reflClass);
-        if (isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\Node'])) {
-            $documentAnnot = $classAnnotations['Doctrine\ODM\PHPCR\Mapping\Node'];
+        if (isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document'])) {
+            $documentAnnot = $classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document'];
         } else {
             throw MappingException::classIsNotAValidDocument($className);
         }
@@ -134,6 +134,9 @@ class AnnotationDriver implements Driver
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Path) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapPath($mapping);
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Node) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $class->mapNode($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\ReferenceOne) {
                     $cascade = 0;
                     foreach ($fieldAnnot->cascade AS $cascadeMode) {

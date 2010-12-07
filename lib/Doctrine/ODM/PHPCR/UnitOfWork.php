@@ -198,6 +198,9 @@ class UnitOfWork
         if ($class->path) {
             $documentState[$class->path] = $node->getPath();
         }
+        if ($class->node) {
+            $documentState[$class->node] = $node;
+        }
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getIdentifier();
         }

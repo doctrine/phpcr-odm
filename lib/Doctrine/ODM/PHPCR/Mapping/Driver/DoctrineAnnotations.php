@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\Annotations\Annotation;
 
-final class Node extends Annotation
+final class Document extends Annotation
 {
     public $type = 'nt:unstructured';
     public $alias;
@@ -13,6 +13,9 @@ final class Node extends Annotation
 final class MappedSuperclass extends Annotation {}
 
 final class Path extends Annotation
+{
+}
+final class Node extends Annotation
 {
 }
 class Property extends Annotation
