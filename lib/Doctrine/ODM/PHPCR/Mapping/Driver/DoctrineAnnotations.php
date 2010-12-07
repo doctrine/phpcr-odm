@@ -57,14 +57,6 @@ class Reference extends Annotation
 {
     public $targetDocument;
 }
-final class EmbedOne extends Reference
-{
-    public $jsonName;
-}
-final class EmbedMany extends Reference
-{
-    public $jsonName;
-}
 final class ReferenceOne extends Reference
 {
     public $cascade = array();
