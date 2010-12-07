@@ -207,6 +207,22 @@ class ClassMetadata
     }
 
     /**
+     * @param string $alias
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
+
+    /**
+     * @param string $nodeType
+     */
+    public function setNodeType($nodeType)
+    {
+        $this->nodeType = $nodeType;
+    }
+
+    /**
      * Gets the ReflectionClass instance of the mapped class.
      *
      * @return ReflectionClass

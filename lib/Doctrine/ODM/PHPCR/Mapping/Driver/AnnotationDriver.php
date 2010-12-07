@@ -116,11 +116,11 @@ class AnnotationDriver implements Driver
             throw new MappingException('Alias must be specified in the jcr:Node() mapping');
         }
 
-        $class->alias = $documentAnnot->alias;
-        $class->nodeType = $documentAnnot->type;
+        $class->setAlias($documentAnnot->alias);
+        $class->setNodeType($documentAnnot->nodeType);
 
         if ($documentAnnot->repositoryClass) {
-            $class->customRepositoryClassName = $documentAnnot->repositoryClass;
+            $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
 
         foreach ($reflClass->getProperties() as $property) {
