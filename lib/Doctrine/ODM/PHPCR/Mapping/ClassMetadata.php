@@ -285,11 +285,16 @@ class ClassMetadata
      */
     public function mapProperty(array $mapping)
     {
+        if (isset($mapping['id']) && $mapping['id'] === true) {
+            $mapping['type'] = 'string';
+            $mapping['name'] = 'jcr:uuid';
+        }
+
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
 
         if (isset($mapping['id']) && $mapping['id'] === true) {
             $this->identifier = $mapping['fieldName'];
-        } else if (isset($mapping['isVersionField'])) {
+        } elseif (isset($mapping['isVersionField'])) {
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }
@@ -299,29 +304,31 @@ class ClassMetadata
 
     public function mapPath(array $mapping)
     {
-        $this->validateAndCompleteFieldMapping($mapping);
+        $this->validateAndCompleteFieldMapping($mapping, false);
 
         $this->path = $mapping['fieldName'];
     }
 
     public function mapNode(array $mapping)
     {
-        $this->validateAndCompleteFieldMapping($mapping);
+        $this->validateAndCompleteFieldMapping($mapping, false);
 
         $this->node = $mapping['fieldName'];
     }
 
-    protected function validateAndCompleteFieldMapping($mapping)
+    protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
-        if ( ! isset($mapping['fieldName'])) {
+        if (!isset($mapping['fieldName'])) {
             throw new MappingException("Mapping a property requires to specify the name.");
+        }
+        if ($isField && !isset($mapping['name'])) {
+            throw new MappingException("Mapping a property requires to specify the fieldName.");
         }
         if (isset($this->fieldMappings[$mapping['fieldName']]) || isset($this->associationsMappings[$mapping['fieldName']])) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
-
-        if (!isset($mapping['type'])) {
-            $mapping['type'] = isset($mapping['id']) && $mapping['id'] ? 'string' : 'undefined';
+        if ($isField && !isset($mapping['type'])) {
+            throw MappingException::missingTypeDefinition($this->name, $mapping['fieldName']);
         }
 
         $reflProp = $this->reflClass->getProperty($mapping['fieldName']);
@@ -485,10 +492,6 @@ class ClassMetadata
             $serialized[] = 'customRepositoryClassName';
         }
 
-        if ($this->isEmbeddedDocument) {
-            $serialized[] = 'isEmbeddedDocument';
-        }
-
         return $serialized;
     }
 
@@ -526,7 +529,6 @@ class ClassMetadata
 
     public function isCollectionValuedAssociation($name)
     {
-        // TODO: included @EmbedMany here also?
         return isset($this->associationsMappings[$name]) && ($this->associationsMappings[$name]['type'] & self::TO_MANY);
     }
 }
