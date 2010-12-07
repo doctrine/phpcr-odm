@@ -126,7 +126,7 @@ class ClassMetadataFactory
      */
     public function getMetadataFor($className)
     {
-        if ( ! isset($this->loadedMetadata[$className])) {
+        if (!isset($this->loadedMetadata[$className])) {
             $realClassName = $className;
 
             // Check for namespace alias

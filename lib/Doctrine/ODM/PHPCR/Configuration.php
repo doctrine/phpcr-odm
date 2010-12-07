@@ -116,7 +116,7 @@ class Configuration
      */
     public function getDocumentNamespace($documentNamespaceAlias)
     {
-        if ( ! isset($this->attributes['documentNamespaces'][$documentNamespaceAlias])) {
+        if (!isset($this->attributes['documentNamespaces'][$documentNamespaceAlias])) {
             throw PHPCRException::unknownDocumentNamespace($documentNamespaceAlias);
         }
 

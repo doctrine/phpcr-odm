@@ -173,9 +173,8 @@ class AnnotationDriver implements Driver
     {
         $classAnnotations = $this->reader->getClassAnnotations(new \ReflectionClass($className));
 
-        return ! isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document']) &&
-               ! isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\MappedSuperclass']) &&
-               ! isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\EmbeddedDocument']);
+        return !isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document']) &&
+               !isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\MappedSuperclass']);
     }
 
     /**
@@ -187,7 +186,7 @@ class AnnotationDriver implements Driver
             return $this->classNames;
         }
 
-        if ( ! $this->paths) {
+        if (!$this->paths) {
             throw MappingException::pathRequired();
         }
 
@@ -195,7 +194,7 @@ class AnnotationDriver implements Driver
         $includedFiles = array();
 
         foreach ($this->paths as $path) {
-            if ( ! is_dir($path)) {
+            if (!is_dir($path)) {
                 throw MappingException::fileMappingDriversRequireConfiguredDirectoryPath();
             }
 
@@ -220,7 +219,7 @@ class AnnotationDriver implements Driver
         foreach ($declared as $className) {
             $rc = new \ReflectionClass($className);
             $sourceFile = $rc->getFileName();
-            if (in_array($sourceFile, $includedFiles) && ! $this->isTransient($className)) {
+            if (in_array($sourceFile, $includedFiles) && !$this->isTransient($className)) {
                 $classes[] = $className;
             }
         }
