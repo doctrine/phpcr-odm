@@ -17,9 +17,9 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         $pass = isset($_GLOBALS['DOCTRINE_PHPCR_PASS']) ? $_GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
 
         $repository = new \Jackalope\Repository($url);
-        $credentials = new \PHPCR\SimpleCredentials($username, $password);
+        $credentials = new \PHPCR\SimpleCredentials($user, $pass);
         $session = $repository->login($credentials, $workspace);
-        
+
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $config->setProxyDir(\sys_get_temp_dir());
         $config->setMetadataDriverImpl($metaDriver);

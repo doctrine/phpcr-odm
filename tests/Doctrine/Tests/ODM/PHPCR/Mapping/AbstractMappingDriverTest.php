@@ -69,7 +69,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_Testcase
         $this->assertEquals(array(
             'fieldName' => 'rights',
             'cascade' => 0,
-            'jsonName' => 'rights',
             'targetDocument' => 'Doctrine\Tests\Models\CMS\CmsUserRights',
             'value' => null,
             'sourceDocument' => 'Doctrine\Tests\Models\CMS\CmsUser',
@@ -94,23 +93,10 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_Testcase
             'mappedBy' => null,
             'targetDocument' => 'Doctrine\Tests\Models\CMS\CmsGroup',
             'value' => null,
-            'jsonName' => 'groups',
             'sourceDocument' => 'Doctrine\Tests\Models\CMS\CmsUser',
             'isOwning' => true,
             'type' => ClassMetadata::MANY_TO_MANY,
         ), $class->associationsMappings['groups']);
-
-        return $class;
-    }
-
-    /**
-     * @depends testManyToManyAssociationMapping
-     * @param ClassMetadata $class
-     */
-    public function testAttachmentMapping($class)
-    {
-        $this->assertTrue($class->hasAttachments);
-        $this->assertEquals('attachments', $class->attachmentField);
 
         return $class;
     }

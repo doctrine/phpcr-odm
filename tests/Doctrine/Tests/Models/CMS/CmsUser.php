@@ -32,9 +32,6 @@ class CmsUser
     /** @ReferenceMany(targetDocument="CmsGroup") */
     public $groups;
 
-    /** @Attachments */
-    public $attachments;
-    
     public function __construct() {
         $this->articles = new ArrayCollection;
         $this->groups = new ArrayCollection;
@@ -69,9 +66,9 @@ class CmsUser
     public function getGroups() {
         return $this->groups;
     }
-    
+
     public function getAddress() { return $this->address; }
-    
+
     public function setAddress(CmsAddress $address) {
         if ($this->address !== $address) {
             $this->address = $address;

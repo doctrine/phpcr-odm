@@ -61,31 +61,22 @@ class UnitOfWorkTest extends PHPCRTestCase
         $object = new UoWUser();
         $object->id = "1";
         $object->username = "bar";
-        
-        $this->uow->scheduleInsert($object);
-    }
 
-    public function testScheduleInsert_ForAssignedIdGenerator_WithoutId()
-    {
-        $this->setExpectedException('Exception');
-
-        $object = new UoWUser();
-        $object->username = "bar";
-
-        $this->uow->scheduleInsert($object);
+        $this->uow->scheduleInsert($object, '/user');
     }
 
     public function testScheduleInsertCancelsScheduleRemove()
     {
-        $node = new \Jackalope\Node();
-        $user1 = $this->uow->createDocument($this->type, $node);
-        $this->uow->scheduleRemove($user1);
+        $object = new UoWUser();
+        $object->username = "bar";
 
-        $this->assertEquals(UnitOfWork::STATE_REMOVED, $this->uow->getDocumentState($user1));
+        $this->uow->scheduleRemove($object);
 
-        $this->uow->scheduleInsert($user1);
+        $this->assertEquals(UnitOfWork::STATE_REMOVED, $this->uow->getDocumentState($object));
 
-        $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($user1));
+        $this->uow->scheduleInsert($object, '/path');
+
+        $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($object));
     }
 }
 

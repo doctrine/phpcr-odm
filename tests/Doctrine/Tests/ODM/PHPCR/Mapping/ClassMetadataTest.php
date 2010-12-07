@@ -24,10 +24,9 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $cm->mapProperty(array('fieldName' => 'id', 'id' => true));
 
         $this->assertTrue(isset($cm->fieldMappings['id']));
-        $this->assertEquals(array('jsonName' => '_id', 'id' => true, 'type' => 'string', 'fieldName' => 'id'), $cm->fieldMappings['id']);
+        $this->assertEquals(array('id' => true, 'type' => 'string', 'fieldName' => 'id'), $cm->fieldMappings['id']);
 
         $this->assertEquals('id', $cm->identifier);
-        $this->assertEquals(array('_id' => 'id'), $cm->jsonNames);
 
         return $cm;
     }
@@ -43,10 +42,8 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $this->assertTrue(isset($cm->fieldMappings['username']));
         $this->assertTrue(isset($cm->fieldMappings['created']));
 
-        $this->assertEquals(array('jsonName' => 'username', 'type' => 'string', 'fieldName' => 'username'), $cm->fieldMappings['username']);
-        $this->assertEquals(array('jsonName' => 'created', 'type' => 'datetime', 'fieldName' => 'created'), $cm->fieldMappings['created']);
-
-        $this->assertEquals(array('_id' => 'id', 'username' => 'username', 'created' => 'created'), $cm->jsonNames);
+        $this->assertEquals(array('type' => 'string', 'fieldName' => 'username'), $cm->fieldMappings['username']);
+        $this->assertEquals(array('type' => 'datetime', 'fieldName' => 'created'), $cm->fieldMappings['created']);
 
         return $cm;
     }
@@ -69,7 +66,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $this->assertType('ReflectionProperty', $cm->reflFields['username']);
         $this->assertType('ReflectionProperty', $cm->reflFields['created']);
     }
-    
+
     /**
      * @depends testmapField
      */
@@ -88,19 +85,19 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     public function testMapVersionField($cm)
     {
         $this->assertFalse($cm->isVersioned);
-        $cm->mapProperty(array('fieldName' => 'version', 'jsonName' => '_rev', 'isVersionField' => true));
+        $cm->mapProperty(array('fieldName' => 'version', 'isVersionField' => true));
 
         $this->assertTrue($cm->isVersioned);
         $this->assertEquals('version', $cm->versionField);
     }
 
-    public function testmapFieldWithoutType_DefaultsToMixed()
+    public function testmapFieldWithoutType_DefaultsToUndefined()
     {
         $cm = new ClassMetadata("Doctrine\Tests\ODM\PHPCR\Mapping\Person");
 
         $cm->mapProperty(array('fieldName' => 'username'));
 
-        $this->assertEquals(array('jsonName' => 'username', 'type' => 'mixed', 'fieldName' => 'username'), $cm->fieldMappings['username']);
+        $this->assertEquals(array('type' => 'undefined', 'fieldName' => 'username'), $cm->fieldMappings['username']);
     }
 
     /**
@@ -115,14 +112,10 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $this->assertEquals(array(
             'fieldName' => 'address',
             'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address',
-            'jsonName' => 'address',
             'sourceDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Person',
             'isOwning' => true,
             'type' => ClassMetadata::MANY_TO_ONE,
         ), $cm->associationsMappings['address']);
-
-        $this->assertArrayHasKey('address', $cm->jsonNames);
-        $this->assertEquals('address', $cm->jsonNames['address']);
 
         return $cm;
     }
