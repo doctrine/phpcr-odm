@@ -11,9 +11,7 @@ Todo
 ----
 
 * fix the tests that fail
-* implement metadata reading for xml/yml/php
 * figure out how we can do relations in a sane way
-* add metadata "node" to allow injecting the jackalope node object into documents
 * implement Sf2 bundle
 
 Notes
