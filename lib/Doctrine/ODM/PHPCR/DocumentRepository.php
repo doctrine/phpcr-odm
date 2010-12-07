@@ -85,15 +85,13 @@ class DocumentRepository
      */
     public function refresh($document)
     {
-        $uow = $this->dm->getUnitOfWork();
-        $response = $this->dm->getPhpcrSession()->findDocument($uow->getDocumentIdentifier($document));
+        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
 
-        if ($response->status == 404) {
-            throw new \Doctrine\ODM\PHPCR\DocumentNotFoundException();
-        }
+        $uow = $this->dm->getUnitOfWork();
+        $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentPath($document));
 
         $hints = array('refresh' => true);
-        $uow->createDocument($this->documentName, $response->body, $hints);
+        $uow->createDocument($this->documentName, $node, $hints);
     }
 
     /**
