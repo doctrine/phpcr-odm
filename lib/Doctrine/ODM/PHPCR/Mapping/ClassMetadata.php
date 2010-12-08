@@ -319,10 +319,10 @@ class ClassMetadata
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
         if (!isset($mapping['fieldName'])) {
-            throw new MappingException("Mapping a property requires to specify the name.");
+            throw new MappingException("Mapping a property requires to specify the fieldName.");
         }
         if ($isField && !isset($mapping['name'])) {
-            throw new MappingException("Mapping a property requires to specify the fieldName.");
+            $mapping['name'] = $mapping['fieldName'];
         }
         if (isset($this->fieldMappings[$mapping['fieldName']]) || isset($this->associationsMappings[$mapping['fieldName']])) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
