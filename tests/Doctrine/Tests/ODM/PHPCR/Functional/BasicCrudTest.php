@@ -33,144 +33,146 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testFind()
     {
-        $user = $this->dm->find($this->type, 1);
+        $user = $this->dm->find($this->type, '/functional/user');
 
         $this->assertType($this->type, $user);
-        $this->assertEquals('1', $user->id);
+        $this->assertEquals('/functional/user', $user->path);
         $this->assertEquals('lsmith', $user->username);
     }
 
     public function testInsert()
     {
         $user = new User();
-        $user->id = "myuser-1234";
         $user->username = "test";
 
-        $this->dm->persist($user);
+        $this->dm->persist($user, '/functional/test');
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find($this->type, $user->id);
+        $userNew = $this->dm->find($this->type, '/functional/test');
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
-        $this->assertEquals($user->id, $userNew->id);
         $this->assertEquals($user->username, $userNew->username);
     }
 
     public function testDelete()
     {
-        $user = $this->dm->find($this->type, 1);
+        $user = $this->dm->find($this->type, '/functional/user');
 
         $this->dm->remove($user);
         $this->dm->flush();
         $this->dm->clear();
 
-        $userRemoved = $this->dm->find($this->type, 1);
+        $this->setExpectedException('PHPCR\PathNotFoundException');
+        $this->dm->find($this->type, '/functional/user');
+    }
 
-        $this->assertNull($userRemoved, "Have to delete user object!");
+    public function testRemove()
+    {
+        $user = $this->dm->find($this->type, '/functional/user');
+
+        $this->dm->remove($user);
+        $this->dm->flush();
+
+        $this->setExpectedException('PHPCR\PathNotFoundException');
+        $this->dm->find($this->type, '/functional/user');
     }
 
     public function testUpdate1()
     {
         $user = new User();
-        $user->id = "myuser-1234";
         $user->username = "test";
 
-        $this->dm->persist($user);
+        $this->dm->persist($user, '/functional/user2');
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find($this->type, $user->id);
+        $user = $this->dm->find($this->type, '/functional/user2');
         $user->username = "test2";
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find($this->type, $user->id);
+        $userNew = $this->dm->find($this->type, '/functional/user2');
 
         $this->assertEquals($user->username, $userNew->username);
     }
-    
+
     public function testUpdate2()
     {
-        $user = $this->dm->find($this->type, 1);
+        $user = $this->dm->find($this->type, '/functional/user');
         $user->username = "new-name";
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $newUser = $this->dm->find($this->type, 1);
+        $newUser = $this->dm->find($this->type, '/functional/user');
         $this->assertEquals('new-name', $newUser->username);
-    }
-
-    public function testRemove()
-    {
-        $user = $this->dm->find($this->type, 1);
-
-        $this->dm->remove($user);
-        $this->dm->flush();
-
-        $newUser = $this->dm->find($this->type, 1);
-        $this->assertNull($newUser);
     }
 
     public function testInsertUpdateMultiple()
     {
-        $user1 = $this->dm->find($this->type, 1);
+        $user1 = $this->dm->find($this->type, '/functional/user');
         $user1->username = "new-name";
 
         $user2 = new User();
-        $user2->id = "myuser-1111";
-        $user2->username = "test";
+        $user2->username = "test2";
 
         $user3 = new User();
-        $user3->id = "myuser-2222";
-        $user3->username = "test";
+        $user3->username = "test3";
 
-        $this->dm->persist($user2);
-        $this->dm->persist($user3);
+        $this->dm->persist($user2, '/functional/user2222');
+        $this->dm->persist($user3, '/functional/user3333');
         $this->dm->flush();
         $this->dm->clear();
 
-        $pUser1 = $this->dm->find($this->type, 1);
-        $pUser2 = $this->dm->find($this->type, 'myuser-1111');
-        $pUser3 = $this->dm->find($this->type, 'myuser-2222');
+        $pUser1 = $this->dm->find($this->type, '/functional/user');
+        $pUser2 = $this->dm->find($this->type, '/functional/user2222');
+        $pUser3 = $this->dm->find($this->type, '/functional/user3333');
 
+        $this->assertEquals('/functional/user', $pUser1->path);
         $this->assertEquals('new-name', $pUser1->username);
-        $this->assertEquals('myuser-1111', $pUser2->id);
-        $this->assertEquals('myuser-2222', $pUser3->id);
+        $this->assertEquals('/functional/user2222', $pUser2->path);
+        $this->assertEquals('test2', $pUser2->username);
+        $this->assertEquals('/functional/user3333', $pUser3->path);
+        $this->assertEquals('test3', $pUser3->username);
     }
 
     public function testFindTypeValidation()
     {
+        // hackish: forcing the class metadata to be loaded for those two classes so that the alias mapper finds them
+        $this->dm->getRepository($this->type);
+        $this->dm->getRepository($this->type.'2');
+        // --
+
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(false);
-        $user = $this->dm->find($this->type.'2', 1);
+        $user = $this->dm->find($this->type.'2', '/functional/user');
         $this->assertType($this->type, $user);
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(true);
-        $user = $this->dm->find($this->type, 1);
+        $user = $this->dm->find($this->type, '/functional/user');
         $this->assertType($this->type, $user);
 
         $this->setExpectedException('InvalidArgumentException');
-        $user = $this->dm->find($this->type.'2', 1);
+        $user = $this->dm->find($this->type.'2', '/functional/user');
     }
 
     public function testNullConversionHandledAutomatically()
     {
-        $user1 = $this->dm->find($this->type, 1);
+        $user1 = $this->dm->find($this->type, '/functional/user');
         $user1->username = null;
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $pUser1 = $this->dm->find($this->type, 1);
+        $pUser1 = $this->dm->find($this->type, '/functional/user');
 
         $this->assertNull($pUser1->username);
     }
 
     public function testKeepTrackOfUnmappedData()
     {
-        $httpClient = $this->dm->getConfiguration()->getHttpClient();
+        $this->markTestIncomplete('Update to remove the use of the httpClient');
 
         $data =  array(
             '_id' => "2",
@@ -203,23 +205,23 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @Document
+ * @Document(alias="user")
  */
 class User
 {
     /** @Path */
     public $path;
-    /** @String */
+    /** @String(name="username") */
     public $username;
 }
 
 /**
- * @Document
+ * @Document(alias="user2")
  */
 class User2
 {
     /** @Path */
     public $path;
-    /** @String */
+    /** @String(name="username") */
     public $username;
 }
