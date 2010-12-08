@@ -4,10 +4,23 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
-    public function testLoadMany()
+    public function setUp()
     {
+        $this->type = 'Doctrine\Tests\Models\CMS\CmsUser';
         $this->dm = $this->createDocumentManager();
 
+        $session = $this->dm->getPhpcrSession();
+        $root = $session->getNode('/');
+        if ($root->hasNode('functional')) {
+            $root->getNode('functional')->remove();
+            $session->save();
+        }
+        $this->node = $root->addNode('functional');
+        $session->save();
+    }
+
+    public function testLoadMany()
+    {
         $user1 = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user1->username = "beberlei";
         $user1->status = "active";
@@ -17,20 +30,20 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $user2->username = "lsmith";
         $user2->status = "active";
         $user2->name = "Lukas";
-        
+
         $this->dm = $this->createDocumentManager();
-        $this->dm->persist($user1);
-        $this->dm->persist($user2);
+        $this->dm->persist($user1, '/functional/user1');
+        $this->dm->persist($user2, '/functional/user2');
         $this->dm->flush();
 
-        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->id, $user2->id));
+        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->path, $user2->path));
         $this->assertSame($user1, $users[0]);
         $this->assertSame($user2, $users[1]);
 
         $this->dm->clear();
 
-        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->id, $user2->id));
-        $this->assertEquals($user1->id, $users[0]->id);
-        $this->assertEquals($user2->id, $users[1]->id);
+        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->path, $user2->path));
+        $this->assertEquals($user1->username, $users[0]->username);
+        $this->assertEquals($user2->username, $users[1]->username);
     }
 }

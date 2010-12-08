@@ -19,7 +19,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     /**
      * @depends testClassName
      */
-    public function testMapFieldWithId($cm)
+    public function testMapPropertyWithId($cm)
     {
         $cm->mapProperty(array('fieldName' => 'id', 'id' => true));
 
@@ -32,26 +32,26 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @depends testMapFieldWithId
+     * @depends testMapPropertyWithId
      */
-    public function testmapField($cm)
+    public function testMapProperty($cm)
     {
-        $cm->mapProperty(array('fieldName' => 'username', 'type' => 'string'));
-        $cm->mapProperty(array('fieldName' => 'created', 'type' => 'datetime'));
+        $cm->mapProperty(array('fieldName' => 'username', 'name' => 'username', 'type' => 'string'));
+        $cm->mapProperty(array('fieldName' => 'created', 'name' => 'created', 'type' => 'datetime'));
 
         $this->assertTrue(isset($cm->fieldMappings['username']));
         $this->assertTrue(isset($cm->fieldMappings['created']));
 
-        $this->assertEquals(array('type' => 'string', 'fieldName' => 'username'), $cm->fieldMappings['username']);
-        $this->assertEquals(array('type' => 'datetime', 'fieldName' => 'created'), $cm->fieldMappings['created']);
+        $this->assertEquals(array('type' => 'string', 'name' => 'username', 'fieldName' => 'username'), $cm->fieldMappings['username']);
+        $this->assertEquals(array('type' => 'datetime', 'name' => 'created', 'fieldName' => 'created'), $cm->fieldMappings['created']);
 
         return $cm;
     }
 
     /**
-     * @depends testmapField
+     * @depends testMapProperty
      */
-    public function testmapFieldWithoutNameThrowsException($cm)
+    public function testMapFieldWithoutNameThrowsException($cm)
     {
         $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
 
@@ -59,7 +59,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @depends testmapField
+     * @depends testMapProperty
      */
     public function testReflectionProperties($cm)
     {
@@ -68,7 +68,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @depends testmapField
+     * @depends testMapProperty
      */
     public function testNewInstance($cm)
     {
@@ -77,27 +77,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
 
         $this->assertType('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $instance1);
         $this->assertNotSame($instance1, $instance2);
-    }
-
-    /**
-     * @depends testmapField
-     */
-    public function testMapVersionField($cm)
-    {
-        $this->assertFalse($cm->isVersioned);
-        $cm->mapProperty(array('fieldName' => 'version', 'isVersionField' => true));
-
-        $this->assertTrue($cm->isVersioned);
-        $this->assertEquals('version', $cm->versionField);
-    }
-
-    public function testmapFieldWithoutType_DefaultsToUndefined()
-    {
-        $cm = new ClassMetadata("Doctrine\Tests\ODM\PHPCR\Mapping\Person");
-
-        $cm->mapProperty(array('fieldName' => 'username'));
-
-        $this->assertEquals(array('type' => 'undefined', 'fieldName' => 'username'), $cm->fieldMappings['username']);
     }
 
     /**

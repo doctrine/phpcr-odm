@@ -34,6 +34,7 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $cmf = $this->dm->getMetadataFactory();
         $metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($this->type);
+        $metadata->setAlias('article');
         $metadata->mapProperty(array('fieldName' => 'title', 'type' => 'string'));
         $metadata->mapProperty(array('fieldName' => 'body', 'type' => 'string'));
         $cmf->setMetadataFor($this->type, $metadata);
@@ -41,7 +42,7 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testGetReference()
     {
-        $proxy = $this->dm->getReference($this->type, 1);
+        $proxy = $this->dm->getReference($this->type, '/functional/article');
 
         $this->assertType('Doctrine\ODM\PHPCR\Proxy\Proxy', $proxy);
         $this->assertFalse($proxy->__isInitialized__);
