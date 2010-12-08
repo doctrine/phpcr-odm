@@ -5,4 +5,10 @@
         <var name="DOCTRINE_PHPCR_PASS" value="" />
         <var name="DOCTRINE_PHPCR_WORKSPACE" value="tests" />
     </php>
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>./</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>
