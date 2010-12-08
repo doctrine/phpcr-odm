@@ -340,14 +340,6 @@ class UnitOfWork
         }
     }
 
-    private function getIdGenerator($type)
-    {
-        if (!isset($this->idGenerators[$type])) {
-            $this->idGenerators[$type] = Id\IdGenerator::create($type);
-        }
-        return $this->idGenerators[$type];
-    }
-
     public function scheduleRemove($document)
     {
         $oid = \spl_object_hash($document);

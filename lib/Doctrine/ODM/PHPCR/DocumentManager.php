@@ -24,7 +24,7 @@ use Doctrine\ODM\PHPCR\HTTP\Client;
 use Doctrine\Common\EventManager;
 
 /**
- * Document Manager 
+ * Document Manager
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
@@ -54,11 +54,6 @@ class DocumentManager
      * @var array
      */
     private $repositories = array();
-
-    /**
-     * @var PHPCRClient
-     */
-    private $couchDBClient = null;
 
     /**
      * @var EventManager
@@ -116,14 +111,6 @@ class DocumentManager
     public function getConfiguration()
     {
         return $this->config;
-    }
-
-    /**
-     * @return ClassMetadataFactory
-     */
-    public function getClassMetadataFactory()
-    {
-        return $this->metadataFactory;
     }
 
     /**

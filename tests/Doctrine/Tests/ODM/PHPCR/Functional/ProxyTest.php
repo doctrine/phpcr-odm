@@ -31,11 +31,11 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $article->setProperty('body', 'bar');
         $article->setProperty('_doctrine_alias', 'article');
         $session->save();
-        
-        $cmf = $this->dm->getClassMetadataFactory();
+
+        $cmf = $this->dm->getMetadataFactory();
         $metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($this->type);
-        $metadata->mapField(array('fieldName' => 'title', 'type' => 'string'));
-        $metadata->mapField(array('fieldName' => 'body', 'type' => 'string'));
+        $metadata->mapProperty(array('fieldName' => 'title', 'type' => 'string'));
+        $metadata->mapProperty(array('fieldName' => 'body', 'type' => 'string'));
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
@@ -56,7 +56,7 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $proxy = $this->dm->getReference($this->type, 1);
 
         $proxyClass = get_class($proxy);
-        $this->assertTrue($this->dm->getClassMetadataFactory()->hasMetadataFor($proxyClass), "Proxy class '" . $proxyClass . "' should be registered as metadata.");
+        $this->assertTrue($this->dm->getMetadataFactory()->hasMetadataFor($proxyClass), "Proxy class '" . $proxyClass . "' should be registered as metadata.");
         $this->assertSame($this->dm->getClassMetadata($proxyClass), $this->dm->getClassMetadata($this->type), "Metadata instances of proxy class and real instance have to be the same.");
     }
 }

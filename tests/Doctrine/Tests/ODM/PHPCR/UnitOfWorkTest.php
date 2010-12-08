@@ -21,7 +21,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $metadata->mapProperty(array('fieldName' => 'id', 'id' => true));
         $metadata->mapProperty(array('fieldName' => 'username', 'type' => 'string'));
 
-        $cmf = $this->dm->getClassMetadataFactory();
+        $cmf = $this->dm->getMetadataFactory();
         $cmf->setMetadataFor($this->type, $metadata);
     }
 /*
