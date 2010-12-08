@@ -500,7 +500,7 @@ class UnitOfWork
         $session = $this->dm->getPhpcrSession();
 
         foreach ($this->scheduledRemovals AS $oid => $document) {
-            $session->deleteDocument($this->documentPaths[$oid], $this->documentRevisions[$oid]);
+            $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
 
             if ($this->evm->hasListeners(Event::postRemove)) {
