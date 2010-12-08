@@ -45,7 +45,12 @@ class ClassMetadataFactory
     /**
      * @var array
      */
-    private $loadedMetadata;
+    private $loadedMetadata = array();
+
+    /**
+     * @var array
+     */
+    private $loadedAliases = array();
 
     /**
      *  The used metadata driver.
@@ -116,6 +121,44 @@ class ClassMetadataFactory
         }
 
         return $metadata;
+    }
+
+    public function getMetadataForAlias($alias)
+    {
+        if (isset($this->loadedAliases[$alias])) {
+            return $this->loadedAliases[$alias];
+        }
+
+        if ($this->cacheDriver && ($cached = $this->cacheDriver->fetch("$alias\$PHPCRODMALIAS")) !== false) {
+            return $this->loadedAliases[$alias] = $cached;
+        }
+
+        foreach ($this->loadedMetadata as $className => $metadata) {
+            if ($metadata->alias === $alias) {
+                $this->loadedAliases[$alias] = $metadata;
+                if ($this->cacheDriver) {
+                    $this->cacheDriver->save(
+                        "$alias\$PHPCRODMALIAS", $this->loadedAliases[$alias], null
+                    );
+                }
+                return $metadata;
+            }
+        }
+
+        foreach ($this->driver->getAllClassNames() as $className) {
+            $metadata = $this->getMetadataFor($className);
+            if ($metadata->alias === $alias) {
+                $this->loadedAliases[$alias] = $metadata;
+                if ($this->cacheDriver) {
+                    $this->cacheDriver->save(
+                        "$alias\$PHPCRODMALIAS", $this->loadedAliases[$alias], null
+                    );
+                }
+                return $metadata;
+            }
+        }
+
+        throw new MappingException('Alias '.$alias.' could not be resolved to a document class name');
     }
 
     /**

@@ -141,20 +141,20 @@ class UnitOfWork
     {
         // TODO create a doctrine: namespace and register node types with doctrine:name
 
-        $type = $documentName;
-//        if ($node->hasProperty('_doctrine_name')) {
-//             $type = $node->getPropertyValue('_doctrine_name');
-//             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
-//                $validate = true;
-//             }
-//        } else if (isset($documentName)) {
-//             $type = $documentName;
-//             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-//                $data['doctrine_metadata'] = array('type' => $documentName);
-//             }
-//        } else {
-//             throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
-//        }
+        if ($node->hasProperty('_doctrine_alias')) {
+            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($node->getPropertyValue('_doctrine_alias'));
+            $type = $metadata->name;
+            if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
+                $validate = true;
+            }
+        } else if (isset($documentName)) {
+            $type = $documentName;
+            if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
+                $node->setProperty('_doctrine_alias', $documentName);
+            }
+        } else {
+            throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
+        }
 
         $class = $this->dm->getClassMetadata($type);
 
