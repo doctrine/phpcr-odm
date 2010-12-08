@@ -340,7 +340,7 @@ class ClassMetadata
 
     protected function validateAndCompleteAssociationMapping($mapping)
     {
-        $mapping = $this->validateAndCompleteFieldMapping($mapping);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
 
         $mapping['sourceDocument'] = $this->name;
         if (!isset($mapping['targetDocument'])) {
