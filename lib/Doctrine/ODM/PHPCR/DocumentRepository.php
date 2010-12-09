@@ -63,7 +63,7 @@ class DocumentRepository
     }
 
     /**
-     * Find a single document by its identifier
+     * Find a single document by its path
      *
      * @param string $path document path
      * @return object $document
@@ -77,6 +77,26 @@ class DocumentRepository
 
         $hints = array();
         return $uow->createDocument($this->documentName, $node, $hints);
+    }
+
+    /**
+     * Find many document by path
+     *
+     * @param array $paths document paths
+     * @return array of document objects
+     */
+    public function findMany(array $paths)
+    {
+        $uow = $this->dm->getUnitOfWork();
+
+        $documents = array();
+        foreach ($paths as $path) {
+            // TODO: catch exception and return null when not found?
+            $node = $this->dm->getPhpcrSession()->getNode($path);
+            $hints = array();
+            $documents[] = $uow->createDocument($this->documentName, $node, $hints);
+        }
+        return $documents;
     }
 
     /**
