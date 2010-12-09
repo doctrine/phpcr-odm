@@ -2,14 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver,
-    Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_Testcase
 {
     abstract protected function loadDriver();
-
+    /**
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
+     */
     public function testLoadMapping()
     {
         $className = 'Doctrine\Tests\Models\CMS\CmsUser';
