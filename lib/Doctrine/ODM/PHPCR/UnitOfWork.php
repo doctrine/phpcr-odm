@@ -265,7 +265,7 @@ class UnitOfWork
      */
     public function getOriginalData($document)
     {
-        return $this->originalData[\spl_object_hash($document)];
+        return $this->originalData[spl_object_hash($document)];
     }
 
     /**
@@ -282,7 +282,7 @@ class UnitOfWork
 
     private function doScheduleInsert($document, $path, &$visited)
     {
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         if (isset($visited[$oid])) {
             return;
         }
@@ -344,7 +344,7 @@ class UnitOfWork
 
     public function scheduleRemove($document)
     {
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         $this->scheduledRemovals[$oid] = $document;
         $this->documentState[$oid] = self::STATE_REMOVED;
 
@@ -355,7 +355,7 @@ class UnitOfWork
 
     public function getDocumentState($document)
     {
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         if (isset($this->documentState[$oid])) {
             return $this->documentState[$oid];
         }
@@ -384,7 +384,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         $actualData = array();
         // TODO: Do we need two loops?
         foreach ($class->reflFields AS $fieldName => $reflProperty) {
@@ -640,7 +640,7 @@ class UnitOfWork
      */
     public function contains($document)
     {
-        return isset($this->documentPaths[\spl_object_hash($document)]);
+        return isset($this->documentPaths[spl_object_hash($document)]);
     }
 
     public function registerManaged($document, $path, $revision)
@@ -678,7 +678,7 @@ class UnitOfWork
      */
     public function getDocumentRevision($document)
     {
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         if (isset($this->documentRevisions[$oid])) {
             return $this->documentRevisions[$oid];
         }
@@ -687,7 +687,7 @@ class UnitOfWork
 
     public function getDocumentPath($document)
     {
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         if (isset($this->documentPaths[$oid])) {
             return $this->documentPaths[$oid];
         } else {
