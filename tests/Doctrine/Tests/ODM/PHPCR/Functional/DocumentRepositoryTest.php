@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+/**
+ * @group functional
+ */
 class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     public function setUp()

@@ -2,8 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+/**
+ * @group unit
+ */
 class ConfigurationTest extends PHPCRTestCase
 {
+    /**
+     * @covers Doctrine\ODM\PHPCR\Configuration::addDocumentNamespace
+     * @covers Doctrine\ODM\PHPCR\Configuration::getDocumentNamespace
+     * @covers Doctrine\ODM\PHPCR\Configuration::setDocumentNamespaces
+     */
     public function testDocumentNamespace()
     {
         $config = new \Doctrine\ODM\PHPCR\Configuration();

@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+/**
+ * @group unit
+ */
 class DocumentManagerTest extends PHPCRTestCase
 {
     /**

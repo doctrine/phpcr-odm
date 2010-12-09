@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+/**
+ * @group functional
+ */
 class OptimisticLockingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     public function testAccessToRevisionThroughVersionField()

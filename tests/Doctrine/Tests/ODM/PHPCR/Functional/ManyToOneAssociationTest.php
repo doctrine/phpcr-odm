@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+/**
+ * @group functional
+ */
 class ManyToOneAssociationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     private $articleId;

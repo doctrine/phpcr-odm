@@ -2,6 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Functional;
 
+/**
+ * @group functional
+ */
 class OneToManyAssocationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     private $articleIds = array();

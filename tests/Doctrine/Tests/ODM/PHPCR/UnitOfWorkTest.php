@@ -6,6 +6,9 @@ use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Id\idGenerator;
 
+/**
+ * @group unit
+ */
 class UnitOfWorkTest extends PHPCRTestCase
 {
     private $dm;
@@ -56,6 +59,10 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertSame($user1, $user2);
     }
 */
+    /**
+     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
+     * @covers Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     */
     public function testScheduleInsertion()
     {
         $object = new UoWUser();
@@ -65,6 +72,11 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->uow->scheduleInsert($object, '/user');
     }
 
+    /**
+     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleRemove
+     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
+     * @covers Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     */
     public function testScheduleInsertCancelsScheduleRemove()
     {
         $object = new UoWUser();

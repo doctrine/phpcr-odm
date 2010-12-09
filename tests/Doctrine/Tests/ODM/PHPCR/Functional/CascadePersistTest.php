@@ -4,6 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
+/**
+ * @group functional
+ */
 class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
