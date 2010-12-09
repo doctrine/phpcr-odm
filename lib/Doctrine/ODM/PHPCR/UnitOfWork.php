@@ -208,12 +208,14 @@ class UnitOfWork
         // initialize inverse side collections
         foreach ($class->associationsMappings AS $assocName => $assocOptions) {
             if (!$assocOptions['isOwning'] && $assocOptions['type'] & ClassMetadata::TO_MANY) {
-                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentViewCollection(
-                    new \Doctrine\Common\Collections\ArrayCollection(),
-                    $this->dm,
-                    $id,
-                    $class->associationsMappings[$assocName]['mappedBy']
-                );
+                // TODO figure this one out which collection should be used
+                $documentState[$class->associationsMappings[$assocName]['fieldName']] = null;
+//                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentViewCollection(
+//                    new \Doctrine\Common\Collections\ArrayCollection(),
+//                    $this->dm,
+//                    $id,
+//                    $class->associationsMappings[$assocName]['mappedBy']
+//                );
             }
         }
 
@@ -395,19 +397,21 @@ class UnitOfWork
                 }
 
                 if ($class->associationsMappings[$fieldName]['isOwning']) {
-                    $coll = new PersistentIdsCollection(
+                    $coll = new PersistentPathCollection(
                         $value,
                         $class->associationsMappings[$fieldName]['targetDocument'],
                         $this->dm,
-                        array()
+                        array() // TODO is this right? no paths are ever passed to it
                     );
                 } else {
-                    $coll = new PersistentViewCollection(
-                        $value,
-                        $this->dm,
-                        $this->documentPaths[$oid],
-                        $class->associationsMappings[$fieldName]['mappedBy']
-                    );
+                    // TODO figure out what should go here
+//                    $coll = new PersistentViewCollection(
+//                        $value,
+//                        $this->dm,
+//                        $this->documentPaths[$oid],
+//                        $class->associationsMappings[$fieldName]['mappedBy']
+//                    );
+                    $coll = null;
                 }
 
                 $class->reflFields[$fieldName]->setValue($document, $coll);
