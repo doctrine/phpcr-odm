@@ -171,7 +171,7 @@ class UnitOfWork
 //                    continue;
 //                }
 //
-//                foreach ($jsonValue['associations'] AS $assocName => $assocValue) {
+//                foreach ($jsonValue['associations'] as $assocName => $assocValue) {
 //                    if (isset($class->associationsMappings[$assocName])) {
 //                        if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
 //                            if ($assocValue) {
@@ -206,7 +206,7 @@ class UnitOfWork
         }
 
         // initialize inverse side collections
-        foreach ($class->associationsMappings AS $assocName => $assocOptions) {
+        foreach ($class->associationsMappings as $assocName => $assocOptions) {
             if (!$assocOptions['isOwning'] && $assocOptions['type'] & ClassMetadata::TO_MANY) {
                 // TODO figure this one out which collection should be used
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = null;
@@ -323,7 +323,7 @@ class UnitOfWork
      */
     private function cascadeScheduleInsert($class, $document, &$visited)
     {
-        foreach ($class->associationsMappings AS $assocName => $assoc) {
+        foreach ($class->associationsMappings as $assocName => $assoc) {
             if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                 $related = $class->reflFields[$assocName]->getValue($document);
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
@@ -332,7 +332,7 @@ class UnitOfWork
                     }
                 } else {
                     // $related can never be a persistent collection in case of a new entity.
-                    foreach ($related AS $relatedDocument) {
+                    foreach ($related as $relatedDocument) {
                         if ($this->getDocumentState($relatedDocument) == self::STATE_NEW) {
                             $this->doScheduleInsert($relatedDocument, $visited);
                         }
@@ -364,7 +364,7 @@ class UnitOfWork
 
     private function detectChangedDocuments()
     {
-        foreach ($this->identityMap AS $id => $document) {
+        foreach ($this->identityMap as $id => $document) {
             $state = $this->getDocumentState($document);
             if ($state == self::STATE_MANAGED) {
                 $class = $this->dm->getClassMetadata(get_class($document));
@@ -387,7 +387,7 @@ class UnitOfWork
         $oid = spl_object_hash($document);
         $actualData = array();
         // TODO: Do we need two loops?
-        foreach ($class->reflFields AS $fieldName => $reflProperty) {
+        foreach ($class->reflFields as $fieldName => $reflProperty) {
             $value = $reflProperty->getValue($document);
             if ($class->isCollectionValuedAssociation($fieldName) && $value !== null
                     && !($value instanceof PersistentCollection)) {
@@ -437,7 +437,7 @@ class UnitOfWork
             // and we have a copy of the original data
 
             $changed = false;
-            foreach ($actualData AS $fieldName => $fieldValue) {
+            foreach ($actualData as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName]) && $this->originalData[$oid][$fieldName] !== $fieldValue) {
                     $changed = true;
                     break;
@@ -503,7 +503,7 @@ class UnitOfWork
 
         $session = $this->dm->getPhpcrSession();
 
-        foreach ($this->scheduledRemovals AS $oid => $document) {
+        foreach ($this->scheduledRemovals as $oid => $document) {
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
 
@@ -539,7 +539,7 @@ class UnitOfWork
             }
         }
 
-        foreach ($this->scheduledUpdates AS $oid => $document) {
+        foreach ($this->scheduledUpdates as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $node = $this->nodesMap[$oid];
 
@@ -552,8 +552,7 @@ class UnitOfWork
                 $node->setProperty('_doctrine_alias', $class->alias);
             }
 
-            // Convert field values to json values.
-            foreach ($this->documentChangesets[$oid] AS $fieldName => $fieldValue) {
+            foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
                     $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue);
                 } else if (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
@@ -568,7 +567,7 @@ class UnitOfWork
                             // TODO: Optimize when not initialized yet! In ManyToMany case we can keep track of ALL ids
                             $ids = array();
                             if (is_array($fieldValue) || $fieldValue instanceof \Doctrine\Common\Collections\Collection) {
-                                foreach ($fieldValue AS $relatedObject) {
+                                foreach ($fieldValue as $relatedObject) {
                                     $ids[] = $this->getDocumentPath($relatedObject);
                                 }
                             }
@@ -592,7 +591,7 @@ class UnitOfWork
 
         $session->save();
 
-        foreach ($this->scheduledUpdates AS $oid => $document) {
+        foreach ($this->scheduledUpdates as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
             if ($this->evm->hasListeners(Event::postUpdate)) {
@@ -600,7 +599,7 @@ class UnitOfWork
             }
         }
 
-        foreach ($this->visitedCollections AS $col) {
+        foreach ($this->visitedCollections as $col) {
             $col->takeSnapshot();
         }
 

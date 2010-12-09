@@ -139,7 +139,7 @@ class AnnotationDriver implements Driver
                     $class->mapNode($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\ReferenceOne) {
                     $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                    foreach ($fieldAnnot->cascade as $cascadeMode) {
                         $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
                     }
                     $fieldAnnot->cascade = $cascade;
@@ -148,7 +148,7 @@ class AnnotationDriver implements Driver
                     $class->mapManyToOne($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\ReferenceMany) {
                     $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                    foreach ($fieldAnnot->cascade as $cascadeMode) {
                         $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
                     }
                     $fieldAnnot->cascade = $cascade;

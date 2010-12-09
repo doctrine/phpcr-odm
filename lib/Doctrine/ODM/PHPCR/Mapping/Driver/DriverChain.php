@@ -68,7 +68,7 @@ class DriverChain implements Driver
     public function getAllClassNames()
     {
         $classNames = array();
-        foreach ($this->drivers AS $driver) {
+        foreach ($this->drivers as $driver) {
             $classNames = array_merge($classNames, $driver->getAllClassNames());
         }
         return $classNames;
@@ -84,7 +84,7 @@ class DriverChain implements Driver
      */
     public function isTransient($className)
     {
-        foreach ($this->drivers AS $namespace => $driver) {
+        foreach ($this->drivers as $namespace => $driver) {
             if (strpos($className, $namespace) === 0) {
                 return $driver->isTransient($className);
             }
