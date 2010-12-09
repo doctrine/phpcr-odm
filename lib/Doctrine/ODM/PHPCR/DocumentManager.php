@@ -221,12 +221,11 @@ class DocumentManager
      */
     public function getReference($documentName, $path)
     {
-        $class = $this->metadataFactory->getMetadataFor(ltrim($documentName, '\\'));
-
         // Check identity map first, if its already in there just return it.
         if ($document = $this->unitOfWork->tryGetByPath($path)) {
             return $document;
         }
+        $class = $this->metadataFactory->getMetadataFor(ltrim($documentName, '\\'));
         $document = $this->proxyFactory->getProxy($class->name, $path);
         $this->unitOfWork->registerManaged($document, $path, null);
 

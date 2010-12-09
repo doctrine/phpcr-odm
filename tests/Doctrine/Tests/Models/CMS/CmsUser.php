@@ -9,32 +9,32 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class CmsUser
 {
-    /** @Id */
-    public $id;
+// /** @Id */
+// public $id;
     /** @Path */
     public $path;
     /** @Node */
     public $node;
-    /** @String */
+    /** @String(name="status") */
     public $status;
-    /** @String */
+    /** @String(name="username") */
     public $username;
-    /** @String */
+    /** @String(name="name") */
     public $name;
 
-    /** @EmbedOne */
+    /** @EmbedOne(name="address") */
     public $address;
-
-    /** @ReferenceOne(targetDocument="CmsUserRights") */
-    public $rights;
-
-    /**
-     * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
-     */
-    public $articles;
-
-    /** @ReferenceMany(targetDocument="CmsGroup") */
-    public $groups;
+    // 
+    // * @ReferenceOne(targetDocument="CmsUserRights") */
+    // public $rights;
+    // 
+    // /**
+    //  * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
+    //  
+    // public $articles;
+    // 
+    // /** @ReferenceMany(targetDocument="CmsGroup") */
+    // public $groups;
 
     public function __construct() {
         $this->articles = new ArrayCollection;
