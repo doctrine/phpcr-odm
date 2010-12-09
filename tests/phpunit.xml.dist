@@ -11,4 +11,10 @@
             <directory>./</directory>
         </testsuite>
     </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>../lib/Doctrine/ODM/PHPCR</directory>
+        </whitelist>
+    </filter>
 </phpunit>
