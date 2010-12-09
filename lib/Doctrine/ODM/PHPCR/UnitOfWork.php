@@ -520,6 +520,13 @@ class UnitOfWork
             $node = $parentNode->addNode(basename($path), $class->nodeType);
             $this->nodesMap[$oid] = $node;
 
+            if ($class->path) {
+                $class->reflFields[$class->path]->setValue($document, $path);
+            }
+            if ($class->node) {
+                $class->reflFields[$class->node]->setValue($document, $node);
+            }
+
             if ($useDoctrineMetadata) {
                 $node->setProperty('_doctrine_alias', $class->alias, 'string');
             }
