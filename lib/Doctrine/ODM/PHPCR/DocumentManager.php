@@ -155,42 +155,6 @@ class DocumentManager
         return $this->repositories[$documentName];
     }
 
-    /**
-     * Create a Query for the view in the specified design document.
-     *
-     * @param  string $designDocName
-     * @param  string $viewName
-     * @return Doctrine\ODM\PHPCR\View\Query
-     */
-    public function createQuery($designDocName, $viewName)
-    {
-        $designDoc = $this->config->getDesignDocumentClass($designDocName);
-        if ($designDoc) {
-            $designDoc = new $designDoc;
-        }
-        $query = new View\Query($this->config->getHttpClient(), $this->config->getDatabase(), $designDocName, $viewName, $designDoc);
-        $query->setDocumentManager($this);
-        return $query;
-    }
-
-    /**
-     * Create a Native query for the view of the specified design document.
-     *
-     * A native query will return an array of data from the &include_docs=true parameter.
-     *
-     * @param  string $designDocName
-     * @param  string $viewName
-     * @return View\NativeQuery
-     */
-    public function createNativeQuery($designDocName, $viewName)
-    {
-        $designDoc = $this->config->getDesignDocumentClass($designDocName);
-        if ($designDoc) {
-            $designDoc = new $designDoc;
-        }
-        return new View\NativeQuery($this->config->getHttpClient(), $this->config->getDatabase(), $designDocName, $viewName, $designDoc);
-    }
-
     public function persist($object, $path)
     {
         $this->unitOfWork->scheduleInsert($object, $path);
