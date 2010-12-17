@@ -53,7 +53,7 @@ class XmlDriver extends AbstractFileDriver
 
         if ($xmlRoot->getName() == 'document') {
             if (isset($xmlRoot['repository-class'])) {
-                $class->setCustomRepositoryClass((string) $xmlRoot['repository-class']);
+                $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
             }
             if (!isset($xmlRoot['alias'])) {
                 throw MappingException::aliasIsNotSpecified($className);

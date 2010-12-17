@@ -201,7 +201,7 @@ class ClassMetadata
      *
      * @param string $mapperClassName  The class name of the custom mapper.
      */
-    public function setCustomRepositoryClass($repositoryClassName)
+    public function setCustomRepositoryClassName($repositoryClassName)
     {
         $this->customRepositoryClassName = $repositoryClassName;
     }

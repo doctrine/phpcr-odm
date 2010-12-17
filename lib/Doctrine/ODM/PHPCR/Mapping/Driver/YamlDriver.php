@@ -52,7 +52,7 @@ class YamlDriver extends AbstractFileDriver
 
         if ($element['type'] == 'document') {
             if (isset($element['repositoryClass'])) {
-                $class->setCustomRepositoryClass($element['repositoryClass']);
+                $class->setCustomRepositoryClassName($element['repositoryClass']);
             }
             if (!isset($element['alias'])) {
                 throw MappingException::aliasIsNotSpecified($className);
