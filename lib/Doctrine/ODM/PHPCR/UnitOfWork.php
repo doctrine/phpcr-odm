@@ -608,6 +608,7 @@ class UnitOfWork
 
         $this->scheduledUpdates =
         $this->scheduledRemovals =
+        $this->scheduledInserts =
         $this->visitedCollections = array();
     }
 
