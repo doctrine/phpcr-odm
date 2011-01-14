@@ -489,16 +489,17 @@ class UnitOfWork
         foreach ($this->scheduledRemovals as $oid => $document) {
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
-
-            if ($this->evm->hasListeners(Event::postRemove)) {
-                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
-            }
         }
 
         foreach ($this->scheduledInserts as $oid => $document) {
-            $document = $document;
-            $path = $this->documentPaths[$oid];
             $class = $this->dm->getClassMetadata(get_class($document));
+
+            if ($this->evm->hasListeners(Event::preUpdate)) {
+                $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            }
+
+            $path = $this->documentPaths[$oid];
             $parentNode = $session->getNode(dirname($path) === '\\' ? '/' : dirname($path));
             $node = $parentNode->addNode(basename($path), $class->nodeType);
             $this->nodesMap[$oid] = $node;
@@ -585,11 +586,19 @@ class UnitOfWork
 
         $session->save();
 
-        foreach ($this->scheduledUpdates as $oid => $document) {
-            $class = $this->dm->getClassMetadata(get_class($document));
+        foreach ($this->scheduledRemovals as $oid => $document) {
+            if ($this->evm->hasListeners(Event::postRemove)) {
+                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
 
-            if ($this->evm->hasListeners(Event::postUpdate)) {
-                $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+        foreach (array('scheduledInserts', 'scheduledUpdates') as $var) {
+            foreach ($this->$var as $oid => $document) {
+                $class = $this->dm->getClassMetadata(get_class($document));
+
+                if ($this->evm->hasListeners(Event::postUpdate)) {
+                    $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+                }
             }
         }
 
