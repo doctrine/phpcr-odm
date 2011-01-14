@@ -427,28 +427,22 @@ class UnitOfWork
 
             $changed = false;
             foreach ($actualData as $fieldName => $fieldValue) {
-                if (isset($class->fieldMappings[$fieldName]) && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                    $changed = true;
-                    break;
-                } else if(isset($class->associationsMappings[$fieldName])) {
-                    if (!$class->associationsMappings[$fieldName]['isOwning']) {
-                        continue;
-                    }
-
-                    if ( ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_ONE) && $this->originalData[$oid][$fieldName] !== $fieldValue) {
+                if (!isset($class->fieldMappings[$fieldName])) {
+                    continue;
+                }
+                if ($class->isCollectionValuedAssociation($fieldName)) {
+                    if (!$fieldValue instanceof PersistentCollection) {
+                        // if its not a persistent collection and the original value changed. otherwise it could just be null
                         $changed = true;
                         break;
-                    } else if ( ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_MANY)) {
-                        if ( !($fieldValue instanceof PersistentCollection)) {
-                            // if its not a persistent collection and the original value changed. otherwise it could just be null
-                            $changed = true;
-                            break;
-                        } else if ($fieldValue->changed()) {
-                            $this->visitedCollections[] = $fieldValue;
-                            $changed = true;
-                            break;
-                        }
+                    } else if ($fieldValue->changed()) {
+                        $this->visitedCollections[] = $fieldValue;
+                        $changed = true;
+                        break;
                     }
+                } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                    $changed = true;
+                    break;
                 }
             }
 
