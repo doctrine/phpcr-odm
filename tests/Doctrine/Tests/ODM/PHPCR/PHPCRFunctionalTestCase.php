@@ -16,7 +16,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         $user = isset($_GLOBALS['DOCTRINE_PHPCR_USER']) ? $_GLOBALS['DOCTRINE_PHPCR_USER'] : '';
         $pass = isset($_GLOBALS['DOCTRINE_PHPCR_PASS']) ? $_GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
 
-        $repository = new \Jackalope\Repository($url);
+        $repository = new \Jackalope\Repository(new \Jackalope\Factory, $url);
         $credentials = new \PHPCR\SimpleCredentials($user, $pass);
         $session = $repository->login($credentials, $workspace);
 
@@ -27,4 +27,17 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
         return \Doctrine\ODM\PHPCR\DocumentManager::create($config);
     }
+
+    public function resetFunctionalNode($dm)
+    {
+        $session = $dm->getPhpcrSession();
+        $root = $session->getNode('/');
+        if ($root->hasNode('functional')) {
+            $root->getNode('functional')->remove();
+            $session->save();
+        }
+        $node = $root->addNode('functional');
+        $session->save();
+        return $node;
+   }
 }

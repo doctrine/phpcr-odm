@@ -11,6 +11,7 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $this->listener = new TestListener();
         $this->dm = $this->createDocumentManager();
+        $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array('prePersist', 'preUpdate', 'postUpdate', 'preRemove', 'postRemove', 'onFlush'), $this->listener);
     }
 
@@ -21,7 +22,7 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = "beberlei";
         $user->status = "active";
 
-        $this->dm->persist($user);
+        $this->dm->persist($user, '/functional/userx');
 
         $this->assertTrue($this->listener->prePersist);
 
