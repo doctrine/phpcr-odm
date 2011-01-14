@@ -535,6 +535,6 @@ class ClassMetadata
 
     public function isCollectionValuedAssociation($name)
     {
-        return isset($this->associationsMappings[$name]) && ($this->associationsMappings[$name]['type'] & self::TO_MANY);
+        return isset($this->fieldMappings[$name]) && true === $this->fieldMappings[$name]['multivalue'];
     }
 }
