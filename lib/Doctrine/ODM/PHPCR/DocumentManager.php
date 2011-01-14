@@ -222,5 +222,6 @@ class DocumentManager
     {
         // Todo: Do a real delegated clear?
         $this->unitOfWork = new UnitOfWork($this);
+        return $this->config->getPhpcrSession()->clear();
     }
 }
