@@ -392,7 +392,6 @@ class UnitOfWork
 
         $oid = spl_object_hash($document);
         $actualData = array();
-        // TODO: Do we need two loops?
         foreach ($class->reflFields as $fieldName => $reflProperty) {
             $value = $reflProperty->getValue($document);
             if ($class->isCollectionValuedAssociation($fieldName) && $value !== null
@@ -402,23 +401,8 @@ class UnitOfWork
                     $value = new ArrayCollection($value);
                 }
 
-                if ($class->associationsMappings[$fieldName]['isOwning']) {
-                    $coll = new PersistentPathCollection(
-                        $value,
-                        $class->associationsMappings[$fieldName]['targetDocument'],
-                        $this->dm,
-                        array() // TODO is this right? no paths are ever passed to it
-                    );
-                } else {
-                    // TODO figure out what should go here
-//                    $coll = new PersistentViewCollection(
-//                        $value,
-//                        $this->dm,
-//                        $this->documentPaths[$oid],
-//                        $class->associationsMappings[$fieldName]['mappedBy']
-//                    );
-                    $coll = null;
-                }
+                // TODO coll shold be a new PersistentCollection
+                $coll = $value;
 
                 $class->reflFields[$fieldName]->setValue($document, $coll);
 
@@ -426,7 +410,6 @@ class UnitOfWork
             } else {
                 $actualData[$fieldName] = $value;
             }
-            // TODO: ORM transforms arrays and collections into persistent collections
         }
         // unset the revision field if necessary, it is not to be managed by the user in write scenarios.
         if ($class->isVersioned) {

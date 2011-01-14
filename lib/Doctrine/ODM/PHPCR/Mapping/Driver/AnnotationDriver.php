@@ -113,7 +113,7 @@ class AnnotationDriver implements Driver
         }
 
         if (!$documentAnnot->alias) {
-            throw new MappingException('Alias must be specified in the jcr:Document() mapping');
+            throw new MappingException('Alias must be specified in the Document() annotation mapping');
         }
 
         $class->setAlias($documentAnnot->alias);

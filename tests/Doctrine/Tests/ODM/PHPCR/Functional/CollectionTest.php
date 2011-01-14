@@ -16,7 +16,6 @@ class CollectionTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testReplaceArrayWithPersistentCollections()
     {
-
         $user1 = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user1->username = "beberlei";
         $user1->status = "active";

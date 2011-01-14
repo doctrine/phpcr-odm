@@ -26,7 +26,7 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue($this->listener->prePersist);
 
         $this->dm->flush();
-        
+
         $this->assertTrue($this->listener->onFlush);
         $this->assertTrue($this->listener->preUpdate);
         $this->assertTrue($this->listener->postUpdate);
