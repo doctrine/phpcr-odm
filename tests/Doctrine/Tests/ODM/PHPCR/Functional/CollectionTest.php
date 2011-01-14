@@ -14,7 +14,7 @@ class CollectionTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
     }
 
-    public function testReplaceArrayWithPersistentCollections()
+    public function testReplaceArrayWithPersistentCollectionsOnRelations()
     {
         $user1 = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user1->username = "beberlei";

@@ -7,7 +7,7 @@
 namespace Doctrine\Tests\Models\CMS;
 
 /**
- * @Document
+ * @Document(alias="cms_group")
  */
 class CmsGroup
 {
