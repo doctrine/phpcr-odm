@@ -71,9 +71,12 @@ class DocumentRepository
     public function find($path)
     {
         $uow = $this->dm->getUnitOfWork();
-        $node = $this->dm->getPhpcrSession()->getNode($path);
 
-        // TODO: catch exception and return null when not found?
+        try {
+            $node = $this->dm->getPhpcrSession()->getNode($path);
+        } catch (\PHPCR\PathNotFoundException $e) {
+            return null;
+        }
 
         $hints = array();
         return $uow->createDocument($this->documentName, $node, $hints);
