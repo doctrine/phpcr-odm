@@ -20,18 +20,13 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\User';
         $this->dm = $this->createDocumentManager();
+        $this->node = $this->resetFunctionalNode($this->dm);
 
-        $session = $this->dm->getPhpcrSession();
-        $root = $session->getNode('/');
-        if ($root->hasNode('functional')) {
-            $root->getNode('functional')->remove();
-            $session->save();
-        }
-        $this->node = $root->addNode('functional');
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
+        $user->setProperty('numbers', array(3, 1, 2));
         $user->setProperty('_doctrine_alias', 'user');
-        $session->save();
+        $this->dm->getPhpcrSession()->save();
     }
 
     public function testFind()
@@ -41,12 +36,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertType($this->type, $user);
         $this->assertEquals('/functional/user', $user->path);
         $this->assertEquals('lsmith', $user->username);
+        $this->assertEquals(array(3, 1, 2), $user->numbers->toArray());
     }
 
     public function testInsert()
     {
         $user = new User();
         $user->username = "test";
+        $user->numbers = array(1, 2, 3);
 
         $this->dm->persist($user, '/functional/test');
         $this->dm->flush();
@@ -56,6 +53,23 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
+        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+    }
+
+    public function testMultivaluePropertyWithOnlyOneValueUpdatedToMultiValue()
+    {
+        $user = new User();
+        $user->numbers = array(1);
+
+        $this->dm->persist($user, '/functional/test');
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find($this->type, '/functional/test');
+        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+
+        $userNew->numbers = array(1,2);
+        $this->dm->flush();
     }
 
     public function testDelete()
@@ -85,20 +99,26 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = new User();
         $user->username = "test";
+        $user->numbers = array(1, 2, 3);
 
         $this->dm->persist($user, '/functional/user2');
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find($this->type, '/functional/user2');
-        $user->username = "test2";
+        $userNew = $this->dm->find($this->type, '/functional/user2');
+        $userNew->username = "test2";
+        $userNew->numbers = array(4, 5, 6);
 
+        $this->dm->persist($userNew, '/functional/user2');
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find($this->type, '/functional/user2');
+        $userNew2 = $this->dm->find($this->type, '/functional/user2');
 
-        $this->assertEquals($user->username, $userNew->username);
+        $this->assertNotEquals($user, $userNew);
+        $this->assertNotEquals($userNew, $userNew2);
+        $this->assertEquals($userNew->username, $userNew2->username);
+        $this->assertEquals($userNew->numbers, $userNew2->numbers);
     }
 
     public function testUpdate2()
@@ -160,17 +180,16 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find($this->type.'2', '/functional/user');
     }
 
-    public function testNullConversionHandledAutomatically()
+    public function testNullRemovesTheProperty()
     {
         $user1 = $this->dm->find($this->type, '/functional/user');
         $user1->username = null;
-
         $this->dm->flush();
         $this->dm->clear();
 
-        $pUser1 = $this->dm->find($this->type, '/functional/user');
-
-        $this->assertNull($pUser1->username);
+        $user2 = $this->dm->find($this->type, '/functional/user');
+        $this->assertFalse($user2->node->hasProperty('username'));
+        $this->assertNull($user2->username);
     }
 
     public function testKeepTrackOfUnmappedData()
@@ -214,8 +233,12 @@ class User
 {
     /** @Path */
     public $path;
+    /** @Node */
+    public $node;
     /** @String(name="username") */
     public $username;
+    /** @Int(name="numbers", multivalue=true) */
+    public $numbers;
 }
 
 /**

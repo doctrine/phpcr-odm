@@ -71,7 +71,7 @@ class XmlDriver extends AbstractFileDriver
                 foreach ($attributes as $key => $value) {
                     $mapping[$key] = (string) $value;
                     // convert bool fields
-                    if ($key === 'id') {
+                    if ($key === 'id' || $key === 'multivalue') {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }

@@ -19,6 +19,9 @@ class CmsGroup
     /** @ReferenceMany(targetDocument="CmsUser", mappedBy="groups") */
     public $users;
 
+    /** @String(multivalue=true) */
+    public $values;
+
     public function setName($name) {
         $this->name = $name;
     }
@@ -33,6 +36,14 @@ class CmsGroup
 
     public function getUsers() {
         return $this->users;
+    }
+
+    public function addValues($value) {
+        $this->values[] = $value;
+    }
+
+    public function getValues() {
+        return $this->values;
     }
 }
 

@@ -298,6 +298,12 @@ class ClassMetadata
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }
+        if (!isset($mapping['multivalue'])) {
+            $mapping['multivalue'] = false;
+        }
+        if ($mapping['type'] === 'int') {
+            $mapping['type'] = 'long';
+        }
 
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
     }

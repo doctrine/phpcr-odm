@@ -34,4 +34,15 @@ class CollectionTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertType('Doctrine\ODM\PHPCR\PersistentIdsCollection', $user1->groups);
         $this->assertType('Doctrine\ODM\PHPCR\PersistentViewCollection', $group1->users);
     }
+
+    public function testReplaceArrayWithPersistentCollectionsOnMultivalue()
+    {
+        $group1 = new \Doctrine\Tests\Models\CMS\CmsGroup();
+        $group1->values = array('foo', 'bar');
+
+        $this->dm->persist($group1, '/functional/group');
+        $this->dm->flush();
+
+        $this->assertType('Doctrine\ODM\PHPCR\PersistentCollection', $group1->values);
+    }
 }

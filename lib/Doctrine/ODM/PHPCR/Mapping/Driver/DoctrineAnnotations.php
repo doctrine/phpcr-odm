@@ -22,6 +22,7 @@ class Property extends Annotation
 {
     public $name;
     public $type = 'undefined';
+    public $multivalue = false;
 }
 final class Id extends Property
 {
@@ -35,7 +36,11 @@ final class Boolean extends Property
 }
 final class Int extends Property
 {
-    public $type = 'int';
+    public $type = 'long';
+}
+final class Long extends Property
+{
+    public $type = 'long';
 }
 final class Float extends Property
 {

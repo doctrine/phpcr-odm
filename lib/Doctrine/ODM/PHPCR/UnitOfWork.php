@@ -164,7 +164,13 @@ class UnitOfWork
 
         foreach ($node->getProperties() as $name => $property) {
             if (isset($class->fieldMappings[$name])) {
-                $documentState[$class->fieldMappings[$name]['fieldName']] = $property->getNativeValue();
+                if ($class->fieldMappings[$name]['multivalue']) {
+                    // TODO might need to be a PersistentCollection
+                    // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
+                    $documentState[$class->fieldMappings[$name]['fieldName']] = new ArrayCollection((array) $property->getNativeValue());
+                } else {
+                    $documentState[$class->fieldMappings[$name]['fieldName']] = $property->getNativeValue();
+                }
             }
 //            } else if ($jsonName == 'doctrine_metadata') {
 //                if (!isset($jsonValue['associations'])) {
@@ -534,7 +540,12 @@ class UnitOfWork
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
-                    $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
+                    if ($class->fieldMappings[$fieldName]['multivalue']) {
+                        $value = $fieldValue === null ? null : $fieldValue->toArray();
+                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
+                    } else {
+                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
+                    }
                 }
             }
         }
@@ -554,7 +565,13 @@ class UnitOfWork
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
-                    $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue);
+                    $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
+                    if ($class->fieldMappings[$fieldName]['multivalue']) {
+                        $value = $fieldValue === null ? null : $fieldValue->toArray();
+                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
+                    } else {
+                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
+                    }
                 } else if (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
                     if ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_ONE) {
                         if (\is_object($fieldValue)) {
