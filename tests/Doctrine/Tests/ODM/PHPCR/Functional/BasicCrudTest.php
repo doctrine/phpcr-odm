@@ -70,29 +70,37 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $userNew->numbers = array(1,2);
         $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew2 = $this->dm->find($this->type, '/functional/test');
+        $this->assertEquals($userNew->numbers->toArray(), $userNew2->numbers->toArray());
     }
 
     public function testDelete()
     {
+        $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
 
         $this->dm->remove($user);
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->setExpectedException('PHPCR\PathNotFoundException');
-        $this->dm->find($this->type, '/functional/user');
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must be null after deletion');
     }
 
     public function testRemove()
     {
+        $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
 
         $this->dm->remove($user);
         $this->dm->flush();
 
-        $this->setExpectedException('PHPCR\PathNotFoundException');
-        $this->dm->find($this->type, '/functional/user');
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must be null after deletion');
     }
 
     public function testUpdate1()
