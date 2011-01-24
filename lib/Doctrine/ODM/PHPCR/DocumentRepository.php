@@ -63,6 +63,20 @@ class DocumentRepository
     }
 
     /**
+     * Create a document given class, data and the doc-id and revision
+     *
+     * @param   $uow Doctrine\ODM\PHPCR\UnitOfWork $uow
+     * @param string $documentName
+     * @param \PHPCR\NodeInterface $node
+     * @param array $hints
+     * @return object
+     */
+    public function createDocument($uow, $documentName, $node, array &$hints = array())
+    {
+        return $uow->createDocument($documentName, $node, $hints);
+    }
+
+    /**
      * Find a single document by its path
      *
      * @param string $path document path
@@ -79,7 +93,7 @@ class DocumentRepository
         }
 
         $hints = array();
-        return $uow->createDocument($this->documentName, $node, $hints);
+        return $this->createDocument($uow, $this->documentName, $node, $hints);
     }
 
     /**
@@ -97,7 +111,7 @@ class DocumentRepository
             // TODO: catch exception and return null when not found?
             $node = $this->dm->getPhpcrSession()->getNode($path);
             $hints = array();
-            $documents[] = $uow->createDocument($this->documentName, $node, $hints);
+            $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
         }
         return $documents;
     }
@@ -114,7 +128,7 @@ class DocumentRepository
         $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentPath($document));
 
         $hints = array('refresh' => true);
-        $uow->createDocument($this->documentName, $node, $hints);
+        $this->createDocument($uow, $this->documentName, $node, $hints);
     }
 
     /**
