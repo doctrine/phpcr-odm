@@ -128,12 +128,24 @@ class DocumentManager
      * Will return null if the document wasn't found.
      *
      * @param string $documentName
-     * @param string $id
+     * @param string $path
      * @return object
      */
-    public function find($documentName, $id)
+    public function find($documentName, $path)
     {
-        return $this->getRepository($documentName)->find($id);
+        return $this->getRepository($documentName)->find($path);
+    }
+
+    /**
+     * Finds many documents by path.
+     *
+     * @param string $documentName
+     * @param array $paths
+     * @return object
+     */
+    public function findMany($documentName, array $paths)
+    {
+        return $this->getRepository($documentName)->findMany($paths);
     }
 
     /**
