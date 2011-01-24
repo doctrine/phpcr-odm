@@ -54,6 +54,10 @@ final class Date extends Property
 {
     public $type = 'date';
 }
+final class Binary extends Property
+{
+    public $type = 'binary';
+}
 final class ArrayField extends Property
 {
     public $type = 'array';
