@@ -613,6 +613,48 @@ class UnitOfWork
     }
 
     /**
+     * Checkin operation - Save all current changes and then check in the Node by path.
+     *
+     * @return void
+     */
+    public function checkIn($path)
+    {
+        $session = $this->dm->getPhpcrSession();
+        $node = $session->getNode($path);
+        $node->addMixin("mix:versionable");
+        $this->flush(); //Save all pending changes
+
+        $vm = $session->getWorkspace()->getVersionManager();
+        $vm->checkIn($path); // Checkin Node aka make a new Version
+    }
+
+    /**
+     * Check out operation - Save all current changes and then check out the Node by path.
+     *
+     * @return void
+     */
+    public function checkOut($path)
+    {
+        $this->flush();
+        $session = $this->dm->getPhpcrSession();
+        $vm = $session->getWorkspace()->getVersionManager();
+        $vm->checkOut($path);
+    }
+
+    /**
+     * Check restore - Save all current changes and then restore the Node by path.
+     *
+     * @return void
+     */
+    public function restore($version, $path, $removeExisting)
+    {
+        $this->flush();
+        $session = $this->dm->getPhpcrSession();
+        $vm = $session->getWorkspace()->getVersionManager();
+        $vm->restore($removeExisting, $version, $path);
+    }
+
+    /**
      * INTERNAL:
      * Removes an document from the identity map. This effectively detaches the
      * document from the persistence management of Doctrine.

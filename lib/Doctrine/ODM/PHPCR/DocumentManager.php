@@ -214,6 +214,39 @@ class DocumentManager
     }
 
     /**
+     * Check in the Object, this makes the node read only and creates a new version.
+     *
+     * @param object $document
+     */
+    public function checkIn($object)
+    {
+        $this->unitOfWork->checkIn($object->path);
+    }
+
+    /**
+     * Check Out in the Object, this makes the node writable again.
+     *
+     * @param object $document
+     */
+    public function checkOut($object)
+    {
+        $this->unitOfWork->checkOut($object->path);
+    }
+
+    /**
+     * Restores an Object to a certain version.
+     *
+     * @param string $version The version to be restored e.g. 1.0 or 1.1
+     * @param object $document.
+     * @param bool $removeExisting Should the existing version be removed.
+     */
+    public function restore($version, $object, $removeExisting = true)
+    {
+        $this->unitOfWork->restore($version, $object->path, $removeExisting);
+        $this->refresh($object);
+    }
+
+    /**
      * @param  object $document
      * @return bool
      */
