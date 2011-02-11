@@ -294,7 +294,8 @@ class ClassMetadata
 
         if (isset($mapping['id']) && $mapping['id'] === true) {
             $this->identifier = $mapping['fieldName'];
-        } elseif (isset($mapping['isVersionField'])) {
+        }
+        if (isset($mapping['isVersionField'])) {
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }

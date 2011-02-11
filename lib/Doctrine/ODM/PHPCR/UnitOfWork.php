@@ -498,19 +498,21 @@ class UnitOfWork
                 $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
-
             $path = $this->documentPaths[$oid];
             $parentNode = $session->getNode(dirname($path) === '\\' ? '/' : dirname($path));
             $node = $parentNode->addNode(basename($path), $class->nodeType);
-            $this->nodesMap[$oid] = $node;
 
+            if ($class->isVersioned) {
+                $node->addMixin("mix:versionable");
+            }
+
+            $this->nodesMap[$oid] = $node;
             if ($class->path) {
                 $class->reflFields[$class->path]->setValue($document, $path);
             }
             if ($class->node) {
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
-
             if ($useDoctrineMetadata) {
                 $node->setProperty('_doctrine_alias', $class->alias, 'string');
             }
@@ -619,19 +621,11 @@ class UnitOfWork
      */
     public function checkIn($path)
     {
-        $this->flush(); //Save all pending changes
+        $this->flush();
         $session = $this->dm->getPhpcrSession();
-        try {
-            $node = $session->getNode($path);
-            $node->addMixin("mix:versionable");
-        } catch (\PHPCR\PathNotFoundException $e) {
-            $root = $session->getRootNode();
-            $node = $root->addNode($path);
-            $node->addMixin("mix:versionable");
-        }
-
+        $node = $session->getNode($path);
+        $node->addMixin("mix:versionable");
         $vm = $session->getWorkspace()->getVersionManager();
-        $session->save();
         $vm->checkIn($path); // Checkin Node aka make a new Version
     }
 
@@ -644,6 +638,8 @@ class UnitOfWork
     {
         $this->flush();
         $session = $this->dm->getPhpcrSession();
+        $node = $session->getNode($path);
+        $node->addMixin("mix:versionable");
         $vm = $session->getWorkspace()->getVersionManager();
         $vm->checkOut($path);
     }

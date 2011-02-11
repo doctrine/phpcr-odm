@@ -9,6 +9,7 @@ final class Document extends Annotation
     public $nodeType = 'nt:unstructured';
     public $alias;
     public $repositoryClass;
+    public $isVersioned;
 }
 final class MappedSuperclass extends Annotation {}
 
@@ -29,6 +30,12 @@ final class Id extends Property
     public $id = true;
     public $name = 'jcr:uuid';
     public $type = 'string';
+}
+final class IsVersionField extends Property
+{
+    public $name = 'jcr:baseVersion';
+    public $type = 'string';
+    public $isVersionField = true;
 }
 final class Boolean extends Property
 {
