@@ -619,12 +619,19 @@ class UnitOfWork
      */
     public function checkIn($path)
     {
-        $session = $this->dm->getPhpcrSession();
-        $node = $session->getNode($path);
-        $node->addMixin("mix:versionable");
         $this->flush(); //Save all pending changes
+        $session = $this->dm->getPhpcrSession();
+        try {
+            $node = $session->getNode($path);
+            $node->addMixin("mix:versionable");
+        } catch (\PHPCR\PathNotFoundException $e) {
+            $root = $session->getRootNode();
+            $node = $root->addNode($path);
+            $node->addMixin("mix:versionable");
+        }
 
         $vm = $session->getWorkspace()->getVersionManager();
+        $session->save();
         $vm->checkIn($path); // Checkin Node aka make a new Version
     }
 
