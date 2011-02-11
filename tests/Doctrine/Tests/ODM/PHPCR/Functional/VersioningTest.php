@@ -22,10 +22,11 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
-        $user = $this->node->addNode('versionTestObj');
-        $user->setProperty('username', 'lsmith');
-        $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('_doctrine_alias', 'versionTestObj');
+        $versionNode = $this->node->addNode('versionTestObj');
+        $versionNode->setProperty('username', 'lsmith');
+        $versionNode->setProperty('numbers', array(3, 1, 2));
+        $versionNode->setProperty('_doctrine_alias', 'versionTestObj');
+        $versionNode->addMixin("mix:versionable");
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -69,6 +70,11 @@ class VersionTestObj
     public $path;
     /** @Node */
     public $node;
+    /**
+     * @var string
+     * @phpcr:IsVersionField(name="isVersionField")
+     */
+    public $isVersionField;
     /** @String(name="username") */
     public $username;
     /** @Int(name="numbers", multivalue=true) */
