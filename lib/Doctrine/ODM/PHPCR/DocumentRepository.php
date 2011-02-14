@@ -97,6 +97,23 @@ class DocumentRepository
     }
 
     /**
+     * Get all the Predecessors of a certain document.
+     *
+     * @param object $document
+     * @return array of documents
+     */
+    public function getPredecessors($document)
+    {
+        $uow = $this->dm->getUnitOfWork();
+        $predecessorNodes = $uow->getPredecessors($document);
+        $objects = $hints = array();
+        foreach ($predecessorNodes as $node) {
+            $objects[] = $this->createDocument($uow, $this->documentName, $node, $hints);
+        }
+        return $objects;
+    }
+
+    /**
      * Find many document by path
      *
      * @param array $paths document paths

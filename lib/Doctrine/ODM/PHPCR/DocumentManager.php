@@ -247,6 +247,19 @@ class DocumentManager
     }
 
     /**
+     * Gets the DocumentRepository and gets the Predeccors of the Object.
+     *
+     * @param  string $documentName
+     * @param  object $document
+     * @return array of \PHPCR\Version\Version objects
+     */
+
+    public function getPredecessors($documentName, $object)
+    {
+         return $this->getRepository($documentName)->getPredecessors($object);
+    }
+
+    /**
      * @param  object $document
      * @return bool
      */

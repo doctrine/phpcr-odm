@@ -664,6 +664,20 @@ class UnitOfWork
     }
 
     /**
+     * Gets all the predecessor objects of an object
+     *
+     * @param object $document
+     * @return array of \PHPCR\Version\VersionInterface
+     */
+    public function getPredecessors($document)
+    {
+        $path = $this->documentPaths[spl_object_hash($document)];
+        $session = $this->dm->getPhpcrSession();
+        $node = $session->getNode($path, 'Version\Version');
+        return $node->getPredecessors();
+    }
+
+    /**
      * INTERNAL:
      * Removes an document from the identity map. This effectively detaches the
      * document from the persistence management of Doctrine.
