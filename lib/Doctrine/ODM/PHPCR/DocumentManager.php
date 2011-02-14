@@ -220,7 +220,7 @@ class DocumentManager
      */
     public function checkIn($object)
     {
-        $this->unitOfWork->checkIn($object->path);
+        $this->unitOfWork->checkIn($object);
     }
 
     /**
@@ -230,7 +230,7 @@ class DocumentManager
      */
     public function checkOut($object)
     {
-        $this->unitOfWork->checkOut($object->path);
+        $this->unitOfWork->checkOut($object);
     }
 
     /**
@@ -242,7 +242,7 @@ class DocumentManager
      */
     public function restore($version, $object, $removeExisting = true)
     {
-        $this->unitOfWork->restore($version, $object->path, $removeExisting);
+        $this->unitOfWork->restore($version, $object, $removeExisting);
         $this->refresh($object);
     }
 

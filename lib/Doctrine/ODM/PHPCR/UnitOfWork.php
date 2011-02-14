@@ -619,8 +619,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkIn($path)
+    public function checkIn($object)
     {
+        $path = $this->documentPaths[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -634,8 +635,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkOut($path)
+    public function checkOut($object)
     {
+        $path = $this->documentPaths[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -649,8 +651,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function restore($version, $path, $removeExisting)
+    public function restore($version, $object, $removeExisting)
     {
+        $path = $this->documentPaths[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
