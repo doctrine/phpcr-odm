@@ -210,6 +210,9 @@ class UnitOfWork
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getIdentifier();
         }
+        if ($class->versionField) {
+            $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getNativeValue();
+        }
 
         // initialize inverse side collections
         foreach ($class->associationsMappings as $assocName => $assocOptions) {

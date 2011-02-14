@@ -117,6 +117,9 @@ class AnnotationDriver implements Driver
         }
 
         $class->setAlias($documentAnnot->alias);
+        if (isset($documentAnnot->isVersioned) && $documentAnnot->isVersioned) {
+            $class->setIsVersioned(true);
+        }
         $class->setNodeType($documentAnnot->nodeType);
 
         if ($documentAnnot->repositoryClass) {

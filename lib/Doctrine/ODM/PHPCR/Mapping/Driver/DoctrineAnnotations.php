@@ -31,7 +31,7 @@ final class Id extends Property
     public $name = 'jcr:uuid';
     public $type = 'string';
 }
-final class IsVersionField extends Property
+final class Version extends Property
 {
     public $name = 'jcr:baseVersion';
     public $type = 'string';

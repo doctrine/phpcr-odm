@@ -59,6 +59,9 @@ class XmlDriver extends AbstractFileDriver
                 throw MappingException::aliasIsNotSpecified($className);
             }
             $class->setAlias((string) $xmlRoot['alias']);
+            if (isset($xmlRoot['is-versioned']) && $xmlRoot['is-versioned'] === 'true') {
+                $class->setIsVersioned(true);
+            }
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
         } elseif ($xmlRoot->getName() === 'mapped-superclass') {
             $class->isMappedSuperclass = true;

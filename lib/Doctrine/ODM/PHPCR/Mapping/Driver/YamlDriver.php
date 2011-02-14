@@ -58,6 +58,9 @@ class YamlDriver extends AbstractFileDriver
                 throw MappingException::aliasIsNotSpecified($className);
             }
             $class->setAlias($element['alias']);
+            if (isset($element['isVersioned']) && $element['isVersioned']) {
+                $class->setIsVersioned(true);
+            }
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
         } elseif ($element['type'] === 'mappedSuperclass') {
             $class->isMappedSuperclass = true;

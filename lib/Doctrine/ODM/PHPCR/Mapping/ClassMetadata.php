@@ -215,6 +215,14 @@ class ClassMetadata
     }
 
     /**
+     * @param bool $versionable
+     */
+    public function setIsVersioned($versionable)
+    {
+        $this->isVersioned = $versionable;
+    }
+
+    /**
      * @param string $nodeType
      */
     public function setNodeType($nodeType)
@@ -296,7 +304,6 @@ class ClassMetadata
             $this->identifier = $mapping['fieldName'];
         }
         if (isset($mapping['isVersionField'])) {
-            $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }
         if (!isset($mapping['multivalue'])) {
