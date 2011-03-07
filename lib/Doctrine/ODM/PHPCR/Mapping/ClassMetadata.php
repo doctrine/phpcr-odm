@@ -13,6 +13,10 @@ namespace Doctrine\ODM\PHPCR\Mapping;
  */
 class ClassMetadata
 {
+    const IDGENERATOR_UUID = 1;
+    const IDGENERATOR_ASSIGNED = 2;
+    const IDGENERATOR_SLUGIFIED = 3;
+
     const TO_ONE = 5;
     const TO_MANY = 10;
     const ONE_TO_ONE = 1;
@@ -26,6 +30,8 @@ class ClassMetadata
     const CASCADE_DETACH  = 8;
     const CASCADE_REFRESH = 16;
     const CASCADE_ALL     = 31;
+
+    public $idGenerator = self::IDGENERATOR_ASSIGNED;
 
     /**
      * READ-ONLY: The field name of the document identifier.

@@ -167,9 +167,9 @@ class DocumentManager
         return $this->repositories[$documentName];
     }
 
-    public function persist($object, $path)
+    public function persist($object)
     {
-        $this->unitOfWork->scheduleInsert($object, $path);
+        $this->unitOfWork->scheduleInsert($object);
     }
 
     public function remove($object)

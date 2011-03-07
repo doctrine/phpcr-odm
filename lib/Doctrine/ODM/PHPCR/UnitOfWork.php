@@ -283,13 +283,13 @@ class UnitOfWork
      * @param object $document
      * @param string $path
      */
-    public function scheduleInsert($document, $path)
+    public function scheduleInsert($document)
     {
         $visited = array();
-        $this->doScheduleInsert($document, $path, $visited);
+        $this->doScheduleInsert($document, $visited);
     }
 
-    private function doScheduleInsert($document, $path, &$visited)
+    private function doScheduleInsert($document, &$visited)
     {
         $oid = spl_object_hash($document);
         if (isset($visited[$oid])) {
@@ -302,11 +302,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->registerManaged($document, $path, null);
-
-                if ($this->evm->hasListeners(Event::prePersist)) {
-                    $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
-                }
+                $this->persistNew($class, $document);
                 break;
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
@@ -349,6 +345,14 @@ class UnitOfWork
                 }
             }
         }
+    }
+
+    private function getIdGenerator($type)
+    {
+        if (!isset($this->idGenerators[$type])) {
+            $this->idGenerators[$type] = Id\IdGenerator::create($type);
+        }
+        return $this->idGenerators[$type];
     }
 
     public function scheduleRemove($document)
@@ -468,6 +472,27 @@ class UnitOfWork
             return $this->documentChangesets[$oid];
         }
         return array();
+    }
+
+    /**
+     * Persist new document, marking it managed and generating the id.
+     *
+     * This method is either called through `DocumentManager#persist()` or during `DocumentManager#flush()`,
+     * when persistence by reachability is applied.
+     *
+     * @param ClassMetadata $class
+     * @param object $document
+     * @return void
+     */
+    public function persistNew($class, $document)
+    {
+        $path = $this->getIdGenerator($class->idGenerator)->generate($document, $class, $this->dm);
+
+        $this->registerManaged($document, $path, null);
+
+        if ($this->evm->hasListeners(Event::prePersist)) {
+            $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
+        }
     }
 
     /**
