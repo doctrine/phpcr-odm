@@ -11,7 +11,7 @@ class AssignedPathGenerator extends IdGenerator
      * @param object $document
      * @param ClassMetadata $cm
      * @param DocumentManager $dm
-     * @return array
+     * @return string
      */
     public function generate($document, ClassMetadata $cm, DocumentManager $dm)
     {

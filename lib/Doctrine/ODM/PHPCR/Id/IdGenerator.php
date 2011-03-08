@@ -26,11 +26,8 @@ abstract class IdGenerator
             case ClassMetadata::IDGENERATOR_ASSIGNED:
                 $instance = new AssignedPathGenerator();
                 break;
-            case ClassMetadata::IDGENERATOR_UUID:
-                $instance = new PHPCRUUIDGenerator();
-                break;
-            case ClassMetadata::IDGENERATOR_SLUGIFIED:
-                $instance = new SlugifiedGenerator();
+            case ClassMetadata::IDGENERATOR_REPOSITORY:
+                $instance = new RepositoryPathGenerator();
                 break;
             default:
                 throw \Exception("ID Generator does not exist!");

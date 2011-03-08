@@ -13,9 +13,8 @@ namespace Doctrine\ODM\PHPCR\Mapping;
  */
 class ClassMetadata
 {
-    const IDGENERATOR_UUID = 1;
+    const IDGENERATOR_REPOSITORY = 1;
     const IDGENERATOR_ASSIGNED = 2;
-    const IDGENERATOR_SLUGIFIED = 3;
 
     const TO_ONE = 5;
     const TO_MANY = 10;
