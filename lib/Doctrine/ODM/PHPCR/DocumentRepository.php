@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Persistence\ObjectRepository;
+
 /**
  * An DocumentRepository serves as a repository for documents with generic as well as
  * business specific methods for retrieving documents.
@@ -32,7 +34,7 @@ namespace Doctrine\ODM\PHPCR;
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
-class DocumentRepository
+class DocumentRepository implements ObjectRepository
 {
     /**
      * @var string
@@ -97,6 +99,38 @@ class DocumentRepository
     }
 
     /**
+     * Finds all documents in the repository.
+     *
+     * @return array The entities.
+     */
+    public function findAll()
+    {
+        return $this->findBy(array());
+    }
+
+    /**
+     * Finds documents by a set of criteria.
+     *
+     * @param array $criteria
+     * @return array
+     */
+    public function findBy(array $criteria)
+    {
+        return $this->uow->getDocumentPersister($this->documentName)->loadAll($criteria);
+    }
+
+    /**
+     * Finds a single document by a set of criteria.
+     *
+     * @param array $criteria
+     * @return object
+     */
+    public function findOneBy(array $criteria)
+    {
+        return $this->uow->getDocumentPersister($this->documentName)->load($criteria);
+    }
+
+    /**
      * Get all the Predecessors of a certain document.
      *
      * @param object $document
@@ -111,26 +145,6 @@ class DocumentRepository
             $objects[] = $this->createDocument($uow, $this->documentName, $node, $hints);
         }
         return $objects;
-    }
-
-    /**
-     * Find many document by path
-     *
-     * @param array $paths document paths
-     * @return array of document objects
-     */
-    public function findMany(array $paths)
-    {
-        $uow = $this->dm->getUnitOfWork();
-
-        $documents = array();
-        foreach ($paths as $path) {
-            // TODO: catch exception and return null when not found?
-            $node = $this->dm->getPhpcrSession()->getNode($path);
-            $hints = array();
-            $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
-        }
-        return $documents;
     }
 
     /**

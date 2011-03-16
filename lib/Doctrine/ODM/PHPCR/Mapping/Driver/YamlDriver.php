@@ -59,7 +59,7 @@ class YamlDriver extends AbstractFileDriver
             }
             $class->setAlias($element['alias']);
             if (isset($element['isVersioned']) && $element['isVersioned']) {
-                $class->setIsVersioned(true);
+                $class->setVersioned(true);
             }
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
         } elseif ($element['type'] === 'mappedSuperclass') {
@@ -101,7 +101,7 @@ class YamlDriver extends AbstractFileDriver
 
     private function addPropertyMapping(ClassMetadata $class, $mapping)
     {
-        $class->mapProperty($mapping);
+        $class->mapField($mapping);
     }
 
     private function addPathMapping(ClassMetadata $class, $mapping)

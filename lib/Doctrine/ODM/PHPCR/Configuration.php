@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\ODM\PHPCR\HTTP\Client;
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
 use Doctrine\Common\Cache\Cache;
 

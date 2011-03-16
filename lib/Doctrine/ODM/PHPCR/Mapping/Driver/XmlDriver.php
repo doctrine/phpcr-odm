@@ -60,7 +60,7 @@ class XmlDriver extends AbstractFileDriver
             }
             $class->setAlias((string) $xmlRoot['alias']);
             if (isset($xmlRoot['is-versioned']) && $xmlRoot['is-versioned'] === 'true') {
-                $class->setIsVersioned(true);
+                $class->setVersioned(true);
             }
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
         } elseif ($xmlRoot->getName() === 'mapped-superclass') {
@@ -103,7 +103,7 @@ class XmlDriver extends AbstractFileDriver
 
     private function addPropertyMapping(ClassMetadata $class, $mapping)
     {
-        $class->mapProperty($mapping);
+        $class->mapField($mapping);
     }
 
     private function addPathMapping(ClassMetadata $class, $mapping)

@@ -20,8 +20,8 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\HTTP\Client;
 use Doctrine\Common\EventManager;
+use Doctrine\Common\Persistence\ObjectManager;
 
 /**
  * Document Manager

@@ -19,9 +19,9 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     /**
      * @depends testClassName
      */
-    public function testMapPropertyWithId($cm)
+    public function testMapFieldWithId($cm)
     {
-        $cm->mapProperty(array('fieldName' => 'id', 'id' => true));
+        $cm->mapField(array('fieldName' => 'id', 'id' => true));
 
         $this->assertTrue(isset($cm->fieldMappings['id']));
         $this->assertEquals(array('id' => true, 'name' => 'jcr:uuid', 'type' => 'string', 'fieldName' => 'id', 'multivalue' => false), $cm->fieldMappings['id']);
@@ -32,12 +32,12 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @depends testMapPropertyWithId
+     * @depends testMapFieldWithId
      */
-    public function testMapProperty($cm)
+    public function testMapField($cm)
     {
-        $cm->mapProperty(array('fieldName' => 'username', 'name' => 'username', 'type' => 'string'));
-        $cm->mapProperty(array('fieldName' => 'created', 'name' => 'created', 'type' => 'datetime'));
+        $cm->mapField(array('fieldName' => 'username', 'name' => 'username', 'type' => 'string'));
+        $cm->mapField(array('fieldName' => 'created', 'name' => 'created', 'type' => 'datetime'));
 
         $this->assertTrue(isset($cm->fieldMappings['username']));
         $this->assertTrue(isset($cm->fieldMappings['created']));
@@ -49,17 +49,17 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @depends testMapProperty
+     * @depends testMapField
      */
     public function testMapFieldWithoutNameThrowsException($cm)
     {
         $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
 
-        $cm->mapProperty(array());
+        $cm->mapField(array());
     }
 
     /**
-     * @depends testMapProperty
+     * @depends testMapField
      */
     public function testReflectionProperties($cm)
     {
@@ -68,7 +68,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @depends testMapProperty
+     * @depends testMapField
      */
     public function testNewInstance($cm)
     {

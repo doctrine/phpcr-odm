@@ -118,7 +118,7 @@ class AnnotationDriver implements Driver
 
         $class->setAlias($documentAnnot->alias);
         if (isset($documentAnnot->isVersioned) && $documentAnnot->isVersioned) {
-            $class->setIsVersioned(true);
+            $class->setVersioned(true);
         }
         $class->setNodeType($documentAnnot->nodeType);
 
@@ -133,7 +133,7 @@ class AnnotationDriver implements Driver
             foreach ($this->reader->getPropertyAnnotations($property) as $fieldAnnot) {
                 if ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Property) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapProperty($mapping);
+                    $class->mapField($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Path) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapPath($mapping);

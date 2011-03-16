@@ -21,8 +21,8 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->uow = new UnitOfWork($this->dm);
 
         $metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($this->type);
-        $metadata->mapProperty(array('fieldName' => 'id', 'id' => true));
-        $metadata->mapProperty(array('fieldName' => 'username', 'type' => 'string'));
+        $metadata->mapField(array('fieldName' => 'id', 'id' => true));
+        $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
 
         $cmf = $this->dm->getMetadataFactory();
         $cmf->setMetadataFor($this->type, $metadata);
