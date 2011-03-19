@@ -99,6 +99,26 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
+     * Find many document by path
+     *
+     * @param array $paths document paths
+     * @return array of document objects
+     */
+    public function findMany(array $paths)
+    {
+        $uow = $this->dm->getUnitOfWork();
+
+        $documents = array();
+        foreach ($paths as $path) {
+            // TODO: catch exception and return null when not found?
+            $node = $this->dm->getPhpcrSession()->getNode($path);
+            $hints = array();
+            $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
+        }
+        return $documents;
+    }
+
+    /**
      * Finds all documents in the repository.
      *
      * @return array The entities.
