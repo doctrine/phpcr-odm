@@ -53,22 +53,16 @@ class ClassMetadataInfo implements ClassMetadata
     const MANY_TO_ONE = 4;
     const MANY_TO_MANY = 8;
 
-    /* The Id generator types. */
-    /**
-     * AUTO means Doctrine will automatically create a id for us.
-     */
-    const GENERATOR_TYPE_AUTO = 1;
-
     /**
      * means the repository will need to be able to generate the id.
      */
-    const GENERATOR_TYPE_REPOSITORY = 2;
+    const GENERATOR_TYPE_REPOSITORY = 1;
 
     /**
      * NONE means Doctrine will not generate any id for us and you are responsible for manually
      * assigning an id.
      */
-    const GENERATOR_TYPE_NONE = 4;
+    const GENERATOR_TYPE_NONE = 2;
 
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
@@ -373,24 +367,10 @@ class ClassMetadataInfo implements ClassMetadata
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
 
         if (isset($mapping['id']) && $mapping['id'] === true) {
-            $mapping['name'] = '_id';
-            $mapping['type'] = isset($mapping['type']) ? $mapping['type'] : 'id';
-            $this->identifier = $mapping['fieldName'];
-            if (isset($mapping['strategy'])) {
-                $generatorType = constant('Doctrine\ODM\MongoDB\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
-                if ($generatorType !== self::GENERATOR_TYPE_AUTO) {
-                    $mapping['type'] = 'custom_id';
-                }
-                $this->generatorType = $generatorType;
-                $this->generatorOptions = isset($mapping['options']) ? $mapping['options'] : array();
-            }
-        }
-
-        if (isset($mapping['id']) && $mapping['id'] === true) {
             $this->mapPath($mapping);
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->idGenerator = constant('Doctrine\ODM\CouchDB\Mapping\ClassMetadata::IDGENERATOR_' . strtoupper($mapping['strategy']));
+                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
             }
         } else if (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
@@ -693,33 +673,13 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Checks whether the class will generate a new \MongoId instance for us.
+     * Checks whether the class will generate an id via the repository.
      *
-     * @return boolean TRUE if the class uses the AUTO generator, FALSE otherwise.
+     * @return boolean TRUE if the class uses the Repository generator, FALSE otherwise.
      */
-    public function isIdGeneratorAuto()
+    public function isIdGeneratorRepository()
     {
-        return $this->generatorType == self::GENERATOR_TYPE_AUTO;
-    }
-
-    /**
-     * Checks whether the class will use a collection to generate incremented identifiers.
-     *
-     * @return boolean TRUE if the class uses the INCREMENT generator, FALSE otherwise.
-     */
-    public function isIdGeneratorIncrement()
-    {
-        return $this->generatorType == self::GENERATOR_TYPE_INCREMENT;
-    }
-
-    /**
-     * Checks whether the class will generate a uuid id.
-     *
-     * @return boolean TRUE if the class uses the UUID generator, FALSE otherwise.
-     */
-    public function isIdGeneratorUuid()
-    {
-        return $this->generatorType == self::GENERATOR_TYPE_UUID;
+        return $this->generatorType == self::GENERATOR_TYPE_REPOSITORY;
     }
 
     /**
@@ -732,65 +692,6 @@ class ClassMetadataInfo implements ClassMetadata
         return $this->generatorType == self::GENERATOR_TYPE_NONE;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Map a single document reference.
-     *
-     * @param array $mapping The mapping information.
-     */
-    public function mapOneReference(array $mapping)
-    {
-        $mapping['reference'] = true;
-        $mapping['type'] = 'one';
-        $this->mapField($mapping);
-    }
-
-    /**
-     * Map a collection of document references.
-     *
-     * @param array $mapping The mapping information.
-     */
-    public function mapManyReference(array $mapping)
-    {
-        $mapping['reference'] = true;
-        $mapping['type'] = 'many';
-        $this->mapField($mapping);
-    }
-
-    /**
-     * Checks whether the class has a mapped association with the given field name.
-     *
-     * @param string $fieldName
-     * @return boolean
-     */
-    public function hasReference($fieldName)
-    {
-        return isset($this->fieldMappings[$fieldName]['reference']);
-    }
-
     /**
      * Checks whether the class has a mapped association reference with the given field name.
      *
@@ -799,7 +700,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function hasAssociation($fieldName)
     {
-        return $this->hasReference($fieldName);
+        return false;
     }
 
     /**
@@ -811,20 +712,6 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function isSingleValuedAssociation($fieldName)
     {
-        return $this->isSingleValuedReference($fieldName);
+        return false;
     }
-
-    /**
-     * Checks whether the class has a mapped association for the specified field
-     * and if yes, checks whether it is a single-valued association (to-one).
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the association exists and is single-valued, FALSE otherwise.
-     */
-    public function isSingleValuedReference($fieldName)
-    {
-        return isset($this->fieldMappings[$fieldName]['association']) &&
-                $this->fieldMappings[$fieldName]['association'] === self::TO_ONE;
-    }
-
 }
