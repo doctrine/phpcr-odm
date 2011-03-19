@@ -29,9 +29,54 @@ class Resource
     protected $lastModifiedBy;
 
 
-    public function setFileData($data)
+    public function setData($data)
     {
         $this->data = $data;
     }
+  
+    public function getData()
+    {
+        return $this->data;
+    }
+  
+    public function setMimeType($mimeType)
+    {
+        $this->mimeType = $mimeType;
+    }
+
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    public function setEncoding($encoding)
+    {
+        $this->encoding = $encoding;
+    }
+
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    public function setLastModified($lastModified)
+    {
+        $this->lastModified = $lastModified;
+    }
+
+    public function getLastModified()
+    {
+        return $this->lastModified;
+    }
+
+    public function setLastModifiedBy($lastModifiedBy)
+    {
+        $this->lastModifiedBy = $lastModifiedBy;
+    }
+
+    public function getLastModifiedBy()
+    {
+        return $this->lastModifiedBy;
+    }
+
 }
-    

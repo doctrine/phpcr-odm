@@ -22,13 +22,13 @@ class File
     /** @phpcr:Child(name="jcr:content") */
     protected $content;
 
-    public function setFileContent($filename)
+    public function setContentFromFile($filename)
     {
         if ($this->content === null)
         {
             $this->content = new Resource();
         }
-        $this->content->setFileData(file_get_contents($filename));
+        $this->content->setData(file_get_contents($filename));
     } 
 
 }

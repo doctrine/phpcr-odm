@@ -32,8 +32,9 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent->name = 'Parent';
         $parent->child = $child;
         $child->name = 'Child';
+        $parent->path = '/functional/childtest';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -45,8 +46,9 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = new TestObj();
         $parent->name = 'Parent';
+        $parent->path = '/functional/childtest';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -58,10 +60,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
+        $parent->path = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -80,10 +83,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
+        $parent->path = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -102,10 +106,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
+        $parent->path  = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -127,10 +132,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
+        $parent->path = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -150,10 +156,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
+        $parent->path = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
-        $this->dm->persist($parent, '/functional/childtest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 

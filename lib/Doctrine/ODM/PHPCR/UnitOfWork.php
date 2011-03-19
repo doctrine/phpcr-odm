@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataInfo;
 use Doctrine\ODM\PHPCR\Types\Type;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -297,7 +298,7 @@ class UnitOfWork
         $this->doScheduleInsert($document, $visited);
     }
 
-    private function doScheduleInsert($document, &$visited)
+    private function doScheduleInsert($document, &$visited, $overrideIdGenerator = null)
     {
         $oid = spl_object_hash($document);
         if (isset($visited[$oid])) {
@@ -310,7 +311,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->persistNew($class, $document);
+                $this->persistNew($class, $document, $overrideIdGenerator);
                 break;
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
@@ -325,7 +326,7 @@ class UnitOfWork
                 break;
         }
 
-        $this->cascadeScheduleInsert($class, $document, $visited, $path);
+        $this->cascadeScheduleInsert($class, $document, $visited);
     }
 
     /**
@@ -334,7 +335,7 @@ class UnitOfWork
      * @param object $document
      * @param array $visited
      */
-    private function cascadeScheduleInsert($class, $document, &$visited, $path)
+    private function cascadeScheduleInsert($class, $document, &$visited)
     {
         foreach ($class->associationsMappings as $assocName => $assoc) {
             if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
@@ -356,7 +357,10 @@ class UnitOfWork
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) == self::STATE_NEW) {
-                $this->doScheduleInsert($child, $path.'/'.$mapping['name'], $visited);
+                $childClass = $this->dm->getClassMetadata(get_class($child));
+                $path = $class->reflFields[$class->path]->getValue($document);
+                $childClass->reflFields[$childClass->path]->setValue($child , $path . '/'. $mapping['name']);
+                $this->doScheduleInsert($child, $visited, ClassMetadataInfo::GENERATOR_TYPE_NONE);
             }
         }
     }
@@ -520,9 +524,9 @@ class UnitOfWork
      * @param object $document
      * @return void
      */
-    public function persistNew($class, $document)
+    public function persistNew($class, $document, $overrideIdGenerator = null)
     {
-        $path = $this->getIdGenerator($class->idGenerator)->generate($document, $class, $this->dm);
+        $path = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
 
         $this->registerManaged($document, $path, null);
 

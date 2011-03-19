@@ -30,9 +30,10 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = new TestObj();
         $parent->file = new File();
-        $parent->file->setFileContent('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
+        $parent->path = '/functional/filetest';
+        $parent->file->setContentFromFile('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
 
-        $this->dm->persist($parent, '/functional/filetest');
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
