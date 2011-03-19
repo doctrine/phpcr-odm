@@ -140,6 +140,9 @@ class AnnotationDriver implements Driver
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Node) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapNode($mapping);
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Child) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $class->mapChild($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\ReferenceOne) {
                     $cascade = 0;
                     foreach ($fieldAnnot->cascade as $cascadeMode) {

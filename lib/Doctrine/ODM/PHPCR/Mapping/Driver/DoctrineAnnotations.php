@@ -82,3 +82,7 @@ final class ReferenceMany extends Reference
     public $cascade = array();
     public $mappedBy;
 }
+class Child extends Annotation
+{
+    public $name;
+}

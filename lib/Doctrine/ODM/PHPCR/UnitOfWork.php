@@ -141,8 +141,8 @@ class UnitOfWork
     {
         // TODO create a doctrine: namespace and register node types with doctrine:name
 
-        if ($node->hasProperty('_doctrine_alias')) {
-            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($node->getPropertyValue('_doctrine_alias'));
+        if ($node->hasProperty('phpcr:alias')) {
+            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($node->getPropertyValue('phpcr:alias'));
             $type = $metadata->name;
             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
                 $validate = true;
@@ -150,7 +150,7 @@ class UnitOfWork
         } else if (isset($documentName)) {
             $type = $documentName;
             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('_doctrine_alias', $documentName);
+                $node->setProperty('phpcr:alias', $documentName);
             }
         } else {
             throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
@@ -225,6 +225,14 @@ class UnitOfWork
 //                    $id,
 //                    $class->associationsMappings[$assocName]['mappedBy']
 //                );
+            }
+        }
+
+        foreach ($class->childMappings as $childName => $mapping) {
+            if ($node->hasNode($mapping['name'])) {
+                $documentState[$class->childMappings[$childName]['fieldName']] = $this->createDocument(null, $node->getNode($mapping['name']));
+            } else {
+                $documentState[$class->childMappings[$childName]['fieldName']] = null;
             }
         }
 
@@ -317,7 +325,7 @@ class UnitOfWork
                 break;
         }
 
-        $this->cascadeScheduleInsert($class, $document, $visited);
+        $this->cascadeScheduleInsert($class, $document, $visited, $path);
     }
 
     /**
@@ -326,7 +334,7 @@ class UnitOfWork
      * @param object $document
      * @param array $visited
      */
-    private function cascadeScheduleInsert($class, $document, &$visited)
+    private function cascadeScheduleInsert($class, $document, &$visited, $path)
     {
         foreach ($class->associationsMappings as $assocName => $assoc) {
             if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
@@ -343,6 +351,12 @@ class UnitOfWork
                         }
                     }
                 }
+            }
+        }
+        foreach ($class->childMappings as $childName => $mapping) {
+            $child = $class->reflFields[$childName]->getValue($document);
+            if ($child !== null && $this->getDocumentState($child) == self::STATE_NEW) {
+                $this->doScheduleInsert($child, $path.'/'.$mapping['name'], $visited);
             }
         }
     }
@@ -364,6 +378,28 @@ class UnitOfWork
         if ($this->evm->hasListeners(Event::preRemove)) {
             $this->evm->dispatchEvent(Event::preRemove, new Events\LifecycleEventArgs($document, $this->dm));
         }
+    }
+
+    private function purgeChildren($document)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        foreach ($class->childMappings as $childName => $mapping) {
+            $child = $class->reflFields[$childName]->getValue($document);
+            if ($child !== null) {
+                $this->purgeChildren($child);
+
+                $oid = spl_object_hash($child);
+                unset(
+                  $this->scheduledRemovals[$oid],
+                  $this->scheduledInserts[$oid],
+                  $this->scheduledUpdates[$oid]
+                );
+  
+                $this->removeFromIdentityMap($child);
+            }
+        }
+        
+
     }
 
     public function getDocumentState($document)
@@ -434,7 +470,7 @@ class UnitOfWork
 
             $changed = false;
             foreach ($actualData as $fieldName => $fieldValue) {
-                if (!isset($class->fieldMappings[$fieldName])) {
+                if (!isset($class->fieldMappings[$fieldName]) && !isset($class->childMappings[$fieldName])) {
                     continue;
                 }
                 if ($class->isCollectionValuedAssociation($fieldName)) {
@@ -517,6 +553,7 @@ class UnitOfWork
         foreach ($this->scheduledRemovals as $oid => $document) {
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
+            $this->purgeChildren($document);
         }
 
         foreach ($this->scheduledInserts as $oid => $document) {
@@ -529,6 +566,7 @@ class UnitOfWork
             $path = $this->documentPaths[$oid];
             $parentNode = $session->getNode(dirname($path) === '\\' ? '/' : dirname($path));
             $node = $parentNode->addNode(basename($path), $class->nodeType);
+            $node->addMixin('phpcr:managed');
 
             if ($class->isVersioned) {
                 $node->addMixin("mix:versionable");
@@ -542,7 +580,7 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($useDoctrineMetadata) {
-                $node->setProperty('_doctrine_alias', $class->alias, 'string');
+                $node->setProperty('phpcr:alias', $class->alias, 'string');
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -568,7 +606,7 @@ class UnitOfWork
             }
 
             if ($useDoctrineMetadata) {
-                $node->setProperty('_doctrine_alias', $class->alias);
+                $node->setProperty('phpcr:alias', $class->alias);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -600,8 +638,16 @@ class UnitOfWork
                             $data['doctrine_metadata']['associations'][$fieldName] = $ids;
                         }
                     }
+                       // child is set to null ... remove the node ...
+                } else if (isset($class->childMappings[$fieldName]) && $fieldValue === null) {
+                    if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
+                      $child = $node->getNode($class->childMappings[$fieldName]['name']);
+                      $childDocument = $this->createDocument(null, $child);
+                      $this->purgeChildren($childDocument);
+                      $child->remove(); 
+                    }
                 }
-            }
+            } 
 
             // respect the non mapped data, otherwise they will be deleted.
             if (isset($this->nonMappedData[$oid]) && $this->nonMappedData[$oid]) {
