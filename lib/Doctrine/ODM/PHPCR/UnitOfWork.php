@@ -642,13 +642,17 @@ class UnitOfWork
                             $data['doctrine_metadata']['associations'][$fieldName] = $ids;
                         }
                     }
-                       // child is set to null ... remove the node ...
-                } else if (isset($class->childMappings[$fieldName]) && $fieldValue === null) {
-                    if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
-                      $child = $node->getNode($class->childMappings[$fieldName]['name']);
-                      $childDocument = $this->createDocument(null, $child);
-                      $this->purgeChildren($childDocument);
-                      $child->remove(); 
+                // child is set to null ... remove the node ...
+                } else if (isset($class->childMappings[$fieldName])) {
+                    if ($fieldValue === null) {
+                      if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
+                        $child = $node->getNode($class->childMappings[$fieldName]['name']);
+                        $childDocument = $this->createDocument(null, $child);
+                        $this->purgeChildren($childDocument);
+                        $child->remove(); 
+                      }
+                    } else if (isset($this->originalData[$oid][$fieldName])) {
+                        throw new PHPCRException("No update of children allowed");
                     }
                 }
             } 

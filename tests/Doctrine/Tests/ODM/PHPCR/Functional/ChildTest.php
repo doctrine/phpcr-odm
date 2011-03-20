@@ -55,6 +55,31 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
     }
 
+    public function testCreateAddChildLater()
+    {
+        $parent = new TestObj();
+        $parent->name = 'Parent';
+        $parent->path = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
+
+      $parent = $this->dm->find($this->type, '/functional/childtest');
+        $parent->child = new ChildTestObj();
+        $parent->child->name = 'Child';
+        $this->dm->persist($parent);
+        
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
+        $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
+
+    }
+
     public function testUpdate()
     {
         $parent = new TestObj();
@@ -168,11 +193,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $newChild = new ChildTestObj();
         $newChild->name = 'new name';
         $parent->child = $newChild;
+        
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
+
         $this->dm->flush();
-        $this->dm->clear();
       
-        $parent = $this->dm->find($this->type, '/functional/childtest');
-        $this->assertEquals($parent->child->name, 'new name');
     }
 }
 
