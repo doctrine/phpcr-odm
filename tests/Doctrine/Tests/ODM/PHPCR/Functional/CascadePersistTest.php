@@ -17,12 +17,13 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
     public function setUp()
     {
         $this->dm = $this->createDocumentManager();
-
+/*
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
         $class->associationsMappings['groups']['cascade'] = ClassMetadata::CASCADE_PERSIST;
 
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsArticle');
         $class->associationsMappings['user']['cascade'] = ClassMetadata::CASCADE_PERSIST;
+*/
     }
 
     public function testCascadePersistCollection()
