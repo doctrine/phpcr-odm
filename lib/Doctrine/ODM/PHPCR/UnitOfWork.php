@@ -538,6 +538,7 @@ class UnitOfWork
     /**
      * Flush Operation - Write all dirty entries to the PHPCR.
      *
+     * @throws PHPCRException if it detects that a existing child should be replaced
      * @return void
      */
     public function flush()
@@ -652,6 +653,8 @@ class UnitOfWork
                         $child->remove(); 
                       }
                     } else if (isset($this->originalData[$oid][$fieldName])) {
+                        // this is currently not implemented
+                        // the old child needs to be removed and the new child might be moved
                         throw new PHPCRException("No update of children allowed");
                     }
                 }

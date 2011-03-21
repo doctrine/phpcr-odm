@@ -19,5 +19,3 @@ class Folder
     /** @phpcr:String(name="jcr:createdBy") */
     protected $createdBy;
 }
-
-

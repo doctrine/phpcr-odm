@@ -67,7 +67,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
 
-      $parent = $this->dm->find($this->type, '/functional/childtest');
+        $parent = $this->dm->find($this->type, '/functional/childtest');
         $parent->child = new ChildTestObj();
         $parent->child->name = 'Child';
         $this->dm->persist($parent);
@@ -102,7 +102,10 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child changed');
     }
-
+    
+    /**
+     * Remove the parent node, even when children are modified.
+     */
     public function testRemove1()
     {
         $parent = new TestObj();
@@ -117,7 +120,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $parent = $this->dm->find($this->type, '/functional/childtest');
-        //$parent->child->name = 'Child changed';
+        $parent->child->name = 'Child changed';
 
         $this->dm->remove($parent); 
         $this->dm->flush();
@@ -126,6 +129,9 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent);
     }
 
+    /**
+     * Remove the child, check that parent->child is not set afterwards
+     */
     public function testRemove2()
     {
         $parent = new TestObj();

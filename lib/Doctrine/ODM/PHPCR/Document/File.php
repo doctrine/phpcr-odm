@@ -22,6 +22,12 @@ class File
     /** @phpcr:Child(name="jcr:content") */
     protected $content;
 
+    /**
+     * Set the content for this file from the given filename.
+     * Calls file_get_contents with the given filename
+     *
+     * @param string $filename name of the file which contents should be used
+     */
     public function setContentFromFile($filename)
     {
         if ($this->content === null)
