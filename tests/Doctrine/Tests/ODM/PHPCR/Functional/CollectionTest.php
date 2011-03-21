@@ -38,8 +38,9 @@ class CollectionTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $group1 = new \Doctrine\Tests\Models\CMS\CmsGroup();
         $group1->values = array('foo', 'bar');
+        $group1->path = '/functional/group';
 
-        $this->dm->persist($group1, '/functional/group');
+        $this->dm->persist($group1);
         $this->dm->flush();
 
         $this->assertType('Doctrine\ODM\PHPCR\PersistentCollection', $group1->values);

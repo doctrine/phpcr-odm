@@ -21,8 +21,9 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->name = "beberlei";
         $user->username = "beberlei";
         $user->status = "active";
+        $user->path = '/functional/userx';
 
-        $this->dm->persist($user, '/functional/userx');
+        $this->dm->persist($user);
 
         $this->assertTrue($this->listener->prePersist);
 

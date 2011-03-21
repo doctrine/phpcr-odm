@@ -364,9 +364,8 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function mapField(array $mapping)
     {
-        $mapping = $this->validateAndCompleteFieldMapping($mapping);
-
         if (isset($mapping['id']) && $mapping['id'] === true) {
+            $mapping['type'] = 'string';
             $this->mapPath($mapping);
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
@@ -379,6 +378,8 @@ class ClassMetadataInfo implements ClassMetadata
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }
+
+        $mapping = $this->validateAndCompleteFieldMapping($mapping);
 
         if (isset($mapping['reference']) && $mapping['type'] === 'one') {
             $mapping['association'] = self::TO_ONE;

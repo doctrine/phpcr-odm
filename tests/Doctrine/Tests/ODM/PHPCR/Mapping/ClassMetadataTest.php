@@ -24,7 +24,18 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $cm->mapField(array('fieldName' => 'id', 'id' => true));
 
         $this->assertTrue(isset($cm->fieldMappings['id']));
-        $this->assertEquals(array('id' => true, 'name' => 'jcr:uuid', 'type' => 'string', 'fieldName' => 'id', 'multivalue' => false), $cm->fieldMappings['id']);
+        $this->assertEquals(
+            array(
+                'id' => true,
+                'name' => 'id',
+                'type' => 'string',
+                'isInverseSide' => null,
+                'isOwningSide' => true,
+                'fieldName' => 'id',
+                'multivalue' => false
+            )
+            , $cm->fieldMappings['id']
+        );
 
         $this->assertEquals('id', $cm->identifier);
 
@@ -42,8 +53,28 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $this->assertTrue(isset($cm->fieldMappings['username']));
         $this->assertTrue(isset($cm->fieldMappings['created']));
 
-        $this->assertEquals(array('type' => 'string', 'name' => 'username', 'fieldName' => 'username', 'multivalue' => false), $cm->fieldMappings['username']);
-        $this->assertEquals(array('type' => 'datetime', 'name' => 'created', 'fieldName' => 'created', 'multivalue' => false), $cm->fieldMappings['created']);
+        $this->assertEquals(
+            array(
+                'name' => 'username',
+                'type' => 'string',
+                'isInverseSide' => null,
+                'isOwningSide' => true,
+                'fieldName' => 'username',
+                'multivalue' => false
+            ),
+            $cm->fieldMappings['username']
+        );
+        $this->assertEquals(
+            array(
+                'name' => 'created',
+                'type' => 'datetime',
+                'isInverseSide' => null,
+                'isOwningSide' => true,
+                'fieldName' => 'created',
+                'multivalue' => false
+            ),
+            $cm->fieldMappings['created']
+        );
 
         return $cm;
     }

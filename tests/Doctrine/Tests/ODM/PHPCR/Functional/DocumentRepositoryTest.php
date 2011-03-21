@@ -28,15 +28,17 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $user1->username = "beberlei";
         $user1->status = "active";
         $user1->name = "Benjamin";
+        $user1->path = '/functional/user1';
 
         $user2 = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user2->username = "lsmith";
         $user2->status = "active";
         $user2->name = "Lukas";
+        $user2->path = '/functional/user2';
 
         $this->dm = $this->createDocumentManager();
-        $this->dm->persist($user1, '/functional/user1');
-        $this->dm->persist($user2, '/functional/user2');
+        $this->dm->persist($user1);
+        $this->dm->persist($user2);
         $this->dm->flush();
 
         $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->path, $user2->path));

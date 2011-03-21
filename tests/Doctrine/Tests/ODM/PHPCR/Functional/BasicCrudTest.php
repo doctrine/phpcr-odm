@@ -44,8 +44,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->username = "test";
         $user->numbers = array(1, 2, 3);
+        $user->path = '/functional/test';
 
-        $this->dm->persist($user, '/functional/test');
+        $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -60,8 +61,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = new User();
         $user->numbers = array(1);
+        $user->path = '/functional/test';
 
-        $this->dm->persist($user, '/functional/test');
+        $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -108,16 +110,18 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->username = "test";
         $user->numbers = array(1, 2, 3);
+        $user->path = '/functional/user2';
 
-        $this->dm->persist($user, '/functional/user2');
+        $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
         $userNew = $this->dm->find($this->type, '/functional/user2');
         $userNew->username = "test2";
         $userNew->numbers = array(4, 5, 6);
+        $userNew->path = '/functional/user2';
 
-        $this->dm->persist($userNew, '/functional/user2');
+        $this->dm->persist($userNew);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -148,12 +152,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user2 = new User();
         $user2->username = "test2";
+        $user2->path = '/functional/user2222';
 
         $user3 = new User();
         $user3->username = "test3";
+        $user3->path = '/functional/user3333';
 
-        $this->dm->persist($user2, '/functional/user2222');
-        $this->dm->persist($user3, '/functional/user3333');
+        $this->dm->persist($user2);
+        $this->dm->persist($user3);
         $this->dm->flush();
         $this->dm->clear();
 

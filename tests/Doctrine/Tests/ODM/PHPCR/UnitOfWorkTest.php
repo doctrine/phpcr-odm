@@ -68,8 +68,9 @@ class UnitOfWorkTest extends PHPCRTestCase
         $object = new UoWUser();
         $object->id = "1";
         $object->username = "bar";
+        $object->path = '/user';
 
-        $this->uow->scheduleInsert($object, '/user');
+        $this->uow->scheduleInsert($object);
     }
 
     /**
@@ -81,12 +82,13 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $object = new UoWUser();
         $object->username = "bar";
+        $object->path = '/path';
 
         $this->uow->scheduleRemove($object);
 
         $this->assertEquals(UnitOfWork::STATE_REMOVED, $this->uow->getDocumentState($object));
 
-        $this->uow->scheduleInsert($object, '/path');
+        $this->uow->scheduleInsert($object);
 
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($object));
     }
