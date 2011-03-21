@@ -73,21 +73,21 @@ You write your own document classes that will be mapped to and from the phpcr da
 
 namespace Acme\SampleBundle\Document;
 
-/**
-* @phpcr:Document(alias="mydocument")
-*/
-class MyDocument
-{
     /**
-     * @phpcr:String()
+     * @phpcr:Document(alias="mydocument")
      */
-    public $title;
+    class MyDocument
+    {
+        /**
+         * @phpcr:String()
+         */
+        public $title;
 
-    /**
-     * @phpcr:String()
-     */
-    public $content;
-}
+        /**
+         * @phpcr:String()
+         */
+        public $content;
+    }
 
 Available annotations are
 <table>
