@@ -6,18 +6,18 @@ Current Status
 
 * (very) basic CRUD is implemented
 * metadata reading implemented for annotations
+* there is a symfony2 bundle available in symfony core.
 
 Todo
 ----
 
 * fix the tests that fail
 * figure out how we can do relations in a sane way
-* implement Sf2 bundle
 
 Notes
 -----
 
-* The type of the document is stored in each node (stored as _doctrine_alias for the moment)
+* The type of the document is stored in each repository node (stored as _doctrine_alias for the moment)
 
 Getting Started
 ---------------
@@ -64,3 +64,46 @@ Getting Started
 
         // store all changes, insertions, etc.
         $dm->flush();
+
+
+Document Classes
+----------------
+
+You write your own document classes that will be mapped to and from the phpcr database by doctrine. The documents are usually simple
+
+namespace Acme\SampleBundle\Document;
+
+/**
+* @phpcr:Document(alias="mydocument")
+*/
+class MyDocument
+{
+    /**
+     * @phpcr:String()
+     */
+    public $title;
+
+    /**
+     * @phpcr:String()
+     */
+    public $content;
+}
+
+Available annotations are
+<table>
+<tr><td> @Path:       </td><td>The phpcr path to this node. </td></tr>
+<tr><td> @Node:       </td><td>The phpcr NodeInterface instance for direct access. </td></tr>
+<tr><td> @Id:         </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
+<tr><td> @Version:    </td><td>The version of this node, for versioned nodes. </td></tr>
+<tr><td> @Property:   </td><td>Any property of the node, without specified type. </td></tr>
+<tr><td> @Boolean,    <br />
+         @Int,        <br />
+         @Long,       <br />
+         @Float,      <br />
+         @String,     <br />
+         @Date,       <br />
+         @Binary,     <br />
+         @ArrayField: </td><td>Typed property</td></tr>
+</table>
+
+TODO: References and child / embed annotations.
