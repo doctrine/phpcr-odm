@@ -71,8 +71,8 @@ Document Classes
 
 You write your own document classes that will be mapped to and from the phpcr database by doctrine. The documents are usually simple
 
-namespace Acme\SampleBundle\Document;
-
+    <?php
+    namespace Acme\SampleBundle\Document;
     /**
      * @phpcr:Document(alias="mydocument")
      */
