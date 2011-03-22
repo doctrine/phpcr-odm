@@ -384,6 +384,11 @@ class UnitOfWork
         }
     }
 
+    /**
+     * recurse over all known child documents to remove them form this unit of work
+     * as their parent gets removed from phpcr. If you do not, flush will try to create 
+     + orphaned nodes if these documents are modified which leads to a PHPCR exception
+     */
     private function purgeChildren($document)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -655,7 +660,7 @@ class UnitOfWork
                     } else if (isset($this->originalData[$oid][$fieldName])) {
                         // this is currently not implemented
                         // the old child needs to be removed and the new child might be moved
-                        throw new PHPCRException("No update of children allowed");
+                        throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");
                     }
                 }
             } 
