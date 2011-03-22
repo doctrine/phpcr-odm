@@ -161,14 +161,15 @@ class UnitOfWork
         $nonMappedData = array();
         $id = $node->getPath();
 
-        foreach ($node->getProperties() as $name => $property) {
-            if (isset($class->fieldMappings[$name])) {
-                if ($class->fieldMappings[$name]['multivalue']) {
+        foreach ($class->fieldMappings as $fieldName => $mapping) {
+            if ($node->hasProperty($mapping['name'])) {
+                $property = $node->getProperty($mapping['name']);
+                if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
                     // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
-                    $documentState[$class->fieldMappings[$name]['fieldName']] = new ArrayCollection((array) $property->getNativeValue());
+                    $documentState[$fieldName] = new ArrayCollection((array) $property->getNativeValue());
                 } else {
-                    $documentState[$class->fieldMappings[$name]['fieldName']] = $property->getNativeValue();
+                    $documentState[$fieldName] = $property->getNativeValue();
                 }
             }
 //            } else if ($jsonName == 'doctrine_metadata') {
