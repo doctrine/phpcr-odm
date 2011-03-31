@@ -99,6 +99,13 @@ class XmlDriver extends AbstractFileDriver
                 $this->addReferenceMapping($class, $reference, 'one');
             }
         }
+
+        if (isset($xmlRoot->{'lifecycle-callbacks'})) {
+            foreach ($xmlRoot->{'lifecycle-callbacks'}->{'lifecycle-callback'} as $lifecycleCallback) {
+                $class->addLifecycleCallback((string) $lifecycleCallback['method'], constant('Doctrine\ODM\PHPCR\Event::' . (string) $lifecycleCallback['type']));
+            }
+        }
+
     }
 
     private function addPropertyMapping(ClassMetadata $class, $mapping)
