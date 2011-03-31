@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 
-class ClassMetadataFactoryTest extends \PHPUnit_Framework_Testcase
+class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

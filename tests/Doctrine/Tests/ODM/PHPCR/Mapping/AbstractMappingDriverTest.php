@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
-abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_Testcase
+abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
     abstract protected function loadDriver();
     /**

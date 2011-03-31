@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
-class ClassMetadataTest extends \PHPUnit_Framework_Testcase
+class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
     public function testClassName()
     {
