@@ -53,13 +53,6 @@ class ClassMetadataInfo implements ClassMetadata
     const MANY_TO_ONE = 4;
     const MANY_TO_MANY = 8;
 
-    const CASCADE_PERSIST = 1;
-    const CASCADE_REMOVE  = 2;
-    const CASCADE_MERGE   = 4;
-    const CASCADE_DETACH  = 8;
-    const CASCADE_REFRESH = 16;
-    const CASCADE_ALL     = 31;
-
     /**
      * means the repository will need to be able to generate the id.
      */
