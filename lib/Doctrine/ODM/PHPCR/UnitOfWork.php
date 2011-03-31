@@ -207,9 +207,6 @@ class UnitOfWork
         if ($class->node) {
             $documentState[$class->node] = $node;
         }
-        if ($class->identifier) {
-            $documentState[$class->identifier] = $node->getIdentifier();
-        }
         if ($class->versionField) {
             $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getNativeValue();
         }

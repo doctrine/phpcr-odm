@@ -33,7 +33,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = $this->dm->find($this->type, '/functional/user');
 
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('/functional/user', $user->path);
         $this->assertEquals('lsmith', $user->username);
         $this->assertEquals(array(3, 1, 2), $user->numbers->toArray());
@@ -184,11 +184,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(false);
         $user = $this->dm->find($this->type.'2', '/functional/user');
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(true);
         $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
 
         $this->setExpectedException('InvalidArgumentException');
         $user = $this->dm->find($this->type.'2', '/functional/user');
@@ -221,7 +221,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(201, $resp->status);
 
         $user = $this->dm->find($this->type, 2);
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('beberlei', $user->username);
 
         $user->username = 'beberlei2';
@@ -234,7 +234,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         ksort($resp->body);
         ksort($data);
-        unset($resp->body['_rev']);
 
         $this->assertEquals($data, $resp->body);
     }

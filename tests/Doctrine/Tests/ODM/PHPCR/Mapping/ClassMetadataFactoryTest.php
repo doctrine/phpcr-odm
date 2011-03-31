@@ -43,7 +43,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_Testcase
 
         $metadata = $cmf->getAllMetadata();
 
-        $this->assertType('array', $metadata);
+        $this->assertTrue(is_array($metadata));
     }
 
     public function testCacheDriver()

@@ -17,7 +17,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($config);
 
-        $this->assertType('Doctrine\ODM\PHPCR\DocumentManager', $dm);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentManager', $dm);
         $this->assertSame($config, $dm->getConfiguration());
     }
 
@@ -28,7 +28,7 @@ class DocumentManagerTest extends PHPCRTestCase
     {
         $dm = \Doctrine\ODM\PHPCR\DocumentManager::create();
 
-        $this->assertType('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory', $dm->getMetadataFactory());
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory', $dm->getMetadataFactory());
     }
 
     /**
@@ -41,7 +41,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $cmf = $dm->getMetadataFactory();
         $cmf->setMetadataFor('stdClass', new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass'));
 
-        $this->assertType('Doctrine\ODM\PHPCR\Mapping\ClassMetadata', $dm->getClassMetadata('stdClass'));
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadata', $dm->getClassMetadata('stdClass'));
     }
 
     /**
@@ -73,10 +73,10 @@ class DocumentManagerTest extends PHPCRTestCase
             ->method('getClassMetadata')
             ->will($this->onConsecutiveCalls($metadata, $metadata2));
 
-        $this->assertType('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
-        $this->assertType('stdClass', $dm->getRepository('foo2'));
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
+        $this->assertInstanceOf('stdClass', $dm->getRepository('foo2'));
 
         // call again to test the cache
-        $this->assertType('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
     }
 }

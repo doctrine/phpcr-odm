@@ -61,7 +61,7 @@ class ProxyFactoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRTestCase
 
         $proxy = $this->proxyFactory->getProxy($modelClass, $query['id'], $query['documentName']);
 
-        $this->assertType('Doctrine\ODM\PHPCR\Proxy\Proxy', $proxy);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Proxy\Proxy', $proxy);
 
         $proxy->getDescription();
     }
