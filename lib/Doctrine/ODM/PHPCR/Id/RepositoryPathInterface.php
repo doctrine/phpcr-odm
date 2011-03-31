@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
-interface RepositoryPathGenerator
+interface RepositoryPathInterface
 {
     /**
      * @param object $document
