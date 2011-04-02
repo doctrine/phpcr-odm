@@ -82,3 +82,15 @@ final class ReferenceMany extends Reference
     public $cascade = array();
     public $mappedBy;
 }
+
+/* Annotations for lifecycle callbacks */
+final class HasLifecycleCallbacks extends Annotation {}
+final class PrePersist extends Annotation {}
+final class PostPersist extends Annotation {}
+final class PreUpdate extends Annotation {}
+final class PostUpdate extends Annotation {}
+final class PreRemove extends Annotation {}
+final class PostRemove extends Annotation {}
+final class PreLoad extends Annotation {}
+final class PostLoad extends Annotation {}
+

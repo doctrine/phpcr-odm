@@ -97,6 +97,14 @@ class YamlDriver extends AbstractFileDriver
                 $this->addMappingFromReference($class, $fieldName, $reference, 'many');
             }
         }
+        if (isset($element['lifecycleCallbacks'])) {
+            foreach ($element['lifecycleCallbacks'] as $type => $methods) {
+                foreach ($methods as $method) {
+                    $class->addLifecycleCallback($method, constant('Doctrine\ODM\PHPCR\Event::' . $type));
+                }
+            }
+        }
+
     }
 
     private function addPropertyMapping(ClassMetadata $class, $mapping)

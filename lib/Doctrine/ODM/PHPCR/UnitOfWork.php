@@ -258,6 +258,10 @@ class UnitOfWork
             }
         }
 
+        // Invoke the postLoad lifecycle callbacks and listeners
+        if (isset($metadata->lifecycleCallbacks[Event::postLoad])) {
+            $metadata->invokeLifecycleCallbacks(Event::postLoad, $document);
+        }
         if ($this->evm->hasListeners(Event::postLoad)) {
             $this->evm->dispatchEvent(Event::postLoad, new Events\LifecycleEventArgs($document, $this->dm));
         }
@@ -358,6 +362,10 @@ class UnitOfWork
         $this->scheduledRemovals[$oid] = $document;
         $this->documentState[$oid] = self::STATE_REMOVED;
 
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if (isset($class->lifecycleCallbacks[Event::preRemove])) {
+            $class->invokeLifecycleCallbacks(Event::preRemove, $document);
+        }
         if ($this->evm->hasListeners(Event::preRemove)) {
             $this->evm->dispatchEvent(Event::preRemove, new Events\LifecycleEventArgs($document, $this->dm));
         }
@@ -487,6 +495,9 @@ class UnitOfWork
 
         $this->registerManaged($document, $path, null);
 
+        if (isset($class->lifecycleCallbacks[Event::prePersist])) {
+            $class->invokeLifecycleCallbacks(Event::prePersist, $document);
+        }
         if ($this->evm->hasListeners(Event::prePersist)) {
             $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
         }
@@ -519,6 +530,10 @@ class UnitOfWork
         foreach ($this->scheduledInserts as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
+            if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::preUpdate, $document); 
+                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            }
             if ($this->evm->hasListeners(Event::preUpdate)) {
                 $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
@@ -559,6 +574,10 @@ class UnitOfWork
             $class = $this->dm->getClassMetadata(get_class($document));
             $node = $this->nodesMap[$oid];
 
+            if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::preUpdate, $document); 
+                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            }
             if ($this->evm->hasListeners(Event::preUpdate)) {
                 $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
@@ -613,21 +632,7 @@ class UnitOfWork
 
         $session->save();
 
-        foreach ($this->scheduledRemovals as $oid => $document) {
-            if ($this->evm->hasListeners(Event::postRemove)) {
-                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
-            }
-        }
-
-        foreach (array('scheduledInserts', 'scheduledUpdates') as $var) {
-            foreach ($this->$var as $oid => $document) {
-                $class = $this->dm->getClassMetadata(get_class($document));
-
-                if ($this->evm->hasListeners(Event::postUpdate)) {
-                    $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
-                }
-            }
-        }
+        $this->handlePostFlushEvents();
 
         foreach ($this->visitedCollections as $col) {
             $col->takeSnapshot();
@@ -637,6 +642,45 @@ class UnitOfWork
         $this->scheduledRemovals =
         $this->scheduledInserts =
         $this->visitedCollections = array();
+    }
+
+    /**
+     * Invoke / dispatch events as necessary after a flush operation
+     */
+    protected function handlePostFlushEvents()
+    {
+        foreach ($this->scheduledRemovals as $oid => $document) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($class->lifecycleCallbacks[Event::postRemove])) {
+                $class->invokeLifecycleCallbacks(Event::postRemove, $document);
+            }
+            if ($this->evm->hasListeners(Event::postRemove)) {
+                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
+
+        foreach ($this->scheduledInserts as $oid => $document) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($class->lifecycleCallbacks[Event::postPersist])) {
+                $class->invokeLifecycleCallbacks(Event::postPersist, $document);
+            }
+            if ($this->evm->hasListeners(Event::postPersist)) {
+                $this->evm->dispatchEvent(Event::postPersist, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
+
+        foreach ($this->scheduledUpdates as $oid => $document) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
+            }
+            if ($this->evm->hasListeners(Event::postUpdate)) {
+                $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
     }
 
     /**

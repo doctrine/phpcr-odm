@@ -98,6 +98,10 @@ class ClassMetadata extends ClassMetadataInfo
             $serialized[] = 'versionField';
         }
 
+        if ($this->lifecycleCallbacks) {
+            $serialized[] = 'lifecycleCallbacks';
+        }
+
         return $serialized;
     }
 
