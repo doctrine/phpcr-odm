@@ -10,9 +10,8 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
             $this->markTestSkipped('Performance-Testing with xdebug enabled makes no sense.');
         }
 
-        $n = 3000;
+        $n = 30;
         $dm = $this->createDocumentManager();
-        $dm->getConfiguration()->setUUIDGenerationBufferSize($n);
 
         $s = microtime(true);
 
@@ -21,6 +20,7 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
             $user->name = "Benjamin";
             $user->username = "beberlei";
             $user->status = "active";
+            $user->path = "/functional/node$i";
 
             $dm->persist($user);
         }
