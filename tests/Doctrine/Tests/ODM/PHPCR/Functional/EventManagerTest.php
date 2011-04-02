@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\Common\EventArgs;
+
 class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     private $listener;
@@ -12,7 +14,7 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->listener = new TestListener();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array('prePersist', 'preUpdate', 'postUpdate', 'preRemove', 'postRemove', 'onFlush'), $this->listener);
+        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preRemove', 'postRemove', 'onFlush'), $this->listener);
     }
 
     public function testTriggerEvents()
@@ -30,10 +32,18 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertTrue($this->listener->onFlush);
-        $this->assertTrue($this->listener->preUpdate);
-        $this->assertTrue($this->listener->postUpdate);
+        $this->assertFalse($this->listener->preUpdate);
+        $this->assertFalse($this->listener->postUpdate);
+        $this->assertTrue($this->listener->postPersist);
         $this->assertFalse($this->listener->preRemove);
         $this->assertFalse($this->listener->postRemove);
+
+
+        $user->status = "changed";
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->assertTrue($this->listener->preUpdate);
+        $this->assertTrue($this->listener->postUpdate);
 
         $this->dm->remove($user);
 
@@ -51,38 +61,44 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 class TestListener
 {
     public $prePersist = false;
+    public $postPersist = false;
     public $preUpdate = false;
     public $postUpdate = false;
     public $preRemove = false;
     public $postRemove = false;
     public $onFlush = false;
 
-    public function prePersist()
+    public function prePersist(EventArgs $e)
     {
         $this->prePersist = true;
     }
 
-    public function preUpdate()
+    public function postPersist(EventArgs $e)
+    {
+        $this->postPersist = true;
+    }
+
+    public function preUpdate(EventArgs $e)
     {
         $this->preUpdate = true;
     }
 
-    public function postUpdate()
+    public function postUpdate(EventArgs $e)
     {
         $this->postUpdate = true;
     }
 
-    public function preRemove()
+    public function preRemove(EventArgs $e)
     {
         $this->preRemove = true;
     }
 
-    public function postRemove()
+    public function postRemove(EventArgs $e)
     {
         $this->postRemove = true;
     }
 
-    public function onFlush()
+    public function onFlush(EventArgs $e)
     {
         $this->onFlush = true;
     }

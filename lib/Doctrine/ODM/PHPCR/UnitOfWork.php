@@ -530,12 +530,14 @@ class UnitOfWork
         foreach ($this->scheduledInserts as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
-            if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
-                $class->invokeLifecycleCallbacks(Event::preUpdate, $document); 
+            // FIXME: this leads to prePersist being called twice, because its also invoked in persistNew
+            // which is the right place? mongo does this differently.
+            if (isset($class->lifecycleCallbacks[Event::prePersist])) {
+                $class->invokeLifecycleCallbacks(Event::prePersist, $document);
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
-            if ($this->evm->hasListeners(Event::preUpdate)) {
-                $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+            if ($this->evm->hasListeners(Event::prePersist)) {
+                $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
             $path = $this->documentPaths[$oid];
@@ -575,7 +577,7 @@ class UnitOfWork
             $node = $this->nodesMap[$oid];
 
             if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
-                $class->invokeLifecycleCallbacks(Event::preUpdate, $document); 
+                $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
             if ($this->evm->hasListeners(Event::preUpdate)) {
