@@ -23,7 +23,7 @@ abstract class IdGenerator
     static public function create($generatorType)
     {
         switch ($generatorType) {
-            case ClassMetadata::GENERATOR_TYPE_NONE:
+            case ClassMetadata::GENERATOR_TYPE_ASSIGNED:
                 $instance = new AssignedIdGenerator();
                 break;
             case ClassMetadata::GENERATOR_TYPE_REPOSITORY:
