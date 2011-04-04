@@ -62,14 +62,14 @@ class ClassMetadataInfo implements ClassMetadata
      * NONE means Doctrine will not generate any id for us and you are responsible for manually
      * assigning an id.
      */
-    const GENERATOR_TYPE_NONE = 2;
+    const GENERATOR_TYPE_ASSIGNED = 2;
 
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
      *
      * @var AbstractIdGenerator
      */
-    public $idGenerator = self::GENERATOR_TYPE_NONE;
+    public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
 
     /**
      * READ-ONLY: The field name of the document identifier.
