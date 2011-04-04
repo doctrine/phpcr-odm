@@ -11,11 +11,8 @@ final class Document extends Annotation
     public $repositoryClass;
     public $isVersioned;
 }
-final class MappedSuperclass extends Annotation {}
-
-final class Id extends Annotation
+final class MappedSuperclass extends Annotation
 {
-    public $id = true;
 }
 final class Node extends Annotation
 {
@@ -25,6 +22,12 @@ class Property extends Annotation
     public $name;
     public $type = 'undefined';
     public $multivalue = false;
+}
+final class Id extends Property
+{
+    public $id = true;
+    public $type = 'string';
+    public $strategy = 'assigned';
 }
 final class Uuid extends Property
 {
