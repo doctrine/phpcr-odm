@@ -104,13 +104,6 @@ class ClassMetadataInfo implements ClassMetadata
     public $nodeType;
 
     /**
-     * READ-ONLY: The field name of the path
-     *
-     * @var string
-     */
-    public $path;
-
-    /**
      * READ-ONLY: The field name of the node
      *
      * @var string
@@ -440,7 +433,6 @@ class ClassMetadataInfo implements ClassMetadata
     {
         if (isset($mapping['id']) && $mapping['id'] === true) {
             $mapping['type'] = 'string';
-            $this->mapPath($mapping);
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
                 $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
@@ -484,13 +476,6 @@ class ClassMetadataInfo implements ClassMetadata
         }
 
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
-    }
-
-    public function mapPath(array $mapping)
-    {
-        $this->validateAndCompleteFieldMapping($mapping, false);
-
-        $this->path = $mapping['fieldName'];
     }
 
     public function mapNode(array $mapping)
@@ -584,7 +569,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function getIdentifierValue($document)
     {
-        return (string) $this->reflFields[$this->identifier]->getValue($document);
+        return (string) $this->getFieldValue($document, $this->identifier);
     }
 
     /**
@@ -607,7 +592,11 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function getFieldValue($document, $field)
     {
-        return $this->reflFields[$field]->getValue($document);
+        if (isset($this->reflFields[$field])) {
+            return $this->reflFields[$field]->getValue($document);
+        }
+
+        return null;
     }
 
     /**
@@ -662,7 +651,6 @@ class ClassMetadataInfo implements ClassMetadata
         $serialized = array(
             'fieldMappings',
             'identifier',
-            'path',
             'node',
             'nodeType',
             'alias',

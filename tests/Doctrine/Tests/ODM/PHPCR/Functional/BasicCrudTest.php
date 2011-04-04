@@ -34,7 +34,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find($this->type, '/functional/user');
 
         $this->assertInstanceOf($this->type, $user);
-        $this->assertEquals('/functional/user', $user->path);
+        $this->assertEquals('/functional/user', $user->id);
+
         $this->assertEquals('lsmith', $user->username);
         $this->assertEquals(array(3, 1, 2), $user->numbers->toArray());
     }
@@ -44,7 +45,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->username = "test";
         $user->numbers = array(1, 2, 3);
-        $user->path = '/functional/test';
+        $user->id = '/functional/test';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -61,7 +62,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = new User();
         $user->numbers = array(1);
-        $user->path = '/functional/test';
+        $user->id = '/functional/test';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -110,7 +111,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->username = "test";
         $user->numbers = array(1, 2, 3);
-        $user->path = '/functional/user2';
+        $user->id = '/functional/user2';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -119,7 +120,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $userNew = $this->dm->find($this->type, '/functional/user2');
         $userNew->username = "test2";
         $userNew->numbers = array(4, 5, 6);
-        $userNew->path = '/functional/user2';
+        $userNew->id = '/functional/user2';
 
         $this->dm->persist($userNew);
         $this->dm->flush();
@@ -152,11 +153,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user2 = new User();
         $user2->username = "test2";
-        $user2->path = '/functional/user2222';
+        $user2->id = '/functional/user2222';
 
         $user3 = new User();
         $user3->username = "test3";
-        $user3->path = '/functional/user3333';
+        $user3->id = '/functional/user3333';
 
         $this->dm->persist($user2);
         $this->dm->persist($user3);
@@ -167,11 +168,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $pUser2 = $this->dm->find($this->type, '/functional/user2222');
         $pUser3 = $this->dm->find($this->type, '/functional/user3333');
 
-        $this->assertEquals('/functional/user', $pUser1->path);
+        $this->assertEquals('/functional/user', $pUser1->id);
         $this->assertEquals('new-name', $pUser1->username);
-        $this->assertEquals('/functional/user2222', $pUser2->path);
+        $this->assertEquals('/functional/user2222', $pUser2->id);
         $this->assertEquals('test2', $pUser2->username);
-        $this->assertEquals('/functional/user3333', $pUser3->path);
+        $this->assertEquals('/functional/user3333', $pUser3->id);
         $this->assertEquals('test3', $pUser3->username);
     }
 
@@ -244,8 +245,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class User
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /** @String(name="username") */
@@ -259,8 +260,8 @@ class User
  */
 class User2
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @String(name="username") */
     public $username;
 }

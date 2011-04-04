@@ -128,24 +128,24 @@ class DocumentManager
      * Will return null if the document wasn't found.
      *
      * @param string $documentName
-     * @param string $path
+     * @param string $id
      * @return object
      */
-    public function find($documentName, $path)
+    public function find($documentName, $id)
     {
-        return $this->getRepository($documentName)->find($path);
+        return $this->getRepository($documentName)->find($id);
     }
 
     /**
-     * Finds many documents by path.
+     * Finds many documents by id.
      *
      * @param string $documentName
-     * @param array $paths
+     * @param array $ids
      * @return object
      */
-    public function findMany($documentName, array $paths)
+    public function findMany($documentName, array $ids)
     {
-        return $this->getRepository($documentName)->findMany($paths);
+        return $this->getRepository($documentName)->findMany($ids);
     }
 
     /**
@@ -188,22 +188,22 @@ class DocumentManager
     }
 
     /**
-     * Gets a reference to the entity identified by the given type and path
+     * Gets a reference to the entity identified by the given type and id
      * without actually loading it, if the entity is not yet loaded.
      *
      * @param string $documentName The name of the entity type.
-     * @param mixed $path The entity path.
+     * @param string $id The entity id.
      * @return object The entity reference.
      */
-    public function getReference($documentName, $path)
+    public function getReference($documentName, $id)
     {
         // Check identity map first, if its already in there just return it.
-        if ($document = $this->unitOfWork->tryGetByPath($path)) {
+        if ($document = $this->unitOfWork->tryGetById($id)) {
             return $document;
         }
         $class = $this->metadataFactory->getMetadataFor(ltrim($documentName, '\\'));
-        $document = $this->proxyFactory->getProxy($class->name, $path);
-        $this->unitOfWork->registerManaged($document, $path, null);
+        $document = $this->proxyFactory->getProxy($class->name, $id);
+        $this->unitOfWork->registerManaged($document, $id, null);
 
         return $document;
     }

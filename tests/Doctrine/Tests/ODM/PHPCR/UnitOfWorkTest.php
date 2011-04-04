@@ -25,7 +25,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->uow = new UnitOfWork($this->dm);
 
         $metadata = new ClassMetadata($this->type);
-        $metadata->mapField(array('fieldName' => 'path', 'id' => true));
+        $metadata->mapField(array('fieldName' => 'id', 'id' => true));
         $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
 
         $cmf = $this->dm->getMetadataFactory();
@@ -36,7 +36,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
     }
 
-    protected function createNode($path, $username)
+    protected function createNode($id, $username)
     {
         $nodeData = array(
             'jcr:primaryType' => "Name",
@@ -45,7 +45,7 @@ class UnitOfWorkTest extends PHPCRTestCase
             'username' => $username,
         );
 
-        return new Node($this->factory, $nodeData, $path, $this->session, $this->objectManager);
+        return new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
     }
 
     public function testCreateDocument()
@@ -55,9 +55,9 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('foo', $user->username);
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($user));
-        $this->assertEquals('/somepath', $this->uow->getDocumentPath($user));
+        $this->assertEquals('/somepath', $this->uow->getDocumentId($user));
 
-        $this->assertEquals(array('path' => '/somepath', 'username' => 'foo'), $this->uow->getOriginalData($user));
+        $this->assertEquals(array('id' => '/somepath', 'username' => 'foo'), $this->uow->getOriginalData($user));
     }
 
     public function testCreateDocument_UseIdentityMap()
@@ -72,7 +72,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $user1 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
 
-        $user2 = $this->uow->tryGetByPath('/somepath', $this->type);
+        $user2 = $this->uow->tryGetById('/somepath', $this->type);
 
         $this->assertSame($user1, $user2);
     }
@@ -85,7 +85,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $object = new UoWUser();
         $object->username = "bar";
-        $object->path = '/somepath';
+        $object->id = '/somepath';
 
         $this->uow->scheduleInsert($object);
     }
@@ -99,7 +99,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $object = new UoWUser();
         $object->username = "bar";
-        $object->path = '/somepath';
+        $object->id = '/somepath';
 
         $this->uow->scheduleRemove($object);
 
@@ -113,6 +113,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 
 class UoWUser
 {
-    public $path;
+    public $id;
     public $username;
 }

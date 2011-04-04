@@ -26,7 +26,7 @@ class PropertyNameTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testPropertyname()
     {
         $doc = new TestObj();
-        $doc->path = '/functional/pn';
+        $doc->id = '/functional/pn';
         $doc->name = 'Testname';
         $doc->othername = 'Testothername';
 
@@ -51,8 +51,8 @@ class PropertyNameTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class TestObj
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /** @String */

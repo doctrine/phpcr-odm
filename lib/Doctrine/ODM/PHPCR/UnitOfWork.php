@@ -57,7 +57,7 @@ class UnitOfWork
     /**
      * @var array
      */
-    private $documentPaths = array();
+    private $documentIds = array();
 
     /**
      * @var array
@@ -201,14 +201,14 @@ class UnitOfWork
 //            }
         }
 
-        if ($class->path) {
-            $documentState[$class->path] = $node->getPath();
-        }
         if ($class->node) {
             $documentState[$class->node] = $node;
         }
         if ($class->versionField) {
             $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getNativeValue();
+        }
+        if ($class->identifier) {
+            $documentState[$class->identifier] = $node->getPath();
         }
 
         // initialize inverse side collections
@@ -239,7 +239,7 @@ class UnitOfWork
 
             $oid = spl_object_hash($document);
             $this->documentState[$oid] = self::STATE_MANAGED;
-            $this->documentPaths[$oid] = $id;
+            $this->documentIds[$oid] = $id;
             $overrideLocalValues = true;
         }
 
@@ -282,7 +282,7 @@ class UnitOfWork
      * Schedule insertion of this document and cascade if neccessary.
      *
      * @param object $document
-     * @param string $path
+     * @param string $id
      */
     public function scheduleInsert($document)
     {
@@ -491,9 +491,9 @@ class UnitOfWork
      */
     public function persistNew($class, $document)
     {
-        $path = $this->getIdGenerator($class->idGenerator)->generate($document, $class, $this->dm);
+        $id = $this->getIdGenerator($class->idGenerator)->generate($document, $class, $this->dm);
 
-        $this->registerManaged($document, $path, null);
+        $this->registerManaged($document, $id, null);
 
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
@@ -540,17 +540,17 @@ class UnitOfWork
                 $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
-            $path = $this->documentPaths[$oid];
-            $parentNode = $session->getNode(dirname($path) === '\\' ? '/' : dirname($path));
-            $node = $parentNode->addNode(basename($path), $class->nodeType);
+            $id = $this->documentIds[$oid];
+            $parentNode = $session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
+            $node = $parentNode->addNode(basename($id), $class->nodeType);
 
             if ($class->isVersioned) {
                 $node->addMixin("mix:versionable");
             }
 
             $this->nodesMap[$oid] = $node;
-            if ($class->path) {
-                $class->reflFields[$class->path]->setValue($document, $path);
+            if ($class->identifier) {
+                $class->reflFields[$class->identifier]->setValue($document, $id);
             }
             if ($class->node) {
                 $class->reflFields[$class->node]->setValue($document, $node);
@@ -601,7 +601,7 @@ class UnitOfWork
                 } else if (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
                     if ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_ONE) {
                         if (\is_object($fieldValue)) {
-                            $data['doctrine_metadata']['associations'][$fieldName] = $this->getDocumentPath($fieldValue);
+                            $data['doctrine_metadata']['associations'][$fieldName] = $this->getDocumentId($fieldValue);
                         } else {
                             $data['doctrine_metadata']['associations'][$fieldName] = null;
                         }
@@ -611,7 +611,7 @@ class UnitOfWork
                             $ids = array();
                             if (is_array($fieldValue) || $fieldValue instanceof \Doctrine\Common\Collections\Collection) {
                                 foreach ($fieldValue as $relatedObject) {
-                                    $ids[] = $this->getDocumentPath($relatedObject);
+                                    $ids[] = $this->getDocumentId($relatedObject);
                                 }
                             }
 
@@ -686,13 +686,13 @@ class UnitOfWork
     }
 
     /**
-     * Checkin operation - Save all current changes and then check in the Node by path.
+     * Checkin operation - Save all current changes and then check in the Node by id.
      *
      * @return void
      */
     public function checkIn($object)
     {
-        $path = $this->documentPaths[spl_object_hash($object)];
+        $path = $this->documentIds[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -708,7 +708,7 @@ class UnitOfWork
      */
     public function checkOut($object)
     {
-        $path = $this->documentPaths[spl_object_hash($object)];
+        $path = $this->documentIds[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -724,7 +724,7 @@ class UnitOfWork
      */
     public function restore($version, $object, $removeExisting)
     {
-        $path = $this->documentPaths[spl_object_hash($object)];
+        $path = $this->documentIds[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
@@ -739,7 +739,7 @@ class UnitOfWork
      */
     public function getPredecessors($document)
     {
-        $path = $this->documentPaths[spl_object_hash($document)];
+        $path = $this->documentIds[spl_object_hash($document)];
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path, 'Version\Version');
         return $node->getPredecessors();
@@ -758,9 +758,9 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
 
-        if (isset($this->identityMap[$this->documentPaths[$oid]])) {
-            unset($this->identityMap[$this->documentPaths[$oid]],
-                  $this->documentPaths[$oid],
+        if (isset($this->identityMap[$this->documentIds[$oid]])) {
+            unset($this->identityMap[$this->documentIds[$oid]],
+                  $this->documentIds[$oid],
                   $this->documentRevisions[$oid],
                   $this->documentState[$oid]);
 
@@ -776,31 +776,31 @@ class UnitOfWork
      */
     public function contains($document)
     {
-        return isset($this->documentPaths[spl_object_hash($document)]);
+        return isset($this->documentIds[spl_object_hash($document)]);
     }
 
-    public function registerManaged($document, $path, $revision)
+    public function registerManaged($document, $id, $revision)
     {
         $oid = spl_object_hash($document);
         $this->documentState[$oid] = self::STATE_MANAGED;
-        $this->documentPaths[$oid] = $path;
+        $this->documentIds[$oid] = $id;
         $this->documentRevisions[$oid] = $revision;
-        $this->identityMap[$path] = $document;
+        $this->identityMap[$id] = $document;
     }
 
     /**
-     * Tries to find an entity with the given path in the identity map of
+     * Tries to find an entity with the given id in the identity map of
      * this UnitOfWork.
      *
-     * @param mixed $path The entity path to look for.
+     * @param mixed $id The entity id to look for.
      * @param string $rootClassName The name of the root class of the mapped entity hierarchy.
-     * @return mixed Returns the entity with the specified path if it exists in
+     * @return mixed Returns the entity with the specified id if it exists in
      *               this UnitOfWork, FALSE otherwise.
      */
-    public function tryGetByPath($path)
+    public function tryGetById($id)
     {
-        if (isset($this->identityMap[$path])) {
-            return $this->identityMap[$path];
+        if (isset($this->identityMap[$id])) {
+            return $this->identityMap[$id];
         }
         return false;
     }
@@ -821,13 +821,13 @@ class UnitOfWork
         return null;
     }
 
-    public function getDocumentPath($document)
+    public function getDocumentId($document)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentPaths[$oid])) {
-            return $this->documentPaths[$oid];
+        if (isset($this->documentIds[$oid])) {
+            return $this->documentIds[$oid];
         } else {
-            throw new PHPCRException("Document is not managed and has no path.");
+            throw new PHPCRException("Document is not managed and has no id.");
         }
     }
 }
