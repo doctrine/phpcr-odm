@@ -21,7 +21,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testMapFieldWithId($cm)
     {
-        $cm->mapField(array('fieldName' => 'id', 'id' => true));
+        $cm->mapField(array('fieldName' => 'id', 'id' => true, 'strategy' => 'repository'));
 
         $this->assertTrue(isset($cm->fieldMappings['id']));
         $this->assertEquals(
@@ -32,12 +32,14 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
                 'isInverseSide' => null,
                 'isOwningSide' => true,
                 'fieldName' => 'id',
-                'multivalue' => false
+                'multivalue' => false,
+                'strategy' => 'repository',
             )
             , $cm->fieldMappings['id']
         );
 
         $this->assertEquals('id', $cm->identifier);
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_REPOSITORY, $cm->idGenerator);
 
         return $cm;
     }
