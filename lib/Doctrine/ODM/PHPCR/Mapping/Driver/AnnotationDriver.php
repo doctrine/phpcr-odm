@@ -134,9 +134,9 @@ class AnnotationDriver implements Driver
                 if ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Property) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapField($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Path) {
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Id) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapPath($mapping);
+                    $class->mapField($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Node) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapNode($mapping);

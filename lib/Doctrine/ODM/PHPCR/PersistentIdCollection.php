@@ -13,20 +13,20 @@ use Doctrine\Common\Collections\Collection;
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
-class PersistentPathCollection extends PersistentCollection
+class PersistentIdCollection extends PersistentCollection
 {
     private $documentName;
     private $dm;
-    private $paths;
+    private $ids;
     public $isInitialized = false;
 
-    public function __construct(Collection $collection, $documentName, DocumentManager $dm, $paths)
+    public function __construct(Collection $collection, $documentName, DocumentManager $dm, $ids)
     {
         $this->col = $collection;
         $this->documentName = $documentName;
         $this->dm = $dm;
-        $this->paths = $paths;
-        $this->isInitialized = (count($paths) == 0);
+        $this->ids = $ids;
+        $this->isInitialized = (count($ids) == 0);
     }
 
     protected function load()
@@ -37,7 +37,7 @@ class PersistentPathCollection extends PersistentCollection
             $elements = $this->col->toArray();
 
             $repository = $this->dm->getRepository($this->documentName);
-            $objects = $repository->findMany($this->paths);
+            $objects = $repository->findMany($this->ids);
             foreach ($objects as $object) {
                 $this->col->add($object);
             }

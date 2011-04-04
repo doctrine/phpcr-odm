@@ -24,10 +24,10 @@ abstract class IdGenerator
     {
         switch ($generatorType) {
             case ClassMetadata::GENERATOR_TYPE_NONE:
-                $instance = new AssignedPathGenerator();
+                $instance = new AssignedIdGenerator();
                 break;
             case ClassMetadata::GENERATOR_TYPE_REPOSITORY:
-                $instance = new RepositoryPathGenerator();
+                $instance = new RepositoryIdGenerator();
                 break;
             default:
                 throw \Exception("ID Generator does not exist!");

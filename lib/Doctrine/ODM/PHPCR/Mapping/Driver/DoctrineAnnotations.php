@@ -13,8 +13,9 @@ final class Document extends Annotation
 }
 final class MappedSuperclass extends Annotation {}
 
-final class Path extends Annotation
+final class Id extends Annotation
 {
+    public $id = true;
 }
 final class Node extends Annotation
 {
@@ -25,9 +26,8 @@ class Property extends Annotation
     public $type = 'undefined';
     public $multivalue = false;
 }
-final class Id extends Property
+final class Uuid extends Property
 {
-    public $id = true;
     public $name = 'jcr:uuid';
     public $type = 'string';
 }
