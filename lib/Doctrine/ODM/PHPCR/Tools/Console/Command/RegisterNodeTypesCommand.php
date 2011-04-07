@@ -27,6 +27,7 @@ class RegisterNodeTypesCommand extends Console\Command\Command
             new InputArgument(
                 'cnd-file', InputArgument::REQUIRED, 'The file that contains the node type definitions'
             ),
+            new InputOption('allow-update', '', InputOption::VALUE_NONE, 'Overwrite existig node type'),
         ))
         ->setHelp(<<<EOT
 Register node types in the PHPCR repository.
@@ -35,7 +36,11 @@ This command allows to register node types in the repository that are defined
 in a CND (Compact Node Definition) file.
 
 Custom node types can be used to define the structure of content repository
-nodes, like allowed properties and child nodes.
+nodes, like allowed properties and child nodes together with the namespaces  
+and their prefix used for the names of node types and properties.
+
+If you use --allow-update existing node type definitions will be overwritten 
+in the repository. 
 EOT
         );
     }
@@ -57,11 +62,12 @@ EOT
         }
 
         $cnd = file_get_contents($cnd_file);
+        $allowUpdate = $input->getOption('allow-update');
 
         $session = $dm->getPhpcrSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
-        $ntm->registerNodeTypesCnd($cnd);
+        $ntm->registerNodeTypesCnd($cnd, $allowUpdate);
         $output->write(sprintf('Sucessfully registered node types from "<info>%s</INFO>"', $cnd_file) . PHP_EOL);
     }
 }
