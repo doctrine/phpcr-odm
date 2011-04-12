@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+
+$vendorDir = __DIR__.'/../lib/vendor';
+require_once $vendorDir.'/doctrine-common/lib/Doctrine/Common/ClassLoader.php';
+
+$classLoader = new \Doctrine\Common\ClassLoader('Doctrine\ODM', dirname($vendorDir));
+$classLoader->register();
+
+$classLoader = new \Doctrine\Common\ClassLoader('Doctrine\Common', $vendorDir.'/doctrine-common/lib');
+$classLoader->register();
+
+$classLoader = new \Doctrine\Common\ClassLoader('Symfony', $vendorDir );
+$classLoader->register();
+
+$classLoader = new \Doctrine\Common\ClassLoader('Jackalope', __DIR__ . '/../lib/vendor/jackalope/src');
+$classLoader->register();
+
+$classLoader = new \Doctrine\Common\ClassLoader('PHPCR', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr/src');
+$classLoader->register();
+
+$configFile = getcwd() . DIRECTORY_SEPARATOR . 'cli-config.php';
+
+$helperSet = null;
+if (file_exists($configFile)) {
+    if (!is_readable($configFile)) {
+        trigger_error(
+            'Configuration file [' . $configFile . '] does not have read permission.', E_USER_ERROR
+        );
+    }
+
+    require $configFile;
+
+    foreach ($GLOBALS as $helperSetCandidate) {
+        if ($helperSetCandidate instanceof \Symfony\Component\Console\Helper\HelperSet) {
+            $helperSet = $helperSetCandidate;
+            break;
+        }
+    }
+} else {
+    trigger_error(
+        'Configuration file [' . $configFile . '] does not exist. See https://github.com/doctrine/phpcr-odm/wiki/Command-line-tool-configuration', E_USER_ERROR
+    );
+} 
+
+$helperSet = ($helperSet) ?: new \Symfony\Component\Console\Helper\HelperSet();
+
+$cli = new \Symfony\Component\Console\Application('Doctrine ODM PHPCR Command Line Interface', Doctrine\ODM\PHPCR\Version::VERSION);
+$cli->setCatchExceptions(true);
+$cli->setHelperSet($helperSet);
+$cli->addCommands(array(
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterNodeTypesCommand(),
+));
+$cli->run();
+
