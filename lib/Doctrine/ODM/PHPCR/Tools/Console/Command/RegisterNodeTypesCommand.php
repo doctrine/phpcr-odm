@@ -4,7 +4,9 @@ namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command to load and register a node type defined in a CND file.
@@ -13,7 +15,7 @@ use Symfony\Component\Console;
  * @link http://jackrabbit.apache.org/node-type-notation.html
  */
 
-class RegisterNodeTypesCommand extends Console\Command\Command
+class RegisterNodeTypesCommand extends Command
 {
    /**
      * @see Console\Command\Command
@@ -45,7 +47,7 @@ EOT
         );
     }
 
-    protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dm = $this->getHelper('dm')->getDocumentManager();
 
