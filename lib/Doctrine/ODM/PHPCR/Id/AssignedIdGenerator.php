@@ -17,7 +17,7 @@ class AssignedIdGenerator extends IdGenerator
     {
         $id = $cm->getFieldValue($document, $cm->identifier);
         if (!$id) {
-            throw new \Exception("no id");
+            throw new \Exception("No Id found. Make sure your document has a field with @phpcr:Id annotation and that you set that field to the path where you want to store the document.");
         }
         return $id;
     }
