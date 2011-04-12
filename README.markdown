@@ -13,6 +13,7 @@ Todo
 
 * fix the tests that fail
 * figure out how we can do relations in a sane way
+* fix tests to only depend on PHPCR but not on any Jackalope specific classes
 
 Notes
 -----
