@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
+    Doctrine\ODM\PHPCR\DocumentRepository;
+
 /**
  * @group functional
  */
@@ -56,6 +59,21 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+    }
+
+    public function testInsertWithCustomIdStrategy()
+    {
+        $user = new User3();
+        $user->username = "test3";
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User3', '/functional/test3');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
     }
 
     public function testMultivaluePropertyWithOnlyOneValueUpdatedToMultiValue()
@@ -264,4 +282,29 @@ class User2
     public $id;
     /** @String(name="username") */
     public $username;
+}
+
+/**
+ * @Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
+ */
+class User3
+{
+    /** @Id(strategy="repository") */
+    public $id;
+    /** @String(name="username") */
+    public $username;
+}
+
+class User3Repository extends DocumentRepository implements RepositoryIdInterface
+{
+    /**
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
+     */
+    public function generateId($document)
+    {
+        return 'functional/'.$document->username;
+    }
 }
