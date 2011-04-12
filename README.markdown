@@ -95,17 +95,23 @@ You write your own document classes that will be mapped to and from the phpcr da
         public $content;
     }
 
-Generator Strategy
-------------------
+Storing documents in the repository: Id Generator Strategy
+----------------------------------------------------------
 
-When defining an ``id`` its possible to choose the generator strategy. By default the assigned id generator is used,
-which requires manual assignment. Optionally the "repository" strategy can be used which uses the Repository class
-to generate the id.
+When defining an ``id`` its possible to choose the generator strategy. The id
+is the path where in the phpcr content repository the document should be stored.
+By default the assigned id generator is used, which requires manual assignment
+of the path to a property annotated as being the Id.
+You can tell doctrine to use a different strategy to find the id.
+
+Currently, there is the "repository" strategy which calls can be used which
+calls generateId on the repository class to give you full control how you want
+to build the path.
 
     namespace Acme\SampleBundle\Document;
 
-    use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
-        Doctrine\ODM\PHPCR\DocumentRepository;
+    use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+    use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
 
     /**
      * @Document(repositoryClass="Acme\SampleBundle\DocumentRepository", alias="document")
@@ -118,7 +124,7 @@ to generate the id.
         public $title;
     }
 
-    class DocumentRepository extends DocumentRepository implements RepositoryIdInterface
+    class DocumentRepository extends BaseDocumentRepository implements RepositoryIdInterface
     {
         /**
          * Generate a document id
@@ -136,7 +142,7 @@ Available annotations
 ---------------------
 
 <table>
-<tr><td> Id:         </td><td>The phpcr path to this node. </td></tr>
+<tr><td> Id:         </td><td>The phpcr path to this node. (see above)</td></tr>
 <tr><td> Node:       </td><td>The phpcr NodeInterface instance for direct access. </td></tr>
 <tr><td> Uuid:         </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:    </td><td>The version of this node, for versioned nodes. </td></tr>
