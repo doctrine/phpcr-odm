@@ -11,8 +11,9 @@ Current Status
 Todo
 ----
 
+* implement the relations (children, parent, references). see https://github.com/doctrine/phpcr-odm/pull/4
+* use the mixin phpcr:alias instead of the _doctrine_alias property. see https://github.com/doctrine/phpcr-odm/pull/4
 * fix the tests that fail
-* figure out how we can do relations in a sane way
 * fix tests to only depend on PHPCR but not on any Jackalope specific classes
 
 Notes
@@ -80,6 +81,10 @@ You write your own document classes that will be mapped to and from the phpcr da
     class MyDocument
     {
         /**
+         * @phpcr:Id()
+         */
+        public $path;
+        /**
          * @phpcr:String()
          */
         public $title;
@@ -92,9 +97,9 @@ You write your own document classes that will be mapped to and from the phpcr da
 
 Available annotations are
 <table>
-<tr><td> Path:       </td><td>The phpcr path to this node. </td></tr>
+<tr><td> Id:         </td><td>The phpcr path to this node. </td></tr>
 <tr><td> Node:       </td><td>The phpcr NodeInterface instance for direct access. </td></tr>
-<tr><td> Id:         </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
+<tr><td> Uuid:         </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:    </td><td>The version of this node, for versioned nodes. </td></tr>
 <tr><td> Property:   </td><td>Any property of the node, without specified type. </td></tr>
 <tr><td> Boolean,    <br />
