@@ -23,7 +23,7 @@ class Property extends Annotation
     public $type = 'undefined';
     public $multivalue = false;
 }
-final class Id extends Property
+final class Id extends Annotation
 {
     public $id = true;
     public $type = 'string';

@@ -81,7 +81,7 @@ class YamlDriver extends AbstractFileDriver
         }
         if (isset($element['id'])) {
             $mapping = array('fieldName' => $element['id'], 'id' => true);
-            $this->addFieldMapping($class, $mapping);
+            $this->addIdMapping($class, $mapping);
         }
         if (isset($element['node'])) {
             $mapping = array('fieldName' => $element['node']);
@@ -109,6 +109,11 @@ class YamlDriver extends AbstractFileDriver
             }
         }
 
+    }
+
+    private function addIdMapping(ClassMetadata $class, $mapping)
+    {
+        $class->mapId($mapping);
     }
 
     private function addFieldMapping(ClassMetadata $class, $mapping)

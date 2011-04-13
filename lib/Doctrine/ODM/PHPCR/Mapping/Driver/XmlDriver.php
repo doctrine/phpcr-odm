@@ -83,7 +83,7 @@ class XmlDriver extends AbstractFileDriver
         }
         if (isset($xmlRoot->id)) {
             $mapping = array('fieldName' => (string) $xmlRoot->id->attributes()->name, 'id' => true);
-            $this->addFieldMapping($class, $mapping);
+            $this->addIdMapping($class, $mapping);
         }
         if (isset($xmlRoot->node)) {
             $mapping = array('fieldName' => (string) $xmlRoot->node->attributes()->name);
@@ -110,6 +110,11 @@ class XmlDriver extends AbstractFileDriver
             }
         }
 
+    }
+
+    private function addIdMapping(ClassMetadata $class, $mapping)
+    {
+        $class->mapId($mapping);
     }
 
     private function addFieldMapping(ClassMetadata $class, $mapping)

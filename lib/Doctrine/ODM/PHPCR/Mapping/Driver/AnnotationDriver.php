@@ -136,7 +136,7 @@ class AnnotationDriver implements Driver
                     $class->mapField($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Id) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapField($mapping);
+                    $class->mapId($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Node) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapNode($mapping);

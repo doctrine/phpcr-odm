@@ -484,6 +484,18 @@ class ClassMetadataInfo implements ClassMetadata
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
     }
 
+    public function mapId(array $mapping)
+    {
+        if (isset($mapping['id']) && $mapping['id'] === true) {
+            $mapping['type'] = 'string';
+            $this->setIdentifier($mapping['fieldName']);
+            if (isset($mapping['strategy'])) {
+                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
+            }
+        }
+        $this->validateAndCompleteFieldMapping($mapping, false);
+    }
+ 
     public function mapNode(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);

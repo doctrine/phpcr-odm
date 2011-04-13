@@ -21,14 +21,14 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\TestObj';
+        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\FileTestObj';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testCreateFromFile()
     {
-        $parent = new TestObj();
+        $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
         $parent->file->setFileContentFromFilesystem('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
@@ -44,7 +44,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateFromString()
     {
-        $parent = new TestObj();
+        $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
         $parent->file->setFileContent('Lorem ipsum dolor sit amet');
@@ -63,7 +63,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreatedDate()
     {
-        $parent = new TestObj();
+        $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
         $parent->file->setFileContentFromFilesystem('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
@@ -83,7 +83,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 /**
  * @phpcr:Document(alias="testObj")
  */
-class TestObj
+class FileTestObj
 {
     /** @phpcr:Id */
     public $id;
