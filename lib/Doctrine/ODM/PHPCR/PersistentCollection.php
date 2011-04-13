@@ -3,6 +3,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
+use Closure;
 
 /**
  * Persistent collection class
