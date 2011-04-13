@@ -69,7 +69,17 @@ EOT
         $session = $dm->getPhpcrSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
-        $ntm->registerNodeTypesCnd($cnd, $allowUpdate);
-        $output->write(sprintf('Sucessfully registered node types from "<info>%s</INFO>"', $cnd_file) . PHP_EOL);
+        try {
+            $ntm->registerNodeTypesCnd($cnd, $allowUpdate);
+        }
+        catch (\PHPCR\NodeType\NodeTypeExistsException $e) {
+            if (!$allowUpdate) {
+                $output->write(PHP_EOL.'<error>The node type(s) you tried to register already exist.</error>'.PHP_EOL);
+                $output->write(PHP_EOL.'If you want to override the existing definition call this command with the ');
+                $output->write('<info>--allow-update</info> option.'.PHP_EOL);
+            }
+            throw $e;
+        }   
+        $output->write(PHP_EOL.sprintf('Sucessfully registered node types from "<info>%s</info>"', $cnd_file) . PHP_EOL);
     }
 }
