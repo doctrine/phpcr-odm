@@ -26,6 +26,7 @@ final class Event
     const preRemove = 'preRemove';
     const preUpdate = 'preUpdate';
     const postRemove = 'postRemove';
+    const postPersist = 'postPersist';
     const postUpdate = 'postUpdate';
     const postLoad = 'postLoad';
 

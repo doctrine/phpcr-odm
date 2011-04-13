@@ -4,7 +4,6 @@ namespace Doctrine\ODM\PHPCR\Id;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataInfo;
 
 /**
  * Used to abstract ID generation
@@ -24,11 +23,11 @@ abstract class IdGenerator
     static public function create($generatorType)
     {
         switch ($generatorType) {
-            case ClassMetadataInfo::GENERATOR_TYPE_NONE:
-                $instance = new AssignedPathGenerator();
+            case ClassMetadata::GENERATOR_TYPE_ASSIGNED:
+                $instance = new AssignedIdGenerator();
                 break;
-            case ClassMetadataInfo::GENERATOR_TYPE_REPOSITORY:
-                $instance = new RepositoryPathGenerator();
+            case ClassMetadata::GENERATOR_TYPE_REPOSITORY:
+                $instance = new RepositoryIdGenerator();
                 break;
             default:
                 throw \Exception("ID Generator does not exist!");

@@ -20,8 +20,6 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataInfo;
-use Doctrine\ODM\PHPCR\Types\Type;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -59,7 +57,7 @@ class UnitOfWork
     /**
      * @var array
      */
-    private $documentPaths = array();
+    private $documentIds = array();
 
     /**
      * @var array
@@ -163,14 +161,15 @@ class UnitOfWork
         $nonMappedData = array();
         $id = $node->getPath();
 
-        foreach ($node->getProperties() as $name => $property) {
-            if (isset($class->fieldMappings[$name])) {
-                if ($class->fieldMappings[$name]['multivalue']) {
+        foreach ($class->fieldMappings as $fieldName => $mapping) {
+            if ($node->hasProperty($mapping['name'])) {
+                $property = $node->getProperty($mapping['name']);
+                if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
                     // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
-                    $documentState[$class->fieldMappings[$name]['fieldName']] = new ArrayCollection((array) $property->getNativeValue());
+                    $documentState[$fieldName] = new ArrayCollection((array) $property->getNativeValue());
                 } else {
-                    $documentState[$class->fieldMappings[$name]['fieldName']] = $property->getNativeValue();
+                    $documentState[$fieldName] = $property->getNativeValue();
                 }
             }
 //            } else if ($jsonName == 'doctrine_metadata') {
@@ -202,17 +201,14 @@ class UnitOfWork
 //            }
         }
 
-        if ($class->path) {
-            $documentState[$class->path] = $node->getPath();
-        }
         if ($class->node) {
             $documentState[$class->node] = $node;
         }
-        if ($class->identifier) {
-            $documentState[$class->identifier] = $node->getIdentifier();
-        }
         if ($class->versionField) {
             $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getNativeValue();
+        }
+        if ($class->identifier) {
+            $documentState[$class->identifier] = $node->getPath();
         }
 
         // initialize inverse side collections
@@ -251,7 +247,7 @@ class UnitOfWork
 
             $oid = spl_object_hash($document);
             $this->documentState[$oid] = self::STATE_MANAGED;
-            $this->documentPaths[$oid] = $id;
+            $this->documentIds[$oid] = $id;
             $overrideLocalValues = true;
         }
 
@@ -270,6 +266,10 @@ class UnitOfWork
             }
         }
 
+        // Invoke the postLoad lifecycle callbacks and listeners
+        if (isset($metadata->lifecycleCallbacks[Event::postLoad])) {
+            $metadata->invokeLifecycleCallbacks(Event::postLoad, $document);
+        }
         if ($this->evm->hasListeners(Event::postLoad)) {
             $this->evm->dispatchEvent(Event::postLoad, new Events\LifecycleEventArgs($document, $this->dm));
         }
@@ -290,7 +290,7 @@ class UnitOfWork
      * Schedule insertion of this document and cascade if neccessary.
      *
      * @param object $document
-     * @param string $path
+     * @param string $id
      */
     public function scheduleInsert($document)
     {
@@ -358,9 +358,9 @@ class UnitOfWork
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) == self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
-                $path = $class->reflFields[$class->path]->getValue($document);
-                $childClass->reflFields[$childClass->path]->setValue($child , $path . '/'. $mapping['name']);
-                $this->doScheduleInsert($child, $visited, ClassMetadataInfo::GENERATOR_TYPE_NONE);
+                $id = $class->reflFields[$class->identifier]->getValue($document);
+                $childClass->reflFields[$childClass->identifier]->setValue($child , $id . '/'. $mapping['name']);
+                $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }
     }
@@ -379,6 +379,10 @@ class UnitOfWork
         $this->scheduledRemovals[$oid] = $document;
         $this->documentState[$oid] = self::STATE_REMOVED;
 
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if (isset($class->lifecycleCallbacks[Event::preRemove])) {
+            $class->invokeLifecycleCallbacks(Event::preRemove, $document);
+        }
         if ($this->evm->hasListeners(Event::preRemove)) {
             $this->evm->dispatchEvent(Event::preRemove, new Events\LifecycleEventArgs($document, $this->dm));
         }
@@ -531,10 +535,13 @@ class UnitOfWork
      */
     public function persistNew($class, $document, $overrideIdGenerator = null)
     {
-        $path = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
+        $id = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
 
-        $this->registerManaged($document, $path, null);
+        $this->registerManaged($document, $id, null);
 
+        if (isset($class->lifecycleCallbacks[Event::prePersist])) {
+            $class->invokeLifecycleCallbacks(Event::prePersist, $document);
+        }
         if ($this->evm->hasListeners(Event::prePersist)) {
             $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
         }
@@ -569,13 +576,19 @@ class UnitOfWork
         foreach ($this->scheduledInserts as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
-            if ($this->evm->hasListeners(Event::preUpdate)) {
-                $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+            // FIXME: this leads to prePersist being called twice, because its also invoked in persistNew
+            // which is the right place? mongo does this differently.
+            if (isset($class->lifecycleCallbacks[Event::prePersist])) {
+                $class->invokeLifecycleCallbacks(Event::prePersist, $document);
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
-            $path = $this->documentPaths[$oid];
-            $parentNode = $session->getNode(dirname($path) === '\\' ? '/' : dirname($path));
-            $node = $parentNode->addNode(basename($path), $class->nodeType);
+            if ($this->evm->hasListeners(Event::prePersist)) {
+                $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            }
+            $id = $this->documentIds[$oid];
+            $parentNode = $session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
+            $node = $parentNode->addNode(basename($id), $class->nodeType);
             $node->addMixin('phpcr:managed');
 
             if ($class->isVersioned) {
@@ -583,8 +596,8 @@ class UnitOfWork
             }
 
             $this->nodesMap[$oid] = $node;
-            if ($class->path) {
-                $class->reflFields[$class->path]->setValue($document, $path);
+            if ($class->identifier) {
+                $class->reflFields[$class->identifier]->setValue($document, $id);
             }
             if ($class->node) {
                 $class->reflFields[$class->node]->setValue($document, $node);
@@ -610,6 +623,10 @@ class UnitOfWork
             $class = $this->dm->getClassMetadata(get_class($document));
             $node = $this->nodesMap[$oid];
 
+            if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
+                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            }
             if ($this->evm->hasListeners(Event::preUpdate)) {
                 $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
@@ -631,7 +648,7 @@ class UnitOfWork
                 } else if (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
                     if ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_ONE) {
                         if (\is_object($fieldValue)) {
-                            $data['doctrine_metadata']['associations'][$fieldName] = $this->getDocumentPath($fieldValue);
+                            $data['doctrine_metadata']['associations'][$fieldName] = $this->getDocumentId($fieldValue);
                         } else {
                             $data['doctrine_metadata']['associations'][$fieldName] = null;
                         }
@@ -641,7 +658,7 @@ class UnitOfWork
                             $ids = array();
                             if (is_array($fieldValue) || $fieldValue instanceof \Doctrine\Common\Collections\Collection) {
                                 foreach ($fieldValue as $relatedObject) {
-                                    $ids[] = $this->getDocumentPath($relatedObject);
+                                    $ids[] = $this->getDocumentId($relatedObject);
                                 }
                             }
 
@@ -678,21 +695,7 @@ class UnitOfWork
 
         $session->save();
 
-        foreach ($this->scheduledRemovals as $oid => $document) {
-            if ($this->evm->hasListeners(Event::postRemove)) {
-                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
-            }
-        }
-
-        foreach (array('scheduledInserts', 'scheduledUpdates') as $var) {
-            foreach ($this->$var as $oid => $document) {
-                $class = $this->dm->getClassMetadata(get_class($document));
-
-                if ($this->evm->hasListeners(Event::postUpdate)) {
-                    $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
-                }
-            }
-        }
+        $this->handlePostFlushEvents();
 
         foreach ($this->visitedCollections as $col) {
             $col->takeSnapshot();
@@ -705,13 +708,52 @@ class UnitOfWork
     }
 
     /**
-     * Checkin operation - Save all current changes and then check in the Node by path.
+     * Invoke / dispatch events as necessary after a flush operation
+     */
+    protected function handlePostFlushEvents()
+    {
+        foreach ($this->scheduledRemovals as $oid => $document) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($class->lifecycleCallbacks[Event::postRemove])) {
+                $class->invokeLifecycleCallbacks(Event::postRemove, $document);
+            }
+            if ($this->evm->hasListeners(Event::postRemove)) {
+                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
+
+        foreach ($this->scheduledInserts as $oid => $document) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($class->lifecycleCallbacks[Event::postPersist])) {
+                $class->invokeLifecycleCallbacks(Event::postPersist, $document);
+            }
+            if ($this->evm->hasListeners(Event::postPersist)) {
+                $this->evm->dispatchEvent(Event::postPersist, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
+
+        foreach ($this->scheduledUpdates as $oid => $document) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
+            }
+            if ($this->evm->hasListeners(Event::postUpdate)) {
+                $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+            }
+        }
+    }
+
+    /**
+     * Checkin operation - Save all current changes and then check in the Node by id.
      *
      * @return void
      */
     public function checkIn($object)
     {
-        $path = $this->documentPaths[spl_object_hash($object)];
+        $path = $this->documentIds[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -727,7 +769,7 @@ class UnitOfWork
      */
     public function checkOut($object)
     {
-        $path = $this->documentPaths[spl_object_hash($object)];
+        $path = $this->documentIds[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -743,7 +785,7 @@ class UnitOfWork
      */
     public function restore($version, $object, $removeExisting)
     {
-        $path = $this->documentPaths[spl_object_hash($object)];
+        $path = $this->documentIds[spl_object_hash($object)];
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
@@ -758,7 +800,7 @@ class UnitOfWork
      */
     public function getPredecessors($document)
     {
-        $path = $this->documentPaths[spl_object_hash($document)];
+        $path = $this->documentIds[spl_object_hash($document)];
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path, 'Version\Version');
         return $node->getPredecessors();
@@ -777,9 +819,9 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
 
-        if (isset($this->identityMap[$this->documentPaths[$oid]])) {
-            unset($this->identityMap[$this->documentPaths[$oid]],
-                  $this->documentPaths[$oid],
+        if (isset($this->identityMap[$this->documentIds[$oid]])) {
+            unset($this->identityMap[$this->documentIds[$oid]],
+                  $this->documentIds[$oid],
                   $this->documentRevisions[$oid],
                   $this->documentState[$oid]);
 
@@ -795,31 +837,31 @@ class UnitOfWork
      */
     public function contains($document)
     {
-        return isset($this->documentPaths[spl_object_hash($document)]);
+        return isset($this->documentIds[spl_object_hash($document)]);
     }
 
-    public function registerManaged($document, $path, $revision)
+    public function registerManaged($document, $id, $revision)
     {
         $oid = spl_object_hash($document);
         $this->documentState[$oid] = self::STATE_MANAGED;
-        $this->documentPaths[$oid] = $path;
+        $this->documentIds[$oid] = $id;
         $this->documentRevisions[$oid] = $revision;
-        $this->identityMap[$path] = $document;
+        $this->identityMap[$id] = $document;
     }
 
     /**
-     * Tries to find an entity with the given path in the identity map of
+     * Tries to find an entity with the given id in the identity map of
      * this UnitOfWork.
      *
-     * @param mixed $path The entity path to look for.
+     * @param mixed $id The entity id to look for.
      * @param string $rootClassName The name of the root class of the mapped entity hierarchy.
-     * @return mixed Returns the entity with the specified path if it exists in
+     * @return mixed Returns the entity with the specified id if it exists in
      *               this UnitOfWork, FALSE otherwise.
      */
-    public function tryGetByPath($path)
+    public function tryGetById($id)
     {
-        if (isset($this->identityMap[$path])) {
-            return $this->identityMap[$path];
+        if (isset($this->identityMap[$id])) {
+            return $this->identityMap[$id];
         }
         return false;
     }
@@ -840,13 +882,13 @@ class UnitOfWork
         return null;
     }
 
-    public function getDocumentPath($document)
+    public function getDocumentId($document)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentPaths[$oid])) {
-            return $this->documentPaths[$oid];
+        if (isset($this->documentIds[$oid])) {
+            return $this->documentIds[$oid];
         } else {
-            throw new PHPCRException("Document is not managed and has no path.");
+            throw new PHPCRException("Document is not managed and has no id.");
         }
     }
 }

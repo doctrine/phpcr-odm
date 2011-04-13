@@ -79,17 +79,17 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Find a single document by its path
+     * Find a single document by its id
      *
-     * @param string $path document path
+     * @param string $id document id
      * @return object $document
      */
-    public function find($path)
+    public function find($id)
     {
         $uow = $this->dm->getUnitOfWork();
 
         try {
-            $node = $this->dm->getPhpcrSession()->getNode($path);
+            $node = $this->dm->getPhpcrSession()->getNode($id);
         } catch (\PHPCR\PathNotFoundException $e) {
             return null;
         }
@@ -99,19 +99,19 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Find many document by path
+     * Find many document by id
      *
-     * @param array $paths document paths
+     * @param array $ids document ids
      * @return array of document objects
      */
-    public function findMany(array $paths)
+    public function findMany(array $ids)
     {
         $uow = $this->dm->getUnitOfWork();
 
         $documents = array();
-        foreach ($paths as $path) {
+        foreach ($ids as $id) {
             // TODO: catch exception and return null when not found?
-            $node = $this->dm->getPhpcrSession()->getNode($path);
+            $node = $this->dm->getPhpcrSession()->getNode($id);
             $hints = array();
             $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
         }
@@ -176,7 +176,7 @@ class DocumentRepository implements ObjectRepository
         // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
 
         $uow = $this->dm->getUnitOfWork();
-        $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentPath($document));
+        $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($document));
 
         $hints = array('refresh' => true);
         $this->createDocument($uow, $this->documentName, $node, $hints);

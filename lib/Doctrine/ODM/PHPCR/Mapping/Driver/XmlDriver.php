@@ -78,12 +78,12 @@ class XmlDriver extends AbstractFileDriver
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }
-                $this->addPropertyMapping($class, $mapping);
+                $this->addFieldMapping($class, $mapping);
             }
         }
-        if (isset($xmlRoot->path)) {
-            $mapping = array('fieldName' => (string) $xmlRoot->path->attributes()->name);
-            $this->addPathMapping($class, $mapping);
+        if (isset($xmlRoot->id)) {
+            $mapping = array('fieldName' => (string) $xmlRoot->id->attributes()->name, 'id' => true);
+            $this->addFieldMapping($class, $mapping);
         }
         if (isset($xmlRoot->node)) {
             $mapping = array('fieldName' => (string) $xmlRoot->node->attributes()->name);
@@ -103,16 +103,18 @@ class XmlDriver extends AbstractFileDriver
                 $this->addReferenceMapping($class, $reference, 'one');
             }
         }
+
+        if (isset($xmlRoot->{'lifecycle-callbacks'})) {
+            foreach ($xmlRoot->{'lifecycle-callbacks'}->{'lifecycle-callback'} as $lifecycleCallback) {
+                $class->addLifecycleCallback((string) $lifecycleCallback['method'], constant('Doctrine\ODM\PHPCR\Event::' . (string) $lifecycleCallback['type']));
+            }
+        }
+
     }
 
-    private function addPropertyMapping(ClassMetadata $class, $mapping)
+    private function addFieldMapping(ClassMetadata $class, $mapping)
     {
         $class->mapField($mapping);
-    }
-
-    private function addPathMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapPath($mapping);
     }
 
     private function addNodeMapping(ClassMetadata $class, $mapping)

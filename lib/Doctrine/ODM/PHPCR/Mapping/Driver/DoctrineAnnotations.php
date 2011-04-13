@@ -11,9 +11,7 @@ final class Document extends Annotation
     public $repositoryClass;
     public $isVersioned;
 }
-final class MappedSuperclass extends Annotation {}
-
-final class Path extends Annotation
+final class MappedSuperclass extends Annotation
 {
 }
 final class Node extends Annotation
@@ -28,6 +26,11 @@ class Property extends Annotation
 final class Id extends Property
 {
     public $id = true;
+    public $type = 'string';
+    public $strategy = 'assigned';
+}
+final class Uuid extends Property
+{
     public $name = 'jcr:uuid';
     public $type = 'string';
 }
@@ -86,3 +89,15 @@ class Child extends Annotation
 {
     public $name;
 }
+
+/* Annotations for lifecycle callbacks */
+final class HasLifecycleCallbacks extends Annotation {}
+final class PrePersist extends Annotation {}
+final class PostPersist extends Annotation {}
+final class PreUpdate extends Annotation {}
+final class PostUpdate extends Annotation {}
+final class PreRemove extends Annotation {}
+final class PostRemove extends Annotation {}
+final class PreLoad extends Annotation {}
+final class PostLoad extends Annotation {}
+

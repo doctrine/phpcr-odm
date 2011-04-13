@@ -10,8 +10,8 @@ namespace Doctrine\ODM\PHPCR\Document;
  */
 class Resource
 {
-    /** @phpcr:Path */
-    protected $path;
+    /** @phpcr:Id */
+    protected $id;
 
     /** @phpcr:Node */
     protected $node;

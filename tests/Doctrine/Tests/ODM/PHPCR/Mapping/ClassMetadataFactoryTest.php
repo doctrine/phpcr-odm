@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 
-class ClassMetadataFactoryTest extends \PHPUnit_Framework_Testcase
+class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -43,7 +43,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_Testcase
 
         $metadata = $cmf->getAllMetadata();
 
-        $this->assertType('array', $metadata);
+        $this->assertTrue(is_array($metadata));
     }
 
     public function testCacheDriver()

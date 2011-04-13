@@ -2,11 +2,13 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
-interface RepositoryPathGenerator
+interface RepositoryIdInterface
 {
     /**
+     * Generate a document id
+     * 
      * @param object $document
      * @return string
      */
-    function generatePath($document);
+    function generateId($document);
 }

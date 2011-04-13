@@ -66,8 +66,8 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class VersionTestObj
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /**

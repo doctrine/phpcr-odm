@@ -32,7 +32,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent->name = 'Parent';
         $parent->child = $child;
         $child->name = 'Child';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
         $this->dm->flush();
@@ -46,7 +46,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = new TestObj();
         $parent->name = 'Parent';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
         $this->dm->flush();
@@ -59,7 +59,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = new TestObj();
         $parent->name = 'Parent';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
         $this->dm->flush();
@@ -85,7 +85,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
@@ -96,7 +96,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/childtest');
         $parent->child->name = 'Child changed';
 
-        $this->dm->persist($parent, $parent->path); 
+        $this->dm->persist($parent); 
         $this->dm->flush();
         $this->dm->clear();
         $this->assertNotEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
@@ -111,7 +111,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
@@ -137,7 +137,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
-        $parent->path  = '/functional/childtest';
+        $parent->id  = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
@@ -163,7 +163,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
@@ -187,7 +187,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new TestObj();
         $child = new ChildTestObj();
         $parent->name = 'Parent';
-        $parent->path = '/functional/childtest';
+        $parent->id = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
@@ -213,8 +213,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class ChildTestObj
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /** @String */
@@ -225,8 +225,8 @@ class ChildTestObj
  */
 class TestObj
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /** @String */

@@ -62,14 +62,14 @@ class ClassMetadataInfo implements ClassMetadata
      * NONE means Doctrine will not generate any id for us and you are responsible for manually
      * assigning an id.
      */
-    const GENERATOR_TYPE_NONE = 2;
+    const GENERATOR_TYPE_ASSIGNED = 2;
 
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
      *
      * @var AbstractIdGenerator
      */
-    public $idGenerator = self::GENERATOR_TYPE_NONE;
+    public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
 
     /**
      * READ-ONLY: The field name of the document identifier.
@@ -102,13 +102,6 @@ class ClassMetadataInfo implements ClassMetadata
      * @var string
      */
     public $nodeType;
-
-    /**
-     * READ-ONLY: The field name of the path
-     *
-     * @var string
-     */
-    public $path;
 
     /**
      * READ-ONLY: The field name of the node
@@ -162,6 +155,14 @@ class ClassMetadataInfo implements ClassMetadata
      * @var array
      */
     public $alsoLoadMethods = array();
+
+    /**
+     * READ-ONLY: The registered lifecycle callbacks for documents of this class.
+     *
+     * @var array
+     */
+    public $lifecycleCallbacks = array();
+
 
     /**
      * The ReflectionClass instance of the mapped class.
@@ -284,6 +285,72 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
+     * Dispatches the lifecycle event of the given document to the registered
+     * lifecycle callbacks and lifecycle listeners.
+     *
+     * @param string $event The lifecycle event.
+     * @param Document $document The Document on which the event occured.
+     */
+    public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
+    {
+        foreach ($this->lifecycleCallbacks[$lifecycleEvent] as $callback) {
+            if ($arguments !== null) {
+                call_user_func_array(array($document, $callback), $arguments);
+            } else {
+                $document->$callback();
+            }
+        }
+    }
+
+    /**
+     * Whether the class has any attached lifecycle listeners or callbacks for a lifecycle event.
+     *
+     * @param string $lifecycleEvent
+     * @return boolean
+     */
+    public function hasLifecycleCallbacks($lifecycleEvent)
+    {
+        return isset($this->lifecycleCallbacks[$lifecycleEvent]);
+    }
+
+    /**
+     * Gets the registered lifecycle callbacks for an event.
+     *
+     * @param string $event
+     * @return array
+     */
+    public function getLifecycleCallbacks($event)
+    {
+        return isset($this->lifecycleCallbacks[$event]) ? $this->lifecycleCallbacks[$event] : array();
+    }
+
+    /**
+     * Adds a lifecycle callback for documents of this class.
+     *
+     * Note: If the same callback is registered more than once, the old one
+     * will be overridden.
+     *
+     * @param string $callback
+     * @param string $event
+     */
+    public function addLifecycleCallback($callback, $event)
+    {
+        $this->lifecycleCallbacks[$event][] = $callback;
+    }
+
+    /**
+     * Sets the lifecycle callbacks for documents of this class.
+     * Any previously registered callbacks are overwritten.
+     *
+     * @param array $callbacks
+     */
+    public function setLifecycleCallbacks(array $callbacks)
+    {
+        $this->lifecycleCallbacks = $callbacks;
+    }
+
+
+    /**
      * @param string $alias
      */
     public function setAlias($alias)
@@ -370,10 +437,8 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function mapField(array $mapping)
     {
-        $mapping = $this->validateAndCompleteFieldMapping($mapping);
-
         if (isset($mapping['id']) && $mapping['id'] === true) {
-            $this->mapPath($mapping);
+            $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
                 $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
@@ -385,6 +450,8 @@ class ClassMetadataInfo implements ClassMetadata
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }
+
+        $mapping = $this->validateAndCompleteFieldMapping($mapping);
 
         if (isset($mapping['reference']) && $mapping['type'] === 'one') {
             $mapping['association'] = self::TO_ONE;
@@ -415,13 +482,6 @@ class ClassMetadataInfo implements ClassMetadata
         }
 
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
-    }
-
-    public function mapPath(array $mapping)
-    {
-        $this->validateAndCompleteFieldMapping($mapping, false);
-
-        $this->path = $mapping['fieldName'];
     }
 
     public function mapNode(array $mapping)
@@ -524,7 +584,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function getIdentifierValue($document)
     {
-        return (string) $this->reflFields[$this->identifier]->getValue($document);
+        return (string) $this->getFieldValue($document, $this->identifier);
     }
 
     /**
@@ -547,7 +607,11 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function getFieldValue($document, $field)
     {
-        return $this->reflFields[$field]->getValue($document);
+        if (isset($this->reflFields[$field])) {
+            return $this->reflFields[$field]->getValue($document);
+        }
+
+        return null;
     }
 
     /**
@@ -602,7 +666,6 @@ class ClassMetadataInfo implements ClassMetadata
         $serialized = array(
             'fieldMappings',
             'identifier',
-            'path',
             'node',
             'nodeType',
             'alias',

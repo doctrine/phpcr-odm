@@ -10,8 +10,8 @@ namespace Doctrine\ODM\PHPCR\Document;
  */
 class File 
 {
-    /** @phpcr:Path */
-    protected $path;
+    /** @phpcr:Id */
+    protected $id;
 
     /** @phpcr:Node */
     protected $node;
@@ -26,23 +26,23 @@ class File
     protected $content;
 
     /**
-     * setter for path
+     * setter for id
      * 
-     * @param string $path of the node
+     * @param string $id of the node
      */
-    public function setPath($path)
+    public function setId($id)
     {
-        $this->path = $path;
+        $this->id = $id;
     }
 
     /**
-     * getter for path
+     * getter for id
      * 
-     * @return string path of the node
+     * @return string id of the node
      */
-    public function getPath()
+    public function getId()
     {
-        return $this->path;
+        return $this->id;
     }
 
     /**

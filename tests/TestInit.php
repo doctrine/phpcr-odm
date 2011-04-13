@@ -21,3 +21,7 @@ $classLoader->register();
 
 $classLoader = new ClassLoader('PHPCR', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr/src');
 $classLoader->register();
+
+
+$classLoader = new ClassLoader('Symfony', __DIR__ . '/../lib/vendor');
+$classLoader->register();

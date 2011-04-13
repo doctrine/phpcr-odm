@@ -4,14 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
-class ClassMetadataTest extends \PHPUnit_Framework_Testcase
+class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
     public function testClassName()
     {
         $cm = new ClassMetadata("Doctrine\Tests\ODM\PHPCR\Mapping\Person");
 
         $this->assertEquals("Doctrine\Tests\ODM\PHPCR\Mapping\Person", $cm->name);
-        $this->assertType('ReflectionClass', $cm->reflClass);
+        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
 
         return $cm;
     }
@@ -21,12 +21,25 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
      */
     public function testMapFieldWithId($cm)
     {
-        $cm->mapField(array('fieldName' => 'id', 'id' => true));
+        $cm->mapField(array('fieldName' => 'id', 'id' => true, 'strategy' => 'repository'));
 
         $this->assertTrue(isset($cm->fieldMappings['id']));
-        $this->assertEquals(array('id' => true, 'name' => 'jcr:uuid', 'type' => 'string', 'fieldName' => 'id', 'multivalue' => false), $cm->fieldMappings['id']);
+        $this->assertEquals(
+            array(
+                'id' => true,
+                'name' => 'id',
+                'type' => 'string',
+                'isInverseSide' => null,
+                'isOwningSide' => true,
+                'fieldName' => 'id',
+                'multivalue' => false,
+                'strategy' => 'repository',
+            )
+            , $cm->fieldMappings['id']
+        );
 
         $this->assertEquals('id', $cm->identifier);
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_REPOSITORY, $cm->idGenerator);
 
         return $cm;
     }
@@ -42,8 +55,28 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $this->assertTrue(isset($cm->fieldMappings['username']));
         $this->assertTrue(isset($cm->fieldMappings['created']));
 
-        $this->assertEquals(array('type' => 'string', 'name' => 'username', 'fieldName' => 'username', 'multivalue' => false), $cm->fieldMappings['username']);
-        $this->assertEquals(array('type' => 'datetime', 'name' => 'created', 'fieldName' => 'created', 'multivalue' => false), $cm->fieldMappings['created']);
+        $this->assertEquals(
+            array(
+                'name' => 'username',
+                'type' => 'string',
+                'isInverseSide' => null,
+                'isOwningSide' => true,
+                'fieldName' => 'username',
+                'multivalue' => false
+            ),
+            $cm->fieldMappings['username']
+        );
+        $this->assertEquals(
+            array(
+                'name' => 'created',
+                'type' => 'datetime',
+                'isInverseSide' => null,
+                'isOwningSide' => true,
+                'fieldName' => 'created',
+                'multivalue' => false
+            ),
+            $cm->fieldMappings['created']
+        );
 
         return $cm;
     }
@@ -63,8 +96,8 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
      */
     public function testReflectionProperties($cm)
     {
-        $this->assertType('ReflectionProperty', $cm->reflFields['username']);
-        $this->assertType('ReflectionProperty', $cm->reflFields['created']);
+        $this->assertInstanceOf('ReflectionProperty', $cm->reflFields['username']);
+        $this->assertInstanceOf('ReflectionProperty', $cm->reflFields['created']);
     }
 
     /**
@@ -75,7 +108,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_Testcase
         $instance1 = $cm->newInstance();
         $instance2 = $cm->newInstance();
 
-        $this->assertType('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $instance1);
+        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $instance1);
         $this->assertNotSame($instance1, $instance2);
     }
 

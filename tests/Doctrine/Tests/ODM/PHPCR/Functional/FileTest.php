@@ -30,7 +30,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = new TestObj();
         $parent->file = new File();
-        $parent->path = '/functional/filetest';
+        $parent->id = '/functional/filetest';
         $parent->file->setFileContentFromFilesystem('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
 
         $this->dm->persist($parent);
@@ -46,7 +46,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = new TestObj();
         $parent->file = new File();
-        $parent->path = '/functional/filetest';
+        $parent->id = '/functional/filetest';
         $parent->file->setFileContent('Lorem ipsum dolor sit amet');
 
         $this->dm->persist($parent);
@@ -63,10 +63,9 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreatedDate()
     {
-        $this->markTestSkipped('This test fails due to a bug in UnitOfWork. Retest after merge.');
         $parent = new TestObj();
         $parent->file = new File();
-        $parent->path = '/functional/filetest';
+        $parent->id = '/functional/filetest';
         $parent->file->setFileContentFromFilesystem('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
 
         $this->dm->persist($parent);
@@ -86,8 +85,8 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class TestObj
 {
-    /** @phpcr:Path */
-    public $path;
+    /** @phpcr:Id */
+    public $id;
     /** @phpcr:Node */
     public $node;
     /** @phpcr:String */

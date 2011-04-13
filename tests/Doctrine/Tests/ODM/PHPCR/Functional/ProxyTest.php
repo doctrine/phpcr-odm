@@ -47,7 +47,7 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $proxy = $this->dm->getReference($this->type, '/functional/article');
 
-        $this->assertType('Doctrine\ODM\PHPCR\Proxy\Proxy', $proxy);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Proxy\Proxy', $proxy);
         $this->assertFalse($proxy->__isInitialized__);
 
         $this->assertEquals('foo', $proxy->getTitle());

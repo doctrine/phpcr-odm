@@ -76,12 +76,12 @@ class YamlDriver extends AbstractFileDriver
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                $this->addPropertyMapping($class, $mapping);
+                $this->addFieldMapping($class, $mapping);
             }
         }
-        if (isset($element['path'])) {
-            $mapping = array('fieldName' => $element['path']);
-            $this->addPathMapping($class, $mapping);
+        if (isset($element['id'])) {
+            $mapping = array('fieldName' => $element['id'], 'id' => true);
+            $this->addFieldMapping($class, $mapping);
         }
         if (isset($element['node'])) {
             $mapping = array('fieldName' => $element['node']);
@@ -101,16 +101,19 @@ class YamlDriver extends AbstractFileDriver
                 $this->addMappingFromReference($class, $fieldName, $reference, 'many');
             }
         }
+        if (isset($element['lifecycleCallbacks'])) {
+            foreach ($element['lifecycleCallbacks'] as $type => $methods) {
+                foreach ($methods as $method) {
+                    $class->addLifecycleCallback($method, constant('Doctrine\ODM\PHPCR\Event::' . $type));
+                }
+            }
+        }
+
     }
 
-    private function addPropertyMapping(ClassMetadata $class, $mapping)
+    private function addFieldMapping(ClassMetadata $class, $mapping)
     {
         $class->mapField($mapping);
-    }
-
-    private function addPathMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapPath($mapping);
     }
 
     private function addNodeMapping(ClassMetadata $class, $mapping)

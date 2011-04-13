@@ -11,8 +11,8 @@ class CmsUser
 {
 // /** @Id */
 // public $id;
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /** @String(name="status") */

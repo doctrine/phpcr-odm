@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
+    Doctrine\ODM\PHPCR\DocumentRepository;
+
 /**
  * @group functional
  */
@@ -33,8 +36,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = $this->dm->find($this->type, '/functional/user');
 
-        $this->assertType($this->type, $user);
-        $this->assertEquals('/functional/user', $user->path);
+        $this->assertInstanceOf($this->type, $user);
+        $this->assertEquals('/functional/user', $user->id);
+
         $this->assertEquals('lsmith', $user->username);
         $this->assertEquals(array(3, 1, 2), $user->numbers->toArray());
     }
@@ -44,8 +48,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->username = "test";
         $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
 
-        $this->dm->persist($user, '/functional/test');
+        $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -56,12 +61,28 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
 
+    public function testInsertWithCustomIdStrategy()
+    {
+        $user = new User3();
+        $user->username = "test3";
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User3', '/functional/test3');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+    }
+
     public function testMultivaluePropertyWithOnlyOneValueUpdatedToMultiValue()
     {
         $user = new User();
         $user->numbers = array(1);
+        $user->id = '/functional/test';
 
-        $this->dm->persist($user, '/functional/test');
+        $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -108,16 +129,18 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->username = "test";
         $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/user2';
 
-        $this->dm->persist($user, '/functional/user2');
+        $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
         $userNew = $this->dm->find($this->type, '/functional/user2');
         $userNew->username = "test2";
         $userNew->numbers = array(4, 5, 6);
+        $userNew->id = '/functional/user2';
 
-        $this->dm->persist($userNew, '/functional/user2');
+        $this->dm->persist($userNew);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -148,12 +171,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user2 = new User();
         $user2->username = "test2";
+        $user2->id = '/functional/user2222';
 
         $user3 = new User();
         $user3->username = "test3";
+        $user3->id = '/functional/user3333';
 
-        $this->dm->persist($user2, '/functional/user2222');
-        $this->dm->persist($user3, '/functional/user3333');
+        $this->dm->persist($user2);
+        $this->dm->persist($user3);
         $this->dm->flush();
         $this->dm->clear();
 
@@ -161,11 +186,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $pUser2 = $this->dm->find($this->type, '/functional/user2222');
         $pUser3 = $this->dm->find($this->type, '/functional/user3333');
 
-        $this->assertEquals('/functional/user', $pUser1->path);
+        $this->assertEquals('/functional/user', $pUser1->id);
         $this->assertEquals('new-name', $pUser1->username);
-        $this->assertEquals('/functional/user2222', $pUser2->path);
+        $this->assertEquals('/functional/user2222', $pUser2->id);
         $this->assertEquals('test2', $pUser2->username);
-        $this->assertEquals('/functional/user3333', $pUser3->path);
+        $this->assertEquals('/functional/user3333', $pUser3->id);
         $this->assertEquals('test3', $pUser3->username);
     }
 
@@ -178,11 +203,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(false);
         $user = $this->dm->find($this->type.'2', '/functional/user');
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(true);
         $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
 
         $this->setExpectedException('InvalidArgumentException');
         $user = $this->dm->find($this->type.'2', '/functional/user');
@@ -215,7 +240,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(201, $resp->status);
 
         $user = $this->dm->find($this->type, 2);
-        $this->assertType($this->type, $user);
+        $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('beberlei', $user->username);
 
         $user->username = 'beberlei2';
@@ -228,7 +253,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         ksort($resp->body);
         ksort($data);
-        unset($resp->body['_rev']);
 
         $this->assertEquals($data, $resp->body);
     }
@@ -239,8 +263,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class User
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @Node */
     public $node;
     /** @String(name="username") */
@@ -254,8 +278,33 @@ class User
  */
 class User2
 {
-    /** @Path */
-    public $path;
+    /** @Id */
+    public $id;
     /** @String(name="username") */
     public $username;
+}
+
+/**
+ * @Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
+ */
+class User3
+{
+    /** @Id(strategy="repository") */
+    public $id;
+    /** @String(name="username") */
+    public $username;
+}
+
+class User3Repository extends DocumentRepository implements RepositoryIdInterface
+{
+    /**
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
+     */
+    public function generateId($document)
+    {
+        return 'functional/'.$document->username;
+    }
 }

@@ -48,9 +48,10 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = "beberlei";
         $user->name = "Benjamin";
         $user->status = "active";
+        $user->id = '/functional/benjamin';
 
         $dm = $this->createDocumentManager();
-        $dm->persist($user, '/functional/benjamin');
+        $dm->persist($user);
         $dm->flush();
         $dm->clear();
 
