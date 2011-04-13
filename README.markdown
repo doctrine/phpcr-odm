@@ -6,15 +6,15 @@ Current Status
 
 * (very) basic CRUD is implemented
 * metadata reading implemented for annotations
-* there is a symfony2 bundle available in symfony core.
+* there is a symfony2 bundle available at https://github.com/symfony-cmf/DoctrinePHPCRBundle
 
-Todo
+TODO
 ----
 
 * implement the relations (children, parent, references). see https://github.com/doctrine/phpcr-odm/pull/4
 * use the mixin phpcr:alias instead of the _doctrine_alias property. see https://github.com/doctrine/phpcr-odm/pull/4
-* fix the tests that fail
 * fix tests to only depend on PHPCR but not on any Jackalope specific classes
+* improve event listener markup doc.
 
 Notes
 -----
@@ -55,7 +55,7 @@ Getting Started
 
  4. Example usage
 
-        // fetching a document by path
+        // fetching a document by JCR path (id in PHPCR ODM lingo)
         $user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
 
         // create a new document
@@ -95,9 +95,54 @@ You write your own document classes that will be mapped to and from the phpcr da
         public $content;
     }
 
-Available annotations are
+Storing documents in the repository: Id Generator Strategy
+----------------------------------------------------------
+
+When defining an ``id`` its possible to choose the generator strategy. The id
+is the path where in the phpcr content repository the document should be stored.
+By default the assigned id generator is used, which requires manual assignment
+of the path to a property annotated as being the Id.
+You can tell doctrine to use a different strategy to find the id.
+
+Currently, there is the "repository" strategy which calls can be used which
+calls generateId on the repository class to give you full control how you want
+to build the path.
+
+    namespace Acme\SampleBundle\Document;
+
+    use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+    use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
+
+    /**
+     * @Document(repositoryClass="Acme\SampleBundle\DocumentRepository", alias="document")
+     */
+    class Document
+    {
+        /** @Id(strategy="repository") */
+        public $id;
+        /** @String(name="title") */
+        public $title;
+    }
+
+    class DocumentRepository extends BaseDocumentRepository implements RepositoryIdInterface
+    {
+        /**
+         * Generate a document id
+         *
+         * @param object $document
+         * @return string
+         */
+        public function generateId($document)
+        {
+            return 'functional/'.$document->title;
+        }
+    }
+
+Available annotations
+---------------------
+
 <table>
-<tr><td> Id:         </td><td>The phpcr path to this node. </td></tr>
+<tr><td> Id:         </td><td>The phpcr path to this node. (see above)</td></tr>
 <tr><td> Node:       </td><td>The phpcr NodeInterface instance for direct access. </td></tr>
 <tr><td> Uuid:         </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:    </td><td>The version of this node, for versioned nodes. </td></tr>
@@ -111,10 +156,6 @@ Available annotations are
          Binary,     <br />
          ArrayField: </td><td>Typed property</td></tr>
 </table>
-
-TODO: References and child / embed annotations.
-
-TODO: Improve event listener markup doc.
 
 If you give the document @HasLifecycleCallbacks then you can use @PostLoad and friends to have doctrine call a method without parameters on your entity.
 
@@ -130,4 +171,3 @@ See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
  * preUpdate - occurs before an existing document is updated in storage, during the flush operation
  * postUpdate - occurs after an existing document has successfully been updated in storage
  * postLoad - occurs after the document has been loaded from storage
-
