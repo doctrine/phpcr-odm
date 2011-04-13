@@ -71,8 +71,7 @@ EOT
 
         try {
             $ntm->registerNodeTypesCnd($cnd, $allowUpdate);
-        }
-        catch (\PHPCR\NodeType\NodeTypeExistsException $e) {
+        } catch (\PHPCR\NodeType\NodeTypeExistsException $e) {
             if (!$allowUpdate) {
                 $output->write(PHP_EOL.'<error>The node type(s) you tried to register already exist.</error>'.PHP_EOL);
                 $output->write(PHP_EOL.'If you want to override the existing definition call this command with the ');
