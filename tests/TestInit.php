@@ -10,6 +10,9 @@ $classLoader->register();
 $classLoader = new ClassLoader('Doctrine\ODM', __DIR__ . '/../lib');
 $classLoader->register();
 
+$classLoader = new ClassLoader('Doctrine\DBAL', __DIR__ . '/../../doctrine-dbal/lib');
+$classLoader->register();
+
 $classLoader = new ClassLoader('Doctrine', __DIR__ . '/../lib/vendor/doctrine-common/lib');
 $classLoader->register();
 
