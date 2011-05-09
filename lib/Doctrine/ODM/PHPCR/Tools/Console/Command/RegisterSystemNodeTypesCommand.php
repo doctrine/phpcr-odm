@@ -43,7 +43,7 @@ EOT
         $dm = $this->getHelper('dm')->getDocumentManager();
 
         $cnd = <<<CND
-<phpcr='http://www.doctrine-project.org/phpcr-odm'>
+<phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
 [phpcr:managed]
   mixin
   - phpcr:alias (STRING)
