@@ -6,6 +6,9 @@
         <!-- to create the "tests" workspace see http://www.eppelheimer.com/clients/day/jackrabbit/site/apache/faq.html#create-workspace -->
         <var name="DOCTRINE_PHPCR_WORKSPACE" value="tests" />
         <var name="DOCTRINE_PHPCR_TRANSPORT" value="davex" />
+        <!-- to adjust performance results to your specific hardware, use integers only. -->
+        <!-- the InsertPerformanceTest tries to insert count nodes in one second -->
+        <var name="DOCTRINE_PHPCR_PERFORMANCE_COUNT" value="100" />
     </php>
 
     <testsuites>
