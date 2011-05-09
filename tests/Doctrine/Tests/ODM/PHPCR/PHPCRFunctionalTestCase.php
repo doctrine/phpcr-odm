@@ -11,10 +11,10 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         $paths = __DIR__ . "/../../Models";
         $metaDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, $paths);
 
-        $url = isset($_GLOBALS['DOCTRINE_PHPCR_REPOSITORY']) ? $_GLOBALS['DOCTRINE_PHPCR_REPOSITORY'] : 'http://127.0.0.1:8080/server/';
-        $workspace = isset($_GLOBALS['DOCTRINE_PHPCR_WORKSPACE']) ? $_GLOBALS['DOCTRINE_PHPCR_WORKSPACE'] : 'tests';
-        $user = isset($_GLOBALS['DOCTRINE_PHPCR_USER']) ? $_GLOBALS['DOCTRINE_PHPCR_USER'] : '';
-        $pass = isset($_GLOBALS['DOCTRINE_PHPCR_PASS']) ? $_GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
+        $url = isset($GLOBALS['DOCTRINE_PHPCR_REPOSITORY']) ? $GLOBALS['DOCTRINE_PHPCR_REPOSITORY'] : 'http://127.0.0.1:8080/server/';
+        $workspace = isset($GLOBALS['DOCTRINE_PHPCR_WORKSPACE']) ? $GLOBALS['DOCTRINE_PHPCR_WORKSPACE'] : 'tests';
+        $user = isset($GLOBALS['DOCTRINE_PHPCR_USER']) ? $GLOBALS['DOCTRINE_PHPCR_USER'] : '';
+        $pass = isset($GLOBALS['DOCTRINE_PHPCR_PASS']) ? $GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
 
         $repository = new \Jackalope\Repository(new \Jackalope\Factory, $url);
         $credentials = new \PHPCR\SimpleCredentials($user, $pass);
