@@ -56,8 +56,8 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue($this->node->getNode('filetest')->hasNode('file'));
         $this->assertTrue($this->node->getNode('filetest')->getNode('file')->hasNode('jcr:content'));
         $this->assertTrue($this->node->getNode('filetest')->getNode('file')->getNode('jcr:content')->hasProperty('jcr:data'));
-        $binary = $this->node->getNode('filetest')->getNode('file')->getNode('jcr:content')->getProperty('jcr:data')->getBinary();
-        $content = $binary->read($binary->getSize());
+        $binaryStream = $this->node->getNode('filetest')->getNode('file')->getNode('jcr:content')->getProperty('jcr:data')->getBinary();
+        $content = stream_get_contents($binaryStream);
         $this->assertEquals('Lorem ipsum dolor sit amet', $content);
     }
 

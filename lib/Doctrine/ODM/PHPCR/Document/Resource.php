@@ -34,30 +34,30 @@ class Resource
     /**
      * setter for the data property
      * This property stores the content of this resource
-     *  
-     * @param string $data the contents of this resource 
+     *
+     * @param stream $data the contents of this resource
      */
     public function setData($data)
     {
         $this->data = $data;
     }
-  
+
     /**
      * getter for the data property
      * This returns the content of this resource
-     *  
-     * @param string 
+     *
+     * @param stream
      */
     public function getData()
     {
         return $this->data;
     }
-  
+
     /**
      * setter for the mimeType property
      * This property stores the mimeType of this resource
-     *  
-     * @param string $mimeType 
+     *
+     * @param string $mimeType
      */
     public function setMimeType($mimeType)
     {
@@ -67,8 +67,8 @@ class Resource
     /**
      * getter for the mimeType property
      * This returns the mimeType of this resource
-     *  
-     * @return string 
+     *
+     * @return string
      */
     public function getMimeType()
     {
@@ -78,8 +78,8 @@ class Resource
     /**
      * setter for the encoding property
      * This property stores the encoding of this resource
-     *  
-     * @param string $encoding 
+     *
+     * @param string $encoding
      */
     public function setEncoding($encoding)
     {
@@ -89,7 +89,7 @@ class Resource
     /**
      * getter for the encoding property
      * This returns the encoding of this resource
-     *  
+     *
      * @return string
      */
     public function getEncoding()
@@ -101,8 +101,8 @@ class Resource
      * setter for the lastModified property
      * This property stores the lastModified date of this resource
      * If not set, this might be set by PHPCR
-     * 
-     * @param DateTime $lastModified 
+     *
+     * @param DateTime $lastModified
      */
     public function setLastModified($lastModified)
     {
@@ -112,8 +112,8 @@ class Resource
     /**
      * getter for the lastModified property
      * This returns the lastModified date of this resource
-     * 
-     * @return DateTime 
+     *
+     * @return DateTime
      */
     public function getLastModified()
     {
@@ -123,7 +123,7 @@ class Resource
     /**
      * setter for the lastModifiedBy property
      * name of the jcr user that last modified this resource
-     * 
+     *
      * @param string $lastModifiedBy
      */
     public function setLastModifiedBy($lastModifiedBy)
@@ -134,7 +134,7 @@ class Resource
     /**
      * getter for the lastModifiedBy property
      * This returns name of the jcr user that last modified this resource
-     * 
+     *
      * @return string
      */
     public function getLastModifiedBy()

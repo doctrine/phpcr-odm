@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPCR\PropertyType;
 
 /**
  * Unit of work class
@@ -149,7 +150,7 @@ class UnitOfWork
         } else if (isset($documentName)) {
             $type = $documentName;
             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('phpcr:alias', $documentName);
+                $node->setProperty('phpcr:alias', $documentName, PropertyType::STRING);
             }
         } else {
             throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
@@ -390,7 +391,7 @@ class UnitOfWork
 
     /**
      * recurse over all known child documents to remove them form this unit of work
-     * as their parent gets removed from phpcr. If you do not, flush will try to create 
+     * as their parent gets removed from phpcr. If you do not, flush will try to create
      + orphaned nodes if these documents are modified which leads to a PHPCR exception
      */
     private function purgeChildren($document)
@@ -407,11 +408,11 @@ class UnitOfWork
                   $this->scheduledInserts[$oid],
                   $this->scheduledUpdates[$oid]
                 );
-  
+
                 $this->removeFromIdentityMap($child);
             }
         }
-        
+
 
     }
 
@@ -589,7 +590,11 @@ class UnitOfWork
             $id = $this->documentIds[$oid];
             $parentNode = $session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
             $node = $parentNode->addNode(basename($id), $class->nodeType);
-            $node->addMixin('phpcr:managed');
+            try {
+              $node->addMixin('phpcr:managed');
+            } catch (\PHPCR\NodeType\NoSuchNodeTypeException $e) {
+              throw new PHPCRException("You need to register the node type phpcr:managed first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
+            }
 
             if ($class->isVersioned) {
                 $node->addMixin("mix:versionable");
@@ -603,7 +608,7 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:alias', $class->alias, 'string');
+                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -633,7 +638,7 @@ class UnitOfWork
             }
 
             if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:alias', $class->alias);
+                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -666,13 +671,13 @@ class UnitOfWork
                         }
                     }
                 // child is set to null ... remove the node ...
-                } else if (isset($class->childMappings[$fieldName])) {
+                } elseif (isset($class->childMappings[$fieldName])) {
                     if ($fieldValue === null) {
                       if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
                         $child = $node->getNode($class->childMappings[$fieldName]['name']);
                         $childDocument = $this->createDocument(null, $child);
                         $this->purgeChildren($childDocument);
-                        $child->remove(); 
+                        $child->remove();
                       }
                     } else if (isset($this->originalData[$oid][$fieldName])) {
                         // this is currently not implemented
@@ -680,7 +685,7 @@ class UnitOfWork
                         throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");
                     }
                 }
-            } 
+            }
 
             // respect the non mapped data, otherwise they will be deleted.
             if (isset($this->nonMappedData[$oid]) && $this->nonMappedData[$oid]) {

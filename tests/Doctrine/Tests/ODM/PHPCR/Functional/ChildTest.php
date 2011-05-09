@@ -19,16 +19,16 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\TestObj';
-        $this->childType = 'Doctrine\Tests\ODM\PHPCR\Functional\ChildTestObj';
+        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\ChildTestObj';
+        $this->childType = 'Doctrine\Tests\ODM\PHPCR\Functional\ChildChildTestObj';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testCreate()
     {
-        $parent = new TestObj();
-        $child = new ChildTestObj();
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
         $parent->child = $child;
         $child->name = 'Child';
@@ -44,7 +44,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateWithoutChild()
     {
-        $parent = new TestObj();
+        $parent = new ChildTestObj();
         $parent->name = 'Parent';
         $parent->id = '/functional/childtest';
 
@@ -57,7 +57,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateAddChildLater()
     {
-        $parent = new TestObj();
+        $parent = new ChildTestObj();
         $parent->name = 'Parent';
         $parent->id = '/functional/childtest';
 
@@ -68,10 +68,10 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
 
         $parent = $this->dm->find($this->type, '/functional/childtest');
-        $parent->child = new ChildTestObj();
+        $parent->child = new ChildChildTestObj();
         $parent->child->name = 'Child';
         $this->dm->persist($parent);
-        
+
         $this->dm->flush();
         $this->dm->clear();
 
@@ -82,8 +82,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testUpdate()
     {
-        $parent = new TestObj();
-        $child = new ChildTestObj();
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
         $parent->id = '/functional/childtest';
         $parent->child = $child;
@@ -96,20 +96,20 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/childtest');
         $parent->child->name = 'Child changed';
 
-        $this->dm->persist($parent); 
+        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
         $this->assertNotEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child changed');
     }
-    
+
     /**
      * Remove the parent node, even when children are modified.
      */
     public function testRemove1()
     {
-        $parent = new TestObj();
-        $child = new ChildTestObj();
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
         $parent->id = '/functional/childtest';
         $parent->child = $child;
@@ -122,7 +122,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/childtest');
         $parent->child->name = 'Child changed';
 
-        $this->dm->remove($parent); 
+        $this->dm->remove($parent);
         $this->dm->flush();
         $this->dm->clear();
         $parent = $this->dm->find($this->type, '/functional/childtest');
@@ -134,8 +134,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testRemove2()
     {
-        $parent = new TestObj();
-        $child = new ChildTestObj();
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
         $parent->id  = '/functional/childtest';
         $parent->child = $child;
@@ -147,12 +147,12 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $child = $this->dm->find($this->childType, '/functional/childtest/test');
 
-        $this->dm->remove($child); 
+        $this->dm->remove($child);
         $this->dm->flush();
         $this->dm->clear();
 
         $parent = $this->dm->find($this->type, '/functional/childtest');
-  
+
         $this->assertNull($parent->child);
         $this->assertTrue($this->node->hasNode('childtest'));
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
@@ -160,8 +160,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testChildSetNull()
     {
-        $parent = new TestObj();
-        $child = new ChildTestObj();
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
         $parent->id = '/functional/childtest';
         $parent->child = $child;
@@ -184,8 +184,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /* this fails as the newChild is not persisted */
     public function testChildReplace()
     {
-        $parent = new TestObj();
-        $child = new ChildTestObj();
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
         $parent->id = '/functional/childtest';
         $parent->child = $child;
@@ -196,14 +196,14 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $parent = $this->dm->find($this->type, '/functional/childtest');
-        $newChild = new ChildTestObj();
+        $newChild = new ChildChildTestObj();
         $newChild->name = 'new name';
         $parent->child = $newChild;
-        
+
         $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
 
         $this->dm->flush();
-      
+
     }
 }
 
@@ -211,7 +211,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 /**
  * @Document(alias="childTestObj")
  */
-class ChildTestObj
+class ChildChildTestObj
 {
     /** @Id */
     public $id;
@@ -223,7 +223,7 @@ class ChildTestObj
 /**
  * @Document(alias="testObj")
  */
-class TestObj
+class ChildTestObj
 {
     /** @Id */
     public $id;

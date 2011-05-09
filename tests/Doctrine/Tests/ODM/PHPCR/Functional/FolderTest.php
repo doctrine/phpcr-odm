@@ -26,10 +26,10 @@ class FolderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCreate()
     {
         $folder = new Folder();
-        $folder->setPath('/functional/folder');
+        $folder->setId('/functional/folder');
 
         $file = new File();
-        $file->setPath('/functional/folder/file');
+        $file->setId('/functional/folder/file');
         $file->setFileContent('Lorem ipsum dolor sit amet');
 
         $this->dm->persist($folder);
@@ -41,8 +41,8 @@ class FolderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue($this->node->getNode('folder')->hasNode('file'));
         $this->assertTrue($this->node->getNode('folder')->getNode('file')->hasNode('jcr:content'));
         $this->assertTrue($this->node->getNode('folder')->getNode('file')->getNode('jcr:content')->hasProperty('jcr:data'));
-        $binary = $this->node->getNode('folder')->getNode('file')->getNode('jcr:content')->getProperty('jcr:data')->getBinary();
-        $content = $binary->read($binary->getSize());
+        $binaryStream = $this->node->getNode('folder')->getNode('file')->getNode('jcr:content')->getProperty('jcr:data')->getBinary();
+        $content = stream_get_contents($binaryStream);
         $this->assertEquals('Lorem ipsum dolor sit amet', $content);
     }
 }

@@ -5,10 +5,10 @@ namespace Doctrine\ODM\PHPCR\Document;
 /**
  * This class represents a JCR file, aka nt:file.
  * @see http://wiki.apache.org/jackrabbit/nt:file
- * 
+ *
  * @phpcr:Document(alias="file", nodeType="nt:file")
  */
-class File 
+class File
 {
     /** @phpcr:Id */
     protected $id;
@@ -27,7 +27,7 @@ class File
 
     /**
      * setter for id
-     * 
+     *
      * @param string $id of the node
      */
     public function setId($id)
@@ -37,7 +37,7 @@ class File
 
     /**
      * getter for id
-     * 
+     *
      * @return string id of the node
      */
     public function getId()
@@ -49,7 +49,7 @@ class File
      * getter for created
      * The created date is assigned by the content repository
      *
-     * @return DateTime created date of the file 
+     * @return DateTime created date of the file
      */
     public function getCreated()
     {
@@ -61,7 +61,7 @@ class File
      * The createdBy is assigned by the content repository
      * This is the name of the (jcr) user that created the node
      *
-     * @return string name of the (jcr) user who created the file 
+     * @return string name of the (jcr) user who created the file
      */
     public function getCreatedBy()
     {
@@ -77,8 +77,9 @@ class File
     public function setFileContentFromFilesystem($filename)
     {
         $this->getContent();
-        $this->content->setData(file_get_contents($filename));
-    } 
+        $stream = fopen($filename, 'rb');
+        $this->content->setData($stream);
+    }
 
     /**
      * Set the content for this file from the given string.
@@ -88,16 +89,39 @@ class File
     public function setFileContent($content)
     {
         $this->getContent();
-        $this->content->setData($content);
-    } 
+        $stream = fopen('php://memory', 'rwb+');
+        fwrite($stream, $content);
+        rewind($stream);
+        $this->content->setData($stream);
+    }
+
+    /**
+     * Get a stream for the content of this file.
+     *
+     * @return stream the content for the file
+     */
+    public function getFileContentAsStream()
+    {
+      return $this->getContent()->getData();
+    }
+
+    /**
+     * Get the content for this file as string.
+     *
+     * @return string the content for the file in a string
+     */
+    public function getFileContent()
+    {
+      $content = stream_get_contents($this->getContent()->getData());
+      return $content !== false ? $content : '';
+    }
 
     /*
      * Ensure content object is created
      */
     private function getContent()
     {
-        if ($this->content === null)
-        {
+        if ($this->content === null) {
             $this->content = new Resource();
         }
         return $this->content;
