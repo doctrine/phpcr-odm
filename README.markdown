@@ -172,6 +172,16 @@ Available annotations
          ArrayField: </td><td>Typed property</td></tr>
 </table>
 
+In the parenthesis after the type, you can specify the name of the PHPCR field to store the value, and whether this is a multivalue property. For example
+/**
+ * @phpcr:String(name="categories", multivalue=true)
+ */
+private $cat;
+
+TODO: References and child / embed annotations.
+
+TODO: Improve event listener markup doc.
+
 If you give the document @HasLifecycleCallbacks then you can use @PostLoad and friends to have doctrine call a method without parameters on your entity.
 
 You can also define event listeners on the DocumentManager with

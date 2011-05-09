@@ -30,7 +30,7 @@ abstract class IdGenerator
                 $instance = new RepositoryIdGenerator();
                 break;
             default:
-                throw \Exception("ID Generator does not exist!");
+                throw new \Exception("ID Generator does not exist!");
         }
         return $instance;
     }

@@ -38,11 +38,11 @@ This command allows to register node types in the repository that are defined
 in a CND (Compact Node Definition) file.
 
 Custom node types can be used to define the structure of content repository
-nodes, like allowed properties and child nodes together with the namespaces  
+nodes, like allowed properties and child nodes together with the namespaces
 and their prefix used for the names of node types and properties.
 
-If you use --allow-update existing node type definitions will be overwritten 
-in the repository. 
+If you use --allow-update existing node type definitions will be overwritten
+in the repository.
 EOT
         );
     }
@@ -69,7 +69,16 @@ EOT
         $session = $dm->getPhpcrSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
-        $ntm->registerNodeTypesCnd($cnd, $allowUpdate);
-        $output->write(sprintf('Sucessfully registered node types from "<info>%s</INFO>"', $cnd_file) . PHP_EOL);
+        try {
+            $ntm->registerNodeTypesCnd($cnd, $allowUpdate);
+        } catch (\PHPCR\NodeType\NodeTypeExistsException $e) {
+            if (!$allowUpdate) {
+                $output->write(PHP_EOL.'<error>The node type(s) you tried to register already exist.</error>'.PHP_EOL);
+                $output->write(PHP_EOL.'If you want to override the existing definition call this command with the ');
+                $output->write('<info>--allow-update</info> option.'.PHP_EOL);
+            }
+            throw $e;
+        }
+        $output->write(PHP_EOL.sprintf('Sucessfully registered node types from "<info>%s</info>"', $cnd_file) . PHP_EOL);
     }
 }

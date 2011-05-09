@@ -51,11 +51,14 @@ class ClassMetadata extends ClassMetadataInfo
     {
         $mapping = parent::mapField($mapping);
 
+        // @codeCoverageIgnoreStart
+        // FIXME never called; might be about lazy loading (code apparently taken from CouchDB/MongoDB)
         if ($this->reflClass->hasProperty($mapping['fieldName'])) {
             $reflProp = $this->reflClass->getProperty($mapping['fieldName']);
             $reflProp->setAccessible(true);
             $this->reflFields[$mapping['fieldName']] = $reflProp;
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -79,8 +82,8 @@ class ClassMetadata extends ClassMetadataInfo
             'identifier',
             'name',
             'namespace', // TODO: REMOVE
-            'collection',
-            'generatorType',
+//            'collection',
+//            'generatorType',
             'generatorOptions',
             'idGenerator'
         );

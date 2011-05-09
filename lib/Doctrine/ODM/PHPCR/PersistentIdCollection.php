@@ -15,9 +15,16 @@ use Doctrine\Common\Collections\Collection;
  */
 class PersistentIdCollection extends PersistentCollection
 {
+    /** @var string */
     private $documentName;
+
+    /** @var DocumentManager */
     private $dm;
+
+    /** @var array */
     private $ids;
+
+    /** @var bool   Whether the collection is populated with the associated ids. */
     public $isInitialized = false;
 
     public function __construct(Collection $collection, $documentName, DocumentManager $dm, $ids)
@@ -47,3 +54,4 @@ class PersistentIdCollection extends PersistentCollection
         }
     }
 }
+

@@ -167,9 +167,9 @@ class UnitOfWork
                 if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
                     // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
-                    $documentState[$fieldName] = new ArrayCollection((array) $property->getNativeValue());
+                    $documentState[$fieldName] = new ArrayCollection((array) $property->getValue());
                 } else {
-                    $documentState[$fieldName] = $property->getNativeValue();
+                    $documentState[$fieldName] = $property->getValue();
                 }
             }
 //            } else if ($jsonName == 'doctrine_metadata') {
@@ -205,7 +205,7 @@ class UnitOfWork
             $documentState[$class->node] = $node;
         }
         if ($class->versionField) {
-            $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getNativeValue();
+            $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getValue();
         }
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getPath();
