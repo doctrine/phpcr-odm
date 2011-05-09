@@ -38,6 +38,8 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     protected function createNode($id, $username)
     {
+        $this->markTestIncomplete('The Node needs to be properly mocked/stubbed');
+
         $nodeData = array(
             'jcr:primaryType' => "Name",
             "jcr:primaryType" => "rep:root",
@@ -50,7 +52,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function testCreateDocument()
     {
-
         $user = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
         $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('foo', $user->username);
@@ -60,7 +61,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertEquals(array('id' => '/somepath', 'username' => 'foo'), $this->uow->getOriginalData($user));
     }
 
-    public function testCreateDocument_UseIdentityMap()
+    public function testCreateDocumentUsingIdentityMap()
     {
         $user1 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
         $user2 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
