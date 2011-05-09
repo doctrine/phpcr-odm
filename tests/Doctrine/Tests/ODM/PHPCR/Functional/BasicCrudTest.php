@@ -28,7 +28,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('_doctrine_alias', 'user');
+        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 

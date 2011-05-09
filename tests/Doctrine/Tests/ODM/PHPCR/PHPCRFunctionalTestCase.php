@@ -8,7 +8,10 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
         $reader->setDefaultAnnotationNamespace('Doctrine\ODM\PHPCR\Mapping\\');
-        $paths = __DIR__ . "/../../Models";
+        $reader->setAnnotationNamespaceAlias('Doctrine\ODM\PHPCR\Mapping\\', 'phpcr');
+        $paths = array();
+        $paths[] = __DIR__ . "/../../Models";
+        $paths[] = __DIR__ . "/../../../../../lib/Doctrine/ODM/PHPCR/Document";
         $metaDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, $paths);
 
         $url = isset($GLOBALS['DOCTRINE_PHPCR_REPOSITORY']) ? $GLOBALS['DOCTRINE_PHPCR_REPOSITORY'] : 'http://127.0.0.1:8080/server/';

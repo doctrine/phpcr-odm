@@ -29,7 +29,7 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
             $user->name = "Benjamin";
             $user->username = "beberlei";
             $user->status = "active";
-            $user->path = "/functional/node$i";
+            $user->id = "/functional/node$i";
 
             $dm->persist($user);
         }

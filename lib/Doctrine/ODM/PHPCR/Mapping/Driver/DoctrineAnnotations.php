@@ -23,7 +23,7 @@ class Property extends Annotation
     public $type = 'undefined';
     public $multivalue = false;
 }
-final class Id extends Property
+final class Id extends Annotation
 {
     public $id = true;
     public $type = 'string';
@@ -84,6 +84,10 @@ final class ReferenceMany extends Reference
 {
     public $cascade = array();
     public $mappedBy;
+}
+class Child extends Annotation
+{
+    public $name;
 }
 
 /* Annotations for lifecycle callbacks */

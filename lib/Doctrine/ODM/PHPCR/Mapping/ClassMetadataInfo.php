@@ -180,6 +180,12 @@ class ClassMetadataInfo implements ClassMetadata
 
     public $associationsMappings = array();
 
+
+    /**
+     * Mapping of child doucments that are child nodes in the repository
+     */
+    public $childMappings = array();
+
     /**
      * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
      *
@@ -478,12 +484,33 @@ class ClassMetadataInfo implements ClassMetadata
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
     }
 
+    public function mapId(array $mapping)
+    {
+        if (isset($mapping['id']) && $mapping['id'] === true) {
+            $mapping['type'] = 'string';
+            $this->setIdentifier($mapping['fieldName']);
+            if (isset($mapping['strategy'])) {
+                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
+            }
+        }
+        $this->validateAndCompleteFieldMapping($mapping, false);
+    }
+ 
     public function mapNode(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
 
         $this->node = $mapping['fieldName'];
     }
+
+    public function mapChild(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        if (!isset($mapping['name'])) {
+            $mapping['name'] = $mapping['fieldName'];
+        }
+        $this->childMappings[$mapping['fieldName']] = $mapping;
+    } 
 
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
@@ -493,7 +520,7 @@ class ClassMetadataInfo implements ClassMetadata
         if ($isField && !isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
         }
-        if (isset($this->fieldMappings[$mapping['fieldName']]) || isset($this->associationsMappings[$mapping['fieldName']])) {
+        if (isset($this->fieldMappings[$mapping['fieldName']]) || isset($this->associationsMappings[$mapping['fieldName']]) || isset($this->childMappings[$mapping['fieldName']])) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
         if ($isField && !isset($mapping['type'])) {
