@@ -24,6 +24,21 @@ Notes
 Getting Started
 ---------------
 
+ 0. Register custom node types in Jackrabbit
+
+        - stop your Jackrabbit instance
+        - run "java -jar jackrabbit-standalone-2.2.4.jar --cli file://<path to your repository>"
+        - enter "registernodetype <path to phpcr.cnd>"
+        - enter "quit"
+        - start your server again ...
+
+        where phpcr.cnd contains
+
+        <phpcr='http://www.doctrine-project.org/phpcr-odm'>
+        [phpcr:managed]
+          mixin
+          - phpcr:alias (STRING)
+
  1. Define one of those mapping drivers
 
         // Annotation driver

@@ -141,8 +141,8 @@ class UnitOfWork
     {
         // TODO create a doctrine: namespace and register node types with doctrine:name
 
-        if ($node->hasProperty('_doctrine_alias')) {
-            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($node->getPropertyValue('_doctrine_alias'));
+        if ($node->hasProperty('phpcr:alias')) {
+            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($node->getPropertyValue('phpcr:alias'));
             $type = $metadata->name;
             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
                 $validate = true;
@@ -150,7 +150,7 @@ class UnitOfWork
         } else if (isset($documentName)) {
             $type = $documentName;
             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('_doctrine_alias', $documentName, PropertyType::STRING);
+                $node->setProperty('phpcr:alias', $documentName, PropertyType::STRING);
             }
         } else {
             throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
@@ -226,6 +226,14 @@ class UnitOfWork
             }
         }
 
+        foreach ($class->childMappings as $childName => $mapping) {
+            if ($node->hasNode($mapping['name'])) {
+                $documentState[$class->childMappings[$childName]['fieldName']] = $this->createDocument(null, $node->getNode($mapping['name']));
+            } else {
+                $documentState[$class->childMappings[$childName]['fieldName']] = null;
+            }
+        }
+
         if (isset($this->identityMap[$id])) {
             $document = $this->identityMap[$id];
             $overrideLocalValues = false;
@@ -291,7 +299,7 @@ class UnitOfWork
         $this->doScheduleInsert($document, $visited);
     }
 
-    private function doScheduleInsert($document, &$visited)
+    private function doScheduleInsert($document, &$visited, $overrideIdGenerator = null)
     {
         $oid = spl_object_hash($document);
         if (isset($visited[$oid])) {
@@ -304,7 +312,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->persistNew($class, $document);
+                $this->persistNew($class, $document, $overrideIdGenerator);
                 break;
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
@@ -347,6 +355,15 @@ class UnitOfWork
                 }
             }
         }
+        foreach ($class->childMappings as $childName => $mapping) {
+            $child = $class->reflFields[$childName]->getValue($document);
+            if ($child !== null && $this->getDocumentState($child) == self::STATE_NEW) {
+                $childClass = $this->dm->getClassMetadata(get_class($child));
+                $id = $class->reflFields[$class->identifier]->getValue($document);
+                $childClass->reflFields[$childClass->identifier]->setValue($child , $id . '/'. $mapping['name']);
+                $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+            }
+        }
     }
 
     private function getIdGenerator($type)
@@ -370,6 +387,33 @@ class UnitOfWork
         if ($this->evm->hasListeners(Event::preRemove)) {
             $this->evm->dispatchEvent(Event::preRemove, new Events\LifecycleEventArgs($document, $this->dm));
         }
+    }
+
+    /**
+     * recurse over all known child documents to remove them form this unit of work
+     * as their parent gets removed from phpcr. If you do not, flush will try to create
+     + orphaned nodes if these documents are modified which leads to a PHPCR exception
+     */
+    private function purgeChildren($document)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        foreach ($class->childMappings as $childName => $mapping) {
+            $child = $class->reflFields[$childName]->getValue($document);
+            if ($child !== null) {
+                $this->purgeChildren($child);
+
+                $oid = spl_object_hash($child);
+                unset(
+                  $this->scheduledRemovals[$oid],
+                  $this->scheduledInserts[$oid],
+                  $this->scheduledUpdates[$oid]
+                );
+
+                $this->removeFromIdentityMap($child);
+            }
+        }
+
+
     }
 
     public function getDocumentState($document)
@@ -440,7 +484,7 @@ class UnitOfWork
 
             $changed = false;
             foreach ($actualData as $fieldName => $fieldValue) {
-                if (!isset($class->fieldMappings[$fieldName])) {
+                if (!isset($class->fieldMappings[$fieldName]) && !isset($class->childMappings[$fieldName])) {
                     continue;
                 }
                 if ($class->isCollectionValuedAssociation($fieldName)) {
@@ -490,9 +534,9 @@ class UnitOfWork
      * @param object $document
      * @return void
      */
-    public function persistNew($class, $document)
+    public function persistNew($class, $document, $overrideIdGenerator = null)
     {
-        $id = $this->getIdGenerator($class->idGenerator)->generate($document, $class, $this->dm);
+        $id = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
 
         $this->registerManaged($document, $id, null);
 
@@ -507,6 +551,7 @@ class UnitOfWork
     /**
      * Flush Operation - Write all dirty entries to the PHPCR.
      *
+     * @throws PHPCRException if it detects that a existing child should be replaced
      * @return void
      */
     public function flush()
@@ -526,6 +571,7 @@ class UnitOfWork
         foreach ($this->scheduledRemovals as $oid => $document) {
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
+            $this->purgeChildren($document);
         }
 
         foreach ($this->scheduledInserts as $oid => $document) {
@@ -544,6 +590,11 @@ class UnitOfWork
             $id = $this->documentIds[$oid];
             $parentNode = $session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
             $node = $parentNode->addNode(basename($id), $class->nodeType);
+            try {
+              $node->addMixin('phpcr:managed');
+            } catch (\PHPCR\NodeType\NoSuchNodeTypeException $e) {
+              throw new PHPCRException("You need to register the node type phpcr:managed first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
+            }
 
             if ($class->isVersioned) {
                 $node->addMixin("mix:versionable");
@@ -557,7 +608,7 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($useDoctrineMetadata) {
-                $node->setProperty('_doctrine_alias', $class->alias, PropertyType::STRING);
+                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -587,7 +638,7 @@ class UnitOfWork
             }
 
             if ($useDoctrineMetadata) {
-                $node->setProperty('_doctrine_alias', $class->alias);
+                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -618,6 +669,20 @@ class UnitOfWork
 
                             $data['doctrine_metadata']['associations'][$fieldName] = $ids;
                         }
+                    }
+                // child is set to null ... remove the node ...
+                } elseif (isset($class->childMappings[$fieldName])) {
+                    if ($fieldValue === null) {
+                      if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
+                        $child = $node->getNode($class->childMappings[$fieldName]['name']);
+                        $childDocument = $this->createDocument(null, $child);
+                        $this->purgeChildren($childDocument);
+                        $child->remove();
+                      }
+                    } else if (isset($this->originalData[$oid][$fieldName])) {
+                        // this is currently not implemented
+                        // the old child needs to be removed and the new child might be moved
+                        throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");
                     }
                 }
             }
