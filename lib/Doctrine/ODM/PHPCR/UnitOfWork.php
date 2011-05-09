@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPCR\PropertyType;
 
 /**
  * Unit of work class
@@ -149,7 +150,7 @@ class UnitOfWork
         } else if (isset($documentName)) {
             $type = $documentName;
             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('_doctrine_alias', $documentName);
+                $node->setProperty('_doctrine_alias', $documentName, PropertyType::STRING);
             }
         } else {
             throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
@@ -556,7 +557,7 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($useDoctrineMetadata) {
-                $node->setProperty('_doctrine_alias', $class->alias, 'string');
+                $node->setProperty('_doctrine_alias', $class->alias, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
