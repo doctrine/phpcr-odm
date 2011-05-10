@@ -135,7 +135,7 @@ class ProxyFactory
             '<methods>', '<sleepImpl>'
         );
 
-        if(substr($class->name, 0, 1) == "\\") {
+        if (substr($class->name, 0, 1) == "\\") {
             $className = substr($class->name, 1);
         } else {
             $className = $class->name;
@@ -188,7 +188,7 @@ class ProxyFactory
                     // We need to pick the type hint class too
                     if (($paramClass = $param->getClass()) !== null) {
                         $parameterString .= '\\' . $paramClass->getName() . ' ';
-                    } else if ($param->isArray()) {
+                    } elseif ($param->isArray()) {
                         $parameterString .= 'array ';
                     }
 
