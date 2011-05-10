@@ -147,7 +147,7 @@ class UnitOfWork
             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
                 $validate = true;
             }
-        } else if (isset($documentName)) {
+        } elseif (isset($documentName)) {
             $type = $documentName;
             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
                 $node->setProperty('phpcr:alias', $documentName, PropertyType::STRING);
@@ -173,7 +173,7 @@ class UnitOfWork
                     $documentState[$fieldName] = $property->getValue();
                 }
             }
-//            } else if ($jsonName == 'doctrine_metadata') {
+//            } elseif ($jsonName == 'doctrine_metadata') {
 //                if (!isset($jsonValue['associations'])) {
 //                    continue;
 //                }
@@ -185,7 +185,7 @@ class UnitOfWork
 //                                $assocValue = $this->dm->getReference($class->associationsMappings[$assocName]['targetDocument'], $assocValue);
 //                            }
 //                            $documentState[$class->associationsMappings[$assocName]['fieldName']] = $assocValue;
-//                        } else if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::MANY_TO_MANY) {
+//                        } elseif ($class->associationsMappings[$assocName]['type'] & ClassMetadata::MANY_TO_MANY) {
 //                            if ($class->associationsMappings[$assocName]['isOwning']) {
 //                                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentIdsCollection(
 //                                    new \Doctrine\Common\Collections\ArrayCollection(),
@@ -452,8 +452,8 @@ class UnitOfWork
         foreach ($class->reflFields as $fieldName => $reflProperty) {
             $value = $reflProperty->getValue($document);
             if ($class->isCollectionValuedAssociation($fieldName) && $value !== null
-                    && !($value instanceof PersistentCollection)) {
-
+                    && !($value instanceof PersistentCollection)
+            ) {
                 if (!$value instanceof Collection) {
                     $value = new ArrayCollection($value);
                 }
@@ -492,7 +492,7 @@ class UnitOfWork
                         // if its not a persistent collection and the original value changed. otherwise it could just be null
                         $changed = true;
                         break;
-                    } else if ($fieldValue->changed()) {
+                    } elseif ($fieldValue->changed()) {
                         $this->visitedCollections[] = $fieldValue;
                         $changed = true;
                         break;
@@ -650,14 +650,14 @@ class UnitOfWork
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
                     }
-                } else if (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
+                } elseif (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
                     if ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_ONE) {
                         if (\is_object($fieldValue)) {
                             $data['doctrine_metadata']['associations'][$fieldName] = $this->getDocumentId($fieldValue);
                         } else {
                             $data['doctrine_metadata']['associations'][$fieldName] = null;
                         }
-                    } else if ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_MANY) {
+                    } elseif ($class->associationsMappings[$fieldName]['type'] & ClassMetadata::TO_MANY) {
                         if ($class->associationsMappings[$fieldName]['isOwning']) {
                             // TODO: Optimize when not initialized yet! In ManyToMany case we can keep track of ALL ids
                             $ids = array();
@@ -679,7 +679,7 @@ class UnitOfWork
                         $this->purgeChildren($childDocument);
                         $child->remove();
                       }
-                    } else if (isset($this->originalData[$oid][$fieldName])) {
+                    } elseif (isset($this->originalData[$oid][$fieldName])) {
                         // this is currently not implemented
                         // the old child needs to be removed and the new child might be moved
                         throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");

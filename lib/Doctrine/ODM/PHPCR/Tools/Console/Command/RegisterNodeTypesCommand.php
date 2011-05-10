@@ -57,7 +57,7 @@ EOT
             throw new \InvalidArgumentException(
                 sprintf("Node type definition file '<info>%s</info>' does not exist.", $cnd_file)
             );
-        } else if (!is_readable($cnd_file)) {
+        } elseif (!is_readable($cnd_file)) {
             throw new \InvalidArgumentException(
                 sprintf("Node type definition file '<info>%s</info>' does not have read permissions.", $cnd_file)
             );
