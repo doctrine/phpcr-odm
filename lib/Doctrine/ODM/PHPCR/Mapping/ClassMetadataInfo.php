@@ -443,10 +443,10 @@ class ClassMetadataInfo implements ClassMetadata
             if (isset($mapping['strategy'])) {
                 $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
             }
-        } else if (isset($mapping['uuid']) && $mapping['uuid'] === true) {
+        } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
             $mapping['name'] = 'jcr:uuid';
-        } else if (isset($mapping['isVersionField'])) {
+        } elseif (isset($mapping['isVersionField'])) {
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
         }
