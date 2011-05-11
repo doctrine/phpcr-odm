@@ -90,7 +90,7 @@ class ClassMetadataInfo implements ClassMetadata
     public $namespace;
 
     /**
-     * READ-ONLY: The class alias that is stored in the _doctrine_alias property
+     * READ-ONLY: The class alias that is stored in the phpcr:alias property
      *
      * @var string
      */
