@@ -133,6 +133,10 @@ class DocumentManager
      */
     public function find($documentName, $id)
     {
+        if (is_null($documentName)) {
+            //TODO: we should figure out the document automatically from the phpcr:alias
+            throw new \InvalidArgumentException('documentName for find may not be null');
+        }
         return $this->getRepository($documentName)->find($id);
     }
 
