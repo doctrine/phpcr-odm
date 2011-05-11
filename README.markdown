@@ -24,20 +24,8 @@ Notes
 Getting Started
 ---------------
 
- 0. Register custom node types in Jackrabbit
-
-        - stop your Jackrabbit instance
-        - run "java -jar jackrabbit-standalone-2.2.4.jar --cli file://<path to your repository>"
-        - enter "registernodetype <path to phpcr.cnd>"
-        - enter "quit"
-        - start your server again ...
-
-        where phpcr.cnd contains
-
-        <phpcr='http://www.doctrine-project.org/phpcr-odm'>
-        [phpcr:managed]
-          mixin
-          - phpcr:alias (STRING)
+ 0. Install jackrabbit according to https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged
+        You need a patched jackrabbit and run the command to register types.
 
  1. Define one of those mapping drivers
 
