@@ -98,6 +98,10 @@ You write your own document classes that will be mapped to and from the phpcr da
         public $content;
     }
 
+Note that there are basic Document classes for the standard PHPCR node types nt:file, nt:folder and nt:resource
+See lib/Doctrine/ODM/PHPCR/Document/
+
+
 Storing documents in the repository: Id Generator Strategy
 ----------------------------------------------------------
 
@@ -145,11 +149,12 @@ Available annotations
 ---------------------
 
 <table>
-<tr><td> Id:         </td><td>The phpcr path to this node. (see above)</td></tr>
-<tr><td> Node:       </td><td>The phpcr NodeInterface instance for direct access. </td></tr>
-<tr><td> Uuid:         </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
-<tr><td> Version:    </td><td>The version of this node, for versioned nodes. </td></tr>
-<tr><td> Property:   </td><td>Any property of the node, without specified type. </td></tr>
+<tr><td> Id:            </td><td>The phpcr path to this node. (see above)</td></tr>
+<tr><td> Uuid:          </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
+<tr><td> Version:       </td><td>The version of this node, for versioned nodes. </td></tr>
+<tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node. </td></tr>
+<tr><td> Child(name=x): </td><td>Map the child with name x to this property. </td></tr>
+<tr><td> Property:      </td><td>A property of the node, without specified type. </td></tr>
 <tr><td> Boolean,    <br />
          Int,        <br />
          Long,       <br />
@@ -160,7 +165,9 @@ Available annotations
          ArrayField: </td><td>Typed property</td></tr>
 </table>
 
-In the parenthesis after the type, you can specify the name of the PHPCR field to store the value, and whether this is a multivalue property. For example
+In the parenthesis after the type, you can specify the name of the PHPCR field
+to store the value (name defaults to the php variable name you use), and whether
+this is a multivalue property. For example
 /**
  * @phpcr:String(name="categories", multivalue=true)
  */
@@ -170,11 +177,14 @@ TODO: References and child / embed annotations.
 
 TODO: Improve event listener markup doc.
 
-If you give the document @HasLifecycleCallbacks then you can use @PostLoad and friends to have doctrine call a method without parameters on your entity.
+If you put the annotation @HasLifecycleCallbacks into the document class doc,
+you can use @PostLoad and friends to have doctrine call a method without
+parameters on your entity.
 
 You can also define event listeners on the DocumentManager with
 $dm->getEventManager()->addEventListener(array(<events>), listenerclass);
-Your class needs event name methods for the events. They get a parameter of type Doctrine\Common\EventArgs.
+Your class needs event name methods for the events. They get a parameter of type
+Doctrine\Common\EventArgs.
 See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
 
  * preRemove - occurs before a document is removed from the storage
