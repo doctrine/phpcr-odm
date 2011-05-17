@@ -735,7 +735,6 @@ class ClassMetadataInfo implements ClassMetadata
         return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
     }
 
-
     /**
      * Sets the ID generator used to generate IDs for instances of this class.
      *
@@ -803,5 +802,54 @@ class ClassMetadataInfo implements ClassMetadata
     public function isSingleValuedAssociation($fieldName)
     {
         return false;
+    }
+
+    /**
+     * A numerically indexed list of field names of this persistent class.
+     *
+     * This array includes identifier fields if present on this class.
+     *
+     * @return array
+     */
+    public function getFieldNames()
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * A numerically indexed list of association names of this persistent class.
+     *
+     * This array includes identifier associations if present on this class.
+     *
+     * @return array
+     */
+    public function getAssociationNames()
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * Returns a type name of this field.
+     *
+     * This type names can be implementation specific but should at least include the php types:
+     * integer, string, boolean, float/double, datetime.
+     *
+     * @param string $fieldName
+     * @return string
+     */
+    public function getTypeOfField($fieldName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * Returns the target class name of the given association.
+     *
+     * @param string $assocName
+     * @return string
+     */
+    public function getAssociationTargetClass($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
     }
 }
