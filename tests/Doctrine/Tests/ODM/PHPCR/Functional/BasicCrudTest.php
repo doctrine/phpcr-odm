@@ -305,6 +305,6 @@ class User3Repository extends DocumentRepository implements RepositoryIdInterfac
      */
     public function generateId($document)
     {
-        return 'functional/'.$document->username;
+        return '/functional/'.$document->username;
     }
 }
