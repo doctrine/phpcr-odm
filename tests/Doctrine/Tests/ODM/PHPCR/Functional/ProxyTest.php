@@ -32,7 +32,7 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $article = $this->node->addNode('article');
         $article->setProperty('title', 'foo');
         $article->setProperty('body', 'bar');
-        $article->setProperty('_doctrine_alias', 'article');
+        $article->setProperty('phpcr:alias', 'article');
         $session->save();
 
         $cmf = $this->dm->getMetadataFactory();

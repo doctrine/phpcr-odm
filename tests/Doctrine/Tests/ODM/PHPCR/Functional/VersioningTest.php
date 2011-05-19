@@ -25,7 +25,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $versionNode = $this->node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', array(3, 1, 2));
-        $versionNode->setProperty('_doctrine_alias', 'versionTestObj');
+        $versionNode->setProperty('phpcr:alias', 'versionTestObj');
         $versionNode->addMixin("mix:versionable");
         $this->dm->getPhpcrSession()->save();
     }

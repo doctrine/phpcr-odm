@@ -21,7 +21,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->node = $root->addNode('functional');
         $user = $this->node->addNode('CmsUser');
         $user->setProperty('username', 'lsmith');
-        $user->setProperty('_doctrine_alias', 'cms_user');
+        $user->setProperty('phpcr:alias', 'cms_user');
 
         $session->save();
     }
