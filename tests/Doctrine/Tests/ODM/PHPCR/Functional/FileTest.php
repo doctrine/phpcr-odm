@@ -31,7 +31,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
-        $parent->file->setFileContentFromFilesystem('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
+        $parent->file->setFileContentFromFilesystem(dirname(__FILE__) . '/_files/foo.txt');
 
         $this->dm->persist($parent);
         $this->dm->flush();
@@ -66,7 +66,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
-        $parent->file->setFileContentFromFilesystem('Doctrine/Tests/ODM/PHPCR/Functional/_files/foo.txt');
+        $parent->file->setFileContentFromFilesystem(dirname(__FILE__) .'/_files/foo.txt');
 
         $this->dm->persist($parent);
         $this->dm->flush();
