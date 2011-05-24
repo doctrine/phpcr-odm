@@ -551,10 +551,14 @@ class UnitOfWork
     /**
      * Flush Operation - Write all dirty entries to the PHPCR.
      *
-     * @throws PHPCRException if it detects that a existing child should be replaced
+     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage or not yet. defaults to persist
+     *
      * @return void
+     *
+     * @throws PHPCRException if it detects that a existing child should be replaced
+     *
      */
-    public function flush()
+    public function flush($persist_to_backend = true)
     {
         $this->detectChangedDocuments();
 
@@ -698,7 +702,9 @@ class UnitOfWork
             }
         }
 
-        $session->save();
+        if ($persist_to_backend) {
+            $session->save();
+        }
 
         $this->handlePostFlushEvents();
 
@@ -799,6 +805,8 @@ class UnitOfWork
 
     /**
      * Gets all the predecessor objects of an object
+     *
+     * TODO: this uses jackalope specific hacks and relies on a bug in jackalope with getPredecessors
      *
      * @param object $document
      * @return array of \PHPCR\Version\VersionInterface
