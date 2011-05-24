@@ -140,9 +140,10 @@ class UnitOfWork
     public function createDocument($documentName, $node, array &$hints = array())
     {
         // TODO create a doctrine: namespace and register node types with doctrine:name
+        $properties = $node->getPropertiesValues();
 
-        if ($node->hasProperty('phpcr:alias')) {
-            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($node->getPropertyValue('phpcr:alias'));
+        if (isset($properties['phpcr:alias'])) {
+            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
             $type = $metadata->name;
             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
                 $validate = true;
@@ -163,14 +164,13 @@ class UnitOfWork
         $id = $node->getPath();
 
         foreach ($class->fieldMappings as $fieldName => $mapping) {
-            if ($node->hasProperty($mapping['name'])) {
-                $property = $node->getProperty($mapping['name']);
+            if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
                     // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
-                    $documentState[$fieldName] = new ArrayCollection((array) $property->getValue());
+                    $documentState[$fieldName] = new ArrayCollection((array) $properties[$mapping['name']]);
                 } else {
-                    $documentState[$fieldName] = $property->getValue();
+                    $documentState[$fieldName] = $properties[$mapping['name']];
                 }
             }
 //            } elseif ($jsonName == 'doctrine_metadata') {
@@ -206,7 +206,7 @@ class UnitOfWork
             $documentState[$class->node] = $node;
         }
         if ($class->versionField) {
-            $documentState[$class->versionField] = $node->getProperty('jcr:baseVersion')->getValue();
+            $documentState[$class->versionField] = $properties['jcr:baseVersion'];
         }
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getPath();
