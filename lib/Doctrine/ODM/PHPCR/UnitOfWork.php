@@ -139,7 +139,6 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        // TODO create a doctrine: namespace and register node types with doctrine:name
         $properties = $node->getPropertiesValues();
 
         if (isset($properties['phpcr:alias'])) {
@@ -167,8 +166,7 @@ class UnitOfWork
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
-                    // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
-                    $documentState[$fieldName] = new ArrayCollection((array) $properties[$mapping['name']]);
+                    $documentState[$fieldName] = new ArrayCollection($properties[$mapping['name']]);
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
