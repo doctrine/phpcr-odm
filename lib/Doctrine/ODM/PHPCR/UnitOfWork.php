@@ -551,12 +551,11 @@ class UnitOfWork
     /**
      * Flush Operation - Write all dirty entries to the PHPCR.
      *
-     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage or not yet. defaults to persist
+     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage
      *
      * @return void
      *
      * @throws PHPCRException if it detects that a existing child should be replaced
-     *
      */
     public function flush($persist_to_backend = true)
     {
@@ -762,9 +761,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkIn($object)
+    public function checkIn($document)
     {
-        $path = $this->documentIds[spl_object_hash($object)];
+        $path = $this->getDocumentId($document);
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -778,9 +777,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkOut($object)
+    public function checkOut($document)
     {
-        $path = $this->documentIds[spl_object_hash($object)];
+        $path = $this->getDocumentId($document);
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -794,9 +793,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function restore($version, $object, $removeExisting)
+    public function restore($version, $document, $removeExisting)
     {
-        $path = $this->documentIds[spl_object_hash($object)];
+        $path = $this->getDocumentId($document);
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
@@ -813,7 +812,7 @@ class UnitOfWork
      */
     public function getPredecessors($document)
     {
-        $path = $this->documentIds[spl_object_hash($document)];
+        $path = $this->getDocumentId($document);
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path, 'Version\Version');
         return $node->getPredecessors();
@@ -889,19 +888,18 @@ class UnitOfWork
     public function getDocumentRevision($document)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentRevisions[$oid])) {
-            return $this->documentRevisions[$oid];
+        if (empty($this->documentRevisions[$oid])) {
+            return null;
         }
-        return null;
+        return $this->documentRevisions[$oid];
     }
 
     public function getDocumentId($document)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentIds[$oid])) {
-            return $this->documentIds[$oid];
-        } else {
+        if (empty($this->documentIds[$oid])) {
             throw new PHPCRException("Document is not managed and has no id.");
         }
+        return $this->documentIds[$oid];
     }
 }
