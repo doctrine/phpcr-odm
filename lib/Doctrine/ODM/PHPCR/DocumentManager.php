@@ -213,6 +213,20 @@ class DocumentManager
     }
 
     /**
+     * Get the child documents of a given document using an optional filter.
+     *
+     * This methods gets all child nodes as a collection of documents that matches
+     * a given filter (same as PHPCR Node::getNodes)
+     * @param $document document instance which children should be loaded
+     * @param string|array $filter optional filter to filter on childrens names
+     * @return a collection of child documents
+     */
+    public function getChildren($document, $filter = null)
+    {
+      return $this->unitOfWork->getChildren($document, $filter);
+    }
+
+    /**
      * Flush all current changes, that is save them within the phpcr session
      *
      * Until everything is supported in doctrine, you will need to access the
