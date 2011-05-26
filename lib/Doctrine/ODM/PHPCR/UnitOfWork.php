@@ -551,7 +551,8 @@ class UnitOfWork
     /**
      * Flush Operation - Write all dirty entries to the PHPCR.
      *
-     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage
+     * @param boolean $persist_to_backend Whether the phpcr session should be saved to permanent storage.
+     * (temporary workaround until all phpcr functionality is mapped in the doctrine-phpcr-odm)
      *
      * @return void
      *
