@@ -815,8 +815,8 @@ class UnitOfWork
     {
         $path = $this->documentIds[spl_object_hash($document)];
         $session = $this->dm->getPhpcrSession();
-        $node = $session->getNode($path, 'Version\Version');
-        return $node->getPredecessors();
+        $vm = $session->getWorkspace()->getVersionManager();
+        return $vm->getBaseVersion($path)->getPredecessors();
     }
 
     /**
