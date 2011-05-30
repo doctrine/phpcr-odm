@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Mapping as ODM;
+
 /**
  * @group functional
  */
@@ -62,21 +64,21 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
 
 /**
- * @Document(alias="versionTestObj")
+ * @ODM\Document(alias="versionTestObj")
  */
 class VersionTestObj
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @Node */
+    /** @ODM\Node */
     public $node;
     /**
-     * @var string
-     * @phpcr:IsVersionField(name="isVersionField")
+     * @ var string
+     * @ODM\Version(name="isVersionField") // Jakuza 
      */
     public $isVersionField;
-    /** @String(name="username") */
+    /** @ODM\String(name="username") */
     public $username;
-    /** @Int(name="numbers", multivalue=true) */
+    /** @ODM\Int(name="numbers", multivalue=true) */
     public $numbers;
 }

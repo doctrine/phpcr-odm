@@ -19,8 +19,9 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\Common\Annotations\AnnotationReader,
+use Doctrine\Common\Annotations\AnnotationReader,
+    Doctrine\ODM\PHPCR\Events,
+    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 // TODO: this is kinda ugly
@@ -64,6 +65,13 @@ class AnnotationDriver implements Driver
     private $classNames;
 
     /**
+     * Document annotation classes, ordered by precedence.
+     */
+    static private $documentAnnotationClasses = array(
+        'Doctrine\\ODM\\PHPCR\\Mapping\\Document',
+    );
+    
+    /**
      * Initializes a new AnnotationDriver that uses the given AnnotationReader for reading
      * docblock annotations.
      *
@@ -105,13 +113,23 @@ class AnnotationDriver implements Driver
     {
         $reflClass = $class->getReflectionClass();
 
-        $classAnnotations = $this->reader->getClassAnnotations($reflClass);
-        if (isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document'])) {
-            $documentAnnot = $classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document'];
-        } else {
-            throw MappingException::classIsNotAValidDocument($className);
+        $documentAnnots = array();
+        foreach ($this->reader->getClassAnnotations($reflClass) as $annot) {
+          foreach (self::$documentAnnotationClasses as $i => $annotClass) {
+            if ($annot instanceof $annotClass) {
+              $documentAnnots[$i] = $annot;
+            }
+          }
         }
-
+        
+        if (!$documentAnnots) {
+          throw MappingException::classIsNotAValidDocument($className);
+        }
+        
+        // find the winning document annotation
+        ksort($documentAnnots);
+        $documentAnnot = reset($documentAnnots);
+        
         if (!$documentAnnot->alias) {
             throw new MappingException('Alias must be specified in the Document() annotation mapping');
         }

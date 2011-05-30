@@ -2,27 +2,29 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
+use Doctrine\ODM\PHPCR\Mapping as ODM;
+
 /**
  * This class represents a JCR file, aka nt:file.
- * @see http://wiki.apache.org/jackrabbit/nt:file
+ * @ see http://wiki.apache.org/jackrabbit/nt:file // Jakuza 
  *
- * @phpcr:Document(alias="file", nodeType="nt:file")
+ * @ODM\Document(alias="file", nodeType="nt:file")
  */
 class File
 {
-    /** @phpcr:Id */
+    /** @ODM\Id */
     protected $id;
 
-    /** @phpcr:Node */
+    /** @ODM\Node */
     protected $node;
 
-    /** @phpcr:Date(name="jcr:created") */
+    /** @ODM\Date(name="jcr:created") */
     protected $created;
 
-    /** @phpcr:String(name="jcr:createdBy") */
+    /** @ODM\String(name="jcr:createdBy") */
     protected $createdBy;
 
-    /** @phpcr:Child(name="jcr:content") */
+    /** @ODM\Child(name="jcr:content") */
     protected $content;
 
     /**

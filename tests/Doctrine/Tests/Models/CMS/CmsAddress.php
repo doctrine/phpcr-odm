@@ -2,20 +2,22 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
+use Doctrine\ODM\PHPCR\Mapping as ODM;
+
 /**
- * @EmbeddedDocument
+ * @ODM\EmbeddedDocument
  */
 class CmsAddress
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @String */
+    /** @ODM\String */
     public $country;
-    /** @String */
+    /** @ODM\String */
     public $zip;
-    /** @String */
+    /** @ODM\String */
     public $city;
-    /** @String */
+    /** @ODM\String */
     public $street;
 
     public function getId() {

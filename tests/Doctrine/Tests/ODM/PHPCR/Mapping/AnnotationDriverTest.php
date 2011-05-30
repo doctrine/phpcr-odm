@@ -60,7 +60,6 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     {
         $cache = new \Doctrine\Common\Cache\ArrayCache();
         $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
-        $reader->setDefaultAnnotationNamespace('Doctrine\ODM\PHPCR\Mapping\\');
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
     }
 
