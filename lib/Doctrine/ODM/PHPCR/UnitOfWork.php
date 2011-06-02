@@ -139,7 +139,7 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        $properties = $node->getPropertiesValues();
+        $properties = $node->getPropertiesValues(null,false); // get uuid rather than dereference reference properties
 
         if (isset($properties['phpcr:alias'])) {
             $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
