@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\Mapping as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * This class represents a jcr nt:resource and is used by the File document

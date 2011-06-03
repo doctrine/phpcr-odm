@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping as ODM;
+    Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * @group functional

@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * @group functional

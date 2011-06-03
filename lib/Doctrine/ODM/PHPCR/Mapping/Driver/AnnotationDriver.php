@@ -20,12 +20,13 @@
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader,
+    Doctrine\Common\Annotations\Reader,
     Doctrine\ODM\PHPCR\Events,
+    Doctrine\ODM\PHPCR\Mapping\Annotations as ODM,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\MappingException;
 
-// TODO: this is kinda ugly
-require __DIR__ . '/DoctrineAnnotations.php';
+require __DIR__ . '/../Annotations/DoctrineAnnotations.php';
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
@@ -68,7 +69,9 @@ class AnnotationDriver implements Driver
      * Document annotation classes, ordered by precedence.
      */
     static private $documentAnnotationClasses = array(
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Document',
+        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document',
+        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass',
+        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\EmbeddedDocument',
     );
     
     /**
@@ -78,7 +81,7 @@ class AnnotationDriver implements Driver
      * @param $reader The AnnotationReader to use.
      * @param string|array $paths One or multiple paths where mapping classes can be found.
      */
-    public function __construct(AnnotationReader $reader, $paths = null)
+    public function __construct(Reader $reader, $paths = null)
     {
         $this->reader = $reader;
         if ($paths) {
@@ -121,7 +124,6 @@ class AnnotationDriver implements Driver
             }
           }
         }
-        
         if (!$documentAnnots) {
           throw MappingException::classIsNotAValidDocument($className);
         }
@@ -143,25 +145,25 @@ class AnnotationDriver implements Driver
         if ($documentAnnot->repositoryClass) {
             $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
-
+        
         foreach ($reflClass->getProperties() as $property) {
             $mapping = array();
             $mapping['fieldName'] = $property->getName();
 
             foreach ($this->reader->getPropertyAnnotations($property) as $fieldAnnot) {
-                if ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Property) {
+                if ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Property) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapField($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Id) {
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Id) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapId($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Node) {
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Node) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapNode($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Child) {
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Child) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapChild($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\ReferenceOne) {
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceOne) {
                     $cascade = 0;
                     foreach ($fieldAnnot->cascade as $cascadeMode) {
                         $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
@@ -170,7 +172,7 @@ class AnnotationDriver implements Driver
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapManyToOne($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\ReferenceMany) {
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceMany) {
                     $cascade = 0;
                     foreach ($fieldAnnot->cascade as $cascadeMode) {
                         $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
@@ -237,10 +239,17 @@ class AnnotationDriver implements Driver
      */
     public function isTransient($className)
     {
-        $classAnnotations = $this->reader->getClassAnnotations(new \ReflectionClass($className));
+        $rc = new \ReflectionClass($className);
+        
+        if ($this->reader->getClassAnnotation($rc, 'Doctrine\ODM\PHPCR\Mapping\Annotations\Document')) {
+            return false;
+        }
 
-        return !isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\Document']) &&
-               !isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\MappedSuperclass']);
+        if ($this->reader->getClassAnnotation($rc, 'Doctrine\ODM\PHPCR\Mapping\Annotations\MappedSuperclass')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -281,7 +290,7 @@ class AnnotationDriver implements Driver
         }
 
         $declared = get_declared_classes();
-
+        
         foreach ($declared as $className) {
             $rc = new \ReflectionClass($className);
             $sourceFile = $rc->getFileName();
@@ -289,7 +298,6 @@ class AnnotationDriver implements Driver
                 $classes[] = $className;
             }
         }
-
         $this->classNames = $classes;
 
         return $classes;

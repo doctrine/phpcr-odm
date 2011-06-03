@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * @group functional
@@ -29,6 +29,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $versionNode->setProperty('numbers', array(3, 1, 2));
         $versionNode->setProperty('phpcr:alias', 'versionTestObj');
         $versionNode->addMixin("mix:versionable");
+
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -72,10 +73,7 @@ class VersionTestObj
     public $id;
     /** @ODM\Node */
     public $node;
-    /**
-     * @ var string
-     * @ODM\Version(name="isVersionField") // Jakuza 
-     */
+    /** @ODM\Version */
     public $isVersionField;
     /** @ODM\String(name="username") */
     public $username;

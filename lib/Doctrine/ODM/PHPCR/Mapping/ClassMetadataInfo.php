@@ -449,6 +449,7 @@ class ClassMetadataInfo implements ClassMetadata
         } elseif (isset($mapping['isVersionField'])) {
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
+            
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
