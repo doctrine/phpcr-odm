@@ -814,7 +814,8 @@ class UnitOfWork
         $path = $this->getDocumentId($document);
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
-        return $vm->getBaseVersion($path)->getPredecessors();
+        $vh = $vm->getVersionHistory($path);
+        return (array)$vh->getAllVersions();
     }
 
     /**
