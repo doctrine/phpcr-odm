@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * This class represents a JCR file, aka nt:file.
- * @ see http://wiki.apache.org/jackrabbit/nt:file // Jakuza 
+ * @ see http://wiki.apache.org/jackrabbit/nt:file
  *
  * @ODM\Document(alias="file", nodeType="nt:file")
  */

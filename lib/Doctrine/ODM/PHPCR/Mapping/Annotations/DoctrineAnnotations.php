@@ -94,7 +94,6 @@ final class EmbeddedDocument extends Annotation {}
 final class EmbedOne extends Property {}
 
 /* Annotations for lifecycle callbacks */
-final class HasLifecycleCallbacks extends Annotation {}
 final class PrePersist extends Annotation {}
 final class PostPersist extends Annotation {}
 final class PreUpdate extends Annotation {}

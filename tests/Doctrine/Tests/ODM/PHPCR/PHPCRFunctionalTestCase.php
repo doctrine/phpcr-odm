@@ -7,6 +7,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
     public function createDocumentManager()
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
+        $reader->setAutoloadAnnotations(false);
         
         $paths = array();
         $paths[] = __DIR__ . "/../../Models";

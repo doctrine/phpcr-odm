@@ -185,41 +185,24 @@ class AnnotationDriver implements Driver
             }
         }
 
-        $methods = $reflClass->getMethods();
-        if (isset($classAnnotations['Doctrine\ODM\PHPCR\Mapping\HasLifecycleCallbacks'])) {
-            foreach ($methods as $method) {
-                if ($method->isPublic()) {
-                    $annotations = $this->reader->getMethodAnnotations($method);
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PrePersist'])) {
+        foreach ($reflClass->getMethods() as $method) {
+            if ($method->isPublic()) {
+                foreach ($this->reader->getMethodAnnotations($method) as $annot) {
+                    if ($annot instanceof ODM\PrePersist) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::prePersist);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PostPersist'])) {
+                    } elseif ($annot instanceof  ODM\PostPersist) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postPersist);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PreUpdate'])) {
+                    } elseif ($annot instanceof ODM\PreUpdate) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::preUpdate);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PostUpdate'])) {
+                    } elseif ($annot instanceof ODM\PostUpdate) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postUpdate);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PreRemove'])) {
+                    } elseif ($annot instanceof ODM\PreRemove) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::preRemove);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PostRemove'])) {
+                    } elseif ($annot instanceof ODM\PostRemove) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postRemove);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PreLoad'])) {
+                    } elseif ($annot instanceof ODM\PreLoad) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::preLoad);
-                    }
-
-                    if (isset($annotations['Doctrine\ODM\PHPCR\Mapping\PostLoad'])) {
+                    } elseif ($annot instanceof  ODM\PostLoad) {
                         $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postLoad);
                     }
                 }
