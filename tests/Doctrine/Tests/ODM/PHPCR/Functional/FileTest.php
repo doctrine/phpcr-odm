@@ -74,7 +74,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $file = $this->dm->find('Doctrine\ODM\PHPCR\Document\File', '/functional/filetest/file');
-        
+
         $this->assertNotNull($file);
         $this->assertNotNull($file->getCreated());
     }

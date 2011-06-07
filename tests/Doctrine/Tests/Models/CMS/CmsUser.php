@@ -25,15 +25,15 @@ class CmsUser
 
     /** @ODM\EmbedOne(name="address") */
     public $address;
-     
+
     // * @ReferenceOne(targetDocument="CmsUserRights") */
     // public $rights;
     //
     // /**
     //  * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
-    //  
+    //
     // public $articles;
-    // 
+    //
     // /** @ReferenceMany(targetDocument="CmsGroup") */
     // public $groups;
 

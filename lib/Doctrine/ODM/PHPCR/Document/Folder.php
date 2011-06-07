@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * This class represents a Folder in the repository, aka nt:folder
- * @ see http://wiki.apache.org/jackrabbit/nt:folder // Jakuza 
+ * @ see http://wiki.apache.org/jackrabbit/nt:folder // Jakuza
  *
  * @ODM\Document(alias="folder", nodeType="nt:folder")
  */
@@ -26,7 +26,7 @@ class Folder
 
     /**
      * setter for id
-     * 
+     *
      * @param string $id of the node
      */
     public function setId($id)
@@ -36,7 +36,7 @@ class Folder
 
     /**
      * getter for id
-     * 
+     *
      * @return string id of the node
      */
     public function getId()
@@ -48,7 +48,7 @@ class Folder
      * getter for created
      * The created date is assigned by the content repository
      *
-     * @return DateTime created date of the file 
+     * @return DateTime created date of the file
      */
     public function getCreated()
     {
@@ -60,7 +60,7 @@ class Folder
      * The createdBy is assigned by the content repository
      * This is the name of the (jcr) user that created the node
      *
-     * @return string name of the (jcr) user who created the file 
+     * @return string name of the (jcr) user who created the file
      */
     public function getCreatedBy()
     {

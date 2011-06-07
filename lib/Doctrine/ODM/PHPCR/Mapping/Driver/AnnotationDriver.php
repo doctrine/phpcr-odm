@@ -73,7 +73,7 @@ class AnnotationDriver implements Driver
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass',
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\EmbeddedDocument',
     );
-    
+
     /**
      * Initializes a new AnnotationDriver that uses the given AnnotationReader for reading
      * docblock annotations.
@@ -127,11 +127,11 @@ class AnnotationDriver implements Driver
         if (!$documentAnnots) {
           throw MappingException::classIsNotAValidDocument($className);
         }
-        
+
         // find the winning document annotation
         ksort($documentAnnots);
         $documentAnnot = reset($documentAnnots);
-        
+
         if (!$documentAnnot->alias) {
             throw new MappingException('Alias must be specified in the Document() annotation mapping');
         }
@@ -145,7 +145,7 @@ class AnnotationDriver implements Driver
         if ($documentAnnot->repositoryClass) {
             $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
-        
+
         foreach ($reflClass->getProperties() as $property) {
             $mapping = array();
             $mapping['fieldName'] = $property->getName();
@@ -223,7 +223,7 @@ class AnnotationDriver implements Driver
     public function isTransient($className)
     {
         $rc = new \ReflectionClass($className);
-        
+
         if ($this->reader->getClassAnnotation($rc, 'Doctrine\ODM\PHPCR\Mapping\Annotations\Document')) {
             return false;
         }
@@ -273,7 +273,7 @@ class AnnotationDriver implements Driver
         }
 
         $declared = get_declared_classes();
-        
+
         foreach ($declared as $className) {
             $rc = new \ReflectionClass($className);
             $sourceFile = $rc->getFileName();

@@ -23,7 +23,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\VersionTestObj';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        
+
         $versionNode = $this->node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', array(3, 1, 2));
@@ -36,7 +36,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckin()
     {
-        
+
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkIn($user);
     }

@@ -8,7 +8,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
         $reader->setAutoloadAnnotations(false);
-        
+
         $paths = array();
         $paths[] = __DIR__ . "/../../Models";
         $paths[] = __DIR__ . "/../../../../../lib/Doctrine/ODM/PHPCR/Document";

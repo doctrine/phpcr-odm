@@ -23,7 +23,7 @@ class CmsArticle
 
     /** @ODM\Attachments */
     public $attachments;
-    
+
     public function setAuthor(CmsUser $author) {
         $this->user = $author;
     }

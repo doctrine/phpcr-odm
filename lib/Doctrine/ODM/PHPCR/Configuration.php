@@ -154,7 +154,7 @@ class Configuration
     public function newDefaultAnnotationDriver($paths = array())
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        
+
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, (array) $paths);
     }
 

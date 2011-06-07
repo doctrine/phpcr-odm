@@ -449,7 +449,7 @@ class ClassMetadataInfo implements ClassMetadata
         } elseif (isset($mapping['isVersionField'])) {
             $this->isVersioned = true;
             $this->versionField = $mapping['fieldName'];
-            
+
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
@@ -496,7 +496,7 @@ class ClassMetadataInfo implements ClassMetadata
         }
         $this->validateAndCompleteFieldMapping($mapping, false);
     }
- 
+
     public function mapNode(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
@@ -511,7 +511,7 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['name'] = $mapping['fieldName'];
         }
         $this->childMappings[$mapping['fieldName']] = $mapping;
-    } 
+    }
 
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
