@@ -69,6 +69,10 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testAnnotation()
     {
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        // lazy loaded
+        $this->assertNull($parent->aChildren->unwrap());
+        $this->assertNull($parent->allChildren->unwrap());
+        // loaded
         $this->assertEquals(1, count($parent->aChildren));
         $this->assertEquals(4, count($parent->allChildren));
     }

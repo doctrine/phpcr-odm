@@ -24,6 +24,8 @@ class ChildrenCollection extends PersistentCollection
 
     protected function load()
     {
-        $this->col = $this->dm->getChildren($this->document, $this->filter);
+        if (null === $this->col) {
+            $this->col = $this->dm->getChildren($this->document, $this->filter);
+        }
     }
 }
