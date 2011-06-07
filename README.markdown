@@ -11,7 +11,7 @@ Current Status
 TODO
 ----
 
-* update to Doctrine\Common 3.0.x annotations
+* ~~update to Doctrine\Common 3.0.x annotations~~ (done)
 * complete mapping for relations (children, parent, references), then remove the node mapping
 * ensure that no Jackalope specific classes are used (especially relevant for the tests)
 * add support for SQL/OQM
@@ -28,9 +28,6 @@ Getting Started
 
         // Annotation driver
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $reader->setDefaultAnnotationNamespace('Doctrine\ODM\PHPCR\Mapping\\');
-        // This line defines the jcr namespace, so you can annotate with @jcr:Property for example instead of just @Property
-        $reader->setAnnotationNamespaceAlias('Doctrine\ODM\PHPCR\Mapping\\', 'jcr');
         $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, array('/path/to/your/document/classes'));
 
         // Xml driver
@@ -76,22 +73,25 @@ You write your own document classes that will be mapped to and from the phpcr da
 
     <?php
     namespace Acme\SampleBundle\Document;
+
+    use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+
     /**
-     * @phpcr:Document(alias="mydocument")
+     * @ODM\Document(alias="mydocument")
      */
     class MyDocument
     {
         /**
-         * @phpcr:Id()
+         * @ODM\Id()
          */
         public $path;
         /**
-         * @phpcr:String()
+         * @ODM\String()
          */
         public $title;
 
         /**
-         * @phpcr:String()
+         * @ODM\String()
          */
         public $content;
     }
@@ -116,15 +116,16 @@ to build the path.
 
     use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
     use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
+    use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
     /**
-     * @Document(repositoryClass="Acme\SampleBundle\DocumentRepository", alias="document")
+     * @ODM\Document(repositoryClass="Acme\SampleBundle\DocumentRepository", alias="document")
      */
     class Document
     {
-        /** @Id(strategy="repository") */
+        /** @ODM\Id(strategy="repository") */
         public $id;
-        /** @String(name="title") */
+        /** @ODM\String(name="title") */
         public $title;
     }
 
@@ -166,15 +167,14 @@ In the parenthesis after the type, you can specify the name of the PHPCR field
 to store the value (name defaults to the php variable name you use), and whether
 this is a multivalue property. For example
 /**
- * @phpcr:String(name="categories", multivalue=true)
+ * @ODM\String(name="categories", multivalue=true)
  */
 private $cat;
 
 Lifecycle callbacks
 -------------------
 
-If you put the annotation @HasLifecycleCallbacks into the document class doc,
-you can use @PostLoad and friends to have doctrine call a method without
+You can use @PostLoad and friends to have doctrine call a method without
 parameters on your entity.
 
 You can also define event listeners on the DocumentManager with
