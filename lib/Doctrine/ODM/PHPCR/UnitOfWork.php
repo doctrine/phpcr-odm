@@ -139,8 +139,7 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        // TODO create a doctrine: namespace and register node types with doctrine:name
-        $properties = $node->getPropertiesValues();
+        $properties = $node->getPropertiesValues(null,false); // get uuid rather than dereference reference properties
 
         if (isset($properties['phpcr:alias'])) {
             $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
@@ -167,8 +166,7 @@ class UnitOfWork
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
-                    // TODO the array cast should be unnecessary once jackalope is fixed to handle properly multivalues
-                    $documentState[$fieldName] = new ArrayCollection((array) $properties[$mapping['name']]);
+                    $documentState[$fieldName] = new ArrayCollection($properties[$mapping['name']]);
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
@@ -551,12 +549,12 @@ class UnitOfWork
     /**
      * Flush Operation - Write all dirty entries to the PHPCR.
      *
-     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage or not yet. defaults to persist
+     * @param boolean $persist_to_backend Whether the phpcr session should be saved to permanent storage.
+     * (temporary workaround until all phpcr functionality is mapped in the doctrine-phpcr-odm)
      *
      * @return void
      *
      * @throws PHPCRException if it detects that a existing child should be replaced
-     *
      */
     public function flush($persist_to_backend = true)
     {
@@ -762,9 +760,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkIn($object)
+    public function checkIn($document)
     {
-        $path = $this->documentIds[spl_object_hash($object)];
+        $path = $this->getDocumentId($document);
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -778,9 +776,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkOut($object)
+    public function checkOut($document)
     {
-        $path = $this->documentIds[spl_object_hash($object)];
+        $path = $this->getDocumentId($document);
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
@@ -794,9 +792,9 @@ class UnitOfWork
      *
      * @return void
      */
-    public function restore($version, $object, $removeExisting)
+    public function restore($version, $document, $removeExisting)
     {
-        $path = $this->documentIds[spl_object_hash($object)];
+        $path = $this->getDocumentId($document);
         $this->flush();
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
@@ -813,10 +811,11 @@ class UnitOfWork
      */
     public function getPredecessors($document)
     {
-        $path = $this->documentIds[spl_object_hash($document)];
+        $path = $this->getDocumentId($document);
         $session = $this->dm->getPhpcrSession();
-        $node = $session->getNode($path, 'Version\Version');
-        return $node->getPredecessors();
+        $vm = $session->getWorkspace()->getVersionManager();
+        $vh = $vm->getVersionHistory($path);
+        return (array)$vh->getAllVersions();
     }
 
     /**
@@ -910,19 +909,18 @@ class UnitOfWork
     public function getDocumentRevision($document)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentRevisions[$oid])) {
-            return $this->documentRevisions[$oid];
+        if (empty($this->documentRevisions[$oid])) {
+            return null;
         }
-        return null;
+        return $this->documentRevisions[$oid];
     }
 
     public function getDocumentId($document)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentIds[$oid])) {
-            return $this->documentIds[$oid];
-        } else {
+        if (empty($this->documentIds[$oid])) {
             throw new PHPCRException("Document is not managed and has no id.");
         }
+        return $this->documentIds[$oid];
     }
 }

@@ -228,17 +228,33 @@ class DocumentManager
 
     /**
      * Flush all current changes, that is save them within the phpcr session
+     * and commit that session to permanent storage.
+     */
+    public function flush()
+    {
+        $this->unitOfWork->flush();
+    }
+
+    /**
+     * Temporary workaround: Flush all current changes to the phpcr session,
+     * but do not commit the session yet.
      *
      * Until everything is supported in doctrine, you will need to access the
      * phpcr session directly for some operations. With the non-persisting
      * flush, you can make phpcr reflect the current state without comitting
      * the transaction.
+     * Do not forget to call session->save() or dm->flush() to persist the
+     * changes when you are done.
      *
      * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage or not yet. defaults to persist
+     *
+     * @depricated: will go away as soon as phpcr-odm maps all necessary
+     * concepts of phpcr. if you use this now, be prepared to refactor your
+     * code when this method goes away.
      */
-    public function flush($persist_to_backend = true)
+    public function flushNoSave()
     {
-        $this->unitOfWork->flush();
+        $this->unitOfWork->flush(false);
     }
 
     /**

@@ -4,22 +4,19 @@ PHPCR ODM for Doctrine2
 Current Status
 --------------
 
-* (very) basic CRUD is implemented
-* metadata reading implemented for annotations
-* there is a symfony2 bundle available at https://github.com/symfony-cmf/DoctrinePHPCRBundle
+* usable for basic tasks
+* not yet really performance optimized
+* pre alpha stage
 
 TODO
 ----
 
-* implement the relations (children, parent, references). see https://github.com/doctrine/phpcr-odm/pull/4
-* use the mixin phpcr:alias instead of the _doctrine_alias property. see https://github.com/doctrine/phpcr-odm/pull/4
-* fix tests to only depend on PHPCR but not on any Jackalope specific classes
-* improve event listener markup doc.
-
-Notes
------
-
-* The type of the document is stored in each repository node (stored as _doctrine_alias for the moment)
+* update to Doctrine\Common 3.0.x annotations
+* complete mapping for relations (children, parent, references), then remove the node mapping
+* ensure that no Jackalope specific classes are used (especially relevant for the tests)
+* add support for SQL/OQM
+* write documentation
+* expand test suite
 
 Getting Started
 ---------------
@@ -65,7 +62,8 @@ Getting Started
         $newUser = new \Namespace\For\Document\User();
         $newUser->username = 'Timmy';
         $newUser->email = 'foo@example.com';
-        $dm->persist($newUser, '/timmy');
+        $newUser->path = '/timmy';
+        $dm->persist($newUser);
 
         // store all changes, insertions, etc.
         $dm->flush();
@@ -100,7 +98,6 @@ You write your own document classes that will be mapped to and from the phpcr da
 
 Note that there are basic Document classes for the standard PHPCR node types nt:file, nt:folder and nt:resource
 See lib/Doctrine/ODM/PHPCR/Document/
-
 
 Storing documents in the repository: Id Generator Strategy
 ----------------------------------------------------------
@@ -173,9 +170,8 @@ this is a multivalue property. For example
  */
 private $cat;
 
-TODO: References and child / embed annotations.
-
-TODO: Improve event listener markup doc.
+Lifecycle callbacks
+-------------------
 
 If you put the annotation @HasLifecycleCallbacks into the document class doc,
 you can use @PostLoad and friends to have doctrine call a method without
