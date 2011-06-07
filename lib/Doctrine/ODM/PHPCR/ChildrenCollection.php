@@ -9,13 +9,13 @@ namespace Doctrine\ODM\PHPCR;
  * names match a optional filter
  *
  */
-class ChildrenCollection extend PersistentCollection
+class ChildrenCollection extends PersistentCollection
 {
     private $document;
     private $dm;
     private $filter;
 
-    public function __construct($document, DocumentManager $dm, $filter = '')
+    public function __construct($document, DocumentManager $dm, $filter = null)
     {
         $this->document = $document;
         $this->dm = $dm;

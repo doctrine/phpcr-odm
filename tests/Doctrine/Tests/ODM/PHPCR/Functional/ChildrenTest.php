@@ -45,6 +45,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($child);
 
         $this->dm->flush();
+        $this->dm->clear();
     }
 
     public function testChildrenCollection()
@@ -52,16 +53,23 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
         $col = $this->dm->getChildren($parent);
 
-        $this->assertEquals(count($col), 4);
+        $this->assertEquals(4, count($col));
         $childA = $col['child-a'];
-        $this->assertEquals($childA->name, 'Child A');
+        $this->assertEquals('Child A', $childA->name);
 
         $col = $this->dm->getChildren($parent, 'child*');
-        $this->assertEquals(count($col), 4);
+        $this->assertEquals(4, count($col));
 
         $col = $this->dm->getChildren($parent, '*a');
-        $this->assertEquals(count($col), 1);
+        $this->assertEquals(1, count($col));
         $this->assertTrue($childA === $col->first());
+    }
+
+    public function testAnnotation()
+    {
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertEquals(1, count($parent->aChildren));
+        $this->assertEquals(4, count($parent->allChildren));
     }
 }
 
@@ -75,4 +83,10 @@ class ChildrenTestObj
 
   /** @String */
   public $name;
+
+  /** @Children(filter="*a") */
+  public $aChildren;
+
+  /** @Children */
+  public $allChildren;
 }

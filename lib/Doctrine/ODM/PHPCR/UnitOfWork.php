@@ -250,6 +250,10 @@ class UnitOfWork
             $overrideLocalValues = true;
         }
 
+        foreach ($class->childrenMappings as $mapping) {
+            $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
+        }
+
         if (isset($validate) && !($document instanceof $documentName)) {
             throw new \InvalidArgumentException("Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata");
         }

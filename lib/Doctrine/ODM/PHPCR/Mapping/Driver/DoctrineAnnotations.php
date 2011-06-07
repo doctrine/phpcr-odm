@@ -89,6 +89,10 @@ class Child extends Annotation
 {
     public $name;
 }
+class Children extends Annotation
+{
+    public $filter = null;
+}
 
 /* Annotations for lifecycle callbacks */
 final class HasLifecycleCallbacks extends Annotation {}
