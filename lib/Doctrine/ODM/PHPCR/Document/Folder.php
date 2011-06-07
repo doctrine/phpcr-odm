@@ -2,29 +2,31 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+
 /**
  * This class represents a Folder in the repository, aka nt:folder
- * @see http://wiki.apache.org/jackrabbit/nt:folder
+ * @ see http://wiki.apache.org/jackrabbit/nt:folder // Jakuza
  *
- * @phpcr:Document(alias="folder", nodeType="nt:folder")
+ * @ODM\Document(alias="folder", nodeType="nt:folder")
  */
 class Folder
 {
-    /** @phpcr:Id */
+    /** @ODM\Id */
     protected $id;
 
-    /** @phpcr:Node */
+    /** @ODM\Node */
     protected $node;
 
-    /** @phpcr:Date(name="jcr:created") */
+    /** @ODM\Date(name="jcr:created") */
     protected $created;
 
-    /** @phpcr:String(name="jcr:createdBy") */
+    /** @ODM\String(name="jcr:createdBy") */
     protected $createdBy;
 
     /**
      * setter for id
-     * 
+     *
      * @param string $id of the node
      */
     public function setId($id)
@@ -34,7 +36,7 @@ class Folder
 
     /**
      * getter for id
-     * 
+     *
      * @return string id of the node
      */
     public function getId()
@@ -46,7 +48,7 @@ class Folder
      * getter for created
      * The created date is assigned by the content repository
      *
-     * @return DateTime created date of the file 
+     * @return DateTime created date of the file
      */
     public function getCreated()
     {
@@ -58,7 +60,7 @@ class Folder
      * The createdBy is assigned by the content repository
      * This is the name of the (jcr) user that created the node
      *
-     * @return string name of the (jcr) user who created the file 
+     * @return string name of the (jcr) user who created the file
      */
     public function getCreatedBy()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\ODM\PHPCR\Mapping;
+namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
@@ -94,8 +94,10 @@ class Children extends Annotation
     public $filter = null;
 }
 
+final class EmbeddedDocument extends Annotation {}
+final class EmbedOne extends Property {}
+
 /* Annotations for lifecycle callbacks */
-final class HasLifecycleCallbacks extends Annotation {}
 final class PrePersist extends Annotation {}
 final class PostPersist extends Annotation {}
 final class PreUpdate extends Annotation {}

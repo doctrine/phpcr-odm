@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Document\File;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * @group functional
@@ -73,7 +74,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $file = $this->dm->find('Doctrine\ODM\PHPCR\Document\File', '/functional/filetest/file');
-        
+
         $this->assertNotNull($file);
         $this->assertNotNull($file->getCreated());
     }
@@ -81,16 +82,16 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
 
 /**
- * @phpcr:Document(alias="testObj")
+ * @ODM\Document(alias="testObj")
  */
 class FileTestObj
 {
-    /** @phpcr:Id */
+    /** @ODM\Id */
     public $id;
-    /** @phpcr:Node */
+    /** @ODM\Node */
     public $node;
-    /** @phpcr:String */
+    /** @ODM\String */
     public $name;
-    /** @phpcr:Child */
+    /** @ODM\Child */
     public $file;
 }

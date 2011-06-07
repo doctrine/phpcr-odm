@@ -11,17 +11,17 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 class DocumentManagerHelper extends Helper
 {
     protected $dm;
-    
+
     public function __construct(DocumentManager $dm)
     {
         $this->dm = $dm;
     }
-    
+
     public function getDocumentManager()
     {
         return $this->dm;
     }
-    
+
     public function getName()
     {
         return 'phpcr:documentManager';

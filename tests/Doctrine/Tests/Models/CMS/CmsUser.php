@@ -3,36 +3,37 @@
 namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
- * @Document(alias="cms_user")
+ * @ODM\Document(alias="cms_user")
  */
 class CmsUser
 {
 // /** @Id */
 // public $id;
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @Node */
+    /** @ODM\Node */
     public $node;
-    /** @String(name="status") */
+    /** @ODM\String(name="status") */
     public $status;
-    /** @String(name="username") */
+    /** @ODM\String(name="username") */
     public $username;
-    /** @String(name="name") */
+    /** @ODM\String(name="name") */
     public $name;
 
-    /** @EmbedOne(name="address") */
+    /** @ODM\EmbedOne(name="address") */
     public $address;
-    // 
+
     // * @ReferenceOne(targetDocument="CmsUserRights") */
     // public $rights;
-    // 
+    //
     // /**
     //  * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
-    //  
+    //
     // public $articles;
-    // 
+    //
     // /** @ReferenceMany(targetDocument="CmsGroup") */
     // public $groups;
 

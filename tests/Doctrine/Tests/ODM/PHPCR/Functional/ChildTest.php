@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+
 /**
  * @group functional
  */
@@ -209,28 +211,28 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
 
 /**
- * @Document(alias="childTestObj")
+ * @ODM\Document(alias="childTestObj")
  */
 class ChildChildTestObj
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @Node */
+    /** @ODM\Node */
     public $node;
-    /** @String */
+    /** @ODM\String */
     public $name;
 }
 /**
- * @Document(alias="testObj")
+ * @ODM\Document(alias="testObj")
  */
 class ChildTestObj
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @Node */
+    /** @ODM\Node */
     public $node;
-    /** @String */
+    /** @ODM\String */
     public $name;
-    /** @Child(name="test") */
+    /** @ODM\Child(name="test") */
     public $child;
 }

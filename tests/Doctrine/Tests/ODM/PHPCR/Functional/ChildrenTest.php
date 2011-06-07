@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * @group functional
  */
@@ -74,19 +75,19 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
-  * @Document(alias="childrenTest")
+  * @PHPCRODM\Document(alias="childrenTest")
   */
 class ChildrenTestObj
 {
-  /** @Id */
+  /** @PHPCRODM\Id */
   public $id;
 
-  /** @String */
+  /** @PHPCRODM\String */
   public $name;
 
-  /** @Children(filter="*a") */
+  /** @PHPCRODM\Children(filter="*a") */
   public $aChildren;
 
-  /** @Children */
+  /** @PHPCRODM\Children */
   public $allChildren;
 }
