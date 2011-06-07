@@ -10,6 +10,9 @@ $classLoader->register();
 $classLoader = new ClassLoader('Doctrine\ODM', __DIR__ . '/../lib');
 $classLoader->register();
 
+$classLoader = new ClassLoader('Doctrine\ODM\PHPCR\Mapping\Driver', __DIR__ . '/../lib/Doctrine/ODM/PHPCR/Mapping/Driver');
+$classLoader->register();
+
 $classLoader = new ClassLoader('Doctrine\DBAL', __DIR__ . '/../../doctrine-dbal/lib');
 $classLoader->register();
 

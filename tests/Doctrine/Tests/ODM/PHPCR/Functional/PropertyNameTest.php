@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+
 /**
  * @group functional
  */
@@ -47,16 +49,16 @@ class PropertyNameTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
 
 /**
- * @Document(alias="testObj")
+ * @ODM\Document(alias="testObj")
  */
 class TestObj
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @Node */
+    /** @ODM\Node */
     public $node;
-    /** @String */
+    /** @ODM\String */
     public $name;
-    /** @String(name="myname") */
+    /** @ODM\String(name="myname") */
     public $othername;
 }

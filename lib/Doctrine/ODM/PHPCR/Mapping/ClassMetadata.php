@@ -48,7 +48,7 @@ class ClassMetadata extends ClassMetadataInfo
      * @param array $mapping The mapping information.
      */
     public function mapField(array $mapping)
-    {
+    {   
         $mapping = parent::mapField($mapping);
 
         // @codeCoverageIgnoreStart

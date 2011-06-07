@@ -6,20 +6,22 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+
 /**
- * @Document(alias="cms_group")
+ * @ODM\Document(alias="cms_group")
  */
 class CmsGroup
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @String */
+    /** @ODM\String */
     public $name;
 
-    /** @ReferenceMany(targetDocument="CmsUser", mappedBy="groups") */
+    /** @ODM\ReferenceMany(targetDocument="CmsUser", mappedBy="groups") */
     public $users;
 
-    /** @String(multivalue=true) */
+    /** @ODM\String(multivalue=true) */
     public $values;
 
     public function setName($name) {

@@ -3,7 +3,8 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
-    Doctrine\ODM\PHPCR\DocumentRepository;
+    Doctrine\ODM\PHPCR\DocumentRepository,
+    Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 
 /**
  * @group functional
@@ -259,39 +260,39 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @Document(alias="user")
+ * @ODM\Document(alias="user")
  */
 class User
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @Node */
+    /** @ODM\Node */
     public $node;
-    /** @String(name="username") */
+    /** @ODM\String(name="username") */
     public $username;
-    /** @Int(name="numbers", multivalue=true) */
+    /** @ODM\Int(name="numbers", multivalue=true) */
     public $numbers;
 }
 
 /**
- * @Document(alias="user2")
+ * @ODM\Document(alias="user2")
  */
 class User2
 {
-    /** @Id */
+    /** @ODM\Id */
     public $id;
-    /** @String(name="username") */
+    /** @ODM\String(name="username") */
     public $username;
 }
 
 /**
- * @Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
+ * @ODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
  */
 class User3
 {
-    /** @Id(strategy="repository") */
+    /** @ODM\Id(strategy="repository") */
     public $id;
-    /** @String(name="username") */
+    /** @ODM\String(name="username") */
     public $username;
 }
 

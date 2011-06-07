@@ -10,6 +10,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     {
         $cm = new ClassMetadata('stdClass');
         $reader = new \Doctrine\Common\Annotations\AnnotationReader(new \Doctrine\Common\Cache\ArrayCache());
+        $reader->setAutoloadAnnotations(false);
         $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
 
         $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
@@ -60,7 +61,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     {
         $cache = new \Doctrine\Common\Cache\ArrayCache();
         $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
-        $reader->setDefaultAnnotationNamespace('Doctrine\ODM\PHPCR\Mapping\\');
+        $reader->setAutoloadAnnotations(false);
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
     }
 
