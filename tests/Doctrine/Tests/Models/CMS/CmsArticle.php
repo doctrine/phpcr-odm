@@ -2,26 +2,26 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @ODM\Document
+ * @PHPCRODM\Document
  */
 class CmsArticle
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $topic;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $text;
-    /** @ODM\ReferenceOne(targetDocument="CmsUser") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
     public $user;
     public $comments;
-    /** @ODM\Version */
+    /** @PHPCRODM\Version */
     public $version;
 
-    /** @ODM\Attachments */
+    /** @PHPCRODM\Attachments */
     public $attachments;
 
     public function setAuthor(CmsUser $author) {
