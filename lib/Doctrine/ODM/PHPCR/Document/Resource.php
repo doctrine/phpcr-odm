@@ -2,35 +2,35 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents a jcr nt:resource and is used by the File document
- * @ see http://wiki.apache.org/jackrabbit/nt:resource // Jakuza 
+ * @see http://wiki.apache.org/jackrabbit/nt:resource
  *
- * @ODM\Document(alias="resource", nodeType="nt:resource")
+ * @PHPCRODM\Document(alias="resource", nodeType="nt:resource")
  */
 class Resource
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     protected $id;
 
-    /** @ODM\Node */
+    /** @PHPCRODM\Node */
     protected $node;
 
-    /** @ODM\Binary(name="jcr:data") */
+    /** @PHPCRODM\Binary(name="jcr:data") */
     protected $data;
 
-    /** @ODM\String(name="jcr:mimeType") */
+    /** @PHPCRODM\String(name="jcr:mimeType") */
     protected $mimeType;
 
-    /** @ODM\String(name="jcr:encoding") */
+    /** @PHPCRODM\String(name="jcr:encoding") */
     protected $encoding;
 
-    /** @ODM\Date(name="jcr:lastModified") */
+    /** @PHPCRODM\Date(name="jcr:lastModified") */
     protected $lastModified;
 
-    /** @ODM\String(name="jcr:lastModifiedBy") */
+    /** @PHPCRODM\String(name="jcr:lastModifiedBy") */
     protected $lastModifiedBy;
 
     /**
