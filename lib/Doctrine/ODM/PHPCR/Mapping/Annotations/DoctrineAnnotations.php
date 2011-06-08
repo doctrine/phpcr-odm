@@ -89,6 +89,10 @@ class Child extends Annotation
 {
     public $name;
 }
+class Children extends Annotation
+{
+    public $filter = null;
+}
 
 final class EmbeddedDocument extends Annotation {}
 final class EmbedOne extends Property {}

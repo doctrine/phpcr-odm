@@ -91,6 +91,10 @@ class YamlDriver extends AbstractFileDriver
             $mapping = array('fieldName' => $element['child']);
             $this->addChildMapping($class, $mapping);
         }
+        if (isset($element['children'])) {
+            $mapping = array('fieldName' => $element['children']);
+            $this->addChildrenMapping($class, $mapping);
+        }
         if (isset($element['referenceOne'])) {
             foreach ($element['referenceOne'] as $fieldName => $reference) {
                 $this->addMappingFromReference($class, $fieldName, $reference, 'one');
@@ -129,6 +133,11 @@ class YamlDriver extends AbstractFileDriver
     private function addChildMapping(ClassMetadata $class, $mapping)
     {
         $class->mapChild($mapping);
+    }
+
+    private function addChildrenMapping(ClassMetadata $class, $mapping)
+    {
+        $class->mapChildren($mapping);
     }
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)

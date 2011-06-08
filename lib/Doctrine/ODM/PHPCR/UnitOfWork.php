@@ -250,6 +250,10 @@ class UnitOfWork
             $overrideLocalValues = true;
         }
 
+        foreach ($class->childrenMappings as $mapping) {
+            $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
+        }
+
         if (isset($validate) && !($document instanceof $documentName)) {
             throw new \InvalidArgumentException("Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata");
         }
@@ -876,6 +880,27 @@ class UnitOfWork
             return $this->identityMap[$id];
         }
         return false;
+    }
+
+    /**
+     * Get the child documents of a given document using an optional filter.
+     *
+     * This methods gets all child nodes as a collection of documents that matches
+     * a given filter (same as PHPCR Node::getNodes)
+     * @param $document document instance which children should be loaded
+     * @param string|array $filter optional filter to filter on children's names
+     * @return a collection of child documents
+     */
+    public function getChildren($document, $filter = null)
+    {
+      $oid = spl_object_hash($document);
+      $node = $this->nodesMap[$oid];
+      $childNodes = $node->getNodes($filter);
+      $childDocuments = array();
+      foreach ($childNodes as $name => $childNode) {
+        $childDocuments[$name] = $this->createDocument(null, $childNode);
+      }
+      return new ArrayCollection($childDocuments);
     }
 
     /**
