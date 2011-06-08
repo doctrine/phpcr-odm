@@ -187,6 +187,11 @@ class ClassMetadataInfo implements ClassMetadata
     public $childMappings = array();
 
     /**
+     * Mapping of children: access child nodes through a collection
+     */
+    public $childrenMappings = array();
+
+    /**
      * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
      *
      * @var bool
@@ -513,6 +518,13 @@ class ClassMetadataInfo implements ClassMetadata
         $this->childMappings[$mapping['fieldName']] = $mapping;
     }
 
+    public function mapChildren(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $mapping['name'] = $mapping['fieldName'];
+        $this->childrenMappings[$mapping['fieldName']] = $mapping;
+    }
+
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
         if (!isset($mapping['fieldName'])) {
@@ -521,7 +533,11 @@ class ClassMetadataInfo implements ClassMetadata
         if ($isField && !isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
         }
-        if (isset($this->fieldMappings[$mapping['fieldName']]) || isset($this->associationsMappings[$mapping['fieldName']]) || isset($this->childMappings[$mapping['fieldName']])) {
+        if (isset($this->fieldMappings[$mapping['fieldName']])
+          || isset($this->associationsMappings[$mapping['fieldName']])
+          || isset($this->childMappings[$mapping['fieldName']])
+          || isset($this->childrenMappings[$mapping['fieldName']])
+        ) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
         if ($isField && !isset($mapping['type'])) {
