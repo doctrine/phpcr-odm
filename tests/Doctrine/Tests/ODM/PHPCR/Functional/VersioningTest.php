@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @group functional
@@ -66,18 +66,18 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
 
 /**
- * @ODM\Document(alias="versionTestObj")
+ * @PHPCRODM\Document(alias="versionTestObj")
  */
 class VersionTestObj
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\Node */
+    /** @PHPCRODM\Node */
     public $node;
-    /** @ODM\Version */
+    /** @PHPCRODM\Version */
     public $isVersionField;
-    /** @ODM\String(name="username") */
+    /** @PHPCRODM\String(name="username") */
     public $username;
-    /** @ODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
 }

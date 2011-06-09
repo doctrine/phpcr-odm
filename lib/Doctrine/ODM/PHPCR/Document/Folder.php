@@ -2,26 +2,26 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents a Folder in the repository, aka nt:folder
- * @ see http://wiki.apache.org/jackrabbit/nt:folder // Jakuza
+ * @see http://wiki.apache.org/jackrabbit/nt:folder
  *
- * @ODM\Document(alias="folder", nodeType="nt:folder")
+ * @PHPCRODM\Document(alias="folder", nodeType="nt:folder")
  */
 class Folder
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     protected $id;
 
-    /** @ODM\Node */
+    /** @PHPCRODM\Node */
     protected $node;
 
-    /** @ODM\Date(name="jcr:created") */
+    /** @PHPCRODM\Date(name="jcr:created") */
     protected $created;
 
-    /** @ODM\String(name="jcr:createdBy") */
+    /** @PHPCRODM\String(name="jcr:createdBy") */
     protected $createdBy;
 
     /**
