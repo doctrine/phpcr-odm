@@ -11,7 +11,7 @@ Current Status
 TODO
 ----
 
-* complete mapping for relations (children, parent, references), then remove the node mapping
+* complete mapping for relations (parent, references), then remove the node mapping
 * ensure that no Jackalope specific classes are used (especially relevant for the tests)
 * add support for SQL/OQM
 * write documentation
@@ -151,6 +151,7 @@ Available annotations
 <tr><td> Version:       </td><td>The version of this node, for versioned nodes. </td></tr>
 <tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node. </td></tr>
 <tr><td> Child(name=x): </td><td>Map the child with name x to this property. </td></tr>
+<tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this property. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
 <tr><td> Property:      </td><td>A property of the node, without specified type. </td></tr>
 <tr><td> Boolean,    <br />
          Int,        <br />
