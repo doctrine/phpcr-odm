@@ -171,6 +171,37 @@ class DocumentManager
         return $this->repositories[$documentName];
     }
 
+    /**
+     * Create a Query
+     *
+     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @return PHPCR\Query\QueryResultInterface
+     */
+    public function createQuery($statement, $type)
+    {
+        $qm = $this->config->getPhpcrSession()->getWorkspace()->getQueryManager();
+        return $qm->createQuery($statement, $type);
+    }
+
+    /**
+     * Get documents from a PHPCR query result
+     *
+     * @param  \PHPCR\Query\QueryResultInterface $result
+     * @param  string $documentName
+     * @return array of document instances
+     */
+    public function getDocumentsFromResult(\PHPCR\Query\QueryResultInterface $result, $documentName)
+    {
+        $documents = array();
+
+        $nodes = $result->getNodes();
+        foreach ($nodes as $node) {
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+        }
+
+        return $documents;
+    }
+
     public function persist($object)
     {
         $this->unitOfWork->scheduleInsert($object);

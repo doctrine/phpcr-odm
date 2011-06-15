@@ -830,7 +830,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function getFieldNames()
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        return array_keys($this->fieldMappings);
     }
 
     /**

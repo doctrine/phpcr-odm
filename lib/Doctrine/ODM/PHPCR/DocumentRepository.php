@@ -213,4 +213,46 @@ class DocumentRepository implements ObjectRepository
     {
         return $this->class;
     }
+
+    protected function quote($val)
+    {
+        return "'".str_replace("'", "''", $val)."'";
+    }
+
+    /**
+     * Create a Query
+     *
+     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @return PHPCR\Query\QueryResultInterface
+     */
+    public function createQuery($statement, $type)
+    {
+        if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
+            if (0 === strpos($statement, 'SELECT *')) {
+                $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
+            }
+
+            $aliasFilter = '[nt:unstructured].[phpcr:alias] = '.$this->quote($this->class->alias);
+            if (false !== strpos($statement, 'WHERE')) {
+                $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
+            } elseif (false !== strpos($statement, 'ORDER BY')) {
+                $statement = str_replace('ORDER BY', " WHERE $aliasFilter ORDER BY", $statement);
+            } else {
+                $statement.= " WHERE $aliasFilter";
+            }
+        }
+
+        return $this->dm->createQuery($statement, $type);
+    }
+
+    /**
+     * Get documents from a PHPCR query result
+     *
+     * @param  \PHPCR\Query\QueryResultInterface $result
+     * @return array of document instances
+     */
+    public function getDocumentsFromResult(\PHPCR\Query\QueryResultInterface $result)
+    {
+        return $this->dm->getDocumentsFromResult($result, $this->documentName);
+    }
 }
