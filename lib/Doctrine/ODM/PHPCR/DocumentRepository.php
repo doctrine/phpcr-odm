@@ -228,6 +228,9 @@ class DocumentRepository implements ObjectRepository
     public function createQuery($statement, $type)
     {
         if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
+            // TODO maybe it would be better to convert to OQM here
+            // this might make it possible to more cleanly apply the following changes
+
             if (0 === strpos($statement, 'SELECT *')) {
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
