@@ -155,6 +155,6 @@ class YamlDriver extends AbstractFileDriver
 
     protected function loadMappingFile($file)
     {
-        return \Symfony\Component\Yaml\Yaml::load($file);
+        return \Symfony\Component\Yaml\Yaml::parse($file);
     }
 }
