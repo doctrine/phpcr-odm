@@ -175,7 +175,7 @@ class DocumentManager
      * Create a Query
      *
      * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
-     * @return PHPCR\Query\QueryResultInterface
+     * @return PHPCR\Query\QueryInterface
      */
     public function createQuery($statement, $type)
     {
@@ -184,17 +184,17 @@ class DocumentManager
     }
 
     /**
-     * Get documents from a PHPCR query result
+     * Get documents from a PHPCR query instance
      *
      * @param  \PHPCR\Query\QueryResultInterface $result
      * @param  string $documentName
      * @return array of document instances
      */
-    public function getDocumentsFromResult(\PHPCR\Query\QueryResultInterface $result, $documentName)
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $documentName)
     {
         $documents = array();
 
-        $nodes = $result->getNodes();
+        $nodes = $query->execute()->getNodes();
         foreach ($nodes as $node) {
             $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
         }

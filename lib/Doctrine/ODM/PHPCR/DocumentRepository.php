@@ -249,13 +249,13 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Get documents from a PHPCR query result
+     * Get documents from a PHPCR query instance
      *
      * @param  \PHPCR\Query\QueryResultInterface $result
      * @return array of document instances
      */
-    public function getDocumentsFromResult(\PHPCR\Query\QueryResultInterface $result)
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
     {
-        return $this->dm->getDocumentsFromResult($result, $this->documentName);
+        return $this->dm->getDocumentsByQuery($query, $this->documentName);
     }
 }
