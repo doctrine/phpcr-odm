@@ -215,11 +215,22 @@ class DocumentRepository implements ObjectRepository
         return $this->class;
     }
 
+    /**
+     * Get the alias of the document
+     *
+     * @return string
+     */
     public function getAlias()
     {
         return $this->class->alias;
     }
 
+    /**
+     * Quote a string for inclusion in an SQL2 query
+     *
+     * @param  string $val
+     * @return string
+     */
     public function quote($val)
     {
         return $this->dm->quote($val);

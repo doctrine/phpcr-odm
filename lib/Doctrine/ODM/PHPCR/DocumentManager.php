@@ -172,6 +172,12 @@ class DocumentManager
         return $this->repositories[$documentName];
     }
 
+    /**
+     * Quote a string for inclusion in an SQL2 query
+     *
+     * @param  string $val
+     * @return string
+     */
     public function quote($val)
     {
         return "'".str_replace("'", "''", $val)."'";
