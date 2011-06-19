@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * An DocumentRepository serves as a repository for documents with generic as well as
@@ -115,7 +116,7 @@ class DocumentRepository implements ObjectRepository
             $hints = array();
             $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
         }
-        return $documents;
+        return new ArrayCollection($documents);
     }
 
     /**
@@ -214,9 +215,14 @@ class DocumentRepository implements ObjectRepository
         return $this->class;
     }
 
-    protected function quote($val)
+    public function getAlias()
     {
-        return "'".str_replace("'", "''", $val)."'";
+        return $this->class->alias;
+    }
+
+    public function quote($val)
+    {
+        return $this->dm->quote($val);
     }
 
     /**
@@ -235,7 +241,7 @@ class DocumentRepository implements ObjectRepository
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
 
-            $aliasFilter = '[nt:unstructured].[phpcr:alias] = '.$this->quote($this->class->alias);
+            $aliasFilter = '[nt:unstructured].[phpcr:alias] = '.$this->quote($this->getAlias());
             if (false !== strpos($statement, 'WHERE')) {
                 $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
             } elseif (false !== strpos($statement, 'ORDER BY')) {

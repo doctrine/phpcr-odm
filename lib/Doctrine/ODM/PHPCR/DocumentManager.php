@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Document Manager
@@ -171,6 +172,11 @@ class DocumentManager
         return $this->repositories[$documentName];
     }
 
+    public function quote($val)
+    {
+        return "'".str_replace("'", "''", $val)."'";
+    }
+
     /**
      * Create a Query
      *
@@ -199,7 +205,7 @@ class DocumentManager
             $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
         }
 
-        return $documents;
+        return new ArrayCollection($documents);
     }
 
     public function persist($object)
