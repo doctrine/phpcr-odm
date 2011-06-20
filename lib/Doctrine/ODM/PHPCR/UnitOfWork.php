@@ -166,6 +166,9 @@ class UnitOfWork
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
                     // TODO might need to be a PersistentCollection
+                    if (array('') === $properties[$mapping['name']]) {
+                        $properties[$mapping['name']] = array();
+                    }
                     $documentState[$fieldName] = new ArrayCollection($properties[$mapping['name']]);
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];

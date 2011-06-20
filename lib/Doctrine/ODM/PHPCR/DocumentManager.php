@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Document Manager
@@ -169,6 +170,48 @@ class DocumentManager
             $this->repositories[$documentName] = new $repositoryClass($this, $class);
         }
         return $this->repositories[$documentName];
+    }
+
+    /**
+     * Quote a string for inclusion in an SQL2 query
+     *
+     * @param  string $val
+     * @return string
+     */
+    public function quote($val)
+    {
+        return "'".str_replace("'", "''", $val)."'";
+    }
+
+    /**
+     * Create a Query
+     *
+     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @return PHPCR\Query\QueryInterface
+     */
+    public function createQuery($statement, $type)
+    {
+        $qm = $this->config->getPhpcrSession()->getWorkspace()->getQueryManager();
+        return $qm->createQuery($statement, $type);
+    }
+
+    /**
+     * Get documents from a PHPCR query instance
+     *
+     * @param  \PHPCR\Query\QueryResultInterface $result
+     * @param  string $documentName
+     * @return array of document instances
+     */
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $documentName)
+    {
+        $documents = array();
+
+        $nodes = $query->execute()->getNodes();
+        foreach ($nodes as $node) {
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+        }
+
+        return new ArrayCollection($documents);
     }
 
     public function persist($object)
