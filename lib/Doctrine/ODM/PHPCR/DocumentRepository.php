@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * An DocumentRepository serves as a repository for documents with generic as well as
@@ -115,7 +116,7 @@ class DocumentRepository implements ObjectRepository
             $hints = array();
             $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
         }
-        return $documents;
+        return new ArrayCollection($documents);
     }
 
     /**
@@ -212,5 +213,66 @@ class DocumentRepository implements ObjectRepository
     public function getClassMetadata()
     {
         return $this->class;
+    }
+
+    /**
+     * Get the alias of the document
+     *
+     * @return string
+     */
+    public function getAlias()
+    {
+        return $this->class->alias;
+    }
+
+    /**
+     * Quote a string for inclusion in an SQL2 query
+     *
+     * @param  string $val
+     * @return string
+     */
+    public function quote($val)
+    {
+        return $this->dm->quote($val);
+    }
+
+    /**
+     * Create a Query
+     *
+     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @return PHPCR\Query\QueryResultInterface
+     */
+    public function createQuery($statement, $type)
+    {
+        if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
+            // TODO maybe it would be better to convert to OQM here
+            // this might make it possible to more cleanly apply the following changes
+
+            if (0 === strpos($statement, 'SELECT *')) {
+                $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
+            }
+
+            $aliasFilter = '[nt:unstructured].[phpcr:alias] = '.$this->quote($this->getAlias());
+            if (false !== strpos($statement, 'WHERE')) {
+                $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
+            } elseif (false !== strpos($statement, 'ORDER BY')) {
+                $statement = str_replace('ORDER BY', " WHERE $aliasFilter ORDER BY", $statement);
+            } else {
+                $statement.= " WHERE $aliasFilter";
+            }
+        }
+
+        return $this->dm->createQuery($statement, $type);
+    }
+
+    /**
+     * Get documents from a PHPCR query instance
+     *
+     * @param  \PHPCR\Query\QueryResultInterface $result
+     * @return array of document instances
+     */
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
+    {
+        return $this->dm->getDocumentsByQuery($query, $this->documentName);
     }
 }
