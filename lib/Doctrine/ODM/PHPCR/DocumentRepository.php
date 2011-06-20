@@ -95,8 +95,7 @@ class DocumentRepository implements ObjectRepository
             return null;
         }
 
-        $hints = array();
-        return $this->createDocument($uow, $this->documentName, $node, $hints);
+        return $this->createDocument($uow, $this->documentName, $node);
     }
 
     /**
@@ -109,13 +108,11 @@ class DocumentRepository implements ObjectRepository
     {
         $uow = $this->dm->getUnitOfWork();
 
-        $documents = array();
-        foreach ($ids as $id) {
-            // TODO: catch exception and return null when not found?
-            $node = $this->dm->getPhpcrSession()->getNode($id);
-            $hints = array();
-            $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
+        $nodes = $this->dm->getPhpcrSession()->getNodes($ids);
+        foreach ($nodes as $node) {
+            $documents[$node->getPath()] = $this->createDocument($uow, $this->documentName, $node);
         }
+
         return new ArrayCollection($documents);
     }
 
