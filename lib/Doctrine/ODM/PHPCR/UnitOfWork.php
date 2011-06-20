@@ -139,7 +139,7 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        $properties = $node->getPropertiesValues(null,false); // get uuid rather than dereference reference properties
+        $properties = $node->getPropertiesValues(null, false); // get uuid rather than dereference reference properties
 
         if (isset($properties['phpcr:alias'])) {
             $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
@@ -150,7 +150,8 @@ class UnitOfWork
         } elseif (isset($documentName)) {
             $type = $documentName;
             if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('phpcr:alias', $documentName, PropertyType::STRING);
+                $metadata = $this->dm->getMetadataFactory()->getMetadataFor($documentName);
+                $node->setProperty('phpcr:alias', $metadata->alias, PropertyType::STRING);
             }
         } else {
             throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
