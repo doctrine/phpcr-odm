@@ -109,6 +109,8 @@ class DocumentRepository implements ObjectRepository
         $uow = $this->dm->getUnitOfWork();
 
         $nodes = $this->dm->getPhpcrSession()->getNodes($ids);
+
+        $documents = array();
         foreach ($nodes as $node) {
             $documents[$node->getPath()] = $this->createDocument($uow, $this->documentName, $node);
         }
