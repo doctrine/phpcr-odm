@@ -677,8 +677,8 @@ class UnitOfWork
                             $data['doctrine_metadata']['associations'][$fieldName] = $ids;
                         }
                     }
-                // child is set to null ... remove the node ...
                 } elseif (isset($class->childMappings[$fieldName])) {
+                    // child is set to null ... remove the node ...
                     if ($fieldValue === null) {
                       if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
                         $child = $node->getNode($class->childMappings[$fieldName]['name']);
@@ -686,10 +686,17 @@ class UnitOfWork
                         $this->purgeChildren($childDocument);
                         $child->remove();
                       }
+                    } elseif (is_null($this->originalData[$oid][$fieldName])) {
+                        // TODO: store this new child
                     } elseif (isset($this->originalData[$oid][$fieldName])) {
+                      //TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
+                      if ($fieldValue === $this->originalData[$oid][$fieldName]) {
+                        //TODO: save
+                      } else {
                         // this is currently not implemented
                         // the old child needs to be removed and the new child might be moved
                         throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");
+                      }
                     }
                 }
             }
