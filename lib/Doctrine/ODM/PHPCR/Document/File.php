@@ -80,7 +80,14 @@ class File
     {
         $this->getContent();
         $stream = fopen($filename, 'rb');
+        if (! $stream) {
+            throw new \Exception("File $filename not found");
+        }
+
         $this->content->setData($stream);
+        $this->content->setLastModified(new \DateTime('@'.filemtime($filename)));
+        $this->content->setMimeType(mime_content_type($filename));
+        //encoding???
     }
 
     /**
