@@ -64,6 +64,6 @@ CND
             }
             throw $e;
         }
-        $output->write(PHP_EOL.sprintf('Sucessfully registered system node types.') . PHP_EOL);
+        $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
     }
 }
