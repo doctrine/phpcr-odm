@@ -40,7 +40,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm = $this->getHelper('dm')->getDocumentManager();
+        $dm = $this->getHelper('phpcr')->getDocumentManager();
 
         $cnd = <<<CND
 <phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
