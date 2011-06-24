@@ -36,7 +36,6 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckin()
     {
-
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkIn($user);
     }
@@ -63,7 +62,6 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('lsmith', $user->username);
     }
 }
-
 
 /**
  * @PHPCRODM\Document(alias="versionTestObj")

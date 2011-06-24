@@ -39,7 +39,6 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         $session = $repository->login($credentials, $workspace);
 
         $config = new \Doctrine\ODM\PHPCR\Configuration();
-        $config->setProxyDir(\sys_get_temp_dir());
         $config->setMetadataDriverImpl($metaDriver);
         $config->setPhpcrSession($session);
 
