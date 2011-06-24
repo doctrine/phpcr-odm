@@ -29,7 +29,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -60,6 +60,20 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+    }
+
+    public function testFindByAlias()
+    {
+        $user = $this->node->addNode('userWithAlias');
+        $user->setProperty('username', 'dbu');
+        $user->setProperty('numbers', array(3, 1, 2));
+        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
+        $this->dm->getPhpcrSession()->save();
+
+        $repository = $this->dm->getRepository($this->type);
+        $userWithAlias = $repository->find('/functional/userWithAlias');
+
+        $this->assertEquals('dbu', $userWithAlias->username);
     }
 
     public function testInsertWithCustomIdStrategy()

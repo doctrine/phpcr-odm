@@ -79,6 +79,6 @@ EOT
             }
             throw $e;
         }
-        $output->write(PHP_EOL.sprintf('Sucessfully registered node types from "<info>%s</info>"', $cnd_file) . PHP_EOL);
+        $output->write(PHP_EOL.sprintf('Successfully registered node types from "<info>%s</info>"', $cnd_file) . PHP_EOL);
     }
 }

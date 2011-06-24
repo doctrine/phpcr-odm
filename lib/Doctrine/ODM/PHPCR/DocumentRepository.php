@@ -69,53 +69,39 @@ class DocumentRepository implements ObjectRepository
      * Create a document given class, data and the doc-id and revision
      *
      * @param   $uow Doctrine\ODM\PHPCR\UnitOfWork $uow
-     * @param string $documentName
      * @param \PHPCR\NodeInterface $node
      * @param array $hints
      * @return object
      */
-    public function createDocument($uow, $documentName, $node, array &$hints = array())
+    public function createDocument($uow, $node, array &$hints = array())
     {
-        return $uow->createDocument($documentName, $node, $hints);
+        return $uow->createDocument($this->documentName, $node, $hints);
     }
 
     /**
      * Find a single document by its id
      *
+     * The id may either be a PHPCR path or UUID
+     *
      * @param string $id document id
-     * @return object $document
+     * @return object document or null
      */
     public function find($id)
     {
-        $uow = $this->dm->getUnitOfWork();
-
-        try {
-            $node = $this->dm->getPhpcrSession()->getNode($id);
-        } catch (\PHPCR\PathNotFoundException $e) {
-            return null;
-        }
-
-        return $this->createDocument($uow, $this->documentName, $node);
+        return $this->dm->find($this->documentName, $id);
     }
 
     /**
      * Find many document by id
+     *
+     * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
      * @param array $ids document ids
      * @return array of document objects
      */
     public function findMany(array $ids)
     {
-        $uow = $this->dm->getUnitOfWork();
-
-        $nodes = $this->dm->getPhpcrSession()->getNodes($ids);
-
-        $documents = array();
-        foreach ($nodes as $node) {
-            $documents[$node->getPath()] = $this->createDocument($uow, $this->documentName, $node);
-        }
-
-        return new ArrayCollection($documents);
+        return $this->dm->findMany($this->documentName, $ids);
     }
 
     /**
@@ -144,6 +130,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
+        // TODO how to best integrate this with OQM?
         return $this->uow->getDocumentPersister($this->documentName)->loadAll($criteria);
     }
 
@@ -155,6 +142,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findOneBy(array $criteria)
     {
+        // TODO how to best integrate this with OQM?
         return $this->uow->getDocumentPersister($this->documentName)->load($criteria);
     }
 
@@ -251,7 +239,7 @@ class DocumentRepository implements ObjectRepository
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
 
-            $aliasFilter = '[nt:unstructured].[phpcr:alias] = '.$this->quote($this->getAlias());
+            $aliasFilter = '[nt:unstructured].[phpcr:class] = '.$this->quote($this->documentName);
             if (false !== strpos($statement, 'WHERE')) {
                 $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
             } elseif (false !== strpos($statement, 'ORDER BY')) {
