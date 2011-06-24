@@ -6,14 +6,14 @@ Current Status
 
 * usable for basic tasks
 * not yet really performance optimized
-* pre alpha stage
+* alpha stage
 
 TODO
 ----
 
 * complete mapping for relations (parent, references), then remove the node mapping
 * ensure that no Jackalope specific classes are used (especially relevant for the tests)
-* add support for SQL/OQM
+* add support for SQL/QOM
 * write documentation
 * expand test suite
 
@@ -53,6 +53,8 @@ Getting Started
 
         // fetching a document by JCR path (id in PHPCR ODM lingo)
         $user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
+        //or let the odm find the document class for you
+        $user = $dm->find('/bob');
 
         // create a new document
         $newUser = new \Namespace\For\Document\User();
@@ -64,6 +66,7 @@ Getting Started
         // store all changes, insertions, etc.
         $dm->flush();
 
+        //TODO: search example
 
 Document Classes
 ----------------
@@ -76,7 +79,7 @@ You write your own document classes that will be mapped to and from the phpcr da
     use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
     /**
-     * @PHPCRODM\Document(alias="mydocument")
+     * @PHPCRODM\Document
      */
     class MyDocument
     {
@@ -118,7 +121,7 @@ to build the path.
     use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
     /**
-     * @PHPCRODM\Document(repositoryClass="Acme\SampleBundle\DocumentRepository", alias="document")
+     * @PHPCRODM\Document(repositoryClass="Acme\SampleBundle\DocumentRepository")
      */
     class Document
     {
