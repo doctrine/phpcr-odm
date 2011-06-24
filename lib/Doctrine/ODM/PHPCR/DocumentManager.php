@@ -46,11 +46,6 @@ class DocumentManager
     private $unitOfWork = null;
 
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory = null;
-
-    /**
      * @var array
      */
     private $repositories = array();
@@ -66,7 +61,6 @@ class DocumentManager
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
         $this->unitOfWork = new UnitOfWork($this);
-        $this->proxyFactory = new Proxy\ProxyFactory($this, $this->config->getProxyDir(), $this->config->getProxyNamespace(), true);
     }
 
     /**
@@ -189,27 +183,6 @@ class DocumentManager
     public function refresh($document)
     {
         $this->getRepository(get_class($document))->refresh($document);
-    }
-
-    /**
-     * Gets a reference to the entity identified by the given type and id
-     * without actually loading it, if the entity is not yet loaded.
-     *
-     * @param string $documentName The name of the entity type.
-     * @param string $id The entity id.
-     * @return object The entity reference.
-     */
-    public function getReference($documentName, $id)
-    {
-        // Check identity map first, if its already in there just return it.
-        if ($document = $this->unitOfWork->tryGetById($id)) {
-            return $document;
-        }
-        $class = $this->metadataFactory->getMetadataFor(ltrim($documentName, '\\'));
-        $document = $this->proxyFactory->getProxy($class->name, $id);
-        $this->unitOfWork->registerManaged($document, $id, null);
-
-        return $document;
     }
 
     /**

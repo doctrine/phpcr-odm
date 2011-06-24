@@ -165,39 +165,11 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    // TODO might need to be a PersistentCollection
                     $documentState[$fieldName] = new ArrayCollection($properties[$mapping['name']]);
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
             }
-//            } elseif ($jsonName == 'doctrine_metadata') {
-//                if (!isset($jsonValue['associations'])) {
-//                    continue;
-//                }
-//
-//                foreach ($jsonValue['associations'] as $assocName => $assocValue) {
-//                    if (isset($class->associationsMappings[$assocName])) {
-//                        if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
-//                            if ($assocValue) {
-//                                $assocValue = $this->dm->getReference($class->associationsMappings[$assocName]['targetDocument'], $assocValue);
-//                            }
-//                            $documentState[$class->associationsMappings[$assocName]['fieldName']] = $assocValue;
-//                        } elseif ($class->associationsMappings[$assocName]['type'] & ClassMetadata::MANY_TO_MANY) {
-//                            if ($class->associationsMappings[$assocName]['isOwning']) {
-//                                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentIdsCollection(
-//                                    new \Doctrine\Common\Collections\ArrayCollection(),
-//                                    $class->associationsMappings[$assocName]['targetDocument'],
-//                                    $this->dm,
-//                                    $assocValue
-//                                );
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                $nonMappedData[$jsonName] = $jsonValue;
-//            }
         }
 
         if ($class->node) {
@@ -215,12 +187,6 @@ class UnitOfWork
             if (!$assocOptions['isOwning'] && $assocOptions['type'] & ClassMetadata::TO_MANY) {
                 // TODO figure this one out which collection should be used
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = null;
-//                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentViewCollection(
-//                    new \Doctrine\Common\Collections\ArrayCollection(),
-//                    $this->dm,
-//                    $id,
-//                    $class->associationsMappings[$assocName]['mappedBy']
-//                );
             }
         }
 
@@ -235,11 +201,6 @@ class UnitOfWork
         if (isset($this->identityMap[$id])) {
             $document = $this->identityMap[$id];
             $overrideLocalValues = false;
-
-            if ( ($document instanceof Proxy && !$document->__isInitialized__) || isset($hints['refresh'])) {
-                $overrideLocalValues = true;
-                $oid = spl_object_hash($document);
-            }
         } else {
             $document = $class->newInstance();
             $this->identityMap[$id] = $document;
@@ -445,10 +406,6 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
-        if ($document instanceof Proxy\Proxy && !$document->__isInitialized__) {
-            return;
-        }
-
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
