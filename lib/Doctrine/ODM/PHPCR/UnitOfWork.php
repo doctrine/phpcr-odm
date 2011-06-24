@@ -141,20 +141,28 @@ class UnitOfWork
     {
         $properties = $node->getPropertiesValues(null, false); // get uuid rather than dereference reference properties
 
-        if (isset($properties['phpcr:alias'])) {
-            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
+        if (isset($properties['phpcr:class'])) {
+            $metadata = $this->dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
             $type = $metadata->name;
             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
                 $validate = true;
             }
-        } elseif (isset($documentName)) {
-            $type = $documentName;
-            if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $metadata = $this->dm->getMetadataFactory()->getMetadataFor($documentName);
-                $node->setProperty('phpcr:alias', $metadata->alias, PropertyType::STRING);
-            }
         } else {
-            throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
+            if (isset($properties['phpcr:alias'])) {
+                $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
+                $type = $metadata->name;
+                if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
+                    $validate = true;
+                }
+            } elseif (isset($documentName)) {
+                $type = $documentName;
+            } else {
+                throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
+            }
+
+            if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
+                $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
+            }
         }
 
         $class = $this->dm->getClassMetadata($type);
@@ -577,7 +585,7 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -607,7 +615,7 @@ class UnitOfWork
             }
 
             if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {

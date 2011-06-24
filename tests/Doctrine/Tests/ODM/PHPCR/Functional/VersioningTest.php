@@ -27,7 +27,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $versionNode = $this->node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', array(3, 1, 2));
-        $versionNode->setProperty('phpcr:alias', 'versionTestObj');
+        $versionNode->setProperty('phpcr:class', $this->type);
         $versionNode->addMixin("mix:versionable");
 
         $this->dm->getPhpcrSession()->save();
@@ -36,15 +36,13 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckin()
     {
-        $repository = $this->dm->getRepository($this->type);
-        $user = $repository->find('/functional/versionTestObj');
+        $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkIn($user);
     }
 
     public function testCheckOut()
     {
-        $repository = $this->dm->getRepository($this->type);
-        $user = $repository->find('/functional/versionTestObj');
+        $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkIn($user);
         $this->dm->checkOut($user);
         $user->username = 'nicam';
@@ -53,14 +51,13 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRestore()
     {
-        $repository = $this->dm->getRepository($this->type);
-        $user = $repository->find('/functional/versionTestObj');
+        $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkIn($user);
         $this->dm->checkOut($user);
         $user->username = 'nicam';
 
         $this->dm->restore('1.0', $user);
-        $user = $repository->find('/functional/versionTestObj');
+        $user = $this->dm->find($this->type, '/functional/versionTestObj');
 
         $this->assertEquals('lsmith', $user->username);
     }

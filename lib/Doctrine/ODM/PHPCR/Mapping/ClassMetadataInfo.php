@@ -77,7 +77,7 @@ class ClassMetadataInfo implements ClassMetadata
     public $identifier;
 
     /**
-     * READ-ONLY: The name of the document class.
+     * READ-ONLY: The name of the document class that is stored in the phpcr:class property
      */
     public $name;
 
