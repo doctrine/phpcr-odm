@@ -22,9 +22,9 @@ class DocumentManagerHelper extends Helper
         return $this->dm;
     }
 
-    public function getTransport()
+    public function getSession()
     {
-        return $this->dm->getPhpcrSession()->getTransport();
+        return $this->dm->getPhpcrSession();
     }
 
     public function getName()
