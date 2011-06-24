@@ -36,13 +36,15 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckin()
     {
-        $user = $this->dm->find($this->type, '/functional/versionTestObj');
+        $repository = $this->dm->getRepository($this->type);
+        $user = $repository->find('/functional/versionTestObj');
         $this->dm->checkIn($user);
     }
 
     public function testCheckOut()
     {
-        $user = $this->dm->find($this->type, '/functional/versionTestObj');
+        $repository = $this->dm->getRepository($this->type);
+        $user = $repository->find('/functional/versionTestObj');
         $this->dm->checkIn($user);
         $this->dm->checkOut($user);
         $user->username = 'nicam';
@@ -51,13 +53,14 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRestore()
     {
-        $user = $this->dm->find($this->type, '/functional/versionTestObj');
+        $repository = $this->dm->getRepository($this->type);
+        $user = $repository->find('/functional/versionTestObj');
         $this->dm->checkIn($user);
         $this->dm->checkOut($user);
         $user->username = 'nicam';
 
         $this->dm->restore('1.0', $user);
-        $user = $this->dm->find($this->type, '/functional/versionTestObj');
+        $user = $repository->find('/functional/versionTestObj');
 
         $this->assertEquals('lsmith', $user->username);
     }

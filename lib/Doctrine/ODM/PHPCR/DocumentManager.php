@@ -24,6 +24,8 @@ use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use PHPCR\Util\UUIDHelper;
+
 /**
  * Document Manager
  * @author      Jordi Boggiano <j.boggiano@seld.be>
@@ -128,11 +130,15 @@ class DocumentManager
      */
     public function find($documentName, $id)
     {
-        if (is_null($documentName)) {
-            //TODO: we should figure out the document automatically from the phpcr:alias
-            throw new \InvalidArgumentException('documentName for find may not be null');
+        try {
+            $node = UUIDHelper::isUUID($id)
+                ? $this->getPhpcrSession()->getNodeByIdentifier($id)
+                : $this->getPhpcrSession()->getNode($id);
+        } catch (\PHPCR\PathNotFoundException $e) {
+            return null;
         }
-        return $this->getRepository($documentName)->find($id);
+
+        return $this->unitOfWork->createDocument($documentName, $node);
     }
 
     /**
@@ -144,7 +150,16 @@ class DocumentManager
      */
     public function findMany($documentName, array $ids)
     {
-        return $this->getRepository($documentName)->findMany($ids);
+        $nodes = UUIDHelper::isUUID(reset($ids))
+            ? $this->getPhpcrSession()->getNodesByIdentifier($ids)
+            : $this->getPhpcrSession()->getNodes($ids);
+
+        $documents = array();
+        foreach ($nodes as $node) {
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+        }
+
+        return new ArrayCollection($documents);
     }
 
     /**
