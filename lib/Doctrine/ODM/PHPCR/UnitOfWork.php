@@ -201,6 +201,11 @@ class UnitOfWork
         if (isset($this->identityMap[$id])) {
             $document = $this->identityMap[$id];
             $overrideLocalValues = false;
+
+            if (isset($hints['refresh'])) {
+                $overrideLocalValues = true;
+                $oid = spl_object_hash($document);
+            }
         } else {
             $document = $class->newInstance();
             $this->identityMap[$id] = $document;
