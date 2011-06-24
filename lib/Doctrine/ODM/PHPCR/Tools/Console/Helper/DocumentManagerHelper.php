@@ -22,9 +22,14 @@ class DocumentManagerHelper extends Helper
         return $this->dm;
     }
 
+    public function getSession()
+    {
+        return $this->dm->getPhpcrSession();
+    }
+
     public function getName()
     {
-        return 'phpcr:documentManager';
+        return 'phpcr';
     }
 }
 

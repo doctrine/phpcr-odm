@@ -49,7 +49,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm = $this->getHelper('dm')->getDocumentManager();
+        $dm = $this->getHelper('phpcr')->getDocumentManager();
 
         $cnd_file = realpath($input->getArgument('cnd-file'));
 
