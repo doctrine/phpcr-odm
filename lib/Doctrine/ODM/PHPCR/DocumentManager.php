@@ -24,6 +24,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 
 /**
@@ -33,6 +34,11 @@ use PHPCR\Util\UUIDHelper;
  */
 class DocumentManager
 {
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
     /**
      * @var Configuration
      */
@@ -58,8 +64,9 @@ class DocumentManager
      */
     private $evm;
 
-    public function __construct(Configuration $config = null, EventManager $evm = null)
+    public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
+        $this->session = $session;
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
@@ -79,7 +86,7 @@ class DocumentManager
      */
     public function getPhpcrSession()
     {
-        return $this->config->getPhpcrSession();
+        return $this->session;
     }
 
     /**
