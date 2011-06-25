@@ -4,6 +4,7 @@ namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class InitDoctrineDbalCommand extends Command
@@ -15,6 +16,12 @@ class InitDoctrineDbalCommand extends Command
     {
         $this
             ->setName('odm:phpcr:init:dbal')
+            ->setDefinition(array(
+                new InputOption(
+                    'dump-sql', null, InputOption::VALUE_NONE,
+                    'Instead of try to apply generated SQLs to the database, output them.'
+                )
+            ))
             ->setHelp(<<<EOT
 Processes the schema and either create it directly in the database or generate the SQL output.
 EOT
@@ -38,14 +45,23 @@ EOT
             throw new \InvalidArgumentException('The session option did not point to an instance of Jackalope Doctrine DBAL Transport.');
         }
 
+        if (true !== $input->getOption('dump-sql')) {
+            $output->write('ATTENTION: This operation should not be executed in a production environment.' . PHP_EOL . PHP_EOL);
+        }
+
         $connection = $transport->getConnection();
         $schema = \Jackalope\Transport\DoctrineDBAL\RepositorySchema::create();
         foreach ($schema->toSql($connection->getDatabasePlatform()) as $sql) {
-            $connection->exec($sql);
+            if (true === $input->getOption('dump-sql')) {
+                $connection->exec($sql);
+            } else {
+                $output->write($sql . PHP_EOL);
+            }
         }
 
-        $session->getWorkspace()->createWorkspace('default');
-
-        $output->writeln("Jackalope Doctrine DBAL tables have been initialized successfully and 'default' workspace created.");
+        if (true !== $input->getOption('dump-sql')) {
+            $session->getWorkspace()->createWorkspace('default');
+            $output->writeln("Jackalope Doctrine DBAL tables have been initialized successfully and 'default' workspace created.");
+        }
     }
 }
