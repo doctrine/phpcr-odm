@@ -29,13 +29,13 @@ class InitDoctrineDbalCommand extends Command
         }
 
         $transport = $session->getTransport();
-        if (!$transport instanceof \Jackalope\Transport\Doctrine\DoctrineTransport) {
+        if (!$transport instanceof \Jackalope\Transport\DoctrineDBAL\DoctrineDBALTransport) {
             $output->write(PHP_EOL.'<error>The session option did not point to an instance of Jackalope Doctrine DBAL Transport.</error>'.PHP_EOL);
             throw new \InvalidArgumentException('The session option did not point to an instance of Jackalope Doctrine DBAL Transport.');
         }
 
         $connection = $transport->getConnection();
-        $schema = \Jackalope\Transport\Doctrine\RepositorySchema::create();
+        $schema = \Jackalope\Transport\DoctrineDBAL\RepositorySchema::create();
         foreach ($schema->toSql($connection->getDatabasePlatform()) as $sql) {
             $connection->exec($sql);
         }
