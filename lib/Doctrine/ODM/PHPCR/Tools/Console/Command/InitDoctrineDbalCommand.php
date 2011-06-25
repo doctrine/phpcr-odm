@@ -14,7 +14,11 @@ class InitDoctrineDbalCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('odm:phpcr:init:dbal');
+            ->setName('odm:phpcr:init:dbal')
+            ->setHelp(<<<EOT
+Processes the schema and either create it directly in the database or generate the SQL output.
+EOT
+    );
     }
 
     /**

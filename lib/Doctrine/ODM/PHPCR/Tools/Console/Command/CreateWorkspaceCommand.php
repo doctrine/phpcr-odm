@@ -17,7 +17,10 @@ class CreateWorkSpaceCommand extends Command
         $this
             ->setName('odm:phpcr:workspace:create')
             ->addArgument('name', InputArgument::REQUIRED, 'A workspace name')
-        ;
+            ->setHelp(<<<EOT
+Create a workspace for the given name.
+EOT
+        );
     }
 
     /**
