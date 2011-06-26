@@ -49,8 +49,6 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm = $this->getHelper('phpcr')->getDocumentManager();
-
         $cnd_file = realpath($input->getArgument('cnd-file'));
 
         if (!file_exists($cnd_file)) {
@@ -66,7 +64,7 @@ EOT
         $cnd = file_get_contents($cnd_file);
         $allowUpdate = $input->getOption('allow-update');
 
-        $session = $dm->getPhpcrSession();
+        $session = $this->getHelper('phpcr')->getSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
         try {
