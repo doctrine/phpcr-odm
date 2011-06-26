@@ -40,9 +40,8 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $config->setMetadataDriverImpl($metaDriver);
-        $config->setPhpcrSession($session);
 
-        return \Doctrine\ODM\PHPCR\DocumentManager::create($config);
+        return \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
     }
 
     public function resetFunctionalNode($dm)
