@@ -20,8 +20,12 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
+        $this->factory = new Factory;
+        $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
+        $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
+
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
-        $this->dm = DocumentManager::create();
+        $this->dm = DocumentManager::create($this->session);
         $this->uow = new UnitOfWork($this->dm);
 
         $metadata = new ClassMetadata($this->type);
@@ -30,10 +34,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         $cmf = $this->dm->getMetadataFactory();
         $cmf->setMetadataFor($this->type, $metadata);
-
-        $this->factory = new Factory;
-        $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
-        $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
     }
 
     protected function createNode($id, $username)

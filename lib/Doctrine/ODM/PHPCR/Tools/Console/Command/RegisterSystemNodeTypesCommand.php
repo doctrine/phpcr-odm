@@ -40,8 +40,6 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm = $this->getHelper('phpcr')->getDocumentManager();
-
         $cnd = <<<CND
 <phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
 [phpcr:managed]
@@ -52,7 +50,7 @@ CND
         ;
         $allowUpdate = $input->getOption('allow-update');
 
-        $session = $dm->getPhpcrSession();
+        $session = $this->getHelper('phpcr')->getSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
         try {
