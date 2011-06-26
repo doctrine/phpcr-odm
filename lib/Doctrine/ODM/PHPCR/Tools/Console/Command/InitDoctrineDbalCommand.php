@@ -53,9 +53,9 @@ EOT
         $schema = \Jackalope\Transport\DoctrineDBAL\RepositorySchema::create();
         foreach ($schema->toSql($connection->getDatabasePlatform()) as $sql) {
             if (true === $input->getOption('dump-sql')) {
-                $connection->exec($sql);
+                $output->writeln($sql);
             } else {
-                $output->write($sql . PHP_EOL);
+                $connection->exec($sql);
             }
         }
 
