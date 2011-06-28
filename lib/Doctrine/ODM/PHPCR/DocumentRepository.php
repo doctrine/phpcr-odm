@@ -68,13 +68,13 @@ class DocumentRepository implements ObjectRepository
     /**
      * Create a document given class, data and the doc-id and revision
      *
-     * @param   $uow Doctrine\ODM\PHPCR\UnitOfWork $uow
      * @param \PHPCR\NodeInterface $node
      * @param array $hints
      * @return object
      */
-    public function createDocument($uow, $node, array &$hints = array())
+    public function createDocument($node, array &$hints = array())
     {
+        $uow = $this->dm->getUnitOfWork();
         return $uow->createDocument($this->documentName, $node, $hints);
     }
 
@@ -158,7 +158,7 @@ class DocumentRepository implements ObjectRepository
         $predecessorNodes = $uow->getPredecessors($document);
         $objects = $hints = array();
         foreach ($predecessorNodes as $node) {
-            $objects[] = $this->createDocument($uow, $this->documentName, $node, $hints);
+            $objects[] = $this->createDocument($node, $hints);
         }
         return $objects;
     }
@@ -175,7 +175,7 @@ class DocumentRepository implements ObjectRepository
         $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($document));
 
         $hints = array('refresh' => true);
-        $this->createDocument($uow, $this->documentName, $node, $hints);
+        $this->createDocument($node, $hints);
     }
 
     /**
