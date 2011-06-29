@@ -37,6 +37,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class DocumentRepository implements ObjectRepository
 {
+    const QUERY_REPLACE_WITH_FIELDNAMES = 1;
+
     /**
      * @var string
      */
@@ -231,13 +233,13 @@ class DocumentRepository implements ObjectRepository
      * @param  bool $replaceWithFieldnames if * should be replaced with Fieldnames automatically
      * @return PHPCR\Query\QueryResultInterface
      */
-    public function createQuery($statement, $type, $replaceWithFieldnames = false)
+    public function createQuery($statement, $type, $options = 0)
     {
         if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
             // TODO maybe it would be better to convert to OQM here
             // this might make it possible to more cleanly apply the following changes
 
-            if ($replaceWithFieldnames && 0 === strpos($statement, 'SELECT *')) {
+            if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES  && 0 === strpos($statement, 'SELECT *')) {
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
 
