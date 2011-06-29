@@ -229,13 +229,13 @@ class DocumentRepository implements ObjectRepository
      * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
      * @return PHPCR\Query\QueryResultInterface
      */
-    public function createQuery($statement, $type)
+    public function createQuery($statement, $type, $replaceWithFieldnames = true)
     {
         if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
             // TODO maybe it would be better to convert to OQM here
             // this might make it possible to more cleanly apply the following changes
 
-            if (0 === strpos($statement, 'SELECT *')) {
+            if ($replaceWithFieldnames && 0 === strpos($statement, 'SELECT *')) {
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
 
@@ -258,8 +258,8 @@ class DocumentRepository implements ObjectRepository
      * @param  \PHPCR\Query\QueryResultInterface $result
      * @return array of document instances
      */
-    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $replaceWithFieldnames = true)
     {
-        return $this->dm->getDocumentsByQuery($query, $this->documentName);
+        return $this->dm->getDocumentsByQuery($query, $this->documentName, $replaceWithFieldnames);
     }
 }
