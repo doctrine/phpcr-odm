@@ -248,7 +248,11 @@ class DocumentManager
      */
     public function refresh($document)
     {
-        $this->getRepository(get_class($document))->refresh($document);
+        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
+        $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
+
+        $hints = array('refresh' => true);
+        return $this->unitOfWork->createDocument(get_class($document), $node, $hints);
     }
 
     /**
