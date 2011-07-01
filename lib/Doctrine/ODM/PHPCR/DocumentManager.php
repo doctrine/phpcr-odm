@@ -24,6 +24,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 
 /**
@@ -33,6 +34,11 @@ use PHPCR\Util\UUIDHelper;
  */
 class DocumentManager
 {
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
     /**
      * @var Configuration
      */
@@ -58,8 +64,9 @@ class DocumentManager
      */
     private $evm;
 
-    public function __construct(Configuration $config = null, EventManager $evm = null)
+    public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
+        $this->session = $session;
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
@@ -79,19 +86,20 @@ class DocumentManager
      */
     public function getPhpcrSession()
     {
-        return $this->config->getPhpcrSession();
+        return $this->session;
     }
 
     /**
      * Factory method for a Document Manager.
      *
+     * @param SessionInterface $session
      * @param Configuration $config
      * @param EventManager $evm
      * @return DocumentManager
      */
-    public static function create(Configuration $config = null, EventManager $evm = null)
+    public static function create(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
-        return new DocumentManager($config, $evm);
+        return new self($session, $config, $evm);
     }
 
     /**
@@ -132,8 +140,8 @@ class DocumentManager
     {
         try {
             $node = UUIDHelper::isUUID($id)
-                ? $this->getPhpcrSession()->getNodeByIdentifier($id)
-                : $this->getPhpcrSession()->getNode($id);
+                ? $this->session->getNodeByIdentifier($id)
+                : $this->session->getNode($id);
         } catch (\PHPCR\PathNotFoundException $e) {
             return null;
         }
@@ -151,8 +159,8 @@ class DocumentManager
     public function findMany($documentName, array $ids)
     {
         $nodes = UUIDHelper::isUUID(reset($ids))
-            ? $this->getPhpcrSession()->getNodesByIdentifier($ids)
-            : $this->getPhpcrSession()->getNodes($ids);
+            ? $this->session->getNodesByIdentifier($ids)
+            : $this->session->getNodes($ids);
 
         $documents = array();
         foreach ($nodes as $node) {
@@ -169,7 +177,7 @@ class DocumentManager
     public function getRepository($documentName)
     {
         $documentName  = ltrim($documentName, '\\');
-        if (!isset($this->repositories[$documentName])) {
+        if (empty($this->repositories[$documentName])) {
             $class = $this->getClassMetadata($documentName);
             if ($class->customRepositoryClassName) {
                 $repositoryClass = $class->customRepositoryClassName;
@@ -200,7 +208,7 @@ class DocumentManager
      */
     public function createQuery($statement, $type)
     {
-        $qm = $this->config->getPhpcrSession()->getWorkspace()->getQueryManager();
+        $qm = $this->config->session->getWorkspace()->getQueryManager();
         return $qm->createQuery($statement, $type);
     }
 
@@ -240,7 +248,11 @@ class DocumentManager
      */
     public function refresh($document)
     {
-        $this->getRepository(get_class($document))->refresh($document);
+        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
+        $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
+
+        $hints = array('refresh' => true);
+        return $this->unitOfWork->createDocument(get_class($document), $node, $hints);
     }
 
     /**
@@ -355,6 +367,6 @@ class DocumentManager
     {
         // Todo: Do a real delegated clear?
         $this->unitOfWork = new UnitOfWork($this);
-        return $this->config->getPhpcrSession()->clear();
+        return $this->session->clear();
     }
 }

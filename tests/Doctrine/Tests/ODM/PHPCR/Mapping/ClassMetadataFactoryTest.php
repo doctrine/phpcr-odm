@@ -8,7 +8,8 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->dm = \Doctrine\ODM\PHPCR\DocumentManager::create();
+        $session = $this->getMock('PHPCR\SessionInterface');
+        $this->dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
     }
 
     public function testNotMappedThrowsException()

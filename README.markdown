@@ -45,9 +45,8 @@ Getting Started
 
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $config->setMetadataDriverImpl($driver);
-        $config->setPhpcrSession($session);
 
-        $dm = new \Doctrine\ODM\PHPCR\DocumentManager($config);
+        $dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
 
  4. Example usage
 
