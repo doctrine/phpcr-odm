@@ -13,9 +13,10 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testNewInstanceFromConfiguration()
     {
+        $session = $this->getMock('PHPCR\SessionInterface');
         $config = new \Doctrine\ODM\PHPCR\Configuration();
 
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($config);
+        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
 
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentManager', $dm);
         $this->assertSame($config, $dm->getConfiguration());
@@ -26,7 +27,9 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testGetMetadataFactory()
     {
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create();
+        $session = $this->getMock('PHPCR\SessionInterface');
+
+        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
 
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory', $dm->getMetadataFactory());
     }
@@ -36,7 +39,9 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testGetClassMetadataFor()
     {
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create();
+        $session = $this->getMock('PHPCR\SessionInterface');
+
+        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
 
         $cmf = $dm->getMetadataFactory();
         $cmf->setMetadataFor('stdClass', new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass'));
@@ -49,7 +54,9 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testContains()
     {
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create();
+        $session = $this->getMock('PHPCR\SessionInterface');
+
+        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
 
         $obj = new \stdClass;
         $uow = $dm->getUnitOfWork();
@@ -63,20 +70,40 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testGetRepository()
     {
-        $dm = $this->getMock('Doctrine\ODM\PHPCR\DocumentManager', array('getClassMetadata'));
+        $session = $this->getMock('PHPCR\SessionInterface');
 
-        $metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
-        $metadata2 = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
-        $metadata2->customRepositoryClassName = "stdClass";
-
-        $dm->expects($this->exactly(2))
-            ->method('getClassMetadata')
-            ->will($this->onConsecutiveCalls($metadata, $metadata2));
+        $dm = new DocumentManagerGetClassMetadata($session);
 
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
         $this->assertInstanceOf('stdClass', $dm->getRepository('foo2'));
 
         // call again to test the cache
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
+    }
+}
+
+class DocumentManagerGetClassMetadata extends \Doctrine\ODM\PHPCR\DocumentManager
+{
+    private $callCount = 0;
+
+    /**
+     * @param  string $class
+     * @return ClassMetadata
+     */
+    public function getClassMetadata($class)
+    {
+        ++$this->callCount;
+        $metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        switch ($this->callCount) {
+            case '1':
+                break;
+            case '2':
+                $metadata->customRepositoryClassName = "stdClass";
+                break;
+            default:
+                throw new \Exception('getClassMetadata called more than 2 times');
+                break;
+        }
+        return $metadata;
     }
 }

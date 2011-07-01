@@ -41,7 +41,6 @@ class Configuration
     private $attributes = array(
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
-        'proxyNamespace' => 'MyPHPCRProxyNS',
     );
 
     /**
@@ -82,17 +81,6 @@ class Configuration
     public function getWriteDoctrineMetadata()
     {
         return $this->attributes['writeDoctrineMetadata'];
-    }
-
-    public function setPhpcrSession(\PHPCR\SessionInterface $session)
-    {
-        $this->attributes['phpcrSession'] = $session;
-    }
-
-    public function getPhpcrSession()
-    {
-        return isset($this->attributes['phpcrSession']) ?
-                $this->attributes['phpcrSession'] : null;
     }
 
     /**

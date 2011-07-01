@@ -171,13 +171,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function refresh($document)
     {
-        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
-
-        $uow = $this->dm->getUnitOfWork();
-        $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($document));
-
-        $hints = array('refresh' => true);
-        $this->createDocument($node, $hints);
+        return $this->dm->refresh($document);
     }
 
     /**
