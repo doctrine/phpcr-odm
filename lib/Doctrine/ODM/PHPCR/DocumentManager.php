@@ -224,7 +224,7 @@ class DocumentManager
         $documents = array();
 
         // get all nodes from the node iterator
-        $nodes = $query->execute()->getNodes()>getNodes();
+        $nodes = $query->execute()->getNodes()->getNodes();
         foreach ($nodes as $node) {
             $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
         }
