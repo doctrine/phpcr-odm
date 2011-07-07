@@ -40,7 +40,7 @@ EOT
         }
 
         $transport = $session->getTransport();
-        if (!$transport instanceof \Jackalope\Transport\DoctrineDBAL\DoctrineDBALTransport) {
+        if (!$transport instanceof \Jackalope\Transport\DoctrineDBAL\Client) {
             $output->write(PHP_EOL.'<error>The session option did not point to an instance of Jackalope Doctrine DBAL Transport.</error>'.PHP_EOL);
             throw new \InvalidArgumentException('The session option did not point to an instance of Jackalope Doctrine DBAL Transport.');
         }
