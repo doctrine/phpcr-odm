@@ -207,6 +207,35 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
     }
+
+    public function testModificationAfterPersist()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+
+        $parent->id = '/functional/childtest';
+        $this->dm->persist($parent);
+        $parent->name = 'Parent';
+        $parent->child = $child;
+        $child->name = 'Child';
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertNotNull($parent->child);
+        $this->assertEquals('Child', $parent->child->name);
+
+        $parent->child->name = 'Changed';
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+
+        $this->assertNotNull($parent->child);
+        $this->assertEquals('Changed', $parent->child->name);
+    }
 }
 
 
