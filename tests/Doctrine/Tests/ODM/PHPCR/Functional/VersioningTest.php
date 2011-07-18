@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @group functional
@@ -27,7 +27,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $versionNode = $this->node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', array(3, 1, 2));
-        $versionNode->setProperty('phpcr:alias', 'versionTestObj');
+        $versionNode->setProperty('phpcr:class', $this->type);
         $versionNode->addMixin("mix:versionable");
 
         $this->dm->getPhpcrSession()->save();
@@ -36,7 +36,6 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckin()
     {
-
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkIn($user);
     }
@@ -64,20 +63,19 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 }
 
-
 /**
- * @ODM\Document(alias="versionTestObj")
+ * @PHPCRODM\Document(alias="versionTestObj")
  */
 class VersionTestObj
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\Node */
+    /** @PHPCRODM\Node */
     public $node;
-    /** @ODM\Version */
+    /** @PHPCRODM\Version */
     public $isVersionField;
-    /** @ODM\String(name="username") */
+    /** @PHPCRODM\String(name="username") */
     public $username;
-    /** @ODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
 }

@@ -40,18 +40,17 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm = $this->getHelper('dm')->getDocumentManager();
-
         $cnd = <<<CND
 <phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
 [phpcr:managed]
   mixin
   - phpcr:alias (STRING)
+  - phpcr:class (STRING)
 CND
         ;
         $allowUpdate = $input->getOption('allow-update');
 
-        $session = $dm->getPhpcrSession();
+        $session = $this->getHelper('phpcr')->getSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
         try {
@@ -64,6 +63,6 @@ CND
             }
             throw $e;
         }
-        $output->write(PHP_EOL.sprintf('Sucessfully registered system node types.') . PHP_EOL);
+        $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
     }
 }

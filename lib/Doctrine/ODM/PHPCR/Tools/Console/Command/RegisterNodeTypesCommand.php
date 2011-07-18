@@ -49,8 +49,6 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm = $this->getHelper('dm')->getDocumentManager();
-
         $cnd_file = realpath($input->getArgument('cnd-file'));
 
         if (!file_exists($cnd_file)) {
@@ -66,7 +64,7 @@ EOT
         $cnd = file_get_contents($cnd_file);
         $allowUpdate = $input->getOption('allow-update');
 
-        $session = $dm->getPhpcrSession();
+        $session = $this->getHelper('phpcr')->getSession();
         $ntm = $session->getWorkspace()->getNodeTypeManager();
 
         try {
@@ -79,6 +77,6 @@ EOT
             }
             throw $e;
         }
-        $output->write(PHP_EOL.sprintf('Sucessfully registered node types from "<info>%s</info>"', $cnd_file) . PHP_EOL);
+        $output->write(PHP_EOL.sprintf('Successfully registered node types from "<info>%s</info>"', $cnd_file) . PHP_EOL);
     }
 }

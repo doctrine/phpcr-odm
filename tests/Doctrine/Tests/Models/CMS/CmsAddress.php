@@ -2,22 +2,22 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @ODM\EmbeddedDocument
+ * @PHPCRODM\EmbeddedDocument
  */
 class CmsAddress
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $country;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $zip;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $city;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $street;
 
     public function getId() {

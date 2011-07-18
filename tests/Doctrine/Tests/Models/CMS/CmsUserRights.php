@@ -2,16 +2,16 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
-/** @ODM\Document */
+/** @PHPCRODM\Document */
 class CmsUserRights
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
 
-    /** @ODM\Boolean */
+    /** @PHPCRODM\Boolean */
     public $canWriteArticle = false;
-    /** @ODM\Boolean */
+    /** @PHPCRODM\Boolean */
     public $canDeleteArticle = false;
 }

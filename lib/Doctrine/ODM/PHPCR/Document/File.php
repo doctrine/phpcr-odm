@@ -2,29 +2,29 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents a JCR file, aka nt:file.
  * @ see http://wiki.apache.org/jackrabbit/nt:file
  *
- * @ODM\Document(alias="file", nodeType="nt:file")
+ * @PHPCRODM\Document(alias="file", nodeType="nt:file")
  */
 class File
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     protected $id;
 
-    /** @ODM\Node */
+    /** @PHPCRODM\Node */
     protected $node;
 
-    /** @ODM\Date(name="jcr:created") */
+    /** @PHPCRODM\Date(name="jcr:created") */
     protected $created;
 
-    /** @ODM\String(name="jcr:createdBy") */
+    /** @PHPCRODM\String(name="jcr:createdBy") */
     protected $createdBy;
 
-    /** @ODM\Child(name="jcr:content") */
+    /** @PHPCRODM\Child(name="jcr:content") */
     protected $content;
 
     /**
@@ -80,7 +80,14 @@ class File
     {
         $this->getContent();
         $stream = fopen($filename, 'rb');
+        if (! $stream) {
+            throw new \Exception("File $filename not found");
+        }
+
         $this->content->setData($stream);
+        $this->content->setLastModified(new \DateTime('@'.filemtime($filename)));
+        $this->content->setMimeType(mime_content_type($filename));
+        //encoding???
     }
 
     /**

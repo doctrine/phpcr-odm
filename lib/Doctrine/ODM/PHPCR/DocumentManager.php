@@ -22,6 +22,10 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Collections\ArrayCollection;
+
+use PHPCR\SessionInterface;
+use PHPCR\Util\UUIDHelper;
 
 /**
  * Document Manager
@@ -30,6 +34,11 @@ use Doctrine\Common\Persistence\ObjectManager;
  */
 class DocumentManager
 {
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
     /**
      * @var Configuration
      */
@@ -46,11 +55,6 @@ class DocumentManager
     private $unitOfWork = null;
 
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory = null;
-
-    /**
      * @var array
      */
     private $repositories = array();
@@ -60,13 +64,13 @@ class DocumentManager
      */
     private $evm;
 
-    public function __construct(Configuration $config = null, EventManager $evm = null)
+    public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
+        $this->session = $session;
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
         $this->unitOfWork = new UnitOfWork($this);
-        $this->proxyFactory = new Proxy\ProxyFactory($this, $this->config->getProxyDir(), $this->config->getProxyNamespace(), true);
     }
 
     /**
@@ -82,19 +86,20 @@ class DocumentManager
      */
     public function getPhpcrSession()
     {
-        return $this->config->getPhpcrSession();
+        return $this->session;
     }
 
     /**
      * Factory method for a Document Manager.
      *
+     * @param SessionInterface $session
      * @param Configuration $config
      * @param EventManager $evm
      * @return DocumentManager
      */
-    public static function create(Configuration $config = null, EventManager $evm = null)
+    public static function create(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
-        return new DocumentManager($config, $evm);
+        return new self($session, $config, $evm);
     }
 
     /**
@@ -133,11 +138,15 @@ class DocumentManager
      */
     public function find($documentName, $id)
     {
-        if (is_null($documentName)) {
-            //TODO: we should figure out the document automatically from the phpcr:alias
-            throw new \InvalidArgumentException('documentName for find may not be null');
+        try {
+            $node = UUIDHelper::isUUID($id)
+                ? $this->session->getNodeByIdentifier($id)
+                : $this->session->getNode($id);
+        } catch (\PHPCR\PathNotFoundException $e) {
+            return null;
         }
-        return $this->getRepository($documentName)->find($id);
+
+        return $this->unitOfWork->createDocument($documentName, $node);
     }
 
     /**
@@ -149,7 +158,16 @@ class DocumentManager
      */
     public function findMany($documentName, array $ids)
     {
-        return $this->getRepository($documentName)->findMany($ids);
+        $nodes = UUIDHelper::isUUID(reset($ids))
+            ? $this->session->getNodesByIdentifier($ids)
+            : $this->session->getNodes($ids);
+
+        $documents = array();
+        foreach ($nodes as $node) {
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+        }
+
+        return new ArrayCollection($documents);
     }
 
     /**
@@ -159,7 +177,7 @@ class DocumentManager
     public function getRepository($documentName)
     {
         $documentName  = ltrim($documentName, '\\');
-        if (!isset($this->repositories[$documentName])) {
+        if (empty($this->repositories[$documentName])) {
             $class = $this->getClassMetadata($documentName);
             if ($class->customRepositoryClassName) {
                 $repositoryClass = $class->customRepositoryClassName;
@@ -169,6 +187,49 @@ class DocumentManager
             $this->repositories[$documentName] = new $repositoryClass($this, $class);
         }
         return $this->repositories[$documentName];
+    }
+
+    /**
+     * Quote a string for inclusion in an SQL2 query
+     *
+     * @param  string $val
+     * @return string
+     */
+    public function quote($val)
+    {
+        return "'".str_replace("'", "''", $val)."'";
+    }
+
+    /**
+     * Create a Query
+     *
+     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @return PHPCR\Query\QueryInterface
+     */
+    public function createQuery($statement, $type)
+    {
+        $qm = $this->config->session->getWorkspace()->getQueryManager();
+        return $qm->createQuery($statement, $type);
+    }
+
+    /**
+     * Get documents from a PHPCR query instance
+     *
+     * @param  \PHPCR\Query\QueryResultInterface $result
+     * @param  string $documentName
+     * @return array of document instances
+     */
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $documentName)
+    {
+        $documents = array();
+
+        // get all nodes from the node iterator
+        $nodes = $query->execute()->getNodes()->getNodes();
+        foreach ($nodes as $node) {
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+        }
+
+        return new ArrayCollection($documents);
     }
 
     public function persist($object)
@@ -188,28 +249,11 @@ class DocumentManager
      */
     public function refresh($document)
     {
-        $this->getRepository(get_class($document))->refresh($document);
-    }
+        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
+        $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
 
-    /**
-     * Gets a reference to the entity identified by the given type and id
-     * without actually loading it, if the entity is not yet loaded.
-     *
-     * @param string $documentName The name of the entity type.
-     * @param string $id The entity id.
-     * @return object The entity reference.
-     */
-    public function getReference($documentName, $id)
-    {
-        // Check identity map first, if its already in there just return it.
-        if ($document = $this->unitOfWork->tryGetById($id)) {
-            return $document;
-        }
-        $class = $this->metadataFactory->getMetadataFor(ltrim($documentName, '\\'));
-        $document = $this->proxyFactory->getProxy($class->name, $id);
-        $this->unitOfWork->registerManaged($document, $id, null);
-
-        return $document;
+        $hints = array('refresh' => true);
+        return $this->unitOfWork->createDocument(get_class($document), $node, $hints);
     }
 
     /**
@@ -324,6 +368,6 @@ class DocumentManager
     {
         // Todo: Do a real delegated clear?
         $this->unitOfWork = new UnitOfWork($this);
-        return $this->config->getPhpcrSession()->clear();
+        return $this->session->clear();
     }
 }

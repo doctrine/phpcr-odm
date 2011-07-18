@@ -41,7 +41,6 @@ class Configuration
     private $attributes = array(
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
-        'proxyNamespace' => 'MyPHPCRProxyNS',
     );
 
     /**
@@ -82,17 +81,6 @@ class Configuration
     public function getWriteDoctrineMetadata()
     {
         return $this->attributes['writeDoctrineMetadata'];
-    }
-
-    public function setPhpcrSession(\PHPCR\SessionInterface $session)
-    {
-        $this->attributes['phpcrSession'] = $session;
-    }
-
-    public function getPhpcrSession()
-    {
-        return isset($this->attributes['phpcrSession']) ?
-                $this->attributes['phpcrSession'] : null;
     }
 
     /**
@@ -188,49 +176,5 @@ class Configuration
     public function setMetadataCacheImpl(Cache $cacheImpl)
     {
         $this->attributes['metadataCacheImpl'] = $cacheImpl;
-    }
-
-    /**
-     * Sets the directory where Doctrine generates any necessary proxy class files.
-     *
-     * @param string $dir
-     */
-    public function setProxyDir($dir)
-    {
-        $this->attributes['proxyDir'] = $dir;
-    }
-
-    /**
-     * Gets the directory where Doctrine generates any necessary proxy class files.
-     *
-     * @return string
-     */
-    public function getProxyDir()
-    {
-        if (!isset($this->attributes['proxyDir'])) {
-            $this->attributes['proxyDir'] = \sys_get_temp_dir();
-        }
-
-        return $this->attributes['proxyDir'];
-    }
-
-    /**
-     * Sets the namespace for Doctrine proxy class files.
-     *
-     * @param string $namespace
-     */
-    public function setProxyNamespace($namespace)
-    {
-        $this->attributes['proxyNamespace'] = $namespace;
-    }
-
-    /**
-     * Gets the namespace for Doctrine proxy class files.
-     *
-     * @return string
-     */
-    public function getProxyNamespace()
-    {
-        return $this->attributes['proxyNamespace'];
     }
 }

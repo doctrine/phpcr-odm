@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @group functional
@@ -29,7 +29,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -60,6 +60,20 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+    }
+
+    public function testFindByAlias()
+    {
+        $user = $this->node->addNode('userWithAlias');
+        $user->setProperty('username', 'dbu');
+        $user->setProperty('numbers', array(3, 1, 2));
+        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
+        $this->dm->getPhpcrSession()->save();
+
+        $repository = $this->dm->getRepository($this->type);
+        $userWithAlias = $repository->find('/functional/userWithAlias');
+
+        $this->assertEquals('dbu', $userWithAlias->username);
     }
 
     public function testInsertWithCustomIdStrategy()
@@ -260,39 +274,39 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @ODM\Document(alias="user")
+ * @PHPCRODM\Document(alias="user")
  */
 class User
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\Node */
+    /** @PHPCRODM\Node */
     public $node;
-    /** @ODM\String(name="username") */
+    /** @PHPCRODM\String(name="username") */
     public $username;
-    /** @ODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
 }
 
 /**
- * @ODM\Document(alias="user2")
+ * @PHPCRODM\Document(alias="user2")
  */
 class User2
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\String(name="username") */
+    /** @PHPCRODM\String(name="username") */
     public $username;
 }
 
 /**
- * @ODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
  */
 class User3
 {
-    /** @ODM\Id(strategy="repository") */
+    /** @PHPCRODM\Id(strategy="repository") */
     public $id;
-    /** @ODM\String(name="username") */
+    /** @PHPCRODM\String(name="username") */
     public $username;
 }
 

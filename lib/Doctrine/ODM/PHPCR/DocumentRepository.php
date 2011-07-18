@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * An DocumentRepository serves as a repository for documents with generic as well as
@@ -36,6 +37,8 @@ use Doctrine\Common\Persistence\ObjectRepository;
  */
 class DocumentRepository implements ObjectRepository
 {
+    const QUERY_REPLACE_WITH_FIELDNAMES = 1;
+
     /**
      * @var string
      */
@@ -67,55 +70,40 @@ class DocumentRepository implements ObjectRepository
     /**
      * Create a document given class, data and the doc-id and revision
      *
-     * @param   $uow Doctrine\ODM\PHPCR\UnitOfWork $uow
-     * @param string $documentName
      * @param \PHPCR\NodeInterface $node
      * @param array $hints
      * @return object
      */
-    public function createDocument($uow, $documentName, $node, array &$hints = array())
+    public function createDocument($node, array &$hints = array())
     {
-        return $uow->createDocument($documentName, $node, $hints);
+        $uow = $this->dm->getUnitOfWork();
+        return $uow->createDocument($this->documentName, $node, $hints);
     }
 
     /**
      * Find a single document by its id
      *
+     * The id may either be a PHPCR path or UUID
+     *
      * @param string $id document id
-     * @return object $document
+     * @return object document or null
      */
     public function find($id)
     {
-        $uow = $this->dm->getUnitOfWork();
-
-        try {
-            $node = $this->dm->getPhpcrSession()->getNode($id);
-        } catch (\PHPCR\PathNotFoundException $e) {
-            return null;
-        }
-
-        $hints = array();
-        return $this->createDocument($uow, $this->documentName, $node, $hints);
+        return $this->dm->find($this->documentName, $id);
     }
 
     /**
      * Find many document by id
+     *
+     * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
      * @param array $ids document ids
      * @return array of document objects
      */
     public function findMany(array $ids)
     {
-        $uow = $this->dm->getUnitOfWork();
-
-        $documents = array();
-        foreach ($ids as $id) {
-            // TODO: catch exception and return null when not found?
-            $node = $this->dm->getPhpcrSession()->getNode($id);
-            $hints = array();
-            $documents[] = $this->createDocument($uow, $this->documentName, $node, $hints);
-        }
-        return $documents;
+        return $this->dm->findMany($this->documentName, $ids);
     }
 
     /**
@@ -144,6 +132,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
+        // TODO how to best integrate this with OQM?
         return $this->uow->getDocumentPersister($this->documentName)->loadAll($criteria);
     }
 
@@ -155,6 +144,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findOneBy(array $criteria)
     {
+        // TODO how to best integrate this with OQM?
         return $this->uow->getDocumentPersister($this->documentName)->load($criteria);
     }
 
@@ -170,7 +160,7 @@ class DocumentRepository implements ObjectRepository
         $predecessorNodes = $uow->getPredecessors($document);
         $objects = $hints = array();
         foreach ($predecessorNodes as $node) {
-            $objects[] = $this->createDocument($uow, $this->documentName, $node, $hints);
+            $objects[] = $this->createDocument($node, $hints);
         }
         return $objects;
     }
@@ -181,13 +171,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function refresh($document)
     {
-        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
-
-        $uow = $this->dm->getUnitOfWork();
-        $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($document));
-
-        $hints = array('refresh' => true);
-        $this->createDocument($uow, $this->documentName, $node, $hints);
+        return $this->dm->refresh($document);
     }
 
     /**
@@ -212,5 +196,68 @@ class DocumentRepository implements ObjectRepository
     public function getClassMetadata()
     {
         return $this->class;
+    }
+
+    /**
+     * Get the alias of the document
+     *
+     * @return string
+     */
+    public function getAlias()
+    {
+        return $this->class->alias;
+    }
+
+    /**
+     * Quote a string for inclusion in an SQL2 query
+     *
+     * @param  string $val
+     * @return string
+     */
+    public function quote($val)
+    {
+        return $this->dm->quote($val);
+    }
+
+    /**
+     * Create a Query
+     *
+     * @param  string $statement the SQL2 statement
+     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @param  bool $replaceWithFieldnames if * should be replaced with Fieldnames automatically
+     * @return PHPCR\Query\QueryResultInterface
+     */
+    public function createQuery($statement, $type, $options = 0)
+    {
+        if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
+            // TODO maybe it would be better to convert to OQM here
+            // this might make it possible to more cleanly apply the following changes
+
+            if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES  && 0 === strpos($statement, 'SELECT *')) {
+                $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
+            }
+
+            $aliasFilter = '[nt:unstructured].[phpcr:class] = '.$this->quote($this->documentName);
+            if (false !== strpos($statement, 'WHERE')) {
+                $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
+            } elseif (false !== strpos($statement, 'ORDER BY')) {
+                $statement = str_replace('ORDER BY', " WHERE $aliasFilter ORDER BY", $statement);
+            } else {
+                $statement.= " WHERE $aliasFilter";
+            }
+        }
+
+        return $this->dm->createQuery($statement, $type);
+    }
+
+    /**
+     * Get documents from a PHPCR query instance
+     *
+     * @param  \PHPCR\Query\QueryResultInterface $result
+     * @return array of document instances
+     */
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
+    {
+        return $this->dm->getDocumentsByQuery($query, $this->documentName);
     }
 }

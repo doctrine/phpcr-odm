@@ -139,21 +139,30 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        $properties = $node->getPropertiesValues(null,false); // get uuid rather than dereference reference properties
+        $properties = $node->getPropertiesValues(null, false); // get uuid rather than dereference reference properties
 
-        if (isset($properties['phpcr:alias'])) {
-            $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
+        if (isset($properties['phpcr:class'])) {
+            $metadata = $this->dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
             $type = $metadata->name;
             if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
                 $validate = true;
             }
-        } elseif (isset($documentName)) {
-            $type = $documentName;
-            if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('phpcr:alias', $documentName, PropertyType::STRING);
-            }
         } else {
-            throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
+            if (isset($properties['phpcr:alias'])) {
+                $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
+                $type = $metadata->name;
+                if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
+                    $validate = true;
+                }
+            } elseif (isset($documentName)) {
+                $type = $documentName;
+            } else {
+                throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
+            }
+
+            if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
+                $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
+            }
         }
 
         $class = $this->dm->getClassMetadata($type);
@@ -165,39 +174,11 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    // TODO might need to be a PersistentCollection
                     $documentState[$fieldName] = new ArrayCollection($properties[$mapping['name']]);
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
             }
-//            } elseif ($jsonName == 'doctrine_metadata') {
-//                if (!isset($jsonValue['associations'])) {
-//                    continue;
-//                }
-//
-//                foreach ($jsonValue['associations'] as $assocName => $assocValue) {
-//                    if (isset($class->associationsMappings[$assocName])) {
-//                        if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
-//                            if ($assocValue) {
-//                                $assocValue = $this->dm->getReference($class->associationsMappings[$assocName]['targetDocument'], $assocValue);
-//                            }
-//                            $documentState[$class->associationsMappings[$assocName]['fieldName']] = $assocValue;
-//                        } elseif ($class->associationsMappings[$assocName]['type'] & ClassMetadata::MANY_TO_MANY) {
-//                            if ($class->associationsMappings[$assocName]['isOwning']) {
-//                                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentIdsCollection(
-//                                    new \Doctrine\Common\Collections\ArrayCollection(),
-//                                    $class->associationsMappings[$assocName]['targetDocument'],
-//                                    $this->dm,
-//                                    $assocValue
-//                                );
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                $nonMappedData[$jsonName] = $jsonValue;
-//            }
         }
 
         if ($class->node) {
@@ -215,12 +196,6 @@ class UnitOfWork
             if (!$assocOptions['isOwning'] && $assocOptions['type'] & ClassMetadata::TO_MANY) {
                 // TODO figure this one out which collection should be used
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = null;
-//                $documentState[$class->associationsMappings[$assocName]['fieldName']] = new PersistentViewCollection(
-//                    new \Doctrine\Common\Collections\ArrayCollection(),
-//                    $this->dm,
-//                    $id,
-//                    $class->associationsMappings[$assocName]['mappedBy']
-//                );
             }
         }
 
@@ -236,7 +211,7 @@ class UnitOfWork
             $document = $this->identityMap[$id];
             $overrideLocalValues = false;
 
-            if ( ($document instanceof Proxy && !$document->__isInitialized__) || isset($hints['refresh'])) {
+            if (isset($hints['refresh'])) {
                 $overrideLocalValues = true;
                 $oid = spl_object_hash($document);
             }
@@ -445,10 +420,6 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
-        if ($document instanceof Proxy\Proxy && !$document->__isInitialized__) {
-            return;
-        }
-
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
@@ -614,7 +585,7 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -644,7 +615,7 @@ class UnitOfWork
             }
 
             if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:alias', $class->alias, PropertyType::STRING);
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -676,8 +647,8 @@ class UnitOfWork
                             $data['doctrine_metadata']['associations'][$fieldName] = $ids;
                         }
                     }
-                // child is set to null ... remove the node ...
                 } elseif (isset($class->childMappings[$fieldName])) {
+                    // child is set to null ... remove the node ...
                     if ($fieldValue === null) {
                       if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
                         $child = $node->getNode($class->childMappings[$fieldName]['name']);
@@ -685,10 +656,17 @@ class UnitOfWork
                         $this->purgeChildren($childDocument);
                         $child->remove();
                       }
+                    } elseif (is_null($this->originalData[$oid][$fieldName])) {
+                        // TODO: store this new child
                     } elseif (isset($this->originalData[$oid][$fieldName])) {
+                      //TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
+                      if ($fieldValue === $this->originalData[$oid][$fieldName]) {
+                        //TODO: save
+                      } else {
                         // this is currently not implemented
                         // the old child needs to be removed and the new child might be moved
                         throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");
+                      }
                     }
                 }
             }

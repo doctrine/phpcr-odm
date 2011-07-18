@@ -1,27 +1,23 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @ODM\Document(alias="cms_group")
+ * @PHPCRODM\Document(alias="cms_group")
  */
 class CmsGroup
 {
-    /** @ODM\Id */
+    /** @PHPCRODM\Id */
     public $id;
-    /** @ODM\String */
+    /** @PHPCRODM\String */
     public $name;
 
-    /** @ODM\ReferenceMany(targetDocument="CmsUser", mappedBy="groups") */
+    /** @PHPCRODM\ReferenceMany(targetDocument="CmsUser", mappedBy="groups") */
     public $users;
 
-    /** @ODM\String(multivalue=true) */
+    /** @PHPCRODM\String(multivalue=true) */
     public $values;
 
     public function setName($name) {
