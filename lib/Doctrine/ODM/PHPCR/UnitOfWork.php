@@ -424,8 +424,9 @@ class UnitOfWork
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
             $value = $reflProperty->getValue($document);
-            if ($class->isCollectionValuedAssociation($fieldName) && $value !== null
-                    && !($value instanceof PersistentCollection)
+            if ($class->isCollectionValuedAssociation($fieldName)
+                && $value !== null
+                && !($value instanceof PersistentCollection)
             ) {
                 if (!$value instanceof Collection) {
                     $value = new ArrayCollection($value);
@@ -650,12 +651,12 @@ class UnitOfWork
                 } elseif (isset($class->childMappings[$fieldName])) {
                     // child is set to null ... remove the node ...
                     if ($fieldValue === null) {
-                      if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
-                        $child = $node->getNode($class->childMappings[$fieldName]['name']);
-                        $childDocument = $this->createDocument(null, $child);
-                        $this->purgeChildren($childDocument);
-                        $child->remove();
-                      }
+                        if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
+                            $child = $node->getNode($class->childMappings[$fieldName]['name']);
+                            $childDocument = $this->createDocument(null, $child);
+                            $this->purgeChildren($childDocument);
+                            $child->remove();
+                        }
                     } elseif (is_null($this->originalData[$oid][$fieldName])) {
                         // TODO: store this new child
                     } elseif (isset($this->originalData[$oid][$fieldName])) {
@@ -665,7 +666,7 @@ class UnitOfWork
                       } else {
                         // this is currently not implemented
                         // the old child needs to be removed and the new child might be moved
-                        throw new PHPCRException("You can not move or copy children by assignment as it would be ambigous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy operations for this.");
+                        throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy() operations for this.");
                       }
                     }
                 }
@@ -871,14 +872,14 @@ class UnitOfWork
      */
     public function getChildren($document, $filter = null)
     {
-      $oid = spl_object_hash($document);
-      $node = $this->nodesMap[$oid];
-      $childNodes = $node->getNodes($filter);
-      $childDocuments = array();
-      foreach ($childNodes as $name => $childNode) {
-        $childDocuments[$name] = $this->createDocument(null, $childNode);
-      }
-      return new ArrayCollection($childDocuments);
+        $oid = spl_object_hash($document);
+        $node = $this->nodesMap[$oid];
+        $childNodes = $node->getNodes($filter);
+        $childDocuments = array();
+        foreach ($childNodes as $name => $childNode) {
+            $childDocuments[$name] = $this->createDocument(null, $childNode);
+        }
+        return new ArrayCollection($childDocuments);
     }
 
     /**
