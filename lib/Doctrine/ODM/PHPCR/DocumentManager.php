@@ -208,7 +208,7 @@ class DocumentManager
      */
     public function createQuery($statement, $type)
     {
-        $qm = $this->config->session->getWorkspace()->getQueryManager();
+        $qm = $this->session->getWorkspace()->getQueryManager();
         return $qm->createQuery($statement, $type);
     }
 
@@ -224,7 +224,7 @@ class DocumentManager
         $documents = array();
 
         // get all nodes from the node iterator
-        $nodes = $query->execute()->getNodes()->getNodes();
+        $nodes = $query->execute()->getNodes(true);
         foreach ($nodes as $node) {
             $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
         }
