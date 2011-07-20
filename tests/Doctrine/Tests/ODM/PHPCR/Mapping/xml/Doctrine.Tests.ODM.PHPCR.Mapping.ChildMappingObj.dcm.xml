@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\ChildMappingObj" alias="parent" >
+        <id name="id" />
+        <field fieldName="name" type="string" />
+        <child fieldName="child1" name="first" />
+        <child fieldName="child2" name="second" />
+        <children fieldName="all" />
+        <children fieldName="some" filter="*some*" />
+    </document>
+</doctrine-mapping>
