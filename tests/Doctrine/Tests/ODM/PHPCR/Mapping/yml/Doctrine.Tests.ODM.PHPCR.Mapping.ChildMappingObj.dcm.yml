@@ -1,0 +1,15 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\ChildMappingObj:
+  alias: parent
+  id: id
+  fields:
+    name: string
+  child:
+    child1:
+      name: first
+    child2: second
+  children:
+    all: ~
+    some:
+      filter: "*some*"
+
+    

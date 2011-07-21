@@ -1,0 +1,5 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\ChildMappingChildObj:
+  alias: child
+  id: id
+  fields:
+    name: string
