@@ -482,6 +482,36 @@ class UnitOfWork
                 $this->scheduledUpdates[$oid] = $document;
             }
         }
+
+        $id = $class->reflFields[$class->identifier]->getValue($document);
+
+        foreach ($class->childMappings as $name => $childMapping) {
+            if ($this->originalData[$oid][$name]) {
+                $this->computeChildChanges($childMapping, $this->originalData[$oid][$name], $id);
+            }
+        }
+    }
+
+    /**
+     * Computes the changes of a child.
+     *
+     * @param mixed $child the child document.
+     */
+    private function computeChildChanges($mapping, $child, $parentId)
+    {
+        $targetClass = $this->dm->getClassMetadata(get_class($child));
+        $state = $this->getDocumentState($child);
+        $oid = spl_object_hash($child);
+        if ($state == self::STATE_NEW) {
+            $targetClass->reflFields[$targetClass->identifier]->setValue($child , $parentId . '/'. $mapping['name']);
+            $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+            $this->computeChangeSet($targetClass, $child);
+        } else if ($state == self::STATE_REMOVED) {
+            throw new \InvalidArgumentException("Removed child document detected during flush");
+        } else if ($state == self::STATE_DETACHED) {
+            throw new \InvalidArgumentException("A detached document was found through a "
+                . "child relationship during cascading a persist operation.");
+        }
     }
 
     /**
