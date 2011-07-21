@@ -19,7 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
+    Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 /**
  * The YamlDriver reads the mapping metadata from yaml schema files.
@@ -88,12 +89,30 @@ class YamlDriver extends AbstractFileDriver
             $this->addNodeMapping($class, $mapping);
         }
         if (isset($element['child'])) {
-            $mapping = array('fieldName' => $element['child']);
-            $this->addChildMapping($class, $mapping);
+            foreach ($element['child'] as $fieldName => $mapping) {
+                if (is_string($mapping)) {
+                    $name = $mapping;
+                    $mapping = array();
+                    $mapping['name'] = $name;
+                }
+                if (!isset($mapping['fieldName'])) {
+                    $mapping['fieldName'] = $fieldName;
+                }
+                $this->addChildMapping($class, $mapping);
+            }
         }
         if (isset($element['children'])) {
-            $mapping = array('fieldName' => $element['children']);
-            $this->addChildrenMapping($class, $mapping);
+            foreach ($element['children'] as $fieldName => $mapping) {
+                if (is_string($mapping)) {
+                    $filter = $mapping;
+                    $mapping = array();
+                    $mapping['filter'] = $filter;
+                }
+                if (!isset($mapping['fieldName'])) {
+                    $mapping['fieldName'] = $fieldName;
+                }
+                $this->addChildrenMapping($class, $mapping);
+            }
         }
         if (isset($element['referenceOne'])) {
             foreach ($element['referenceOne'] as $fieldName => $reference) {

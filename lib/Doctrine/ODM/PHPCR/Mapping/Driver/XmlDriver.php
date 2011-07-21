@@ -91,14 +91,18 @@ class XmlDriver extends AbstractFileDriver
         }
         if (isset($xmlRoot->child)) {
             foreach ($xmlRoot->child as $child) {
-                $mapping = array('fieldName' => (string) $child->attributes()->name);
+                $attributes = $child->attributes();
+                $mapping = array('fieldName' => (string) $attributes->fieldName);
+                if (isset($attributes['name'])) {
+                    $mapping['name'] = (string)$attributes->name;
+                }
                 $this->addChildMapping($class, $mapping);
             }
         }
         if (isset($xmlRoot->children)) {
             foreach ($xmlRoot->children as $children) {
                 $attributes = $children->attributes();
-                $mapping = array('fieldName' => (string) $attributes->name);
+                $mapping = array('fieldName' => (string) $attributes->fieldName);
                 if (isset($attributes['filter'])) {
                     $mapping['filter'] = (string)$attributes->filter;
                 }
