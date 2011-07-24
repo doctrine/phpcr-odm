@@ -14,27 +14,40 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         $paths[] = __DIR__ . "/../../../../../lib/Doctrine/ODM/PHPCR/Document";
         $metaDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, $paths);
 
-        $url = isset($GLOBALS['DOCTRINE_PHPCR_REPOSITORY']) ? $GLOBALS['DOCTRINE_PHPCR_REPOSITORY'] : 'http://127.0.0.1:8080/server/';
-        $workspace = isset($GLOBALS['DOCTRINE_PHPCR_WORKSPACE']) ? $GLOBALS['DOCTRINE_PHPCR_WORKSPACE'] : 'tests';
-        $user = isset($GLOBALS['DOCTRINE_PHPCR_USER']) ? $GLOBALS['DOCTRINE_PHPCR_USER'] : '';
-        $pass = isset($GLOBALS['DOCTRINE_PHPCR_PASS']) ? $GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
-        $transport = isset($GLOBALS['DOCTRINE_PHPCR_TRANSPORT']) ? $GLOBALS['DOCTRINE_PHPCR_TRANSPORT'] : null;
+        $factoryclass = isset($GLOBALS['DOCTRINE_PHPCR_FACTORY']) ?
+                        $GLOBALS['DOCTRINE_PHPCR_FACTORY'] :
+                        'Jackalope\RepositoryFactoryJackrabbit';
+        $factory = new $factoryclass();
 
-        switch ($transport) {
-            case 'doctrinedbal':
-                $conn = \Doctrine\DBAL\DriverManager::getConnection(array('driver' => 'pdo_sqlite', 'memory' => true));
-                $schema = \Jackalope\Transport\Doctrine\RepositorySchema::create();
-                foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-                    $conn->exec($sql);
-                }
-                $transport = new \Jackalope\Transport\DoctrineDBAL($conn);
-                $transport->createWorkspace($workspace);
-                break;
-            default:
-                $transport = null;
+        $parameters = array_intersect_key($GLOBALS, $factory->getConfigurationKeys());
+        // factory will return null if it gets unknown parameters
+
+        $repository = $factory->getRepository($parameters);
+        $this->assertNotNull($repository, 'There is an issue with your parameters: '.var_export($parameters, true));
+
+        $workspace = isset($GLOBALS['DOCTRINE_PHPCR_WORKSPACE']) ?
+                     $GLOBALS['DOCTRINE_PHPCR_WORKSPACE'] :
+                     'tests';
+
+        $user = isset($GLOBALS['DOCTRINE_PHPCR_USER']) ?
+                $GLOBALS['DOCTRINE_PHPCR_USER'] :
+                '';
+        $pass = isset($GLOBALS['DOCTRINE_PHPCR_PASS']) ?
+                $GLOBALS['DOCTRINE_PHPCR_PASS'] :
+                '';
+
+        if ($factory instanceof \Jackalope\RepositoryFactoryDoctrineDBAL) {
+            // TODO: have an option in the DBAL factory to have an in-memory database instead of connection parameters
+            $conn = \Doctrine\DBAL\DriverManager::getConnection(array('driver' => 'pdo_sqlite', 'memory' => true));
+            $schema = \Jackalope\Transport\Doctrine\RepositorySchema::create();
+            foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
+                $conn->exec($sql);
+            }
+            $transport = new \Jackalope\Transport\DoctrineDBAL($conn);
+            $transport->createWorkspace($workspace);
+            break;
         }
 
-        $repository = new \Jackalope\Repository(new \Jackalope\Factory, $url, $transport);
         $credentials = new \PHPCR\SimpleCredentials($user, $pass);
         $session = $repository->login($credentials, $workspace);
 
