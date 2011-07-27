@@ -206,6 +206,13 @@ class ClassMetadataInfo implements ClassMetadata
     public $versionField = null;
 
     /**
+     * determines if the document is referenceable or not
+     *
+     * @var bool
+     */
+    public $referenceable = false;
+
+    /**
      * READ-ONLY: The Id generator options.
      *
      * @var array
@@ -372,6 +379,14 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
+     * @param bool $referenceable
+     */
+    public function setReferenceable($referenceable)
+    {
+        $this->referenceable = $referenceable;
+    }
+
+    /**
      * @param string $nodeType
      */
     public function setNodeType($nodeType)
@@ -458,26 +473,6 @@ class ClassMetadataInfo implements ClassMetadata
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
-
-        if (isset($mapping['reference']) && $mapping['type'] === 'one') {
-            $mapping['association'] = self::TO_ONE;
-        }
-        if (isset($mapping['reference']) && $mapping['type'] === 'many') {
-            $mapping['association'] = self::TO_MANY;
-        }
-
-        $mapping['isOwningSide'] = true;
-        $mapping['isInverseSide'] = false;
-        if (isset($mapping['reference'])) {
-            if (isset($mapping['inversedBy']) && $mapping['inversedBy']) {
-                $mapping['isOwningSide'] = true;
-                $mapping['isInverseSide'] = false;
-            }
-            if (isset($mapping['mappedBy']) && $mapping['mappedBy']) {
-                $mapping['isInverseSide'] = true;
-                $mapping['isOwningSide'] = false;
-            }
-        }
 
         if (!isset($mapping['multivalue'])) {
             $mapping['multivalue'] = false;
@@ -568,8 +563,6 @@ class ClassMetadataInfo implements ClassMetadata
     public function mapManyToOne($mapping)
     {
         $mapping = $this->validateAndCompleteAssociationMapping($mapping);
-
-        $mapping['isOwning'] = true;
         $mapping['type'] = self::MANY_TO_ONE;
 
         $this->storeAssociationMapping($mapping);
@@ -578,12 +571,6 @@ class ClassMetadataInfo implements ClassMetadata
     public function mapManyToMany($mapping)
     {
         $mapping = $this->validateAndCompleteAssociationMapping($mapping);
-
-        if (!empty($mapping['mappedBy'])) {
-            $mapping['isOwning'] = false;
-        } else {
-            $mapping['isOwning'] = true;
-        }
         $mapping['type'] = self::MANY_TO_MANY;
 
         $this->storeAssociationMapping($mapping);

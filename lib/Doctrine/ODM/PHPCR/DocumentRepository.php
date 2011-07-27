@@ -175,6 +175,16 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
+     * @param object $document
+     * @return void
+     */
+    public function createDocumentForProxy($document)
+    {
+        $uow = $this->dm->getUnitOfWork();
+        $uow->createDocumentForProxy($this->documentName, $document);
+    }
+
+    /**
      * @return string
      */
     public function getDocumentName()
