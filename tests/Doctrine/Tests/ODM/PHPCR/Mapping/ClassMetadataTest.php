@@ -29,8 +29,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
                 'id' => true,
                 'name' => 'id',
                 'type' => 'string',
-                'isInverseSide' => null,
-                'isOwningSide' => true,
                 'fieldName' => 'id',
                 'multivalue' => false,
                 'strategy' => 'repository',
@@ -59,8 +57,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
             array(
                 'name' => 'username',
                 'type' => 'string',
-                'isInverseSide' => null,
-                'isOwningSide' => true,
                 'fieldName' => 'username',
                 'multivalue' => false
             ),
@@ -70,8 +66,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
             array(
                 'name' => 'created',
                 'type' => 'datetime',
-                'isInverseSide' => null,
-                'isOwningSide' => true,
                 'fieldName' => 'created',
                 'multivalue' => false
             ),
@@ -117,7 +111,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerialize($cm)
     {
-        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":11:{s:13:"fieldMappings";a:3:{s:2:"id";a:8:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:4:"name";s:2:"id";s:12:"isOwningSide";b:1;s:13:"isInverseSide";b:0;s:10:"multivalue";b:0;}s:8:"username";a:6:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:12:"isOwningSide";b:1;s:13:"isInverseSide";b:0;s:10:"multivalue";b:0;}s:7:"created";a:6:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:12:"isOwningSide";b:1;s:13:"isInverseSide";b:0;s:10:"multivalue";b:0;}}s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:9:"namespace";s:32:"Doctrine\Tests\ODM\PHPCR\Mapping";s:16:"generatorOptions";a:0:{}s:11:"idGenerator";i:1;s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"isVersioned";b:1;s:12:"versionField";N;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
+        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":11:{s:13:"fieldMappings";a:3:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:4:"name";s:2:"id";s:10:"multivalue";b:0;}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}}s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:9:"namespace";s:32:"Doctrine\Tests\ODM\PHPCR\Mapping";s:16:"generatorOptions";a:0:{}s:11:"idGenerator";i:1;s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"isVersioned";b:1;s:12:"versionField";N;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
         $cm->setCustomRepositoryClassName('customRepositoryClassName');
         $cm->setVersioned(true);
         $cm->addLifecycleCallback('callback', 'event');
@@ -158,7 +152,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
             'fieldName' => 'address',
             'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address',
             'sourceDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Person',
-            'isOwning' => true,
             'type' => ClassMetadata::MANY_TO_ONE,
         ), $cm->associationsMappings['address']);
 
