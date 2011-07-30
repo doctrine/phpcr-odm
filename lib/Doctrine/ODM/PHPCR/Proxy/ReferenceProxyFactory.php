@@ -297,12 +297,14 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
         <sleepImpl>
     }
 
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
         $this->__doctrineLoad__();
         $this->$name = $value;
     }
 
-    public function __get($name) {
+    public function __get($name)
+    {
         $this->__doctrineLoad__();
         return $this->$name;
     }
