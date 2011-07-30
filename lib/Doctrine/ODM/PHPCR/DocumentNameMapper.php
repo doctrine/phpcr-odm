@@ -36,24 +36,22 @@ class DocumentNameMapper implements DocumentNameMapperInterface
      */
     public function getDocumentName(DocumentManager $dm, $documentName, NodeInterface $node, $writeMetadata)
     {
-        if (isset($properties['phpcr:class'])) {
         $properties = $node->getPropertiesValues();
 
+        if (isset($documentName)) {
+            $type = $documentName;
+        } else if (isset($properties['phpcr:class'])) {
             $metadata = $dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
             $type = $metadata->name;
+        } else if (isset($properties['phpcr:alias'])) {
+            $metadata = $dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
+            $type = $metadata->name;
         } else {
-            if (isset($properties['phpcr:alias'])) {
-                $metadata = $dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
-                $type = $metadata->name;
-            } elseif (isset($documentName)) {
-                $type = $documentName;
-            } else {
-                throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
-            }
+            throw new \InvalidArgumentException("Missing Doctrine metadata in the Document");
+        }
 
-            if ($writeMetadata) {
-                $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
-            }
+        if ($writeMetadata && empty($properties['phpcr:class'])) {
+            $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
         }
 
         return $type;
