@@ -531,7 +531,7 @@ class UnitOfWork
 
         if (!isset($this->originalData[$oid])) {
             // Entity is New and should be inserted
-            $this->oiginalData[$oid] = $actualData;
+            $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = $actualData;
             $this->scheduledInserts[$oid] = $document;
         } else {
@@ -728,6 +728,7 @@ class UnitOfWork
 
             if ($class->referenceable) {
                 $node->addMixin("mix:referenceable");
+                // TODO make shure uuid is unique
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
             }
 
