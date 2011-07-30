@@ -32,7 +32,7 @@ use PHPCR\Util\UUIDHelper;
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
-class DocumentManager
+class DocumentManager implements ObjectManager
 {
     /**
      * @var SessionInterface
@@ -240,6 +240,32 @@ class DocumentManager
     public function remove($object)
     {
         $this->unitOfWork->scheduleRemove($object);
+    }
+
+    /**
+     * Merges the state of a detached object into the persistence context
+     * of this ObjectManager and returns the managed copy of the object.
+     * The object passed to merge will not become associated/managed with this ObjectManager.
+     *
+     * @param object $document
+     */
+    public function merge($document)
+    {
+        return $this->getUnitOfWork()->merge($document);
+    }
+
+    /**
+     * Detaches an object from the ObjectManager, causing a managed object to
+     * become detached. Unflushed changes made to the object if any
+     * (including removal of the object), will not be synchronized to the database.
+     * Objects which previously referenced the detached object will continue to
+     * reference it.
+     *
+     * @param object $document The object to detach.
+     */
+    public function detach($document)
+    {
+        return $this->getUnitOfWork()->detach($document);
     }
 
     /**
