@@ -142,8 +142,7 @@ class AnnotationDriver implements Driver
         }
         $class->setNodeType($documentAnnot->nodeType);
 
-        if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable)
-        {
+        if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
             $class->setReferenceable(true);
         }
 

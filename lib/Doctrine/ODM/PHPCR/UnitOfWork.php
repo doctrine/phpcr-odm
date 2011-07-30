@@ -561,7 +561,10 @@ class UnitOfWork
 
             $changed = false;
             foreach ($actualData as $fieldName => $fieldValue) {
-                if (!isset($class->fieldMappings[$fieldName]) && !isset($class->childMappings[$fieldName]) && !isset($class->associationsMappings[$fieldName])) {
+                if (!isset($class->fieldMappings[$fieldName]) 
+                    && !isset($class->childMappings[$fieldName])
+                    && !isset($class->associationsMappings[$fieldName])
+                ) {
                     continue;
                 }
                 if ($class->isCollectionValuedAssociation($fieldName)) {
