@@ -121,12 +121,30 @@ class UnitOfWork
     private $evm;
 
     /**
+     * @var DocumentNameMapperInterface
+     */
+    private $documentNameMapper;
+
+    /**
+     * @var boolean
+     */
+    private $validateDocumentName;
+
+    /**
+     * @var boolean
+     */
+    private $writeMetadata;
+
+    /**
      * @param DocumentManager $dm
      */
-    public function __construct(DocumentManager $dm)
+    public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper = null)
     {
         $this->dm = $dm;
         $this->evm = $dm->getEventManager();
+        $this->documentNameMapper = $documentNameMapper;
+        $this->validateDocumentName = $this->dm->getConfiguration()->getValidateDoctrineMetadata();
+        $this->writeMetadata = $this->dm->getConfiguration()->getWriteDoctrineMetadata();
     }
 
     /**
@@ -141,30 +159,7 @@ class UnitOfWork
     {
         $properties = $node->getPropertiesValues(null, false); // get uuid rather than dereference reference properties
 
-        if (isset($properties['phpcr:class'])) {
-            $metadata = $this->dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
-            $type = $metadata->name;
-            if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
-                $validate = true;
-            }
-        } else {
-            if (isset($properties['phpcr:alias'])) {
-                $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
-                $type = $metadata->name;
-                if (isset($documentName) && $this->dm->getConfiguration()->getValidateDoctrineMetadata()) {
-                    $validate = true;
-                }
-            } elseif (isset($documentName)) {
-                $type = $documentName;
-            } else {
-                throw new \InvalidArgumentException("Missing Doctrine metadata in the Document, cannot hydrate (yet)!");
-            }
-
-            if ($this->dm->getConfiguration()->getWriteDoctrineMetadata()) {
-                $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
-            }
-        }
-
+        $type = $this->documentNameMapper->getDocumentName($this->dm, $documentName, $node, $this->writeMetadata);
         $class = $this->dm->getClassMetadata($type);
 
         $documentState = array();
@@ -229,7 +224,7 @@ class UnitOfWork
             $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
         }
 
-        if (isset($validate) && !($document instanceof $documentName)) {
+        if ($this->validateDocumentName && !($document instanceof $documentName)) {
             throw new \InvalidArgumentException("Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata");
         }
 
