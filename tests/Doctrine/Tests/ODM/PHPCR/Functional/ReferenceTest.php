@@ -37,7 +37,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
-       $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
         $refRefTestObj->name = "referenced";
 
         $refTestObj->reference = $refRefTestObj;
