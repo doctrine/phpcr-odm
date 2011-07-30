@@ -186,11 +186,8 @@ class Configuration
      */
     public function getDocumentNameMapper()
     {
-        if (!isset($this->attributes['documentNameMapper'])) {
-            $this->attributes['documentNameMapper'] = new \Doctrine\ODM\PHPCR\DocumentNameMapper();
-        }
-
-        return $this->attributes['documentNameMapper'];
+        return isset($this->attributes['documentNameMapper']) ?
+                $this->attributes['documentNameMapper'] : null;
     }
 
     /**

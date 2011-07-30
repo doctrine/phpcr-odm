@@ -140,7 +140,7 @@ class UnitOfWork
     /**
      * @param DocumentManager $dm
      */
-    public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper)
+    public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper = null)
     {
         $this->dm = $dm;
         $this->evm = $dm->getEventManager();
@@ -159,9 +159,29 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        $properties = $node->getPropertiesValues(null, false); // get uuid rather than dereference reference properties
+        // get uuid rather than dereference reference properties
+        $properties = $node->getPropertiesValues(null, false);
 
-        $type = $this->documentNameMapper->getDocumentName($this->dm, $documentName, $node, $this->writeMetadata);
+        if ($this->documentNameMapper) {
+            $type = $this->documentNameMapper->getDocumentName($this->dm, $documentName, $node, $this->writeMetadata);
+        } else {
+            if (isset($documentName)) {
+                $type = $documentName;
+            } else if (isset($properties['phpcr:class'])) {
+                $metadata = $this->dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
+                $type = $metadata->name;
+            } else if (isset($properties['phpcr:alias'])) {
+                $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
+                $type = $metadata->name;
+            } else {
+                throw new \InvalidArgumentException("Missing Doctrine metadata in the Document");
+            }
+
+            if ($this->writeMetadata && empty($properties['phpcr:class'])) {
+                $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
+            }
+        }
+
         $class = $this->dm->getClassMetadata($type);
 
         $documentState = array();
@@ -227,7 +247,8 @@ class UnitOfWork
         }
 
         if ($documentName && $this->validateDocumentName && !($document instanceof $documentName)) {
-            throw new \InvalidArgumentException("Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata");
+            $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata";
+            throw new \InvalidArgumentException($msg);
         }
 
         if ($overrideLocalValues) {

@@ -26,7 +26,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
         $this->dm = DocumentManager::create($this->session);
-        $this->uow = new UnitOfWork($this->dm, $this->dm->getConfiguration()->getDocumentNameMapper());
+        $this->uow = new UnitOfWork($this->dm);
 
         $metadata = new ClassMetadata($this->type);
         $metadata->mapField(array('fieldName' => 'id', 'id' => true));
