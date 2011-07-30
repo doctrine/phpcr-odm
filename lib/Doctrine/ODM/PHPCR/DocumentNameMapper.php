@@ -37,6 +37,8 @@ class DocumentNameMapper implements DocumentNameMapperInterface
     public function getDocumentName(DocumentManager $dm, $documentName, NodeInterface $node, $writeMetadata)
     {
         if (isset($properties['phpcr:class'])) {
+        $properties = $node->getPropertiesValues();
+
             $metadata = $dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
             $type = $metadata->name;
         } else {

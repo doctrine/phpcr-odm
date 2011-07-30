@@ -70,6 +70,14 @@ class DocumentManager implements ObjectManager
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
+        $this->setUnitOfWork();
+    }
+
+    /**
+     * @return EventManager
+     */
+    private function setUnitOfWork()
+    {
         $this->unitOfWork = new UnitOfWork($this, $this->config->getDocumentNameMapper());
     }
 
@@ -395,7 +403,7 @@ class DocumentManager implements ObjectManager
     public function clear()
     {
         // TODO: Do a real delegated clear?
-        $this->unitOfWork = new UnitOfWork($this);
+        $this->setUnitOfWork();
         return $this->session->clear();
     }
 }

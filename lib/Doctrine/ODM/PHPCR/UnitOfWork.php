@@ -140,7 +140,7 @@ class UnitOfWork
     /**
      * @param DocumentManager $dm
      */
-    public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper = null)
+    public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper)
     {
         $this->dm = $dm;
         $this->evm = $dm->getEventManager();
@@ -226,7 +226,7 @@ class UnitOfWork
             $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
         }
 
-        if ($this->validateDocumentName && !($document instanceof $documentName)) {
+        if ($documentName && $this->validateDocumentName && !($document instanceof $documentName)) {
             throw new \InvalidArgumentException("Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata");
         }
 
