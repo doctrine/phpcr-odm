@@ -22,6 +22,8 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use PHPCR\PropertyType;
 
 /**
@@ -249,7 +251,7 @@ class UnitOfWork
             $metadata->invokeLifecycleCallbacks(Event::postLoad, $document);
         }
         if ($this->evm->hasListeners(Event::postLoad)) {
-            $this->evm->dispatchEvent(Event::postLoad, new Events\LifecycleEventArgs($document, $this->dm));
+            $this->evm->dispatchEvent(Event::postLoad, new Event\LifecycleEventArgs($document, $this->dm));
         }
 
         return $document;
@@ -362,7 +364,7 @@ class UnitOfWork
             $class->invokeLifecycleCallbacks(Event::preRemove, $document);
         }
         if ($this->evm->hasListeners(Event::preRemove)) {
-            $this->evm->dispatchEvent(Event::preRemove, new Events\LifecycleEventArgs($document, $this->dm));
+            $this->evm->dispatchEvent(Event::preRemove, new LifecycleEventArgs($document, $this->dm));
         }
     }
 
@@ -548,7 +550,7 @@ class UnitOfWork
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
         }
         if ($this->evm->hasListeners(Event::prePersist)) {
-            $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
+            $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
         }
     }
 
@@ -567,7 +569,7 @@ class UnitOfWork
         $this->detectChangedDocuments();
 
         if ($this->evm->hasListeners(Event::onFlush)) {
-            $this->evm->dispatchEvent(Event::onFlush, new Events\OnFlushEventArgs($this));
+            $this->evm->dispatchEvent(Event::onFlush, new OnFlushEventArgs($this));
         }
 
         $config = $this->dm->getConfiguration();
@@ -592,7 +594,7 @@ class UnitOfWork
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
             if ($this->evm->hasListeners(Event::prePersist)) {
-                $this->evm->dispatchEvent(Event::prePersist, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
             $id = $this->documentIds[$oid];
@@ -641,7 +643,7 @@ class UnitOfWork
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
             if ($this->evm->hasListeners(Event::preUpdate)) {
-                $this->evm->dispatchEvent(Event::preUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
 
@@ -734,36 +736,36 @@ class UnitOfWork
      */
     protected function handlePostFlushEvents()
     {
-        foreach ($this->scheduledRemovals as $oid => $document) {
+        foreach ($this->scheduledRemovals as $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
             if (isset($class->lifecycleCallbacks[Event::postRemove])) {
                 $class->invokeLifecycleCallbacks(Event::postRemove, $document);
             }
             if ($this->evm->hasListeners(Event::postRemove)) {
-                $this->evm->dispatchEvent(Event::postRemove, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->evm->dispatchEvent(Event::postRemove, new LifecycleEventArgs($document, $this->dm));
             }
         }
 
-        foreach ($this->scheduledInserts as $oid => $document) {
+        foreach ($this->scheduledInserts as $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
             if (isset($class->lifecycleCallbacks[Event::postPersist])) {
                 $class->invokeLifecycleCallbacks(Event::postPersist, $document);
             }
             if ($this->evm->hasListeners(Event::postPersist)) {
-                $this->evm->dispatchEvent(Event::postPersist, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
             }
         }
 
-        foreach ($this->scheduledUpdates as $oid => $document) {
+        foreach ($this->scheduledUpdates as $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
 
             if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
                 $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
             }
             if ($this->evm->hasListeners(Event::postUpdate)) {
-                $this->evm->dispatchEvent(Event::postUpdate, new Events\LifecycleEventArgs($document, $this->dm));
+                $this->evm->dispatchEvent(Event::postUpdate, new LifecycleEventArgs($document, $this->dm));
             }
         }
     }
@@ -857,7 +859,7 @@ class UnitOfWork
     }
 
     /**
-     * @param  object $document
+     * @param object $document
      * @return bool
      */
     public function contains($document)
@@ -865,6 +867,12 @@ class UnitOfWork
         return isset($this->documentIds[spl_object_hash($document)]);
     }
 
+    /**
+     * @param object $document
+     * @param string $id The document id to look for.
+     * @param string $revision The revision of the document.
+     * @return bool
+     */
     public function registerManaged($document, $id, $revision)
     {
         $oid = spl_object_hash($document);
@@ -878,7 +886,7 @@ class UnitOfWork
      * Tries to find an entity with the given id in the identity map of
      * this UnitOfWork.
      *
-     * @param mixed $id The entity id to look for.
+     * @param string $id The document id to look for.
      * @param string $rootClassName The name of the root class of the mapped entity hierarchy.
      * @return mixed Returns the entity with the specified id if it exists in
      *               this UnitOfWork, FALSE otherwise.
@@ -928,6 +936,13 @@ class UnitOfWork
         return $this->documentRevisions[$oid];
     }
 
+    /**
+     * Get the object ID for the given document
+     *
+     * @throws PHPCRException
+     * @param  object $document
+     * @return string
+     */
     public function getDocumentId($document)
     {
         $oid = spl_object_hash($document);

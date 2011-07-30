@@ -17,8 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-
-namespace Doctrine\ODM\PHPCR\Events;
+namespace Doctrine\ODM\PHPCR\Event;
 
 class OnFlushEventArgs extends \Doctrine\Common\EventArgs
 {
