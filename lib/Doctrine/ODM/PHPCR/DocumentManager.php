@@ -251,6 +251,8 @@ class DocumentManager implements ObjectManager
      */
     public function merge($document)
     {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        // TODO: implemenent
         return $this->getUnitOfWork()->merge($document);
     }
 
@@ -265,6 +267,8 @@ class DocumentManager implements ObjectManager
      */
     public function detach($document)
     {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        // TODO: implemenent
         return $this->getUnitOfWork()->detach($document);
     }
 
@@ -311,14 +315,12 @@ class DocumentManager implements ObjectManager
      *
      * Until everything is supported in doctrine, you will need to access the
      * phpcr session directly for some operations. With the non-persisting
-     * flush, you can make phpcr reflect the current state without comitting
+     * flush, you can make phpcr reflect the current state without committing
      * the transaction.
      * Do not forget to call session->save() or dm->flush() to persist the
      * changes when you are done.
      *
-     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage or not yet. defaults to persist
-     *
-     * @depricated: will go away as soon as phpcr-odm maps all necessary
+     * @deprecated: will go away as soon as phpcr-odm maps all necessary
      * concepts of phpcr. if you use this now, be prepared to refactor your
      * code when this method goes away.
      */
@@ -392,7 +394,7 @@ class DocumentManager implements ObjectManager
 
     public function clear()
     {
-        // Todo: Do a real delegated clear?
+        // TODO: Do a real delegated clear?
         $this->unitOfWork = new UnitOfWork($this);
         return $this->session->clear();
     }
