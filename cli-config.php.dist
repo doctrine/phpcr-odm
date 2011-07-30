@@ -13,7 +13,6 @@ $session = $repository->login($credentials, $workspace);
 
 /* prepare the doctrine configuration */
 $config = new \Doctrine\ODM\PHPCR\Configuration();
-$config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
 
 $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
 

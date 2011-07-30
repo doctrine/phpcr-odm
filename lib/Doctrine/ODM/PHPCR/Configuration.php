@@ -21,7 +21,6 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
 use Doctrine\ODM\PHPCR\DocumentNameMapperInterface;
-use Doctrine\Common\Cache\Cache;
 
 /**
  * Configuration class
@@ -42,6 +41,8 @@ class Configuration
     private $attributes = array(
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
+        'metadataDriverImpl' => null,
+        'documentNameMapper' => null,
     );
 
     /**
@@ -135,48 +136,13 @@ class Configuration
     }
 
     /**
-     * Add a new default annotation driver with a correctly configured annotation reader.
-     *
-     * @param array $paths
-     * @return Mapping\Driver\AnnotationDriver
-     */
-    public function newDefaultAnnotationDriver($paths = array())
-    {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-
-        return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, (array) $paths);
-    }
-
-    /**
      * Gets the cache driver implementation that is used for the mapping metadata.
      *
      * @return Mapping\Driver\Driver
      */
     public function getMetadataDriverImpl()
     {
-        return isset($this->attributes['metadataDriverImpl']) ?
-            $this->attributes['metadataDriverImpl'] : null;
-    }
-
-    /**
-     * Gets the cache driver implementation that is used for metadata caching.
-     *
-     * @return \Doctrine\Common\Cache\Cache
-     */
-    public function getMetadataCacheImpl()
-    {
-        return isset($this->attributes['metadataCacheImpl']) ?
-                $this->attributes['metadataCacheImpl'] : null;
-    }
-
-    /**
-     * Sets the cache driver implementation that is used for metadata caching.
-     *
-     * @param \Doctrine\Common\Cache\Cache $cacheImpl
-     */
-    public function setMetadataCacheImpl(Cache $cacheImpl)
-    {
-        $this->attributes['metadataCacheImpl'] = $cacheImpl;
+        return $this->attributes['metadataDriverImpl'];
     }
 
     /**
@@ -186,8 +152,7 @@ class Configuration
      */
     public function getDocumentNameMapper()
     {
-        return isset($this->attributes['documentNameMapper']) ?
-                $this->attributes['documentNameMapper'] : null;
+        return $this->attributes['documentNameMapper'];
     }
 
     /**
