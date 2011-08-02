@@ -16,13 +16,12 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
         $factoryclass = isset($GLOBALS['DOCTRINE_PHPCR_FACTORY']) ?
                         $GLOBALS['DOCTRINE_PHPCR_FACTORY'] :
-                        'Jackalope\RepositoryFactoryJackrabbit';
-        $factory = new $factoryclass();
+                        '\Jackalope\RepositoryFactoryJackrabbit';
 
-        $parameters = array_intersect_key($GLOBALS, $factory->getConfigurationKeys());
+        $parameters = array_intersect_key($GLOBALS, $factoryclass::getConfigurationKeys());
         // factory will return null if it gets unknown parameters
 
-        $repository = $factory->getRepository($parameters);
+        $repository = $factoryclass::getRepository($parameters);
         $this->assertNotNull($repository, 'There is an issue with your parameters: '.var_export($parameters, true));
 
         $workspace = isset($GLOBALS['DOCTRINE_PHPCR_WORKSPACE']) ?
@@ -36,7 +35,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
                 $GLOBALS['DOCTRINE_PHPCR_PASS'] :
                 '';
 
-        if ($factory instanceof \Jackalope\RepositoryFactoryDoctrineDBAL) {
+        if ($factoryclass === '\Jackalope\RepositoryFactoryDoctrineDBAL') {
             // TODO: have an option in the DBAL factory to have an in-memory database instead of connection parameters
             $conn = \Doctrine\DBAL\DriverManager::getConnection(array('driver' => 'pdo_sqlite', 'memory' => true));
             $schema = \Jackalope\Transport\DoctrineDBAL\RepositorySchema::create();
