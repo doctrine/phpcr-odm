@@ -285,7 +285,7 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
     {
         if (!$this->__isInitialized__ && $this->__doctrineDocumentManager__) {
             $this->__isInitialized__ = true;
-            $this->__doctrineDocumentManager__->createDocumentForProxy($this);
+            $this->__doctrineDocumentManager__->getRepository(get_class($this))->refreshDocumentForProxy($this);
             unset($this->__doctrineDocumentManager__);
         }
     }

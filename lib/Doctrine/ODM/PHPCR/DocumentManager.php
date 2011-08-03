@@ -295,16 +295,6 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Create the proxies actual document
-     *
-     * @param object $document
-     */
-    public function createDocumentForProxy($document)
-    {
-        $this->getRepository(get_class($document))->createDocumentForProxy($document);
-    }
-
-    /**
      * Get the child documents of a given document using an optional filter.
      *
      * This methods gets all child nodes as a collection of documents that matches
