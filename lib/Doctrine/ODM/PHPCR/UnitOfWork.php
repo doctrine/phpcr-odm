@@ -136,7 +136,7 @@ class UnitOfWork
      * @param Proxy $document
      * @return void
      */
-    public function createDocumentForProxy($documentName, $document)
+    public function refreshDocumentForProxy($documentName, $document)
     {
         $node = $this->nodesMap[spl_object_hash($document)];
         $hints = array('refresh' => true);
@@ -230,7 +230,7 @@ class UnitOfWork
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
                 // TODO figure this one out which collection should be used
 
-                $config = new Configuration();
+                $config = $this->dm->getConfiguration();
                 $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
 
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
@@ -254,7 +254,7 @@ class UnitOfWork
                 $this->nodesMap[$proxyOid] = $referencedNode;
 
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
-                $config = new Configuration();
+                $config = $this->dm->getConfiguration();
                 $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
 
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
@@ -263,6 +263,9 @@ class UnitOfWork
 
                 // get the already cached referenced nodes
                 $proxyNodes = $node->getPropertyValue($assocOptions['fieldName']);
+                if (!is_array($proxyNodes)) {
+                    throw new PHPCRException("Expected referenced nodes passed as array.");
+                }
 
                 foreach ($proxyNodes as $referencedNode) {
 
@@ -410,6 +413,9 @@ class UnitOfWork
                     }
                 } else {
                     // $related can never be a persistent collection in case of a new entity.
+                    if (!is_array($related)) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation.");
+                    }
                     foreach ($related as $relatedDocument) {
                         if ($this->getDocumentState($relatedDocument) == self::STATE_NEW) {
                             $this->doScheduleInsert($relatedDocument, $visited);
@@ -799,9 +805,9 @@ class UnitOfWork
                     }
 
                     if($class->associationsMappings[$fieldName]['weak']) {
-                        $type = \PHPCR\PropertyType::valueFromName('weakreference');
+                        $type = \PHPCR\PropertyType::WEAKREFERENCE;
                     } else {
-                        $type = \PHPCR\PropertyType::valueFromName('reference');
+                        $type = \PHPCR\PropertyType::REFERENCE;
                     }
 
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
