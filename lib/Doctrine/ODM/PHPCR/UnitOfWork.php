@@ -174,7 +174,7 @@ class UnitOfWork
                 $class = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
             }
 
-            if ($this->writeMetadata && empty($properties['phpcr:class'])) {
+            if ($this->writeMetadata && empty($properties['phpcr:class']) && isset($class)) {
                 $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
         }
