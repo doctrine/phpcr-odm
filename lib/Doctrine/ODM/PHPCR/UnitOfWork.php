@@ -164,25 +164,24 @@ class UnitOfWork
 
         if ($this->documentNameMapper) {
             $type = $this->documentNameMapper->getDocumentName($this->dm, $documentName, $node, $this->writeMetadata);
+            $class = $this->dm->getClassMetadata($type);
         } else {
             if (isset($documentName)) {
-                $type = $documentName;
+                $class = $this->dm->getClassMetadata($documentName);
             } else if (isset($properties['phpcr:class'])) {
-                $metadata = $this->dm->getMetadataFactory()->getMetadataFor($properties['phpcr:class']);
-                $type = $metadata->name;
+                $class = $this->dm->getClassMetadata($properties['phpcr:class']);
             } else if (isset($properties['phpcr:alias'])) {
-                $metadata = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
-                $type = $metadata->name;
-            } else {
-                throw new \InvalidArgumentException("Missing Doctrine metadata in the Document");
+                $class = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
             }
 
             if ($this->writeMetadata && empty($properties['phpcr:class'])) {
-                $node->setProperty('phpcr:class', $documentName, PropertyType::STRING);
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
         }
 
-        $class = $this->dm->getClassMetadata($type);
+        if (empty($class)) {
+            throw new \InvalidArgumentException("Could not determine Doctrine metadata for node");
+        }
 
         $documentState = array();
         $nonMappedData = array();
@@ -246,8 +245,8 @@ class UnitOfWork
             $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
         }
 
-        if ($documentName && $this->validateDocumentName && !($document instanceof $documentName)) {
-            $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '$type' stored in the metdata";
+        if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
+            $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '{$class->name}' stored in the metadata";
             throw new \InvalidArgumentException($msg);
         }
 
@@ -263,8 +262,8 @@ class UnitOfWork
         }
 
         // Invoke the postLoad lifecycle callbacks and listeners
-        if (isset($metadata->lifecycleCallbacks[Event::postLoad])) {
-            $metadata->invokeLifecycleCallbacks(Event::postLoad, $document);
+        if (isset($class->lifecycleCallbacks[Event::postLoad])) {
+            $class->invokeLifecycleCallbacks(Event::postLoad, $document);
         }
         if ($this->evm->hasListeners(Event::postLoad)) {
             $this->evm->dispatchEvent(Event::postLoad, new Event\LifecycleEventArgs($document, $this->dm));
