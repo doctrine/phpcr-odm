@@ -7,9 +7,7 @@ $user = 'admin';
 $pass = 'admin';
 
 /* bootstrapping the repository implementation. for jackalope, do this: */
-$factory = new \Jackalope\Factory;
-$transport = new \Jackalope\Transport\Davex\Client($factory, $url);
-$repository = new \Jackalope\Repository($factory, $transport);
+$repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(array("jackalope.jackrabbit_uri" => $url));
 $credentials = new \PHPCR\SimpleCredentials($user, $pass);
 $session = $repository->login($credentials, $workspace);
 
