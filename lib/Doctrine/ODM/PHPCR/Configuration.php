@@ -20,7 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
-use Doctrine\Common\Cache\Cache;
+use Doctrine\ODM\PHPCR\DocumentNameMapperInterface;
 
 /**
  * Configuration class
@@ -42,6 +42,8 @@ class Configuration
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
         'proxyNamespace' => 'MyPHPCRProxyNS',
+        'metadataDriverImpl' => null,
+        'documentNameMapper' => null,
     );
 
     /**
@@ -135,48 +137,33 @@ class Configuration
     }
 
     /**
-     * Add a new default annotation driver with a correctly configured annotation reader.
-     *
-     * @param array $paths
-     * @return Mapping\Driver\AnnotationDriver
-     */
-    public function newDefaultAnnotationDriver($paths = array())
-    {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-
-        return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, (array) $paths);
-    }
-
-    /**
      * Gets the cache driver implementation that is used for the mapping metadata.
      *
      * @return Mapping\Driver\Driver
      */
     public function getMetadataDriverImpl()
     {
-        return isset($this->attributes['metadataDriverImpl']) ?
-            $this->attributes['metadataDriverImpl'] : null;
+        return $this->attributes['metadataDriverImpl'];
     }
 
     /**
      * Gets the cache driver implementation that is used for metadata caching.
      *
-     * @return \Doctrine\Common\Cache\Cache
+     * @return \Doctrine\ODM\PHPCR\DocumentNameMapperInterface
      */
-    public function getMetadataCacheImpl()
+    public function getDocumentNameMapper()
     {
-        return isset($this->attributes['metadataCacheImpl']) ?
-                $this->attributes['metadataCacheImpl'] : null;
+        return $this->attributes['documentNameMapper'];
     }
 
     /**
      * Sets the cache driver implementation that is used for metadata caching.
      *
-     * @param \Doctrine\Common\Cache\Cache $cacheImpl
+     * @param \Doctrine\ODM\PHPCR\DocumentNameMapperInterface $documentNameMapper
      */
-    public function setMetadataCacheImpl(Cache $cacheImpl)
+    public function setDocumentNameMapper(DocumentNameMapperInterface $documentNameMapper)
     {
-        $this->attributes['metadataCacheImpl'] = $cacheImpl;
+        $this->attributes['documentNameMapper'] = $documentNameMapper;
     }
 
     /**

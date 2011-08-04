@@ -32,7 +32,7 @@ use PHPCR\Util\UUIDHelper;
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
-class DocumentManager
+class DocumentManager implements ObjectManager
 {
     /**
      * @var SessionInterface
@@ -70,7 +70,15 @@ class DocumentManager
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
-        $this->unitOfWork = new UnitOfWork($this);
+        $this->setUnitOfWork();
+    }
+
+    /**
+     * @return EventManager
+     */
+    private function setUnitOfWork()
+    {
+        $this->unitOfWork = new UnitOfWork($this, $this->config->getDocumentNameMapper());
     }
 
     /**
@@ -243,6 +251,36 @@ class DocumentManager
     }
 
     /**
+     * Merges the state of a detached object into the persistence context
+     * of this ObjectManager and returns the managed copy of the object.
+     * The object passed to merge will not become associated/managed with this ObjectManager.
+     *
+     * @param object $document
+     */
+    public function merge($document)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        // TODO: implemenent
+        return $this->getUnitOfWork()->merge($document);
+    }
+
+    /**
+     * Detaches an object from the ObjectManager, causing a managed object to
+     * become detached. Unflushed changes made to the object if any
+     * (including removal of the object), will not be synchronized to the database.
+     * Objects which previously referenced the detached object will continue to
+     * reference it.
+     *
+     * @param object $document The object to detach.
+     */
+    public function detach($document)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        // TODO: implemenent
+        return $this->getUnitOfWork()->detach($document);
+    }
+
+    /**
      * Refresh the given document by querying the PHPCR to get the current state.
      *
      * @param object $document
@@ -285,14 +323,12 @@ class DocumentManager
      *
      * Until everything is supported in doctrine, you will need to access the
      * phpcr session directly for some operations. With the non-persisting
-     * flush, you can make phpcr reflect the current state without comitting
+     * flush, you can make phpcr reflect the current state without committing
      * the transaction.
      * Do not forget to call session->save() or dm->flush() to persist the
      * changes when you are done.
      *
-     * @param boolean $persist_to_backend Wether the phpcr session should be saved to permanent storage or not yet. defaults to persist
-     *
-     * @depricated: will go away as soon as phpcr-odm maps all necessary
+     * @deprecated: will go away as soon as phpcr-odm maps all necessary
      * concepts of phpcr. if you use this now, be prepared to refactor your
      * code when this method goes away.
      */
@@ -366,8 +402,8 @@ class DocumentManager
 
     public function clear()
     {
-        // Todo: Do a real delegated clear?
-        $this->unitOfWork = new UnitOfWork($this);
+        // TODO: Do a real delegated clear?
+        $this->setUnitOfWork();
         return $this->session->clear();
     }
 }

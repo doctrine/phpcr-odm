@@ -218,14 +218,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(false);
         $user = $this->dm->find($this->type.'2', '/functional/user');
-        $this->assertInstanceOf($this->type, $user);
+        $this->assertNotInstanceOf($this->type, $user);
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(true);
-        $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertInstanceOf($this->type, $user);
-
         $this->setExpectedException('InvalidArgumentException');
-        $user = $this->dm->find($this->type.'2', '/functional/user');
+        $this->dm->find($this->type, '/functional/user');
     }
 
     public function testNullRemovesTheProperty()
