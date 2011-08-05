@@ -434,7 +434,7 @@ class UnitOfWork
                         throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation.");
                     }
                     foreach ($related as $relatedDocument) {
-                        if ($this->getDocumentState($relatedDocument) == self::STATE_NEW) {
+                        if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) == self::STATE_NEW) {
                             $this->doScheduleInsert($relatedDocument, $visited);
                         }
                     }
@@ -606,7 +606,9 @@ class UnitOfWork
             if ($actualData[$assocName]) {
                 if (is_array($actualData[$assocName])) {
                     foreach ($actualData[$assocName] as $ref) {
-                        $this->computeReferenceChanges($assoc, $ref, $id);
+                        if ($ref != null) {
+                            $this->computeReferenceChanges($assoc, $ref, $id);
+                        }
                     }
                 } else {
                     $this->computeReferenceChanges($assoc, $actualData[$assocName], $id);
@@ -830,6 +832,9 @@ class UnitOfWork
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
                             foreach ($fieldValue as $fv ) {
+                                if ($fv === null) {
+                                    continue;
+                                }
                                 $refOid = spl_object_hash($fv);
                                 $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
                             }
