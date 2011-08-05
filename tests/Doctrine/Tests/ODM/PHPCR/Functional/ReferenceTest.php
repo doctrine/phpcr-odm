@@ -47,11 +47,13 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
 
-        $this->assertTrue($this->node->hasNode('refRefTestObj'));
-        $this->assertEquals($this->node->getNode('refRefTestObj')->getProperty('name')->getString(), 'referenced');
+        $this->assertTrue($this->session->getNode('/functional')->hasNode('refRefTestObj'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refRefTestObj')->getProperty('name')->getString(), 'referenced');
 
-        $this->assertTrue($this->node->getNode('refTestObj')->hasProperty('reference'));
-        $this->assertEquals($this->node->getNode('refTestObj')->getProperty('reference')->getValue(), $this->node->getNode('refRefTestObj'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue(), $this->session->getNode('/functional')->getNode('refRefTestObj'));
+
+        $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getIdentifier());
     }
 
     public function testCreateWithoutRef()
@@ -64,7 +66,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->node->getNode('refTestObj')->hasProperty('reference'));
+        $this->assertFalse($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
     }
 
     public function testCreateWithoutManyRef()
@@ -77,7 +79,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->node->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertFalse($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
     }
 
     public function testCreateAddRefLater()
@@ -90,7 +92,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->node->getNode('refTestObj')->hasProperty('reference'));
+        $this->assertFalse($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
 
         $referrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
         $referrer->reference = new RefRefTestObj();
@@ -101,8 +103,10 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertTrue($this->node->getNode('refTestObj')->hasProperty('reference'));
-        $this->assertEquals($this->node->getNode('refTestObj')->getProperty('reference')->getValue(), $this->node->getNode('refRefTestObj'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue(), $this->session->getNode('/functional')->getNode('refRefTestObj'));
+
+        $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getIdentifier());
     }
 
     public function testCreateAddManyRefLater()
@@ -115,7 +119,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->node->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertFalse($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
 
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
@@ -131,12 +135,15 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertTrue($this->node->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
 
-        $refnode = $this->node->getNode('refManyTestObj');
+        $this->assertEquals(count($this->session->getNode('/functional')->getProperty('refManyTestObj/references')->getString()), $max);
+
+        $refnode = $this->session->getNode('/functional')->getNode('refManyTestObj');
         foreach ($refnode->getProperty('references')->getValue() as $referenced) {
             $this->assertTrue($referenced->hasProperty('name'));
         }
+
 
     }
 
@@ -162,8 +169,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertNotEquals($this->node->getNode('refTestObj')->getProperty('reference')->getValue()->getProperty('name')->getString(), "referenced");
-        $this->assertEquals($this->node->getNode('refTestObj')->getProperty('reference')->getValue()->getProperty('name')->getString(), "referenced changed");
+        $this->assertNotEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue()->getProperty('name')->getString(), "referenced");
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue()->getProperty('name')->getString(), "referenced changed");
     }
 
     public function testUpdateMany()
@@ -188,7 +195,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $i = 0;
         foreach ($referrer->references as $reference) {
             $reference->name = "new name ".$i;
-            $i += 1;
+            $i++;
         }
 
         $this->dm->persist($referrer);
@@ -198,7 +205,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $i = 0;
-        foreach ($this->node->getNode('refManyTestObj')->getProperty('references')->getValue() as  $node) {
+        foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references')->getValue() as  $node) {
             $this->assertEquals($node->getProperty('name')->getValue(), "new name ".$i);
             $i++;
         }
@@ -206,10 +213,115 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     }
 
+    public function testUpdateOneInMany()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = "/functional/refManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $pos = 2;
+
+        $referrer->references[$pos]->name = "new name";
+
+        $this->dm->persist($referrer);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $i = 0;
+        foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references')->getValue() as  $node) {
+            if ($i != $pos) {
+                $this->assertEquals($node->getProperty('name')->getValue(), "refRefTestObj$i");
+            } else {
+                $this->assertEquals($referrer->references[$pos]->name, "new name");
+            }
+            $i++;
+        }
+        $this->assertEquals($i, $max);
+
+    }
+
+    public function testRemoveReferrer()
+    {
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
+
+        $refTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refTestObj->reference = $refRefTestObj;
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
+
+        $this->dm->remove($referrer);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $testReferrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
+
+        $this->assertNull($testReferrer);
+        $this->assertTrue($this->session->getNode('/functional')->hasNode('refRefTestObj'));
+        $this->assertFalse($this->session->getNode('/functional')->hasNode('refTestObj'));
+    }
+
+    public function testRemoveReferrerMany()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = "/functional/refManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $this->dm->remove($referrer);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $testReferrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
+
+        $this->assertNull($testReferrer);
+        $this->assertFalse($this->session->getNode('/functional')->hasNode('refTestObj'));
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $this->assertTrue($this->session->getNode('/functional')->hasNode("refRefTestObj$i"));
+            $this->assertEquals($this->session->getNode('/functional')->getPropertyValue("refRefTestObj$i/name"), "refRefTestObj$i");
+        }
+    }
+
     /**
      * Remove referrer node, but change referenced node before
      */
-    public function testRemove()
+    public function testRemoveReferrerChangeBevore()
     {
         $refTestObj = new RefTestObj();
         $refRefTestObj = new RefRefTestObj();
@@ -234,7 +346,51 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $testReferrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
 
         $this->assertNull($testReferrer);
+        $this->assertTrue($this->session->getNode('/functional')->hasNode('refRefTestObj'));
+        $this->assertFalse($this->session->getNode('/functional')->hasNode('refTestObj'));
         $this->assertEquals($this->session->getNode('/functional/refRefTestObj')->getProperty('name')->getString(), 'referenced changed');
+    }
+
+    /**
+     * Remove referrer node, but change referenced nodes before
+     */
+    public function testRemoveReferrerManyChangeBevore()
+    {
+
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = "/functional/refManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $i = 0;
+        foreach ($referrer->references as $reference ) {
+            $reference->name = "new name $i";
+            $i++;
+        }
+
+        $this->dm->remove($referrer);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $testReferrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
+        $this->assertNull($testReferrer);
+
+
+        for ($i = 0; $i < $max; $i++) {
+            $this->assertEquals($this->session->getNode("/functional/refRefTestObj$i")->getPropertyValue("name"), "new name $i");
+        }
     }
 
     public function testDeleteByRef()
@@ -254,11 +410,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
 
-        $referenced = $referrer->reference;
+        $this->dm->remove($referrer->reference);
         $referrer->reference = null;
-        $this->dm->persist($referrer);
-
-        $this->dm->remove($referenced);
 
         $this->dm->flush();
         $this->dm->clear();
@@ -365,10 +518,58 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertEquals($max, count($referrer->references));
 
-        $refnode = $this->node->getNode('refManyTestObj');
+        $refnode = $this->session->getNode('/functional')->getNode('refManyTestObj');
         foreach ($refnode->getProperty('references')->getValue() as $referenced) {
             $this->assertTrue($referenced->hasProperty('name'));
         }
+
+    }
+
+    public function testDeleteOneInMany()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = "/functional/refManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $pos = 2;
+
+        $this->dm->remove($referrer->references[$pos]);
+        $referrer->references[$pos] = null;
+
+        $this->dm->persist($referrer);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $names = array();
+        for ($i = 0; $i < $max; $i++) {
+            if ($i != $pos) {
+                $names[] = "refRefTestObj$i";
+            }
+        }
+
+        $i = 0;
+        foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references')->getValue() as  $node) {
+            if ($i != $pos) {
+                $this->assertTrue(in_array($node->getProperty('name')->getValue(), $names));
+            }
+            $i++;
+        }
+        $this->assertEquals($i, $max - 1);
 
     }
 
