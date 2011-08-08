@@ -21,7 +21,7 @@ TODO
 Getting Started
 ---------------
 
- 0. Install jackrabbit according to https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged<br />
+ 0. Install jackrabbit according to https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged <br />
         You need a patched jackrabbit and run the command to register types, as explained in the linked documtation.
 
  1. Define one of those mapping drivers
