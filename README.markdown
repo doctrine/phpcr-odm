@@ -13,6 +13,7 @@ TODO
 
 * complete mapping for relations (parent, references), then remove the node mapping
 * ensure that no Jackalope specific classes are used (especially relevant for the tests)
+* have the register-system-node-types command provide api conform node type definition as well to support other implementations
 * add support for SQL/QOM
 * write documentation
 * expand test suite
@@ -20,8 +21,8 @@ TODO
 Getting Started
 ---------------
 
- 0. Install jackrabbit according to https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged
-        You need a patched jackrabbit and run the command to register types.
+ 0. Install jackrabbit according to https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged<br />
+        You need a patched jackrabbit and run the command to register types, as explained in the linked documtation.
 
  1. Define one of those mapping drivers
 
@@ -35,9 +36,12 @@ Getting Started
         // Yaml driver
         $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
 
- 2. Initialize a Jackalope session
+ 2. Initialize a PHPCR session<br />
+        Eventually, this module will support all PHPCR backends, but at the moment it is only tested with jackalope jackrabbit.
 
-        $repository = new \Jackalope\Repository('http://localhost:8080/server');
+
+        $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
+                            array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
         $credentials = new \PHPCR\SimpleCredentials('user', 'pass');
         $session = $repository->login($credentials, 'your_workspace');
 
