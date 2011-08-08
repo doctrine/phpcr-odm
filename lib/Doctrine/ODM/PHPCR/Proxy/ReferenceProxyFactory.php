@@ -168,6 +168,12 @@ class ReferenceProxyFactory
             $attributes .= '$this->'.$field["fieldName"];
             $attributes .= ", ";
         }
+
+        foreach ($class->associationsMappings as $field) {
+            $attributes .= '$this->'.$field["fieldName"];
+            $attributes .= ", ";
+        }
+ 
         $attributes = substr($attributes, 0, -2);
 
         return "unset(".$attributes.");";
@@ -303,7 +309,7 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
         $this->$name = $value;
     }
 
-    public function __get($name)
+    public function &__get($name)
     {
         $this->__doctrineLoad__();
         return $this->$name;
