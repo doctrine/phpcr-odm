@@ -15,8 +15,10 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->referrerType = 'Doctrine\Tests\ODM\PHPCR\Functional\RefTestObj';
         $this->referencedType = 'Doctrine\Tests\ODM\PHPCR\Functional\RefRefTestObj';
         $this->referrerManyType = 'Doctrine\Tests\ODM\PHPCR\Functional\RefManyTestObj';
+        $this->referrerManyForCascadeType = 'Doctrine\Tests\ODM\PHPCR\Functional\RefManyTestObjForCascade';
         $this->weakReferrerType = 'Doctrine\Tests\ODM\PHPCR\Functional\WeakRefTestObj';
         $this->hardReferrerType = 'Doctrine\Tests\ODM\PHPCR\Functional\HardRefTestObj';
+        $this->referrerDifType = 'Doctrine\Tests\ODM\PHPCR\Functional\RefDifTestObj';
 
         $this->session = $this->dm->getPhpcrSession();
         $root = $this->session->getNode('/');
@@ -45,7 +47,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($refTestObj);
         $this->dm->flush();
         $this->dm->clear();
-
 
         $this->assertTrue($this->session->getNode('/functional')->hasNode('refRefTestObj'));
         $this->assertEquals($this->session->getNode('/functional')->getNode('refRefTestObj')->getProperty('name')->getString(), 'referenced');
@@ -143,8 +144,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         foreach ($refnode->getProperty('references')->getValue() as $referenced) {
             $this->assertTrue($referenced->hasProperty('name'));
         }
-
-
     }
 
     public function testUpdate()
@@ -210,7 +209,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $i++;
         }
         $this->assertEquals($i, $max);
-
     }
 
     public function testUpdateOneInMany()
@@ -252,7 +250,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $i++;
         }
         $this->assertEquals($i, $max);
-
     }
 
     public function testRemoveReferrer()
@@ -356,7 +353,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testRemoveReferrerManyChangeBevore()
     {
-
         $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
@@ -386,7 +382,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $testReferrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
         $this->assertNull($testReferrer);
-
 
         for ($i = 0; $i < $max; $i++) {
             $this->assertEquals($this->session->getNode("/functional/refRefTestObj$i")->getPropertyValue("name"), "new name $i");
@@ -492,7 +487,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertFalse($this->session->getNode('/functional/hardRefTestObj')->hasProperty('reference'));
         $this->assertFalse($this->session->getNode('/functional/')->hasNode('refRefTestObj'));
-
     }
 
     public function testReferenceMany()
@@ -522,7 +516,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         foreach ($refnode->getProperty('references')->getValue() as $referenced) {
             $this->assertTrue($referenced->hasProperty('name'));
         }
-
     }
 
     public function testDeleteOneInMany()
@@ -562,6 +555,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             }
         }
 
+        $this->assertEquals(count($names), $max - 1);
+
         $i = 0;
         foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references')->getValue() as  $node) {
             if ($i != $pos) {
@@ -570,7 +565,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $i++;
         }
         $this->assertEquals($i, $max - 1);
-
     }
 
     public function testModificationAfterPersist()
@@ -585,7 +579,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrer->name = 'Referrer';
         $referrer->reference = $referenced;
         $referenced->name = 'Referenced';
-
 
         $this->dm->flush();
         $this->dm->clear();
@@ -604,6 +597,303 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($referrer->reference);
         $this->assertEquals('Changed', $referrer->reference->name);
     }
+
+    public function testModificationManyAfterPersist()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = "/functional/refManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $i = 0;
+        foreach ($referrer->references as $reference) {
+            $reference->name = "new name $i";
+            $i++;
+        }
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+
+        $i = 0;
+        foreach ($referrer->references as $reference) {
+            $this->assertEquals($reference->name, "new name $i");
+            $i++;
+        }
+    }
+
+    public function testCreateCascade()
+    {
+        $referrer = new RefTestObj();
+        $referrer->id = "/functional/refTestObj";
+
+        $refCascadeTestObj = new RefCascadeTestObj();
+        $refCascadeTestObj->id = "/functional/refCascadeTestObj";
+        $refCascadeTestObj->name = "refCascadeTestObj";
+
+        $referrer->reference = $refCascadeTestObj;
+
+        $refRefTestObj = new RefRefTestObj();
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "refRefTestObj";
+
+        $referrer->reference->reference = $refRefTestObj;
+
+        $this->dm->persist($referrer);
+        $this->dm->flush();
+
+        $this->assertTrue($this->session->getNode("/functional")->hasNode("refTestObj"));
+        $this->assertTrue($this->session->getNode("/functional")->hasNode("refCascadeTestObj"));
+        $this->assertTrue($this->session->getNode("/functional")->hasNode("refRefTestObj"));
+
+        $this->assertTrue($this->session->getNode("/functional/refTestObj")->hasProperty("reference"));
+        $this->assertTrue($this->session->getNode("/functional/refCascadeTestObj")->hasProperty("reference"));
+
+        $this->assertEquals($this->session->getNode("/functional/refTestObj")->getProperty("reference")->getString(),
+                            $this->session->getNode("/functional/refCascadeTestObj")->getIdentifier());
+        $this->assertEquals($this->session->getNode("/functional/refCascadeTestObj")->getProperty("reference")->getString(),
+                            $this->session->getNode("/functional/refRefTestObj")->getIdentifier());
+    }
+
+    public function testCreateManyCascade()
+    {
+        $refManyTestObjForCascade = new RefManyTestObjForCascade();
+        $refManyTestObjForCascade->id = "/functional/refManyTestObjForCascade";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
+            $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
+            $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
+            $refManyTestObjForCascade->references[] = $newRefCascadeManyTestObj;
+        }
+
+        $j = 0;
+        foreach ($refManyTestObjForCascade->references as $reference) {
+            for ($i = 0; $i < $max; $i++) {
+                $newRefRefTestObj= new RefRefTestObj();
+                $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
+                $newRefRefTestObj->name = "refRefTestObj$j$i";
+                $reference->references[] = $newRefRefTestObj;
+            }
+            $j++;
+        }
+
+        $this->dm->persist($refManyTestObjForCascade);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->session->getNode("/functional")->hasNode("refManyTestObjForCascade"));
+
+        $refIds = $this->session->getNode("/functional/refManyTestObjForCascade")->getProperty("references")->getString();
+        for ($i = 0; $i < $max; $i++) {
+            $this->assertTrue($this->session->getNode("/functional")->hasNode("refCascadeManyTestObj$i"));
+            $this->assertTrue($this->session->getNode("/functional/refCascadeManyTestObj$i")->hasProperty('references'));
+            $this->assertTrue(in_array($this->session->getNode("/functional/refCascadeManyTestObj$i")->getIdentifier(), $refIds));
+        }
+
+        for ($j = 0; $j < $max; $j++) {
+            $refIds = $this->session->getNode("/functional/refCascadeManyTestObj$j")->getProperty("references")->getString();
+            for ($i = 0; $i < $max; $i++) {
+                $this->assertTrue($this->session->getNode("/functional")->hasNode("refRefTestObj$j$i"));
+                $this->assertEquals($this->session->getNode("/functional/refRefTestObj$j$i")->getPropertyValue("name"), "refRefTestObj$j$i");
+                $this->assertTrue(in_array($this->session->getNode("/functional/refRefTestObj$j$i")->getIdentifier(), $refIds));
+            }
+        }
+    }
+
+    public function testManyCascadeChangeOne()
+    {
+        $refManyTestObjForCascade = new RefManyTestObjForCascade();
+        $refManyTestObjForCascade->id = "/functional/refManyTestObjForCascade";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
+            $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
+            $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
+            $refManyTestObjForCascade->references[] = $newRefCascadeManyTestObj;
+        }
+
+        $j = 0;
+        foreach ($refManyTestObjForCascade->references as $reference) {
+            for ($i = 0; $i < $max; $i++) {
+                $newRefRefTestObj= new RefRefTestObj();
+                $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
+                $newRefRefTestObj->name = "refRefTestObj$j$i";
+                $reference->references[] = $newRefRefTestObj;
+            }
+            $j++;
+        }
+
+        $this->dm->persist($refManyTestObjForCascade);
+        $this->dm->flush();
+        $this->dm->clear();
+        
+        $referrer = $this->dm->find($this->referrerManyForCascadeType, '/functional/refManyTestObjForCascade');
+
+        $pos1 = 1;
+        $pos2 = 2;
+
+        $referrer->references[$pos1]->references[$pos2]->name = "new name";
+
+        $this->dm->flush();
+
+        $this->assertEquals($this->session->getNode("/functional/refRefTestObj$pos1$pos2")->getPropertyValue("name"), "new name");
+    }
+
+    public function testManyCascadeDeleteOne()
+    {
+        $refManyTestObjForCascade = new RefManyTestObjForCascade();
+        $refManyTestObjForCascade->id = "/functional/refManyTestObjForCascade";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
+            $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
+            $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
+            $refManyTestObjForCascade->references[] = $newRefCascadeManyTestObj;
+        }
+
+        $j = 0;
+        foreach ($refManyTestObjForCascade->references as $reference) {
+            for ($i = 0; $i < $max; $i++) {
+                $newRefRefTestObj= new RefRefTestObj();
+                $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
+                $newRefRefTestObj->name = "refRefTestObj$j$i";
+                $reference->references[] = $newRefRefTestObj;
+            }
+            $j++;
+        }
+
+        $this->dm->persist($refManyTestObjForCascade);
+        $this->dm->flush();
+        $this->dm->clear();
+        
+        $referrer = $this->dm->find($this->referrerManyForCascadeType, '/functional/refManyTestObjForCascade');
+
+        $pos1 = 1;
+        $pos2 = 2;
+
+        $this->dm->remove($referrer->references[$pos1]->references[$pos2]);
+
+        $this->dm->flush();
+
+        $this->assertFalse($this->session->getNode("/functional")->hasNode("refRefTestObj$pos1$pos2"));
+        $this->assertTrue($this->session->getNode("/functional/refCascadeManyTestObj$pos1")->hasProperty("references"));
+        $this->assertEquals(count($this->session->getNode("/functional/refCascadeManyTestObj$pos1")->getProperty("references")->getString()), $max);
+    }
+
+    public function testRefDifTypes()
+    {
+        $refDifTestObj = new RefDifTestObj();
+        $refDifTestObj->id = "/functional/refDifTestObj";
+
+        $referenceType1 = new RefType1TestObj();
+        $referenceType1->id = "/functional/refType1TestObj";
+        $referenceType1->name = "type1";
+        $refDifTestObj->referenceType1 = $referenceType1;
+
+        $referenceType2 = new RefType2TestObj();
+        $referenceType2->id  = "/functional/refType2TestObj";
+        $referenceType2->name = "type2";
+        $refDifTestObj->referenceType2 = $referenceType2;
+
+        $this->dm->persist($refDifTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerDifType, "/functional/refDifTestObj");
+
+        $this->assertTrue(($referrer->referenceType1 instanceof RefType1TestObj));
+        $this->assertTrue(($referrer->referenceType2 instanceof RefType2TestObj));
+
+        $this->assertEquals($referrer->referenceType1->name, "type1");
+        $this->assertEquals($referrer->referenceType2->name, "type2");
+    }
+
+    public function testRefDifTypesChangeBoth()
+    {
+        $refDifTestObj = new RefDifTestObj();
+        $refDifTestObj->id = "/functional/refDifTestObj";
+
+        $referenceType1 = new RefType1TestObj();
+        $referenceType1->id = "/functional/refType1TestObj";
+        $referenceType1->name = "type1";
+        $refDifTestObj->referenceType1 = $referenceType1;
+
+        $referenceType2 = new RefType2TestObj();
+        $referenceType2->id  = "/functional/refType2TestObj";
+        $referenceType2->name = "type2";
+        $refDifTestObj->referenceType2 = $referenceType2;
+
+        $this->dm->persist($refDifTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find($this->referrerDifType, "/functional/refDifTestObj");
+
+        $referrer->referenceType1->name = "new name 1";
+        $referrer->referenceType2->name = "new name 2";
+        $this->dm->flush();
+
+        $this->assertEquals($this->session->getNode("/functional/refType1TestObj")->getPropertyValue('name'), "new name 1");
+        $this->assertEquals($this->session->getNode("/functional/refType2TestObj")->getPropertyValue('name'), "new name 2");
+    }
+}
+
+/**
+ * @PHPCRODM\Document(alias="RefDifTestObj")
+ */
+class RefDifTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefType1TestObj") */
+    public $referenceType1;
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefType2TestObj") */
+    public $referenceType2;
+    /** @PHPCRODM\String */
+    public $name;
+
+    public function __construct()
+    {
+       $references = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+}
+
+/**
+ * @PHPCRODM\Document(alias="RefType1TestObj", referenceable="true")
+ */
+class RefType1TestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="RefType2TestObj", referenceable="true")
+ */
+class RefType2TestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
 }
 
 /**
@@ -618,10 +908,28 @@ class RefManyTestObj
     /** @PHPCRODM\String */
     public $name;
 
-   public function __construct()
-   {
-      $references = new \Doctrine\Common\Collections\ArrayCollection();
-   }
+    public function __construct()
+    {
+       $references = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+}
+
+/**
+ * @PHPCRODM\Document(alias="RefManyTestObjForCascade")
+ */
+class RefManyTestObjForCascade
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ReferenceMany(targetDocument="RefCascadeManyTestObj") */
+    public $references;
+    /** @PHPCRODM\String */
+    public $name;
+
+    public function __construct()
+    {
+       $references = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 }
 
 /**
@@ -664,6 +972,37 @@ class RefTestObj
 }
 
 /**
+ * @PHPCRODM\Document(alias="RefCascadeTestObj", referenceable="true")
+ */
+class RefCascadeTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj") */
+    public $reference;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="RefCascadeManyTestObj", referenceable="true")
+ */
+class RefCascadeManyTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj") */
+    public $references;
+    /** @PHPCRODM\String */
+    public $name;
+
+    public function __construct()
+    {
+       $references = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+}
+
+/**
  * @PHPCRODM\Document(alias="RefRefTestObj", referenceable="true")
  */
 class RefRefTestObj
@@ -684,7 +1023,6 @@ class RefRefTestObj
     public function setName($name) {
         $this->name = $name;
     }
-
 }
 
 /**

@@ -425,6 +425,9 @@ class UnitOfWork
             $related = $class->reflFields[$assocName]->getValue($document);
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
+                    if (is_array($related)) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation.");
+                    }
                     if ($this->getDocumentState($related) == self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
@@ -606,7 +609,7 @@ class UnitOfWork
             if ($actualData[$assocName]) {
                 if (is_array($actualData[$assocName])) {
                     foreach ($actualData[$assocName] as $ref) {
-                        if ($ref != null) {
+                        if ($ref !== null) {
                             $this->computeReferenceChanges($assoc, $ref, $id);
                         }
                     }
@@ -839,6 +842,7 @@ class UnitOfWork
                                 $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
                             }
                             $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $type);
+                            unset($refNodesIds);
                         }
 
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
