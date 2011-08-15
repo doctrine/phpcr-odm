@@ -246,10 +246,6 @@ class UnitOfWork
         foreach ($class->associationsMappings as $assocName => $assocOptions) {
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
                 // TODO figure this one out which collection should be used
-
-                $config = $this->dm->getConfiguration();
-                $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
-
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
@@ -258,22 +254,27 @@ class UnitOfWork
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedId = $referencedNode->getPath();
 
-                $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
-                $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
+                // check if referenced document already exists 
+                if (isset($this->identityMap[$referencedId])) {
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
+                } else {
+                    $config = $this->dm->getConfiguration();
+                    $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
 
-                // register the referenced document under its own id
-                $this->registerManaged($proxyDocument, $referencedId, null);
+                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
+                    $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
 
-                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxyDocument;
+                    // register the referenced document under its own id
+                    $this->registerManaged($proxyDocument, $referencedId, null);
 
-                // save node for the case that the referenced document will be created
-                $proxyOid = spl_object_hash($proxyDocument);
-                $this->nodesMap[$proxyOid] = $referencedNode;
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxyDocument;
+
+                    // save node for the case that the referenced document will be created
+                    $proxyOid = spl_object_hash($proxyDocument);
+                    $this->nodesMap[$proxyOid] = $referencedNode;
+                }
 
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
-                $config = $this->dm->getConfiguration();
-                $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
-
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
@@ -284,26 +285,29 @@ class UnitOfWork
                     throw new PHPCRException("Expected referenced nodes passed as array.");
                 }
 
+                $config = $this->dm->getConfiguration();
+                $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
+
                 foreach ($proxyNodes as $referencedNode) {
-
                     $referencedId = $referencedNode->getPath();
+                    // check if referenced document already exists 
+                    if (isset($this->identityMap[$referencedId])) {
+                        $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->identityMap[$referencedId];
+                    } else {
+                        $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
+                        $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
 
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
-                    $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
+                        // register the referenced document under its own id
+                        $this->registerManaged($proxyDocument, $referencedId, null);
 
-                    // register the referenced document under its own id
-                    $this->registerManaged($proxyDocument, $referencedId, null);
-
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $proxyDocument;
-                    // save node for the case that the referenced document will be created
-                    $proxyOid = spl_object_hash($proxyDocument);
-                    $this->nodesMap[$proxyOid] = $referencedNode;
-
+                        $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $proxyDocument;
+                        // save node for the case that the referenced document will be created
+                        $proxyOid = spl_object_hash($proxyDocument);
+                        $this->nodesMap[$proxyOid] = $referencedNode;
+                    }
                 }
             }
         }
-
-
 
         foreach ($class->childMappings as $childName => $mapping) {
             if ($node->hasNode($mapping['name'])) {
