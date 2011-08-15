@@ -852,6 +852,87 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($this->session->getNode("/functional/refType1TestObj")->getPropertyValue('name'), "new name 1");
         $this->assertEquals($this->session->getNode("/functional/refType2TestObj")->getPropertyValue('name'), "new name 2");
     }
+
+    public function testTwoDifferentObjectrefs()
+    {
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
+
+        $refTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refTestObj->reference = $refRefTestObj;
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $ins0 = $this->dm->find($this->referencedType, "/functional/refRefTestObj");
+        $ins0->name = "0 new name";
+        $ins1 = $this->dm->find($this->referrerType, "/functional/refTestObj");
+        $ins1->reference->name = "1 new name";
+
+        $this->dm->flush();
+        $this->assertEquals($ins0->name, "1 new name");
+        $this->assertEquals(spl_object_hash($ins0), spl_object_hash($ins1->reference));
+    }
+
+    public function testManyTwoDifferentObjectrefs()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = "/functional/refManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $documents = array();
+        $hashs = array();
+        for ($i = 0; $i < $max; $i++) {
+           $doc = $this->dm->find($this->referencedType, "/functional/refRefTestObj$i");
+           $documents[] = $doc;
+           $hashs[] = spl_object_hash($doc);
+        }
+
+        asort($hashs);
+
+        $refDocuments = array();
+        $refHashs = array();
+        $refDocuments = $this->dm->find($this->referrerManyType, "/functional/refManyTestObj")->references;
+
+        foreach ($refDocuments as $refDoc) {
+           $refHashs[] = spl_object_hash($refDoc);
+        }
+
+        asort($refHashs);
+        $tmp = array_diff($hashs, $refHashs);
+        $this->assertTrue(empty($tmp));
+
+        $i = 0;
+        foreach ($refDocuments as $refDocument) {
+            $refDocument->name = "new name $i";
+            $i++;
+        }
+        $this->assertEquals($i, 5);
+
+        $this->dm->flush();
+
+        $i = 0;
+        foreach ($documents as $document) {
+            $this->assertEquals($document->name, "new name $i");
+            $i++;
+        }
+        $this->assertEquals($i, 5);
+    }
 }
 
 /**
