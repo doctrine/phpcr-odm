@@ -741,7 +741,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($refManyTestObjForCascade);
         $this->dm->flush();
         $this->dm->clear();
-        
+
         $referrer = $this->dm->find($this->referrerManyForCascadeType, '/functional/refManyTestObjForCascade');
 
         $pos1 = 1;
@@ -781,7 +781,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($refManyTestObjForCascade);
         $this->dm->flush();
         $this->dm->clear();
-        
+
         $referrer = $this->dm->find($this->referrerManyForCascadeType, '/functional/refManyTestObjForCascade');
 
         $pos1 = 1;

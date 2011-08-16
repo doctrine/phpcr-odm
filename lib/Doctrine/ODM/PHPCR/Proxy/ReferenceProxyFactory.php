@@ -173,7 +173,7 @@ class ReferenceProxyFactory
             $attributes .= '$this->'.$field["fieldName"];
             $attributes .= ", ";
         }
- 
+
         $attributes = substr($attributes, 0, -2);
 
         return "unset(".$attributes.");";

@@ -253,7 +253,7 @@ class UnitOfWork
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedId = $referencedNode->getPath();
 
-                // check if referenced document already exists 
+                // check if referenced document already exists
                 if (isset($this->identityMap[$referencedId])) {
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
                 } else {
@@ -289,7 +289,7 @@ class UnitOfWork
 
                 foreach ($proxyNodes as $referencedNode) {
                     $referencedId = $referencedNode->getPath();
-                    // check if referenced document already exists 
+                    // check if referenced document already exists
                     if (isset($this->identityMap[$referencedId])) {
                         $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->identityMap[$referencedId];
                     } else {
@@ -574,7 +574,7 @@ class UnitOfWork
 
             $changed = false;
             foreach ($actualData as $fieldName => $fieldValue) {
-                if (!isset($class->fieldMappings[$fieldName]) 
+                if (!isset($class->fieldMappings[$fieldName])
                     && !isset($class->childMappings[$fieldName])
                     && !isset($class->associationsMappings[$fieldName])
                 ) {

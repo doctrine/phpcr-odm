@@ -27,14 +27,14 @@ namespace Doctrine\ODM\PHPCR\Proxy;
  * @since       1.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
-class ProxyException extends \Doctrine\ODM\PHPCR\PHPCRException 
+class ProxyException extends \Doctrine\ODM\PHPCR\PHPCRException
 {
-    public static function proxyDirectoryRequired() 
+    public static function proxyDirectoryRequired()
     {
         return new self("You must configure a proxy directory. See docs for details");
     }
 
-    public static function proxyNamespaceRequired() 
+    public static function proxyNamespaceRequired()
     {
         return new self("You must configure a proxy namespace. See docs for details");
     }
