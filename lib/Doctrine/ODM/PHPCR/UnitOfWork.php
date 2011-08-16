@@ -339,6 +339,10 @@ class UnitOfWork
             $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
         }
 
+        foreach ($class->referrersMappings as $mapping) {
+            $documentState[$mapping['fieldName']] = new ReferrersCollection($document, $this->dm, $mapping['filterName']);
+        }
+
         if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
             $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '{$class->name}' stored in the metadata";
             throw new \InvalidArgumentException($msg);
@@ -449,6 +453,7 @@ class UnitOfWork
                 }
             }
         }
+
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) == self::STATE_NEW) {
@@ -458,6 +463,18 @@ class UnitOfWork
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }
+
+        foreach ($class->referrersMappings as $referrerName => $mapping) {
+            $referrer = $class->reflFields[$referrerName]->getValue($document);
+            if ($referrer !== null && $this->getDocumentState($referrer) == self::STATE_NEW) {
+                //$referrerClass = $this->dm->getClassMetadata(get_class($referrer));
+                //$id = $class->reflFields[$class->identifier]->getValue($document);
+                //$referrerClass->reflFields[$referrerClass->identifier]->setValue($referrer, $id . '/'. $mapping['name']);
+                //$this->doScheduleInsert($referrer, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->doScheduleInsert($referrer, $visited);
+            }
+        }
+
     }
 
     private function getIdGenerator($type)
@@ -578,6 +595,7 @@ class UnitOfWork
                 if (!isset($class->fieldMappings[$fieldName])
                     && !isset($class->childMappings[$fieldName])
                     && !isset($class->associationsMappings[$fieldName])
+                    && !isset($class->referrersMappings[$fieldName])
                 ) {
                     continue;
                 }
@@ -623,6 +641,14 @@ class UnitOfWork
                 }
             }
         }
+
+        foreach ($class->referrersMappings as $name => $referrerMapping) {
+            if ($this->originalData[$oid][$name]) {
+                foreach ($this->originalData[$oid][$name] as $referrer) {
+                    $this->computeReferrerChanges($referrerMapping, $referrer, $id);
+                }
+            }
+        }
     }
 
     /**
@@ -661,6 +687,26 @@ class UnitOfWork
             $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $reference);
         } else if ($state == self::STATE_DETACHED) {
+            throw new \InvalidArgumentException("A detached document was found through a "
+                . "reference during cascading a persist operation.");
+        }
+    }
+
+    /**
+     * Computes the changes of a referrer.
+     *
+     * @param mixed $referrer the referenced document.
+     */
+    private function computeReferrerChanges($mapping, $referrer, $referenceId)
+    {
+        $targetClass = $this->dm->getClassMetadata(get_class($referrer));
+        $state = $this->getDocumentState($referrer);
+        $oid = spl_object_hash($referrer);
+        if ($state == self::STATE_NEW) {
+            $this->persistNew($targetClass, $referrer, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+            $this->computeChangeSet($targetClass, $referrer);
+        } else if ($state == self::STATE_DETACHED) {
+            // TODO: can this actually happen?
             throw new \InvalidArgumentException("A detached document was found through a "
                 . "reference during cascading a persist operation.");
         }
@@ -1102,6 +1148,28 @@ class UnitOfWork
             $childDocuments[$name] = $this->createDocument(null, $childNode);
         }
         return new ArrayCollection($childDocuments);
+    }
+
+    /**
+     * Get the documents that refer a given document using an optional name.
+     *
+     * This methods gets all nodes as a collection of documents that refer the
+     * given document and matches a given name.
+     * @param $document document instance which referrers should be loaded
+     * @param string|array $name optional name to match on referrers names
+     * @return a collection of referrer documents
+     */
+    public function getReferrers($document, $name = null)
+    {
+        $oid = spl_object_hash($document);
+        $node = $this->nodesMap[$oid];
+        $referrerProperties = $node->getReferences($name);
+        $referrerDocuments = array();
+        foreach ($referrerProperties as $name => $referrerProperty) {
+            $referrerNode = $referrerProperty->getParent();
+            $referrerDocuments[$name] = $this->createDocument(null, $referrerNode);
+        }
+        return new ArrayCollection($referrerDocuments);
     }
 
     /**

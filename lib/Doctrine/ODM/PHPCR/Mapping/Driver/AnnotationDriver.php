@@ -174,6 +174,9 @@ class AnnotationDriver implements Driver
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceMany) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapManyToMany($mapping);
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Referrers) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $class->mapReferrers($mapping);
                 }
             }
         }

@@ -192,6 +192,11 @@ class ClassMetadataInfo implements ClassMetadata
     public $childrenMappings = array();
 
     /**
+     * Mapping of referrers: access referrer nodes through a collection
+     */
+    public $referrersMappings = array();
+
+    /**
      * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
      *
      * @var bool
@@ -520,6 +525,13 @@ class ClassMetadataInfo implements ClassMetadata
         $this->childrenMappings[$mapping['fieldName']] = $mapping;
     }
 
+    public function mapReferrers(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $mapping['name'] = $mapping['fieldName'];
+        $this->referrersMappings[$mapping['fieldName']] = $mapping;
+    }
+
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
         if (!isset($mapping['fieldName'])) {
@@ -532,6 +544,7 @@ class ClassMetadataInfo implements ClassMetadata
           || isset($this->associationsMappings[$mapping['fieldName']])
           || isset($this->childMappings[$mapping['fieldName']])
           || isset($this->childrenMappings[$mapping['fieldName']])
+          || isset($this->referrersMappings[$mapping['fieldName']])
         ) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
