@@ -15,17 +15,18 @@ class ReferrersCollection extends PersistentCollection
     private $dm;
     private $name;
 
-    public function __construct($document, DocumentManager $dm, $name= null)
+    public function __construct($document, DocumentManager $dm, $type = "all", $name = null)
     {
         $this->document = $document;
         $this->dm = $dm;
+        $this->type = $type;
         $this->name = $name;
     }
 
     protected function load()
     {
         if (null === $this->col) {
-            $this->col = $this->dm->getReferrers($this->document, $this->name);
+            $this->col = $this->dm->getReferrers($this->document, $this->type, $this->name);
         }
     }
 }

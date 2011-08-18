@@ -97,39 +97,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
     }
 
-    public function testCreateAddRefLater()
-    {
-        $referrerTestObj = new ReferrerTestObj();
-        $referrerTestObj->name = "referrer";
-        $referrerTestObj->id = "/functional/referrerTestObj";
-
-        $this->dm->persist($referrerTestObj);
-
-        $referrerRefTestObj = new ReferrerRefTestObj();
-        $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
-
-        $this->dm->persist($referrerRefTestObj);
-
-        $this->dm->flush();
-        $this->dm->clear();
-
-        $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
-        $this->assertEquals(count($reference->referrers), 0);
-
-        $referrer = $this->dm->find(null, "/functional/referrerTestObj");
-
-        $referrer->reference = $reference;
-
-        $this->dm->flush();
-        $this->dm->clear();
-
-        $tmpReference = $this->dm->find(null, "/functional/referrerRefTestObj");
-
-        $this->assertEquals(count($tmpReference->referrers), 1);
-        $this->assertEquals($tmpReference->referrers->first()->id, "/functional/referrerTestObj");
-    }
-
     public function testUpdate()
     {
         $referrerTestObj = new ReferrerTestObj();
@@ -285,7 +252,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($reference->referrers->first());
     }
 
-    public function testRemoveReferrerMany()
+    public function testRemoveReferrerOneInMany()
     {
         $max = 5;
 
@@ -331,10 +298,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * Remove referenced node, but change referrer node before
      */
-
     public function testRemoveReferrerChangeBevore()
     {
-
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
 
@@ -349,21 +314,277 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
+        $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
+        $reference->referrers[0]->name = "referenced changed";
 
+        $referrer = $this->dm->find(null, "/functional/referrerTestObj");
+        $referrer->reference = null;
+ 
+        $this->dm->remove($reference);
+        $this->dm->flush();
+        $this->dm->clear();
 
-        $reference = $this->dm->find($this->referrerType, "/functional/referrerRefTestObj");
-        $reference->referrers[0]->name = "referenced changed");
+        $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
+        $this->assertNull($reference);
+
+        $referrer = $this->dm->find(null, "/functional/referrerTestObj");
+        $this->assertEquals($referrer->name, "referenced changed");
+    }
+
+    /**
+     * Remove referenced node, but change referrer nodes before
+     */
+    public function testRemoveReferrerManyChangeBevore()
+    {
+        $referrerRefManyTestObj = new ReferrerRefTestObj();
+        $referrerRefManyTestObj->id = "/functional/referrerRefManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newReferrerTestObj = new ReferrerTestObj();
+            $newReferrerTestObj->id = "/functional/referrerTestObj$i";
+            $newReferrerTestObj->name = "referrerTestObj$i";
+            $newReferrerTestObj->reference = $referrerRefManyTestObj;
+            $this->dm->persist($newReferrerTestObj);
+        }
+
+        $this->dm->persist($referrerRefManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $reference = $this->dm->find(null, "/functional/referrerRefManyTestObj");
+
+        $names = array();
+        $i = 0;
+        foreach ($reference->referrers as $referrer) {
+            $name = "new name $i";
+            $names[] = $name;
+            $referrer->name = $name;
+            $i++;
+        }
+        $this->assertEquals($i, $max);
+
+        for ($i = 0; $i < $max; $i++) {
+            $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
+            $referrer->reference = null;
+        }
 
         $this->dm->remove($reference);
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find($this->referrerType, '/functional/referrerRefTestObj');
-        $this->assertNull($reference);
+        $refNames = array();
+        for ($i = 0; $i < $max; $i++) {
+            $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
+            $refNames[] = $referrer->name;
+        }
+        $this->assertEquals($i, $max);
 
-        $referrer = $this->dm->find($this->referrerType, '/functional/referrerTestObj');
-        $this->assertEquals($referrer->name, 'referenced changed');
+        foreach ($names as $name) {
+            $this->assertTrue(in_array($name, $refNames));
+        }
     }
+
+    public function testDeleteByRef()
+    {
+        $referrerTestObj = new ReferrerTestObj();
+        $referrerRefTestObj = new ReferrerRefTestObj();
+
+        $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerRefTestObj->id = "/functional/referrerRefTestObj";
+        $referrerRefTestObj->name = "referenced";
+
+        $referrerTestObj->reference = $referrerRefTestObj;
+
+        $this->dm->persist($referrerTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
+
+        $this->dm->remove($reference->referrers[0]);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertEquals(count($this->dm->find(null, "/functional/referrerRefTestObj")->referrers), 0);
+        $this->assertFalse($this->session->getNode("/functional")->hasNode("referrerTestObj"));
+    }
+
+    public function testWeakHardRef()
+    {
+        $weakReferrerTestObj = new WeakReferrerTestObj();
+        $weakReferrerTestObj->id = "/functional/weakReferrerTestObj";
+        $weakReferrerTestObj->name = "weakReferrerTestObj";
+
+        $hardReferrerTestObj = new HardReferrerTestObj();
+        $hardReferrerTestObj->id = "/functional/hardReferrerTestObj";
+        $hardReferrerTestObj->name = "hardReferrerTestObj";
+
+
+        $weakReferrerRefTestObj = new WeakReferrerRefTestObj();
+        $weakReferrerRefTestObj->id = "/functional/weakReferrerRefTestObj";
+        $weakReferrerRefTestObj->name = "weakReferrerRefTestObj";
+
+        $hardReferrerRefTestObj = new HardReferrerRefTestObj();
+        $hardReferrerRefTestObj->id = "/functional/hardReferrerRefTestObj";
+        $hardReferrerRefTestObj->name = "hardReferrerRefTestObj";
+
+        $allReferrerRefTestObj = new AllReferrerRefTestObj();
+        $allReferrerRefTestObj->id = "/functional/allReferrerRefTestObj";
+        $allReferrerRefTestObj->name = "allReferrerRefTestObj";
+
+
+        $weakReferrerTestObj->referenceToWeak = $weakReferrerRefTestObj;
+        $weakReferrerTestObj->referenceToHard = $hardReferrerRefTestObj;
+        $weakReferrerTestObj->referenceToAll = $allReferrerRefTestObj;
+
+        $hardReferrerTestObj->referenceToWeak = $weakReferrerRefTestObj;
+        $hardReferrerTestObj->referenceToHard = $hardReferrerRefTestObj;
+        $hardReferrerTestObj->referenceToAll = $allReferrerRefTestObj;
+
+        $this->dm->persist($weakReferrerTestObj);
+        $this->dm->persist($hardReferrerTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $weakReferrerRefTestObj = $this->dm->find(null, "/functional/weakReferrerRefTestObj");
+        $this->assertEquals(count($weakReferrerRefTestObj->referrers), 1);
+        $this->assertEquals($weakReferrerRefTestObj->referrers[0]->name, "weakReferrerTestObj");
+
+        $hardReferrerRefTestObj = $this->dm->find(null, "/functional/hardReferrerRefTestObj");
+        $this->assertEquals(count($hardReferrerRefTestObj->referrers), 1);
+        $this->assertEquals($hardReferrerRefTestObj->referrers[0]->name, "hardReferrerTestObj");
+
+        $allReferrerRefTestObj = $this->dm->find(null, "/functional/allReferrerRefTestObj");
+        $this->assertEquals(count($allReferrerRefTestObj->referrers), 2);
+
+        $tmpNames = array();
+        foreach ($allReferrerRefTestObj->referrers as $referrer) {
+            $tmpNames[] = $referrer->name;
+        }
+
+        $names = array("weakReferrerTestObj", "hardReferrerTestObj");
+        foreach ($names as $name) {
+            $this->assertTrue(in_array($name, $tmpNames));
+        }
+    }
+
+    public function testNamedRef()
+    {
+        $referrerTestObj = new ReferrerTestObj();
+        $referrerNamedPropTestObj = new ReferrerNamedPropTestObj();
+
+        $allReferrerRefNamedPropTestObj = new AllReferrerRefNamedPropTestObj();
+
+        $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerTestObj->name = "referrerTestObj";
+
+        $referrerNamedPropTestObj->id = "/functional/referrerNamedPropTestObj";
+        $referrerNamedPropTestObj->name = "referrerNamedPropTestObj";
+
+        $allReferrerRefNamedPropTestObj->id = "/functional/allReferrerRefNamedPropTestObj";
+        $allReferrerRefNamedPropTestObj->name = "referenced";
+
+        $referrerTestObj->reference = $allReferrerRefNamedPropTestObj;
+        $referrerNamedPropTestObj->namedReference = $allReferrerRefNamedPropTestObj;
+
+        $this->dm->persist($referrerTestObj);
+        $this->dm->persist($referrerNamedPropTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $reference = $this->dm->find(null, "/functional/allReferrerRefNamedPropTestObj");
+
+        $this->assertEquals(count($reference->referrers), 1);
+        $this->assertEquals($reference->referrers[0]->name, "referrerNamedPropTestObj");
+    }
+}
+
+/**
+ * @PHPCRODM\Document(alias="HardReferrerTestObj")
+ */
+class HardReferrerTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=false) */
+    public $referenceToHard;
+    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=false) */
+    public $referenceToWeak;
+    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=false) */
+    public $referenceToAll;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="WeakReferrerTestObj")
+ */
+class WeakReferrerTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=true) */
+    public $referenceToWeak;
+    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=true) */
+    public $referenceToHard;
+    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=true) */
+    public $referenceToAll;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="WeakReferrerRefTestObj", referenceable="true")
+ */
+class WeakReferrerRefTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Referrers(referenceType="weak") */
+    public $referrers;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="HardReferrerRefTestObj", referenceable="true")
+ */
+class HardReferrerRefTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Referrers(referenceType="hard") */
+    public $referrers;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="AllReferrerRefTestObj", referenceable="true")
+ */
+class AllReferrerRefTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Referrers() */
+    public $referrers;
+    /** @PHPCRODM\String */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document(alias="AllReferrerRefNamedPropTestObj", referenceable="true")
+ */
+class AllReferrerRefNamedPropTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Referrers(filterName="namedReference") */
+    public $referrers;
+    /** @PHPCRODM\String */
+    public $name;
 }
 
 /**
@@ -375,8 +596,21 @@ class ReferrerTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj") */
     public $reference;
+}
+
+/**
+ * @PHPCRODM\Document(alias="ReferrerNamedPropTestObj")
+ */
+class ReferrerNamedPropTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj") */
+    public $namedReference;
 }
 
 /**
@@ -388,6 +622,6 @@ class ReferrerRefTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\Referrers */
+    /** @PHPCRODM\Referrers() */
     public $referrers;
 }

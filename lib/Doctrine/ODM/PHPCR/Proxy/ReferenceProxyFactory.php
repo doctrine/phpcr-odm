@@ -174,6 +174,21 @@ class ReferenceProxyFactory
             $attributes .= ", ";
         }
 
+        foreach ($class->referrersMappings as $field) {
+            $attributes .= '$this->'.$field["fieldName"];
+            $attributes .= ", ";
+        }
+
+        foreach ($class->childrenMappings as $field) {
+            $attributes .= '$this->'.$field["fieldName"];
+            $attributes .= ", ";
+        }
+
+        foreach ($class->childMappings as $field) {
+            $attributes .= '$this->'.$field["fieldName"];
+            $attributes .= ", ";
+        }
+
         $attributes = substr($attributes, 0, -2);
 
         return "unset(".$attributes.");";

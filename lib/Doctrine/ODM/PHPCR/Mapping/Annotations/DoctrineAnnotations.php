@@ -95,6 +95,7 @@ class Children extends Annotation
 class Referrers extends Annotation
 {
     public $filterName = null;
+    public $referenceType = "all";
 }
 
 final class EmbeddedDocument extends Annotation {}

@@ -76,6 +76,34 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(1, count($parent->aChildren));
         $this->assertEquals(4, count($parent->allChildren));
     }
+
+    public function testChildrenOfReference()
+    {
+        $referrerTestObj = new ChildrenReferrerTestObj();
+        $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerTestObj->name = "referrerTestObj";
+
+        $refererenceableTestObj = new ChildrenReferenceableTestObj();
+        $refererenceableTestObj->id = "/functional/referenceableTestObj";
+        $refererenceableTestObj->name = "referenceableTestObj";
+        $referrerTestObj->reference = $refererenceableTestObj;
+
+        $this->dm->persist($referrerTestObj);
+
+        $ChildrenTestObj = new ChildrenTestObj();
+        $ChildrenTestObj->id = "/functional/referenceableTestObj/childrenTestObj";
+        $ChildrenTestObj->name= "childrenTestObj";
+
+        $this->dm->persist($ChildrenTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find(null, "/functional/referrerTestObj");
+
+        $this->assertEquals(count($referrer->reference->allChildren), 1);
+        $this->assertEquals($referrer->reference->allChildren->first()->name, "childrenTestObj");
+
+    }
 }
 
 /**
@@ -91,6 +119,36 @@ class ChildrenTestObj
 
   /** @PHPCRODM\Children(filter="*a") */
   public $aChildren;
+
+  /** @PHPCRODM\Children */
+  public $allChildren;
+}
+
+/**
+  * @PHPCRODM\Document(alias="Referrer")
+  */
+class ChildrenReferrerTestObj
+{
+  /** @PHPCRODM\Id */
+  public $id;
+
+  /** @PHPCRODM\String */
+  public $name;
+
+  /** @PHPCRODM\ReferenceOne(targetDocument="ChildrenReferenceableTestObj") */
+  public $reference;
+}
+
+/**
+  * @PHPCRODM\Document(alias="ChildrenReferenceableTestObj", referenceable="true")
+  */
+class ChildrenReferenceableTestObj 
+{
+  /** @PHPCRODM\Id */
+  public $id;
+
+  /** @PHPCRODM\String */
+  public $name;
 
   /** @PHPCRODM\Children */
   public $allChildren;

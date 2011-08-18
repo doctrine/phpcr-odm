@@ -326,9 +326,9 @@ class DocumentManager implements ObjectManager
      * @param string|array $name optional name to match on referrers names
      * @return a collection of referrer documents
      */
-    public function getReferrers($document, $name = null)
+    public function getReferrers($document, $type = "all", $name = null)
     {
-      return $this->unitOfWork->getReferrers($document, $name);
+      return $this->unitOfWork->getReferrers($document, $type, $name);
     }
 
     /**

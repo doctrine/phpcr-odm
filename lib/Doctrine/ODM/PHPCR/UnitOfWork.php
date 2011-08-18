@@ -238,8 +238,10 @@ class UnitOfWork
             }
         }
 
-        $session = $this->dm->getPhpcrSession();
-        $refNodes = $session->getNodesByIdentifier($refNodeUUIDs);
+        if (count($refNodeUUIDs) > 0) {
+            $session = $this->dm->getPhpcrSession();
+            $refNodes = $session->getNodesByIdentifier($refNodeUUIDs);
+        }
 
         // initialize inverse side collections
         foreach ($class->associationsMappings as $assocName => $assocOptions) {
@@ -340,7 +342,7 @@ class UnitOfWork
         }
 
         foreach ($class->referrersMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ReferrersCollection($document, $this->dm, $mapping['filterName']);
+            $documentState[$mapping['fieldName']] = new ReferrersCollection($document, $this->dm, $mapping['referenceType'], $mapping['filterName']);
         }
 
         if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
@@ -1159,16 +1161,34 @@ class UnitOfWork
      * @param string|array $name optional name to match on referrers names
      * @return a collection of referrer documents
      */
-    public function getReferrers($document, $name = null)
+    public function getReferrers($document, $type = "all", $name = null)
     {
         $oid = spl_object_hash($document);
         $node = $this->nodesMap[$oid];
-        $referrerProperties = $node->getReferences($name);
+
         $referrerDocuments = array();
-        foreach ($referrerProperties as $name => $referrerProperty) {
-            $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[$name] = $this->createDocument(null, $referrerNode);
+        $referrerPropertiesW = array();
+        $referrerPropertiesH = array();
+
+        if ($type === "all") {
+            $referrerPropertiesW = $node->getWeakReferences($name);
+            $referrerPropertiesH = $node->getReferences($name);
+        } elseif ($type === "weak") {
+            $referrerPropertiesW = $node->getWeakReferences($name);
+        } elseif ($type === "hard") {
+            $referrerPropertiesH = $node->getReferences($name);
         }
+
+        foreach ($referrerPropertiesW as $referrerProperty) {
+            $referrerNode = $referrerProperty->getParent();
+            $referrerDocuments[] = $this->createDocument(null, $referrerNode);
+        }
+
+        foreach ($referrerPropertiesH as $referrerProperty) {
+            $referrerNode = $referrerProperty->getParent();
+            $referrerDocuments[] = $this->createDocument(null, $referrerNode);
+        }
+
         return new ArrayCollection($referrerDocuments);
     }
 

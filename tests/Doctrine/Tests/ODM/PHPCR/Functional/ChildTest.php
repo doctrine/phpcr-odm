@@ -236,8 +236,33 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($parent->child);
         $this->assertEquals('Changed', $parent->child->name);
     }
-}
 
+    public function testChildOfReference()
+    {
+        $referrerTestObj = new ChildReferrerTestObj();
+        $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerTestObj->name = "referrerTestObj";
+
+        $refererenceableTestObj = new ChildReferenceableTestObj();
+        $refererenceableTestObj->id = "/functional/referenceableTestObj";
+        $refererenceableTestObj->name = "referenceableTestObj";
+        $referrerTestObj->reference = $refererenceableTestObj;
+
+        $this->dm->persist($referrerTestObj);
+
+        $ChildTestObj = new ChildTestObj();
+        $ChildTestObj->id = "/functional/referenceableTestObj/test";
+        $ChildTestObj->name= "childTestObj";
+
+        $this->dm->persist($ChildTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find(null, "/functional/referrerTestObj");
+
+        $this->assertEquals($referrer->reference->aChild->name, "childTestObj");
+    }
+}
 
 /**
  * @PHPCRODM\Document(alias="childTestObj")
@@ -251,6 +276,7 @@ class ChildChildTestObj
     /** @PHPCRODM\String */
     public $name;
 }
+
 /**
  * @PHPCRODM\Document(alias="testObj")
  */
@@ -264,4 +290,34 @@ class ChildTestObj
     public $name;
     /** @PHPCRODM\Child(name="test") */
     public $child;
+}
+
+/**
+  * @PHPCRODM\Document(alias="ChildReferrerTestObj")
+  */
+class ChildReferrerTestObj
+{
+  /** @PHPCRODM\Id */
+  public $id;
+
+  /** @PHPCRODM\String */
+  public $name;
+
+  /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj") */
+  public $reference;
+}
+
+/**
+  * @PHPCRODM\Document(alias="ChildReferenceableTestObj", referenceable="true")
+  */
+class ChildReferenceableTestObj 
+{
+  /** @PHPCRODM\Id */
+  public $id;
+
+  /** @PHPCRODM\String */
+  public $name;
+
+  /** @PHPCRODM\Child(name="test") */
+  public $aChild;
 }

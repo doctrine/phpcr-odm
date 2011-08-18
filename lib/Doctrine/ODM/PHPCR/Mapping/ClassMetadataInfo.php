@@ -527,9 +527,18 @@ class ClassMetadataInfo implements ClassMetadata
 
     public function mapReferrers(array $mapping)
     {
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $mapping = $this->validateAndCompleteReferrersMapping($mapping, false);
         $mapping['name'] = $mapping['fieldName'];
         $this->referrersMappings[$mapping['fieldName']] = $mapping;
+    }
+
+    protected function validateAndCompleteReferrersMapping($mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        if (!isset($mapping['referenceType']) && in_array($mapping['referenceType'], array("all", "weak", "hard"))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be 'all', 'weak' or 'hard'.");
+        }
+        return $mapping;
     }
 
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
