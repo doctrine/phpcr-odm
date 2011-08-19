@@ -41,7 +41,6 @@ class Configuration
     private $attributes = array(
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
-        'proxyNamespace' => 'MyPHPCRProxyNS',
         'metadataDriverImpl' => null,
         'documentNameMapper' => null,
         'proxyNamespace' => 'MyPHPCRProxyNS'
