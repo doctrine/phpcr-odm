@@ -26,8 +26,6 @@ use Doctrine\Common\Annotations\AnnotationReader,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\MappingException;
 
-require __DIR__ . '/../Annotations/DoctrineAnnotations.php';
-
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
  *
