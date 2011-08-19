@@ -211,12 +211,14 @@ class DocumentRepository implements ObjectRepository
     /**
      * Quote a string for inclusion in an SQL2 query
      *
+     * @see \PHPCR\PropertyType
      * @param  string $val
+     * @param  int $type
      * @return string
      */
-    public function quote($val)
+    public function quote($val, $type = null)
     {
-        return $this->dm->quote($val);
+        return $this->dm->quote($val, $type);
     }
 
     /**

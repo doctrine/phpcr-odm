@@ -26,6 +26,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
+use PHPCR\PropertyType;
 
 /**
  * Document Manager
@@ -200,11 +201,17 @@ class DocumentManager implements ObjectManager
     /**
      * Quote a string for inclusion in an SQL2 query
      *
+     * @see \PHPCR\PropertyType
      * @param  string $val
+     * @param  int $type
      * @return string
      */
-    public function quote($val)
+    public function quote($val, $type = null)
     {
+        if (null !== $type) {
+            $val = PropertyType::convertType($val, $type);
+        }
+
         return "'".str_replace("'", "''", $val)."'";
     }
 
@@ -272,22 +279,24 @@ class DocumentManager implements ObjectManager
      * reference it.
      *
      * @param object $document The object to detach.
+     * @return void
      */
     public function detach($document)
     {
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
         // TODO: implemenent
-        return $this->getUnitOfWork()->detach($document);
+        $this->getUnitOfWork()->detach($document);
     }
 
     /**
      * Refresh the given document by querying the PHPCR to get the current state.
      *
      * @param object $document
+     * @return object Document instance
      */
     public function refresh($document)
     {
-        // TODO: call session->refresh(true) before fetching the node once Jackalope implements it
+        $this->session->refresh(true);
         $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
 
         $hints = array('refresh' => true);
