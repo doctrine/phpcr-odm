@@ -167,7 +167,7 @@ class DocumentRepository implements ObjectRepository
 
     /**
      * @param  object $document
-     * @return void
+     * @return object Document instance
      */
     public function refresh($document)
     {
