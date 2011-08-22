@@ -16,6 +16,17 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $annotationDriver->loadMetadataForClass('stdClass', $cm);
     }
 
+    public function testLoadMetadataForBuiltinClasses()
+    {
+        $rightClassName = 'Doctrine\ODM\PHPCR\Document\File';
+        $this->ensureIsLoaded($rightClassName);
+
+        $annotationDriver = $this->loadDriverForBuiltinDocuments();
+        $classes = $annotationDriver->getAllClassNames();
+
+        $this->assertContains($rightClassName, $classes);
+    }
+
     public function testGetAllClassNamesIsIdempotent()
     {
         $annotationDriver = $this->loadDriverForCMSDocuments();
@@ -50,6 +61,13 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     }
 
     protected function loadDriverForCMSDocuments()
+    {
+        $annotationDriver = $this->loadDriver();
+        $annotationDriver->addPaths(array(__DIR__ . '/../../../../../Doctrine/Tests/Models/CMS'));
+        return $annotationDriver;
+    }
+
+    protected function loadDriverForBuiltinDocuments()
     {
         $annotationDriver = $this->loadDriver();
         $annotationDriver->addPaths(array(__DIR__ . '/../../../../../Doctrine/Tests/Models/CMS'));
