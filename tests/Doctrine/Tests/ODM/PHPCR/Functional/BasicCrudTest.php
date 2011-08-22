@@ -139,9 +139,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-/**
- * @group x
- */
     public function testUpdate1()
     {
         $user = new User();
