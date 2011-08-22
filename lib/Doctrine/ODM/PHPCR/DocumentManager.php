@@ -413,6 +413,6 @@ class DocumentManager implements ObjectManager
     {
         // TODO: Do a real delegated clear?
         $this->setUnitOfWork();
-        return $this->session->clear();
+        return $this->session->refresh(false);
     }
 }

@@ -139,6 +139,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
+/**
+ * @group x
+ */
     public function testUpdate1()
     {
         $user = new User();
@@ -161,8 +164,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $userNew2 = $this->dm->find($this->type, '/functional/user2');
 
-        $this->assertNotEquals($user, $userNew);
-        $this->assertNotEquals($userNew, $userNew2);
+        $this->assertNotSame($user, $userNew);
+        $this->assertNotSame($userNew, $userNew2);
         $this->assertEquals($userNew->username, $userNew2->username);
         $this->assertEquals($userNew->numbers, $userNew2->numbers);
     }
