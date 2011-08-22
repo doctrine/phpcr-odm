@@ -81,6 +81,7 @@ class AnnotationDriver implements Driver
      */
     public function __construct(Reader $reader, $paths = null)
     {
+        $this->addPaths(array(__DIR__.'/../../Document'));
         $this->reader = $reader;
         if ($paths) {
             $this->addPaths((array) $paths);
