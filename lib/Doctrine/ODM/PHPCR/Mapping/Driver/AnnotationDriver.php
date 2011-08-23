@@ -21,12 +21,10 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader,
     Doctrine\Common\Annotations\Reader,
-    Doctrine\ODM\PHPCR\Events,
+    Doctrine\ODM\PHPCR\Event,
     Doctrine\ODM\PHPCR\Mapping\Annotations as ODM,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\MappingException;
-
-require __DIR__ . '/../Annotations/DoctrineAnnotations.php';
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
