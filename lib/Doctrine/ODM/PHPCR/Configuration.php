@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
+use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\DocumentNameMapperInterface;
 
 /**
@@ -132,7 +133,7 @@ class Configuration
      */
     public function setMetadataDriverImpl(Driver $driverImpl)
     {
-        $this->attributes['metadataDriverImpl'] = $driverImpl;
+        $this->attributes['metadataDriverImpl'] = new BuiltinDocumentsDriver($driverImpl);
     }
 
     /**
