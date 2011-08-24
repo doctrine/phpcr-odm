@@ -140,6 +140,10 @@ class AnnotationDriver implements Driver
         }
         $class->setNodeType($documentAnnot->nodeType);
 
+        if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
+            $class->setReferenceable(true);
+        }
+
         if ($documentAnnot->repositoryClass) {
             $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
@@ -165,21 +169,9 @@ class AnnotationDriver implements Driver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapChildren($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceOne) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade as $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapManyToOne($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceMany) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade as $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapManyToMany($mapping);
                 }
