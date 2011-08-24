@@ -36,7 +36,6 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $user2->name = "Lukas";
         $user2->id = '/functional/user2';
 
-        $this->dm = $this->createDocumentManager();
         $this->dm->persist($user1);
         $this->dm->persist($user2);
         $this->dm->flush();
