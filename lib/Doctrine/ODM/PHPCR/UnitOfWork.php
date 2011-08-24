@@ -309,8 +309,6 @@ class UnitOfWork
             }
         }
 
-
-
         foreach ($class->childMappings as $childName => $mapping) {
             if ($node->hasNode($mapping['name'])) {
                 $documentState[$class->childMappings[$childName]['fieldName']] = $this->createDocument(null, $node->getNode($mapping['name']));
@@ -469,14 +467,9 @@ class UnitOfWork
         foreach ($class->referrersMappings as $referrerName => $mapping) {
             $referrer = $class->reflFields[$referrerName]->getValue($document);
             if ($referrer !== null && $this->getDocumentState($referrer) == self::STATE_NEW) {
-                //$referrerClass = $this->dm->getClassMetadata(get_class($referrer));
-                //$id = $class->reflFields[$class->identifier]->getValue($document);
-                //$referrerClass->reflFields[$referrerClass->identifier]->setValue($referrer, $id . '/'. $mapping['name']);
-                //$this->doScheduleInsert($referrer, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 $this->doScheduleInsert($referrer, $visited);
             }
         }
-
     }
 
     private function getIdGenerator($type)
@@ -525,8 +518,6 @@ class UnitOfWork
                 $this->removeFromIdentityMap($child);
             }
         }
-
-
     }
 
     public function getDocumentState($document)
@@ -710,10 +701,9 @@ class UnitOfWork
         } else if ($state == self::STATE_DETACHED) {
             // TODO: can this actually happen?
             throw new \InvalidArgumentException("A detached document was found through a "
-                . "reference during cascading a persist operation.");
+                . "referrer during cascading a persist operation.");
         }
     }
-
 
     /**
      * Gets the changeset for an document.
@@ -1153,15 +1143,21 @@ class UnitOfWork
     }
 
     /**
-     * Get the documents that refer a given document using an optional name.
+     * Get all the documents that refer a given document using an optional name
+     * and an optional reference type.
      *
-     * This methods gets all nodes as a collection of documents that refer the
-     * given document and matches a given name.
+     * This methods gets all nodes as a collection of documents that refer (weak
+     * and hard) the given document. The property of the referrer node that referes
+     * the document needs to match the given name and must store a reference of the
+     * given type.
      * @param $document document instance which referrers should be loaded
-     * @param string|array $name optional name to match on referrers names
+     * @param string $type optional type of the reference the referrer should have
+     * ("weak" or "hard")
+     * @param string $name optional name to match on referrers reference property
+     * name
      * @return a collection of referrer documents
      */
-    public function getReferrers($document, $type = "all", $name = null)
+    public function getReferrers($document, $type = null, $name = null)
     {
         $oid = spl_object_hash($document);
         $node = $this->nodesMap[$oid];
@@ -1170,7 +1166,7 @@ class UnitOfWork
         $referrerPropertiesW = array();
         $referrerPropertiesH = array();
 
-        if ($type === "all") {
+        if ($type === null) {
             $referrerPropertiesW = $node->getWeakReferences($name);
             $referrerPropertiesH = $node->getReferences($name);
         } elseif ($type === "weak") {

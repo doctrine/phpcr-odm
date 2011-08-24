@@ -15,7 +15,7 @@ class ReferrersCollection extends PersistentCollection
     private $dm;
     private $name;
 
-    public function __construct($document, DocumentManager $dm, $type = "all", $name = null)
+    public function __construct($document, DocumentManager $dm, $type = null, $name = null)
     {
         $this->document = $document;
         $this->dm = $dm;

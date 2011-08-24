@@ -535,8 +535,8 @@ class ClassMetadataInfo implements ClassMetadata
     protected function validateAndCompleteReferrersMapping($mapping)
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
-        if (!isset($mapping['referenceType']) && in_array($mapping['referenceType'], array("all", "weak", "hard"))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be 'all', 'weak' or 'hard'.");
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard'.");
         }
         return $mapping;
     }
