@@ -20,8 +20,6 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
             $this->markTestSkipped('Performance-Testing with xdebug enabled makes no sense.');
         }
 
-        $dm = $this->createDocumentManager();
-
         $s = microtime(true);
 
         for($i = 0; $i < $this->count; $i++) {
@@ -31,9 +29,9 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
             $user->status = "active";
             $user->id = "/functional/node$i";
 
-            $dm->persist($user);
+            $this->dm->persist($user);
         }
-        $dm->flush();
+        $this->dm->flush();
 
         $diff = microtime(true) - $s;
 
