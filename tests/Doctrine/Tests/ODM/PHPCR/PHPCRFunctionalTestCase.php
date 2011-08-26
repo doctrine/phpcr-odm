@@ -10,7 +10,6 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
         $paths = array();
         $paths[] = __DIR__ . "/../../Models";
-        $paths[] = __DIR__ . "/../../../../../lib/Doctrine/ODM/PHPCR/Document";
         $metaDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, $paths);
 
         $factoryclass = isset($GLOBALS['DOCTRINE_PHPCR_FACTORY']) ?
