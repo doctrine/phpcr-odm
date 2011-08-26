@@ -272,7 +272,6 @@ class UnitOfWork
                     $proxyOid = spl_object_hash($proxyDocument);
                     $this->nodesMap[$proxyOid] = $referencedNode;
                 }
-
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
                     continue;
@@ -307,6 +306,8 @@ class UnitOfWork
                 }
             }
         }
+
+
 
         foreach ($class->childMappings as $childName => $mapping) {
             if ($node->hasNode($mapping['name'])) {
