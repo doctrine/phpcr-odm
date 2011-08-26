@@ -68,10 +68,10 @@ class BuiltinDocumentsDriver implements Driver
      */
     public function getAllClassNames()
     {
-        $classNames = array();
-        $classNames = array_merge($classNames, $this->builtinDriver->getAllClassNames());
-        $classNames = array_merge($classNames, $this->wrappedDriver->getAllClassNames());
-        return $classNames;
+        return array_merge(
+            $this->builtinDriver->getAllClassNames(),
+            $this->wrappedDriver->getAllClassNames()
+        );
     }
 
     /**
