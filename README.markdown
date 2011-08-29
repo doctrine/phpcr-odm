@@ -158,6 +158,9 @@ Available annotations
 <tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node. </td></tr>
 <tr><td> Child(name=x): </td><td>Map the child with name x to this property. </td></tr>
 <tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this property. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
+<tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  </td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference.</td></tr>
+<tr><td> ReferenceMany(targetDocument="myDocument", weak=false): </td><td>Same as ReferenceOne except that you can refer many documents with the same document and reference type.</td></tr>
+<tr><td> Referrers(filterName="x", referenceType=null):     </td><td>A property of this type stores documents that refer this document. filterName is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
 <tr><td> Property:      </td><td>A property of the node, without specified type. </td></tr>
 <tr><td> Boolean,    <br />
          Int,        <br />
