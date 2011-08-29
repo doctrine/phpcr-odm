@@ -318,6 +318,20 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Get the documents that refer a given document using an optional name.
+     *
+     * This methods gets all nodes as a collection of documents that refer the
+     * given document and matches a given name.
+     * @param $document document instance which referrers should be loaded
+     * @param string|array $name optional name to match on referrers names
+     * @return a collection of referrer documents
+     */
+    public function getReferrers($document, $type = null, $name = null)
+    {
+      return $this->unitOfWork->getReferrers($document, $type, $name);
+    }
+
+    /**
      * Flush all current changes, that is save them within the phpcr session
      * and commit that session to permanent storage.
      */
