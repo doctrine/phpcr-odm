@@ -189,7 +189,7 @@ class ReferenceProxyFactory
             $attributes .= ", ";
         }
 
-        $attributes = substr($attributes, 0, -2);
+        $attributes .= '$this->id';
 
         return "unset(".$attributes.");";
     }
