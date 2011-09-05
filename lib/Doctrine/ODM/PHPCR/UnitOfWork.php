@@ -238,6 +238,12 @@ class UnitOfWork
             }
         }
 
+        if (count($refNodeUUIDs) > 0) {
+            $session = $this->dm->getPhpcrSession();
+            // ensure that the given nodes are in the in memory cache
+            $session->getNodesByIdentifier($refNodeUUIDs);
+        }
+
         // initialize inverse side collections
         foreach ($class->associationsMappings as $assocName => $assocOptions) {
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
@@ -824,7 +830,7 @@ class UnitOfWork
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
-                        $value = $fieldValue ?: $fieldValue->toArray();
+                        $value = $fieldValue === null ? null : $fieldValue->toArray();
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
@@ -856,7 +862,7 @@ class UnitOfWork
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
-                        $value = $fieldValue ?: $fieldValue->toArray();
+                        $value = $fieldValue === null ? null : $fieldValue->toArray();
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
