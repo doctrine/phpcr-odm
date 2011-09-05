@@ -204,7 +204,7 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    $documentState[$fieldName] = new ArrayCollection($properties[$mapping['name']]);
+                    $documentState[$fieldName] = new ArrayCollection((array)$properties[$mapping['name']]);
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
@@ -224,8 +224,8 @@ class UnitOfWork
         // collect uuids of all referenced nodes and get them all within one single call
         // they will get cached so you have more performance when they are accessed later
         $refNodeUUIDs = array();
-        foreach ($class->associationsMappings as $assocName => $assocOptions) {
-            if (! $node->hasProperty($assocOptions['fieldName'])) {
+        foreach ($class->associationsMappings as $assocOptions) {
+            if (!$node->hasProperty($assocOptions['fieldName'])) {
                 continue;
             }
 
@@ -240,7 +240,8 @@ class UnitOfWork
 
         if (count($refNodeUUIDs) > 0) {
             $session = $this->dm->getPhpcrSession();
-            $refNodes = $session->getNodesByIdentifier($refNodeUUIDs);
+            // ensure that the given nodes are in the in memory cache
+            $session->getNodesByIdentifier($refNodeUUIDs);
         }
 
         // initialize inverse side collections
@@ -531,7 +532,7 @@ class UnitOfWork
 
     private function detectChangedDocuments()
     {
-        foreach ($this->identityMap as $id => $document) {
+        foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
             if ($state == self::STATE_MANAGED) {
                 $class = $this->dm->getClassMetadata(get_class($document));
@@ -653,7 +654,7 @@ class UnitOfWork
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
-        $oid = spl_object_hash($child);
+
         if ($state == self::STATE_NEW) {
             $targetClass->reflFields[$targetClass->identifier]->setValue($child , $parentId . '/'. $mapping['name']);
             $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
@@ -675,7 +676,7 @@ class UnitOfWork
     {
         $targetClass = $this->dm->getClassMetadata(get_class($reference));
         $state = $this->getDocumentState($reference);
-        $oid = spl_object_hash($reference);
+
         if ($state == self::STATE_NEW) {
             $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $reference);
@@ -694,14 +695,16 @@ class UnitOfWork
     {
         $targetClass = $this->dm->getClassMetadata(get_class($referrer));
         $state = $this->getDocumentState($referrer);
-        $oid = spl_object_hash($referrer);
-        if ($state == self::STATE_NEW) {
-            $this->persistNew($targetClass, $referrer, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-            $this->computeChangeSet($targetClass, $referrer);
-        } else if ($state == self::STATE_DETACHED) {
-            // TODO: can this actually happen?
-            throw new \InvalidArgumentException("A detached document was found through a "
-                . "referrer during cascading a persist operation.");
+
+        switch ($state) {
+            case self::STATE_NEW:
+                $this->persistNew($targetClass, $referrer, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->computeChangeSet($targetClass, $referrer);
+                break;
+            case self::STATE_DETACHED:
+                // TODO: can this actually happen?
+                throw new \InvalidArgumentException("A detached document was found through a "
+                    . "referrer during cascading a persist operation.");
         }
     }
 
@@ -769,7 +772,9 @@ class UnitOfWork
 
         if ($persist_to_backend) {
             $utx = $session->getWorkspace()->getTransactionManager();
-            $utx->begin();
+            if ($utx) {
+                $utx->begin();
+            }
         }
 
         foreach ($this->scheduledRemovals as $oid => $document) {
@@ -806,7 +811,7 @@ class UnitOfWork
 
             if ($class->referenceable) {
                 $node->addMixin("mix:referenceable");
-                // TODO make shure uuid is unique
+                // TODO make sure uuid is unique
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
             }
 
@@ -869,11 +874,8 @@ class UnitOfWork
                         continue;
                     }
 
-                    if($class->associationsMappings[$fieldName]['weak']) {
-                        $type = \PHPCR\PropertyType::WEAKREFERENCE;
-                    } else {
-                        $type = \PHPCR\PropertyType::REFERENCE;
-                    }
+                    $type = $class->associationsMappings[$fieldName]['weak']
+                        ? \PHPCR\PropertyType::WEAKREFERENCE : \PHPCR\PropertyType::REFERENCE;
 
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
@@ -910,35 +912,29 @@ class UnitOfWork
                     } elseif (is_null($this->originalData[$oid][$fieldName])) {
                         // TODO: store this new child
                     } elseif (isset($this->originalData[$oid][$fieldName])) {
-                      //TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
-                      if ($fieldValue === $this->originalData[$oid][$fieldName]) {
-                        //TODO: save
-                      } else {
-                        // this is currently not implemented
-                        // the old child needs to be removed and the new child might be moved
-                        throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy() operations for this.");
-                      }
+                        //TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
+                        if ($fieldValue === $this->originalData[$oid][$fieldName]) {
+                            //TODO: save
+                        } else {
+                            // this is currently not implemented
+                            // the old child needs to be removed and the new child might be moved
+                            throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy() operations for this.");
+                        }
                     }
                 }
-            }
-
-            // respect the non mapped data, otherwise they will be deleted.
-            if (isset($this->nonMappedData[$oid]) && $this->nonMappedData[$oid]) {
-                $data = array_merge($data, $this->nonMappedData[$oid]);
-            }
-
-            $rev = $this->getDocumentRevision($document);
-            if ($rev) {
-                $data['_rev'] = $rev;
             }
         }
 
         if ($persist_to_backend) {
             try {
                 $session->save();
-                $utx->commit();
-            } catch (Exception $e) {
-                $utx->rollback();
+                if ($utx) {
+                    $utx->commit();
+                }
+            } catch (\Exception $e) {
+                if ($utx) {
+                    $utx->rollback();
+                }
             }
         }
 
