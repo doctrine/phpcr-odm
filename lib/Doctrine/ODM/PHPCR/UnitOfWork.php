@@ -879,6 +879,7 @@ class UnitOfWork
 
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
+                            $refNodesIds = array();
                             foreach ($fieldValue as $fv ) {
                                 if ($fv === null) {
                                     continue;
