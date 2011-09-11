@@ -771,9 +771,11 @@ class UnitOfWork
         $session = $this->dm->getPhpcrSession();
 
         if ($persist_to_backend) {
-            $utx = $session->getWorkspace()->getTransactionManager();
-            if ($utx) {
+            try {
+                $utx = $session->getWorkspace()->getTransactionManager();
                 $utx->begin();
+            } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+                $utx = null;
             }
         }
 
