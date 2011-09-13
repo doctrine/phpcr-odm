@@ -999,7 +999,6 @@ class UnitOfWork
     public function checkIn($document)
     {
         $path = $this->getDocumentId($document);
-        $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
         $node->addMixin("mix:versionable");
@@ -1015,7 +1014,6 @@ class UnitOfWork
     public function checkOut($document)
     {
         $path = $this->getDocumentId($document);
-        $this->flush();
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode($path);
         $node->addMixin("mix:versionable");
@@ -1031,7 +1029,6 @@ class UnitOfWork
     public function restore($version, $document, $removeExisting)
     {
         $path = $this->getDocumentId($document);
-        $this->flush();
         $session = $this->dm->getPhpcrSession();
         $vm = $session->getWorkspace()->getVersionManager();
         $vm->restore($removeExisting, $version, $path);
