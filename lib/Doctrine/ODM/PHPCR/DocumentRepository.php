@@ -249,7 +249,7 @@ class DocumentRepository implements ObjectRepository
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
 
-            $aliasFilter = '[nt:unstructured].[phpcr:class] = '.$this->quote($this->documentName);
+            $aliasFilter = $this->class->nodeType.'.[phpcr:class] = '.$this->quote($this->documentName);
             if (false !== strpos($statement, 'WHERE')) {
                 $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
             } elseif (false !== strpos($statement, 'ORDER BY')) {
