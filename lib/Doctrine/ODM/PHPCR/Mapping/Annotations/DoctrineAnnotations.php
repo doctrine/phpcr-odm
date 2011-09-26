@@ -6,47 +6,62 @@ use Doctrine\Common\Annotations\Annotation;
 
 /**
  * @Annotation
+ * @Target("CLASS")
  */
-final class Document extends Annotation
+final class Document
 {
+    /** @var string */
     public $nodeType = 'nt:unstructured';
+    /** @var string */
     public $alias;
+    /** @var string */
     public $repositoryClass;
+    /** @var Boolean */
     public $isVersioned;
+    /** @var Boolean */
     public $referenceable;
 }
 /**
  * @Annotation
+ * @Target("CLASS")
  */
-final class MappedSuperclass extends Annotation
+final class MappedSuperclass
 {
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-final class Node extends Annotation
+final class Node
 {
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-class Property extends Annotation
+class Property
 {
+    /** @var string @Required */
     public $name;
+    /** @var string */
     public $type = 'undefined';
+    /** @var Boolean */
     public $multivalue = false;
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-final class Id extends Annotation
+final class Id
 {
     public $id = true;
     public $type = 'string';
+    /** @var string */
     public $strategy = 'assigned';
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Uuid extends Property
 {
@@ -55,6 +70,7 @@ final class Uuid extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Version extends Property
 {
@@ -64,6 +80,7 @@ final class Version extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Boolean extends Property
 {
@@ -71,6 +88,7 @@ final class Boolean extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Int extends Property
 {
@@ -78,6 +96,7 @@ final class Int extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Long extends Property
 {
@@ -85,6 +104,7 @@ final class Long extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Float extends Property
 {
@@ -92,6 +112,7 @@ final class Float extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class String extends Property
 {
@@ -99,6 +120,7 @@ final class String extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Date extends Property
 {
@@ -106,6 +128,7 @@ final class Date extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class Binary extends Property
 {
@@ -113,6 +136,7 @@ final class Binary extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class ArrayField extends Property
 {
@@ -120,85 +144,107 @@ final class ArrayField extends Property
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-class Reference extends Annotation
+class Reference
 {
+    /** @var string @Required */
     public $targetDocument;
+    /** @var Boolean */
     public $weak = true;
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class ReferenceOne extends Reference
 {
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class ReferenceMany extends Reference
 {
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-class Child extends Annotation
+class Child
 {
+    /** @var string @Required */
     public $name;
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-class Children extends Annotation
+class Children
 {
-    public $filter = null;
+    /** @var string */
+    public $filter;
 }
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-class Referrers extends Annotation
+class Referrers
 {
-    public $filterName = null;
-    public $referenceType = null;
+    /** @var string */
+    public $filterName;
+    /** @var string @Required */
+    public $referenceType;
 }
 
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
-final class EmbeddedDocument extends Annotation {}
+final class EmbeddedDocument {}
 /**
  * @Annotation
+ * @Target("PROPERTY")
  */
 final class EmbedOne extends Property {}
 
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PrePersist extends Annotation {}
+final class PrePersist {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PostPersist extends Annotation {}
+final class PostPersist {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PreUpdate extends Annotation {}
+final class PreUpdate {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PostUpdate extends Annotation {}
+final class PostUpdate {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PreRemove extends Annotation {}
+final class PreRemove {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PostRemove extends Annotation {}
+final class PostRemove {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PreLoad extends Annotation {}
+final class PreLoad {}
 /**
  * @Annotation
+ * @Target("METHOD")
  */
-final class PostLoad extends Annotation {}
+final class PostLoad {}
