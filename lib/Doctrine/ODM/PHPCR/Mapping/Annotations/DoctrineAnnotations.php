@@ -35,10 +35,6 @@ final class MappedSuperclass
 final class Node
 {
 }
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
 class Property
 {
     /** @var string @Required */
@@ -142,10 +138,6 @@ final class ArrayField extends Property
 {
     public $type = 'array';
 }
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
 class Reference
 {
     /** @var string @Required */
@@ -171,7 +163,7 @@ final class ReferenceMany extends Reference
  * @Annotation
  * @Target("PROPERTY")
  */
-class Child
+final class Child
 {
     /** @var string @Required */
     public $name;
@@ -180,7 +172,7 @@ class Child
  * @Annotation
  * @Target("PROPERTY")
  */
-class Children
+final class Children
 {
     /** @var string */
     public $filter;
@@ -189,7 +181,7 @@ class Children
  * @Annotation
  * @Target("PROPERTY")
  */
-class Referrers
+final class Referrers
 {
     /** @var string */
     public $filterName;
