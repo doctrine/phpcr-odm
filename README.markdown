@@ -4,8 +4,7 @@ PHPCR ODM for Doctrine2
 Current Status
 --------------
 
-* usable for basic tasks
-* not yet really performance optimized
+* most key features implemented
 * alpha stage
 
 TODO
@@ -167,8 +166,8 @@ Available annotations
          Float,      <br />
          String,     <br />
          Date,       <br />
-         Binary,     <br />
-         ArrayField: </td><td>Map this field to the property of the corresponding PHPCR type.</td></tr>
+         Binary
+</td></tr>
 </table>
 
 In the parenthesis after the type, you can specify the name of the PHPCR property

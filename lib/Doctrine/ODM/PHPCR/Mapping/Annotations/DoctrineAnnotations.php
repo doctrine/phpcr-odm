@@ -130,14 +130,6 @@ final class Binary extends Property
 {
     public $type = 'binary';
 }
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
-final class ArrayField extends Property
-{
-    public $type = 'array';
-}
 class Reference
 {
     /** @var string @Required */
