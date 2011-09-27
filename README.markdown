@@ -110,7 +110,7 @@ Storing documents in the repository: Id Generator Strategy
 When defining an ``id`` its possible to choose the generator strategy. The id
 is the path where in the phpcr content repository the document should be stored.
 By default the assigned id generator is used, which requires manual assignment
-of the path to a property annotated as being the Id.
+of the path to a field annotated as being the Id.
 You can tell doctrine to use a different strategy to find the id.
 
 Currently, there is the "repository" strategy which calls can be used which
@@ -156,12 +156,11 @@ Available annotations
 <tr><td> Uuid:          </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:       </td><td>The version of this node, for versioned nodes. </td></tr>
 <tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node. </td></tr>
-<tr><td> Child(name=x): </td><td>Map the child with name x to this property. </td></tr>
-<tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this property. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
+<tr><td> Child(name=x): </td><td>Map the child with name x to this field. </td></tr>
+<tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this field. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
 <tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  </td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference.</td></tr>
 <tr><td> ReferenceMany(targetDocument="myDocument", weak=false): </td><td>Same as ReferenceOne except that you can refer many documents with the same document and reference type.</td></tr>
-<tr><td> Referrers(filterName="x", referenceType=null):     </td><td>A property of this type stores documents that refer this document. filterName is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
-<tr><td> Property:      </td><td>A property of the node, without specified type. </td></tr>
+<tr><td> Referrers(filterName="x", referenceType=null):     </td><td>A field of this type stores documents that refer this document. filterName is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
 <tr><td> Boolean,    <br />
          Int,        <br />
          Long,       <br />
@@ -169,10 +168,10 @@ Available annotations
          String,     <br />
          Date,       <br />
          Binary,     <br />
-         ArrayField: </td><td>Typed property</td></tr>
+         ArrayField: </td><td>Map this field to the property of the corresponding PHPCR type.</td></tr>
 </table>
 
-In the parenthesis after the type, you can specify the name of the PHPCR field
+In the parenthesis after the type, you can specify the name of the PHPCR property
 to store the value (name defaults to the php variable name you use), and whether
 this is a multivalue property. For example
 /**
