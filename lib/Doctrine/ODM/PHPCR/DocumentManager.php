@@ -218,6 +218,7 @@ class DocumentManager implements ObjectManager
     /**
      * Create a Query
      *
+     * @param  string $statement the SQL2 statement
      * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
      * @return PHPCR\Query\QueryInterface
      */

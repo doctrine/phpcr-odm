@@ -182,9 +182,9 @@ class UnitOfWork
         } else {
             if (isset($documentName)) {
                 $class = $this->dm->getClassMetadata($documentName);
-            } else if (isset($properties['phpcr:class'])) {
+            } elseif (isset($properties['phpcr:class'])) {
                 $class = $this->dm->getClassMetadata($properties['phpcr:class']);
-            } else if (isset($properties['phpcr:alias'])) {
+            } elseif (isset($properties['phpcr:alias'])) {
                 $class = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
             }
 
@@ -659,9 +659,9 @@ class UnitOfWork
             $targetClass->reflFields[$targetClass->identifier]->setValue($child , $parentId . '/'. $mapping['name']);
             $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $child);
-        } else if ($state == self::STATE_REMOVED) {
+        } elseif ($state == self::STATE_REMOVED) {
             throw new \InvalidArgumentException("Removed child document detected during flush");
-        } else if ($state == self::STATE_DETACHED) {
+        } elseif ($state == self::STATE_DETACHED) {
             throw new \InvalidArgumentException("A detached document was found through a "
                 . "child relationship during cascading a persist operation.");
         }
@@ -680,7 +680,7 @@ class UnitOfWork
         if ($state == self::STATE_NEW) {
             $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $reference);
-        } else if ($state == self::STATE_DETACHED) {
+        } elseif ($state == self::STATE_DETACHED) {
             throw new \InvalidArgumentException("A detached document was found through a "
                 . "reference during cascading a persist operation.");
         }
