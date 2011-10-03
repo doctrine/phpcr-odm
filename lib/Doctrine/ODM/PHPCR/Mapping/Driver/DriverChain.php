@@ -68,10 +68,10 @@ class DriverChain implements Driver
     public function getAllClassNames()
     {
         $classNames = array();
-        foreach ($this->drivers as $driver) {
+        foreach ($this->drivers AS $driver) {
             $classNames = array_merge($classNames, $driver->getAllClassNames());
         }
-        return $classNames;
+        return array_values(array_unique($classNames));
     }
 
     /**
