@@ -131,7 +131,7 @@ class AnnotationDriver implements Driver
         $documentAnnot = reset($documentAnnots);
 
         if (!$documentAnnot->alias) {
-            throw new MappingException('Alias must be specified in the Document() annotation mapping');
+            throw new MappingException("Alias must be specified in the Document() annotation mapping of $className");
         }
 
         $class->setAlias($documentAnnot->alias);
