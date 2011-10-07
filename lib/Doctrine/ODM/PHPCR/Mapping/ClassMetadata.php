@@ -113,8 +113,8 @@ class ClassMetadata extends ClassMetadataInfo
             $serialized[] = 'isMappedSuperclass';
         }
 
-        if ($this->isVersioned) {
-            $serialized[] = 'isVersioned';
+        if ($this->versionable) {
+            $serialized[] = 'versionable';
             $serialized[] = 'versionField';
         }
 

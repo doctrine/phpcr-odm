@@ -201,7 +201,7 @@ class ClassMetadataInfo implements ClassMetadata
      *
      * @var bool
      */
-    public $isVersioned = false;
+    public $versionable = false;
 
     /**
      * Version Field stores the PHPCR Revision
@@ -380,7 +380,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function setVersioned($versionable)
     {
-        $this->isVersioned = $versionable;
+        $this->versionable = $versionable;
     }
 
     /**
@@ -472,7 +472,7 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $mapping['name'] = 'jcr:uuid';
         } elseif (isset($mapping['isVersionField'])) {
-            $this->isVersioned = true;
+            $this->versionable = true;
             $this->versionField = $mapping['fieldName'];
 
         }

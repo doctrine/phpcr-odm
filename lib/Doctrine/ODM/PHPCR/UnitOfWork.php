@@ -571,7 +571,7 @@ class UnitOfWork
             }
         }
         // unset the revision field if necessary, it is not to be managed by the user in write scenarios.
-        if ($class->isVersioned) {
+        if ($class->versionable) {
             unset($actualData[$class->versionField]);
         }
 
@@ -807,7 +807,7 @@ class UnitOfWork
               throw new PHPCRException("You need to register the node type phpcr:managed first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
             }
 
-            if ($class->isVersioned) {
+            if ($class->versionable) {
                 $node->addMixin("mix:versionable");
             }
 

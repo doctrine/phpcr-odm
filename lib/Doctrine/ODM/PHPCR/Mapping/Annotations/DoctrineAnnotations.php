@@ -17,9 +17,9 @@ final class Document
     /** @var string */
     public $repositoryClass;
     /** @var boolean */
-    public $isVersioned;
+    public $versionable = false;
     /** @var boolean */
-    public $referenceable;
+    public $referenceable = false;
 }
 /**
  * @Annotation
@@ -35,6 +35,7 @@ final class MappedSuperclass
 final class Node
 {
 }
+
 class Property
 {
     /** @var string */
