@@ -130,6 +130,7 @@ final class Binary extends Property
 {
     public $type = 'binary';
 }
+
 class Reference
 {
     /** @var string @Required */
