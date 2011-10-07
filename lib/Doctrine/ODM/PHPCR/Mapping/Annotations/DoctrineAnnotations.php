@@ -37,7 +37,7 @@ final class Node
 }
 class Property
 {
-    /** @var string @Required */
+    /** @var string */
     public $name;
     /** @var string */
     public $type = 'undefined';
@@ -157,7 +157,7 @@ final class ReferenceMany extends Reference
  */
 final class Child
 {
-    /** @var string @Required */
+    /** @var string */
     public $name;
 }
 /**
@@ -177,8 +177,8 @@ final class Referrers
 {
     /** @var string */
     public $filterName;
-    /** @var string @Required */
-    public $referenceType;
+    /** @var string */
+    public $referenceType = 'weak';
 }
 
 /**
