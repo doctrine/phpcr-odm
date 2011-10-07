@@ -179,7 +179,7 @@ final class Referrers
     /** @var string */
     public $filterName;
     /** @var string */
-    public $referenceType = 'weak';
+    public $referenceType;
 }
 
 /**
