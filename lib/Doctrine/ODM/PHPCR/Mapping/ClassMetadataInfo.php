@@ -579,7 +579,7 @@ class ClassMetadataInfo implements ClassMetadata
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }
-        if (!is_bool($mapping['weak'])) {
+        if (isset($mapping['weak']) && !is_bool($mapping['weak'])) {
             throw new MappingException("The attribute 'weak' for the '" . $this->name . "' association has to be a boolean true or false.");
         }
         return $mapping;
