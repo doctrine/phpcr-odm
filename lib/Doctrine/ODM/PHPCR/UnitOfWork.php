@@ -438,6 +438,7 @@ class UnitOfWork
                     if (is_array($related)) {
                         throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation.");
                     }
+
                     if ($this->getDocumentState($related) == self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
@@ -798,13 +799,15 @@ class UnitOfWork
                 $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
                 $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
             }
+
             $id = $this->documentIds[$oid];
             $parentNode = $session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
             $node = $parentNode->addNode(basename($id), $class->nodeType);
+
             try {
-              $node->addMixin('phpcr:managed');
+                $node->addMixin('phpcr:managed');
             } catch (\PHPCR\NodeType\NoSuchNodeTypeException $e) {
-              throw new PHPCRException("You need to register the node type phpcr:managed first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
+                throw new PHPCRException("You need to register the node type phpcr:managed first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
             }
 
             if ($class->versionable) {
@@ -814,6 +817,7 @@ class UnitOfWork
             if ($class->referenceable) {
                 $node->addMixin("mix:referenceable");
                 // TODO make sure uuid is unique
+                // TODO don't we also need to do this when we have versionable set?
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
             }
 
