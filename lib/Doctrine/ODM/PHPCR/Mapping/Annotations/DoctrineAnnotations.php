@@ -12,13 +12,13 @@ final class Document
 {
     /** @var string */
     public $nodeType = 'nt:unstructured';
-    /** @var string */
+    /** @var string @Required */
     public $alias;
     /** @var string */
     public $repositoryClass;
-    /** @var Boolean */
+    /** @var boolean */
     public $isVersioned;
-    /** @var Boolean */
+    /** @var boolean */
     public $referenceable;
 }
 /**
@@ -41,7 +41,7 @@ class Property
     public $name;
     /** @var string */
     public $type = 'undefined';
-    /** @var Boolean */
+    /** @var boolean */
     public $multivalue = false;
 }
 /**
@@ -134,7 +134,7 @@ class Reference
 {
     /** @var string @Required */
     public $targetDocument;
-    /** @var Boolean */
+    /** @var boolean */
     public $weak = true;
 }
 /**
@@ -183,7 +183,7 @@ final class Referrers
 
 /**
  * @Annotation
- * @Target("PROPERTY")
+ * @Target("CLASS")
  */
 final class EmbeddedDocument {}
 /**
