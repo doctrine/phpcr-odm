@@ -178,6 +178,10 @@ class AnnotationDriver implements Driver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapReferrers($mapping);
                 }
+
+                if (!isset($mapping['name'])) {
+                    $mapping['name'] = $property->getName();
+                }
             }
         }
 
@@ -258,7 +262,7 @@ class AnnotationDriver implements Driver
             );
 
             foreach ($iterator as $file) {
-                if (($fileName = $file->getBasename($this->fileExtension)) == $file->getBasename()) {
+                if (($file->getBasename($this->fileExtension)) == $file->getBasename()) {
                     continue;
                 }
 
