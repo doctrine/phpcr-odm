@@ -536,7 +536,7 @@ class WeakReferrerTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="WeakReferrerRefTestObj", referenceable="true")
+ * @PHPCRODM\Document(alias="WeakReferrerRefTestObj", referenceable=true)
  */
 class WeakReferrerRefTestObj
 {
@@ -549,7 +549,7 @@ class WeakReferrerRefTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="HardReferrerRefTestObj", referenceable="true")
+ * @PHPCRODM\Document(alias="HardReferrerRefTestObj", referenceable=true)
  */
 class HardReferrerRefTestObj
 {
@@ -562,7 +562,7 @@ class HardReferrerRefTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="AllReferrerRefTestObj", referenceable="true")
+ * @PHPCRODM\Document(alias="AllReferrerRefTestObj", referenceable=true)
  */
 class AllReferrerRefTestObj
 {
@@ -575,7 +575,7 @@ class AllReferrerRefTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="AllReferrerRefNamedPropTestObj", referenceable="true")
+ * @PHPCRODM\Document(alias="AllReferrerRefNamedPropTestObj", referenceable=true)
  */
 class AllReferrerRefNamedPropTestObj
 {
@@ -614,7 +614,7 @@ class ReferrerNamedPropTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="ReferrerRefTestObj", referenceable="true")
+ * @PHPCRODM\Document(alias="ReferrerRefTestObj", referenceable=true)
  */
 class ReferrerRefTestObj
 {

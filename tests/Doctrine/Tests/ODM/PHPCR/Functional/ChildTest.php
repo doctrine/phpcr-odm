@@ -308,7 +308,7 @@ class ChildReferrerTestObj
 }
 
 /**
-  * @PHPCRODM\Document(alias="ChildReferenceableTestObj", referenceable="true")
+  * @PHPCRODM\Document(alias="ChildReferenceableTestObj", referenceable=true)
   */
 class ChildReferenceableTestObj 
 {
