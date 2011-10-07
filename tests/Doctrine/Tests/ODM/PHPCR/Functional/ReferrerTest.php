@@ -298,7 +298,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * Remove referenced node, but change referrer node before
      */
-    public function testRemoveReferrerChangeBevore()
+    public function testRemoveReferrerChangeBefore()
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -334,7 +334,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * Remove referenced node, but change referrer nodes before
      */
-    public function testRemoveReferrerManyChangeBevore()
+    public function testRemoveReferrerManyChangeBefore()
     {
         $referrerRefManyTestObj = new ReferrerRefTestObj();
         $referrerRefManyTestObj->id = "/functional/referrerRefManyTestObj";
