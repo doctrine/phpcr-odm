@@ -116,14 +116,14 @@ class AnnotationDriver implements Driver
 
         $documentAnnots = array();
         foreach ($this->reader->getClassAnnotations($reflClass) as $annot) {
-          foreach (self::$documentAnnotationClasses as $i => $annotClass) {
-            if ($annot instanceof $annotClass) {
-              $documentAnnots[$i] = $annot;
+            foreach (self::$documentAnnotationClasses as $i => $annotClass) {
+                if ($annot instanceof $annotClass) {
+                    $documentAnnots[$i] = $annot;
+                }
             }
-          }
         }
         if (!$documentAnnots) {
-          throw MappingException::classIsNotAValidDocument($className);
+             throw MappingException::classIsNotAValidDocument($className);
         }
 
         // find the winning document annotation
