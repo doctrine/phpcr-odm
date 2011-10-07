@@ -20,19 +20,23 @@ class CmsAddress
     /** @PHPCRODM\String */
     public $street;
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
-    public function getZipCode() {
+    public function getZipCode()
+    {
         return $this->zip;
     }
 
-    public function getCity() {
+    public function getCity()
+    {
         return $this->city;
     }
 }

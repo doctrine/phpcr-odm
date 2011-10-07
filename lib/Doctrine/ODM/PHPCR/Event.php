@@ -30,5 +30,7 @@ final class Event
     const postUpdate = 'postUpdate';
     const postLoad = 'postLoad';
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 }

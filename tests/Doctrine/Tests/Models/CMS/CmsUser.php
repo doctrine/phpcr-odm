@@ -37,44 +37,56 @@ class CmsUser
     // /** @ReferenceMany(targetDocument="CmsGroup") */
     // public $groups;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->articles = new ArrayCollection;
         $this->groups = new ArrayCollection;
     }
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
-    public function getUsername() {
+    public function getUsername()
+    {
         return $this->username;
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function addArticle(CmsArticle $article) {
+    public function addArticle(CmsArticle $article)
+    {
         $this->articles[] = $article;
         $article->setAuthor($this);
     }
 
-    public function addGroup(CmsGroup $group) {
+    public function addGroup(CmsGroup $group)
+    {
         $this->groups[] = $group;
         $group->addUser($this);
     }
 
-    public function getGroups() {
+    public function getGroups()
+    {
         return $this->groups;
     }
 
-    public function getAddress() { return $this->address; }
+    public function getAddress()
+    {
+        return $this->address;
+    }
 
-    public function setAddress(CmsAddress $address) {
+    public function setAddress(CmsAddress $address)
+    {
         if ($this->address !== $address) {
             $this->address = $address;
             $address->setUser($this);
