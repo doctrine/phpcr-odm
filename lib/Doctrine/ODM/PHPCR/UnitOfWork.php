@@ -173,7 +173,7 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        // get uuid rather than dereference reference properties
+        // second param is false to get uuid rather than dereference reference properties to node instances
         $properties = $node->getPropertiesValues(null, false);
 
         if ($this->documentNameMapper) {
@@ -811,13 +811,16 @@ class UnitOfWork
             }
 
             if ($class->versionable) {
-                $node->addMixin("mix:versionable");
+                $node->addMixin('mix:versionable');
+            } elseif ($class->referenceable) {
+                // referenceable is a supertype of versionable, only set if not versionable
+                $node->addMixin('mix:referenceable');
             }
 
-            if ($class->referenceable) {
-                $node->addMixin("mix:referenceable");
-                // TODO make sure uuid is unique
-                // TODO don't we also need to do this when we have versionable set?
+            // we manually set the uuid to allow creating referenced and referencing document without flush in between.
+            // this check has to be done after any mixin types are set.
+            if ($node->isNodeType('mix:referenceable')) {
+                // TODO do we need to check with the storage backend if the generated id really is unique?
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
             }
 

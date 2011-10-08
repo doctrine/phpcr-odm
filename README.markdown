@@ -173,10 +173,14 @@ Available annotations
 In the parenthesis after the type, you can specify the name of the PHPCR property
 to store the value (name defaults to the php variable name you use), and whether
 this is a multivalue property. For example
-/**
- * @PHPCRODM\String(name="categories", multivalue=true)
- */
-private $cat;
+
+    /**
+     * @PHPCRODM\String(name="categories", multivalue=true)
+     */
+    private $cat;
+
+Note that the reference annotations are only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
+
 
 Lifecycle callbacks
 -------------------
