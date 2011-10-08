@@ -456,12 +456,10 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referenced = $this->dm->find($this->referencedType, '/functional/refRefTestObj');
 
+        $this->setExpectedException('PHPCR\ReferentialIntegrityException');
         $this->dm->remove($referenced);
         $this->dm->flush();
         $this->dm->clear();
-
-        $referenced = $this->dm->find($this->referencedType, '/functional/refRefTestObj');
-        $this->assertEquals($referenced->id, "/functional/refRefTestObj");
     }
 
     public function testHardReferenceDeleteSuccess()

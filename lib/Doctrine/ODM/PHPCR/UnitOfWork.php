@@ -944,6 +944,10 @@ class UnitOfWork
                 if ($utx) {
                     $utx->rollback();
                 }
+
+                if ($e instanceof \PHPCR\ReferentialIntegrityException) {
+                    throw $e;
+                }
             }
         }
 
