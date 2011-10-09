@@ -935,15 +935,16 @@ class UnitOfWork
         }
 
         if ($persist_to_backend) {
-            try {
-                $session->save();
-                if ($utx) {
+            if ($utx) {
+                try {
+                    $session->save();
                     $utx->commit();
-                }
-            } catch (\Exception $e) {
-                if ($utx) {
+                } catch (\Exception $e) {
                     $utx->rollback();
+                    throw $e;
                 }
+            } else {
+                $session->save();
             }
         }
 
