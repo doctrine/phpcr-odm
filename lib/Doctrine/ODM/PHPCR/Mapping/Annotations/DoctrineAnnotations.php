@@ -117,7 +117,7 @@ final class Int extends Property
  */
 final class Double extends Property
 {
-    public $type = 'float';
+    public $type = 'double';
 }
 /**
  * Convenience alias for Double.
@@ -126,7 +126,7 @@ final class Double extends Property
  */
 final class Float extends Property
 {
-    public $type = 'float';
+    public $type = 'double';
 }
 /**
  * @Annotation
