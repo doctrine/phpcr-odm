@@ -112,6 +112,14 @@ final class Int extends Property
     public $type = 'long';
 }
 /**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Double extends Property
+{
+    public $type = 'float';
+}
+/**
  * Convenience alias for Double.
  * @Annotation
  * @Target("PROPERTY")
@@ -135,6 +143,42 @@ final class Date extends Property
 final class Boolean extends Property
 {
     public $type = 'boolean';
+}
+/**
+ * String that is restricted to name with optional namespace
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Name extends Property
+{
+    public $type = 'string';
+}
+/**
+ * String that is an absolute or relative path in the repository
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Path extends Property
+{
+    public $type = 'string';
+}
+/**
+ * String that is validated to be an URI
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Uri extends Property
+{
+    public $type = 'string';
+}
+/**
+ * Large numbers bcmath compatible strings
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Decimal extends Property
+{
+    public $type = 'string';
 }
 
 /**
