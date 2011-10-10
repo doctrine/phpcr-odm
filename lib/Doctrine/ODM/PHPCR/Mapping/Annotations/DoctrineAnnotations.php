@@ -36,6 +36,9 @@ final class Node
 {
 }
 
+/**
+ * base class for all property types
+ */
 class Property
 {
     /** @var string */
@@ -79,17 +82,17 @@ final class Version extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Boolean extends Property
+final class String extends Property
 {
-    public $type = 'boolean';
+    public $type = 'string';
 }
 /**
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Int extends Property
+final class Binary extends Property
 {
-    public $type = 'long';
+    public $type = 'binary';
 }
 /**
  * @Annotation
@@ -100,20 +103,22 @@ final class Long extends Property
     public $type = 'long';
 }
 /**
+ * Convenience alias for Long.
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Int extends Property
+{
+    public $type = 'long';
+}
+/**
+ * Convenience alias for Double.
  * @Annotation
  * @Target("PROPERTY")
  */
 final class Float extends Property
 {
     public $type = 'float';
-}
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
-final class String extends Property
-{
-    public $type = 'string';
 }
 /**
  * @Annotation
@@ -127,11 +132,14 @@ final class Date extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Binary extends Property
+final class Boolean extends Property
 {
-    public $type = 'binary';
+    public $type = 'boolean';
 }
 
+/**
+ * base class for the reference types
+ */
 class Reference
 {
     /** @var string @Required */
@@ -153,6 +161,7 @@ final class ReferenceOne extends Reference
 final class ReferenceMany extends Reference
 {
 }
+
 /**
  * @Annotation
  * @Target("PROPERTY")
