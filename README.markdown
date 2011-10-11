@@ -155,6 +155,7 @@ Available annotations
 <tr><td> Uuid:          </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:       </td><td>The version of this node, for versioned nodes. </td></tr>
 <tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node. </td></tr>
+<tr><td> Nodename:          </td><td>The name of the PHPCR node (this is the part of the path after the last '/' in the id). This property is read only except on document creation with the parentandname strategy.</td></tr>
 <tr><td> Child(name=x): </td><td>Map the child with name x to this field. </td></tr>
 <tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this field. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
 <tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  </td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference.</td></tr>

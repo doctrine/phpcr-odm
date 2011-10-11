@@ -52,12 +52,23 @@ abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('uri', $class->fieldMappings['uri']['name']);
         return $class;
     }
+
+    /**
+     * @depends testLoadMapping
+     * @param ClassMetadata $class
+     */
+    public function testNodenameMapping($class)
+    {
+        $this->assertTrue(isset($class->nodename));
+        $this->assertEquals('namefield', $class->nodename);
+    }
 }
 
 
 class PropertyMappingObj
 {
     public $id;
+    public $namefield;
     public $string;
     public $binary;
     public $long;

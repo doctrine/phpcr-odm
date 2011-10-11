@@ -111,6 +111,13 @@ class ClassMetadataInfo implements ClassMetadata
     public $node;
 
     /**
+     * READ-ONLY: The name of the node
+     *
+     * @var string
+     */
+    public $nodename;
+
+    /**
      * The name of the custom repository class used for the document class.
      * (Optional).
      *
@@ -507,6 +514,13 @@ class ClassMetadataInfo implements ClassMetadata
         $this->validateAndCompleteFieldMapping($mapping, false);
 
         $this->node = $mapping['fieldName'];
+    }
+
+    public function mapNodename(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping, false);
+
+        $this->nodename = $mapping['fieldName'];
     }
 
     public function mapChild(array $mapping)

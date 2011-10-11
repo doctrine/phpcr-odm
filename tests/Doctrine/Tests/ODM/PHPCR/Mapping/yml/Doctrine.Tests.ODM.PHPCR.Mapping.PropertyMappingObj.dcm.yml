@@ -1,6 +1,7 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\PropertyMappingObj:
   alias: something
   id: id
+  nodename: namefield
   fields:
     string: string
     binary: binary

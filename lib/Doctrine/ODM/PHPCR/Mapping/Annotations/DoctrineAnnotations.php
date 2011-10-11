@@ -35,6 +35,14 @@ final class MappedSuperclass
 final class Node
 {
 }
+/**
+ * The name of this node as in PHPCR\NodeInterface::getName
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Nodename
+{
+}
 
 /**
  * base class for all property types

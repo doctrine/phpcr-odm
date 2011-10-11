@@ -214,6 +214,9 @@ class UnitOfWork
         if ($class->node) {
             $documentState[$class->node] = $node;
         }
+        if ($class->nodename) {
+            $documentState[$class->nodename] = $node->getName();
+        }
         if ($class->versionField) {
             $documentState[$class->versionField] = $properties['jcr:baseVersion'];
         }
@@ -591,6 +594,7 @@ class UnitOfWork
                     && !isset($class->childMappings[$fieldName])
                     && !isset($class->associationsMappings[$fieldName])
                     && !isset($class->referrersMappings[$fieldName])
+                    && !isset($class->nodename)
                 ) {
                     continue;
                 }
@@ -605,6 +609,9 @@ class UnitOfWork
                         break;
                     }
                 } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                    if ($class->nodename == $fieldName) {
+                        throw new PHPCRException('The Nodename property is immutable');
+                    }
                     $changed = true;
                     break;
                 }
@@ -830,6 +837,9 @@ class UnitOfWork
             }
             if ($class->node) {
                 $class->reflFields[$class->node]->setValue($document, $node);
+            }
+            if ($class->nodename) {
+                $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
             if ($useDoctrineMetadata) {
                 $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
