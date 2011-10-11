@@ -111,11 +111,18 @@ class ClassMetadataInfo implements ClassMetadata
     public $node;
 
     /**
-     * READ-ONLY: The name of the node
+     * READ-ONLY except on document creation: The name of the node
      *
      * @var string
      */
     public $nodename;
+
+    /**
+     * READ-ONLY except on document creation: The name of the node
+     *
+     * @var string
+     */
+    public $parentMapping;
 
     /**
      * The name of the custom repository class used for the document class.
@@ -523,6 +530,13 @@ class ClassMetadataInfo implements ClassMetadata
         $this->nodename = $mapping['fieldName'];
     }
 
+    public function mapParentDocument(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping, false);
+
+        $this->parentMapping = $mapping['fieldName'];
+    }
+
     public function mapChild(array $mapping)
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
@@ -564,6 +578,8 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['name'] = $mapping['fieldName'];
         }
         if (isset($this->fieldMappings[$mapping['fieldName']])
+          || ($this->nodename == $mapping['fieldName'])
+          || ($this->parentMapping == $mapping['fieldName'])
           || isset($this->associationsMappings[$mapping['fieldName']])
           || isset($this->childMappings[$mapping['fieldName']])
           || isset($this->childrenMappings[$mapping['fieldName']])

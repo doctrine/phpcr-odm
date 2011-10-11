@@ -194,7 +194,10 @@ class UnitOfWork
         }
 
         if (empty($class)) {
-            throw new \InvalidArgumentException("Could not determine Doctrine metadata for node");
+            $class = $this->dm->getClassMetadata('Doctrine\ODM\PHPCR\Document\Generic');
+            // TODO: is this sane or do we want to know issues?
+            // but would be a problem with parent annotations
+            // throw new \InvalidArgumentException("Could not determine Doctrine metadata for node");
         }
 
         $documentState = array();
@@ -311,6 +314,11 @@ class UnitOfWork
                     }
                 }
             }
+        }
+
+        if ($class->parentMapping && $node->getDepth() > 0) {
+            // do not map parent to self if we are at root
+            $documentState[$class->parentMapping] = $this->createDocument(null, $node->getParent());
         }
 
         foreach ($class->childMappings as $childName => $mapping) {
@@ -574,6 +582,7 @@ class UnitOfWork
                 $actualData[$fieldName] = $value;
             }
         }
+
         // unset the revision field if necessary, it is not to be managed by the user in write scenarios.
         if ($class->versionable) {
             unset($actualData[$class->versionField]);
@@ -594,9 +603,13 @@ class UnitOfWork
                     && !isset($class->childMappings[$fieldName])
                     && !isset($class->associationsMappings[$fieldName])
                     && !isset($class->referrersMappings[$fieldName])
+                    && !isset($class->parentMapping[$fieldName])
                     && !isset($class->nodename)
                 ) {
                     continue;
+                }
+                if ($class->nodename == $fieldName) {
+                    var_dump($fieldValue);die;
                 }
                 if ($class->isCollectionValuedAssociation($fieldName)) {
                     if (!$fieldValue instanceof PersistentCollection) {
@@ -610,7 +623,10 @@ class UnitOfWork
                     }
                 } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                     if ($class->nodename == $fieldName) {
-                        throw new PHPCRException('The Nodename property is immutable');
+                        throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document.');
+                    }
+                    if ($class->parentMapping == $fieldName) {
+                        throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document.');
                     }
                     $changed = true;
                     break;
@@ -839,7 +855,13 @@ class UnitOfWork
                 $class->reflFields[$class->node]->setValue($document, $node);
             }
             if ($class->nodename) {
+                // make sure this reflects the id generator strategy generated id
                 $class->reflFields[$class->nodename]->setValue($document, $node->getName());
+            }
+            if ($class->parentMapping) {
+                // TODO: only do this if its not already set? or do we always update to sanitize?
+                // make sure this reflects the id generator strategy generated id
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
             }
             if ($useDoctrineMetadata) {
                 $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);

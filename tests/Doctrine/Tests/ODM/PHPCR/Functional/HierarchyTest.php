@@ -38,6 +38,8 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename', $doc->id);
         $this->assertEquals('thename', $doc->nodename);
 
+        $this->assertNotNull($doc->parent);
+        $this->assertEquals('/functional', $doc->parent->getId());
         return $doc;
     }
 
@@ -49,6 +51,8 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($doc);
         $this->dm->flush();
         $this->assertEquals('test', $doc->nodename);
+        $this->assertNotNull($doc->parent);
+        $this->assertEquals('functional', $doc->parent->getNodename());
         $this->dm->clear();
 
         $docNew = $this->dm->find($this->type, '/functional/test');
@@ -59,10 +63,31 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * @depends testFind
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testNodenameChangeException($doc)
     {
         $doc->nodename = 'x';
+        $this->dm->flush();
+    }
+
+    /**
+     * @depends testFind
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testParentChangeException($doc)
+    {
+        $doc->parent = new NameDoc();
+        $this->dm->flush();
+    }
+
+    /**
+     * @depends testFind
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testIdChangeException($doc)
+    {
+        $doc->id = '/different';
         $this->dm->flush();
     }
 
@@ -98,5 +123,6 @@ class NameDoc
     public $node;
     /** @PHPCRODM\Nodename */
     public $nodename;
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
 }
-?>

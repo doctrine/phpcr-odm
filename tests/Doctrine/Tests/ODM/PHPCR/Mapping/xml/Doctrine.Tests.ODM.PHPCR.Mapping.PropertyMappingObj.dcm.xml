@@ -3,6 +3,7 @@
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\PropertyMappingObj" alias="something" >
         <id name="id" />
         <nodename name="namefield" />
+        <parentdocument name="parent" />
         <field fieldName="string" type="string" />
         <field fieldName="binary" type="binary" />
         <field fieldName="long" type="  long" />
