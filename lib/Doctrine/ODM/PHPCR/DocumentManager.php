@@ -65,20 +65,19 @@ class DocumentManager implements ObjectManager
      */
     private $evm;
 
+    /**
+     * Whether the DocumentManager is closed or not.
+     *
+     * @var bool
+     */
+    private $closed = false;
+
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
         $this->session = $session;
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
-        $this->setUnitOfWork();
-    }
-
-    /**
-     * @return EventManager
-     */
-    private function setUnitOfWork()
-    {
         $this->unitOfWork = new UnitOfWork($this, $this->config->getDocumentNameMapper());
     }
 
@@ -125,6 +124,28 @@ class DocumentManager implements ObjectManager
     public function getConfiguration()
     {
         return $this->config;
+    }
+
+    /**
+     * Throws an exception if the DocumentManager is closed or currently not active.
+     *
+     * @throws PHPCRException If the DocumentManager is closed.
+     */
+    private function errorIfClosed()
+    {
+        if ($this->closed) {
+            throw PHPCRException::documentManagerClosed();
+        }
+    }
+
+    /**
+     * Check if the Document manager is open or closed.
+     *
+     * @return bool
+     */
+    public function isOpen()
+    {
+        return (!$this->closed);
     }
 
     /**
@@ -250,11 +271,13 @@ class DocumentManager implements ObjectManager
 
     public function persist($object)
     {
+        $this->errorIfClosed();
         $this->unitOfWork->scheduleInsert($object);
     }
 
     public function remove($object)
     {
+        $this->errorIfClosed();
         $this->unitOfWork->scheduleRemove($object);
     }
 
@@ -268,7 +291,9 @@ class DocumentManager implements ObjectManager
     public function merge($document)
     {
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+
         // TODO: implemenent
+        $this->errorIfClosed();
         return $this->getUnitOfWork()->merge($document);
     }
 
@@ -285,7 +310,9 @@ class DocumentManager implements ObjectManager
     public function detach($document)
     {
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+
         // TODO: implemenent
+        $this->errorIfClosed();
         $this->getUnitOfWork()->detach($document);
     }
 
@@ -297,6 +324,7 @@ class DocumentManager implements ObjectManager
      */
     public function refresh($document)
     {
+        $this->errorIfClosed();
         $this->session->refresh(true);
         $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
 
@@ -315,7 +343,8 @@ class DocumentManager implements ObjectManager
      */
     public function getChildren($document, $filter = null)
     {
-      return $this->unitOfWork->getChildren($document, $filter);
+        $this->errorIfClosed();
+        return $this->unitOfWork->getChildren($document, $filter);
     }
 
     /**
@@ -329,7 +358,8 @@ class DocumentManager implements ObjectManager
      */
     public function getReferrers($document, $type = null, $name = null)
     {
-      return $this->unitOfWork->getReferrers($document, $type, $name);
+        $this->errorIfClosed();
+        return $this->unitOfWork->getReferrers($document, $type, $name);
     }
 
     /**
@@ -338,27 +368,8 @@ class DocumentManager implements ObjectManager
      */
     public function flush()
     {
-        $this->unitOfWork->flush();
-    }
-
-    /**
-     * Temporary workaround: Flush all current changes to the phpcr session,
-     * but do not commit the session yet.
-     *
-     * Until everything is supported in doctrine, you will need to access the
-     * phpcr session directly for some operations. With the non-persisting
-     * flush, you can make phpcr reflect the current state without committing
-     * the transaction.
-     * Do not forget to call session->save() or dm->flush() to persist the
-     * changes when you are done.
-     *
-     * @deprecated: will go away as soon as phpcr-odm maps all necessary
-     * concepts of phpcr. if you use this now, be prepared to refactor your
-     * code when this method goes away.
-     */
-    public function flushNoSave()
-    {
-        $this->unitOfWork->flush(false);
+        $this->errorIfClosed();
+        $this->unitOfWork->commit();
     }
 
     /**
@@ -368,6 +379,7 @@ class DocumentManager implements ObjectManager
      */
     public function checkIn($object)
     {
+        $this->errorIfClosed();
         $this->unitOfWork->checkIn($object);
     }
 
@@ -378,6 +390,7 @@ class DocumentManager implements ObjectManager
      */
     public function checkOut($object)
     {
+        $this->errorIfClosed();
         $this->unitOfWork->checkOut($object);
     }
 
@@ -390,6 +403,7 @@ class DocumentManager implements ObjectManager
      */
     public function restore($version, $object, $removeExisting = true)
     {
+        $this->errorIfClosed();
         $this->unitOfWork->restore($version, $object, $removeExisting);
         $this->refresh($object);
     }
@@ -424,10 +438,30 @@ class DocumentManager implements ObjectManager
         return $this->unitOfWork;
     }
 
-    public function clear()
+    /**
+     * Clears the DocumentManager. All entities that are currently managed
+     * by this DocumentManager become detached.
+     *
+     * @param string $documentName
+     */
+    public function clear($documentName = null)
     {
-        // TODO: Do a real delegated clear?
-        $this->setUnitOfWork();
-        return $this->session->refresh(false);
+        if ($documentName === null) {
+            $this->unitOfWork->clear();
+        } else {
+            //TODO
+            throw new PHPCRException("DocumentManager#clear(\$documentName) not yet implemented.");
+        }
+    }
+
+    /**
+     * Closes the DocumentManager. All entities that are currently managed
+     * by this DocumentManager become detached. The DocumentManager may no longer
+     * be used after it is closed.
+     */
+    public function close()
+    {
+        $this->clear();
+        $this->closed = true;
     }
 }
