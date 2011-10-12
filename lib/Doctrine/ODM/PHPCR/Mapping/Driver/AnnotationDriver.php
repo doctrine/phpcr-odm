@@ -162,6 +162,9 @@ class AnnotationDriver implements Driver
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Node) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapNode($mapping);
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $class->mapNodename($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Child) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapChild($mapping);

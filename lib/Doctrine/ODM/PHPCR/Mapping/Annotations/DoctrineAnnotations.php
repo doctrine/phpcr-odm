@@ -35,7 +35,18 @@ final class MappedSuperclass
 final class Node
 {
 }
+/**
+ * The name of this node as in PHPCR\NodeInterface::getName
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Nodename
+{
+}
 
+/**
+ * base class for all property types
+ */
 class Property
 {
     /** @var string */
@@ -79,11 +90,28 @@ final class Version extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Boolean extends Property
+final class String extends Property
 {
-    public $type = 'boolean';
+    public $type = 'string';
 }
 /**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Binary extends Property
+{
+    public $type = 'binary';
+}
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Long extends Property
+{
+    public $type = 'long';
+}
+/**
+ * Convenience alias for Long.
  * @Annotation
  * @Target("PROPERTY")
  */
@@ -95,25 +123,18 @@ final class Int extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Long extends Property
+final class Double extends Property
 {
-    public $type = 'long';
+    public $type = 'double';
 }
 /**
+ * Convenience alias for Double.
  * @Annotation
  * @Target("PROPERTY")
  */
 final class Float extends Property
 {
-    public $type = 'float';
-}
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
-final class String extends Property
-{
-    public $type = 'string';
+    public $type = 'double';
 }
 /**
  * @Annotation
@@ -127,11 +148,50 @@ final class Date extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Binary extends Property
+final class Boolean extends Property
 {
-    public $type = 'binary';
+    public $type = 'boolean';
+}
+/**
+ * String that is restricted to name with optional namespace
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Name extends Property
+{
+    public $type = 'string';
+}
+/**
+ * String that is an absolute or relative path in the repository
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Path extends Property
+{
+    public $type = 'string';
+}
+/**
+ * String that is validated to be an URI
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Uri extends Property
+{
+    public $type = 'string';
+}
+/**
+ * Large numbers bcmath compatible strings
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Decimal extends Property
+{
+    public $type = 'string';
 }
 
+/**
+ * base class for the reference types
+ */
 class Reference
 {
     /** @var string @Required */
@@ -153,6 +213,7 @@ final class ReferenceOne extends Reference
 final class ReferenceMany extends Reference
 {
 }
+
 /**
  * @Annotation
  * @Target("PROPERTY")

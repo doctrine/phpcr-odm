@@ -1,0 +1,15 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\PropertyMappingObj:
+  alias: something
+  id: id
+  nodename: namefield
+  fields:
+    string: string
+    binary: binary
+    long:   long
+    decimal: decimal
+    double: double
+    date:   date
+    boolean: boolean
+    name: name
+    path: path
+    uri: uri
