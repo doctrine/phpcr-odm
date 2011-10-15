@@ -778,7 +778,11 @@ class UnitOfWork
 
         try {
             $utx = $this->session->getWorkspace()->getTransactionManager();
-            $utx->begin();
+            if ($utx->inTransaction()) {
+                $utx = null;
+            } else {
+                $utx->begin();
+            }
         } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
             $utx = null;
         }
