@@ -54,7 +54,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testIdentifier($class)
     {
-        $this->markTestSkipped('IDs are not supported at the moment');
         $this->assertEquals('id', $class->identifier);
 
         return $class;
