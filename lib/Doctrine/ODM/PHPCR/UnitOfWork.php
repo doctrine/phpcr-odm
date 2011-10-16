@@ -25,6 +25,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
+use Doctrine\ODM\PHPCR\Proxy\Proxy;
+
 use PHPCR\PropertyType;
 
 /**
@@ -1239,6 +1241,21 @@ class UnitOfWork
             throw new PHPCRException("Document is not managed and has no id.");
         }
         return $this->documentIds[$oid];
+    }
+
+    /**
+     * Helper method to initialize a lazy loading proxy or persistent collection.
+     *
+     * @param object
+     * @return void
+     */
+    public function initializeObject($obj)
+    {
+        if ($obj instanceof Proxy) {
+            $obj->__doctrineLoad__();
+        } else if ($obj instanceof PersistentCollection) {
+            $obj->initialize();
+        }
     }
 
     /**
