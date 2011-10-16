@@ -16,20 +16,34 @@ use Closure;
 abstract class PersistentCollection implements Collection
 {
     /** @var ArrayCollection */
-    protected $col;
-    protected $changed = false;
+    protected $coll;
 
     /**
-     * Loads the collection
+     * Whether the collection is dirty and needs to be synchronized with the database
+     * when the UnitOfWork that manages its persistent state commits.
+     *
+     * @var boolean
      */
-    abstract protected function load();
+    protected $isDirty = false;
+
+    /**
+     * Whether the collection has already been initialized.
+     *
+     * @var boolean
+     */
+    protected $initialized = false;
+
+    /**
+     * @var DocumentManager
+     */
+    protected $dm;
 
     /**
      * @return  bool    Whether the collection was modified
      */
     public function changed()
     {
-        return $this->changed;
+        return $this->isDirty;
     }
 
     /**
@@ -37,7 +51,7 @@ abstract class PersistentCollection implements Collection
      */
     public function takeSnapshot()
     {
-        $this->changed = false;
+        $this->isDirty = false;
     }
 
     /**
@@ -45,224 +59,224 @@ abstract class PersistentCollection implements Collection
      */
     public function unwrap()
     {
-        return $this->col;
+        return $this->coll;
     }
 
     /** {@inheritDoc} */
     public function add($element)
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->add($element);
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->add($element);
     }
 
     /** {@inheritDoc} */
     public function clear()
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->clear();
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->clear();
     }
 
     /** {@inheritDoc} */
     public function contains($element)
     {
-        $this->load();
-        return $this->col->contains($element);
+        $this->initialize();
+        return $this->coll->contains($element);
     }
 
     /** {@inheritDoc} */
     public function containsKey($key)
     {
-        $this->load();
-        return $this->col->containsKey($key);
+        $this->initialize();
+        return $this->coll->containsKey($key);
     }
 
     /** {@inheritDoc} */
     public function count()
     {
-        $this->load();
-        return $this->col->count();
+        $this->initialize();
+        return $this->coll->count();
     }
 
     /** {@inheritDoc} */
     public function current()
     {
-        $this->load();
-        return $this->col->current();
+        $this->initialize();
+        return $this->coll->current();
     }
 
     /** {@inheritDoc} */
     public function exists(Closure $p)
     {
-        $this->load();
-        return $this->col->exists($p);
+        $this->initialize();
+        return $this->coll->exists($p);
     }
 
     /** {@inheritDoc} */
     public function filter(Closure $p)
     {
-        $this->load();
-        return $this->col->filter($p);
+        $this->initialize();
+        return $this->coll->filter($p);
     }
 
     /** {@inheritDoc} */
     public function first()
     {
-        $this->load();
-        return $this->col->first();
+        $this->initialize();
+        return $this->coll->first();
     }
 
     /** {@inheritDoc} */
     public function forAll(Closure $p)
     {
-        $this->load();
-        return $this->col->forAll($p);
+        $this->initialize();
+        return $this->coll->forAll($p);
     }
 
     /** {@inheritDoc} */
     public function get($key)
     {
-        $this->load();
-        return $this->col->get($key);
+        $this->initialize();
+        return $this->coll->get($key);
     }
 
     /** {@inheritDoc} */
     public function getIterator()
     {
-        $this->load();
-        return $this->col->getIterator();
+        $this->initialize();
+        return $this->coll->getIterator();
     }
 
     /** {@inheritDoc} */
     public function getKeys()
     {
-        $this->load();
-        return $this->col->getKeys();
+        $this->initialize();
+        return $this->coll->getKeys();
     }
 
     /** {@inheritDoc} */
     public function getValues()
     {
-        $this->load();
-        return $this->col->getValues();
+        $this->initialize();
+        return $this->coll->getValues();
     }
 
     /** {@inheritDoc} */
     public function indexOf($element)
     {
-        $this->load();
-        return $this->col->indexOf($element);
+        $this->initialize();
+        return $this->coll->indexOf($element);
     }
 
     /** {@inheritDoc} */
     public function isEmpty()
     {
-        $this->load();
-        return $this->col->isEmpty();
+        $this->initialize();
+        return $this->coll->isEmpty();
     }
 
     /** {@inheritDoc} */
     public function key()
     {
-        $this->load();
-        return $this->col->key();
+        $this->initialize();
+        return $this->coll->key();
     }
 
     /** {@inheritDoc} */
     public function last()
     {
-        $this->load();
-        return $this->col->last();
+        $this->initialize();
+        return $this->coll->last();
     }
 
     /** {@inheritDoc} */
     public function map(Closure $func)
     {
-        $this->load();
-        return $this->col->map($func);
+        $this->initialize();
+        return $this->coll->map($func);
     }
 
     /** {@inheritDoc} */
     public function next()
     {
-        $this->load();
-        return $this->col->next();
+        $this->initialize();
+        return $this->coll->next();
     }
 
     /** {@inheritDoc} */
     public function offsetExists($offset)
     {
-        $this->load();
-        return $this->col->offsetExists($offset);
+        $this->initialize();
+        return $this->coll->offsetExists($offset);
     }
 
     /** {@inheritDoc} */
     public function offsetGet($offset)
     {
-        $this->load();
-        return $this->col->offsetGet($offset);
+        $this->initialize();
+        return $this->coll->offsetGet($offset);
     }
 
     /** {@inheritDoc} */
     public function offsetSet($offset, $value)
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->offsetSet($offset, $value);
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->offsetSet($offset, $value);
     }
 
     /** {@inheritDoc} */
     public function offsetUnset($offset)
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->offsetUnset($offset);
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->offsetUnset($offset);
     }
 
     /** {@inheritDoc} */
     public function partition(Closure $p)
     {
-        $this->load();
-        return $this->col->partition($p);
+        $this->initialize();
+        return $this->coll->partition($p);
     }
 
     /** {@inheritDoc} */
     public function remove($key)
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->remove($key);
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->remove($key);
     }
 
     /** {@inheritDoc} */
     public function removeElement($element)
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->removeElement($element);
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->removeElement($element);
     }
 
     /** {@inheritDoc} */
     public function set($key, $value)
     {
-        $this->load();
-        $this->changed = true;
-        return $this->col->set($key, $value);
+        $this->initialize();
+        $this->isDirty = true;
+        return $this->coll->set($key, $value);
     }
 
     /** {@inheritDoc} */
     public function slice($offset, $length = null)
     {
-        $this->load();
-        return $this->col->slice($offset, $length);
+        $this->initialize();
+        return $this->coll->slice($offset, $length);
     }
 
     /** {@inheritDoc} */
     public function toArray()
     {
-        $this->load();
-        return $this->col->toArray();
+        $this->initialize();
+        return $this->coll->toArray();
     }
 
     /**
@@ -273,5 +287,31 @@ abstract class PersistentCollection implements Collection
     public function __toString()
     {
         return __CLASS__ . '@' . spl_object_hash($this);
+    }
+
+    /**
+     * Initializes the collection by loading its contents from the database
+     * if the collection is not yet initialized.
+     */
+    public function initialize()
+    {
+        // TODO: association property isnt set and UoW::loadCollection does not yet exist
+        if ( ! $this->initialized && $this->association) {
+            if ($this->isDirty) {
+                // Has NEW objects added through add(). Remember them.
+                $newObjects = $this->coll->toArray();
+            }
+            $this->coll->clear();
+            $this->dm->getUnitOfWork()->loadCollection($this);
+            $this->takeSnapshot();
+            // Reattach NEW objects added through add(), if any.
+            if (isset($newObjects)) {
+                foreach ($newObjects as $obj) {
+                    $this->coll->add($obj);
+                }
+                $this->isDirty = true;
+            }
+            $this->initialized = true;
+        }
     }
 }

@@ -12,21 +12,27 @@ namespace Doctrine\ODM\PHPCR;
 class ReferrersCollection extends PersistentCollection
 {
     private $document;
-    private $dm;
+    private $type;
     private $name;
 
-    public function __construct($document, DocumentManager $dm, $type = null, $name = null)
+    public function __construct(DocumentManager $dm, $document, $type = null, $name = null)
     {
-        $this->document = $document;
         $this->dm = $dm;
+        $this->document = $document;
         $this->type = $type;
         $this->name = $name;
     }
 
-    protected function load()
+    /**
+     * Initializes the collection by loading its contents from the database
+     * if the collection is not yet initialized.
+     */
+    public function initialize()
     {
-        if (null === $this->col) {
-            $this->col = $this->dm->getReferrers($this->document, $this->type, $this->name);
+        if (!$this->initialized) {
+            $this->initialized = true;
+
+            $this->coll = $this->dm->getReferrers($this->document, $this->type, $this->name);
         }
     }
 }

@@ -25,7 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
-use Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\ODM\PHPCR\Proxy\ReferenceProxyFactory;
 
 use PHPCR\PropertyType;
 
@@ -278,7 +278,7 @@ class UnitOfWork
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
                 } else {
                     $config = $this->dm->getConfiguration();
-                    $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
+                    $this->referenceProxyFactory = new ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
 
                     $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
                     $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
@@ -352,11 +352,11 @@ class UnitOfWork
         }
 
         foreach ($class->childrenMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
+            $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter']);
         }
 
         foreach ($class->referrersMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ReferrersCollection($document, $this->dm, $mapping['referenceType'], $mapping['filterName']);
+            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filterName']);
         }
 
         if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
