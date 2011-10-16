@@ -293,25 +293,5 @@ abstract class PersistentCollection implements Collection
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */
-    public function initialize()
-    {
-        // TODO: association property isnt set and UoW::loadCollection does not yet exist
-        if ( ! $this->initialized && $this->association) {
-            if ($this->isDirty) {
-                // Has NEW objects added through add(). Remember them.
-                $newObjects = $this->coll->toArray();
-            }
-            $this->coll->clear();
-            $this->dm->getUnitOfWork()->loadCollection($this);
-            $this->takeSnapshot();
-            // Reattach NEW objects added through add(), if any.
-            if (isset($newObjects)) {
-                foreach ($newObjects as $obj) {
-                    $this->coll->add($obj);
-                }
-                $this->isDirty = true;
-            }
-            $this->initialized = true;
-        }
-    }
+    abstract public function initialize();
 }
