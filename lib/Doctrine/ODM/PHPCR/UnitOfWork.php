@@ -742,7 +742,7 @@ class UnitOfWork
     }
 
     /**
-     * Persist new document, marking it managed and generating the id.
+     * Persist new document, marking it managed and generating the id and the node.
      *
      * This method is either called through `DocumentManager#persist()` or during `DocumentManager#flush()`,
      * when persistence by reachability is applied.
