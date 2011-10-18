@@ -755,7 +755,21 @@ class UnitOfWork
     {
         $id = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
 
-        $this->registerManaged($document, $id, null);
+        $oid = $this->registerManaged($document, $id, null);
+
+        $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
+        $node = $parentNode->addNode(basename($id), $class->nodeType);
+        $this->nodesMap[$oid] = $node;
+
+        if ($class->identifier) {
+            $class->reflFields[$class->identifier]->setValue($document, $id);
+        }
+        if ($class->node) {
+            $class->reflFields[$class->node]->setValue($document, $node);
+        }
+        if ($class->nodename) {
+            $class->reflFields[$class->nodename]->setValue($document, $node->getName());
+        }
 
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
@@ -833,10 +847,7 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
-
-            $id = $this->documentIds[$oid];
-            $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
-            $node = $parentNode->addNode(basename($id), $class->nodeType);
+            $node = $this->nodesMap[$oid];
 
             if ($this->writeMetadata) {
                 $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
@@ -860,17 +871,6 @@ class UnitOfWork
             if ($node->isNodeType('mix:referenceable')) {
                 // TODO do we need to check with the storage backend if the generated id really is unique?
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
-            }
-
-            $this->nodesMap[$oid] = $node;
-            if ($class->identifier) {
-                $class->reflFields[$class->identifier]->setValue($document, $id);
-            }
-            if ($class->node) {
-                $class->reflFields[$class->node]->setValue($document, $node);
-            }
-            if ($class->nodename) {
-                $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -1116,7 +1116,7 @@ class UnitOfWork
      * @param object $document
      * @param string $id The document id to look for.
      * @param string $revision The revision of the document.
-     * @return bool
+     * @return the generated object id
      */
     public function registerManaged($document, $id, $revision)
     {
@@ -1125,6 +1125,7 @@ class UnitOfWork
         $this->documentIds[$oid] = $id;
         $this->documentRevisions[$oid] = $revision;
         $this->identityMap[$id] = $document;
+        return $oid;
     }
 
     /**
