@@ -32,7 +32,7 @@ use Doctrine\ODM\PHPCR\DocumentManager,
  * This whole thing is copy & pasted from ORM - should really be slightly
  * refactored to generate
  */
-class ReferenceProxyFactory
+class ProxyFactory
 {
     /** The DocumentManager this factory is bound to. */
     private $dm;
