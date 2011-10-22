@@ -62,52 +62,51 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @depends testFind
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testNodenameChangeException($doc)
+    public function testNodenameChangeException()
     {
+        $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->nodename = 'x';
         $this->dm->flush();
     }
 
     /**
-     * @depends testFind
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testParentChangeException($doc)
+    public function testParentChangeException()
     {
+        $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->parent = new NameDoc();
         $this->dm->flush();
     }
 
     /**
-     * @depends testFind
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testIdChangeException($doc)
+    public function testIdChangeException()
     {
+        $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->id = '/different';
         $this->dm->flush();
     }
 
-/*
- *  TODO: implement a strategy for this. should probably even be the default
-    public function testInsertWithParentAndNameIdStrategy()
+    public function testInsertWithParentIdStrategy()
     {
-        $user = new User3();
-        $user->username = "test3";
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $child = new NameDoc();
+        $child->parent = $doc;
+        $child->nodename = 'child';
 
-        $this->dm->persist($user);
+        $this->dm->persist($child);
+
         $this->dm->flush();
-        $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User3', '/functional/test3');
+        $this->assertTrue($this->node->getNode('thename')->hasNode('child'));
+        $this->assertEquals('/functional/thename/child', $child->id);
 
-        $this->assertNotNull($userNew, "Have to hydrate user object!");
-        $this->assertEquals($user->username, $userNew->username);
     }
-*/
+
     // TODO: move? is to be done through phpcr session directly
 
 }
