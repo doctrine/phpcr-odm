@@ -18,6 +18,9 @@ class Resource
     /** @PHPCRODM\Node */
     protected $node;
 
+    /** @PHPCRODM\ParentDocument */
+    protected $parent;
+
     /** @PHPCRODM\Binary(name="jcr:data") */
     protected $data;
 
@@ -32,6 +35,27 @@ class Resource
 
     /** @PHPCRODM\String(name="jcr:lastModifiedBy") */
     protected $lastModifiedBy;
+
+    /**
+     * The parent File document of this Resource document.
+     *
+     * @param object $parent File document that is the parent of this node.
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Set the parent document of this document. Only mutable on new document
+     * before the persist.
+     *
+     * @param object $parent Document that is the parent of this node.
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
 
     /**
      * setter for the data property

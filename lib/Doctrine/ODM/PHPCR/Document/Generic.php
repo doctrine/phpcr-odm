@@ -29,6 +29,9 @@ class Generic
     /** @PHPCRODM\Children */
     protected $children;
 
+    /** @PHPCRODM\Referrers */
+    protected $referrers;
+
     /**
      * Id (path) of this document
      *
@@ -55,7 +58,7 @@ class Generic
      * If there is information on the document type, the document is of the
      * specified type, otherwise it will be a Generic document
      *
-     * @return string
+     * @return object Document
      */
     public function getParent()
     {
@@ -68,10 +71,23 @@ class Generic
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
      *
-     * @return string
+     * @return object documents
      */
     public function getChildren()
     {
         return $this->children;
+    }
+
+    /**
+     * The documents having a reference to this document
+     *
+     * If there is information on the document type, the documents are of the
+     * specified type, otherwise they will be Generic documents
+     *
+     * @return string
+     */
+    public function getReferrers()
+    {
+        return $this->referrers;
     }
 }
