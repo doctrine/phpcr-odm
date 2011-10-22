@@ -72,14 +72,12 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/childtest');
         $parent->child = new ChildChildTestObj();
         $parent->child->name = 'Child';
-        $this->dm->persist($parent);
 
         $this->dm->flush();
         $this->dm->clear();
 
         $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
-
     }
 
     public function testUpdate()
@@ -98,7 +96,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/childtest');
         $parent->child->name = 'Child changed';
 
-        $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
         $this->assertNotEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
@@ -205,7 +202,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
 
         $this->dm->flush();
-
     }
 
     public function testModificationAfterPersist()
@@ -310,7 +306,7 @@ class ChildReferrerTestObj
 /**
   * @PHPCRODM\Document(alias="ChildReferenceableTestObj", referenceable=true)
   */
-class ChildReferenceableTestObj 
+class ChildReferenceableTestObj
 {
   /** @PHPCRODM\Id */
   public $id;
