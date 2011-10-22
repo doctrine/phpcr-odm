@@ -426,6 +426,8 @@ class UnitOfWork
         $class = $this->dm->getClassMetadata(get_class($document));
         $state = $this->getDocumentState($document);
 
+        $this->cascadeScheduleParentInsert($class, $document, $visited);
+
         switch ($state) {
             case self::STATE_NEW:
                 $this->persistNew($class, $document, $overrideIdGenerator);
@@ -495,7 +497,10 @@ class UnitOfWork
                 $this->doScheduleInsert($referrer, $visited);
             }
         }
+    }
 
+    private function cascadeScheduleParentInsert($class, $document, &$visited)
+    {
         if ($class->parentMapping) {
             $parent = $class->reflFields[$class->parentMapping]->getValue($document);
             if ($parent !== null && $this->getDocumentState($parent) == self::STATE_NEW) {

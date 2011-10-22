@@ -104,7 +104,23 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->node->getNode('thename')->hasNode('child'));
         $this->assertEquals('/functional/thename/child', $child->id);
+    }
 
+    public function testInsertChildWithNewParent()
+    {
+        $parent = new NameDoc();
+        $parent->id = '/functional/parent';
+
+        $child = new NameDoc();
+        $child->parent = $parent;
+        $child->nodename = 'child';
+
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+
+        $this->assertTrue($this->node->getNode('parent')->hasNode('child'));
+        $this->assertEquals('/functional/parent/child', $child->id);
     }
 
     // TODO: move? is to be done through phpcr session directly
