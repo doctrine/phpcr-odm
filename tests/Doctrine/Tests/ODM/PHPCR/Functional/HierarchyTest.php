@@ -115,6 +115,8 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $child->parent = $parent;
         $child->nodename = 'child';
 
+        $parent->children = array($child);
+
         $this->dm->persist($child);
 
         $this->dm->flush();
@@ -140,4 +142,6 @@ class NameDoc
     public $nodename;
     /** @PHPCRODM\ParentDocument */
     public $parent;
+    /** @PHPCRODM\Children */
+    public $children;
 }
