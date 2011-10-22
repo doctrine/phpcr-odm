@@ -4,7 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
+    Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 /**
  * @group functional
@@ -125,6 +126,24 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/child', $child->id);
     }
 
+    function testProxyForParentIsUsed()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $this->assertTrue($doc->parent instanceof Proxy);
+    }
+
+    function testProxyForChildIsUsed()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $doc->child = new NameDoc();
+        $this->dm->flush();
+
+        $this->dm->clear();
+
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $this->assertTrue($doc->child instanceof Proxy);
+    }
+
     // TODO: move? is to be done through phpcr session directly
 
 }
@@ -144,4 +163,8 @@ class NameDoc
     public $parent;
     /** @PHPCRODM\Children */
     public $children;
+    /** @PHPCRODM\Child */
+    public $child;
+    /** @PHPCRODM\String */
+    public $title;
 }
