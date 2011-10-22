@@ -495,6 +495,13 @@ class UnitOfWork
                 $this->doScheduleInsert($referrer, $visited);
             }
         }
+
+        if ($class->parentMapping) {
+            $parent = $class->reflFields[$class->parentMapping]->getValue($document);
+            if ($parent !== null && $this->getDocumentState($parent) == self::STATE_NEW) {
+                $this->doScheduleInsert($parent, $visited);
+            }
+        }
     }
 
     private function getIdGenerator($type)
@@ -620,9 +627,6 @@ class UnitOfWork
                     && !isset($class->nodename)
                 ) {
                     continue;
-                }
-                if ($class->nodename == $fieldName) {
-                    var_dump($fieldValue);die;
                 }
                 if ($class->isCollectionValuedAssociation($fieldName)) {
                     if (!$fieldValue instanceof PersistentCollection) {

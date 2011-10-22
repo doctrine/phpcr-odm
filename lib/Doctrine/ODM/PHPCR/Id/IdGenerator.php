@@ -46,6 +46,10 @@ abstract class IdGenerator
             case ClassMetadata::GENERATOR_TYPE_REPOSITORY:
                 $instance = new RepositoryIdGenerator();
                 break;
+            case ClassMetadata::GENERATOR_TYPE_PARENT:
+                $instance = new ParentIdGenerator();
+                break;
+
             default:
                 throw new \Exception("ID Generator does not exist!");
         }
