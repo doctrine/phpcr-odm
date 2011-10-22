@@ -15,7 +15,6 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
 
     public function testInsertDocuments()
     {
-
         if (\extension_loaded('xdebug')) {
             $this->markTestSkipped('Performance-Testing with xdebug enabled makes no sense.');
         }

@@ -236,38 +236,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($user2->node->hasProperty('username'));
         $this->assertNull($user2->username);
     }
-
-    public function testKeepTrackOfUnmappedData()
-    {
-        $this->markTestIncomplete('Update to remove the use of the httpClient');
-
-        $data =  array(
-            '_id' => "2",
-            'username' => 'beberlei',
-            'email' => 'kontakt@beberlei.de',
-            'address' => array('city' => 'Bonn', 'country' => 'DE'),
-            'doctrine_metadata' => array('type' => $this->type)
-        );
-        $resp = $httpClient->request('PUT', '/' . $this->dm->getConfiguration()->getDatabase() . '/2', json_encode($data));
-        $this->assertEquals(201, $resp->status);
-
-        $user = $this->dm->find($this->type, 2);
-        $this->assertInstanceOf($this->type, $user);
-        $this->assertEquals('beberlei', $user->username);
-
-        $user->username = 'beberlei2';
-        $this->dm->flush();
-
-        $resp = $httpClient->request('GET', '/' . $this->dm->getConfiguration()->getDatabase() . '/2');
-        $this->assertEquals(200, $resp->status);
-
-        $data['username'] = 'beberlei2';
-
-        ksort($resp->body);
-        ksort($data);
-
-        $this->assertEquals($data, $resp->body);
-    }
 }
 
 /**

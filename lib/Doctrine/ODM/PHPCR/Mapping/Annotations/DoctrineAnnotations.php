@@ -257,17 +257,6 @@ final class Referrers
 
 /**
  * @Annotation
- * @Target("CLASS")
- */
-final class EmbeddedDocument {}
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
-final class EmbedOne extends Property {}
-
-/**
- * @Annotation
  * @Target("METHOD")
  */
 final class PrePersist {}
