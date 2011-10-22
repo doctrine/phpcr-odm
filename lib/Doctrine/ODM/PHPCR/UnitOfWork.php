@@ -276,8 +276,6 @@ class UnitOfWork
                 if (isset($this->identityMap[$referencedId])) {
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
                 } else {
-                    $config = $this->dm->getConfiguration();
-
                     $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
                     $proxyDocument = $this->dm->getProxyFactory()->getProxy($referencedClass->name, $referencedId);
 
@@ -300,8 +298,6 @@ class UnitOfWork
                 if (!is_array($proxyNodes)) {
                     throw new PHPCRException("Expected referenced nodes passed as array.");
                 }
-
-                $config = $this->dm->getConfiguration();
 
                 foreach ($proxyNodes as $referencedNode) {
                     $referencedId = $referencedNode->getPath();
