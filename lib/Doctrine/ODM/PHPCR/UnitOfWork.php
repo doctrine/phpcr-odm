@@ -205,13 +205,15 @@ class UnitOfWork
             if ($this->writeMetadata && empty($properties['phpcr:class']) && isset($class)) {
                 $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
+
+            // the built in mapping uses the generic document if it is not able to determine the document class
+            if (empty($class)) {
+                $class = $this->dm->getClassMetadata('Doctrine\ODM\PHPCR\Document\Generic');
+            }
         }
 
         if (empty($class)) {
-            $class = $this->dm->getClassMetadata('Doctrine\ODM\PHPCR\Document\Generic');
-            // TODO: is this sane or do we want to know issues?
-            // but would be a problem with parent annotations
-            // throw new \InvalidArgumentException("Could not determine Doctrine metadata for node");
+            throw new \InvalidArgumentException("Could not determine Doctrine metadata for node");
         }
 
         $documentState = array();
