@@ -3,6 +3,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 
 /**
  * Persistent collection class
@@ -15,41 +16,37 @@ use Doctrine\Common\Collections\Collection;
  */
 class PersistentIdCollection extends PersistentCollection
 {
-    /** @var string */
-    private $documentName;
-
-    /** @var DocumentManager */
-    private $dm;
-
     /** @var array */
     private $ids;
 
-    /** @var bool   Whether the collection is populated with the associated ids. */
-    public $isInitialized = false;
-
-    public function __construct(Collection $collection, $documentName, DocumentManager $dm, $ids)
+    public function __construct(DocumentManager $dm, Collection $coll, ClassMetadata $class,  array $ids)
     {
-        $this->col = $collection;
-        $this->documentName = $documentName;
         $this->dm = $dm;
+        $this->coll = $coll;
+        $this->class = $class;
         $this->ids = $ids;
-        $this->isInitialized = (count($ids) == 0);
+
+        $this->initialized = (count($ids) == 0);
     }
 
-    protected function load()
+    /**
+     * Initializes the collection by loading its contents from the database
+     * if the collection is not yet initialized.
+     */
+    public function initialize()
     {
-        if (!$this->isInitialized) {
-            $this->isInitialized = true;
+        if (!$this->initialized) {
+            $this->initialized = true;
 
-            $elements = $this->col->toArray();
+            $elements = $this->coll->toArray();
 
-            $repository = $this->dm->getRepository($this->documentName);
+            $repository = $this->dm->getRepository($this->class->getName());
             $objects = $repository->findMany($this->ids);
             foreach ($objects as $object) {
-                $this->col->add($object);
+                $this->coll->add($object);
             }
             foreach ($elements as $object) {
-                $this->col->add($object);
+                $this->coll->add($object);
             }
         }
     }

@@ -63,9 +63,12 @@ Getting Started
         $newUser->username = 'Timmy';
         $newUser->email = 'foo@example.com';
         $newUser->path = '/timmy';
+        // make the document manager know this document
+        // this will create the node in phpcr but not read the fields or commit
+        // the changes yet.
         $dm->persist($newUser);
 
-        // store all changes, insertions, etc.
+        // store all changes, insertions, etc. with the storage backend
         $dm->flush();
 
         //TODO: search example
@@ -156,11 +159,11 @@ Available annotations
 ---------------------
 
 <table>
-<tr><td> Id:            </td><td>The phpcr path to this node. (see above)</td></tr>
+<tr><td> Id:            </td><td>The phpcr path to this node. (see above). For new nodes not using the default strategy, it is populated during the persist() operation.</td></tr>
 <tr><td> Uuid:          </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:       </td><td>The version of this node, for versioned nodes. </td></tr>
-<tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node. </td></tr>
-<tr><td> Nodename:          </td><td>The name of the PHPCR node (this is the part of the path after the last '/' in the id). This property is read only except on document creation with the parentandname strategy.</td></tr>
+<tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. This is populated as soon as you register the document with the manager using persist(). (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node.) </td></tr>
+<tr><td> Nodename:          </td><td>The name of the PHPCR node (this is the part of the path after the last '/' in the id). This property is read only except on document creation with the parentandname strategy. For new nodes, it is populated during the persist() operation.</td></tr>
 <tr><td> ParentDocument:          </td><td>The parent document of this document. If a type is defined, the document will be of that type, otherwise Doctrine\ODM\PHPCR\Document\Generic will be used. This property is read only except on document creation with the parentandname strategy.</td></tr>
 <tr><td> Child(name=x): </td><td>Map the child with name x to this field. </td></tr>
 <tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this field. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>

@@ -20,8 +20,9 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
-        $this->factory = new Factory;
+        $this->factory = new Factory; // TODO: remove jackalope dependencies
         $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
+        // TODO: remove jackalope dependency:
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
 
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
@@ -38,7 +39,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     protected function createNode($id, $username)
     {
-        $this->markTestIncomplete('The Node needs to be properly mocked/stubbed');
+        $this->markTestIncomplete('The Node needs to be properly mocked/stubbed. Remove dependeny to Jackalope');
 
         $nodeData = array(
             'jcr:primaryType' => "Name",
@@ -46,7 +47,6 @@ class UnitOfWorkTest extends PHPCRTestCase
             "jcr:system" => array(),
             'username' => $username,
         );
-
         return new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
     }
 
@@ -84,6 +84,15 @@ class UnitOfWorkTest extends PHPCRTestCase
      */
     public function testScheduleInsertion()
     {
+        $parent = $this->getMockBuilder('Jackalope\Node')->disableOriginalConstructor()->getMock();
+        $parent->expects($this->once())
+                      ->method('addNode')
+                      ->with('somepath', null);
+        $this->session->expects($this->once())
+                      ->method('getNode')
+                      ->with('/')
+                      ->will($this->returnValue($parent));
+
         $object = new UoWUser();
         $object->username = "bar";
         $object->id = '/somepath';
