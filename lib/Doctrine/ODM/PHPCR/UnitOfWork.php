@@ -25,7 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
-use Doctrine\ODM\PHPCR\Proxy\ReferenceProxyFactory;
 
 use PHPCR\PropertyType;
 
@@ -277,11 +276,8 @@ class UnitOfWork
                 if (isset($this->identityMap[$referencedId])) {
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
                 } else {
-                    $config = $this->dm->getConfiguration();
-                    $this->referenceProxyFactory = new ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
-
                     $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
-                    $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
+                    $proxyDocument = $this->dm->getProxyFactory()->getProxy($referencedClass->name, $referencedId);
 
                     // register the referenced document under its own id
                     $this->registerManaged($proxyDocument, $referencedId, null);
@@ -303,9 +299,6 @@ class UnitOfWork
                     throw new PHPCRException("Expected referenced nodes passed as array.");
                 }
 
-                $config = $this->dm->getConfiguration();
-                $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
-
                 foreach ($proxyNodes as $referencedNode) {
                     $referencedId = $referencedNode->getPath();
                     // check if referenced document already exists
@@ -313,7 +306,7 @@ class UnitOfWork
                         $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->identityMap[$referencedId];
                     } else {
                         $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
-                        $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
+                        $proxyDocument = $this->dm->getProxyFactory()->getProxy($referencedClass->name, $referencedId);
 
                         // register the referenced document under its own id
                         $this->registerManaged($proxyDocument, $referencedId, null);
