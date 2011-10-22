@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -56,6 +57,11 @@ class DocumentManager implements ObjectManager
     private $unitOfWork = null;
 
     /**
+     * @var ProxyFactory
+     */
+    private $proxyFactory = null;
+
+    /**
      * @var array
      */
     private $repositories = array();
@@ -79,6 +85,21 @@ class DocumentManager implements ObjectManager
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
         $this->unitOfWork = new UnitOfWork($this, $this->config->getDocumentNameMapper());
+        $this->proxyFactory = new ProxyFactory($this,
+            $this->config->getProxyDir(),
+            $this->config->getProxyNamespace(),
+            $this->config->getAutoGenerateProxyClasses()
+        );
+    }
+
+    /**
+     * Gets the proxy factory used by the DocumentManager to create document proxies.
+     *
+     * @return ProxyFactory
+     */
+    public function getProxyFactory()
+    {
+        return $this->proxyFactory;
     }
 
     /**
