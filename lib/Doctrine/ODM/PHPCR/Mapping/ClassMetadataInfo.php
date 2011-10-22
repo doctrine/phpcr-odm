@@ -65,6 +65,11 @@ class ClassMetadataInfo implements ClassMetadata
     const GENERATOR_TYPE_ASSIGNED = 2;
 
     /**
+     * means the document uses the parent and name mapping to find its place.
+     */
+    const GENERATOR_TYPE_PARENT = 3;
+
+    /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
      *
      * @var AbstractIdGenerator
@@ -519,22 +524,20 @@ class ClassMetadataInfo implements ClassMetadata
     public function mapNode(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
-
         $this->node = $mapping['fieldName'];
     }
 
     public function mapNodename(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
-
         $this->nodename = $mapping['fieldName'];
     }
 
     public function mapParentDocument(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
-
         $this->parentMapping = $mapping['fieldName'];
+        $this->idGenerator = self::GENERATOR_TYPE_PARENT;
     }
 
     public function mapChild(array $mapping)

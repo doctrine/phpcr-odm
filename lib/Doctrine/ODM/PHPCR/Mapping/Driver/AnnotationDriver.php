@@ -69,7 +69,6 @@ class AnnotationDriver implements Driver
     static private $documentAnnotationClasses = array(
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document',
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass',
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\EmbeddedDocument',
     );
 
     /**

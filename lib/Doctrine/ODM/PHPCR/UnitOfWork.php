@@ -24,6 +24,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
+use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
+use Doctrine\ODM\PHPCR\Proxy\ReferenceProxyFactory;
+
 use PHPCR\PropertyType;
 
 /**
@@ -34,6 +37,7 @@ use PHPCR\PropertyType;
  * @since       1.0
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
 class UnitOfWork
 {
@@ -100,6 +104,11 @@ class UnitOfWork
     /**
      * @var array
      */
+    private $scheduledAssociationUpdates = array();
+
+    /**
+     * @var array
+     */
     private $scheduledInserts = array();
 
     /**
@@ -116,6 +125,11 @@ class UnitOfWork
      * @var array
      */
     private $idGenerators = array();
+
+    /**
+     * \PHPCR\SessionInterface
+     */
+    private $session;
 
     /**
      * @var EventManager
@@ -143,6 +157,7 @@ class UnitOfWork
     public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper = null)
     {
         $this->dm = $dm;
+        $this->session = $this->dm->getPhpcrSession();
         $this->evm = $dm->getEventManager();
         $this->documentNameMapper = $documentNameMapper;
         $this->validateDocumentName = $this->dm->getConfiguration()->getValidateDoctrineMetadata();
@@ -245,9 +260,8 @@ class UnitOfWork
         }
 
         if (count($refNodeUUIDs) > 0) {
-            $session = $this->dm->getPhpcrSession();
             // ensure that the given nodes are in the in memory cache
-            $session->getNodesByIdentifier($refNodeUUIDs);
+            $this->session->getNodesByIdentifier($refNodeUUIDs);
         }
 
         // initialize inverse side collections
@@ -267,7 +281,7 @@ class UnitOfWork
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
                 } else {
                     $config = $this->dm->getConfiguration();
-                    $this->referenceProxyFactory = new Proxy\ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
+                    $this->referenceProxyFactory = new ReferenceProxyFactory($this->dm, $config->getProxyDir(), $config->getProxyNamespace(), true);
 
                     $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
                     $proxyDocument = $this->referenceProxyFactory->getProxy($referencedClass->name, $referencedId);
@@ -322,11 +336,9 @@ class UnitOfWork
         }
 
         foreach ($class->childMappings as $childName => $mapping) {
-            if ($node->hasNode($mapping['name'])) {
-                $documentState[$class->childMappings[$childName]['fieldName']] = $this->createDocument(null, $node->getNode($mapping['name']));
-            } else {
-                $documentState[$class->childMappings[$childName]['fieldName']] = null;
-            }
+            $documentState[$class->childMappings[$childName]['fieldName']] = $node->hasNode($mapping['name'])
+                ? $this->createDocument(null, $node->getNode($mapping['name']))
+                : null;
         }
 
         if (isset($this->identityMap[$id])) {
@@ -348,11 +360,11 @@ class UnitOfWork
         }
 
         foreach ($class->childrenMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ChildrenCollection($document, $this->dm, $mapping['filter']);
+            $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter']);
         }
 
         foreach ($class->referrersMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ReferrersCollection($document, $this->dm, $mapping['referenceType'], $mapping['filterName']);
+            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filterName']);
         }
 
         if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
@@ -414,6 +426,8 @@ class UnitOfWork
         $class = $this->dm->getClassMetadata(get_class($document));
         $state = $this->getDocumentState($document);
 
+        $this->cascadeScheduleParentInsert($class, $document, $visited);
+
         switch ($state) {
             case self::STATE_NEW:
                 $this->persistNew($class, $document, $overrideIdGenerator);
@@ -427,7 +441,7 @@ class UnitOfWork
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException("Detached entity passed to persist().");
+                throw new \InvalidArgumentException("Detached document passed to persist().");
                 break;
         }
 
@@ -454,7 +468,7 @@ class UnitOfWork
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
-                    // $related can never be a persistent collection in case of a new entity.
+                    // $related can never be a persistent collection in case of a new document.
                     if (!is_array($related)) {
                         throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation.");
                     }
@@ -481,6 +495,16 @@ class UnitOfWork
             $referrer = $class->reflFields[$referrerName]->getValue($document);
             if ($referrer !== null && $this->getDocumentState($referrer) == self::STATE_NEW) {
                 $this->doScheduleInsert($referrer, $visited);
+            }
+        }
+    }
+
+    private function cascadeScheduleParentInsert($class, $document, &$visited)
+    {
+        if ($class->parentMapping) {
+            $parent = $class->reflFields[$class->parentMapping]->getValue($document);
+            if ($parent !== null && $this->getDocumentState($parent) == self::STATE_NEW) {
+                $this->doScheduleInsert($parent, $visited);
             }
         }
     }
@@ -523,9 +547,10 @@ class UnitOfWork
 
                 $oid = spl_object_hash($child);
                 unset(
-                  $this->scheduledRemovals[$oid],
-                  $this->scheduledInserts[$oid],
-                  $this->scheduledUpdates[$oid]
+                    $this->scheduledRemovals[$oid],
+                    $this->scheduledInserts[$oid],
+                    $this->scheduledUpdates[$oid],
+                    $this->scheduledAssociationUpdates[$oid]
                 );
 
                 $this->removeFromIdentityMap($child);
@@ -572,7 +597,7 @@ class UnitOfWork
                     $value = new ArrayCollection($value);
                 }
 
-                // TODO coll shold be a new PersistentCollection
+                // TODO coll should be a new PersistentCollection
                 $coll = $value;
 
                 $class->reflFields[$fieldName]->setValue($document, $coll);
@@ -589,12 +614,12 @@ class UnitOfWork
         }
 
         if (!isset($this->originalData[$oid])) {
-            // Entity is New and should be inserted
+            // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = $actualData;
             $this->scheduledInserts[$oid] = $document;
         } else {
-            // Entity is "fully" MANAGED: it was already fully persisted before
+            // Document is "fully" MANAGED: it was already fully persisted before
             // and we have a copy of the original data
 
             $changed = false;
@@ -607,9 +632,6 @@ class UnitOfWork
                     && !isset($class->nodename)
                 ) {
                     continue;
-                }
-                if ($class->nodename == $fieldName) {
-                    var_dump($fieldValue);die;
                 }
                 if ($class->isCollectionValuedAssociation($fieldName)) {
                     if (!$fieldValue instanceof PersistentCollection) {
@@ -651,11 +673,11 @@ class UnitOfWork
                 if (is_array($actualData[$assocName])) {
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
-                            $this->computeReferenceChanges($assoc, $ref, $id);
+                            $this->computeReferenceChanges($ref);
                         }
                     }
                 } else {
-                    $this->computeReferenceChanges($assoc, $actualData[$assocName], $id);
+                    $this->computeReferenceChanges($actualData[$assocName]);
                 }
             }
         }
@@ -663,7 +685,7 @@ class UnitOfWork
         foreach ($class->referrersMappings as $name => $referrerMapping) {
             if ($this->originalData[$oid][$name]) {
                 foreach ($this->originalData[$oid][$name] as $referrer) {
-                    $this->computeReferrerChanges($referrerMapping, $referrer, $id);
+                    $this->computeReferrerChanges($referrer);
                 }
             }
         }
@@ -686,8 +708,7 @@ class UnitOfWork
         } elseif ($state == self::STATE_REMOVED) {
             throw new \InvalidArgumentException("Removed child document detected during flush");
         } elseif ($state == self::STATE_DETACHED) {
-            throw new \InvalidArgumentException("A detached document was found through a "
-                . "child relationship during cascading a persist operation.");
+            throw new \InvalidArgumentException("A detached document was found through a child relationship during cascading a persist operation.");
         }
     }
 
@@ -696,7 +717,7 @@ class UnitOfWork
      *
      * @param mixed $reference the referenced document.
      */
-    private function computeReferenceChanges($mapping, $reference, $referrerId)
+    private function computeReferenceChanges($reference)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($reference));
         $state = $this->getDocumentState($reference);
@@ -715,7 +736,7 @@ class UnitOfWork
      *
      * @param mixed $referrer the referenced document.
      */
-    private function computeReferrerChanges($mapping, $referrer, $referenceId)
+    private function computeReferrerChanges($referrer)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($referrer));
         $state = $this->getDocumentState($referrer);
@@ -727,8 +748,7 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 // TODO: can this actually happen?
-                throw new \InvalidArgumentException("A detached document was found through a "
-                    . "referrer during cascading a persist operation.");
+                throw new \InvalidArgumentException("A detached document was found through a referrer during cascading a persist operation.");
         }
     }
 
@@ -747,7 +767,7 @@ class UnitOfWork
     }
 
     /**
-     * Persist new document, marking it managed and generating the id.
+     * Persist new document, marking it managed and generating the id and the node.
      *
      * This method is either called through `DocumentManager#persist()` or during `DocumentManager#flush()`,
      * when persistence by reachability is applied.
@@ -760,8 +780,27 @@ class UnitOfWork
     {
         $id = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
 
-        $this->registerManaged($document, $id, null);
+        $oid = $this->registerManaged($document, $id, null);
 
+        $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
+        $node = $parentNode->addNode(basename($id), $class->nodeType);
+        $this->nodesMap[$oid] = $node;
+
+        if ($class->identifier) {
+            $class->reflFields[$class->identifier]->setValue($document, $id);
+        }
+        if ($class->node) {
+            $class->reflFields[$class->node]->setValue($document, $node);
+        }
+        if ($class->nodename) {
+            // make sure this reflects the id generator strategy generated id
+            $class->reflFields[$class->nodename]->setValue($document, $node->getName());
+        }
+        if ($class->parentMapping) {
+            // TODO: only do this if its not already set? or do we always update to sanitize?
+            // make sure this reflects the id generator strategy generated id
+            $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
+        }
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
         }
@@ -771,16 +810,11 @@ class UnitOfWork
     }
 
     /**
-     * Flush Operation - Write all dirty entries to the PHPCR.
-     *
-     * @param boolean $persist_to_backend Whether the phpcr session should be saved to permanent storage.
-     * (temporary workaround until all phpcr functionality is mapped in the doctrine-phpcr-odm)
+     * Commits the UnitOfWork
      *
      * @return void
-     *
-     * @throws PHPCRException if it detects that a existing child should be replaced
      */
-    public function flush($persist_to_backend = true)
+    public function commit()
     {
         $this->detectChangedDocuments();
 
@@ -788,44 +822,66 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::onFlush, new OnFlushEventArgs($this));
         }
 
-        $config = $this->dm->getConfiguration();
-
-        $useDoctrineMetadata = $config->getWriteDoctrineMetadata();
-
-        $session = $this->dm->getPhpcrSession();
-
-        if ($persist_to_backend) {
-            try {
-                $utx = $session->getWorkspace()->getTransactionManager();
-                $utx->begin();
-            } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+        try {
+            $utx = $this->session->getWorkspace()->getTransactionManager();
+            if ($utx->inTransaction()) {
                 $utx = null;
+            } else {
+                $utx->begin();
             }
+        } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+            $utx = null;
         }
 
-        foreach ($this->scheduledRemovals as $oid => $document) {
-            $this->nodesMap[$oid]->remove();
-            $this->removeFromIdentityMap($document);
-            $this->purgeChildren($document);
+        try {
+            $this->executeInserts($this->scheduledInserts);
+
+            $this->executeUpdates($this->scheduledUpdates);
+
+            $this->executeUpdates($this->scheduledAssociationUpdates, false);
+
+            $this->executeRemovals($this->scheduledRemovals);
+
+            $this->session->save();
+
+            if ($utx) {
+                $utx->commit();
+            }
+        } catch (\Exception $e) {
+            $this->dm->close();
+
+            if ($utx) {
+                $utx->rollback();
+            }
+
+            throw $e;
         }
 
-        foreach ($this->scheduledInserts as $oid => $document) {
+        foreach ($this->visitedCollections as $col) {
+            $col->takeSnapshot();
+        }
+
+        $this->scheduledUpdates =
+        $this->scheduledAssociationUpdates =
+        $this->scheduledRemovals =
+        $this->scheduledInserts =
+        $this->visitedCollections = array();
+    }
+
+    /**
+     * Executes all document insertions
+     *
+     * @param array $documents array of all to be inserted documents
+     */
+    private function executeInserts($documents)
+    {
+        foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
+            $node = $this->nodesMap[$oid];
 
-            // FIXME: this leads to prePersist being called twice, because its also invoked in persistNew
-            // which is the right place? mongo does this differently.
-            if (isset($class->lifecycleCallbacks[Event::prePersist])) {
-                $class->invokeLifecycleCallbacks(Event::prePersist, $document);
-                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            if ($this->writeMetadata) {
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
-            if ($this->evm->hasListeners(Event::prePersist)) {
-                $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
-                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
-            }
-
-            $id = $this->documentIds[$oid];
-            $parentNode = $session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
-            $node = $parentNode->addNode(basename($id), $class->nodeType);
 
             try {
                 $node->addMixin('phpcr:managed');
@@ -847,26 +903,6 @@ class UnitOfWork
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
             }
 
-            $this->nodesMap[$oid] = $node;
-            if ($class->identifier) {
-                $class->reflFields[$class->identifier]->setValue($document, $id);
-            }
-            if ($class->node) {
-                $class->reflFields[$class->node]->setValue($document, $node);
-            }
-            if ($class->nodename) {
-                // make sure this reflects the id generator strategy generated id
-                $class->reflFields[$class->nodename]->setValue($document, $node->getName());
-            }
-            if ($class->parentMapping) {
-                // TODO: only do this if its not already set? or do we always update to sanitize?
-                // make sure this reflects the id generator strategy generated id
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
-            }
-            if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
-            }
-
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
@@ -877,26 +913,44 @@ class UnitOfWork
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
                     }
                 }  elseif (isset($class->associationsMappings[$fieldName])) {
-                    $this->scheduledUpdates[$oid] = $document;
+                    $this->scheduledAssociationUpdates[$oid] = $document;
                 }
             }
-        }
 
-        foreach ($this->scheduledUpdates as $oid => $document) {
+            if (isset($class->lifecycleCallbacks[Event::postPersist])) {
+                $class->invokeLifecycleCallbacks(Event::postPersist, $document);
+            }
+            if ($this->evm->hasListeners(Event::postPersist)) {
+                $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
+            }
+        }
+    }
+
+    /**
+     * Executes all document updates
+     *
+     * @param array $documents array of all to be updated documents
+     * @param boolean $dispatchEvents if to dispatch events
+     */
+    private function executeUpdates($documents, $dispatchEvents = true)
+    {
+        foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $node = $this->nodesMap[$oid];
 
-            if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
-                $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
-                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
-            }
-            if ($this->evm->hasListeners(Event::preUpdate)) {
-                $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
-                $this->computeChangeSet($class, $document); // TODO: prevent association computations in this case?
+            if ($this->writeMetadata) {
+                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
 
-            if ($useDoctrineMetadata) {
-                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
+            if ($dispatchEvents) {
+                if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
+                    $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
+                    $this->computeChangeSet($class, $document);
+                }
+                if ($this->evm->hasListeners(Event::preUpdate)) {
+                    $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
+                    $this->computeChangeSet($class, $document);
+                }
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
@@ -908,7 +962,7 @@ class UnitOfWork
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
                     }
-                } elseif (isset($class->associationsMappings[$fieldName]) && $useDoctrineMetadata) {
+                } elseif (isset($class->associationsMappings[$fieldName]) && $this->writeMetadata) {
 
                     if ($node->hasProperty($class->associationsMappings[$fieldName]['fieldName']) && is_null($fieldValue)) {
                         $node->getProperty($class->associationsMappings[$fieldName]['fieldName'])->remove();
@@ -953,79 +1007,47 @@ class UnitOfWork
                     } elseif (is_null($this->originalData[$oid][$fieldName])) {
                         // TODO: store this new child
                     } elseif (isset($this->originalData[$oid][$fieldName])) {
-                        //TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
+                        // TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
                         if ($fieldValue === $this->originalData[$oid][$fieldName]) {
-                            //TODO: save
+                            // TODO: save
                         } else {
-                            // this is currently not implemented
-                            // the old child needs to be removed and the new child might be moved
-                            throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() resp PHPCR\Session::copy() operations for this.");
+                            // TODO this is currently not implemented the old child needs to be removed and the new child might be moved
+                            throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.");
                         }
                     }
                 }
             }
-        }
 
-        if ($persist_to_backend) {
-            try {
-                $session->save();
-                if ($utx) {
-                    $utx->commit();
+            if ($dispatchEvents) {
+                if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
+                    $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
                 }
-            } catch (\Exception $e) {
-                if ($utx) {
-                    $utx->rollback();
+                if ($this->evm->hasListeners(Event::postUpdate)) {
+                    $this->evm->dispatchEvent(Event::postUpdate, new LifecycleEventArgs($document, $this->dm));
                 }
             }
         }
-
-        $this->handlePostFlushEvents();
-
-        foreach ($this->visitedCollections as $col) {
-            $col->takeSnapshot();
-        }
-
-        $this->scheduledUpdates =
-        $this->scheduledRemovals =
-        $this->scheduledInserts =
-        $this->visitedCollections = array();
     }
 
     /**
-     * Invoke / dispatch events as necessary after a flush operation
+     * Executes all document removales
+     *
+     * @param array $documents array of all to be removed documents
      */
-    protected function handlePostFlushEvents()
+    private function executeRemovals($documents)
     {
-        foreach ($this->scheduledRemovals as $document) {
+        foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
+
+            $this->nodesMap[$oid]->remove();
+            $this->removeFromIdentityMap($document);
+            $this->purgeChildren($document);
 
             if (isset($class->lifecycleCallbacks[Event::postRemove])) {
                 $class->invokeLifecycleCallbacks(Event::postRemove, $document);
             }
             if ($this->evm->hasListeners(Event::postRemove)) {
                 $this->evm->dispatchEvent(Event::postRemove, new LifecycleEventArgs($document, $this->dm));
-            }
-        }
-
-        foreach ($this->scheduledInserts as $document) {
-            $class = $this->dm->getClassMetadata(get_class($document));
-
-            if (isset($class->lifecycleCallbacks[Event::postPersist])) {
-                $class->invokeLifecycleCallbacks(Event::postPersist, $document);
-            }
-            if ($this->evm->hasListeners(Event::postPersist)) {
-                $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
-            }
-        }
-
-        foreach ($this->scheduledUpdates as $document) {
-            $class = $this->dm->getClassMetadata(get_class($document));
-
-            if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
-                $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
-            }
-            if ($this->evm->hasListeners(Event::postUpdate)) {
-                $this->evm->dispatchEvent(Event::postUpdate, new LifecycleEventArgs($document, $this->dm));
             }
         }
     }
@@ -1038,10 +1060,9 @@ class UnitOfWork
     public function checkIn($document)
     {
         $path = $this->getDocumentId($document);
-        $session = $this->dm->getPhpcrSession();
-        $node = $session->getNode($path);
+        $node = $this->session->getNode($path);
         $node->addMixin("mix:versionable");
-        $vm = $session->getWorkspace()->getVersionManager();
+        $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkIn($path); // Checkin Node aka make a new Version
     }
 
@@ -1053,10 +1074,9 @@ class UnitOfWork
     public function checkOut($document)
     {
         $path = $this->getDocumentId($document);
-        $session = $this->dm->getPhpcrSession();
-        $node = $session->getNode($path);
+        $node = $this->session->getNode($path);
         $node->addMixin("mix:versionable");
-        $vm = $session->getWorkspace()->getVersionManager();
+        $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkOut($path);
     }
 
@@ -1068,8 +1088,7 @@ class UnitOfWork
     public function restore($version, $document, $removeExisting)
     {
         $path = $this->getDocumentId($document);
-        $session = $this->dm->getPhpcrSession();
-        $vm = $session->getWorkspace()->getVersionManager();
+        $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->restore($removeExisting, $version, $path);
     }
 
@@ -1084,8 +1103,7 @@ class UnitOfWork
     public function getPredecessors($document)
     {
         $path = $this->getDocumentId($document);
-        $session = $this->dm->getPhpcrSession();
-        $vm = $session->getWorkspace()->getVersionManager();
+        $vm = $this->session->getWorkspace()->getVersionManager();
         $vh = $vm->getVersionHistory($path);
         return (array)$vh->getAllVersions();
     }
@@ -1128,7 +1146,7 @@ class UnitOfWork
      * @param object $document
      * @param string $id The document id to look for.
      * @param string $revision The revision of the document.
-     * @return bool
+     * @return the generated object id
      */
     public function registerManaged($document, $id, $revision)
     {
@@ -1137,15 +1155,16 @@ class UnitOfWork
         $this->documentIds[$oid] = $id;
         $this->documentRevisions[$oid] = $revision;
         $this->identityMap[$id] = $document;
+        return $oid;
     }
 
     /**
-     * Tries to find an entity with the given id in the identity map of
+     * Tries to find an document with the given id in the identity map of
      * this UnitOfWork.
      *
      * @param string $id The document id to look for.
-     * @param string $rootClassName The name of the root class of the mapped entity hierarchy.
-     * @return mixed Returns the entity with the specified id if it exists in
+     * @param string $rootClassName The name of the root class of the mapped document hierarchy.
+     * @return mixed Returns the document with the specified id if it exists in
      *               this UnitOfWork, FALSE otherwise.
      */
     public function tryGetById($id)
@@ -1253,5 +1272,46 @@ class UnitOfWork
             throw new PHPCRException("Document is not managed and has no id.");
         }
         return $this->documentIds[$oid];
+    }
+
+    /**
+     * Helper method to initialize a lazy loading proxy or persistent collection.
+     *
+     * @param object
+     * @return void
+     */
+    public function initializeObject($obj)
+    {
+        if ($obj instanceof Proxy) {
+            $obj->__doctrineLoad__();
+        } else if ($obj instanceof PersistentCollection) {
+            $obj->initialize();
+        }
+    }
+
+    /**
+     * Clears the UnitOfWork.
+     */
+    public function clear()
+    {
+        $this->identityMap =
+        $this->nodesMap =
+        $this->documentIds =
+        $this->documentRevisions =
+        $this->documentState =
+        $this->nonMappedData =
+        $this->originalData =
+        $this->documentChangesets =
+        $this->scheduledUpdates =
+        $this->scheduledAssociationUpdates =
+        $this->scheduledInserts =
+        $this->scheduledRemovals =
+        $this->visitedCollections = array();
+
+        if ($this->evm->hasListeners(Event::onClear)) {
+            $this->evm->dispatchEvent(Event::onClear, new OnClearEventArgs($this->dm));
+        }
+
+        return $this->session->refresh(false);
     }
 }

@@ -29,11 +29,10 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testFieldMappings($class)
     {
-        $this->assertEquals(4, count($class->fieldMappings));
+        $this->assertEquals(3, count($class->fieldMappings));
         $this->assertTrue(isset($class->fieldMappings['name']));
         $this->assertTrue(isset($class->fieldMappings['username']));
         $this->assertTrue(isset($class->fieldMappings['status']));
-        $this->assertTrue(isset($class->fieldMappings['address']));
 
         return $class;
     }
@@ -55,7 +54,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testIdentifier($class)
     {
-        $this->markTestSkipped('IDs are not supported at the moment');
         $this->assertEquals('id', $class->identifier);
 
         return $class;
