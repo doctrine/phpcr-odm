@@ -100,9 +100,34 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
 
-        $this->assertEquals(count($referrer->reference->allChildren), 1);
-        $this->assertEquals($referrer->reference->allChildren->first()->name, "childrenTestObj");
+        $this->assertEquals(1, count($referrer->reference->allChildren));
+        $this->assertEquals("childrenTestObj", $referrer->reference->allChildren->first()->name);
+    }
 
+    public function testCreateChildren()
+    {
+        $this->markTestSkipped('TODO: implement storing children and updating order');
+        $children = array();
+        $child = new ChildrenTestObj();
+        $child->id = '/functional/parent/child-create-1';
+        $child->name = 'Child A';
+        $children[] = $child;
+
+        $child = new ChildrenTestObj();
+        $child->id = '/functional/parent/child-create-2';
+        $child->name = 'Child B';
+        $children[] = $child;
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-a');
+        $this->assertEquals(0, count($parent->allChildren));
+
+        $parent->allChildren = $children;
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-a');
+        $this->assertEquals(2, count($parent->allChildren));
     }
 }
 
@@ -142,7 +167,7 @@ class ChildrenReferrerTestObj
 /**
   * @PHPCRODM\Document(alias="ChildrenReferenceableTestObj", referenceable=true)
   */
-class ChildrenReferenceableTestObj 
+class ChildrenReferenceableTestObj
 {
   /** @PHPCRODM\Id */
   public $id;
