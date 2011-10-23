@@ -23,7 +23,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\User';
-        $this->dm = $this->createDocumentManager();
+        $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('user');
@@ -69,9 +69,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->setProperty('numbers', array(3, 1, 2));
         $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
-
-        // ensure that annotations have been loaded
-        $repository = $this->dm->getRepository($this->type);
 
         $userWithAlias = $this->dm->find(null, '/functional/userWithAlias');
 

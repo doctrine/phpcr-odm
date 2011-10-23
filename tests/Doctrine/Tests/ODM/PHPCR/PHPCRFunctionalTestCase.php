@@ -4,12 +4,15 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 {
-    public function createDocumentManager()
+    public function createDocumentManager(array $paths = null)
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
+        $reader->addGlobalIgnoredName('group');
 
-        $paths = array();
-        $paths[] = __DIR__ . "/../../Models";
+        if (empty($paths)) {
+            $paths = array(__DIR__ . "/../../Models");
+        }
+
         $metaDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, $paths);
 
         $factoryclass = isset($GLOBALS['DOCTRINE_PHPCR_FACTORY']) ?
