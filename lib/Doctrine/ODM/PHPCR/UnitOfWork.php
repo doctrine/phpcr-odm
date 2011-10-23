@@ -27,6 +27,7 @@ use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
 
 use PHPCR\PropertyType;
+use PHPCR\NodeInterface;
 
 /**
  * Unit of work class
@@ -180,6 +181,38 @@ class UnitOfWork
     }
 
     /**
+     * @param NodeInterface $node
+     * @param $documentName
+     *
+     * @return string class name
+     */
+    private function getClassName(NodeInterface $node, $documentName = null)
+    {
+        if ($this->documentNameMapper) {
+            $className = $this->documentNameMapper->getClassName($this->dm, $node, $documentName, $this->writeMetadata);
+            if (empty($className)) {
+                throw new \InvalidArgumentException('Could not determine document class for node');
+            }
+        } else {
+            if (isset($documentName)) {
+                $className = $documentName;
+            } else if ($node->hasProperty('phpcr:class')) {
+                $className = $node->getProperty('phpcr:class')->getString();
+            } else if ($node->hasProperty('phpcr:alias')) {
+                $aliasName = $node->getProperty('phpcr:alias')->getString();
+                $class = $this->dm->getMetadataFactory()->getMetadataForAlias($aliasName);
+                $className = $class->name;
+            }
+
+            // default to the built in generic document class
+            if (empty($className)) {
+                $className = 'Doctrine\ODM\PHPCR\Document\Generic';
+            }
+        }
+
+        return $className;
+    }
+    /**
      * Create a document given class, data and the doc-id and revision
      *
      * @param string $documentName
@@ -189,38 +222,15 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        // second param is false to get uuid rather than dereference reference properties to node instances
-        $properties = $node->getPropertiesValues(null, false);
-
-        if ($this->documentNameMapper) {
-            $type = $this->documentNameMapper->getDocumentName($this->dm, $documentName, $node, $this->writeMetadata);
-            $class = $this->dm->getClassMetadata($type);
-        } else {
-            if (isset($documentName)) {
-                $class = $this->dm->getClassMetadata($documentName);
-            } elseif (isset($properties['phpcr:class'])) {
-                $class = $this->dm->getClassMetadata($properties['phpcr:class']);
-            } elseif (isset($properties['phpcr:alias'])) {
-                $class = $this->dm->getMetadataFactory()->getMetadataForAlias($properties['phpcr:alias']);
-            }
-
-            if ($this->writeMetadata && empty($properties['phpcr:class']) && isset($class)) {
-                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
-            }
-
-            // the built in mapping uses the generic document if it is not able to determine the document class
-            if (empty($class)) {
-                $class = $this->dm->getClassMetadata('Doctrine\ODM\PHPCR\Document\Generic');
-            }
-        }
-
-        if (empty($class)) {
-            throw new \InvalidArgumentException("Could not determine Doctrine metadata for node");
-        }
+        $className = $this->getClassName($node, $documentName);
+        $class = $this->dm->getClassMetadata($className);
 
         $documentState = array();
         $nonMappedData = array();
         $id = $node->getPath();
+
+        // second param is false to get uuid rather than dereference reference properties to node instances
+        $properties = $node->getPropertiesValues(null, false);
 
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
@@ -339,7 +349,7 @@ class UnitOfWork
         }
 
         if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
-            $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '{$class->name}' stored in the metadata";
+            $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '".get_class($document)."' stored in the metadata";
             throw new \InvalidArgumentException($msg);
         }
 
@@ -365,27 +375,25 @@ class UnitOfWork
         return $document;
     }
 
-    private function createProxy($node, $class = null)
+    private function createProxy($node, $className = null)
     {
         $targetId = $node->getPath();
         // check if referenced document already exists
         if (isset($this->identityMap[$targetId])) {
             return $this->identityMap[$targetId];
-        } else {
-            if (!$class && $node->hasProperty('phpcr:class')) {
-                $class = $node->getProperty('phpcr:class')->getString();
-            } else if (!$class) {
-                $class = 'Doctrine\\ODM\\PHPCR\\Document\\Generic';
-            }
-
-            $proxyDocument = $this->dm->getProxyFactory()->getProxy($class, $targetId);
-
-            // register the document under its own id
-            $this->registerManaged($proxyDocument, $targetId, null);
-            $proxyOid = spl_object_hash($proxyDocument);
-            $this->nodesMap[$proxyOid] = $node;
-            return $proxyDocument;
         }
+
+        if (null === $className) {
+            $className = $this->getClassName($node);
+        }
+
+        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
+
+        // register the document under its own id
+        $this->registerManaged($proxyDocument, $targetId, null);
+        $proxyOid = spl_object_hash($proxyDocument);
+        $this->nodesMap[$proxyOid] = $node;
+        return $proxyDocument;
     }
 
     /**

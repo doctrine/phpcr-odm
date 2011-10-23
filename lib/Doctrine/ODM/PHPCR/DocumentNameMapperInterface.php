@@ -27,11 +27,11 @@ interface DocumentNameMapperInterface
     /**
      * Determine the document name from a given node
      *
-     * @param \Doctrine\ODM\PHPCR\DocumentManager
+     * @param DocumentManager
      * @param string $documentName
-     * @param \PHPCR\NodeInterface $node
+     * @param NodeInterface $node
      * @param boolean $writeMetadata
      * @return string
      */
-    function getDocumentName(DocumentManager $dm, $documentName, NodeInterface $node, $writeMetadata);
+    function getClassName(DocumentManager $dm, NodeInterface $node, $documentName = null, $writeMetadata = false);
 }
