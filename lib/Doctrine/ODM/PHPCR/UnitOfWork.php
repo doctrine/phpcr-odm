@@ -153,14 +153,16 @@ class UnitOfWork
     /**
      * @param DocumentManager $dm
      */
-    public function __construct(DocumentManager $dm, DocumentNameMapperInterface $documentNameMapper = null)
+    public function __construct(DocumentManager $dm)
     {
         $this->dm = $dm;
-        $this->session = $this->dm->getPhpcrSession();
+        $this->session = $dm->getPhpcrSession();
         $this->evm = $dm->getEventManager();
-        $this->documentNameMapper = $documentNameMapper;
-        $this->validateDocumentName = $this->dm->getConfiguration()->getValidateDoctrineMetadata();
-        $this->writeMetadata = $this->dm->getConfiguration()->getWriteDoctrineMetadata();
+
+        $config = $dm->getConfiguration();
+        $this->documentNameMapper = $config->getDocumentNameMapper();
+        $this->validateDocumentName = $config->getValidateDoctrineMetadata();
+        $this->writeMetadata = $config->getWriteDoctrineMetadata();
     }
 
     /**

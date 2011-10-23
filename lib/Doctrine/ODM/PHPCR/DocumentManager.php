@@ -84,7 +84,7 @@ class DocumentManager implements ObjectManager
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
-        $this->unitOfWork = new UnitOfWork($this, $this->config->getDocumentNameMapper());
+        $this->unitOfWork = new UnitOfWork($this);
         $this->proxyFactory = new ProxyFactory($this,
             $this->config->getProxyDir(),
             $this->config->getProxyNamespace(),
