@@ -129,7 +129,7 @@ class File
         $this->getContent();
         $stream = fopen($filename, 'rb');
         if (! $stream) {
-            throw new \Exception("File $filename not found");
+            throw new \RuntimeException("File '$filename' not found");
         }
 
         $this->content->setData($stream);

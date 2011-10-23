@@ -37,17 +37,19 @@ class ParentIdGenerator extends IdGenerator
         $id = $cm->getFieldValue($document, $cm->identifier);
 
         if ((empty($parent) || empty($name)) && empty($id)) {
-            throw new \Exception("Parent and name not set and no id found. Make sure your document has a field with @PHPCRODM\\ParentDocument and @PHPCRODM\\Nodename annotation and that you set thoses fields to the place where you want to store the document.");
+            throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\ParentDocument and Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename annotation and that the property is set to the path where the document is to be store.');
         }
 
+        // use assigned ID by default
         if (!$parent) {
             return $id;
         }
 
-        $parent_cm = $dm->getClassMetadata(get_class($parent));
-        $id = $parent_cm->reflFields[$parent_cm->identifier]->getValue($parent);
+        // determine ID based on the path and the node name
+        $parentCm = $dm->getClassMetadata(get_class($parent));
+        $id = $parentCm->reflFields[$parentCm->identifier]->getValue($parent);
         if (!$id) {
-            throw new \Exception("No parent id found. Make sure your parent document has a field with @PHPCRODM\\Id annotation and that this field is set.");
+            throw new \RuntimeException('Parent ID could not be determined. Make sure the parent document has a property with the Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the parent document is to be store.');
         }
         return $id . '/' . $name;
     }

@@ -51,7 +51,7 @@ abstract class IdGenerator
                 break;
 
             default:
-                throw new \Exception("ID Generator does not exist!");
+                throw new \InvalidArgumentException("ID Generator does not exist: $generatorType");
         }
         return $instance;
     }

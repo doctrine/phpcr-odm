@@ -34,13 +34,12 @@ class RepositoryIdGenerator extends IdGenerator
     {
         $repository = $dm->getRepository($cm->name);
         if (!($repository instanceof RepositoryIdInterface)) {
-            throw new \Exception("Repository does not implement RepositoryIdInterface, could not generate id");
+            throw new \RuntimeException("ID could not be determined. Make sure the that the Repository '".get_class($repository)."' implements RepositoryIdInterface");
         }
 
-        // TODO: should we have some default implementation (parent path + some md5/object id)?
         $id = $repository->generateId($document);
         if (!$id) {
-            throw new \Exception("Repository did not generate an id");
+            throw new \RuntimeException("ID could not be determined. Repository was unable to generate an ID");
         }
         return $id;
     }
