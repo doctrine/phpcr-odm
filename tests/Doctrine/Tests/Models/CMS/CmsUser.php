@@ -23,9 +23,6 @@ class CmsUser
     /** @PHPCRODM\String(name="name") */
     public $name;
 
-    /** @PHPCRODM\EmbedOne(name="address") */
-    public $address;
-
     // * @ReferenceOne(targetDocument="CmsUserRights") */
     // public $rights;
     //
@@ -78,18 +75,5 @@ class CmsUser
     public function getGroups()
     {
         return $this->groups;
-    }
-
-    public function getAddress()
-    {
-        return $this->address;
-    }
-
-    public function setAddress(CmsAddress $address)
-    {
-        if ($this->address !== $address) {
-            $this->address = $address;
-            $address->setUser($this);
-        }
     }
 }

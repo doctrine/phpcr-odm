@@ -15,23 +15,30 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
-namespace Doctrine\ODM\PHPCR;
+namespace Doctrine\ODM\PHPCR\Event;
 
-final class Event
+class OnClearEventArgs extends \Doctrine\Common\EventArgs
 {
-    const onFlush = 'onFlush';
-    const onClear = 'onClear';
-    const prePersist = 'prePersist';
-    const preRemove = 'preRemove';
-    const preUpdate = 'preUpdate';
-    const postRemove = 'postRemove';
-    const postPersist = 'postPersist';
-    const postUpdate = 'postUpdate';
-    const postLoad = 'postLoad';
+    /**
+     * @var \Doctrine\ORM\DocumentManager
+     */
+    private $em;
 
-    private function __construct()
+    /**
+     * @param \Doctrine\ORM\DocumentManager $dm
+     */
+    public function __construct($dm)
     {
+        $this->dm = $dm;
+    }
+
+    /**
+     * @return \Doctrine\ORM\DocumentManager
+     */
+    public function getDocumentManager()
+    {
+        return $this->dm;
     }
 }

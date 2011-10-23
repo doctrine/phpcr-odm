@@ -40,11 +40,6 @@ class DocumentRepository implements ObjectRepository
     const QUERY_REPLACE_WITH_FIELDNAMES = 1;
 
     /**
-     * @var string
-     */
-    protected $documentName;
-
-    /**
      * @var DocumentManager
      */
     protected $dm;
@@ -55,6 +50,16 @@ class DocumentRepository implements ObjectRepository
     protected $class;
 
     /**
+     * @var Doctrine\ODM\PHPCR\UnitOfWork
+     */
+    protected $uow;
+
+    /**
+     * @var string
+     */
+    protected $documentName;
+
+    /**
      * Initializes a new <tt>DocumentRepository</tt>.
      *
      * @param DocumentManager $dm The DocumentManager to use.
@@ -62,9 +67,11 @@ class DocumentRepository implements ObjectRepository
      */
     public function __construct($dm, Mapping\ClassMetadata $class)
     {
-        $this->documentName = $class->name;
         $this->dm = $dm;
         $this->class = $class;
+
+        $this->uow = $this->dm->getUnitOfWork();
+        $this->documentName = $class->name;
     }
 
     /**
@@ -76,8 +83,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function createDocument($node, array &$hints = array())
     {
-        $uow = $this->dm->getUnitOfWork();
-        return $uow->createDocument($this->documentName, $node, $hints);
+        return $this->uow->createDocument($this->documentName, $node, $hints);
     }
 
     /**
@@ -132,7 +138,9 @@ class DocumentRepository implements ObjectRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
-        // TODO how to best integrate this with OQM?
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+
+        // TODO: implemenent using QOM?
         return $this->uow->getDocumentPersister($this->documentName)->loadAll($criteria);
     }
 
@@ -144,7 +152,9 @@ class DocumentRepository implements ObjectRepository
      */
     public function findOneBy(array $criteria)
     {
-        // TODO how to best integrate this with OQM?
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+
+        // TODO: implemenent using QOM?
         return $this->uow->getDocumentPersister($this->documentName)->load($criteria);
     }
 
@@ -156,8 +166,8 @@ class DocumentRepository implements ObjectRepository
      */
     public function getPredecessors($document)
     {
-        $uow = $this->dm->getUnitOfWork();
-        $predecessorNodes = $uow->getPredecessors($document);
+        $predecessorNodes = $this->uow->getPredecessors($document);
+
         $objects = $hints = array();
         foreach ($predecessorNodes as $node) {
             $objects[] = $this->createDocument($node, $hints);
@@ -180,8 +190,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function refreshDocumentForProxy($document)
     {
-        $uow = $this->dm->getUnitOfWork();
-        $uow->refreshDocumentForProxy($this->documentName, $document);
+        $this->uow->refreshDocumentForProxy($this->documentName, $document);
     }
 
     /**

@@ -32,5 +32,10 @@ class PHPCRException extends \Exception
     {
         return new self("Unknown Document namespace alias '$documentNamespaceAlias'.");
     }
+
+    public static function documentManagerClosed()
+    {
+        return new self("The DocumentManager is closed.");
+    }
 }
 

@@ -12,20 +12,31 @@ namespace Doctrine\ODM\PHPCR;
 class ChildrenCollection extends PersistentCollection
 {
     private $document;
-    private $dm;
     private $filter;
 
-    public function __construct($document, DocumentManager $dm, $filter = null)
+    /**
+     * Creates a new persistent collection.
+     *
+     * @param DocumentManager $dm The DocumentManager the collection will be associated with.
+     * @param object $document Document instance
+     * @param string $filter filter string
+     */
+    public function __construct(DocumentManager $dm, $document, $filter = null)
     {
-        $this->document = $document;
         $this->dm = $dm;
+        $this->document = $document;
         $this->filter = $filter;
     }
 
-    protected function load()
+    /**
+     * Initializes the collection by loading its contents from the database
+     * if the collection is not yet initialized.
+     */
+    public function initialize()
     {
-        if (null === $this->col) {
-            $this->col = $this->dm->getChildren($this->document, $this->filter);
+        if (!$this->initialized) {
+            $this->initialized = true;
+            $this->coll = $this->dm->getChildren($this->document, $this->filter);
         }
     }
 }

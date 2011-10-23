@@ -44,7 +44,8 @@ class Configuration
         'validateDoctrineMetadata' => true,
         'metadataDriverImpl' => null,
         'documentNameMapper' => null,
-        'proxyNamespace' => 'MyPHPCRProxyNS'
+        'proxyNamespace' => 'MyPHPCRProxyNS',
+        'autoGenerateProxyClasses' => true
     );
 
     /**
@@ -209,5 +210,27 @@ class Configuration
     public function getProxyNamespace()
     {
         return $this->attributes['proxyNamespace'];
+    }
+
+    /**
+     * Sets a boolean flag that indicates whether proxy classes should always be regenerated
+     * during each script execution.
+     *
+     * @param boolean $bool
+     */
+    public function setAutoGenerateProxyClasses($bool)
+    {
+        $this->attributes['autoGenerateProxyClasses'] = $bool;
+    }
+
+    /**
+     * Gets a boolean flag that indicates whether proxy classes should always be regenerated
+     * during each script execution.
+     *
+     * @return boolean
+     */
+    public function getAutoGenerateProxyClasses()
+    {
+        return $this->attributes['autoGenerateProxyClasses'];
     }
 }
