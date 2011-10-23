@@ -21,7 +21,7 @@ class CmsArticle
     /** @PHPCRODM\Version */
     public $version;
 
-    /** @PHPCRODM\Attachments */
+    /** @PHPCRODM\Binary */
     public $attachments;
 
     public function setAuthor(CmsUser $author)
