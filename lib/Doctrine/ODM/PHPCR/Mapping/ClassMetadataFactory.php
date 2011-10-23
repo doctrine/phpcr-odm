@@ -133,7 +133,7 @@ class ClassMetadataFactory
             return $this->loadedAliases[$alias] = $cached;
         }
 
-        foreach ($this->loadedMetadata as $className => $metadata) {
+        foreach ($this->loadedMetadata as $metadata) {
             if ($metadata->alias === $alias) {
                 $this->loadedAliases[$alias] = $metadata;
                 if ($this->cacheDriver) {
