@@ -607,8 +607,10 @@ class UnitOfWork
                 if ($class->isCollectionValuedAssociation($fieldName)) {
                     if (!$fieldValue instanceof PersistentCollection) {
                         // if its not a persistent collection and the original value changed. otherwise it could just be null
-                        $changed = true;
-                        break;
+                        if($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                            $changed = true;
+                            break;
+                        }
                     } elseif ($fieldValue->changed()) {
                         $this->visitedCollections[] = $fieldValue;
                         $changed = true;
