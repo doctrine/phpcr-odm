@@ -62,19 +62,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
 
-    public function testFindByAlias()
-    {
-        $user = $this->node->addNode('userWithAlias');
-        $user->setProperty('username', 'dbu');
-        $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
-        $this->dm->getPhpcrSession()->save();
-
-        $userWithAlias = $this->dm->find(null, '/functional/userWithAlias');
-
-        $this->assertEquals('dbu', $userWithAlias->username);
-    }
-
     public function testFindByClass()
     {
         $user = $this->node->addNode('userWithAlias');

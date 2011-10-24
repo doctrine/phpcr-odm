@@ -44,7 +44,6 @@ EOT
 <phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
 [phpcr:managed]
   mixin
-  - phpcr:alias (STRING)
   - phpcr:class (STRING)
 CND
         ;

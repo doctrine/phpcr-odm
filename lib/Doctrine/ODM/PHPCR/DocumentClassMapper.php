@@ -39,19 +39,13 @@ class DocumentClassMapper implements DocumentClassMapperInterface
      */
     public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null)
     {
-        if (empty($className)) {
-            if ($node->hasProperty('phpcr:class')) {
-                $className = $node->getProperty('phpcr:class')->getString();
-            } else if ($node->hasProperty('phpcr:alias')) {
-                $aliasName = $node->getProperty('phpcr:alias')->getString();
-                $class = $dm->getMetadataFactory()->getMetadataForAlias($aliasName);
-                $className = $class->name;
-            }
+        if (empty($className) && $node->hasProperty('phpcr:class')) {
+            $className = $node->getProperty('phpcr:class')->getString();
+        }
 
-            // default to the built in generic document class
-            if (empty($className)) {
-                $className = 'Doctrine\ODM\PHPCR\Document\Generic';
-            }
+        // default to the built in generic document class
+        if (empty($className)) {
+            $className = 'Doctrine\ODM\PHPCR\Document\Generic';
         }
 
         return $className;
