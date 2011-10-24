@@ -258,23 +258,29 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Create a Query
+     * Create a Query from a query string in the specified query language to be
+     * used with getDocumentsByQuery()
      *
-     * @param  string $statement the SQL2 statement
-     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * See \PHPCR\Query\QueryInterface for list of generally supported types
+     * and check your implementation documentation if you want to use a
+     * different language.
+     *
+     * @param  string $statement the statement in the specified language
+     * @param  string $language the query language
      * @return PHPCR\Query\QueryInterface
      */
-    public function createQuery($statement, $type)
+    public function createQuery($statement, $language)
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
-        return $qm->createQuery($statement, $type);
+        return $qm->createQuery($statement, $language);
     }
 
     /**
-     * Get documents from a PHPCR query instance
+     * Get document results from a PHPCR query instance
      *
-     * @param  \PHPCR\Query\QueryResultInterface $result
-     * @param  string $className
+     * @param  \PHPCR\Query\QueryInterface $query the query instance as acquired through createQuery()
+     * @param  string $documentName document class
+     *
      * @return array of document instances
      */
     public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $className)

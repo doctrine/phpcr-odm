@@ -71,7 +71,17 @@ Getting Started
         // store all changes, insertions, etc. with the storage backend
         $dm->flush();
 
-        //TODO: search example
+        // run a query
+        $query = $dm->createQuery('SELECT *
+                          FROM [nt:unstructured]
+                          WHERE ISCHILDNODE("/functional")
+                          ORDER BY username',
+                          \PHPCR\Query\QueryInterface::JCR_SQL2);
+        $query->setLimit(2);
+        $result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
+        foreach ($result as $document) {
+            echo $document->getId();
+        }
 
 Document Classes
 ----------------
