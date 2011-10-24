@@ -21,8 +21,8 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
-use Doctrine\ODM\PHPCR\DocumentNameMapperInterface;
-use Doctrine\ODM\PHPCR\DocumentNameMapper;
+use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
+use Doctrine\ODM\PHPCR\DocumentClassMapper;
 
 /**
  * Configuration class
@@ -44,7 +44,7 @@ class Configuration
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
         'metadataDriverImpl' => null,
-        'documentNameMapper' => null,
+        'documentClassMapper' => null,
         'proxyNamespace' => 'MyPHPCRProxyNS',
         'autoGenerateProxyClasses' => true
     );
@@ -152,24 +152,24 @@ class Configuration
     /**
      * Gets the cache driver implementation that is used for metadata caching.
      *
-     * @return \Doctrine\ODM\PHPCR\DocumentNameMapperInterface
+     * @return \Doctrine\ODM\PHPCR\DocumentClassMapperInterface
      */
-    public function getDocumentNameMapper()
+    public function getDocumentClassMapper()
     {
-        if (empty($this->attributes['documentNameMapper'])) {
-            $this->setDocumentNameMapper(new DocumentNameMapper());
+        if (empty($this->attributes['documentClassMapper'])) {
+            $this->setDocumentClassMapper(new DocumentClassMapper());
         }
-        return $this->attributes['documentNameMapper'];
+        return $this->attributes['documentClassMapper'];
     }
 
     /**
      * Sets the cache driver implementation that is used for metadata caching.
      *
-     * @param \Doctrine\ODM\PHPCR\DocumentNameMapperInterface $documentNameMapper
+     * @param \Doctrine\ODM\PHPCR\DocumentClassMapperInterface $documentClassMapper
      */
-    public function setDocumentNameMapper(DocumentNameMapperInterface $documentNameMapper)
+    public function setDocumentClassMapper(DocumentClassMapperInterface $documentClassMapper)
     {
-        $this->attributes['documentNameMapper'] = $documentNameMapper;
+        $this->attributes['documentClassMapper'] = $documentClassMapper;
     }
 
     /**

@@ -137,9 +137,9 @@ class UnitOfWork
     private $evm;
 
     /**
-     * @var DocumentNameMapperInterface
+     * @var DocumentClassMapperInterface
      */
-    private $documentNameMapper;
+    private $documentClassMapper;
 
     /**
      * @var boolean
@@ -161,7 +161,7 @@ class UnitOfWork
         $this->evm = $dm->getEventManager();
 
         $config = $dm->getConfiguration();
-        $this->documentNameMapper = $config->getDocumentNameMapper();
+        $this->documentClassMapper = $config->getDocumentClassMapper();
         $this->validateDocumentName = $config->getValidateDoctrineMetadata();
         $this->writeMetadata = $config->getWriteDoctrineMetadata();
     }
@@ -190,7 +190,7 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        $className = $this->documentNameMapper->getClassName($this->dm, $node, $documentName);
+        $className = $this->documentClassMapper->getClassName($this->dm, $node, $documentName);
         $class = $this->dm->getClassMetadata($className);
 
         $documentState = array();
@@ -352,7 +352,7 @@ class UnitOfWork
         }
 
         if (null === $className) {
-            $className = $this->documentNameMapper->getClassName($this->dm, $node);
+            $className = $this->documentClassMapper->getClassName($this->dm, $node);
         }
 
         $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
@@ -856,7 +856,7 @@ class UnitOfWork
             $node = $this->nodesMap[$oid];
 
             if ($this->writeMetadata) {
-                $this->documentNameMapper->writeMetadata($this->dm, $node, $class->name);
+                $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
             try {
@@ -915,7 +915,7 @@ class UnitOfWork
             $node = $this->nodesMap[$oid];
 
             if ($this->writeMetadata) {
-                $this->documentNameMapper->writeMetadata($this->dm, $node, $class->name);
+                $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
             if ($dispatchEvents) {

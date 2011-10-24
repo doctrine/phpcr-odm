@@ -22,10 +22,10 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use PHPCR\NodeInterface;
 
-interface DocumentNameMapperInterface
+interface DocumentClassMapperInterface
 {
     /**
-     * Determine the document name from a given node
+     * Determine the class name from a given node
      *
      * @param DocumentManager
      * @param NodeInterface $node
@@ -38,7 +38,7 @@ interface DocumentNameMapperInterface
     function getClassName(DocumentManager $dm, NodeInterface $node, $documentName = null);
 
     /**
-     * Determine the document name from a given node
+     * Write any relevant meta data into the node to be able to map back to a class name later
      *
      * @param DocumentManager
      * @param NodeInterface $node
