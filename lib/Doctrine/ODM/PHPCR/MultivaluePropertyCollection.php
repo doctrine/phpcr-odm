@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * Property collection class
  *
- * This class stores 
+ * This class stores all values of a multivalue property
  */
 class MultivaluePropertyCollection extends PersistentCollection
 {
@@ -19,8 +19,7 @@ class MultivaluePropertyCollection extends PersistentCollection
     }
 
     /**
-     * Initializes the collection by loading its contents from the database
-     * if the collection is not yet initialized.
+     * Just there to fulfill the interface requirements of PersistentCollection
      */
     public function initialize()
     {
