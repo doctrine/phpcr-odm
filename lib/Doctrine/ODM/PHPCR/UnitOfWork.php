@@ -169,28 +169,29 @@ class UnitOfWork
     /**
      * Get an already fetched node for the proxyDocument from the nodesMap and create the associated document
      *
-     * @param string $documentName
+     * @param string $className
      * @param Proxy $document
      * @return void
      */
-    public function refreshDocumentForProxy($documentName, $document)
+    public function refreshDocumentForProxy($className, $document)
     {
         $node = $this->nodesMap[spl_object_hash($document)];
         $hints = array('refresh' => true);
-        $this->createDocument($documentName, $node, $hints);
+        $this->createDocument($className, $node, $hints);
     }
 
     /**
      * Create a document given class, data and the doc-id and revision
      *
-     * @param string $documentName
+     * @param null|string $className
      * @param \PHPCR\NodeInterface $node
      * @param array $hints
      * @return object
      */
-    public function createDocument($documentName, $node, array &$hints = array())
+    public function createDocument($className, $node, array &$hints = array())
     {
-        $className = $this->documentClassMapper->getClassName($this->dm, $node, $documentName);
+        $requestedClassName = $className;
+        $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
         $class = $this->dm->getClassMetadata($className);
 
         $documentState = array();
@@ -308,17 +309,17 @@ class UnitOfWork
             $overrideLocalValues = true;
         }
 
+        if (isset($requestedClassName) && $this->validateDocumentName && !($document instanceof $requestedClassName)) {
+            $msg = "Doctrine metadata mismatch! Requested type '$requestedClassName' type does not match type '".get_class($document)."' stored in the metadata";
+            throw new \InvalidArgumentException($msg);
+        }
+
         foreach ($class->childrenMappings as $mapping) {
             $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter']);
         }
 
         foreach ($class->referrersMappings as $mapping) {
             $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filterName']);
-        }
-
-        if (isset($documentName) && $this->validateDocumentName && !($document instanceof $documentName)) {
-            $msg = "Doctrine metadata mismatch! Requested type '$documentName' type does not match type '".get_class($document)."' stored in the metadata";
-            throw new \InvalidArgumentException($msg);
         }
 
         if ($overrideLocalValues) {

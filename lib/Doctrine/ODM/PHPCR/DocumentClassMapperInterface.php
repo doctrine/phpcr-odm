@@ -29,13 +29,13 @@ interface DocumentClassMapperInterface
      *
      * @param DocumentManager
      * @param NodeInterface $node
-     * @param string $documentName
+     * @param string $className
      *
      * @return string
      *
      * @throws \RuntimeException if no class name could be determined
      */
-    function getClassName(DocumentManager $dm, NodeInterface $node, $documentName = null);
+    function getClassName(DocumentManager $dm, NodeInterface $node, $className = null);
 
     /**
      * Write any relevant meta data into the node to be able to map back to a class name later

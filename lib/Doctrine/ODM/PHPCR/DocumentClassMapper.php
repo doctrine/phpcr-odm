@@ -31,27 +31,27 @@ class DocumentClassMapper implements DocumentClassMapperInterface
      *
      * @param DocumentManager
      * @param NodeInterface $node
-     * @param string $documentName
+     * @param string $className
      *
      * @return string
      *
      * @throws \RuntimeException if no class name could be determined
      */
-    public function getClassName(DocumentManager $dm, NodeInterface $node, $documentName = null)
+    public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null)
     {
-        if (isset($documentName)) {
-            $className = $documentName;
-        } else if ($node->hasProperty('phpcr:class')) {
-            $className = $node->getProperty('phpcr:class')->getString();
-        } else if ($node->hasProperty('phpcr:alias')) {
-            $aliasName = $node->getProperty('phpcr:alias')->getString();
-            $class = $dm->getMetadataFactory()->getMetadataForAlias($aliasName);
-            $className = $class->name;
-        }
-
-        // default to the built in generic document class
         if (empty($className)) {
-            $className = 'Doctrine\ODM\PHPCR\Document\Generic';
+            if ($node->hasProperty('phpcr:class')) {
+                $className = $node->getProperty('phpcr:class')->getString();
+            } else if ($node->hasProperty('phpcr:alias')) {
+                $aliasName = $node->getProperty('phpcr:alias')->getString();
+                $class = $dm->getMetadataFactory()->getMetadataForAlias($aliasName);
+                $className = $class->name;
+            }
+
+            // default to the built in generic document class
+            if (empty($className)) {
+                $className = 'Doctrine\ODM\PHPCR\Document\Generic';
+            }
         }
 
         return $className;

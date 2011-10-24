@@ -196,8 +196,8 @@ class XmlDriver extends AbstractFileDriver
         foreach (array('document', 'mapped-superclass') as $type) {
             if (isset($xmlElement->$type)) {
                 foreach ($xmlElement->$type as $documentElement) {
-                    $documentName = (string) $documentElement['name'];
-                    $result[$documentName] = $documentElement;
+                    $className = (string) $documentElement['name'];
+                    $result[$className] = $documentElement;
                 }
             }
         }

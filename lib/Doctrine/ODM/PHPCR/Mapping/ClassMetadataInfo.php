@@ -247,11 +247,11 @@ class ClassMetadataInfo implements ClassMetadata
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
-     * @param string $documentName The name of the document class the new instance is used for.
+     * @param string $className The name of the document class the new instance is used for.
      */
-    public function __construct($documentName)
+    public function __construct($className)
     {
-        $this->name = $documentName;
+        $this->name = $className;
     }
 
     /**
