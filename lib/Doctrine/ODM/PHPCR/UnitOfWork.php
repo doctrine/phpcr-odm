@@ -123,6 +123,11 @@ class UnitOfWork
     /**
      * @var array
      */
+    private $multivaluePropertyCollections = array();
+
+    /**
+     * @var array
+     */
     private $idGenerators = array();
 
     /**
@@ -218,7 +223,8 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    $documentState[$fieldName] = new ArrayCollection((array)$properties[$mapping['name']]);
+                    $documentState[$fieldName] = new MultivaluePropertyCollection(new ArrayCollection((array)$properties[$mapping['name']]));
+                    $this->multivaluePropertyCollections[] = $documentState[$fieldName];
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
@@ -567,7 +573,8 @@ class UnitOfWork
                 && !($value instanceof PersistentCollection)
             ) {
                 if (!$value instanceof Collection) {
-                    $value = new ArrayCollection($value);
+                    $value = new MultivaluePropertyCollection(new ArrayCollection($value), true);
+                    $this->multivaluePropertyCollections[] = $value;
                 }
 
                 // TODO coll should be a new PersistentCollection
@@ -821,6 +828,10 @@ class UnitOfWork
         }
 
         foreach ($this->visitedCollections as $col) {
+            $col->takeSnapshot();
+        }
+
+        foreach ($this->multivaluePropertyCollections as $col) {
             $col->takeSnapshot();
         }
 
