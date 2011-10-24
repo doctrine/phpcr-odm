@@ -283,7 +283,7 @@ class DocumentManager implements ObjectManager
      *
      * @return array of document instances
      */
-    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $className)
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $className = null)
     {
         $documents = array();
 
