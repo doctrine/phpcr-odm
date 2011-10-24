@@ -18,6 +18,12 @@ class File
     /** @PHPCRODM\Node */
     protected $node;
 
+    /** @PHPCRODM\Nodename */
+    protected $nodename;
+
+    /** @PHPCRODM\ParentDocument */
+    protected $parent;
+
     /** @PHPCRODM\Date(name="jcr:created") */
     protected $created;
 
@@ -45,6 +51,48 @@ class File
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * The node name of the file.
+     *
+     * @return string
+     */
+    public function getNodename()
+    {
+        return $this->nodename;
+    }
+
+    /**
+     * Set the node name of the file. (only mutable on new document before the persist)
+     *
+     * @param string $name the name of the file
+     */
+    public function setNodename($name)
+    {
+        $this->nodename = $name;
+    }
+
+    /**
+     * The parent Folder document of this document.
+     *
+     * @param object $parent Folder document that is the parent of this node.
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Set the parent document of this document. Only mutable on new document
+     * before the persist.
+     *
+     * @param object $parent Document that is the parent of this node. Must be
+     *      a Folder or otherwise resolve to nt:folder
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
     }
 
     /**
@@ -81,7 +129,7 @@ class File
         $this->getContent();
         $stream = fopen($filename, 'rb');
         if (! $stream) {
-            throw new \Exception("File $filename not found");
+            throw new \RuntimeException("File '$filename' not found");
         }
 
         $this->content->setData($stream);

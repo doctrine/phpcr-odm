@@ -92,6 +92,10 @@ class YamlDriver extends AbstractFileDriver
             $mapping = array('fieldName' => $element['nodename']);
             $this->addNodenameMapping($class, $mapping);
         }
+        if (isset($element['parentdocument'])) {
+            $mapping = array('fieldName' => $element['parentdocument']);
+            $this->addParentDocumentMapping($class, $mapping);
+        }
         if (isset($element['child'])) {
             foreach ($element['child'] as $fieldName => $mapping) {
                 if (is_string($mapping)) {
@@ -156,6 +160,11 @@ class YamlDriver extends AbstractFileDriver
     private function addNodenameMapping(ClassMetadata $class, $mapping)
     {
         $class->mapNodename($mapping);
+    }
+
+    private function addParentDocumentMapping(ClassMetadata $class, $mapping)
+    {
+        $class->mapParentDocument($mapping);
     }
 
     private function addChildMapping(ClassMetadata $class, $mapping)

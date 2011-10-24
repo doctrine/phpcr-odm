@@ -84,7 +84,7 @@ class DocumentManager implements ObjectManager
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
-        $this->unitOfWork = new UnitOfWork($this, $this->config->getDocumentNameMapper());
+        $this->unitOfWork = new UnitOfWork($this);
         $this->proxyFactory = new ProxyFactory($this,
             $this->config->getProxyDir(),
             $this->config->getProxyNamespace(),
@@ -183,11 +183,11 @@ class DocumentManager implements ObjectManager
      *
      * Will return null if the document wasn't found.
      *
-     * @param string $documentName
+     * @param null|string $className
      * @param string $id
      * @return object
      */
-    public function find($documentName, $id)
+    public function find($className, $id)
     {
         try {
             $node = UUIDHelper::isUUID($id)
@@ -197,17 +197,17 @@ class DocumentManager implements ObjectManager
             return null;
         }
 
-        return $this->unitOfWork->createDocument($documentName, $node);
+        return $this->unitOfWork->createDocument($className, $node);
     }
 
     /**
      * Finds many documents by id.
      *
-     * @param string $documentName
+     * @param null|string $className
      * @param array $ids
      * @return object
      */
-    public function findMany($documentName, array $ids)
+    public function findMany($className, array $ids)
     {
         $nodes = UUIDHelper::isUUID(reset($ids))
             ? $this->session->getNodesByIdentifier($ids)
@@ -215,29 +215,29 @@ class DocumentManager implements ObjectManager
 
         $documents = array();
         foreach ($nodes as $node) {
-            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($className, $node);
         }
 
         return new ArrayCollection($documents);
     }
 
     /**
-     * @param  string $documentName
+     * @param  string $className
      * @return Doctrine\ODM\PHPCR\DocumentRepository
      */
-    public function getRepository($documentName)
+    public function getRepository($className)
     {
-        $documentName  = ltrim($documentName, '\\');
-        if (empty($this->repositories[$documentName])) {
-            $class = $this->getClassMetadata($documentName);
+        $className  = ltrim($className, '\\');
+        if (empty($this->repositories[$className])) {
+            $class = $this->getClassMetadata($className);
             if ($class->customRepositoryClassName) {
                 $repositoryClass = $class->customRepositoryClassName;
             } else {
                 $repositoryClass = 'Doctrine\ODM\PHPCR\DocumentRepository';
             }
-            $this->repositories[$documentName] = new $repositoryClass($this, $class);
+            $this->repositories[$className] = new $repositoryClass($this, $class);
         }
-        return $this->repositories[$documentName];
+        return $this->repositories[$className];
     }
 
     /**
@@ -278,19 +278,19 @@ class DocumentManager implements ObjectManager
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param  \PHPCR\Query\QueryInterface $query the query instance as aquired through createQuery()
+     * @param  \PHPCR\Query\QueryInterface $query the query instance as acquired through createQuery()
      * @param  string $documentName document class
      *
      * @return array of document instances
      */
-    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $documentName)
+    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $className = null)
     {
         $documents = array();
 
         // get all nodes from the node iterator
         $nodes = $query->execute()->getNodes(true);
         foreach ($nodes as $node) {
-            $documents[$node->getPath()] = $this->unitOfWork->createDocument($documentName, $node);
+            $documents[$node->getPath()] = $this->unitOfWork->createDocument($className, $node);
         }
 
         return new ArrayCollection($documents);
@@ -448,14 +448,14 @@ class DocumentManager implements ObjectManager
     /**
      * Gets the DocumentRepository and gets the Predeccors of the Object.
      *
-     * @param  string $documentName
+     * @param  string $className
      * @param  object $document
      * @return array of \PHPCR\Version\Version objects
      */
 
-    public function getPredecessors($documentName, $object)
+    public function getPredecessors($className, $object)
     {
-         return $this->getRepository($documentName)->getPredecessors($object);
+         return $this->getRepository($className)->getPredecessors($object);
     }
 
     /**
@@ -479,15 +479,15 @@ class DocumentManager implements ObjectManager
      * Clears the DocumentManager. All entities that are currently managed
      * by this DocumentManager become detached.
      *
-     * @param string $documentName
+     * @param string $className
      */
-    public function clear($documentName = null)
+    public function clear($className = null)
     {
-        if ($documentName === null) {
+        if ($className === null) {
             $this->unitOfWork->clear();
         } else {
             //TODO
-            throw new PHPCRException("DocumentManager#clear(\$documentName) not yet implemented.");
+            throw new PHPCRException("DocumentManager#clear(\$className) not yet implemented.");
         }
     }
 
