@@ -181,38 +181,6 @@ class UnitOfWork
     }
 
     /**
-     * @param NodeInterface $node
-     * @param $documentName
-     *
-     * @return string class name
-     */
-    private function getClassName(NodeInterface $node, $documentName = null)
-    {
-        if ($this->documentNameMapper) {
-            $className = $this->documentNameMapper->getClassName($this->dm, $node, $documentName, $this->writeMetadata);
-            if (empty($className)) {
-                throw new \InvalidArgumentException('Could not determine document class for node');
-            }
-        } else {
-            if (isset($documentName)) {
-                $className = $documentName;
-            } else if ($node->hasProperty('phpcr:class')) {
-                $className = $node->getProperty('phpcr:class')->getString();
-            } else if ($node->hasProperty('phpcr:alias')) {
-                $aliasName = $node->getProperty('phpcr:alias')->getString();
-                $class = $this->dm->getMetadataFactory()->getMetadataForAlias($aliasName);
-                $className = $class->name;
-            }
-
-            // default to the built in generic document class
-            if (empty($className)) {
-                $className = 'Doctrine\ODM\PHPCR\Document\Generic';
-            }
-        }
-
-        return $className;
-    }
-    /**
      * Create a document given class, data and the doc-id and revision
      *
      * @param string $documentName
@@ -222,7 +190,7 @@ class UnitOfWork
      */
     public function createDocument($documentName, $node, array &$hints = array())
     {
-        $className = $this->getClassName($node, $documentName);
+        $className = $this->documentNameMapper->getClassName($this->dm, $node, $documentName);
         $class = $this->dm->getClassMetadata($className);
 
         $documentState = array();
@@ -384,7 +352,7 @@ class UnitOfWork
         }
 
         if (null === $className) {
-            $className = $this->getClassName($node);
+            $className = $this->documentNameMapper->getClassName($this->dm, $node);
         }
 
         $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
@@ -888,7 +856,7 @@ class UnitOfWork
             $node = $this->nodesMap[$oid];
 
             if ($this->writeMetadata) {
-                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
+                $this->documentNameMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
             try {
@@ -947,7 +915,7 @@ class UnitOfWork
             $node = $this->nodesMap[$oid];
 
             if ($this->writeMetadata) {
-                $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
+                $this->documentNameMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
             if ($dispatchEvents) {

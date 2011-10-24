@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\DocumentNameMapperInterface;
+use Doctrine\ODM\PHPCR\DocumentNameMapper;
 
 /**
  * Configuration class
@@ -155,6 +156,9 @@ class Configuration
      */
     public function getDocumentNameMapper()
     {
+        if (empty($this->attributes['documentNameMapper'])) {
+            $this->setDocumentNameMapper(new DocumentNameMapper());
+        }
         return $this->attributes['documentNameMapper'];
     }
 

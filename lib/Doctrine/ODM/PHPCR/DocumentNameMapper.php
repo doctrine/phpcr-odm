@@ -20,9 +20,11 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use PHPCR\NodeInterface;
 
-interface DocumentNameMapperInterface
+use PHPCR\NodeInterface;
+use PHPCR\PropertyType;
+
+class DocumentNameMapper implements DocumentNameMapperInterface
 {
     /**
      * Determine the document name from a given node
@@ -35,7 +37,25 @@ interface DocumentNameMapperInterface
      *
      * @throws \RuntimeException if no class name could be determined
      */
-    function getClassName(DocumentManager $dm, NodeInterface $node, $documentName = null);
+    public function getClassName(DocumentManager $dm, NodeInterface $node, $documentName = null)
+    {
+        if (isset($documentName)) {
+            $className = $documentName;
+        } else if ($node->hasProperty('phpcr:class')) {
+            $className = $node->getProperty('phpcr:class')->getString();
+        } else if ($node->hasProperty('phpcr:alias')) {
+            $aliasName = $node->getProperty('phpcr:alias')->getString();
+            $class = $dm->getMetadataFactory()->getMetadataForAlias($aliasName);
+            $className = $class->name;
+        }
+
+        // default to the built in generic document class
+        if (empty($className)) {
+            $className = 'Doctrine\ODM\PHPCR\Document\Generic';
+        }
+
+        return $className;
+    }
 
     /**
      * Determine the document name from a given node
@@ -44,5 +64,8 @@ interface DocumentNameMapperInterface
      * @param NodeInterface $node
      * @param string $className
      */
-    function writeMetadata(DocumentManager $dm, NodeInterface $node, $className);
+    public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className)
+    {
+        $node->setProperty('phpcr:class', $className, PropertyType::STRING);
+    }
 }
