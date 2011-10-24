@@ -22,7 +22,7 @@ namespace Doctrine\ODM\PHPCR\Id;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
-class RepositoryIdGenerator extends IdGenerator
+class ParentIdGenerator extends IdGenerator
 {
     /**
      * @param object $document
@@ -32,15 +32,25 @@ class RepositoryIdGenerator extends IdGenerator
      */
     public function generate($document, ClassMetadata $cm, DocumentManager $dm)
     {
-        $repository = $dm->getRepository($cm->name);
-        if (!($repository instanceof RepositoryIdInterface)) {
-            throw new \RuntimeException("ID could not be determined. Make sure the that the Repository '".get_class($repository)."' implements RepositoryIdInterface");
+        $parent = $cm->getFieldValue($document, $cm->parentMapping);
+        $name = $cm->getFieldValue($document, $cm->nodename);
+        $id = $cm->getFieldValue($document, $cm->identifier);
+
+        if ((empty($parent) || empty($name)) && empty($id)) {
+            throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\ParentDocument and Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename annotation and that the property is set to the path where the document is to be store.');
         }
 
-        $id = $repository->generateId($document);
-        if (!$id) {
-            throw new \RuntimeException("ID could not be determined. Repository was unable to generate an ID");
+        // use assigned ID by default
+        if (!$parent) {
+            return $id;
         }
-        return $id;
+
+        // determine ID based on the path and the node name
+        $parentCm = $dm->getClassMetadata(get_class($parent));
+        $id = $parentCm->reflFields[$parentCm->identifier]->getValue($parent);
+        if (!$id) {
+            throw new \RuntimeException('Parent ID could not be determined. Make sure the parent document has a property with the Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the parent document is to be store.');
+        }
+        return $id . '/' . $name;
     }
 }

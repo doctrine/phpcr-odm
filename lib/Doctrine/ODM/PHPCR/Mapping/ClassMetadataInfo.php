@@ -65,6 +65,11 @@ class ClassMetadataInfo implements ClassMetadata
     const GENERATOR_TYPE_ASSIGNED = 2;
 
     /**
+     * means the document uses the parent and name mapping to find its place.
+     */
+    const GENERATOR_TYPE_PARENT = 3;
+
+    /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
      *
      * @var AbstractIdGenerator
@@ -90,7 +95,7 @@ class ClassMetadataInfo implements ClassMetadata
     public $namespace;
 
     /**
-     * READ-ONLY: The class alias that is stored in the phpcr:alias property
+     * READ-ONLY: The class alias
      *
      * @var string
      */
@@ -111,11 +116,18 @@ class ClassMetadataInfo implements ClassMetadata
     public $node;
 
     /**
-     * READ-ONLY: The name of the node
+     * READ-ONLY except on document creation: The name of the node
      *
      * @var string
      */
     public $nodename;
+
+    /**
+     * READ-ONLY except on document creation: The name of the node
+     *
+     * @var string
+     */
+    public $parentMapping;
 
     /**
      * The name of the custom repository class used for the document class.
@@ -235,11 +247,11 @@ class ClassMetadataInfo implements ClassMetadata
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
-     * @param string $documentName The name of the document class the new instance is used for.
+     * @param string $className The name of the document class the new instance is used for.
      */
-    public function __construct($documentName)
+    public function __construct($className)
     {
-        $this->name = $documentName;
+        $this->name = $className;
     }
 
     /**
@@ -512,15 +524,20 @@ class ClassMetadataInfo implements ClassMetadata
     public function mapNode(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
-
         $this->node = $mapping['fieldName'];
     }
 
     public function mapNodename(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
-
         $this->nodename = $mapping['fieldName'];
+    }
+
+    public function mapParentDocument(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->parentMapping = $mapping['fieldName'];
+        $this->idGenerator = self::GENERATOR_TYPE_PARENT;
     }
 
     public function mapChild(array $mapping)
@@ -564,6 +581,8 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['name'] = $mapping['fieldName'];
         }
         if (isset($this->fieldMappings[$mapping['fieldName']])
+          || ($this->nodename == $mapping['fieldName'])
+          || ($this->parentMapping == $mapping['fieldName'])
           || isset($this->associationsMappings[$mapping['fieldName']])
           || isset($this->childMappings[$mapping['fieldName']])
           || isset($this->childrenMappings[$mapping['fieldName']])

@@ -23,7 +23,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\User';
-        $this->dm = $this->createDocumentManager();
+        $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('user');
@@ -62,16 +62,15 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
 
-    public function testFindByAlias()
+    public function testFindByClass()
     {
         $user = $this->node->addNode('userWithAlias');
         $user->setProperty('username', 'dbu');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
 
-        $repository = $this->dm->getRepository($this->type);
-        $userWithAlias = $repository->find('/functional/userWithAlias');
+        $userWithAlias = $this->dm->find(null, '/functional/userWithAlias');
 
         $this->assertEquals('dbu', $userWithAlias->username);
     }

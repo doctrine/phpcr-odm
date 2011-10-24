@@ -62,6 +62,16 @@ abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->nodename));
         $this->assertEquals('namefield', $class->nodename);
     }
+
+    /**
+     * @depends testLoadMapping
+     * @param ClassMetadata $class
+     */
+    public function testParentDocumentMapping($class)
+    {
+        $this->assertTrue(isset($class->parentMapping));
+        $this->assertEquals('parent', $class->parentMapping);
+    }
 }
 
 
@@ -69,6 +79,7 @@ class PropertyMappingObj
 {
     public $id;
     public $namefield;
+    public $parent;
     public $string;
     public $binary;
     public $long;

@@ -4,7 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
+    Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 /**
  * @group functional
@@ -38,6 +39,8 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename', $doc->id);
         $this->assertEquals('thename', $doc->nodename);
 
+        $this->assertNotNull($doc->parent);
+        $this->assertEquals('/functional', $doc->parent->getId());
         return $doc;
     }
 
@@ -49,6 +52,8 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($doc);
         $this->dm->flush();
         $this->assertEquals('test', $doc->nodename);
+        $this->assertNotNull($doc->parent);
+        $this->assertEquals('functional', $doc->parent->getNodename());
         $this->dm->clear();
 
         $docNew = $this->dm->find($this->type, '/functional/test');
@@ -58,31 +63,87 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @depends testFind
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testNodenameChangeException($doc)
+    public function testNodenameChangeException()
     {
+        $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->nodename = 'x';
         $this->dm->flush();
     }
 
-/*
- *  TODO: implement a strategy for this. should probably even be the default
-    public function testInsertWithParentAndNameIdStrategy()
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testParentChangeException()
     {
-        $user = new User3();
-        $user->username = "test3";
-
-        $this->dm->persist($user);
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $doc->parent = new NameDoc();
         $this->dm->flush();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testIdChangeException()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $doc->id = '/different';
+        $this->dm->flush();
+    }
+
+    public function testInsertWithParentIdStrategy()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $child = new NameDoc();
+        $child->parent = $doc;
+        $child->nodename = 'child';
+
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+
+        $this->assertTrue($this->node->getNode('thename')->hasNode('child'));
+        $this->assertEquals('/functional/thename/child', $child->id);
+    }
+
+    public function testInsertChildWithNewParent()
+    {
+        $parent = new NameDoc();
+        $parent->id = '/functional/parent';
+
+        $child = new NameDoc();
+        $child->parent = $parent;
+        $child->nodename = 'child';
+
+        $parent->children = array($child);
+
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+
+        $this->assertTrue($this->node->getNode('parent')->hasNode('child'));
+        $this->assertEquals('/functional/parent/child', $child->id);
+    }
+
+    function testProxyForParentIsUsed()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $this->assertTrue($doc->parent instanceof Proxy);
+    }
+
+    function testProxyForChildIsUsed()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $doc->child = new NameDoc();
+        $this->dm->flush();
+
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User3', '/functional/test3');
-
-        $this->assertNotNull($userNew, "Have to hydrate user object!");
-        $this->assertEquals($user->username, $userNew->username);
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $this->assertTrue($doc->child instanceof Proxy);
     }
-*/
+
     // TODO: move? is to be done through phpcr session directly
 
 }
@@ -98,5 +159,12 @@ class NameDoc
     public $node;
     /** @PHPCRODM\Nodename */
     public $nodename;
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+    /** @PHPCRODM\Children */
+    public $children;
+    /** @PHPCRODM\Child */
+    public $child;
+    /** @PHPCRODM\String */
+    public $title;
 }
-?>

@@ -57,6 +57,44 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getIdentifier());
     }
 
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-many property. Use array notation.
+     */
+    public function testCreateManyNoArrayError()
+    {
+        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refManyTestObj->references = $refRefTestObj;
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-one property. Don't use array notation.
+     */
+    public function testCreateOneArrayError()
+    {
+        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
+        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+
+        $refTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refTestObj->reference = array($refRefTestObj);
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+    }
+
     public function testCreateWithoutRef()
     {
         $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
