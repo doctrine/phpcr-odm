@@ -125,6 +125,12 @@ By default the assigned id generator is used, which requires manual assignment
 of the path to a field annotated as being the Id.
 You can tell doctrine to use a different strategy to find the id.
 
+A document id can be defined by the Nodename and the ParentDocument annotations.
+The resulting id will be the id of the parent concatenated with '/' and the
+Nodename.
+
+If you supply a ParentDocument annotation, the strategy is automatically set to parent. This strategy will check the parent and the name and will fall back to the id field if either is missing.
+
 Currently, there is the "repository" strategy which calls can be used which
 calls generateId on the repository class to give you full control how you want
 to build the path.
@@ -168,7 +174,8 @@ Available annotations
 <tr><td> Uuid:          </td><td>The unique id of this node. (only allowed if node is referenceable). </td></tr>
 <tr><td> Version:       </td><td>The version of this node, for versioned nodes. </td></tr>
 <tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. This is populated as soon as you register the document with the manager using persist(). (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node.) </td></tr>
-<tr><td> Nodename:          </td><td>The name of the PHPCR node (this is the part of the path after the last '/' in the id). This property is read only except on document creation with the parentandname strategy. For new nodes, it is populated during the persist() operation.</td></tr>
+<tr><td> Nodename:          </td><td>The name of the PHPCR node (this is the part of the path after the last '/' in the id). This property is read only except on document creation with the parent strategy. For new nodes, it is populated during the persist() operation.</td></tr>
+<tr><td> ParentDocument:          </td><td>The parent document of this document. If a type is defined, the document will be of that type, otherwise Doctrine\ODM\PHPCR\Document\Generic will be used. This property is read only except on document creation with the parent strategy.</td></tr>
 <tr><td> Child(name=x): </td><td>Map the child with name x to this field. </td></tr>
 <tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this field. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
 <tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  </td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference.</td></tr>

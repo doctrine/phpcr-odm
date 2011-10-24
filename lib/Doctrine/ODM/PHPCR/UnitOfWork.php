@@ -205,6 +205,11 @@ class UnitOfWork
             if ($this->writeMetadata && empty($properties['phpcr:class']) && isset($class)) {
                 $node->setProperty('phpcr:class', $class->name, PropertyType::STRING);
             }
+
+            // the built in mapping uses the generic document if it is not able to determine the document class
+            if (empty($class)) {
+                $class = $this->dm->getClassMetadata('Doctrine\ODM\PHPCR\Document\Generic');
+            }
         }
 
         if (empty($class)) {
@@ -270,24 +275,10 @@ class UnitOfWork
 
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
-                $referencedId = $referencedNode->getPath();
-
-                // check if referenced document already exists
-                if (isset($this->identityMap[$referencedId])) {
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->identityMap[$referencedId];
-                } else {
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
-                    $proxyDocument = $this->dm->getProxyFactory()->getProxy($referencedClass->name, $referencedId);
-
-                    // register the referenced document under its own id
-                    $this->registerManaged($proxyDocument, $referencedId, null);
-
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxyDocument;
-
-                    // save node for the case that the referenced document will be created
-                    $proxyOid = spl_object_hash($proxyDocument);
-                    $this->nodesMap[$proxyOid] = $referencedNode;
-                }
+                $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
+                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->createProxy(
+                    $referencedNode, $referencedClass
+                );
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
                     continue;
@@ -300,29 +291,22 @@ class UnitOfWork
                 }
 
                 foreach ($proxyNodes as $referencedNode) {
-                    $referencedId = $referencedNode->getPath();
-                    // check if referenced document already exists
-                    if (isset($this->identityMap[$referencedId])) {
-                        $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->identityMap[$referencedId];
-                    } else {
-                        $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'));
-                        $proxyDocument = $this->dm->getProxyFactory()->getProxy($referencedClass->name, $referencedId);
-
-                        // register the referenced document under its own id
-                        $this->registerManaged($proxyDocument, $referencedId, null);
-
-                        $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $proxyDocument;
-                        // save node for the case that the referenced document will be created
-                        $proxyOid = spl_object_hash($proxyDocument);
-                        $this->nodesMap[$proxyOid] = $referencedNode;
-                    }
+                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->createProxy(
+                        $referencedNode, $referencedClass
+                    );
                 }
             }
         }
 
+        if ($class->parentMapping && $node->getDepth() > 0) {
+            // do not map parent to self if we are at root
+            $documentState[$class->parentMapping] = $this->createProxy($node->getParent());
+        }
+
         foreach ($class->childMappings as $childName => $mapping) {
             $documentState[$class->childMappings[$childName]['fieldName']] = $node->hasNode($mapping['name'])
-                ? $this->createDocument(null, $node->getNode($mapping['name']))
+                ? $this->createProxy($node->getNode($mapping['name']))
                 : null;
         }
 
@@ -379,6 +363,29 @@ class UnitOfWork
         return $document;
     }
 
+    private function createProxy($node, $class = null)
+    {
+        $targetId = $node->getPath();
+        // check if referenced document already exists
+        if (isset($this->identityMap[$targetId])) {
+            return $this->identityMap[$targetId];
+        } else {
+            if (!$class && $node->hasProperty('phpcr:class')) {
+                $class = $node->getProperty('phpcr:class')->getString();
+            } else if (!$class) {
+                $class = 'Doctrine\\ODM\\PHPCR\\Document\\Generic';
+            }
+
+            $proxyDocument = $this->dm->getProxyFactory()->getProxy($class, $targetId);
+
+            // register the document under its own id
+            $this->registerManaged($proxyDocument, $targetId, null);
+            $proxyOid = spl_object_hash($proxyDocument);
+            $this->nodesMap[$proxyOid] = $node;
+            return $proxyDocument;
+        }
+    }
+
     /**
      * @param  object $document
      * @return array
@@ -410,6 +417,8 @@ class UnitOfWork
 
         $class = $this->dm->getClassMetadata(get_class($document));
         $state = $this->getDocumentState($document);
+
+        $this->cascadeScheduleParentInsert($class, $document, $visited);
 
         switch ($state) {
             case self::STATE_NEW:
@@ -478,6 +487,16 @@ class UnitOfWork
             $referrer = $class->reflFields[$referrerName]->getValue($document);
             if ($referrer !== null && $this->getDocumentState($referrer) == self::STATE_NEW) {
                 $this->doScheduleInsert($referrer, $visited);
+            }
+        }
+    }
+
+    private function cascadeScheduleParentInsert($class, $document, &$visited)
+    {
+        if ($class->parentMapping) {
+            $parent = $class->reflFields[$class->parentMapping]->getValue($document);
+            if ($parent !== null && $this->getDocumentState($parent) == self::STATE_NEW) {
+                $this->doScheduleInsert($parent, $visited);
             }
         }
     }
@@ -580,6 +599,7 @@ class UnitOfWork
                 $actualData[$fieldName] = $value;
             }
         }
+
         // unset the revision field if necessary, it is not to be managed by the user in write scenarios.
         if ($class->versionable) {
             unset($actualData[$class->versionField]);
@@ -600,6 +620,7 @@ class UnitOfWork
                     && !isset($class->childMappings[$fieldName])
                     && !isset($class->associationsMappings[$fieldName])
                     && !isset($class->referrersMappings[$fieldName])
+                    && !isset($class->parentMapping[$fieldName])
                     && !isset($class->nodename)
                 ) {
                     continue;
@@ -616,7 +637,13 @@ class UnitOfWork
                     }
                 } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                     if ($class->nodename == $fieldName) {
-                        throw new PHPCRException('The Nodename property is immutable');
+                        throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document.');
+                    }
+                    if ($class->parentMapping == $fieldName) {
+                        throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document.');
+                    }
+                    if ($class->identifier == $fieldName) {
+                        throw new PHPCRException('The Id is immutable. Please use PHPCR\Session::move to move the document.');
                     }
                     $changed = true;
                     break;
@@ -631,8 +658,11 @@ class UnitOfWork
 
         $id = $class->reflFields[$class->identifier]->getValue($document);
         foreach ($class->childMappings as $name => $childMapping) {
-            if ($this->originalData[$oid][$name]) {
-                $this->computeChildChanges($childMapping, $this->originalData[$oid][$name], $id);
+            if ($actualData[$name]) {
+                if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
+                    throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.");
+                }
+                $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
         }
 
@@ -761,9 +791,14 @@ class UnitOfWork
             $class->reflFields[$class->node]->setValue($document, $node);
         }
         if ($class->nodename) {
+            // make sure this reflects the id generator strategy generated id
             $class->reflFields[$class->nodename]->setValue($document, $node->getName());
         }
-
+        if ($class->parentMapping) {
+            // TODO: only do this if its not already set? or do we always update to sanitize?
+            // make sure this reflects the id generator strategy generated id
+            $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
+        }
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
         }
