@@ -10,8 +10,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class CmsUser
 {
-// /** @Id */
-// public $id;
     /** @PHPCRODM\Id */
     public $id;
     /** @PHPCRODM\Node */
@@ -22,17 +20,6 @@ class CmsUser
     public $username;
     /** @PHPCRODM\String(name="name") */
     public $name;
-
-    // * @ReferenceOne(targetDocument="CmsUserRights") */
-    // public $rights;
-    //
-    // /**
-    //  * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
-    //
-    // public $articles;
-    //
-    // /** @ReferenceMany(targetDocument="CmsGroup") */
-    // public $groups;
 
     public function __construct()
     {

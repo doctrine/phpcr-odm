@@ -11,7 +11,7 @@ class WeakRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(weak=true) */
     public $reference;
     /** @PHPCRODM\String */
     public $name;

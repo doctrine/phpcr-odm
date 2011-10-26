@@ -182,7 +182,6 @@ class XmlDriver extends AbstractFileDriver
             'cascade'        => $cascade,
             'type'           => $type,
             'reference'      => true,
-            'targetDocument' => isset($attributes['target-document']) ? (string) $attributes['target-document'] : null,
             'name'           => (string) $attributes['field'],
         );
         $this->addFieldMapping($class, $mapping);

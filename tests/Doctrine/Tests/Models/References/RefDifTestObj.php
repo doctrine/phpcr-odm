@@ -11,9 +11,9 @@ class RefDifTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefType1TestObj") */
+    /** @PHPCRODM\ReferenceOne */
     public $referenceType1;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefType2TestObj") */
+    /** @PHPCRODM\ReferenceOne */
     public $referenceType2;
     /** @PHPCRODM\String */
     public $name;
