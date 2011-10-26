@@ -15,9 +15,4 @@ class RefManyTestObj
     public $references;
     /** @PHPCRODM\String */
     public $name;
-
-    public function __construct()
-    {
-       $references = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 }
