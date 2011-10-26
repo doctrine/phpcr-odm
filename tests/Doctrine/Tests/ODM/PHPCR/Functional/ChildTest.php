@@ -299,7 +299,7 @@ class ChildReferrerTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj") */
+  /** @PHPCRODM\ReferenceOne */
   public $reference;
 }
 

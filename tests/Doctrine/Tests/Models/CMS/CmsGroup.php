@@ -14,7 +14,7 @@ class CmsGroup
     /** @PHPCRODM\String */
     public $name;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="CmsUser") */
+    /** @PHPCRODM\ReferenceMany */
     public $users;
 
     /** @PHPCRODM\String(multivalue=true) */

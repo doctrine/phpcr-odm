@@ -183,7 +183,6 @@ class YamlDriver extends AbstractFileDriver
             'cascade'        => isset($reference['cascade']) ? $reference['cascade'] : null,
             'type'           => $type,
             'reference'      => true,
-            'targetDocument' => isset($reference['targetDocument']) ? $reference['targetDocument'] : null,
             'fieldName'      => $fieldName,
             'strategy'       => isset($reference['strategy']) ? (string) $reference['strategy'] : 'pushPull',
         );

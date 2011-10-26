@@ -319,7 +319,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
         $referrer->reference = null;
- 
+
         $this->dm->remove($reference);
         $this->dm->flush();
         $this->dm->clear();
@@ -508,11 +508,11 @@ class HardReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(weak=false) */
     public $referenceToHard;
-    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(weak=false) */
     public $referenceToWeak;
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(weak=false) */
     public $referenceToAll;
     /** @PHPCRODM\String */
     public $name;
@@ -525,11 +525,11 @@ class WeakReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(weak=true) */
     public $referenceToWeak;
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(weak=true) */
     public $referenceToHard;
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(weak=true) */
     public $referenceToAll;
     /** @PHPCRODM\String */
     public $name;
@@ -596,7 +596,7 @@ class ReferrerTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj") */
+    /** @PHPCRODM\ReferenceOne */
     public $reference;
 }
 
@@ -609,7 +609,7 @@ class ReferrerNamedPropTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj") */
+    /** @PHPCRODM\ReferenceOne */
     public $namedReference;
 }
 

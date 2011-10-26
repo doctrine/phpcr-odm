@@ -11,13 +11,8 @@ class RefManyTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj") */
+    /** @PHPCRODM\ReferenceMany */
     public $references;
     /** @PHPCRODM\String */
     public $name;
-
-    public function __construct()
-    {
-       $references = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 }

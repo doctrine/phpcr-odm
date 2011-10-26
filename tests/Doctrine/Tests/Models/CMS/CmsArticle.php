@@ -15,7 +15,7 @@ class CmsArticle
     public $topic;
     /** @PHPCRODM\String */
     public $text;
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
+    /** @PHPCRODM\ReferenceOne */
     public $user;
     public $comments;
     /** @PHPCRODM\Version */

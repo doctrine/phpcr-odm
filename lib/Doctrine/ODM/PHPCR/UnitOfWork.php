@@ -256,9 +256,8 @@ class UnitOfWork
 
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
-                $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->createProxy(
-                    $referencedNode, $referencedClass
+                    $referencedNode
                 );
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
                 if (! $node->hasProperty($assocOptions['fieldName'])) {
@@ -272,9 +271,8 @@ class UnitOfWork
                 }
 
                 foreach ($proxyNodes as $referencedNode) {
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
                     $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->createProxy(
-                        $referencedNode, $referencedClass
+                        $referencedNode
                     );
                 }
             }
@@ -344,7 +342,7 @@ class UnitOfWork
         return $document;
     }
 
-    private function createProxy($node, $className = null)
+    private function createProxy($node)
     {
         $targetId = $node->getPath();
         // check if referenced document already exists
@@ -352,10 +350,7 @@ class UnitOfWork
             return $this->identityMap[$targetId];
         }
 
-        if (null === $className) {
-            $className = $this->documentClassMapper->getClassName($this->dm, $node);
-        }
-
+        $className = $this->documentClassMapper->getClassName($this->dm, $node);
         $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
 
         // register the document under its own id

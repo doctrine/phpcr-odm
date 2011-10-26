@@ -142,12 +142,11 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testMapAssociationManyToOne($cm)
     {
-        $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address'));
+        $cm->mapManyToOne(array('fieldName' => 'address'));
 
         $this->assertTrue(isset($cm->associationsMappings['address']), "No 'address' in associations map.");
         $this->assertEquals(array(
             'fieldName' => 'address',
-            'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address',
             'sourceDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Person',
             'type' => ClassMetadata::MANY_TO_ONE,
         ), $cm->associationsMappings['address']);
