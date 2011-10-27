@@ -205,7 +205,7 @@ final class Decimal extends Property
  */
 class Reference
 {
-    /** @var string @Required */
+    /** @var string */
     public $targetDocument;
     /** @var boolean */
     public $weak = true;

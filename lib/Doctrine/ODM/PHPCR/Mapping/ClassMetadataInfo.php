@@ -606,9 +606,6 @@ class ClassMetadataInfo implements ClassMetadata
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
 
         $mapping['sourceDocument'] = $this->name;
-        if (!isset($mapping['targetDocument'])) {
-            throw new MappingException("You have to specify a 'targetDocument' class for the '" . $this->name . "' association.");
-        }
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }

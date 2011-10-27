@@ -256,7 +256,7 @@ class UnitOfWork
 
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
-                $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
+                $referencedClass = isset($assocOptions['targetDocument']) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->createProxy(
                     $referencedNode, $referencedClass
                 );
@@ -272,7 +272,7 @@ class UnitOfWork
                 }
 
                 foreach ($proxyNodes as $referencedNode) {
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
+                    $referencedClass = isset($assocOptions['targetDocument']) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
                     $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->createProxy(
                         $referencedNode, $referencedClass
                     );
