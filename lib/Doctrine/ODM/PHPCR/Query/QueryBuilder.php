@@ -243,7 +243,7 @@ class QueryBuilder
     {
         $this->state = self::STATE_DIRTY;
         if ($this->constraint) {
-            $this->constraint = $this->qomFactory->_and($this->constraint, $constraint);
+            $this->constraint = $this->qomFactory->andConstraint($this->constraint, $constraint);
         } else {
             $this->constraint = $constraint;
         }
@@ -270,7 +270,7 @@ class QueryBuilder
     {
         $this->state = self::STATE_DIRTY;
         if ($this->constraint) {
-            $this->constraint = $this->qomFactory->_or($this->constraint, $constraint);
+            $this->constraint = $this->qomFactory->orConstraint($this->constraint, $constraint);
         } else {
             $this->constraint = $constraint;
         }

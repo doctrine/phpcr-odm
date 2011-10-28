@@ -79,7 +79,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $dynamicOperand = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
         $this->qf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface', array(), array());
         $this->qf->expects($this->once())
-                 ->method('_and');
+                 ->method('andConstraint');
 
         $constraint1 = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
         $constraint2 = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
@@ -93,7 +93,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $dynamicOperand = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
         $this->qf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface', array(), array());
         $this->qf->expects($this->once())
-                 ->method('_or');
+                 ->method('orConstraint');
 
         $constraint1 = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
         $constraint2 = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
