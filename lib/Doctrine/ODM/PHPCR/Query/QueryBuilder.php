@@ -82,6 +82,11 @@ class QueryBuilder
     private $query = null;
 
     /**
+     * @var array The query parameters.
+     */
+    private $params = array();
+
+    /**
      * Initializes a new QueryBuilder
      *
      * @param PHPCR\Query\QOM\QueryObjectModelFactoryInterface $qomFactory
@@ -448,11 +453,63 @@ class QueryBuilder
             $this->query->setOffset($this->firstResult);
         }
 
-        if ($this->maxResults()) {
-            $query->setLimit($this->maxResults);
+        if ($this->maxResults) {
+            $this->query->setLimit($this->maxResults);
         }
-        $queryResult = $query->execute();
+
+        foreach ($this->params as $key => $value) {
+            $this->query->bindValue($key, $value);
+        }
+
+        $queryResult = $this->query->execute();
 
         return $queryResult;
+    }
+
+    /**
+     * Sets a query parameter for the query being constructed.
+     *
+     * @param string $key The parameter name.
+     * @param mixed $value The parameter value.
+     * @return QueryBuilder This QueryBuilder instance.
+     */
+    public function setParameter($key, $value)
+    {
+        $this->params[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Gets a (previously set) query parameter of the query being constructed.
+     *
+     * @param string $key The key (name) of the bound parameter.
+     * @return mixed The value of the bound parameter.
+     */
+    public function getParameter($key)
+    {
+        return isset($this->params[$key]) ? $this->params[$key] : null;
+    }
+
+    /**
+     * Sets a collection of query parameters for the query being constructed.
+     *
+     * @param array $params The query parameters to set.
+     * @return QueryBuilder This QueryBuilder instance.
+     */
+    public function setParameters(array $params)
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
+    /**
+     * Gets all defined query parameters for the query being constructed.
+     *
+     * @return array The currently defined query parameters.
+     */
+    public function getParameters()
+    {
+        return $this->params;
     }
 }

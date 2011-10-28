@@ -189,4 +189,46 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         //state is clean, query is stored
         $qb->getQuery();
     }
+
+    public function testSetParameter()
+    {
+        $qb = new QueryBuilder($this->qf);
+        $key = "key";
+        $value = "value";
+        $qb->setParameter($key, $value);
+        $this->assertEquals($value, $qb->getParameter($key));
+    }
+
+    public function testSetParameters()
+    {
+        $qb = new QueryBuilder($this->qf);
+        $key1 = "key1";
+        $value1 = "value1";
+        $key2 = "key2";
+        $value2 = "value2";
+        $qb->setParameters(array($key1, $value1), array($key2, $value2));
+        $this->assertEquals("2", count($qb->getParameters()));
+    }
+
+    public function testExecute()
+    {
+        $source = $this->getMock('PHPCR\Query\QOM\SourceInterface', array(), array());
+        $constraint = $this->getMock('PHPCR\Query\QOM\ConstraintInterface', array(), array());
+        $query = $this->getMock('PHPCR\Query\QueryInterface', array(), array());
+        $query->expects($this->once())
+              ->method('execute');
+        $query->expects($this->once())
+              ->method('bindValue');
+        $this->qf->expects($this->once())
+                 ->method('createQuery')
+                 ->with($source, $constraint, array(), array())
+                 ->will($this->returnValue($query));
+        $qb = new QueryBuilder($this->qf);
+        $qb->from($source)
+           ->where($constraint)
+           ->setFirstResult(10)
+           ->setMaxResults(10)
+           ->setParameter('Key', 'value')
+           ->execute();
+    }
 }
