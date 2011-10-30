@@ -22,13 +22,13 @@ namespace Doctrine\ODM\PHPCR\Query;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 
 /**
- * QueryBuilder clas ir responsible for dynamically create QOM queries.
- *
- * TODO: bind parameters
+ * QueryBuilder class is responsible for dynamically create QOM queries.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @author      Nacho Martín <nitram.ohcan@gmail.com>
+ * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
 class QueryBuilder
 {
