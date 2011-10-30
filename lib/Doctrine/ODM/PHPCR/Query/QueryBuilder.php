@@ -172,13 +172,13 @@ class QueryBuilder
      * @param string $order The ordering direction.
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function addOrderBy(\PHPCR\Query\QOM\DynamicOperandInterface $sort, $order = null)
+    public function addOrderBy(\PHPCR\Query\QOM\DynamicOperandInterface $sort, $order = 'ASC')
     {
         $this->state = self::STATE_DIRTY;
-        if ($order == 'ASC' ) {
-            $ordering = $this->qomFactory->ascending($sort);
-        } else {
+        if ($order == 'DESC' ) {
             $ordering = $this->qomFactory->descending($sort);
+        } else {
+            $ordering = $this->qomFactory->ascending($sort);
         }
         $this->orderings[] = $ordering;
         return $this;

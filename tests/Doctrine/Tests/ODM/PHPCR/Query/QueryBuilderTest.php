@@ -63,7 +63,17 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
                  ->method('descending')
                  ->with($this->equalTo($dynamicOperand));
         $qb = new QueryBuilder($this->qf);
-        $qb->addOrderBy($dynamicOperand, null);
+        $qb->addOrderBy($dynamicOperand, 'DESC');
+    }
+
+    public function testOrderAscendingIsDefault()
+    {
+        $dynamicOperand = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface', array(), array());
+        $this->qf->expects($this->once())
+                 ->method('ascending')
+                 ->with($this->equalTo($dynamicOperand));
+        $qb = new QueryBuilder($this->qf);
+        $qb->addOrderBy($dynamicOperand);
     }
 
     public function testWhere()
