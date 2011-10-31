@@ -94,7 +94,7 @@ class QueryBuilder
     /**
      * Initializes a new QueryBuilder
      *
-     * @return \PHPCR\Query\QOM\QueryObjectModelFactoryInterface $qomFactory
+     * @param \PHPCR\Query\QOM\QueryObjectModelFactoryInterface $qomFactory
      */
     public function __construct(QueryObjectModelFactoryInterface $qomFactory)
     {
@@ -213,7 +213,7 @@ class QueryBuilder
      * Specifies one restriction (may be simple or composed).
      * Replaces any previously specified restrictions, if any.
      *
-     * @return \PHPCR\Query\QOM\ConstraintInterface $constraint
+     * @param \PHPCR\Query\QOM\ConstraintInterface $constraint
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function where($constraint)
@@ -246,7 +246,7 @@ class QueryBuilder
      * If there is no previous constraint then it will simply store the
      * provided one
      *
-     * @return \PHPCR\Query\QOM\ConstraintInterface $constraint
+     * @param \PHPCR\Query\QOM\ConstraintInterface $constraint
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function andWhere(ConstraintInterface $constraint)
@@ -273,7 +273,7 @@ class QueryBuilder
      * If there is no previous constraint then it will simply store the
      * provided one
      *
-     * @return \PHPCR\Query\QOM\ConstraintInterface $constraint
+     * @param \PHPCR\Query\QOM\ConstraintInterface $constraint
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function orWhere(ConstraintInterface $constraint)
@@ -427,7 +427,6 @@ class QueryBuilder
      * Gets the query built
      *
      * @return \PHPCR\Query\QueryObjectModelInterface
-     * @return \PHPCR\Query\QueryInterface
      */
     public function getQuery()
     {
