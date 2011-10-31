@@ -216,7 +216,7 @@ class QueryBuilder
      * @param \PHPCR\Query\QOM\ConstraintInterface $constraint
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function where($constraint)
+    public function where(ConstraintInterface $constraint)
     {
         $this->state = self::STATE_DIRTY;
         $this->constraint = $constraint;
