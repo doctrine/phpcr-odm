@@ -25,93 +25,106 @@ Getting Started
 
  1. Define one of those mapping drivers
 
-        // Annotation driver
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, array('/path/to/your/document/classes'));
+    ```php
+    <?php
+    // Annotation driver
+    $reader = new \Doctrine\Common\Annotations\AnnotationReader();
+    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, array('/path/to/your/document/classes'));
 
-        // Xml driver
-        $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver(array('/path/to/your/mapping/files'));
+    // Xml driver
+    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver(array('/path/to/your/mapping/files'));
 
-        // Yaml driver
-        $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
+    // Yaml driver
+    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
+    ```
 
  2. Initialize a PHPCR session<br />
         Eventually, this module will support all PHPCR backends, but at the moment it is only tested with jackalope jackrabbit.
 
-
-        $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
-                            array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
-        $credentials = new \PHPCR\SimpleCredentials('user', 'pass');
-        $session = $repository->login($credentials, 'your_workspace');
+    ```php
+    <?php
+    $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
+                        array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
+    $credentials = new \PHPCR\SimpleCredentials('user', 'pass');
+    $session = $repository->login($credentials, 'your_workspace');
+    ```
 
  3. Initialize the DocumentManager
 
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
-        $config->setMetadataDriverImpl($driver);
+    ```php
+    <?php
+    $config = new \Doctrine\ODM\PHPCR\Configuration();
+    $config->setMetadataDriverImpl($driver);
 
-        $dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+    $dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+    ```
 
  4. Example usage
 
-        // fetching a document by JCR path (id in PHPCR ODM lingo)
-        $user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
-        //or let the odm find the document class for you
-        $user = $dm->find('/bob');
+    ```php
+    <?php
+    // fetching a document by JCR path (id in PHPCR ODM lingo)
+    $user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
+    //or let the odm find the document class for you
+    $user = $dm->find('/bob');
 
-        // create a new document
-        $newUser = new \Namespace\For\Document\User();
-        $newUser->username = 'Timmy';
-        $newUser->email = 'foo@example.com';
-        $newUser->path = '/timmy';
-        // make the document manager know this document
-        // this will create the node in phpcr but not read the fields or commit
-        // the changes yet.
-        $dm->persist($newUser);
+    // create a new document
+    $newUser = new \Namespace\For\Document\User();
+    $newUser->username = 'Timmy';
+    $newUser->email = 'foo@example.com';
+    $newUser->path = '/timmy';
+    // make the document manager know this document
+    // this will create the node in phpcr but not read the fields or commit
+    // the changes yet.
+    $dm->persist($newUser);
 
-        // store all changes, insertions, etc. with the storage backend
-        $dm->flush();
+    // store all changes, insertions, etc. with the storage backend
+    $dm->flush();
 
-        // run a query
-        $query = $dm->createQuery('SELECT *
-                          FROM [nt:unstructured]
-                          WHERE ISCHILDNODE("/functional")
-                          ORDER BY username',
-                          \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $query->setLimit(2);
-        $result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
-        foreach ($result as $document) {
-            echo $document->getId();
-        }
+    // run a query
+    $query = $dm->createQuery('SELECT *
+                      FROM [nt:unstructured]
+                      WHERE ISCHILDNODE("/functional")
+                      ORDER BY username',
+                      \PHPCR\Query\QueryInterface::JCR_SQL2);
+    $query->setLimit(2);
+    $result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
+    foreach ($result as $document) {
+        echo $document->getId();
+    }
+    ```
 
 Document Classes
 ----------------
 
 You write your own document classes that will be mapped to and from the phpcr database by doctrine. The documents are usually simple
 
-    <?php
-    namespace Acme\SampleBundle\Document;
+```php
+<?php
+namespace Acme\SampleBundle\Document;
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+/**
+ * @PHPCRODM\Document
+ */
+class MyDocument
+{
+    /**
+     * @PHPCRODM\Id()
+     */
+    public $path;
+    /**
+     * @PHPCRODM\String()
+     */
+    public $title;
 
     /**
-     * @PHPCRODM\Document
+     * @PHPCRODM\String()
      */
-    class MyDocument
-    {
-        /**
-         * @PHPCRODM\Id()
-         */
-        public $path;
-        /**
-         * @PHPCRODM\String()
-         */
-        public $title;
-
-        /**
-         * @PHPCRODM\String()
-         */
-        public $content;
-    }
+    public $content;
+}
+```
 
 Note that there are basic Document classes for the standard PHPCR node types nt:file, nt:folder and nt:resource
 See lib/Doctrine/ODM/PHPCR/Document/
@@ -135,36 +148,39 @@ Currently, there is the "repository" strategy which calls can be used which
 calls generateId on the repository class to give you full control how you want
 to build the path.
 
-    namespace Acme\SampleBundle\Document;
+```php
+<?php
+namespace Acme\SampleBundle\Document;
 
-    use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-    use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
+/**
+ * @PHPCRODM\Document(repositoryClass="Acme\SampleBundle\DocumentRepository")
+ */
+class Document
+{
+    /** @PHPCRODM\Id(strategy="repository") */
+    public $id;
+    /** @PHPCRODM\String(name="title") */
+    public $title;
+}
+
+class DocumentRepository extends BaseDocumentRepository implements RepositoryIdInterface
+{
     /**
-     * @PHPCRODM\Document(repositoryClass="Acme\SampleBundle\DocumentRepository")
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
      */
-    class Document
+    public function generateId($document)
     {
-        /** @PHPCRODM\Id(strategy="repository") */
-        public $id;
-        /** @PHPCRODM\String(name="title") */
-        public $title;
+        return 'functional/'.$document->title;
     }
-
-    class DocumentRepository extends BaseDocumentRepository implements RepositoryIdInterface
-    {
-        /**
-         * Generate a document id
-         *
-         * @param object $document
-         * @return string
-         */
-        public function generateId($document)
-        {
-            return 'functional/'.$document->title;
-        }
-    }
+}
+```
 
 Available annotations
 ---------------------
@@ -198,10 +214,14 @@ In the parenthesis after the type, you can specify the name of the PHPCR propert
 to store the value (name defaults to the php variable name you use), and whether
 this is a multivalue property. For example
 
-    /**
-     * @PHPCRODM\String(name="categories", multivalue=true)
-     */
-    private $cat;
+```php
+<?php
+
+/**
+ * @PHPCRODM\String(name="categories", multivalue=true)
+ */
+private $cat;
+```
 
 Note that the reference annotations are only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
 
@@ -213,7 +233,7 @@ You can use @PHPCRODM\PostLoad and friends to have doctrine call a method withou
 parameters on your entity.
 
 You can also define event listeners on the DocumentManager with
-$dm->getEventManager()->addEventListener(array(<events>), listenerclass);
+```$dm->getEventManager()->addEventListener(array(<events>), listenerclass);```
 Your class needs event name methods for the events. They get a parameter of type
 Doctrine\Common\EventArgs.
 See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
