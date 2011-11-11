@@ -898,7 +898,8 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function getTypeOfField($fieldName)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        return isset($this->fieldMappings[$fieldName]) ?
+            $this->fieldMappings[$fieldName]['type'] : null;
     }
 
     /**
