@@ -57,7 +57,7 @@ class UnitOfWork
     private $identityMap = array();
 
     /**
-     * @var array
+     * @var array of \PHPCR\NodeInterface
      */
     private $nodesMap = array();
 
@@ -825,12 +825,15 @@ class UnitOfWork
                 $utx->commit();
             }
         } catch (\Exception $e) {
-            $this->dm->close();
+            try {
+                $this->dm->close();
 
-            if ($utx) {
-                $utx->rollback();
+                if ($utx) {
+                    $utx->rollback();
+                }
+            } catch(\Exception $innerException) {
+                //TODO: log error while closing dm after error: $innerException->getMessage
             }
-
             throw $e;
         }
 
@@ -1007,7 +1010,7 @@ class UnitOfWork
     }
 
     /**
-     * Executes all document removales
+     * Executes all document removals
      *
      * @param array $documents array of all to be removed documents
      */
