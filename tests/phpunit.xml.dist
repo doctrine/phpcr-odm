@@ -2,8 +2,8 @@
     <php>
         <var name="DOCTRINE_PHPCR_FACTORY" value="\Jackalope\RepositoryFactoryJackrabbit" />
         <var name="jackalope.jackrabbit_uri" value="http://127.0.0.1:8080/server/" />
-        <var name="DOCTRINE_PHPCR_USER" value="" />
-        <var name="DOCTRINE_PHPCR_PASS" value="" />
+        <var name="DOCTRINE_PHPCR_USER" value="admin" />
+        <var name="DOCTRINE_PHPCR_PASS" value="admin" />
         <!-- to create the "tests" workspace see http://www.eppelheimer.com/clients/day/jackrabbit/site/apache/faq.html#create-workspace -->
         <var name="DOCTRINE_PHPCR_WORKSPACE" value="tests" />
         <!-- to adjust performance results to your specific hardware, use integers only. -->
