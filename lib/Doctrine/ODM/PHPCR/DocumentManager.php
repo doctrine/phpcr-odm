@@ -346,9 +346,6 @@ class DocumentManager implements ObjectManager
      */
     public function detach($document)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
-
-        // TODO: implemenent
         $this->errorIfClosed();
         $this->getUnitOfWork()->detach($document);
     }

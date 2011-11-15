@@ -787,6 +787,98 @@ class UnitOfWork
     }
 
     /**
+     * Detaches a document from the persistence management. It's persistence will
+     * no longer be managed by Doctrine.
+     *
+     * @param object $document The document to detach.
+     */
+    public function detach($document)
+    {
+        $visited = array();
+        $this->doDetach($document, $visited);
+    }
+
+    /**
+     * Executes a detach operation on the given entity.
+     *
+     * @param object $document
+     * @param array $visited
+     */
+    private function doDetach($document, array &$visited)
+    {
+        $oid = spl_object_hash($document);
+        if (isset($visited[$oid])) {
+            return; // Prevent infinite recursion
+        }
+
+        $visited[$oid] = $document; // mark visited
+
+        switch ($this->getDocumentState($document)) {
+            case self::STATE_MANAGED:
+                if (isset($this->identityMap[$this->documentIds[$oid]])) {
+                    $this->removeFromIdentityMap($document);
+                }
+                unset($this->scheduledRemovals[$oid], $this->scheduledUpdates[$oid],
+                        $this->scheduledAssociationUpdates[$oid],
+                        $this->originalData[$oid], $this->documentRevisions[$oid],
+                        $this->documentIds[$oid], $this->documentState[$oid]);
+                break;
+            case self::STATE_NEW:
+            case self::STATE_DETACHED:
+                return;
+        }
+
+        $this->cascadeDetach($document, $visited);
+    }
+
+    /**
+     * Cascades a detach operation to associated documents.
+     *
+     * @param object $document
+     * @param array $visited
+     */
+    private function cascadeDetach($document, array &$visited)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+
+        foreach ($class->childrenMappings as $assoc) {
+            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+                continue;
+            }
+            $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($relatedDocuments instanceof Collection) {
+                if ($relatedDocuments instanceof PersistentCollection) {
+                    // Unwrap so that foreach() does not initialize
+                    $relatedDocuments = $relatedDocuments->unwrap();
+                }
+                foreach ($relatedDocuments as $relatedDocument) {
+                    $this->doDetach($relatedDocument, $visited);
+                }
+            } else if ($relatedDocuments !== null) {
+                $this->doDetach($relatedDocuments, $visited);
+            }
+        }
+
+        foreach ($class->referrersMappings as $assoc) {
+            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+                continue;
+            }
+            $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($relatedDocuments instanceof Collection) {
+                if ($relatedDocuments instanceof PersistentCollection) {
+                    // Unwrap so that foreach() does not initialize
+                    $relatedDocuments = $relatedDocuments->unwrap();
+                }
+                foreach ($relatedDocuments as $relatedDocument) {
+                    $this->doDetach($relatedDocument, $visited);
+                }
+            } else if ($relatedDocuments !== null) {
+                $this->doDetach($relatedDocuments, $visited);
+            }
+        }
+    }
+
+    /**
      * Commits the UnitOfWork
      *
      * @return void
