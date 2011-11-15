@@ -435,7 +435,7 @@ class UnitOfWork
                         throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation.");
                     }
 
-                    if ($this->getDocumentState($related) == self::STATE_NEW) {
+                    if ($this->getDocumentState($related) === self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
@@ -444,7 +444,7 @@ class UnitOfWork
                         throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation.");
                     }
                     foreach ($related as $relatedDocument) {
-                        if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) == self::STATE_NEW) {
+                        if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
                             $this->doScheduleInsert($relatedDocument, $visited);
                         }
                     }
@@ -454,17 +454,18 @@ class UnitOfWork
 
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
-            if ($child !== null && $this->getDocumentState($child) == self::STATE_NEW) {
+            if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $id = $class->reflFields[$class->identifier]->getValue($document);
                 $childClass->reflFields[$childClass->identifier]->setValue($child , $id . '/'. $mapping['name']);
+                $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }
 
         foreach ($class->referrersMappings as $referrerName => $mapping) {
             $referrer = $class->reflFields[$referrerName]->getValue($document);
-            if ($referrer !== null && $this->getDocumentState($referrer) == self::STATE_NEW) {
+            if ($referrer !== null && $this->getDocumentState($referrer) === self::STATE_NEW) {
                 $this->doScheduleInsert($referrer, $visited);
             }
         }
@@ -474,7 +475,7 @@ class UnitOfWork
     {
         if ($class->parentMapping) {
             $parent = $class->reflFields[$class->parentMapping]->getValue($document);
-            if ($parent !== null && $this->getDocumentState($parent) == self::STATE_NEW) {
+            if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
                 $this->doScheduleInsert($parent, $visited);
             }
         }
@@ -531,18 +532,42 @@ class UnitOfWork
 
     public function getDocumentState($document)
     {
-        $oid = spl_object_hash($document);
-        if (isset($this->documentState[$oid])) {
-            return $this->documentState[$oid];
+        $oid = \spl_object_hash($document);
+        if (!isset($this->documentState[$oid])) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+            $id = $class->getIdentifierValue($document);
+            if (!$id) {
+                return self::STATE_NEW;
+            } else if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
+                || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
+            ) {
+                if ($class->versionable) {
+                    // TODO this likely need to be fixed as we likely shouldnt even have a "$class->versionField" property
+                    if ($class->getFieldValue($document, $class->versionField)) {
+                        return self::STATE_DETACHED;
+                    } else {
+                        return self::STATE_NEW;
+                    }
+                } else {
+                    if ($this->tryGetById($id)) {
+                        return self::STATE_DETACHED;
+                    } else {
+                        return $this->dm->getPhpcrSession()->nodeExists($id)
+                            ? self::STATE_DETACHED : self::STATE_NEW;
+                    }
+                }
+            } else {
+                return self::STATE_DETACHED;
+            }
         }
-        return self::STATE_NEW;
+        return $this->documentState[$oid];
     }
 
     private function detectChangedDocuments()
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
-            if ($state == self::STATE_MANAGED) {
+            if ($state === self::STATE_MANAGED) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
             }
@@ -678,13 +703,13 @@ class UnitOfWork
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
 
-        if ($state == self::STATE_NEW) {
+        if ($state === self::STATE_NEW) {
             $targetClass->reflFields[$targetClass->identifier]->setValue($child , $parentId . '/'. $mapping['name']);
             $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $child);
-        } elseif ($state == self::STATE_REMOVED) {
+        } elseif ($state === self::STATE_REMOVED) {
             throw new \InvalidArgumentException("Removed child document detected during flush");
-        } elseif ($state == self::STATE_DETACHED) {
+        } elseif ($state === self::STATE_DETACHED) {
             throw new \InvalidArgumentException("A detached document was found through a child relationship during cascading a persist operation.");
         }
     }
@@ -699,10 +724,10 @@ class UnitOfWork
         $targetClass = $this->dm->getClassMetadata(get_class($reference));
         $state = $this->getDocumentState($reference);
 
-        if ($state == self::STATE_NEW) {
+        if ($state === self::STATE_NEW) {
             $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $reference);
-        } elseif ($state == self::STATE_DETACHED) {
+        } elseif ($state === self::STATE_DETACHED) {
             throw new \InvalidArgumentException("A detached document was found through a "
                 . "reference during cascading a persist operation.");
         }
