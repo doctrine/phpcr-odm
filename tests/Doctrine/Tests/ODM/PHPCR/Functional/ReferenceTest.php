@@ -89,7 +89,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     * @expectedExceptionMessage Referenced document is not referencable Use referencable=true in Document annotation.
+     * @expectedExceptionMessage Referenced document Doctrine\Tests\Models\References\NonRefTestObj is not referenceable. Use referenceable=true in Document annotation.
      */
     public function testReferenceNonReferenceable()
     {

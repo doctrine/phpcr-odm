@@ -960,6 +960,10 @@ class UnitOfWork
                                     continue;
                                 }
                                 $refOid = spl_object_hash($fv);
+                                $refClass = $this->dm->getClassMetadata(get_class($fv));
+                                if (!$refClass->referenceable) {
+                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation.', get_class($fv)));
+                                }
                                 $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
                             }
                             $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $type);
@@ -969,8 +973,11 @@ class UnitOfWork
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
                             $refOid = spl_object_hash($fieldValue);
-                            $refNodeId = $this->nodesMap[$refOid]->getIdentifier();
-                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodeId, $type);
+                            $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
+                            if (!$refClass->referenceable) {
+                                throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation.', get_class($fieldValue)));
+                            }
+                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $this->nodesMap[$refOid]->getIdentifier(), $type);
                         }
                     }
 
