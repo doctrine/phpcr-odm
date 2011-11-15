@@ -6,6 +6,7 @@ Current Status
 
 * most key features implemented
 * alpha stage
+* [![Build Status](https://secure.travis-ci.org/doctrine/phpcr-odm.png)](http://travis-ci.org/doctrine/phpcr-odm)
 
 TODO
 ----
