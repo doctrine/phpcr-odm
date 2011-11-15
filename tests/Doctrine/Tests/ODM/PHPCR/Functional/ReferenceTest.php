@@ -57,6 +57,56 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getIdentifier());
     }
 
+    public function testCreatePrivate()
+    {
+        $refTestObj = new \Doctrine\Tests\Models\References\RefTestPrivateObj();
+        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+
+        $refTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refTestObj->setReference($refRefTestObj);
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->session->getNode('/functional')->hasNode('refRefTestObj'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refRefTestObj')->getProperty('name')->getString(), 'referenced');
+
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue(), $this->session->getNode('/functional')->getNode('refRefTestObj'));
+
+        $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getIdentifier());
+
+        $ref = $this->dm->find('Doctrine\Tests\Models\References\RefTestPrivateObj', '/functional/refTestObj');
+        $refref = $ref->getReference();
+
+        $this->assertNotNull($refref);
+        $this->assertEquals('/functional/refRefTestObj', $refref->id);
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedExceptionMessage Referenced document Doctrine\Tests\Models\References\NonRefTestObj is not referenceable. Use referenceable=true in Document annotation.
+     */
+    public function testReferenceNonReferenceable()
+    {
+        $refTestObj = new \Doctrine\Tests\Models\References\RefTestPrivateObj();
+        $refRefTestObj = new \Doctrine\Tests\Models\References\NonRefTestObj();
+
+        $refTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refTestObj->setReference($refRefTestObj);
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+    }
+
+
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      * @expectedExceptionMessage Referenced document is not stored correctly in a reference-many property. Use array notation.
