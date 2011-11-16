@@ -138,13 +138,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-    public function testRemoveAndInsert()
+    public function testRemoveAndInsertAfterFlush()
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertNotNull($user, 'User must exist');
 
         $this->dm->remove($user);
+        $this->dm->flush();
 
         $user = new User2();
         $user->username = "test";
@@ -158,6 +159,44 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
+    }
+
+    public function testRemoveAndReinsert()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+
+        $user->username = "test";
+        $user->id = '/functional/user';
+        $this->dm->persist($user);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User2', '/functional/user');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveAndInsertBeforeFlush()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+
+        $user = new User2();
+        $user->username = "test";
+        $user->id = '/functional/user';
+        $this->dm->persist($user);
     }
 
     public function testUpdate1()
