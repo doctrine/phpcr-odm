@@ -542,19 +542,13 @@ class UnitOfWork
                 || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
             ) {
                 if ($class->versionable) {
-                    // TODO this likely need to be fixed as we likely shouldnt even have a "$class->versionField" property
-                    if ($class->getFieldValue($document, $class->versionField)) {
-                        return self::STATE_DETACHED;
-                    } else {
-                        return self::STATE_NEW;
-                    }
+                    return $class->getFieldValue($document, $class->versionField)
+                        ? self::STATE_DETACHED : self::STATE_NEW;
+                } elseif ($this->tryGetById($id)) {
+                    return self::STATE_DETACHED;
                 } else {
-                    if ($this->tryGetById($id)) {
-                        return self::STATE_DETACHED;
-                    } else {
-                        return $this->dm->getPhpcrSession()->nodeExists($id)
-                            ? self::STATE_DETACHED : self::STATE_NEW;
-                    }
+                    return $this->dm->getPhpcrSession()->nodeExists($id)
+                        ? self::STATE_DETACHED : self::STATE_NEW;
                 }
             } else {
                 return self::STATE_DETACHED;
@@ -749,7 +743,6 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
-                // TODO: can this actually happen?
                 throw new \InvalidArgumentException("A detached document was found through a referrer during cascading a persist operation.");
         }
     }
