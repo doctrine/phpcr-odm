@@ -10,3 +10,6 @@
 [submodule "lib/vendor/Symfony/Component/Yaml"]
 	path = lib/vendor/Symfony/Component/Yaml
 	url = git://github.com/symfony/Yaml.git
+[submodule "lib/vendor/Midgard/PHPCR"]
+	path = lib/vendor/Midgard/PHPCR
+	url = git://github.com/midgardproject/phpcr-midgard2.git
