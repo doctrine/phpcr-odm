@@ -6,6 +6,7 @@ Current Status
 
 * most key features implemented
 * alpha stage
+* [Issue Tracker](http://www.doctrine-project.org/jira/browse/PHPCR)
 * [![Build Status](https://secure.travis-ci.org/doctrine/phpcr-odm.png)](http://travis-ci.org/doctrine/phpcr-odm)
 
 TODO
