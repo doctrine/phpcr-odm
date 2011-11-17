@@ -180,6 +180,7 @@ class File
     {
         if ($this->content === null) {
             $this->content = new Resource();
+            $this->content->setLastModified(new \DateTime());
         }
         return $this->content;
     }
