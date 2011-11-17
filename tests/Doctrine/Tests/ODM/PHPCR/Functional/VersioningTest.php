@@ -22,6 +22,13 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\VersionTestObj';
         $this->dm = $this->createDocumentManager();
+
+        // Check that the repository supports versioning
+        $repository = $this->dm->getPhpcrSession()->getRepository();
+        if (!$repository->getDescriptor('option.versioning.supported')) {
+            $this->markTestSkipped('PHPCR repository doesn\'t support versioning');
+        }
+
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $versionNode = $this->node->addNode('versionTestObj');
