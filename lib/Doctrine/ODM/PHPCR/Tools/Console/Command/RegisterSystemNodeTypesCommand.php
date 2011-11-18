@@ -41,6 +41,9 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $cnd = <<<CND
+// register phpcr_variant namespace
+<phpcr_variant='http://www.doctrine-project.org/projects/phpcr_odm/phpcr_variant'>
+// register phpcr namespace
 <phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
 [phpcr:managed]
   mixin
