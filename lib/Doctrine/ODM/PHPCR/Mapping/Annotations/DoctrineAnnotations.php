@@ -20,6 +20,8 @@ final class Document
     public $versionable = false;
     /** @var boolean */
     public $referenceable = false;
+    /** @var string */
+    public $translator;
 }
 /**
  * @Annotation
