@@ -68,14 +68,6 @@ class Property
     public $multivalue = false;
 }
 /**
- * Base class for all the translatable properties (i.e. every property but Uuid and Version)
- */
-class TranslatableProperty extends Property
-{
-    /** @var boolean */
-    public $translated = false;
-}
-/**
  * @Annotation
  * @Target("PROPERTY")
  */
@@ -109,7 +101,7 @@ final class Version extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class String extends TranslatableProperty
+final class String extends Property
 {
     public $type = 'string';
 }
@@ -117,7 +109,7 @@ final class String extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Binary extends TranslatableProperty
+final class Binary extends Property
 {
     public $type = 'binary';
 }
@@ -125,7 +117,7 @@ final class Binary extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Long extends TranslatableProperty
+final class Long extends Property
 {
     public $type = 'long';
 }
@@ -134,7 +126,7 @@ final class Long extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Int extends TranslatableProperty
+final class Int extends Property
 {
     public $type = 'long';
 }
@@ -142,7 +134,7 @@ final class Int extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Double extends TranslatableProperty
+final class Double extends Property
 {
     public $type = 'double';
 }
@@ -151,7 +143,7 @@ final class Double extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Float extends TranslatableProperty
+final class Float extends Property
 {
     public $type = 'double';
 }
@@ -159,7 +151,7 @@ final class Float extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Date extends TranslatableProperty
+final class Date extends Property
 {
     public $type = 'date';
 }
@@ -167,7 +159,7 @@ final class Date extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Boolean extends TranslatableProperty
+final class Boolean extends Property
 {
     public $type = 'boolean';
 }
@@ -176,7 +168,7 @@ final class Boolean extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Name extends TranslatableProperty
+final class Name extends Property
 {
     public $type = 'string';
 }
@@ -185,7 +177,7 @@ final class Name extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Path extends TranslatableProperty
+final class Path extends Property
 {
     public $type = 'string';
 }
@@ -194,7 +186,7 @@ final class Path extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Uri extends TranslatableProperty
+final class Uri extends Property
 {
     public $type = 'string';
 }
@@ -203,7 +195,7 @@ final class Uri extends TranslatableProperty
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Decimal extends TranslatableProperty
+final class Decimal extends Property
 {
     public $type = 'string';
 }
