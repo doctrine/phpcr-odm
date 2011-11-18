@@ -265,6 +265,13 @@ final class Referrers
 
 /**
  * @Annotation
+ * @Target("PROPERTY")
+ */
+final class Locale
+{
+}
+/**
+ * @Annotation
  * @Target("METHOD")
  */
 final class PrePersist {}
