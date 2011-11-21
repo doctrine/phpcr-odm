@@ -216,6 +216,11 @@ class ClassMetadataInfo implements ClassMetadata
     public $referrersMappings = array();
 
     /**
+     * Mapping of locale
+     */
+    public $localeMapping;
+
+    /**
      * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
      *
      * @var bool
@@ -235,6 +240,12 @@ class ClassMetadataInfo implements ClassMetadata
      * @var bool
      */
     public $referenceable = false;
+
+    /**
+     * Strategy to use to find field translations
+     * @var string
+     */
+    public $translator;
 
     /**
      * READ-ONLY: The Id generator options.
@@ -563,6 +574,12 @@ class ClassMetadataInfo implements ClassMetadata
         $this->referrersMappings[$mapping['fieldName']] = $mapping;
     }
 
+    public function mapLocale(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->localeMapping = $mapping;
+    }
+
     protected function validateAndCompleteReferrersMapping($mapping)
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
@@ -818,6 +835,11 @@ class ClassMetadataInfo implements ClassMetadata
     public function setIdGeneratorOptions($generatorOptions)
     {
         $this->generatorOptions = $generatorOptions;
+    }
+
+    public function setTranslator($translator)
+    {
+        $this->translator = $translator;
     }
 
     /**

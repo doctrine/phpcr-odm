@@ -147,6 +147,10 @@ class AnnotationDriver implements Driver
             $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
 
+        if ($documentAnnot->translator) {
+            $class->setTranslator($documentAnnot->translator);
+        }
+
         foreach ($reflClass->getProperties() as $property) {
             $mapping = array();
             $mapping['fieldName'] = $property->getName();
@@ -182,6 +186,9 @@ class AnnotationDriver implements Driver
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Referrers) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapReferrers($mapping);
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Locale) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $class->mapLocale($mapping);
                 }
 
                 if (!isset($mapping['name'])) {
