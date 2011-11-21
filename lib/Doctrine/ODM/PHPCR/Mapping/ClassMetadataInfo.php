@@ -485,9 +485,7 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->setIdGenerator(
-                    constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']))
-                );
+                $this->setIdGenerator($mapping['strategy']);
             }
         } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
@@ -517,11 +515,10 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->setIdGenerator(
-                    constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']))
-                );
+                $this->setIdGenerator($mapping['strategy']);
             }
         }
+
         $this->validateAndCompleteFieldMapping($mapping, false);
     }
 
@@ -805,6 +802,9 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function setIdGenerator($generator)
     {
+        if (is_string($generator)) {
+            $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($generator));
+        }
         $this->idGenerator = $generator;
     }
 
