@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
+use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
@@ -597,6 +598,9 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
+        if ($document instanceof Proxy && !$document->__isInitialized__) {
+            return;
+        }
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
