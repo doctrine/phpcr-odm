@@ -870,12 +870,25 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Returns the target class name of the given association.
-     *
-     * @param string $assocName
-     * @return string
+     * {@inheritDoc}
      */
     public function getAssociationTargetClass($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAssociationMappedByTargetField($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isAssociationInverseSide($assocName)
     {
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
     }
