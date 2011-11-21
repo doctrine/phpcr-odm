@@ -216,9 +216,15 @@ class ClassMetadataInfo implements ClassMetadata
     public $referrersMappings = array();
 
     /**
-     * Mapping of locale
+     * Mapping of locale (actual locale)
      */
     public $localeMapping;
+
+    /**
+     * List of translatable fields
+     * @var array
+     */
+    public $translatableFields = array();
 
     /**
      * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
@@ -515,6 +521,13 @@ class ClassMetadataInfo implements ClassMetadata
 
         if ($mapping['type'] === 'int') {
             $mapping['type'] = 'long';
+        }
+
+        // Add the field to the list of translatable fields
+        if (isset($mapping['translated']) && $mapping['translated']) {
+            if (! array_key_exists($mapping['name'], $this->translatableFields)) {
+                $this->translatableFields[] = $mapping['name'];
+            }
         }
 
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
