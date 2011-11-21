@@ -473,7 +473,7 @@ class UnitOfWork
                 if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                     $childClass = $this->dm->getClassMetadata(get_class($child));
                     $id = $class->reflFields[$class->identifier]->getValue($document);
-                    $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $class->reflFields[$childClass->nodename]->getValue($child));
+                    $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $childClass->reflFields[$childClass->nodename]->getValue($child));
                     $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
