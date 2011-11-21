@@ -250,7 +250,7 @@ final class Children
 final class Referrers
 {
     /** @var string */
-    public $filterName;
+    public $filter;
     /** @var string */
     public $referenceType;
 }
