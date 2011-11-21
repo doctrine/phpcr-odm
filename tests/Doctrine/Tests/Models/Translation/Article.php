@@ -5,12 +5,17 @@ namespace Doctrine\Tests\Models\Translation;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="translation_article")
+ * @PHPCRODM\Document(alias="translation_article", translator="attribute")
  */
 class Article
 {
     /** @PHPCRODM\Id */
     public $id;
+
+    /**
+     * @PHPCRODM\Locale
+     */
+    public $locale = 'en';
 
     // untranslated:
     /** @PHPCRODM\Date */
