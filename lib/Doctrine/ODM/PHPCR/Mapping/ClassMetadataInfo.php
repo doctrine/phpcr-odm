@@ -485,7 +485,9 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
+                $this->setIdGenerator(
+                    constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']))
+                );
             }
         } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
@@ -515,7 +517,9 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
+                $this->setIdGenerator(
+                    constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']))
+                );
             }
         }
         $this->validateAndCompleteFieldMapping($mapping, false);
@@ -537,7 +541,7 @@ class ClassMetadataInfo implements ClassMetadata
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->parentMapping = $mapping['fieldName'];
-        $this->idGenerator = self::GENERATOR_TYPE_PARENT;
+        $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
     }
 
     public function mapChild(array $mapping)
