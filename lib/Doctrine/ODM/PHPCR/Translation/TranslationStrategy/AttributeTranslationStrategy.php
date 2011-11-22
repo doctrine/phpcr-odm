@@ -69,8 +69,8 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
 
         // Update the locale if we removed the current locale
         if ($localField = $metadata->localeMapping['fieldName']) {
-            if ($document->$field === $lang) {
-                $document->$field = null;
+            if ($document->$localField === $lang) {
+                $document->$localField = null;
             }
         }
     }
