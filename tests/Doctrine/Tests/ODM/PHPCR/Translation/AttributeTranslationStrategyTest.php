@@ -24,7 +24,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         //$this->removeTestNode();
     }
 
-    public function testSaveTranslations()
+    public function testSaveTranslation()
     {
         // First save some translations
         $doc = new Article();
@@ -37,12 +37,20 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $node = $this->getTestNode();
 
         $strategy = new AttributeTranslationStrategy();
-        $strategy->saveTranslations($doc, $node, $meta, 'en');
+        $strategy->saveTranslation($doc, $node, $meta, 'en');
+
+        // Check the document locale was updated
+        $this->assertEquals('en', $doc->locale);
+
+        // Save translation in another language
 
         $doc->topic = 'Un sujet intéressant';
 
-        $strategy->saveTranslations($doc, $node, $meta, 'fr');
+        $strategy->saveTranslation($doc, $node, $meta, 'fr');
         $this->dm->flush();
+
+        // Check the document locale was updated
+        $this->assertEquals('fr', $doc->locale);
 
         // Then test we have what we expect in the content repository
         $node = $this->session->getNode('/' . $this->testNodeName);
@@ -60,7 +68,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertEquals('Lorem ipsum...', $node->getPropertyValue('lang-fr-text'));
     }
 
-    public function testLoadTranslations()
+    public function testLoadTranslation()
     {
         // Create the node in the content repository
         $node = $this->getTestNode();
@@ -76,14 +84,14 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc = new Article();
         $meta = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
         $strategy = new AttributeTranslationStrategy();
-        $strategy->loadTranslations($doc, $node, $meta, 'en');
+        $strategy->loadTranslation($doc, $node, $meta, 'en');
 
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->text);
 
         // Load another language and test the document has been updated
-        $strategy->loadTranslations($doc, $node, $meta, 'fr');
+        $strategy->loadTranslation($doc, $node, $meta, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
         $this->assertEquals('Texte français', $doc->text);

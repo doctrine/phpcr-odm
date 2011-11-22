@@ -15,7 +15,7 @@ interface TranslationStrategyInterface
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
      * @param $lang The language to persist the translations to
      */
-    public function saveTranslations($document, NodeInterface $node, ClassMetadata $metadata, $lang);
+    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang);
 
     /**
      * Load the translatable fields of a node
@@ -25,7 +25,7 @@ interface TranslationStrategyInterface
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
      * @param $lang The language to load the translations from
      */
-    public function loadTranslations($document, NodeInterface $node, ClassMetadata $metadata, $lang);
+    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang);
 
     /**
      * Removes all the translated fields of a node
