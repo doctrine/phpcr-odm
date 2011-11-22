@@ -7,6 +7,10 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
 
 /**
  * Translation strategy that stores the translations in attributes of the same node.
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       1.0
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class AttributeTranslationStrategy implements TranslationStrategyInterface
 {
@@ -34,9 +38,11 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
             $node->setProperty($propName, $document->$field);
         }
 
-        // Update the document locale
+        // Update the document locale if the field exists and it is null
         if ($localeField = $metadata->localeMapping['fieldName']) {
-            $document->$localeField = $lang;
+            if (is_null($document->$localeField)) {
+                $document->$localeField = $lang;
+            }
         }
     }
 

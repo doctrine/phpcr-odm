@@ -38,7 +38,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $strategy = new AttributeTranslationStrategy();
         $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
 
-        // Check the document locale was updated
+        // The document locale was not yet assigned so it must be set
         $this->assertEquals('en', $doc->locale);
 
         // Save translation in another language
@@ -48,8 +48,8 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
         $this->dm->flush();
 
-        // Check the document locale was updated
-        $this->assertEquals('fr', $doc->locale);
+        // The document locale was already set to it must not change
+        $this->assertEquals('en', $doc->locale);
 
         // Then test we have what we expect in the content repository
         $node = $this->session->getNode('/' . $this->testNodeName);
