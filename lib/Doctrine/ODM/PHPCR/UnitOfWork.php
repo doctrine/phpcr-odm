@@ -46,6 +46,8 @@ class UnitOfWork
     const STATE_REMOVED = 3;
     const STATE_DETACHED = 4;
 
+    const NO_LOCALE = '__no_locale';
+
     /**
      * @var DocumentManager
      */
@@ -606,7 +608,7 @@ class UnitOfWork
         if (!isset($this->originalData[$oid])) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
-            $this->documentChangesets[$oid] = $actualData;
+            $this->setDocumentChangeSetForOid($oid, $actualData);
             $this->scheduledInserts[$oid] = $document;
         } else {
             // Document is "fully" MANAGED: it was already fully persisted before
@@ -649,7 +651,7 @@ class UnitOfWork
             }
 
             if ($changed) {
-                $this->documentChangesets[$oid] = $actualData;
+                $this->setDocumentChangeSetForOid($oid, $actualData);
                 $this->scheduledUpdates[$oid] = $document;
             }
         }
@@ -752,13 +754,26 @@ class UnitOfWork
      *
      * @return array
      */
-    public function getDocumentChangeSet($document)
+    public function getDocumentChangeSet($document, $locale = self::NO_LOCALE)
     {
         $oid = spl_object_hash($document);
-        if (isset($this->documentChangesets[$oid])) {
-            return $this->documentChangesets[$oid];
+        return $this->getDocumentChangeSetByOid($oid, $locale);
+    }
+
+    protected function getDocumentChangeSetByOid($oid, $locale = self::NO_LOCALE)
+    {
+        if (isset($this->documentChangesets[$oid][$locale])) {
+            return $this->documentChangesets[$oid][$locale];
         }
         return array();
+    }
+
+    protected function setDocumentChangeSetForOid($oid, $changeset, $locale = self::NO_LOCALE)
+    {
+        if (!isset($this->documentChangesets[$oid])) {
+            $this->documentChangesets[$oid] = array();
+        }
+        $this->documentChangesets[$oid][$locale] = $changeset;
     }
 
     /**
@@ -993,7 +1008,7 @@ class UnitOfWork
                 $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
             }
 
-            foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+            foreach ($this->getDocumentChangeSetByOid($oid) as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
@@ -1043,7 +1058,7 @@ class UnitOfWork
                 }
             }
 
-            foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+            foreach ($this->getDocumentChangeSetByOid($oid) as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
