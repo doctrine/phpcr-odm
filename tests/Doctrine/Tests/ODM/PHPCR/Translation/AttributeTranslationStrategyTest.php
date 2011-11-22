@@ -17,6 +17,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
         $this->workspace = $this->dm->getPhpcrSession()->getWorkspace();
+        $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
     }
 
     public function tearDown()
@@ -32,12 +33,10 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc->topic = 'Some interesting subject';
         $doc->text = 'Lorem ipsum...';
 
-        $meta = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
-
         $node = $this->getTestNode();
 
         $strategy = new AttributeTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $meta, 'en');
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
 
         // Check the document locale was updated
         $this->assertEquals('en', $doc->locale);
@@ -46,7 +45,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $doc->topic = 'Un sujet intéressant';
 
-        $strategy->saveTranslation($doc, $node, $meta, 'fr');
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
         $this->dm->flush();
 
         // Check the document locale was updated
@@ -82,19 +81,49 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         // Then try to read it's translation
         $doc = new Article();
-        $meta = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
+
         $strategy = new AttributeTranslationStrategy();
-        $strategy->loadTranslation($doc, $node, $meta, 'en');
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
 
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->text);
 
         // Load another language and test the document has been updated
-        $strategy->loadTranslation($doc, $node, $meta, 'fr');
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
         $this->assertEquals('Texte français', $doc->text);
+    }
+
+    public function testRemoveTranslation()
+    {
+        // First save some translations
+        $doc = new Article();
+        $doc->author = 'John Doe';
+        $doc->topic = 'Some interesting subject';
+        $doc->text = 'Lorem ipsum...';
+
+        $node = $this->getTestNode();
+
+        $strategy = new AttributeTranslationStrategy();
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
+        $this->dm->flush();
+
+        $this->assertTrue($node->hasProperty('lang-en-topic'));
+        $this->assertTrue($node->hasProperty('lang-en-text'));
+
+        // Then remove the translations
+        $strategy->removeTranslation($doc, $node, $this->metadata, 'en');
+        $this->dm->flush();
+
+        $this->assertNull($doc->locale);
+        $this->assertNull($doc->topic);
+        $this->assertNull($doc->text);
+        $this->assertNotNull($doc->author);
+
+        $this->assertFalse($node->hasProperty('lang-en-topic'));
+        $this->assertFalse($node->hasProperty('lang-en-text'));
     }
 
     protected function getTestNode()
