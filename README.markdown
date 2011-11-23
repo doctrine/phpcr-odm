@@ -76,6 +76,7 @@ You need to make sure that the following paths are autoloaded (all paths relativ
 
     'Doctrine\ODM'    => 'lib',
     'Doctrine\Common' => 'lib/vendor/doctrine-common/lib',
+    'Symfony\Component\Console' => 'lib/vendor/jackalope/lib/phpcr-utils/lib/vendor',
     'Symfony'         => 'lib/vendor,
     'PHPCR\Util'      => 'lib/vendor/jackalope/lib/phpcr-utils/src',
     'PHPCR'           => 'lib/vendor/jackalope/lib/phpcr/src',
