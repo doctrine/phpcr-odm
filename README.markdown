@@ -74,93 +74,96 @@ We provide a command that makes it trivial to register this type and the phpcr n
 For an inspiration for the autoloading, have a look at ``cli-config.php.dist``.
 You need to make sure that the following paths are autoloaded (all paths relative to the phpcr-odm root directory):
 
-    'Doctrine\ODM'    => 'lib',
-    'Doctrine\Common' => 'lib/vendor/doctrine-common/lib',
-    'Symfony\Component\Console' => 'lib/vendor/jackalope/lib/phpcr-utils/lib/vendor',
-    'Symfony'         => 'lib/vendor,
-    'PHPCR\Util'      => 'lib/vendor/jackalope/lib/phpcr-utils/src',
-    'PHPCR'           => 'lib/vendor/jackalope/lib/phpcr/src',
-    'Jackalope'       => 'lib/vendor/jackalope/src',
-    'Doctrine\DBAL'   => 'lib/vendor/jackalope/lib/vendor/doctrine-dbal',
+```php
+'Doctrine\ODM'    => 'lib',
+'Doctrine\Common' => 'lib/vendor/doctrine-common/lib',
+'Symfony\Component\Console' => 'lib/vendor/jackalope/lib/phpcr-utils/lib/vendor',
+'Symfony'         => 'lib/vendor,
+'PHPCR\Util'      => 'lib/vendor/jackalope/lib/phpcr-utils/src',
+'PHPCR'           => 'lib/vendor/jackalope/lib/phpcr/src',
+'Jackalope'       => 'lib/vendor/jackalope/src',
+'Doctrine\DBAL'   => 'lib/vendor/jackalope/lib/vendor/doctrine-dbal',
+```
 
 
 ## Define a mapping driver
 
 You can choose between the drivers for annotations, xml and yml configuration files:
 
-    ```php
-    <?php
-    // Annotation driver
-    $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, array('/path/to/your/document/classes'));
+```php
+<?php
+// Annotation driver
+$reader = new \Doctrine\Common\Annotations\AnnotationReader();
+$driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, array('/path/to/your/document/classes'));
 
-    // Xml driver
-    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver(array('/path/to/your/mapping/files'));
+// Xml driver
+$driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver(array('/path/to/your/mapping/files'));
 
-    // Yaml driver
-    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
-    ```
+// Yaml driver
+$driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
+```
 
 
 ## Bootstrap the PHPCR session
 
 Eventually, this module will support all PHPCR backends, but at the moment it is only tested with jackalope jackrabbit.
 
-    ```php
-    <?php
-    $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
-                        array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
-    $credentials = new \PHPCR\SimpleCredentials('user', 'pass');
-    $session = $repository->login($credentials, 'your_workspace');
-    ```
+```php
+<?php
+$repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
+                    array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
+$credentials = new \PHPCR\SimpleCredentials('user', 'pass');
+$session = $repository->login($credentials, 'your_workspace');
+```
 
 
 ## Initialize the DocumentManager
 
-    ```php
-    <?php
-    $config = new \Doctrine\ODM\PHPCR\Configuration();
-    $config->setMetadataDriverImpl($driver);
+```php
+<?php
+$config = new \Doctrine\ODM\PHPCR\Configuration();
+$config->setMetadataDriverImpl($driver);
 
-    $dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
-    ```
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+```
+
 Now you are ready to use the PHPCR ODM
 
 
 # Example usage
 
-    ```php
-    <?php
-    // fetching a document by JCR path (id in PHPCR ODM lingo)
-    $user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
-    //or let the odm find the document class for you
-    $user = $dm->find('/bob');
+```php
+<?php
+// fetching a document by JCR path (id in PHPCR ODM lingo)
+$user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
+//or let the odm find the document class for you
+$user = $dm->find('/bob');
 
-    // create a new document
-    $newUser = new \Namespace\For\Document\User();
-    $newUser->username = 'Timmy';
-    $newUser->email = 'foo@example.com';
-    $newUser->path = '/timmy';
-    // make the document manager know this document
-    // this will create the node in phpcr but not read the fields or commit
-    // the changes yet.
-    $dm->persist($newUser);
+// create a new document
+$newUser = new \Namespace\For\Document\User();
+$newUser->username = 'Timmy';
+$newUser->email = 'foo@example.com';
+$newUser->path = '/timmy';
+// make the document manager know this document
+// this will create the node in phpcr but not read the fields or commit
+// the changes yet.
+$dm->persist($newUser);
 
-    // store all changes, insertions, etc. with the storage backend
-    $dm->flush();
+// store all changes, insertions, etc. with the storage backend
+$dm->flush();
 
-    // run a query
-    $query = $dm->createQuery('SELECT *
-                      FROM [nt:unstructured]
-                      WHERE ISCHILDNODE("/functional")
-                      ORDER BY username',
-                      \PHPCR\Query\QueryInterface::JCR_SQL2);
-    $query->setLimit(2);
-    $result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
-    foreach ($result as $document) {
-        echo $document->getId();
-    }
-    ```
+// run a query
+$query = $dm->createQuery('SELECT *
+                    FROM [nt:unstructured]
+                    WHERE ISCHILDNODE("/functional")
+                    ORDER BY username',
+                    \PHPCR\Query\QueryInterface::JCR_SQL2);
+$query->setLimit(2);
+$result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
+foreach ($result as $document) {
+    echo $document->getId();
+}
+```
 
 # Document Classes
 
