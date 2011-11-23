@@ -1,16 +1,15 @@
 PHPCR ODM for Doctrine2
 =======================
 
-Current Status
---------------
+# Current Status
 
 * most key features implemented
 * alpha stage
 * [Issue Tracker](http://www.doctrine-project.org/jira/browse/PHPCR)
 * [![Build Status](https://secure.travis-ci.org/doctrine/phpcr-odm.png)](http://travis-ci.org/doctrine/phpcr-odm)
 
-TODO
-----
+
+# TODO
 
 * complete mapping for relations (parent, references), then remove the node mapping
 * ensure that no Jackalope specific classes are used (especially relevant for the tests)
@@ -19,13 +18,74 @@ TODO
 * write documentation
 * expand test suite
 
-Getting Started
----------------
+# Preconditions
 
- 0. Install jackrabbit according to https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged <br />
-        You need a patched jackrabbit and run the command to register types, as explained in the linked documtation.
+* php >= 5.3
+* libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
+* phpunit >= 3.5 (if you want to run the tests)
 
- 1. Define one of those mapping drivers
+
+# Installation
+
+If you use the PHPCR ODM **Symfony Bundle**, please look into the README of the bundle.
+This documentation explains how to use PHPCR ODM outside of symfony, which requires some
+manual initialization.
+
+
+## Clone the repository and initialize all dependencies (submodules)
+
+    git clone git://github.com/doctrine/phpcr-odm.git
+    cd phpcr-odm
+    git submodule update --init --recursive
+
+
+## Install Jackrabbit
+
+Jackalope with the Jackrabbit backend is the only PHPCR implementation that is
+enough feature complete for the PHPCR ODM.
+
+Follow [Running Jackrabbit Server](https://github.com/jackalope/jackalope/wiki/Running-a-jackrabbit-server) from the Jackalope wiki.
+
+## Enable the console
+
+The console provides a bunch of useful commands:
+
+    # in the phpcr-odm root directoy
+    cp cli-config.php.dist cli-config.php
+    # edit the file and adjust if needed - the defaults expect all submodules in place
+
+Now running ``php bin/phpcr`` will show you a list of the available commands.
+``php bin/phpcr help <cmd>`` displays additional information for that command.
+
+
+## Register the phpcr:managed node type
+
+PHPCR ODM uses a [custom node type](https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged)
+to track meta information without interfering with your content.
+We provide a command that makes it trivial to register this type and the phpcr namespace.
+
+    php bin/phpcr doctrine:phpcr:register-system-node-types
+
+
+# Bootstrapping
+
+## Set up autoloading
+
+For an inspiration for the autoloading, have a look at ``cli-config.php.dist``.
+You need to make sure that the following paths are autoloaded (all paths relative to the phpcr-odm root directory):
+
+    'Doctrine\ODM'    => 'lib',
+    'Doctrine\Common' => 'lib/vendor/doctrine-common/lib',
+    'Symfony'         => 'lib/vendor,
+    'PHPCR\Util'      => 'lib/vendor/jackalope/lib/phpcr-utils/src',
+    'PHPCR'           => 'lib/vendor/jackalope/lib/phpcr/src',
+    'Jackalope'       => 'lib/vendor/jackalope/src',
+    'Doctrine\DBAL'   => 'lib/vendor/jackalope/lib/vendor/doctrine-dbal',
+
+
+## Define a mapping driver
+
+You can choose between the drivers for annotations, xml and yml configuration files:
 
     ```php
     <?php
@@ -40,8 +100,10 @@ Getting Started
     $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
     ```
 
- 2. Initialize a PHPCR session<br />
-        Eventually, this module will support all PHPCR backends, but at the moment it is only tested with jackalope jackrabbit.
+
+## Bootstrap the PHPCR session
+
+Eventually, this module will support all PHPCR backends, but at the moment it is only tested with jackalope jackrabbit.
 
     ```php
     <?php
@@ -51,7 +113,8 @@ Getting Started
     $session = $repository->login($credentials, 'your_workspace');
     ```
 
- 3. Initialize the DocumentManager
+
+## Initialize the DocumentManager
 
     ```php
     <?php
@@ -60,8 +123,10 @@ Getting Started
 
     $dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
     ```
+Now you are ready to use the PHPCR ODM
 
- 4. Example usage
+
+# Example usage
 
     ```php
     <?php
@@ -96,8 +161,7 @@ Getting Started
     }
     ```
 
-Document Classes
-----------------
+# Document Classes
 
 You write your own document classes that will be mapped to and from the phpcr database by doctrine. The documents are usually simple
 
@@ -131,8 +195,7 @@ class MyDocument
 Note that there are basic Document classes for the standard PHPCR node types nt:file, nt:folder and nt:resource
 See lib/Doctrine/ODM/PHPCR/Document/
 
-Storing documents in the repository: Id Generator Strategy
-----------------------------------------------------------
+## Storing documents in the repository: Id Generator Strategy
 
 When defining an ``id`` its possible to choose the generator strategy. The id
 is the path where in the phpcr content repository the document should be stored.
@@ -184,8 +247,7 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 }
 ```
 
-Available annotations
----------------------
+## Available annotations
 
 <table>
 <tr><td> Id:            </td><td>The phpcr path to this node. (see above). For new nodes not using the default strategy, it is populated during the persist() operation.</td></tr>
@@ -228,8 +290,7 @@ private $cat;
 Note that the reference annotations are only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
 
 
-Lifecycle callbacks
--------------------
+# Lifecycle callbacks
 
 You can use @PHPCRODM\PostLoad and friends to have doctrine call a method without
 parameters on your entity.
