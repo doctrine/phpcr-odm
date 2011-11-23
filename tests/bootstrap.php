@@ -24,6 +24,9 @@ $classLoader->register();
 $classLoader = new ClassLoader('Jackalope', __DIR__ . '/../lib/vendor/jackalope/src');
 $classLoader->register();
 
+$classLoader = new ClassLoader('PHPCR\Util', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr-utils/src');
+$classLoader->register();
+
 $classLoader = new ClassLoader('PHPCR', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr/src');
 $classLoader->register();
 
