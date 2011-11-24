@@ -29,9 +29,6 @@ class RegisterSystemNodeTypesCommand extends RegisterNodeTypesCommand
 Register system node types in the PHPCR repository.
 
 This command registers the node types necessary for the ODM to work.
-
-If you use --allow-update existing node type definitions will be overwritten
-in the repository.
 EOT
         );
     }
@@ -51,6 +48,7 @@ CND
 
         $session = $this->getHelper('phpcr')->getSession();
 
+        // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
         $this->updateFromCnd($input, $output, $session, $cnd, true);
 
         $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
