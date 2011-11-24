@@ -14,8 +14,6 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
  */
 class AttributeTranslationStrategy implements TranslationStrategyInterface
 {
-    // TODO: rename $lang to $locale everywhere
-
     /*** @var string */
     protected $prefix = 'lang';
 
@@ -31,11 +29,11 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang)
+    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         foreach ($metadata->translatableFields as $field) {
 
-            $propName = $this->getTranslatedPropertyName($lang, $field);
+            $propName = $this->getTranslatedPropertyName($locale, $field);
             $node->setProperty($propName, $document->$field);
         }
     }
@@ -43,10 +41,10 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang)
+    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         foreach ($metadata->translatableFields as $field) {
-            $propName = $this->getTranslatedPropertyName($lang, $field);
+            $propName = $this->getTranslatedPropertyName($locale, $field);
             $document->$field = $node->getPropertyValue($propName);
         }
     }
@@ -54,11 +52,11 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang)
+    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         foreach ($metadata->translatableFields as $field)
         {
-            $propName = $this->getTranslatedPropertyName($lang, $field);
+            $propName = $this->getTranslatedPropertyName($locale, $field);
             $prop = $node->getProperty($propName);
             $prop->remove();
 
@@ -77,12 +75,12 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
 
     /**
      * Get the name of the property where to store the translations of a given property in a given language
-     * @param $lang The language to store
+     * @param $locale The language to store
      * @param $fieldName The name of the field to translate
      * @return string The name of the property where to store the translation
      */
-    protected function getTranslatedPropertyName($lang, $fieldName)
+    protected function getTranslatedPropertyName($locale, $fieldName)
     {
-        return sprintf('%s-%s-%s', $this->prefix, $lang, $fieldName);
+        return sprintf('%s-%s-%s', $this->prefix, $locale, $fieldName);
     }
 }
