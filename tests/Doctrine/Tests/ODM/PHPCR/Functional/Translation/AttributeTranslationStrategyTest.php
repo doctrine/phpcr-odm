@@ -117,7 +117,6 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $strategy->removeTranslation($doc, $node, $this->metadata, 'en');
         $this->dm->flush();
 
-        $this->assertNull($doc->locale);
         $this->assertNull($doc->topic);
         $this->assertNull($doc->text);
         $this->assertNotNull($doc->author);

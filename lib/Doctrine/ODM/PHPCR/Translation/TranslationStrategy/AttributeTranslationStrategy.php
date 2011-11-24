@@ -14,6 +14,8 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
  */
 class AttributeTranslationStrategy implements TranslationStrategyInterface
 {
+    // TODO: rename $lang to $locale everywhere
+
     /*** @var string */
     protected $prefix = 'lang';
 
@@ -31,18 +33,10 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
      */
     public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang)
     {
-        // TODO: lang could be null... --> use LanguageChooserStrategy
         foreach ($metadata->translatableFields as $field) {
 
             $propName = $this->getTranslatedPropertyName($lang, $field);
             $node->setProperty($propName, $document->$field);
-        }
-
-        // Update the document locale if the field exists and it is null
-        if ($localeField = $metadata->localeMapping['fieldName']) {
-            if (is_null($document->$localeField)) {
-                $document->$localeField = $lang;
-            }
         }
     }
 
@@ -51,7 +45,6 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang)
     {
-        // TODO: lang could be null... --> use LanguageChooserStrategy
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($lang, $field);
             $document->$field = $node->getPropertyValue($propName);
@@ -72,13 +65,6 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
             // TODO: what values should the document take for those removed translated properties?
             $document->$field = null;
         }
-
-        // Update the locale if we removed the current locale
-        if ($localField = $metadata->localeMapping['fieldName']) {
-            if ($document->$localField === $lang) {
-                $document->$localField = null;
-            }
-        }
     }
 
     /**
@@ -86,10 +72,7 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
      */
     public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata)
     {
-        $languages = array(); // TODO: get the list of availlable languages
-        foreach ($languages as $lang) {
-            $this->removeTranslation($document, $node, $metadata, $lang);
-        }
+        // Do nothing: if the node is removed then all it's translated properties will be removed
     }
 
     /**

@@ -341,6 +341,20 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->scheduleInsert($object);
     }
 
+    public function persistTranslation($object, $locale)
+    {
+        $this->errorIfClosed();
+
+        $metadata = $this->getClassMetadata(get_class($object));
+
+        // Set the @Locale field
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            $object->$localeField = $locale;
+        }
+
+        $this->unitOfWork->scheduleInsert($object);
+    }
+
     public function remove($object)
     {
         $this->errorIfClosed();

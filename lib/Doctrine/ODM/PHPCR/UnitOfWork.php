@@ -389,6 +389,7 @@ class UnitOfWork
     private function doScheduleInsert($document, &$visited, $overrideIdGenerator = null)
     {
         $oid = spl_object_hash($document);
+        // To avoid recursion loops (over children and parents)
         if (isset($visited[$oid])) {
             return;
         }
@@ -415,6 +416,8 @@ class UnitOfWork
                 throw new \InvalidArgumentException("Detached document passed to persist().");
                 break;
         }
+
+        $this->doSaveTranslation($document, $class);
 
         $this->cascadeScheduleInsert($class, $document, $visited);
     }
@@ -994,6 +997,11 @@ class UnitOfWork
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+                // Ignore translatable fields (they will be persisted by the translation strategy)
+                if (in_array($fieldName, $class->translatableFields)) {
+                    continue;
+                }
+
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
@@ -1006,6 +1014,8 @@ class UnitOfWork
                     $this->scheduledAssociationUpdates[$oid] = $document;
                 }
             }
+
+            $this->doSaveTranslation($document, $class);
 
             if (isset($class->lifecycleCallbacks[Event::postPersist])) {
                 $class->invokeLifecycleCallbacks(Event::postPersist, $document);
@@ -1044,6 +1054,11 @@ class UnitOfWork
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+                // Ignore translatable fields (they will be persisted by the translation strategy)
+                if (in_array($fieldName, $class->translatableFields)) {
+                    continue;
+                }
+
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
@@ -1115,6 +1130,8 @@ class UnitOfWork
                 }
             }
 
+            $this->doSaveTranslation($document, $class);
+
             if ($dispatchEvents) {
                 if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
                     $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
@@ -1135,6 +1152,8 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
+
+            $this->doRemoveAllTranslations($document, $class);
 
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
@@ -1410,5 +1429,48 @@ class UnitOfWork
         }
 
         return $this->session->refresh(false);
+    }
+
+    protected function doSaveTranslation($document, $metadata)
+    {
+        $node = $this->nodesMap[spl_object_hash($document)];
+        $locale = $this->getLocale($document, $metadata);
+
+        $strategy = $this->dm->getTranslationStrategy();
+        $strategy->saveTranslation($document, $node, $metadata, $locale);
+    }
+
+    protected function doRemoveTranslation($document, $metadata, $locale)
+    {
+        $node = $this->nodesMap[spl_object_hash($document)];
+        $strategy = $this->dm->getTranslationStrategy();
+        $strategy->removeTranslation($document, $node, $metadata, $locale);
+
+        // Empty the locale field if what we removed was the current language
+        if ($localField = $metadata->localeMapping['fieldName']) {
+            if ($document->$localField === $locale) {
+                $document->$localField = null;
+            }
+        }
+    }
+
+    protected function doRemoveAllTranslations($document, $metadata)
+    {
+        $node = $this->nodesMap[spl_object_hash($document)];
+        $strategy = $this->dm->getTranslationStrategy();
+        $strategy->removeAllTranslations($document, $node, $metadata);
+    }
+
+    protected function getLocale($document, $metadata)
+    {
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            if(!$locale = $document->$localeField) {
+                $locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+            }
+            return $locale;
+        }
+        // TODO: implement tracking @Locale without locale field
+        // TODO: check it's the correct exception
+        throw new \InvalidArgumentException("Locale not implemented");
     }
 }
