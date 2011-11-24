@@ -1459,6 +1459,10 @@ class UnitOfWork
 
     protected function doSaveTranslation($document, $metadata)
     {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
         $node = $this->nodesMap[spl_object_hash($document)];
         $locale = $this->getLocale($document, $metadata);
 
@@ -1468,6 +1472,10 @@ class UnitOfWork
 
     protected function doRemoveTranslation($document, $metadata, $locale)
     {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
         $node = $this->nodesMap[spl_object_hash($document)];
         $strategy = $this->dm->getTranslationStrategy();
         $strategy->removeTranslation($document, $node, $metadata, $locale);
@@ -1482,6 +1490,10 @@ class UnitOfWork
 
     protected function doRemoveAllTranslations($document, $metadata)
     {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
         $node = $this->nodesMap[spl_object_hash($document)];
         $strategy = $this->dm->getTranslationStrategy();
         $strategy->removeAllTranslations($document, $node, $metadata);
@@ -1498,5 +1510,10 @@ class UnitOfWork
         // TODO: implement tracking @Locale without locale field
         // TODO: check it's the correct exception
         throw new \InvalidArgumentException("Locale not implemented");
+    }
+
+    protected function isDocumentTranslatable($metadata)
+    {
+        return count($metadata->translatableFields) !== 0;
     }
 }

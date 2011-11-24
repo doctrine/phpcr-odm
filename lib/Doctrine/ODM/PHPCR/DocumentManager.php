@@ -106,8 +106,17 @@ class DocumentManager implements ObjectManager
         $this->translationStrategy = $strategy;
     }
 
+    /**
+     * Get the assigned translation strategy. This function considers the document is translatable
+     * and thus must have an injected strategy. So don't call this on non-translatable documents
+     * since it will ALWAYS fail!
+     * @return Translation\TranslationStrategy\TranslationStrategyInterface
+     */
     public function getTranslationStrategy()
     {
+        if (is_null($this->translationStrategy)) {
+            throw new \InvalidArgumentException("You must set a translator strategy for a document that contains translatable fields");
+        }
         return $this->translationStrategy;
     }
 
