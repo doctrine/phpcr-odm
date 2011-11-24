@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
+use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
@@ -319,7 +320,7 @@ class UnitOfWork
         }
 
         foreach ($class->referrersMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filterName']);
+            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
         }
 
         if ($overrideLocalValues) {
@@ -460,9 +461,26 @@ class UnitOfWork
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $id = $class->reflFields[$class->identifier]->getValue($document);
-                $childClass->reflFields[$childClass->identifier]->setValue($child , $id . '/'. $mapping['name']);
+                $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $mapping['name']);
                 $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+            }
+        }
+
+        foreach ($class->childrenMappings as $childName => $mapping) {
+            $children = $class->reflFields[$childName]->getValue($document);
+            if (empty($children)) {
+                continue;
+            }
+
+            foreach ($children as $child) {
+                if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
+                    $childClass = $this->dm->getClassMetadata(get_class($child));
+                    $id = $class->reflFields[$class->identifier]->getValue($document);
+                    $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $childClass->reflFields[$childClass->nodename]->getValue($child));
+                    $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
+                    $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                }
             }
         }
 
@@ -541,22 +559,27 @@ class UnitOfWork
             $id = $class->getIdentifierValue($document);
             if (!$id) {
                 return self::STATE_NEW;
-            } else if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
+            }
+
+            if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
                 || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
             ) {
                 if ($class->versionable) {
                     return $class->getFieldValue($document, $class->versionField)
                         ? self::STATE_DETACHED : self::STATE_NEW;
-                } elseif ($this->tryGetById($id)) {
-                    return self::STATE_DETACHED;
-                } else {
-                    return $this->dm->getPhpcrSession()->nodeExists($id)
-                        ? self::STATE_DETACHED : self::STATE_NEW;
                 }
-            } else {
-                return self::STATE_DETACHED;
+
+                if ($this->tryGetById($id)) {
+                    return self::STATE_DETACHED;
+                }
+
+                return $this->dm->getPhpcrSession()->nodeExists($id)
+                    ? self::STATE_DETACHED : self::STATE_NEW;
             }
+
+            return self::STATE_DETACHED;
         }
+
         return $this->documentState[$oid];
     }
 
@@ -578,6 +601,9 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
+        if ($document instanceof Proxy && !$document->__isInitialized__) {
+            return;
+        }
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {

@@ -3,6 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * This class represents an arbitrary node
@@ -43,7 +44,7 @@ class Generic
     }
 
     /**
-     * The node name of the document.
+     * The node name of the file.
      *
      * @return string
      */
@@ -53,16 +54,35 @@ class Generic
     }
 
     /**
-     * The parent document of this document.
+     * Set the node name of the file. (only mutable on new document before the persist)
      *
-     * If there is information on the document type, the document is of the
-     * specified type, otherwise it will be a Generic document
+     * @param string $name the name of the file
+     */
+    public function setNodename($name)
+    {
+        $this->nodename = $name;
+    }
+
+    /**
+     * The parent Folder document of this document.
      *
-     * @return object Document
+     * @param object $parent Folder document that is the parent of this node.
      */
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Set the parent document of this document. Only mutable on new document
+     * before the persist.
+     *
+     * @param object $parent Document that is the parent of this node. Must be
+     *      a Folder or otherwise resolve to nt:folder
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
     }
 
     /**
@@ -79,6 +99,30 @@ class Generic
     }
 
     /**
+     * Sets the children
+     *
+     * @param $children ArrayCollection
+     */
+    public function setChildren(ArrayCollection $children)
+    {
+        $this->children = $children;
+    }
+
+    /**
+     * Add a child to this document
+     *
+     * @param $child
+     */
+    public function addChild($child)
+    {
+        if (null === $this->children) {
+            $this->children = new ArrayCollection();
+        }
+
+        $this->children->add($child);
+    }
+
+    /**
      * The documents having a reference to this document
      *
      * If there is information on the document type, the documents are of the
@@ -89,5 +133,29 @@ class Generic
     public function getReferrers()
     {
         return $this->referrers;
+    }
+
+    /**
+     * Sets the referrers
+     *
+     * @param $referrers ArrayCollection
+     */
+    public function setReferrers(ArrayCollection $referrers)
+    {
+        $this->referrers = $referrers;
+    }
+
+    /**
+     * Add a referrer to this document
+     *
+     * @param $referrer
+     */
+    public function addReferrer($referrer)
+    {
+        if (null === $this->referrers) {
+            $this->referrers = new ArrayCollection();
+        }
+
+        $this->referrers->add($referrer);
     }
 }

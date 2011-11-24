@@ -1,24 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-$vendorDir = __DIR__.'/../lib/vendor';
-require_once $vendorDir.'/doctrine-common/lib/Doctrine/Common/ClassLoader.php';
-
-$classLoader = new \Doctrine\Common\ClassLoader('Doctrine\ODM', dirname($vendorDir));
-$classLoader->register();
-
-$classLoader = new \Doctrine\Common\ClassLoader('Doctrine\Common', $vendorDir.'/doctrine-common/lib');
-$classLoader->register();
-
-$classLoader = new \Doctrine\Common\ClassLoader('Symfony', $vendorDir );
-$classLoader->register();
-
-$classLoader = new \Doctrine\Common\ClassLoader('Jackalope', __DIR__ . '/../lib/vendor/jackalope/src');
-$classLoader->register();
-
-$classLoader = new \Doctrine\Common\ClassLoader('PHPCR', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr/src');
-$classLoader->register();
-
 $configFile = getcwd() . DIRECTORY_SEPARATOR . 'cli-config.php';
 
 $helperSet = null;
@@ -41,7 +23,7 @@ if (file_exists($configFile)) {
     trigger_error(
         'Configuration file [' . $configFile . '] does not exist. See https://github.com/doctrine/phpcr-odm/wiki/Command-line-tool-configuration', E_USER_ERROR
     );
-} 
+}
 
 $helperSet = ($helperSet) ?: new \Symfony\Component\Console\Helper\HelperSet();
 
@@ -49,8 +31,15 @@ $cli = new \Symfony\Component\Console\Application('Doctrine ODM PHPCR Command Li
 $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(
-    new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterNodeTypesCommand(),
+    new \PHPCR\Util\Console\Command\CreateWorkspaceCommand(),
+    new \PHPCR\Util\Console\Command\DumpCommand(),
+    new \PHPCR\Util\Console\Command\PurgeCommand(),
+    new \PHPCR\Util\Console\Command\RegisterNodeTypesCommand(),
+    new \PHPCR\Util\Console\Command\Sql2Command(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
 ));
+if (isset($extraCommands) && ! empty($extraCommands)) {
+    $cli->addCommands($extraCommands);
+}
 $cli->run();
 

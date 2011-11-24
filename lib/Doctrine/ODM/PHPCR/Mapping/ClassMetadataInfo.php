@@ -272,31 +272,6 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Gets the ReflectionClass instance of the mapped class.
-     *
-     * @return ReflectionClass
-     */
-    public function getReflectionClass()
-    {
-        if ( ! $this->reflClass) {
-            $this->reflClass = new ReflectionClass($this->name);
-        }
-        return $this->reflClass;
-    }
-
-    /**
-     * Checks whether a field is part of the identifier/primary key field(s).
-     *
-     * @param string $fieldName  The field name
-     * @return boolean  TRUE if the field is part of the table identifier/primary key field(s),
-     *                  FALSE otherwise.
-     */
-    public function isIdentifier($fieldName)
-    {
-        return $this->identifier === $fieldName ? true : false;
-    }
-
-    /**
      * INTERNAL:
      * Sets the mapped identifier field of this class.
      *
@@ -305,26 +280,6 @@ class ClassMetadataInfo implements ClassMetadata
     public function setIdentifier($identifier)
     {
         $this->identifier = $identifier;
-    }
-
-    /**
-     * Gets the mapped identifier field of this class.
-     *
-     * @return string $identifier
-     */
-    public function getIdentifier()
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * Checks whether the class has a (mapped) field with a certain name.
-     *
-     * @return boolean
-     */
-    public function hasField($fieldName)
-    {
-        return isset($this->fieldMappings[$fieldName]);
     }
 
     /**
@@ -467,16 +422,6 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * The name of this Document class.
-     *
-     * @return string $name The Document class name.
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * The namespace this Document class belongs to.
      *
      * @return string $namespace The namespace name.
@@ -502,7 +447,7 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
+                $this->setIdGenerator($mapping['strategy']);
             }
         } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
@@ -539,9 +484,10 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
-                $this->idGenerator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($mapping['strategy']));
+                $this->setIdGenerator($mapping['strategy']);
             }
         }
+
         $this->validateAndCompleteFieldMapping($mapping, false);
     }
 
@@ -561,7 +507,7 @@ class ClassMetadataInfo implements ClassMetadata
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->parentMapping = $mapping['fieldName'];
-        $this->idGenerator = self::GENERATOR_TYPE_PARENT;
+        $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
     }
 
     public function mapChild(array $mapping)
@@ -813,24 +759,15 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Checks whether the class has a mapped reference for the specified field and
-     * is a collection valued association.
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the association exists and is collection-valued, FALSE otherwise.
-     */
-    public function isCollectionValuedAssociation($fieldName)
-    {
-        return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
-    }
-
-    /**
      * Sets the ID generator used to generate IDs for instances of this class.
      *
      * @param AbstractIdGenerator $generator
      */
     public function setIdGenerator($generator)
     {
+        if (is_string($generator)) {
+            $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($generator));
+        }
         $this->idGenerator = $generator;
     }
 
@@ -876,10 +813,50 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Checks whether the class has a mapped association reference with the given field name.
-     *
-     * @param string $fieldName
-     * @return boolean
+     * {@inheritDoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getReflectionClass()
+    {
+        if ( ! $this->reflClass) {
+            $this->reflClass = new ReflectionClass($this->name);
+        }
+        return $this->reflClass;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isIdentifier($fieldName)
+    {
+        return $this->identifier === $fieldName ? true : false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasField($fieldName)
+    {
+        return isset($this->fieldMappings[$fieldName]);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function hasAssociation($fieldName)
     {
@@ -887,11 +864,7 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Checks whether the class has a mapped reference for the specified field and
-     * is a single valued association.
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the association exists and is single-valued, FALSE otherwise.
+     * {@inheritDoc}
      */
     public function isSingleValuedAssociation($fieldName)
     {
@@ -899,11 +872,15 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * A numerically indexed list of field names of this persistent class.
-     *
-     * This array includes identifier fields if present on this class.
-     *
-     * @return array
+     * {@inheritDoc}
+     */
+    public function isCollectionValuedAssociation($fieldName)
+    {
+        return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getFieldNames()
     {
@@ -911,11 +888,7 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * A numerically indexed list of association names of this persistent class.
-     *
-     * This array includes identifier associations if present on this class.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getAssociationNames()
     {
@@ -923,13 +896,7 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Returns a type name of this field.
-     *
-     * This type names can be implementation specific but should at least include the php types:
-     * integer, string, boolean, float/double, datetime.
-     *
-     * @param string $fieldName
-     * @return string
+     * {@inheritDoc}
      */
     public function getTypeOfField($fieldName)
     {
@@ -938,12 +905,25 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Returns the target class name of the given association.
-     *
-     * @param string $assocName
-     * @return string
+     * {@inheritDoc}
      */
     public function getAssociationTargetClass($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAssociationMappedByTargetField($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isAssociationInverseSide($assocName)
     {
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
     }
