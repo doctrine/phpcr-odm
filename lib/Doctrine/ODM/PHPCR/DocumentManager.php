@@ -24,6 +24,7 @@ use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
@@ -78,6 +79,11 @@ class DocumentManager implements ObjectManager
      */
     private $closed = false;
 
+    /**
+     * @var \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface
+     */
+    protected $translationStrategy;
+
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
         $this->session = $session;
@@ -90,6 +96,16 @@ class DocumentManager implements ObjectManager
             $this->config->getProxyNamespace(),
             $this->config->getAutoGenerateProxyClasses()
         );
+    }
+
+    public function setTranslationStrategy(TranslationStrategyInterface $strategy)
+    {
+        $this->translationStrategy = $strategy;
+    }
+
+    public function getTranslationStrategy()
+    {
+        return $this->translationStrategy;
     }
 
     /**
