@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
  *
  * @author brian () liip.ch
  */
-class LocaleChooser
+class LocaleChooser implements LocaleChooserInterface
 {
     /**
      * $localePreference example:

@@ -24,7 +24,8 @@ use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface,
+    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
@@ -84,6 +85,8 @@ class DocumentManager implements ObjectManager
      */
     protected $translationStrategy;
 
+    protected $localeChooserStrategy;
+
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
         $this->session = $session;
@@ -106,6 +109,16 @@ class DocumentManager implements ObjectManager
     public function getTranslationStrategy()
     {
         return $this->translationStrategy;
+    }
+
+    public function getLocaleChooserStrategy()
+    {
+        return $this->localeChooserStrategy;
+    }
+
+    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
+    {
+        $this->localeChooserStrategy = $strategy;
     }
 
     /**

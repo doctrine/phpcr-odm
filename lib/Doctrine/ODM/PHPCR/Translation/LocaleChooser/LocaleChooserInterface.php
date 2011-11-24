@@ -9,7 +9,7 @@ namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
  *
  * @author brian () liip.ch
  */
-interface LocaleChooser
+interface LocaleChooserInterface
 {
     /**
      * Gets an ordered list of preferred locales.
