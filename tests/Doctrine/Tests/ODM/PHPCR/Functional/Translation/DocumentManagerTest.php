@@ -126,25 +126,28 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('Un autre sujet', $doc->topic);
     }
 
-//    public function testFindTranslationWithLanguageFallback()
-//    {
-//        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'it');
-//
-//        // Italian translation does not exist so as defined in $localePrefs we will get english
-//
-//        $this->assertNotNull($doc);
-//        $this->assertEquals('fr', $doc->locale);
-//        $this->assertEquals('Un autre sujet', $doc->topic);
-//    }
+    public function testFindTranslationWithLanguageFallback()
+    {
+        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'it');
 
-//    public function testFindTranslationWithInvalidLanguageFallback()
-//    {
-//        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'es');
-//
-//        $this->assertNotNull($doc);
-//        $this->assertEquals('fr', $doc->locale);
-//        $this->assertEquals('Un autre sujet', $doc->topic);
-//    }
+        // Italian translation does not exist so as defined in $localePrefs we will get english
+
+        $this->assertNotNull($doc);
+        $this->assertEquals('it', $doc->locale);
+        $this->assertEquals('Un autre sujet', $doc->topic);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFindTranslationWithInvalidLanguageFallback()
+    {
+        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'es');
+
+        $this->assertNotNull($doc);
+        $this->assertEquals('es', $doc->locale);
+        $this->assertEquals('Un autre sujet', $doc->topic);
+    }
 
     protected function removeTestNode()
     {

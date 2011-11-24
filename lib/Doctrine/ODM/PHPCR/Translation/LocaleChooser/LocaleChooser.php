@@ -47,8 +47,10 @@ class LocaleChooser implements LocaleChooserInterface
     // TODO: add document and metadata params + in the interface
     public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
     {
-        if (!in_array($forLocale, array_keys($this->localePreference))) {
+        if (is_null($forLocale)) {
             $preferred = $this->localePreference[$this->defaultLocale];
+        } elseif (!in_array($forLocale, array_keys($this->localePreference))) {
+            throw new \InvalidArgumentException("There is no language fallback for language '$forLocale'");
         } else {
             $preferred = $this->localePreference[$forLocale];
         }
