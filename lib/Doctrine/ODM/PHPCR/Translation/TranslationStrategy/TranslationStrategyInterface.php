@@ -13,9 +13,9 @@ interface TranslationStrategyInterface
      * @param $document The document containing the data
      * @param \PHPCR\NodeInterface $node The physical node in the content repository
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
-     * @param $lang The language to persist the translations to
+     * @param $locale The language to persist the translations to
      */
-    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang);
+    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
 
     /**
      * Load the translatable fields of a node
@@ -23,9 +23,9 @@ interface TranslationStrategyInterface
      * @param $document The document in which to load the data
      * @param \PHPCR\NodeInterface $node The physical node in the content repository
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
-     * @param $lang The language to load the translations from
+     * @param $locale The language to load the translations from
      */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang);
+    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
 
     /**
      * Removes all the translated fields of a node
@@ -42,7 +42,7 @@ interface TranslationStrategyInterface
      * @param $document The document from which the translations must be removed
      * @param \PHPCR\NodeInterface $node The physical node in the content repository
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
-     * @param $lang The language to remove
+     * @param $locale The language to remove
      */
-    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $lang);
+    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
 }

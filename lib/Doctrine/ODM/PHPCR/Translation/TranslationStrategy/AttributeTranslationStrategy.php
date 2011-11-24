@@ -45,8 +45,13 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
     {
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
+            if (!$node->hasProperty($propName)) {
+                // Could not find the translation in the given language
+                return false;
+            }
             $document->$field = $node->getPropertyValue($propName);
         }
+        return true;
     }
 
     /**

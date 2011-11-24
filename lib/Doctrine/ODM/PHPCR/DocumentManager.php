@@ -120,8 +120,17 @@ class DocumentManager implements ObjectManager
         return $this->translationStrategy;
     }
 
+    /**
+     * Get the assigned language chooser strategy. This function considers the document is translatable
+     * and thus must have an injected strategy. So don't call this on non-translatable documents
+     * since it will ALWAYS fail!
+     * @return Translation\LocaleChooser\LocaleChooserInterface
+     */
     public function getLocaleChooserStrategy()
     {
+        if (is_null($this->localeChooserStrategy)) {
+            throw new \InvalidArgumentException("You must set a language chooser strategy for a document that contains translatable fields");
+        }
         return $this->localeChooserStrategy;
     }
 
@@ -235,7 +244,8 @@ class DocumentManager implements ObjectManager
             return null;
         }
 
-        return $this->unitOfWork->createDocument($className, $node);
+        $hints = array('fallback' => true);
+        return $this->unitOfWork->createDocument($className, $node, $hints);
     }
 
     /**
@@ -257,6 +267,20 @@ class DocumentManager implements ObjectManager
         }
 
         return new ArrayCollection($documents);
+    }
+
+    public function findTranslation($className, $id, $locale, $fallback = true)
+    {
+        try {
+            $node = UUIDHelper::isUUID($id)
+                ? $this->session->getNodeByIdentifier($id)
+                : $this->session->getNode($id);
+        } catch (\PHPCR\PathNotFoundException $e) {
+            return null;
+        }
+
+        $hints = array('locale' => $locale, 'fallback' => $fallback);
+        return $this->unitOfWork->createDocument($className, $node, $hints);
     }
 
     /**

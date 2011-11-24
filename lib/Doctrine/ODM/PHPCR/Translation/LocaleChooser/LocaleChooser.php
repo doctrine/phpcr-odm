@@ -1,7 +1,9 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
+
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface,
+    Doctrine\Common\Persistence\Mapping\ClassMetadata;
 
 /**
  * Class to get the list of preferred locales.
@@ -36,11 +38,14 @@ class LocaleChooser implements LocaleChooserInterface
      *
      * If forLocale is not present in the list of preferred locales, return the preference order for the defaultLocale.
      *
+     * @param $document The document object
+     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata The metadata of the document class
      * @param string $forLocale for which locale you need the locale order, e.g. the current request locale
      *
      * @return array $preferredLocales
      */
-    public function getPreferredLocalesOrder($forLocale = null)
+    // TODO: add document and metadata params + in the interface
+    public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
     {
         if (!in_array($forLocale, array_keys($this->localePreference))) {
             $preferred = $this->localePreference[$this->defaultLocale];
@@ -73,7 +78,7 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function setDefaultLocale($locale)
     {
-        if (array_key_exists($this->localePreference[$locale])) {
+        if (array_key_exists($locale, $this->localePreference)) {
             $this->defaultLocale = $locale;
         } else {
             throw new \InvalidArgumentException("The locale '$locale' is not present in the list of available locales");

@@ -39,6 +39,9 @@ use PHPCR\NodeInterface;
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @author      Brian King <brian@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class UnitOfWork
 {
@@ -333,6 +336,12 @@ class UnitOfWork
                 $this->originalData[$oid][$prop] = $value;
             }
         }
+
+        // Load translations
+        $locale = isset($hints['locale']) ? $hints['locale'] : null;
+        $fallback = isset($hints['fallback']) ? $hints['fallback'] : false;
+
+        $this->doLoadTranslation($document, $class, $locale, $fallback);
 
         // Invoke the postLoad lifecycle callbacks and listeners
         if (isset($class->lifecycleCallbacks[Event::postLoad])) {
@@ -1470,6 +1479,57 @@ class UnitOfWork
         $strategy->saveTranslation($document, $node, $metadata, $locale);
     }
 
+    /**
+     * Load the translatable fields of a document. If locale is not set then it is
+     * guessed using the LanguageChooserStrategy class.
+     * @param $document
+     * @param $metadata
+     * @param null $locale
+     * @return void
+     */
+    protected function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
+    {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
+        // Determine which languages we will try to load
+        if (!$fallback) {
+
+            if (is_null($locale)) {
+                throw new \InvalidArgumentException("Error while loading the translations, no locale specified and the language fallback is disabled");
+            }
+            $localesToTry = array($locale);
+
+        } else {
+            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
+        }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+        if (is_null($locale)) {
+            $locale = $this->getLocale($document, $metadata);
+        }
+
+        $translationFound = false;
+        $strategy = $this->dm->getTranslationStrategy();
+        foreach ($localesToTry as $desiredLocale) {
+            $translationFound = $strategy->loadTranslation($document, $node, $metadata, $desiredLocale);
+            if ($translationFound) {
+                break;
+            }
+        }
+
+        if (!$translationFound) {
+            // We tried each possible language without finding the translations
+            throw new \Exception("No translation found. Tried the following locales: " . print_r($localesToTry, true));
+        }
+
+        // Set the locale
+        if ($localField = $metadata->localeMapping['fieldName']) {
+            $document->$localField = $locale;
+        }
+    }
+
     protected function doRemoveTranslation($document, $metadata, $locale)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
@@ -1504,12 +1564,24 @@ class UnitOfWork
         if ($localeField = $metadata->localeMapping['fieldName']) {
             if(!$locale = $document->$localeField) {
                 $locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+                // TODO: use the fallback
             }
             return $locale;
         }
         // TODO: implement tracking @Locale without locale field
         // TODO: check it's the correct exception
         throw new \InvalidArgumentException("Locale not implemented");
+    }
+
+    /**
+     * Use the LocaleStrategyChooser to return list of fallback locales
+     * @param $desiredLocale
+     * @return array
+     */
+    protected function getFallbackLocales($document, $metadata, $desiredLocale)
+    {
+        $strategy = $this->dm->getLocaleChooserStrategy();
+        return $strategy->getPreferredLocalesOrder($document, $metadata, $desiredLocale);
     }
 
     protected function isDocumentTranslatable($metadata)

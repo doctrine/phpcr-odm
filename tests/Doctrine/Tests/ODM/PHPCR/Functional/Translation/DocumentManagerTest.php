@@ -3,7 +3,8 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\Tests\Models\Translation\Article;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy,
+    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -13,8 +14,16 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
     public function setUp()
     {
+        $localePrefs = array(
+            'en' => array('en', 'de', 'fr'),
+            'fr' => array('fr', 'de', 'en'),
+            'it' => array('fr', 'de', 'en'),
+        );
+
         $this->dm = $this->createDocumentManager();
         $this->dm->setTranslationStrategy(new AttributeTranslationStrategy());
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+
         $this->session = $this->dm->getPhpcrSession();
         $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
 
@@ -94,6 +103,48 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
         $this->assertEquals('fr', $this->doc->locale);
     }
+
+    public function testFind()
+    {
+        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName);
+
+        $this->assertNotNull($doc);
+        $this->assertEquals('en', $this->doc->locale);
+
+        $node = $this->getTestNode();
+        $this->assertNotNull($node);
+        $this->assertTrue($node->hasProperty('lang-en-topic'));
+        $this->assertEquals('Some interesting subject', $node->getPropertyValue('lang-en-topic'));
+    }
+
+    public function testFindTranslation()
+    {
+        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'fr');
+
+        $this->assertNotNull($doc);
+        $this->assertEquals('fr', $doc->locale);
+        $this->assertEquals('Un autre sujet', $doc->topic);
+    }
+
+//    public function testFindTranslationWithLanguageFallback()
+//    {
+//        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'it');
+//
+//        // Italian translation does not exist so as defined in $localePrefs we will get english
+//
+//        $this->assertNotNull($doc);
+//        $this->assertEquals('fr', $doc->locale);
+//        $this->assertEquals('Un autre sujet', $doc->topic);
+//    }
+
+//    public function testFindTranslationWithInvalidLanguageFallback()
+//    {
+//        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'es');
+//
+//        $this->assertNotNull($doc);
+//        $this->assertEquals('fr', $doc->locale);
+//        $this->assertEquals('Un autre sujet', $doc->topic);
+//    }
 
     protected function removeTestNode()
     {
