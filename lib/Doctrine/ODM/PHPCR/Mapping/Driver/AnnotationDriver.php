@@ -200,6 +200,7 @@ class AnnotationDriver implements Driver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapReferrers($mapping);
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Locale) {
+                    // TODO: make this annotation mandatory for a translatable document
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapLocale($mapping);
                 }
