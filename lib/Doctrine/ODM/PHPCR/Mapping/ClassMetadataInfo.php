@@ -596,14 +596,6 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Sets the type of Id generator to use for the mapped class.
-     */
-    public function setIdGeneratorType($generatorType)
-    {
-        $this->generatorType = $generatorType;
-    }
-
-    /**
      * Sets the Id generator options.
      */
     public function setIdGeneratorOptions($generatorOptions)
@@ -618,7 +610,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function isIdGeneratorRepository()
     {
-        return $this->generatorType == self::GENERATOR_TYPE_REPOSITORY;
+        return $this->idGenerator == self::GENERATOR_TYPE_REPOSITORY;
     }
 
     /**
@@ -628,7 +620,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function isIdGeneratorNone()
     {
-        return $this->generatorType == self::GENERATOR_TYPE_NONE;
+        return $this->idGenerator == self::GENERATOR_TYPE_NONE;
     }
 
     /**
