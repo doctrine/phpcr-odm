@@ -171,6 +171,28 @@ class ClassMetadata extends ClassMetadataInfo
     }
 
     /**
+     * Sets the document identifier of a document.
+     *
+     * @param object $document
+     * @param mixed $id
+     */
+    public function setIdentifierValue($document, $id)
+    {
+        $this->reflFields[$this->identifier]->setValue($document, $id);
+    }
+
+    /**
+     * Gets the document identifier.
+     *
+     * @param object $document
+     * @return string $id
+     */
+    public function getIdentifierValue($document)
+    {
+        return (string) $this->getFieldValue($document, $this->identifier);
+    }
+
+    /**
      * Get identifier values of this document.
      *
      * Since PHPCR only allows exactly one identifier field this is a proxy
@@ -183,5 +205,32 @@ class ClassMetadata extends ClassMetadataInfo
     public function getIdentifierValues($document)
     {
         return array($this->identifier => $this->getIdentifierValue($document));
+    }
+
+    /**
+     * Sets the specified field to the specified value on the given document.
+     *
+     * @param object $document
+     * @param string $field
+     * @param mixed $value
+     */
+    public function setFieldValue($document, $field, $value)
+    {
+        $this->reflFields[$field]->setValue($document, $value);
+    }
+
+    /**
+     * Gets the specified field's value off the given document.
+     *
+     * @param object $document
+     * @param string $field
+     */
+    public function getFieldValue($document, $field)
+    {
+        if (isset($this->reflFields[$field])) {
+            return $this->reflFields[$field]->getValue($document);
+        }
+
+        return null;
     }
 }
