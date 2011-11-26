@@ -169,4 +169,19 @@ class ClassMetadata extends ClassMetadataInfo
         }
         return clone $this->prototype;
     }
+
+    /**
+     * Get identifier values of this document.
+     *
+     * Since PHPCR only allows exactly one identifier field this is a proxy
+     * to {@see getIdentifierValue()} and returns an array with the identifier
+     * field as a key.
+     *
+     * @param object $document
+     * @return array
+     */
+    public function getIdentifierValues($document)
+    {
+        return array($this->identifier => $this->getIdentifierValue($document));
+    }
 }
