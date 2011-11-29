@@ -44,7 +44,6 @@ class LocaleChooser implements LocaleChooserInterface
      *
      * @return array $preferredLocales
      */
-    // TODO: add document and metadata params + in the interface
     public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
     {
         if (is_null($forLocale)) {
