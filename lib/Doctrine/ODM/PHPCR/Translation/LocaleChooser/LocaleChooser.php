@@ -19,6 +19,7 @@ class LocaleChooser implements LocaleChooserInterface
      *    'fr' => array('fr', 'de', 'en'),
      *    'de' => array('de', 'fr', 'en'),
      *  )
+     */
     protected $localePreference;
     protected $defaultLocale;
 
