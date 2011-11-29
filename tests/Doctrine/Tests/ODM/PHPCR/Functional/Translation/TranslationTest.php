@@ -63,6 +63,8 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     protected function assertFieldMetadataEquals($expectedValue, ClassMetadata $metadata, $field, $key)
     {
         $mapping = $metadata->getFieldMapping($field);
+        $this->assertInternalType('array', $mapping);
+        $this->assertTrue(array_key_exists($key, $mapping));
         $this->assertEquals($expectedValue, $mapping[$key]);
     }
 }
