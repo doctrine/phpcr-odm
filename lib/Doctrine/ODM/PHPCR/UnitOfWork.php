@@ -1466,6 +1466,15 @@ class UnitOfWork
         return $this->session->refresh(false);
     }
 
+    public function getLocalesFor($document)
+    {
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return array();
+        }
+    }
+
     protected function doSaveTranslation($document, $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {

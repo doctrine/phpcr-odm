@@ -149,6 +149,22 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('Un autre sujet', $doc->topic);
     }
 
+    public function testGetLocaleFor()
+    {
+        $locales = $this->dm->getLocalesFor($this->getTestNode());
+        $this->assertEquals(2, count($locales));
+        $this->assertTrue(in_array('en', $locales));
+        $this->assertTrue(in_array('fr', $locales));
+    }
+
+    public function testGetLocaleForPath()
+    {
+        $locales = $this->dm->getLocalesFor('/' . $this->testNodeName);
+        $this->assertEquals(2, count($locales));
+        $this->assertTrue(in_array('en', $locales));
+        $this->assertTrue(in_array('fr', $locales));
+    }
+    
     protected function removeTestNode()
     {
         $root = $this->session->getRootNode();
