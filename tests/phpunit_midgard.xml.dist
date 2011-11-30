@@ -5,6 +5,7 @@
         <var name="midgard2.configuration.db.name" value="odm" />
         <var name="midgard2.configuration.db.dir" value="/tmp" />
         <var name="midgard2.configuration.db.init" value="true" />
+        <!--<var name="midgard2.configuration.loglevel" value="debug" />-->
         <var name="DOCTRINE_PHPCR_USER" value="admin" />
         <var name="DOCTRINE_PHPCR_PASS" value="password" />
         <!-- to create the "tests" workspace see http://www.eppelheimer.com/clients/day/jackrabbit/site/apache/faq.html#create-workspace -->
