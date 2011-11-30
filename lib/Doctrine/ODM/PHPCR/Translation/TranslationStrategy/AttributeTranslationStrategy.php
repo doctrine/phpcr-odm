@@ -5,6 +5,8 @@ namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     PHPCR\NodeInterface;
 
+use Doctrine\ODM\PHPCR\Translation\Translation;
+
 /**
  * Translation strategy that stores the translations in attributes of the same node.
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
@@ -15,7 +17,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
 class AttributeTranslationStrategy implements TranslationStrategyInterface
 {
     /*** @var string */
-    protected $prefix = 'lang';
+    protected $prefix = Translation::LOCALE_NAMESPACE;
 
     /**
      * Set the prefix to use to determine the name of the property where translations are stored

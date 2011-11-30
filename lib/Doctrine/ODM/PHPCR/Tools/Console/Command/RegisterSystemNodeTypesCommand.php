@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use PHPCR\Util\Console\Command\RegisterNodeTypesCommand;
 
+use Doctrine\ODM\PHPCR\Translation\Translation;
+
 /**
  * Command to register the phcpr-odm required node types.
  *
@@ -38,9 +40,11 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $localeNamespace = Translation::LOCALE_NAMESPACE;
+        $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
         $cnd = <<<CND
-// register phpcr_variant namespace
-<phpcr_variant='http://www.doctrine-project.org/projects/phpcr_odm/phpcr_variant'>
+// register phpcr_locale namespace
+<$localeNamespace='$localeNamespaceUri'>
 // register phpcr namespace
 <phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
 [phpcr:managed]

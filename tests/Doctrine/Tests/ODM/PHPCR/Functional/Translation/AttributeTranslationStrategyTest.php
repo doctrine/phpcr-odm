@@ -1,12 +1,13 @@
 <?php
 
-namespace Doctrine\Tests\ODM\PHPCR\Translation;
+namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 
 use Doctrine\Tests\Models\Translation\Article;
+use Doctrine\ODM\PHPCR\Translation\Translation;
 
 class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -54,27 +55,27 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         // Then test we have what we expect in the content repository
         $node = $this->session->getNode('/' . $this->testNodeName);
 
-        $this->assertTrue($node->hasProperty('lang-en-topic'));
-        $this->assertTrue($node->hasProperty('lang-fr-topic'));
-        $this->assertTrue($node->hasProperty('lang-en-text'));
-        $this->assertTrue($node->hasProperty('lang-fr-text'));
-        $this->assertFalse($node->hasProperty('lang-fr-author'));
-        $this->assertFalse($node->hasProperty('lang-en-author'));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr', 'text')));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr', 'author')));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en', 'author')));
 
-        $this->assertEquals('Some interesting subject', $node->getPropertyValue('lang-en-topic'));
-        $this->assertEquals('Un sujet intéressant', $node->getPropertyValue('lang-fr-topic'));
-        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue('lang-en-text'));
-        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue('lang-fr-text'));
+        $this->assertEquals('Some interesting subject', $node->getPropertyValue(self::propertyNameForLocale('en', 'topic')));
+        $this->assertEquals('Un sujet intéressant', $node->getPropertyValue(self::propertyNameForLocale('fr', 'topic')));
+        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('en', 'text')));
+        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('fr', 'text')));
     }
 
     public function testLoadTranslation()
     {
         // Create the node in the content repository
         $node = $this->getTestNode();
-        $node->setProperty('lang-en-topic', 'English topic');
-        $node->setProperty('lang-en-text', 'English text');
-        $node->setProperty('lang-fr-topic', 'Sujet français');
-        $node->setProperty('lang-fr-text', 'Texte français');
+        $node->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
+        $node->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
+        $node->setProperty(self::propertyNameForLocale('fr', 'topic'), 'Sujet français');
+        $node->setProperty(self::propertyNameForLocale('fr', 'text'), 'Texte français');
         $node->setProperty('author', 'John Doe');
 
         $this->session->save();
@@ -110,8 +111,8 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
         $this->dm->flush();
 
-        $this->assertTrue($node->hasProperty('lang-en-topic'));
-        $this->assertTrue($node->hasProperty('lang-en-text'));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
 
         // Then remove the translations
         $strategy->removeTranslation($doc, $node, $this->metadata, 'en');
@@ -121,8 +122,8 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertNull($doc->text);
         $this->assertNotNull($doc->author);
 
-        $this->assertFalse($node->hasProperty('lang-en-topic'));
-        $this->assertFalse($node->hasProperty('lang-en-text'));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en', 'text')));
     }
 
     protected function getTestNode()
@@ -142,6 +143,11 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
             $root->getNode($this->testNodeName)->remove();
             $this->session->save();
         }
+    }
+
+    static function propertyNameForLocale($locale, $property)
+    {
+        return Translation::LOCALE_NAMESPACE . '-' . $locale . '-' . $property;
     }
 
 }
