@@ -1469,10 +1469,13 @@ class UnitOfWork
     public function getLocalesFor($document)
     {
         $metadata = $this->dm->getClassMetadata(get_class($document));
-
         if (!$this->isDocumentTranslatable($metadata)) {
             return array();
         }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+
+        return $this->dm->getTranslationStrategy()->getLocalesFor($document, $node, $metadata);
     }
 
     protected function doSaveTranslation($document, $metadata)

@@ -45,4 +45,14 @@ interface TranslationStrategyInterface
      * @param $locale The language to remove
      */
     public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
+
+    /**
+     * Get the list of locales persisted for a node
+     * @abstract
+     * @param $document The document that must be checked
+     * @param \PHPCR\NodeInterface $node The Physical node in the content repository
+     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
+     * @return array
+     */
+    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata);
 }

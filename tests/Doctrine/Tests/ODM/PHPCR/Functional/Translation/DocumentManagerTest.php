@@ -152,20 +152,35 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
     public function testGetLocaleFor()
     {
-        $locales = $this->dm->getLocalesFor($this->getTestNode());
+        // Only 1 language is persisted
+        $this->removeTestNode();
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
+
+        $locales = $this->dm->getLocalesFor($this->doc);
+        $this->assertEquals(1, count($locales));
+        $this->assertTrue(in_array('en', $locales));
+
+        // A second language is persisted
+        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->flush();
+
+        $locales = $this->dm->getLocalesFor($this->doc);
         $this->assertEquals(2, count($locales));
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
+
+        // A third language is persisted
+        $this->dm->persistTranslation($this->doc, 'de');
+        $this->dm->flush();
+
+        $locales = $this->dm->getLocalesFor($this->doc);
+        $this->assertEquals(3, count($locales));
+        $this->assertTrue(in_array('en', $locales));
+        $this->assertTrue(in_array('fr', $locales));
+        $this->assertTrue(in_array('de', $locales));
     }
 
-    public function testGetLocaleForPath()
-    {
-        $locales = $this->dm->getLocalesFor('/' . $this->testNodeName);
-        $this->assertEquals(2, count($locales));
-        $this->assertTrue(in_array('en', $locales));
-        $this->assertTrue(in_array('fr', $locales));
-    }
-    
     protected function removeTestNode()
     {
         $root = $this->session->getRootNode();

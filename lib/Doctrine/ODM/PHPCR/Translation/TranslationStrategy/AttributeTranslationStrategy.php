@@ -81,6 +81,23 @@ class AttributeTranslationStrategy implements TranslationStrategyInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
+    {
+        $locales = array();
+        foreach ($node->getProperties("*{$this->prefix}*") as $prop) {
+            $matches = null;
+            if (preg_match('/' . $this->prefix . '-(..)-[^-]*/', $prop->getName(), $matches)) {
+                if (is_array($matches) && count($matches) > 1 && !in_array($matches[1], $locales)) {
+                    $locales[] = $matches[1];
+                }
+            }
+        }
+        return $locales;
+    }
+
+    /**
      * Get the name of the property where to store the translations of a given property in a given language
      * @param $locale The language to store
      * @param $fieldName The name of the field to translate

@@ -388,16 +388,9 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->scheduleInsert($object);
     }
 
-    public function getLocalesFor($documentOrPath)
+    public function getLocalesFor($document)
     {
-        if ($documentOrPath instanceof \PHPCR\NodeInterface) {
-            $document = $documentOrPath;
-        } else {
-            // TODO: this is wrong, we don't want the Jackalope node but the document
-            $document = $this->session->getNode($documentOrPath);
-        }
-
-        $this->unitOfWork->getLocalesFor($document);
+        return $this->unitOfWork->getLocalesFor($document);
     }
 
     public function remove($object)

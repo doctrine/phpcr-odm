@@ -35,4 +35,12 @@ class ChildTranslationStrategy implements TranslationStrategyInterface
     {
         throw new \Exception('Not implemented');
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
+    {
+        throw new \Exception('Not implemented');
+    }
 }
