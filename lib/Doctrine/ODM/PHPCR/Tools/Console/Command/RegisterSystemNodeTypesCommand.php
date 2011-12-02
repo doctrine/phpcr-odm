@@ -25,6 +25,7 @@ class RegisterSystemNodeTypesCommand extends RegisterNodeTypesCommand
         $this
         ->setName('doctrine:phpcr:register-system-node-types')
         ->setDescription('Register system node types in the PHPCR repository')
+        ->addOption('allow-update', '', InputOption::VALUE_NONE, 'Overwrite existing node type')
         ->setHelp(<<<EOT
 Register system node types in the PHPCR repository.
 
