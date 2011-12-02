@@ -55,6 +55,16 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
+     * Test loading of a translatable document missing the @Locale annotation.
+     * @expectedException Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testLoadMissingLocaleAnnotation()
+    {
+        $factory = new ClassMetadataFactory($this->dm);
+        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Translation\NoLocalePropertyArticle');
+    }
+
+    /**
      * Assertion shortcut:
      * Check the given $metadata contain a field mapping for $field that contains the $key and having the value $expectedValue.
      * @param $expectedValue The expected value

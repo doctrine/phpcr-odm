@@ -235,6 +235,13 @@ class AnnotationDriver implements Driver
             }
         }
 
+        // Check there is a @Locale annotation for translatable documents
+        if (count($class->translatableFields)) {
+            if (!isset($class->localeMapping)) {
+                // TODO: use a better exception
+                throw new MappingException("You must define a @Locale field for translatable document '$className'");
+            }
+        }
     }
 
     /**

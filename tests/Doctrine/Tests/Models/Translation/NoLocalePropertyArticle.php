@@ -7,9 +7,17 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * Translatable document that does not provide an explicit locale field.
  *
+ * !!! WARNING !!!
+ *
+ * This class is invalid as it uses an invalid key for the @PHPCRODM\Document(translator) annotation.
+ * This class is supposed to throw an exception when it is read by the ODM !!!
+ *
+ */
+
+/**
  * @PHPCRODM\Document(alias="translation_article", translator="attribute")
  */
-class Article
+class NoLocalePropertyArticle
 {
     /** @PHPCRODM\Id */
     public $id;
