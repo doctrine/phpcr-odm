@@ -23,7 +23,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
     public function tearDown()
     {
-        //$this->removeTestNode();
+        $this->removeTestNode();
     }
 
     public function testSaveTranslation()
