@@ -17,6 +17,7 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     // This test should succeed if the system node types have been registered.
+    // Use bin/phpcr doctrine:phpcr:register-system-node-types to register the system node types.
     public function testVariantNamespaceRegistered()
     {
         $nr = $this->workspace->getNamespaceRegistry();
