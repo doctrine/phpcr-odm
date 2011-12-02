@@ -126,6 +126,29 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en', 'text')));
     }
 
+    public function testGetLocaleFor()
+    {
+        $node = $this->getTestNode();
+        $node->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
+        $node->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
+        $node->setProperty(self::propertyNameForLocale('fr', 'topic'), 'Sujet français');
+        $node->setProperty(self::propertyNameForLocale('fr', 'text'), 'Texte français');
+        $node->setProperty(self::propertyNameForLocale('de', 'topic'), 'Deutche Betreff');
+        $node->setProperty(self::propertyNameForLocale('de', 'text'), 'Deutche Texte');
+        $this->session->save();
+
+        $doc = new Article();
+
+        $strategy = new AttributeTranslationStrategy();
+        $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
+
+        $this->assertTrue(is_array($locales));
+        $this->assertEquals(3, count($locales));
+        $this->assertContains('fr', $locales);
+        $this->assertContains('en', $locales);
+        $this->assertContains('de', $locales);
+    }
+
     protected function getTestNode()
     {
         $this->removeTestNode();
