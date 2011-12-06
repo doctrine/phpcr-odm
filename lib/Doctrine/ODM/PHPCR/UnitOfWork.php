@@ -1406,7 +1406,7 @@ class UnitOfWork
     public function initializeObject($obj)
     {
         if ($obj instanceof Proxy) {
-            $obj->__doctrineLoad__();
+            $obj->__load();
         } else if ($obj instanceof PersistentCollection) {
             $obj->initialize();
         }
