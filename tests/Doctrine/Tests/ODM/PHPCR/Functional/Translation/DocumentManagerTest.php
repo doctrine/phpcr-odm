@@ -62,7 +62,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
     {
         $this->removeTestNode();
 
-        $this->dm->persist($this->doc);
+        $this->dm->persistTranslation($this->doc, 'en');
 
         $this->doc->topic = 'Un sujet intéressant';
 

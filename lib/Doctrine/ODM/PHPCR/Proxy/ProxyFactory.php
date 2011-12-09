@@ -28,6 +28,8 @@ use Doctrine\ODM\PHPCR\DocumentManager,
  * @author Roman Borschel <roman@code-factory.org>
  * @author Giorgio Sironi <piccoloprincipeazzurro@gmail.com>
  * @author Nils Adermann <naderman@naderman.de>
+ * @author Johannes Stark <starkj@gmx.de>
+ * @author David Buchmann <david@liip.ch>
  *
  * This whole thing is copy & pasted from ORM - should really be slightly
  * refactored to generate
@@ -295,18 +297,25 @@ namespace <namespace>;
 class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy\Proxy
 {
     private $__doctrineDocumentManager__;
+    private $__doctrineLocale__;
     private $__doctrineIdentifier__;
     public $__isInitialized__ = false;
-    public function __construct($documentManager, $identifier)
+    public function __construct($documentManager, $identifier, $locale = null)
     {
         <unsetattributes>
         $this->__doctrineDocumentManager__ = $documentManager;
+        $this->__doctrineLocale__ = $locale;
     }
     private function __doctrineLoad__()
     {
         if (!$this->__isInitialized__ && $this->__doctrineDocumentManager__) {
             $this->__isInitialized__ = true;
-            $this->__doctrineDocumentManager__->getRepository(get_class($this))->refreshDocumentForProxy($this);
+            $repository = $this->__doctrineDocumentManager__->getRepository(get_class($this));
+            if (is_null($this->__doctrineLocale__)) {
+                $repository->refreshDocumentForProxy($this);
+            } else {
+                $repository->refreshDocumentForProxy($this, $this->__doctrineLocale__);
+            }
             unset($this->__doctrineDocumentManager__);
         }
     }

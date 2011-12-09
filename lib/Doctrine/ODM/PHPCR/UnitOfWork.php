@@ -171,10 +171,13 @@ class UnitOfWork
     }
 
     /**
-     * Get an already fetched node for the proxyDocument from the nodesMap and create the associated document
+     * Get an already fetched node for the proxyDocument from the nodesMap and
+     * create the associated document.
      *
      * @param string $className
      * @param Proxy $document
+     * @param string $locale the locale to use or null to use the default
+     *      locale. if this is not a translatable document, locale will be ignored.
      * @return void
      */
     public function refreshDocumentForProxy($className, $document)
@@ -186,6 +189,11 @@ class UnitOfWork
 
     /**
      * Create a document given class, data and the doc-id and revision
+     *
+     * Supported hints are
+     * * refresh: reload the fields from the database
+     * * locale: use this locale instead of the one from the annotation or the default
+     * * fallback: whether to try other languages or throw a not found exception if the desired locale is not found
      *
      * @param null|string $className
      * @param \PHPCR\NodeInterface $node
@@ -1487,16 +1495,23 @@ class UnitOfWork
         $node = $this->nodesMap[spl_object_hash($document)];
         $locale = $this->getLocale($document, $metadata);
 
-        $strategy = $this->dm->getTranslationStrategy();
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         $strategy->saveTranslation($document, $node, $metadata, $locale);
     }
 
     /**
-     * Load the translatable fields of a document. If locale is not set then it is
-     * guessed using the LanguageChooserStrategy class.
+     * Load the translatable fields of the document.
+     *
+     * If locale is not set then it is guessed using the
+     * LanguageChooserStrategy class.
+     *
+     * If the document is not translatable, this method returns immediatly.
+     *
      * @param $document
      * @param $metadata
-     * @param null $locale
+     * @param string $locale The locale to use or null if the default locale should be used
+     * @param boolean $fallback Whether to do try other languages
+     *
      * @return void
      */
     protected function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
@@ -1504,6 +1519,8 @@ class UnitOfWork
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
         }
+
+        // TODO: if locale is null, just get default locale, regardless of fallback or not
 
         // Determine which languages we will try to load
         if (!$fallback) {
@@ -1533,6 +1550,7 @@ class UnitOfWork
 
         if (!$translationFound) {
             // We tried each possible language without finding the translations
+            // TODO what is the right exception? some "not found" probably
             throw new \Exception("No translation found. Tried the following locales: " . print_r($localesToTry, true));
         }
 

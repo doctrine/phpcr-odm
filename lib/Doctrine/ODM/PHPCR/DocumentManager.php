@@ -24,8 +24,10 @@ use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface,
-    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
@@ -99,11 +101,25 @@ class DocumentManager implements ObjectManager
             $this->config->getProxyNamespace(),
             $this->config->getAutoGenerateProxyClasses()
         );
+
+        // initialize default translation strategies
+        $this->translationStrategy = array(
+            'attribute' => new AttributeTranslationStrategy,
+            'child'     => new ChildTranslationStrategy,
+        );
     }
 
-    public function setTranslationStrategy(TranslationStrategyInterface $strategy)
+    /**
+     * Add or replace a translation strategy
+     *
+     * note that you do not need to set the default strategies attribute and child unless you want to replace them.
+     *
+     * @param string $label the label used in the translator attribute of the document annotation
+     * @param TranslationStrategyInterface $strategy the strategy that implements this label
+     */
+    public function setTranslationStrategy($label, TranslationStrategyInterface $strategy)
     {
-        $this->translationStrategy = $strategy;
+        $this->translationStrategy[$key] = $strategy;
     }
 
     /**
@@ -112,12 +128,12 @@ class DocumentManager implements ObjectManager
      * since it will ALWAYS fail!
      * @return Translation\TranslationStrategy\TranslationStrategyInterface
      */
-    public function getTranslationStrategy()
+    public function getTranslationStrategy($key)
     {
-        if (is_null($this->translationStrategy)) {
+        if (! isset($this->translationStrategy[$key])) {
             throw new \InvalidArgumentException("You must set a translator strategy for a document that contains translatable fields");
         }
-        return $this->translationStrategy;
+        return $this->translationStrategy[$key];
     }
 
     /**
@@ -134,6 +150,12 @@ class DocumentManager implements ObjectManager
         return $this->localeChooserStrategy;
     }
 
+    /**
+     * Set the locale chooser strategy for multilanguage documents.
+     *
+     * Note that there can be only one strategy per session. This is required if you have multilanguage
+     * documents and not used if you don't have multilanguage.
+     */
     public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
     {
         $this->localeChooserStrategy = $strategy;

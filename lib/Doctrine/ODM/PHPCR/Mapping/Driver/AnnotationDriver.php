@@ -64,15 +64,6 @@ class AnnotationDriver implements Driver
     private $classNames;
 
     /**
-     * Mapping between translation strategies names and the classes responsible for the strategy.
-     * @var array
-     */
-    static protected $translationStrategies = array(
-        'attribute' => 'Doctrine\\ODM\\PHPCR\\Translation\\TranslationStrategy\\AttributeTranslationStrategy',
-        'child'     => 'Doctrine\\ODM\\PHPCR\\Translation\\TranslationStrategy\\ChildTranslationStrategy',
-    );
-
-    /**
      * Document annotation classes, ordered by precedence.
      */
     static private $documentAnnotationClasses = array(
@@ -157,11 +148,7 @@ class AnnotationDriver implements Driver
         }
 
         if ($documentAnnot->translator) {
-            if (array_key_exists($documentAnnot->translator, self::$translationStrategies)) {
-                $class->setTranslator(self::$translationStrategies[$documentAnnot->translator]);
-            } else {
-                throw new MappingException("Invalid translation strategy '{$documentAnnot->translator}'");
-            }
+            $class->setTranslator($documentAnnot->translator);
         }
 
         foreach ($reflClass->getProperties() as $property) {

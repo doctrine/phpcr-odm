@@ -11,11 +11,13 @@ class Article
 {
     /** @PHPCRODM\Id */
     public $id;
-
     /**
      * @PHPCRODM\Locale
      */
     public $locale = 'en';
+    /**
+     * @PHPCRODM\ParentDocument */
+    public $parent;
 
     // untranslated:
     /** @PHPCRODM\Date */
