@@ -265,6 +265,7 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 <tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  </td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference. It is optional to specify the targetDocument, you can reference any document.</td></tr>
 <tr><td> ReferenceMany(targetDocument="myDocument", weak=false): </td><td>Same as ReferenceOne except that you can refer many documents with the same document and reference type. If you dont't specify targetDocument you can reference different documents with one property.</td></tr>
 <tr><td> Referrers(filter="x", referenceType=null):     </td><td>A field of this type stores documents that refer this document. filter is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
+<tr><td>Locale</td><td>Indentifies the field that will be used to store the current locale of the document. This annotation is required for translatable documents.</td></tr>
 <tr><td> String,               <br />
          Binary,               <br />
          Long (alias Int),     <br />
@@ -293,6 +294,164 @@ private $cat;
 
 Note that the reference annotations are only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
 
+# Multilingual documents
+
+PHPCR-ODM supports multilingual documents so that you can mark properties as translatable and then make the document manager automatically store the translations.
+
+To use translatable documents you need to use several annotations and some bootstrapping code.
+
+```php
+<?php
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+/**
+ * @PHPCRODM\Document(alias="translation_article", translator="attribute")
+ */
+class Article
+{
+    /** @PHPCRODM\Id */
+    public $id;
+
+    /**
+     * @PHPCRODM\Locale
+     */
+    public $locale = 'en';
+
+    // untranslated:
+    /** @PHPCRODM\Date */
+    public $publishDate;
+
+    // untranslated:
+    /** @PHPCRODM\String */
+    public $author;
+
+    /** @PHPCRODM\String(translated=true) */
+    public $topic;
+
+    /** @PHPCRODM\String(translated=true) */
+    public $text;
+}
+```
+
+## Select the translation strategy
+
+A translation strategy needs to be selected by adding the `translator` parameter to the @Document annotation.
+The translation strategy is responsible to actually persist the translated properties.
+
+There are two translation strategies implemented:
+
+* **attribute** - will store the translations in attributes of the node containing the translatable properties
+* **child** - will store the translations in a child node of the node containing the translatable properties
+
+It is possible to implement other strategies to persist the translations, see below.
+
+### Implementing your own translation strategy
+
+You may want to implement your own translation strategy to persist the translatable properties of a node. For example if you want all the translations to be stored in a separate branch of you content repository.
+
+To do so you need to implement the `Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface`.
+
+Then you have to register your translation strategy with the document manager during the bootstrap.
+
+```php
+<?php
+class MyTranslationStrategy implements Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface
+{
+    // ...
+}
+
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+$dm->setTranslationStrategy('my_strategy_name', new MyTranslationStrategy());
+```
+
+After registering your new translation strategy you can use it in the @Document annotation:
+
+```php
+<?php
+/**
+ * @PHPCRODM\Document(alias="translation_article", translator="my_strategy_name")
+ */
+class Article
+{
+    // ...
+}
+```
+
+## Select the language chooser strategy
+
+The language chooser strategy is responsible to return a the locale to use when a document is requested in a given language.
+
+Typically the default language chooser strategy (`Doctrine\ODM\PHPCR\Translation\LocaleChooser`) will return the requested language if there are translations for it, or else perform some fallback mechanism to find the best suited locale.
+
+You always have to select the language chooser when you bootstrap the document manager:
+
+```php
+<?php
+$localePrefs = array(
+    'en' => array('en', 'de', 'fr'), // When EN is requested try to get a translation first in EN, then DE and finally FR
+    'fr' => array('fr', 'de', 'en'), // When FR is requested try to get a translation first in FR, then DE and finally EN
+    'it' => array('fr', 'de', 'en'), // When IT is requested try to get a translation first in FR, then DE and finally EN
+);
+
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+$dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+```
+
+At the end of this language selection phase, if no translation for any of the returned languages can be found, an exception is thrown.
+
+## Mark a field as @Locale
+
+All the translatable documents (i.e. having at least one translatable field) must define a field that will hold the current locale of the node.
+This is done with the `@Locale` annotation. You may set a default value.
+
+```php
+<?php
+/**
+ * @PHPCRODM\Locale
+ */
+public $locale = 'en';
+```
+
+This field is __mandatory__ and is not persisted to the content repository.
+
+## Setting properties as translatable
+
+A property is set as translatable adding the `translatable` parameter to the field definition annontation.
+
+```php
+<?php
+/** @PHPCRODM\String(translated=true) */
+public $topic;
+```
+
+You can set any type of property as translatable.
+
+Having a single property set as translatable will make the whole document translatable and thus forces you to have a @Locale field (see above).
+
+Please note that internally, the translatable properties will be persisted by the translator strategy, not directly by the document manager.
+
+## Translation API
+
+TODO: just refer to the phpdoc...
+
+__For reading__:
+
+* `DocumentManager::find(...)` - Will load the document from the content repository. If the document is translatable then the language chooser strategy is used to load the best suited language for the translatable fields.
+* `DocumentManager::findTranslation(..., $locale, $fallback = true)` - Will try to load the document in the given language. If not possible and $fallback is true then the language chooser mechanism is used to find the best language. Otherwise an error is thrown. Note that this will be the same object as you got with a previous find/findTranslation call - we can't allow copies of objects to exist or it will confuse the hell out of phpcr-odm.
+
+Both the above functions will update the document field set as @Locale.
+
+__For writing__:
+
+* DocumentManager::persist()
+* DocumentManager::flush()
+* DocumentManager::persitTranslation()
+
+## Example
+
+```php
+<?php
+```
 
 # Lifecycle callbacks
 
