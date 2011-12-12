@@ -432,14 +432,12 @@ Please note that internally, the translatable properties will be persisted by th
 
 ## Translation API
 
-TODO: just refer to the phpdoc...
+Please refer to the phpDoc of the following functions:
 
 __For reading__:
 
-* `DocumentManager::find(...)` - Will load the document from the content repository. If the document is translatable then the language chooser strategy is used to load the best suited language for the translatable fields.
-* `DocumentManager::findTranslation(..., $locale, $fallback = true)` - Will try to load the document in the given language. If not possible and $fallback is true then the language chooser mechanism is used to find the best language. Otherwise an error is thrown. Note that this will be the same object as you got with a previous find/findTranslation call - we can't allow copies of objects to exist or it will confuse the hell out of phpcr-odm.
-
-Both the above functions will update the document field set as @Locale.
+* DocumentManager::find
+* DocumentManager::findTranslation
 
 __For writing__:
 
@@ -451,6 +449,31 @@ __For writing__:
 
 ```php
 <?php
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+
+// TODO: setup the DocumentManager as required (see above)
+
+$doc = new Article();
+$doc->id = '/my_test_node';
+$doc->author = 'John Doe';
+$doc->topic = 'An interesting subject';
+$doc->text = 'Lorem ipsum...';
+
+// Persist the document in English
+$this->dm->persistTranslation($this->doc, 'en');
+
+// Change the content and persist the document in French
+$this->doc->topic = 'Un sujet intéressant';
+$this->dm->persistTranslation($this->doc, 'fr');
+
+// Changes are actually persisted on flush !
+$this->dm->flush();
+
+// Get the document in English (default language)
+$doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node');
+
+// Get the document in French
+$doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node', 'fr');
 ```
 
 # Lifecycle callbacks

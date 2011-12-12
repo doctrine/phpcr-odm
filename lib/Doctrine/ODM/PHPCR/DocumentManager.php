@@ -87,6 +87,9 @@ class DocumentManager implements ObjectManager
      */
     protected $translationStrategy;
 
+    /**
+     * @var \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface
+     */
     protected $localeChooserStrategy;
 
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
@@ -115,10 +118,10 @@ class DocumentManager implements ObjectManager
      * note that you do not need to set the default strategies attribute and child unless you want to replace them.
      *
      * @param string $key The name of the translation strategy.
-     * @param string $label the label used in the translator attribute of the document annotation
-     * @param TranslationStrategyInterface $strategy the strategy that implements this label
+     * @param \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface $strategy the strategy that implements this label
+     *
      */
-    public function setTranslationStrategy($key, $label, TranslationStrategyInterface $strategy)
+    public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
     {
         $this->translationStrategy[$key] = $strategy;
     }
@@ -127,6 +130,7 @@ class DocumentManager implements ObjectManager
      * Get the assigned translation strategy. This function considers the document is translatable
      * and thus must have an injected strategy. So don't call this on non-translatable documents
      * since it will ALWAYS fail!
+     * @param string $key The name of the translation strategy
      * @return Translation\TranslationStrategy\TranslationStrategyInterface
      */
     public function getTranslationStrategy($key)
@@ -156,6 +160,8 @@ class DocumentManager implements ObjectManager
      *
      * Note that there can be only one strategy per session. This is required if you have multilanguage
      * documents and not used if you don't have multilanguage.
+     * 
+     * @param \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface $strategy
      */
     public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
     {
