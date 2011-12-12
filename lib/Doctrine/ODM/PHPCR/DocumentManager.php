@@ -136,7 +136,7 @@ class DocumentManager implements ObjectManager
     public function getTranslationStrategy($key)
     {
         if (! isset($this->translationStrategy[$key])) {
-            throw new \InvalidArgumentException("You must set a translator strategy for a document that contains translatable fields");
+            throw new \InvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
         }
         return $this->translationStrategy[$key];
     }

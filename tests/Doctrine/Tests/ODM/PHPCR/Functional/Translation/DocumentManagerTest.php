@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\Tests\Models\Translation\Article;
+use Doctrine\Tests\Models\Translation\Article,
+    Doctrine\Tests\Models\Translation\InvalidMapping;
+
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy,
     Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
@@ -178,6 +180,19 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
         $this->assertTrue(in_array('de', $locales));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidTranslationStrategy()
+    {
+        $this->removeTestNode();
+
+        $doc = new InvalidMapping();
+        $doc->id = '/' . $this->testNodeName;
+        $this->dm->persistTranslation($doc, 'en');
+        $this->dm->flush();
     }
 
     protected function removeTestNode()
