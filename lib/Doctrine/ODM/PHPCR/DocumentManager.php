@@ -114,10 +114,11 @@ class DocumentManager implements ObjectManager
      *
      * note that you do not need to set the default strategies attribute and child unless you want to replace them.
      *
+     * @param string $key The name of the translation strategy.
      * @param string $label the label used in the translator attribute of the document annotation
      * @param TranslationStrategyInterface $strategy the strategy that implements this label
      */
-    public function setTranslationStrategy($label, TranslationStrategyInterface $strategy)
+    public function setTranslationStrategy($key, $label, TranslationStrategyInterface $strategy)
     {
         $this->translationStrategy[$key] = $strategy;
     }
@@ -252,6 +253,9 @@ class DocumentManager implements ObjectManager
      *
      * Will return null if the document wasn't found.
      *
+     * If the document is translatable, then the language chooser strategy is used to load the best
+     * suited language for the translatable fields.
+     *
      * @param null|string $className
      * @param string $id
      * @return object
@@ -291,6 +295,22 @@ class DocumentManager implements ObjectManager
         return new ArrayCollection($documents);
     }
 
+    /**
+     * Load the document from the content repository in the given language.
+     * If $fallback is set to true, then the language chooser strategy is used to load the best suited
+     * language for the translatable fields.
+     *
+     * If no translations can be found either using the fallback mechanism or not, an error is thrown.
+     *
+     * Note that this will be the same object as you got with a previous find/findTranslation call - we can't
+     * allow copies of objects to exist
+     *
+     * @param $className
+     * @param $id
+     * @param $locale The language to try to load
+     * @param bool $fallback Set to true if the language fallback mechanism should be used
+     * @return object
+     */
     public function findTranslation($className, $id, $locale, $fallback = true)
     {
         try {
@@ -389,6 +409,12 @@ class DocumentManager implements ObjectManager
      * nodes in case you need to add children to them.
      * If you need a raw PHPCR session but do not need to see those newly
      * created nodes, it is advised to use a separate session.
+     *
+     * For translatable documents has to determine the locale:
+     *
+     *   - If there is a non-empty @Locale that field value is used
+     *   - If the document was previously loaded from the DocumentManager it has a non-empty @Locale
+     *   - Otherwise its a new document. The language chooser strategy is asked for the default language and that is used to store. The field is updated with the locale.
      */
     public function persist($object)
     {
@@ -396,6 +422,11 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->scheduleInsert($object);
     }
 
+    /**
+     * Persist the document in the specified locale. It will update the @Locale field.
+     * @param $object
+     * @param $locale The language to persist
+     */
     public function persistTranslation($object, $locale)
     {
         $this->errorIfClosed();
@@ -410,6 +441,12 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->scheduleInsert($object);
     }
 
+    /**
+     * Get the list of locales that exist for the specified document.
+     *
+     * @param $document
+     * @return array
+     */
     public function getLocalesFor($document)
     {
         return $this->unitOfWork->getLocalesFor($document);
