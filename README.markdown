@@ -438,6 +438,7 @@ __For reading__:
 
 * DocumentManager::find
 * DocumentManager::findTranslation
+* DocumentManager::getLocalesFor
 
 __For writing__:
 
