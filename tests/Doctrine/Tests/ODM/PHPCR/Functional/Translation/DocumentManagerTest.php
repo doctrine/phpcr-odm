@@ -22,7 +22,6 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         );
 
         $this->dm = $this->createDocumentManager();
-        $this->dm->setTranslationStrategy(new AttributeTranslationStrategy());
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
 
         $this->session = $this->dm->getPhpcrSession();

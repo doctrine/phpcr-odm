@@ -1483,7 +1483,7 @@ class UnitOfWork
 
         $node = $this->nodesMap[spl_object_hash($document)];
 
-        return $this->dm->getTranslationStrategy()->getLocalesFor($document, $node, $metadata);
+        return $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
     }
 
     protected function doSaveTranslation($document, $metadata)
@@ -1540,7 +1540,7 @@ class UnitOfWork
         }
 
         $translationFound = false;
-        $strategy = $this->dm->getTranslationStrategy();
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         foreach ($localesToTry as $desiredLocale) {
             $translationFound = $strategy->loadTranslation($document, $node, $metadata, $desiredLocale);
             if ($translationFound) {
@@ -1567,7 +1567,7 @@ class UnitOfWork
         }
 
         $node = $this->nodesMap[spl_object_hash($document)];
-        $strategy = $this->dm->getTranslationStrategy();
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         $strategy->removeTranslation($document, $node, $metadata, $locale);
 
         // Empty the locale field if what we removed was the current language
@@ -1585,7 +1585,7 @@ class UnitOfWork
         }
 
         $node = $this->nodesMap[spl_object_hash($document)];
-        $strategy = $this->dm->getTranslationStrategy();
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
 

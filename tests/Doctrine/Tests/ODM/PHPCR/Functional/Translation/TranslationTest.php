@@ -38,20 +38,10 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFieldMetadataEquals(true, $metadata, 'text', 'translated');
 
         $this->assertTrue(isset($metadata->translator));
-        $this->assertEquals('Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy', $metadata->translator);
+        $this->assertEquals('attribute', $metadata->translator);
 
         $this->assertTrue(isset($metadata->localeMapping['fieldName']));
         $this->assertEquals('locale',$metadata->localeMapping['fieldName']);
-    }
-
-    /**
-     * Test loading of invalid translation annotations.
-     * @expectedException Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
-    public function testLoadInvalidAnnotation()
-    {
-        $factory = new ClassMetadataFactory($this->dm);
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Translation\InvalidMapping');
     }
 
     /**
