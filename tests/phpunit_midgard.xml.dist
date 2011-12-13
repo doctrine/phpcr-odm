@@ -5,11 +5,12 @@
         <var name="midgard2.configuration.db.name" value="odm" />
         <var name="midgard2.configuration.db.dir" value="/tmp" />
         <var name="midgard2.configuration.db.init" value="true" />
+        <var name="midgard2.configuration.blobdir" value="/tmp/blobs" />
         <!--<var name="midgard2.configuration.loglevel" value="debug" />-->
         <var name="DOCTRINE_PHPCR_USER" value="admin" />
         <var name="DOCTRINE_PHPCR_PASS" value="password" />
         <!-- to create the "tests" workspace see http://www.eppelheimer.com/clients/day/jackrabbit/site/apache/faq.html#create-workspace -->
-        <var name="DOCTRINE_PHPCR_WORKSPACE" value="default" />
+        <var name="DOCTRINE_PHPCR_WORKSPACE" value="" />
         <!-- to adjust performance results to your specific hardware, use integers only. -->
         <!-- the InsertPerformanceTest tries to insert count nodes in one second -->
         <var name="DOCTRINE_PHPCR_PERFORMANCE_COUNT" value="100" />
