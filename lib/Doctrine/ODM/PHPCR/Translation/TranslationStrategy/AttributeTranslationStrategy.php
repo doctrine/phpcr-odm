@@ -13,6 +13,7 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
  */
 class AttributeTranslationStrategy extends AbstractTranslationStrategy
 {
@@ -54,9 +55,6 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             $propName = $this->getTranslatedPropertyName($locale, $field);
             $prop = $node->getProperty($propName);
             $prop->remove();
-
-            // TODO: what values should the document take for those removed translated properties?
-            $document->$field = null;
         }
     }
 
@@ -76,7 +74,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         $locales = array();
         foreach ($node->getProperties("*{$this->prefix}*") as $prop) {
             $matches = null;
-            if (preg_match('/' . $this->prefix . '-(..)-[^-]*/', $prop->getName(), $matches)) {
+            if (preg_match('/' . $this->prefix . ':(..)-[^-]*/', $prop->getName(), $matches)) {
                 if (is_array($matches) && count($matches) > 1 && !in_array($matches[1], $locales)) {
                     $locales[] = $matches[1];
                 }

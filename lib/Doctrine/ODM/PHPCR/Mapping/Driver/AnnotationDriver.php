@@ -34,6 +34,8 @@ use Doctrine\Common\Annotations\AnnotationReader,
  * @since       1.0
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
  */
 class AnnotationDriver implements Driver
 {

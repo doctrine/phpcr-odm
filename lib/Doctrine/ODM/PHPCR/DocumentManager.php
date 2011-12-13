@@ -37,6 +37,8 @@ use PHPCR\PropertyType;
  * Document Manager
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
  */
 class DocumentManager implements ObjectManager
 {
@@ -160,7 +162,7 @@ class DocumentManager implements ObjectManager
      *
      * Note that there can be only one strategy per session. This is required if you have multilanguage
      * documents and not used if you don't have multilanguage.
-     * 
+     *
      * @param \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface $strategy
      */
     public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)

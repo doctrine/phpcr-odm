@@ -106,6 +106,9 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('fr', $this->doc->locale);
     }
 
+    /**
+     * @depends testPersistNew
+     */
     public function testFind()
     {
         $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName);
@@ -180,6 +183,32 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
         $this->assertTrue(in_array('de', $locales));
+    }
+
+    public function testRemove()
+    {
+        $this->removeTestNode();
+
+        $this->dm->persistTranslation($this->doc, 'en');
+        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->flush();
+
+        $this->dm->remove($this->doc);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName);
+        $this->assertNull($doc, 'Document must be null after deletion');
+
+        $doc = new Article();
+        $doc->id = '/' . $this->testNodeName;
+        $doc->author = 'John Doe';
+        $doc->topic = 'Some interesting subject';
+        $doc->text = 'Lorem ipsum...';
+        $this->dm->persistTranslation($doc, 'en');
+
+        $locales = $this->dm->getLocalesFor($doc);
+        $this->assertEquals(array('en'), $locales, 'Removing a document must remove all translations');
     }
 
     /**

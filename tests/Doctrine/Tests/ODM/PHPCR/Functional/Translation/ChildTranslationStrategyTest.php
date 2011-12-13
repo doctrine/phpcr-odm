@@ -53,34 +53,26 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->assertEquals('en', $doc->locale);
 
         // Then test we have what we expect in the content repository
-        $node = $this->session->getNode($this->nodeNameForLocale());
+        $node_en = $this->session->getNode($this->nodeNameForLocale('en'));
+        $node_fr = $this->session->getNode($this->nodeNameForLocale('fr'));
 
-        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
-        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr', 'topic')));
-        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
-        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr', 'text')));
-        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr', 'author')));
-        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en', 'author')));
+        $this->assertTrue($node_en->hasProperty('topic'));
+        $this->assertTrue($node_fr->hasProperty('topic'));
+        $this->assertTrue($node_en->hasProperty('text'));
+        $this->assertTrue($node_fr->hasProperty('text'));
+        $this->assertFalse($node_fr->hasProperty('author'));
+        $this->assertFalse($node_en->hasProperty('author'));
 
-        $this->assertEquals('Some interesting subject', $node->getPropertyValue(self::propertyNameForLocale('en', 'topic')));
-        $this->assertEquals('Un sujet intéressant', $node->getPropertyValue(self::propertyNameForLocale('fr', 'topic')));
-        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('en', 'text')));
-        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('fr', 'text')));
+        $this->assertEquals('Some interesting subject', $node_en->getPropertyValue('topic'));
+        $this->assertEquals('Un sujet intéressant', $node_fr->getPropertyValue('topic'));
+        $this->assertEquals('Lorem ipsum...', $node_en->getPropertyValue('text'));
+        $this->assertEquals('Lorem ipsum...', $node_fr->getPropertyValue('text'));
     }
 
     public function testLoadTranslation()
     {
         // Create the node in the content repository
-        $node = $this->getTestNode();
-        $subNode = $this->getTranslationNode($node);
-
-        $subNode->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
-        $subNode->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
-        $subNode->setProperty(self::propertyNameForLocale('fr', 'topic'), 'Sujet français');
-        $subNode->setProperty(self::propertyNameForLocale('fr', 'text'), 'Texte français');
-        $node->setProperty('author', 'John Doe');
-
-        $this->session->save();
+        $node = $this->fillTranslations();
 
         // Then try to read it's translation
         $doc = new Article();
@@ -101,56 +93,74 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
     public function testRemoveTranslation()
     {
-        // First save some translations
+        $node = $this->fillTranslations();
         $doc = new Article();
-        $doc->author = 'John Doe';
-        $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
 
-        $node = $this->getTestNode();
-        $subNode = $this->getTranslationNode($node);
+        $subNode_en = $node->getNode(Translation::LOCALE_NAMESPACE . ":en");
+        $subNode_fr = $node->getNode(Translation::LOCALE_NAMESPACE . ":fr");
 
         $strategy = new ChildTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
-        $this->dm->flush();
 
-        $this->assertTrue($subNode->hasProperty(self::propertyNameForLocale('en', 'topic')));
-        $this->assertTrue($subNode->hasProperty(self::propertyNameForLocale('en', 'text')));
-
-        // Then remove the translations
         $strategy->removeTranslation($doc, $node, $this->metadata, 'en');
-        $this->dm->flush();
 
-        $this->assertNull($doc->topic);
-        $this->assertNull($doc->text);
-        $this->assertNotNull($doc->author);
+        $this->assertTrue($subNode_en->isDeleted());
+        $this->assertTrue($subNode_fr->hasProperty('topic'));
+        $this->assertTrue($subNode_fr->hasProperty('text'));
+    }
 
-        $this->assertFalse($subNode->hasProperty(self::propertyNameForLocale('en', 'topic')));
-        $this->assertFalse($subNode->hasProperty(self::propertyNameForLocale('en', 'text')));
+    public function testRemoveAllTranslations()
+    {
+        $node = $this->fillTranslations();
+        $doc = new Article();
+
+        $subNode_en = $node->getNode(Translation::LOCALE_NAMESPACE . ":en");
+        $subNode_fr = $node->getNode(Translation::LOCALE_NAMESPACE . ":fr");
+        $subNode_de = $node->getNode(Translation::LOCALE_NAMESPACE . ":de");
+
+        $strategy = new ChildTranslationStrategy();
+
+        $strategy->removeAllTranslations($doc, $node, $this->metadata);
+
+        $this->assertTrue($subNode_en->isDeleted());
+        $this->assertTrue($subNode_fr->isDeleted());
+        $this->assertTrue($subNode_de->isDeleted());
     }
 
     public function testGetLocaleFor()
     {
-        $node = $this->getTestNode();
-        $subNode = $this->getTranslationNode($node);
-        $subNode->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
-        $subNode->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
-        $subNode->setProperty(self::propertyNameForLocale('fr', 'topic'), 'Sujet français');
-        $subNode->setProperty(self::propertyNameForLocale('fr', 'text'), 'Texte français');
-        $subNode->setProperty(self::propertyNameForLocale('de', 'topic'), 'Deutche Betreff');
-        $subNode->setProperty(self::propertyNameForLocale('de', 'text'), 'Deutche Texte');
-        $this->session->save();
+        $node = $this->fillTranslations();
 
         $doc = new Article();
 
         $strategy = new ChildTranslationStrategy();
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
-        $this->assertTrue(is_array($locales));
+        $this->assertInternalType('array', $locales);
         $this->assertEquals(3, count($locales));
         $this->assertContains('fr', $locales);
         $this->assertContains('en', $locales);
         $this->assertContains('de', $locales);
+    }
+
+    protected function fillTranslations()
+    {
+        $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
+
+        $subNode = $this->getTranslationNode($node, 'en');
+        $subNode->setProperty('topic', 'English topic');
+        $subNode->setProperty('text', 'English text');
+
+        $subNode = $this->getTranslationNode($node, 'fr');
+        $subNode->setProperty('topic', 'Sujet français');
+        $subNode->setProperty('text', 'Texte français');
+
+        $subNode = $this->getTranslationNode($node, 'de');
+        $subNode->setProperty('topic', 'Deutscher Betreff');
+        $subNode->setProperty('text', 'Deutscher Text');
+        $this->session->save();
+
+        return $node;
     }
 
     protected function getTestNode()
@@ -163,9 +173,9 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         return $node;
     }
 
-    protected function getTranslationNode($parentNode)
+    protected function getTranslationNode($parentNode, $locale)
     {
-        $subNode = $parentNode->addNode(Translation::LOCALE_NAMESPACE);
+        $subNode = $parentNode->addNode(Translation::LOCALE_NAMESPACE . ":$locale");
         $this->session->save();
 
         $this->dm->clear();
@@ -186,9 +196,9 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         return Translation::LOCALE_NAMESPACE . '-' . $locale . '-' . $property;
     }
 
-    protected function nodeNameForLocale()
+    protected function nodeNameForLocale($locale)
     {
-        return '/' . $this->testNodeName . '/' . Translation::LOCALE_NAMESPACE;
+        return '/' . $this->testNodeName . '/' . Translation::LOCALE_NAMESPACE . ":$locale";
     }
 
 }

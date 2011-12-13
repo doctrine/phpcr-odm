@@ -12,17 +12,16 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
  */
 class ChildTranslationStrategy extends AttributeTranslationStrategy
 {
-    protected $translationNodeName = Translation::LOCALE_NAMESPACE;
-
     /**
      * {@inheritdoc}
      */
     public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        $translationNode = $this->getTranslationNode($node);
+        $translationNode = $this->getTranslationNode($node, $locale);
         parent::saveTranslation($document, $translationNode, $metadata, $locale);
     }
 
@@ -31,7 +30,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        $translationNode = $this->getTranslationNode($node);
+        $translationNode = $this->getTranslationNode($node, $locale);
         return parent::loadTranslation($document, $translationNode, $metadata, $locale);
     }
 
@@ -40,8 +39,8 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
      */
     public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        $translationNode = $this->getTranslationNode($node);
-        parent::removeTranslation($document, $translationNode, $metadata, $locale);
+        $translationNode = $this->getTranslationNode($node, $locale);
+        $translationNode->remove();
     }
 
     /**
@@ -49,8 +48,10 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
      */
     public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata)
     {
-        $translationNode = $this->getTranslationNode($node);
-        $translationNode->remove();
+        $locales = $this->getLocalesFor($document, $node, $metadata);
+        foreach ($locales as $locale) {
+            $this->removeTranslation($document, $node, $metadata, $locale);
+        }
     }
 
     /**
@@ -58,18 +59,30 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
     {
-        $translationNode = $this->getTranslationNode($node);
-        return parent::getLocalesFor($document, $translationNode, $metadata);
+        $translations = $node->getNodes(Translation::LOCALE_NAMESPACE . ':*');
+        $locales = array();
+        foreach ($translations as $name => $node) {
+            if ($p = strpos($name, ':')) {
+                $locales[] = substr($name, $p+1);
+            }
+        }
+        return $locales;
     }
 
-    protected function getTranslationNode(NodeInterface $parentNode)
+    protected function getTranslationNode(NodeInterface $parentNode, $locale)
     {
-        if (!$parentNode->hasNode($this->translationNodeName)) {
-            $node = $parentNode->addNode($this->translationNodeName);
+        $name = Translation::LOCALE_NAMESPACE . ":$locale";
+        if (!$parentNode->hasNode($name)) {
+            $node = $parentNode->addNode($name);
         } else {
-            $node = $parentNode->getNode($this->translationNodeName);
+            $node = $parentNode->getNode($name);
         }
 
         return $node;
+    }
+
+    protected function getTranslatedPropertyName($locale, $fieldName)
+    {
+        return $fieldName;
     }
 }
