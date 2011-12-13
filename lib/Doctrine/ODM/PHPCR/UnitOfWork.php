@@ -620,7 +620,6 @@ class UnitOfWork
                     $this->multivaluePropertyCollections[] = $value;
                 }
 
-                // TODO coll should be a new PersistentCollection
                 $coll = $value;
 
                 $class->reflFields[$fieldName]->setValue($document, $coll);
