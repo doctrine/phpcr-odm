@@ -16,7 +16,6 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     private $dm;
 
     private $type;
-    private $childType;
 
     private $node;
 

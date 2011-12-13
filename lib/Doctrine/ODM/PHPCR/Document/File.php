@@ -10,65 +10,10 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *
  * @PHPCRODM\Document(alias="file", nodeType="nt:file")
  */
-class File
+class File extends AbstractFile
 {
-    /** @PHPCRODM\Id */
-    protected $id;
-
-    /** @PHPCRODM\Node */
-    protected $node;
-
-    /** @PHPCRODM\Date(name="jcr:created") */
-    protected $created;
-
-    /** @PHPCRODM\String(name="jcr:createdBy") */
-    protected $createdBy;
-
     /** @PHPCRODM\Child(name="jcr:content") */
     protected $content;
-
-    /**
-     * setter for id
-     *
-     * @param string $id of the node
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * getter for id
-     *
-     * @return string id of the node
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * getter for created
-     * The created date is assigned by the content repository
-     *
-     * @return DateTime created date of the file
-     */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-    /**
-     * getter for createdBy
-     * The createdBy is assigned by the content repository
-     * This is the name of the (jcr) user that created the node
-     *
-     * @return string name of the (jcr) user who created the file
-     */
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
-    }
 
     /**
      * Set the content for this file from the given filename.
@@ -81,7 +26,7 @@ class File
         $this->getContent();
         $stream = fopen($filename, 'rb');
         if (! $stream) {
-            throw new \Exception("File $filename not found");
+            throw new \RuntimeException("File '$filename' not found");
         }
 
         $this->content->setData($stream);
@@ -91,16 +36,32 @@ class File
     }
 
     /**
-     * Set the content for this file from the given string.
+     * Set the content for this file from the given Resource.
      *
-     * @param string $content the content for the file
+     * @param Resource $content
+     */
+    public function setContent(Resource $content)
+    {
+        $this->content = $content;
+    }
+
+    /**
+     * Set the content for this file from the given resource or string.
+     *
+     * @param resource|string $content the content for the file
      */
     public function setFileContent($content)
     {
         $this->getContent();
-        $stream = fopen('php://memory', 'rwb+');
-        fwrite($stream, $content);
-        rewind($stream);
+
+        if (!is_resource($content)) {
+            $stream = fopen('php://memory', 'rwb+');
+            fwrite($stream, $content);
+            rewind($stream);
+        } else {
+            $stream = $content;
+        }
+
         $this->content->setData($stream);
     }
 
@@ -133,6 +94,7 @@ class File
         if ($this->content === null) {
             $this->content = new Resource();
         }
+
         return $this->content;
     }
 }

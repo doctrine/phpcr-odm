@@ -93,6 +93,10 @@ class XmlDriver extends AbstractFileDriver
             $mapping = array('fieldName' => (string) $xmlRoot->nodename->attributes()->name);
             $this->addNodenameMapping($class, $mapping);
         }
+        if (isset($xmlRoot->parentdocument)) {
+            $mapping = array('fieldName' => (string) $xmlRoot->parentdocument->attributes()->name);
+            $this->addParentDocumentMapping($class, $mapping);
+        }
         if (isset($xmlRoot->child)) {
             foreach ($xmlRoot->child as $child) {
                 $attributes = $child->attributes();
@@ -152,6 +156,11 @@ class XmlDriver extends AbstractFileDriver
         $class->mapNodename($mapping);
     }
 
+    private function addParentDocumentMapping(ClassMetadata $class, $mapping)
+    {
+        $class->mapParentDocument($mapping);
+    }
+
     private function addChildMapping(ClassMetadata $class, $mapping)
     {
         $class->mapChild($mapping);
@@ -187,8 +196,8 @@ class XmlDriver extends AbstractFileDriver
         foreach (array('document', 'mapped-superclass') as $type) {
             if (isset($xmlElement->$type)) {
                 foreach ($xmlElement->$type as $documentElement) {
-                    $documentName = (string) $documentElement['name'];
-                    $result[$documentName] = $documentElement;
+                    $className = (string) $documentElement['name'];
+                    $result[$className] = $documentElement;
                 }
             }
         }

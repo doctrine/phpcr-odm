@@ -23,7 +23,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\User';
-        $this->dm = $this->createDocumentManager();
+        $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('user');
@@ -62,16 +62,15 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
 
-    public function testFindByAlias()
+    public function testFindByClass()
     {
         $user = $this->node->addNode('userWithAlias');
         $user->setProperty('username', 'dbu');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:alias', 'user', \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
 
-        $repository = $this->dm->getRepository($this->type);
-        $userWithAlias = $repository->find('/functional/userWithAlias');
+        $userWithAlias = $this->dm->find(null, '/functional/userWithAlias');
 
         $this->assertEquals('dbu', $userWithAlias->username);
     }
@@ -137,6 +136,67 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertNull($user, 'User must be null after deletion');
+    }
+
+    public function testRemoveAndInsertAfterFlush()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+        $this->dm->flush();
+
+        $user = new User2();
+        $user->username = "test";
+        $user->id = '/functional/user';
+        $this->dm->persist($user);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User2', '/functional/user');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+    }
+
+    public function testRemoveAndReinsert()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+
+        $user->username = "test";
+        $user->id = '/functional/user';
+        $this->dm->persist($user);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User2', '/functional/user');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveAndInsertBeforeFlush()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+
+        $user = new User2();
+        $user->username = "test";
+        $user->id = '/functional/user';
+        $this->dm->persist($user);
     }
 
     public function testUpdate1()

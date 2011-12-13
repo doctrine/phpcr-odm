@@ -57,7 +57,7 @@ class DocumentRepository implements ObjectRepository
     /**
      * @var string
      */
-    protected $documentName;
+    protected $className;
 
     /**
      * Initializes a new <tt>DocumentRepository</tt>.
@@ -71,7 +71,7 @@ class DocumentRepository implements ObjectRepository
         $this->class = $class;
 
         $this->uow = $this->dm->getUnitOfWork();
-        $this->documentName = $class->name;
+        $this->className = $class->name;
     }
 
     /**
@@ -83,7 +83,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function createDocument($node, array &$hints = array())
     {
-        return $this->uow->createDocument($this->documentName, $node, $hints);
+        return $this->uow->createDocument($this->className, $node, $hints);
     }
 
     /**
@@ -96,7 +96,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function find($id)
     {
-        return $this->dm->find($this->documentName, $id);
+        return $this->dm->find($this->className, $id);
     }
 
     /**
@@ -109,7 +109,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findMany(array $ids)
     {
-        return $this->dm->findMany($this->documentName, $ids);
+        return $this->dm->findMany($this->className, $ids);
     }
 
     /**
@@ -141,7 +141,7 @@ class DocumentRepository implements ObjectRepository
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
 
         // TODO: implemenent using QOM?
-        return $this->uow->getDocumentPersister($this->documentName)->loadAll($criteria);
+        return $this->uow->getDocumentPersister($this->className)->loadAll($criteria);
     }
 
     /**
@@ -155,7 +155,7 @@ class DocumentRepository implements ObjectRepository
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
 
         // TODO: implemenent using QOM?
-        return $this->uow->getDocumentPersister($this->documentName)->load($criteria);
+        return $this->uow->getDocumentPersister($this->className)->load($criteria);
     }
 
     /**
@@ -190,15 +190,15 @@ class DocumentRepository implements ObjectRepository
      */
     public function refreshDocumentForProxy($document)
     {
-        $this->uow->refreshDocumentForProxy($this->documentName, $document);
+        $this->uow->refreshDocumentForProxy($this->className, $document);
     }
 
     /**
      * @return string
      */
-    public function getDocumentName()
+    public function getClassName()
     {
-        return $this->documentName;
+        return $this->className;
     }
 
     /**
@@ -258,7 +258,7 @@ class DocumentRepository implements ObjectRepository
                 $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
             }
 
-            $aliasFilter = '['.$this->class->nodeType.'].[phpcr:class] = '.$this->quote($this->documentName);
+            $aliasFilter = '['.$this->class->nodeType.'].[phpcr:class] = '.$this->quote($this->className);
             if (false !== strpos($statement, 'WHERE')) {
                 $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
             } elseif (false !== strpos($statement, 'ORDER BY')) {
@@ -279,6 +279,6 @@ class DocumentRepository implements ObjectRepository
      */
     public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
     {
-        return $this->dm->getDocumentsByQuery($query, $this->documentName);
+        return $this->dm->getDocumentsByQuery($query, $this->className);
     }
 }

@@ -73,7 +73,7 @@ class VersionTestObj
     /** @PHPCRODM\Node */
     public $node;
     /** @PHPCRODM\Version */
-    public $isVersionField;
+    public $version;
     /** @PHPCRODM\String(name="username") */
     public $username;
     /** @PHPCRODM\Int(name="numbers", multivalue=true) */

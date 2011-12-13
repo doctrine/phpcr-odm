@@ -3,67 +3,56 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * This class represents a Folder in the repository, aka nt:folder
  * @see http://wiki.apache.org/jackrabbit/nt:folder
  *
+ * To add files or folders to a folder, create the new File/Folder and set
+ * this document as parent, then persist the new File/Folder.
+ *
  * @PHPCRODM\Document(alias="folder", nodeType="nt:folder")
  */
-class Folder
+class Folder extends AbstractFile
 {
-    /** @PHPCRODM\Id */
-    protected $id;
+    /** @PHPCRODM\Children() */
+    protected $children;
 
-    /** @PHPCRODM\Node */
-    protected $node;
-
-    /** @PHPCRODM\Date(name="jcr:created") */
-    protected $created;
-
-    /** @PHPCRODM\String(name="jcr:createdBy") */
-    protected $createdBy;
+    /** @PHPCRODM\Child() */
+    protected $child;
 
     /**
-     * setter for id
+     * The children File documents of this Folder document
      *
-     * @param string $id of the node
+     * @return list of File documents
      */
-    public function setId($id)
+    public function getChildren()
     {
-        $this->id = $id;
+        return $this->children;
     }
 
     /**
-     * getter for id
+     * Sets the children of this Folder document
      *
-     * @return string id of the node
+     * @param $children ArrayCollection
      */
-    public function getId()
+    public function setChildren(ArrayCollection $children)
     {
-        return $this->id;
+        $this->children = $children;
     }
 
     /**
-     * getter for created
-     * The created date is assigned by the content repository
+     * Add a child File to this Folder document
      *
-     * @return DateTime created date of the file
+     * @param $child AbstractFile
      */
-    public function getCreated()
+    public function addChild(AbstractFile $child)
     {
-        return $this->created;
-    }
+        if (null === $this->children) {
+            $this->children = new ArrayCollection();
+        }
 
-    /**
-     * getter for createdBy
-     * The createdBy is assigned by the content repository
-     * This is the name of the (jcr) user that created the node
-     *
-     * @return string name of the (jcr) user who created the file
-     */
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
+        $this->children->add($child);
     }
 }
