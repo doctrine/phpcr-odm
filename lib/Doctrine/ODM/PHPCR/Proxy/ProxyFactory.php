@@ -297,25 +297,18 @@ namespace <namespace>;
 class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy\Proxy
 {
     private $__doctrineDocumentManager__;
-    private $__doctrineLocale__;
     private $__doctrineIdentifier__;
     public $__isInitialized__ = false;
-    public function __construct($documentManager, $identifier, $locale = null)
+    public function __construct($documentManager, $identifier)
     {
         <unsetattributes>
         $this->__doctrineDocumentManager__ = $documentManager;
-        $this->__doctrineLocale__ = $locale;
     }
     private function __doctrineLoad__()
     {
         if (!$this->__isInitialized__ && $this->__doctrineDocumentManager__) {
             $this->__isInitialized__ = true;
-            $repository = $this->__doctrineDocumentManager__->getRepository(get_class($this));
-            if (is_null($this->__doctrineLocale__)) {
-                $repository->refreshDocumentForProxy($this);
-            } else {
-                $repository->refreshDocumentForProxy($this, $this->__doctrineLocale__);
-            }
+            $this->__doctrineDocumentManager__->getRepository(get_class($this))->refreshDocumentForProxy($this);
             unset($this->__doctrineDocumentManager__);
         }
     }
