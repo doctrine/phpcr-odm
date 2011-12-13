@@ -2,7 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Proxy;
 
-interface Proxy
+use Doctrine\Common\Persistence\Proxy as BaseProxy;
+
+interface Proxy extends BaseProxy
 {
 
 }
