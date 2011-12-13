@@ -463,7 +463,7 @@ For now, Child, Children, Parent, ReferenceMany, ReferenceOne and Referrers will
 The reason for this is that there can be only one tracked instance of a document per session. (Otherwise what should happen
 if both copies where modified?...).
 
-For more details, see the [wiki page](https://github.com/doctrine/phpcr-odm/wiki/Multilang) and the TODO at the top if this README.
+For more details, see the [wiki page](https://github.com/doctrine/phpcr-odm/wiki/Multilanguage) and the TODO at the top if this README.
 
 ## Translation API
 
