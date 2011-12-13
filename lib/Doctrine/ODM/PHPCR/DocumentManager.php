@@ -429,7 +429,10 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Persist the document in the specified locale. It will update the @Locale field.
+     * Persist the document in the specified locale.
+     *
+     * This method will update the @Locale field if it does not match the $locale argument.
+     *
      * @param $object
      * @param $locale The language to persist
      */
