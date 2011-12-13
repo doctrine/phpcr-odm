@@ -248,7 +248,8 @@ class ClassMetadataInfo implements ClassMetadata
     public $referenceable = false;
 
     /**
-     * Strategy to use to find field translations
+     * Strategy key to find field translations.
+     * This is the key used for DocumentManager::getTranslationStrategy
      * @var string
      */
     public $translator;
@@ -787,6 +788,9 @@ class ClassMetadataInfo implements ClassMetadata
         $this->generatorOptions = $generatorOptions;
     }
 
+    /**
+     * Sets the translator strategy key
+     */
     public function setTranslator($translator)
     {
         $this->translator = $translator;
