@@ -95,7 +95,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\QuerySql2TestObj', $obj);
             $ids[] = $obj->id;
             $vals[] = $obj->username;
-            $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $obj->numbers);
+            $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $obj->numbers);
             $nums[] = $obj->numbers->toArray();
         }
         $this->assertEquals(array('/functional/node5', '/functional/node1'), $ids);
