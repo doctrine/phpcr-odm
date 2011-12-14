@@ -1180,7 +1180,9 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
-
+            if (!isset($this->nodesMap[$oid])) {
+                continue;
+            }
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
             $this->purgeChildren($document);
