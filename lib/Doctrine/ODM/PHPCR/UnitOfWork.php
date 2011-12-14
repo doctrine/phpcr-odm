@@ -750,12 +750,13 @@ class UnitOfWork
         $targetClass = $this->dm->getClassMetadata(get_class($reference));
         $state = $this->getDocumentState($reference);
 
-        if ($state === self::STATE_NEW) {
-            $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-            $this->computeChangeSet($targetClass, $reference);
-        } elseif ($state === self::STATE_DETACHED) {
-            throw new \InvalidArgumentException("A detached document was found through a "
-                . "reference during cascading a persist operation.");
+        switch ($state) {
+            case self::STATE_NEW:
+                $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->computeChangeSet($targetClass, $reference);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException("A detached document was found through a reference during cascading a persist operation.");
         }
     }
 
