@@ -1,7 +1,6 @@
 <phpunit bootstrap="./bootstrap_midgard.php">
     <php>
         <var name="DOCTRINE_PHPCR_FACTORY" value="\Midgard\PHPCR\RepositoryFactory" />
-        <var name="midgard2.configuration.db.type" value="SQLite" />
         <var name="midgard2.configuration.db.type" value="MySQL" />
         <var name="midgard2.configuration.db.name" value="midgard2_test" />
         <var name="midgard2.configuration.db.host" value="0.0.0.0" />
