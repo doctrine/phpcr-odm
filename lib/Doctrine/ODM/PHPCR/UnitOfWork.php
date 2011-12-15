@@ -1033,7 +1033,7 @@ class UnitOfWork
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
-                    if ($fieldValue == null && $node->hasProperty($class->fieldMappings[$fieldName]['name'])) {
+                    if (null === $fieldValue && $node->hasProperty($class->fieldMappings[$fieldName]['name'])) {
                         // Check whether we can remove the property first
                         $property = $node->getProperty($class->fieldMappings[$fieldName]['name']);
                         $definition = $property->getDefinition();
