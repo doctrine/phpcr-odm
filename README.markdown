@@ -11,12 +11,13 @@ PHPCR ODM for Doctrine2
 
 # TODO
 
-* complete mapping for relations (parent, references), then remove the node mapping
 * ensure that no Jackalope specific classes are used (especially relevant for the tests)
 * have the register-system-node-types command provide api conform node type definition as well to support other implementations
-* add support for SQL/QOM
 * write documentation
 * expand test suite
+* translations
+    * make it work without the @Locale field too (store locale in meta instead on document instance)
+    * provide a method to get a detached translated document so the relations can be translated automatically
 
 # Preconditions
 
@@ -265,9 +266,10 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 <tr><td> ParentDocument:          </td><td>The parent document of this document. If a type is defined, the document will be of that type, otherwise Doctrine\ODM\PHPCR\Document\Generic will be used. This property is read only except on document creation with the parent strategy.</td></tr>
 <tr><td> Child(name=x): </td><td>Map the child with name x to this field. </td></tr>
 <tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this field. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
-<tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  </td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference. It is optional to specify the targetDocument, you can reference any document.</td></tr>
-<tr><td> ReferenceMany(targetDocument="myDocument", weak=false): </td><td>Same as ReferenceOne except that you can refer many documents with the same document and reference type. If you dont't specify targetDocument you can reference different documents with one property.</td></tr>
-<tr><td> Referrers(filter="x", referenceType=null):     </td><td>A field of this type stores documents that refer this document. filter is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
+<tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  (*)</td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference. It is optional to specify the targetDocument, you can reference any document.</td></tr>
+<tr><td> ReferenceMany(targetDocument="myDocument", weak=false): (*)</td><td>Same as ReferenceOne except that you can refer many documents with the same document and reference type. If you dont't specify targetDocument you can reference different documents with one property.</td></tr>
+<tr><td> Referrers(filter="x", referenceType=null): </td><td>A field of this type stores documents that refer this document. filter is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
+<tr><td>Locale</td><td>Indentifies the field that will be used to store the current locale of the document. This annotation is required for translatable documents.</td></tr>
 <tr><td> String,               <br />
          Binary,               <br />
          Long (alias Int),     <br />
@@ -281,9 +283,18 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 </td><td>Map node properties to the document. See <a href="http://phpcr.github.com/doc/html/phpcr/propertytype.html">PHPCR\PropertyType</a> for details about the types.</td></tr>
 </table>
 
-In the parenthesis after the type, you can specify the name of the PHPCR property
-to store the value (name defaults to the php variable name you use), and whether
-this is a multivalue property. For example
+(*) Note that creating new references with the help of the ReferenceOne/ReferenceMany annotations is only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
+
+### Parameters for the property types
+
+In the parenthesis after the type, you can specify some additional information
+like the name of the PHPCR property to store the value in.
+
+<table>
+<tr><td>name</td><td>The property name to use for storing this field. If not specified, defaults to the php variable name.</td></tr>
+<tr><td>multivalue</td><td>Set multivalue=true to mark this property as multivalue. It then contains an array of values instead of just one value. For more complex data structures, use child nodes.</td></tr>
+<tr><td>translated</td><td>Set translated=true to mark this property as being translated. See below.</td></tr>
+</table>
 
 ```php
 <?php
@@ -294,8 +305,223 @@ this is a multivalue property. For example
 private $cat;
 ```
 
-Note that the reference annotations are only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
+# Multilingual documents
 
+PHPCR-ODM supports multilingual documents so that you can mark properties as translatable and then make the document manager automatically store the translations.
+
+To use translatable documents you need to use several annotations and some bootstrapping code.
+
+```php
+<?php
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+/**
+ * @PHPCRODM\Document(alias="translation_article", translator="attribute")
+ */
+class Article
+{
+    /** @PHPCRODM\Id */
+    public $id;
+
+    /**
+     * The language this document currently is in
+     * @PHPCRODM\Locale
+     */
+    public $locale = 'en';
+
+    /**
+     * Untranslated property
+     * @PHPCRODM\Date
+     */
+    public $publishDate;
+
+    /**
+     * Translated property
+     * @PHPCRODM\String(translated=true)
+     */
+    public $topic;
+
+    /**
+     * Language specific image
+     * @PHPCRODM\Binary(translated=true)
+     */
+    public $image;
+}
+```
+
+Note that translation always happens on a document level, not on individual fields.
+With the above document, there is no way to store a new translation for the topic without
+generating a copy of the image (unless you remove the translated=true from image, but then
+the image is no longer translated for any language).
+
+## Select the translation strategy
+
+A translation strategy needs to be selected by adding the `translator` parameter to the @Document annotation.
+The translation strategy is responsible to actually persist the translated properties.
+
+There are two default translation strategies implemented:
+
+* **attribute** - will store the translations in attributes of the node containing the translatable properties
+* **child** - will store the translations in a child node of the node containing the translatable properties
+
+It is possible to implement other strategies to persist the translations, see below.
+
+### Implementing your own translation strategy
+
+You may want to implement your own translation strategy to persist the translatable properties of a node. For example if you want all the translations to be stored in a separate branch of you content repository.
+
+To do so you need to implement the `Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface`.
+
+Then you have to register your translation strategy with the document manager during the bootstrap.
+
+```php
+<?php
+class MyTranslationStrategy implements Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface
+{
+    // ...
+}
+
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+$dm->setTranslationStrategy('my_strategy_name', new MyTranslationStrategy());
+```
+
+After registering your new translation strategy you can use it in the @Document annotation:
+
+```php
+<?php
+/**
+ * @PHPCRODM\Document(alias="translation_article", translator="my_strategy_name")
+ */
+class Article
+{
+    // ...
+}
+```
+
+## Select the language chooser strategy
+
+The language chooser strategy provides the default language and a list of languages
+to be used as language fallback order to find the best available translation.
+
+On reading, PHPCR-ODM tries to find a translation with each of the languages in that
+list and throws a not found exception if none of the languages exists.
+
+The default language chooser strategy (`Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser`) returns
+a configurable list of languages based on the requested language. On instantiation, you specify
+the default locale. This can be hardcoded or based on the request or whatever you chose.
+
+When you bootstrap the document manager, you need to set the language chooser strategy if you have
+any translatable documents:
+
+```php
+<?php
+$localePrefs = array(
+    'en' => array('en', 'de', 'fr'), // When EN is requested try to get a translation first in EN, then DE and finally FR
+    'fr' => array('fr', 'de', 'en'), // When FR is requested try to get a translation first in FR, then DE and finally EN
+    'it' => array('fr', 'de', 'en'), // When IT is requested try to get a translation first in FR, then DE and finally EN
+);
+
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+$dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+```
+
+You can write your own strategy by implementing `Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface`.
+This is useful to determine the default language based on some logic, or provide fallback orders based on user preferences.
+
+
+## Mark a field as @Locale
+
+All the translatable documents (i.e. having at least one translatable field) must define a field that will hold the current locale of the node.
+This is done with the `@Locale` annotation. You may set a default value.
+
+```php
+<?php
+/**
+ * @PHPCRODM\Locale
+ */
+public $locale = 'en';
+```
+
+This field is __mandatory__ and is not persisted to the content repository.
+
+## Setting properties as translatable
+
+A property is set as translatable adding the `translatable` parameter to the field definition annontation.
+
+```php
+<?php
+/** @PHPCRODM\String(translated=true) */
+public $topic;
+```
+
+You can set any type of property as translatable.
+
+Having at least one property marked as translatable will make the whole document translatable and thus forces you to have a @Locale field (see above).
+
+Please note that internally, the translatable properties will be persisted by the translator strategy, not directly by the document manager.
+
+## Translations and references / hierarchy
+
+For now, Child, Children, Parent, ReferenceMany, ReferenceOne and Referrers will all fall back to the default language.
+The reason for this is that there can be only one tracked instance of a document per session. (Otherwise what should happen
+if both copies where modified?...).
+
+For more details, see the [wiki page](https://github.com/doctrine/phpcr-odm/wiki/Multilanguage) and the TODO at the top if this README.
+
+## Translation API
+
+Please refer to the phpDoc of the following functions:
+
+__For reading__:
+
+* DocumentManager::find (uses the default locale)
+* DocumentManager::findTranslation (allows you to specify which locale to load)
+* DocumentManager::getLocalesFor (get the available locales of a document)
+
+__For writing__:
+
+* DocumentManager::persist (save document in language based on @Locale or default language)
+* DocumentManager::persitTranslation (save document with explicit language context)
+
+## Example
+
+```php
+<?php
+
+// bootstrap the DocumentManager as required (see above)
+
+$localePrefs = array(
+    'en' => array('en', 'fr'),
+    'fr' => array('fr', 'en'),
+);
+
+$dm = new \Doctrine\ODM\PHPCR\DocumentManager($session, $config);
+$dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+
+// then to use translations:
+
+$doc = new Article();
+$doc->id = '/my_test_node';
+$doc->author = 'John Doe';
+$doc->topic = 'An interesting subject';
+$doc->text = 'Lorem ipsum...';
+
+// Persist the document in English
+$this->dm->persistTranslation($this->doc, 'en');
+
+// Change the content and persist the document in French
+$this->doc->topic = 'Un sujet intéressant';
+$this->dm->persistTranslation($this->doc, 'fr');
+
+// Flush to write the changes to the phpcr backend
+$this->dm->flush();
+
+// Get the document in default language (English if you bootstrapped as in the example)
+$doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node');
+
+// Get the document in French
+$doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node', 'fr');
+```
 
 # Lifecycle callbacks
 

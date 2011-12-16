@@ -24,6 +24,10 @@ use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
@@ -33,6 +37,8 @@ use PHPCR\PropertyType;
  * Document Manager
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
  */
 class DocumentManager implements ObjectManager
 {
@@ -78,6 +84,16 @@ class DocumentManager implements ObjectManager
      */
     private $closed = false;
 
+    /**
+     * @var \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface
+     */
+    protected $translationStrategy;
+
+    /**
+     * @var \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface
+     */
+    protected $localeChooserStrategy;
+
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
         $this->session = $session;
@@ -90,6 +106,68 @@ class DocumentManager implements ObjectManager
             $this->config->getProxyNamespace(),
             $this->config->getAutoGenerateProxyClasses()
         );
+
+        // initialize default translation strategies
+        $this->translationStrategy = array(
+            'attribute' => new AttributeTranslationStrategy,
+            'child'     => new ChildTranslationStrategy,
+        );
+    }
+
+    /**
+     * Add or replace a translation strategy
+     *
+     * note that you do not need to set the default strategies attribute and child unless you want to replace them.
+     *
+     * @param string $key The name of the translation strategy.
+     * @param \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface $strategy the strategy that implements this label
+     *
+     */
+    public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
+    {
+        $this->translationStrategy[$key] = $strategy;
+    }
+
+    /**
+     * Get the assigned translation strategy. This function considers the document is translatable
+     * and thus must have an injected strategy. So don't call this on non-translatable documents
+     * since it will ALWAYS fail!
+     * @param string $key The name of the translation strategy
+     * @return Translation\TranslationStrategy\TranslationStrategyInterface
+     */
+    public function getTranslationStrategy($key)
+    {
+        if (! isset($this->translationStrategy[$key])) {
+            throw new \InvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
+        }
+        return $this->translationStrategy[$key];
+    }
+
+    /**
+     * Get the assigned language chooser strategy. This function considers the document is translatable
+     * and thus must have an injected strategy. So don't call this on non-translatable documents
+     * since it will ALWAYS fail!
+     * @return Translation\LocaleChooser\LocaleChooserInterface
+     */
+    public function getLocaleChooserStrategy()
+    {
+        if (is_null($this->localeChooserStrategy)) {
+            throw new \InvalidArgumentException("You must set a language chooser strategy for a document that contains translatable fields");
+        }
+        return $this->localeChooserStrategy;
+    }
+
+    /**
+     * Set the locale chooser strategy for multilanguage documents.
+     *
+     * Note that there can be only one strategy per session. This is required if you have multilanguage
+     * documents and not used if you don't have multilanguage.
+     *
+     * @param \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface $strategy
+     */
+    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
+    {
+        $this->localeChooserStrategy = $strategy;
     }
 
     /**
@@ -183,6 +261,9 @@ class DocumentManager implements ObjectManager
      *
      * Will return null if the document wasn't found.
      *
+     * If the document is translatable, then the language chooser strategy is used to load the best
+     * suited language for the translatable fields.
+     *
      * @param null|string $className
      * @param string $id
      * @return object
@@ -197,7 +278,8 @@ class DocumentManager implements ObjectManager
             return null;
         }
 
-        return $this->unitOfWork->createDocument($className, $node);
+        $hints = array('fallback' => true);
+        return $this->unitOfWork->createDocument($className, $node, $hints);
     }
 
     /**
@@ -219,6 +301,36 @@ class DocumentManager implements ObjectManager
         }
 
         return new ArrayCollection($documents);
+    }
+
+    /**
+     * Load the document from the content repository in the given language.
+     * If $fallback is set to true, then the language chooser strategy is used to load the best suited
+     * language for the translatable fields.
+     *
+     * If no translations can be found either using the fallback mechanism or not, an error is thrown.
+     *
+     * Note that this will be the same object as you got with a previous find/findTranslation call - we can't
+     * allow copies of objects to exist
+     *
+     * @param $className
+     * @param $id
+     * @param $locale The language to try to load
+     * @param bool $fallback Set to true if the language fallback mechanism should be used
+     * @return object
+     */
+    public function findTranslation($className, $id, $locale, $fallback = true)
+    {
+        try {
+            $node = UUIDHelper::isUUID($id)
+                ? $this->session->getNodeByIdentifier($id)
+                : $this->session->getNode($id);
+        } catch (\PHPCR\PathNotFoundException $e) {
+            return null;
+        }
+
+        $hints = array('locale' => $locale, 'fallback' => $fallback);
+        return $this->unitOfWork->createDocument($className, $node, $hints);
     }
 
     /**
@@ -305,11 +417,50 @@ class DocumentManager implements ObjectManager
      * nodes in case you need to add children to them.
      * If you need a raw PHPCR session but do not need to see those newly
      * created nodes, it is advised to use a separate session.
+     *
+     * For translatable documents has to determine the locale:
+     *
+     *   - If there is a non-empty @Locale that field value is used
+     *   - If the document was previously loaded from the DocumentManager it has a non-empty @Locale
+     *   - Otherwise its a new document. The language chooser strategy is asked for the default language and that is used to store. The field is updated with the locale.
      */
     public function persist($object)
     {
         $this->errorIfClosed();
         $this->unitOfWork->scheduleInsert($object);
+    }
+
+    /**
+     * Persist the document in the specified locale.
+     *
+     * This method will update the @Locale field if it does not match the $locale argument.
+     *
+     * @param $object
+     * @param $locale The language to persist
+     */
+    public function persistTranslation($object, $locale)
+    {
+        $this->errorIfClosed();
+
+        $metadata = $this->getClassMetadata(get_class($object));
+
+        // Set the @Locale field
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            $object->$localeField = $locale;
+        }
+
+        $this->unitOfWork->scheduleInsert($object);
+    }
+
+    /**
+     * Get the list of locales that exist for the specified document.
+     *
+     * @param $document
+     * @return array
+     */
+    public function getLocalesFor($document)
+    {
+        return $this->unitOfWork->getLocalesFor($document);
     }
 
     /**
