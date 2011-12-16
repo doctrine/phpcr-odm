@@ -250,7 +250,7 @@ class ProxyFactory
 
                 $methods .= $parameterString . ')';
                 $methods .= PHP_EOL . '    {' . PHP_EOL;
-                $methods .= '        $this->__doctrineLoad__();' . PHP_EOL;
+                $methods .= '        $this->__load();' . PHP_EOL;
                 $methods .= '        return parent::' . $method->getName() . '(' . $argumentString . ');';
                 $methods .= PHP_EOL . '    }' . PHP_EOL;
             }
@@ -304,7 +304,8 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
         <unsetattributes>
         $this->__doctrineDocumentManager__ = $documentManager;
     }
-    private function __doctrineLoad__()
+
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->__doctrineDocumentManager__) {
             $this->__isInitialized__ = true;
@@ -322,13 +323,13 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
 
     public function __set($name, $value)
     {
-        $this->__doctrineLoad__();
+        $this->__load();
         $this->$name = $value;
     }
 
     public function &__get($name)
     {
-        $this->__doctrineLoad__();
+        $this->__load();
         return $this->$name;
     }
 

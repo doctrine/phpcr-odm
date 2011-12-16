@@ -463,6 +463,15 @@ class DocumentManager implements ObjectManager
         return $this->unitOfWork->getLocalesFor($document);
     }
 
+    /**
+     * Remove the previously persisted document and all its children from the tree
+     *
+     * Be aware of the PHPCR tree structure: this removes all nodes with a path under
+     * the path of this object, even if there are no @Parent / @Child annotations
+     * that make the relationship explicit.
+     *
+     * @param object $object
+     */
     public function remove($object)
     {
         $this->errorIfClosed();

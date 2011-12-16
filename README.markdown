@@ -164,6 +164,9 @@ $result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
 foreach ($result as $document) {
     echo $document->getId();
 }
+// remove a document - and all documents in paths under that one!
+$dm->remove($newUser);
+$dm->flush();
 ```
 
 # Document Classes

@@ -197,8 +197,10 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public $isMappedSuperclass = false;
 
+    /**
+     * @var array
+     */
     public $associationsMappings = array();
-
 
     /**
      * Mapping of child doucments that are child nodes in the repository
@@ -294,24 +296,6 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Dispatches the lifecycle event of the given document to the registered
-     * lifecycle callbacks and lifecycle listeners.
-     *
-     * @param string $event The lifecycle event.
-     * @param Document $document The Document on which the event occured.
-     */
-    public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
-    {
-        foreach ($this->lifecycleCallbacks[$lifecycleEvent] as $callback) {
-            if ($arguments !== null) {
-                call_user_func_array(array($document, $callback), $arguments);
-            } else {
-                $document->$callback();
-            }
-        }
-    }
-
-    /**
      * Whether the class has any attached lifecycle listeners or callbacks for a lifecycle event.
      *
      * @param string $lifecycleEvent
@@ -357,7 +341,6 @@ class ClassMetadataInfo implements ClassMetadata
     {
         $this->lifecycleCallbacks = $callbacks;
     }
-
 
     /**
      * @param string $alias
@@ -554,19 +537,22 @@ class ClassMetadataInfo implements ClassMetadata
         if (!isset($mapping['fieldName'])) {
             throw new MappingException("Mapping a property requires to specify the fieldName.");
         }
+
         if ($isField && !isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
         }
+
         if (isset($this->fieldMappings[$mapping['fieldName']])
-          || ($this->nodename == $mapping['fieldName'])
-          || ($this->parentMapping == $mapping['fieldName'])
-          || isset($this->associationsMappings[$mapping['fieldName']])
-          || isset($this->childMappings[$mapping['fieldName']])
-          || isset($this->childrenMappings[$mapping['fieldName']])
-          || isset($this->referrersMappings[$mapping['fieldName']])
+            || ($this->nodename == $mapping['fieldName'])
+            || ($this->parentMapping == $mapping['fieldName'])
+            || isset($this->associationsMappings[$mapping['fieldName']])
+            || isset($this->childMappings[$mapping['fieldName']])
+            || isset($this->childrenMappings[$mapping['fieldName']])
+            || isset($this->referrersMappings[$mapping['fieldName']])
         ) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
+
         if ($isField && !isset($mapping['type'])) {
             throw MappingException::missingTypeDefinition($this->name, $mapping['fieldName']);
         }
@@ -614,55 +600,6 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Sets the document identifier of a document.
-     *
-     * @param object $document
-     * @param mixed $id
-     */
-    public function setIdentifierValue($document, $id)
-    {
-        $this->reflFields[$this->identifier]->setValue($document, $id);
-    }
-
-    /**
-     * Gets the document identifier.
-     *
-     * @param object $document
-     * @return string $id
-     */
-    public function getIdentifierValue($document)
-    {
-        return (string) $this->getFieldValue($document, $this->identifier);
-    }
-
-    /**
-     * Sets the specified field to the specified value on the given document.
-     *
-     * @param object $document
-     * @param string $field
-     * @param mixed $value
-     */
-    public function setFieldValue($document, $field, $value)
-    {
-        $this->reflFields[$field]->setValue($document, $value);
-    }
-
-    /**
-     * Gets the specified field's value off the given document.
-     *
-     * @param object $document
-     * @param string $field
-     */
-    public function getFieldValue($document, $field)
-    {
-        if (isset($this->reflFields[$field])) {
-            return $this->reflFields[$field]->getValue($document);
-        }
-
-        return null;
-    }
-
-    /**
      * Gets the mapping of a field.
      *
      * @param string $fieldName  The field name.
@@ -677,89 +614,6 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * Creates a new instance of the mapped class, without invoking the constructor.
-     *
-     * @return object
-     */
-    public function newInstance()
-    {
-        if ($this->prototype === null) {
-            $this->prototype = unserialize(
-                sprintf(
-                    'O:%d:"%s":0:{}',
-                    strlen($this->name),
-                    $this->name
-                )
-            );
-        }
-        return clone $this->prototype;
-    }
-
-    /**
-     * Determines which fields get serialized.
-     *
-     * It is only serialized what is necessary for best unserialization performance.
-     * That means any metadata properties that are not set or empty or simply have
-     * their default value are NOT serialized.
-     *
-     * Parts that are also NOT serialized because they can not be properly unserialized:
-     *      - reflClass (ReflectionClass)
-     *      - reflFields (ReflectionProperty array)
-     *
-     * @return array The names of all the fields that should be serialized.
-     */
-    public function __sleep()
-    {
-        // This metadata is always serialized/cached.
-        $serialized = array(
-            'fieldMappings',
-            'identifier',
-            'node',
-            'nodeType',
-            'alias',
-            'namespace', // TODO: REMOVE
-        );
-
-        if ($this->customRepositoryClassName) {
-            $serialized[] = 'customRepositoryClassName';
-        }
-
-        return $serialized;
-    }
-
-    /**
-     * Restores some state that can not be serialized/unserialized.
-     *
-     * @return void
-     */
-    public function __wakeup()
-    {
-        // Restore ReflectionClass and properties
-        $this->reflClass = new \ReflectionClass($this->name);
-
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new \ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
-            $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
-        }
-
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new \ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
-
-            $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
-        }
-    }
-
-    /**
      * Sets the ID generator used to generate IDs for instances of this class.
      *
      * @param AbstractIdGenerator $generator
@@ -770,14 +624,6 @@ class ClassMetadataInfo implements ClassMetadata
             $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($generator));
         }
         $this->idGenerator = $generator;
-    }
-
-    /**
-     * Sets the type of Id generator to use for the mapped class.
-     */
-    public function setIdGeneratorType($generatorType)
-    {
-        $this->generatorType = $generatorType;
     }
 
     /**
@@ -803,7 +649,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function isIdGeneratorRepository()
     {
-        return $this->generatorType == self::GENERATOR_TYPE_REPOSITORY;
+        return $this->idGenerator == self::GENERATOR_TYPE_REPOSITORY;
     }
 
     /**
@@ -813,7 +659,7 @@ class ClassMetadataInfo implements ClassMetadata
      */
     public function isIdGeneratorNone()
     {
-        return $this->generatorType == self::GENERATOR_TYPE_NONE;
+        return $this->idGenerator == self::GENERATOR_TYPE_NONE;
     }
 
     /**
