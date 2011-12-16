@@ -15,7 +15,10 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  */
 abstract class AbstractTranslationStrategy implements TranslationStrategyInterface
 {
-    /*** @var string */
+    /**
+     * Prefix to namespace properties or child nodes
+     * @var string
+     */
     protected $prefix = Translation::LOCALE_NAMESPACE;
 
     /**

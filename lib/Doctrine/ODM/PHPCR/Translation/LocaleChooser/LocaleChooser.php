@@ -48,13 +48,12 @@ class LocaleChooser implements LocaleChooserInterface
     public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
     {
         if (is_null($forLocale)) {
-            $preferred = $this->localePreference[$this->defaultLocale];
-        } elseif (!in_array($forLocale, array_keys($this->localePreference))) {
-            throw new \InvalidArgumentException("There is no language fallback for language '$forLocale'");
-        } else {
-            $preferred = $this->localePreference[$forLocale];
+            return $this->localePreference[$this->defaultLocale];
+        } elseif (array_key_exists($forLocale, $this->localePreference)) {
+            return $this->localePreference[$forLocale];
         }
-        return $preferred;
+
+        throw new \InvalidArgumentException("There is no language fallback for language '$forLocale'");
     }
 
     /**
@@ -77,14 +76,16 @@ class LocaleChooser implements LocaleChooserInterface
 
     /**
      * Set the default locale
+     *
+     * @throws InvalidArgumentException if the specified locale is not defined in the $localePreference array.
      */
     public function setDefaultLocale($locale)
     {
-        if (array_key_exists($locale, $this->localePreference)) {
-            $this->defaultLocale = $locale;
-        } else {
+        if (! array_key_exists($locale, $this->localePreference)) {
             throw new \InvalidArgumentException("The locale '$locale' is not present in the list of available locales");
         }
+
+        $this->defaultLocale = $locale;
     }
 
 

@@ -25,17 +25,17 @@ interface LocaleChooserInterface
      *
      * @return array $preferredLocales
      */
-    public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null);
+    function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null);
 
     /**
      * Get the ordered list of locales for the default locale
      *
      * @return array preferred locale order for the default locale
      */
-    public function getDefaultLocalesOrder();
+    function getDefaultLocalesOrder();
 
     /**
      * @return string defaultLocale
      */
-    public function getDefaultLocale();
+    function getDefaultLocale();
 }

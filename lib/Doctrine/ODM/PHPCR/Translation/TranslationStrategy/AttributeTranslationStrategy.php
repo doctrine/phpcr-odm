@@ -23,7 +23,6 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         foreach ($metadata->translatableFields as $field) {
-
             $propName = $this->getTranslatedPropertyName($locale, $field);
             $node->setProperty($propName, $document->$field);
         }
@@ -50,8 +49,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        foreach ($metadata->translatableFields as $field)
-        {
+        foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             $prop = $node->getProperty($propName);
             $prop->remove();
