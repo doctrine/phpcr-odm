@@ -24,6 +24,15 @@ class IdGeneratorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Doctrine\ODM\PHPCR\Id\IdGenerator::create
+     */
+    public function testCreateGeneratorTypeParent()
+    {
+        $generator = IdGenerator::create(ClassMetadata::GENERATOR_TYPE_PARENT);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Id\ParentIdGenerator', $generator);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @covers Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
