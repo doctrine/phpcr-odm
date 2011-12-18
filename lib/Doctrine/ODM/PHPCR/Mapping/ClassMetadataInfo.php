@@ -218,6 +218,17 @@ class ClassMetadataInfo implements ClassMetadata
     public $referrersMappings = array();
 
     /**
+     * Mapping of locale (actual locale)
+     */
+    public $localeMapping;
+
+    /**
+     * List of translatable fields
+     * @var array
+     */
+    public $translatableFields = array();
+
+    /**
      * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
      *
      * @var bool
@@ -237,6 +248,13 @@ class ClassMetadataInfo implements ClassMetadata
      * @var bool
      */
     public $referenceable = false;
+
+    /**
+     * Strategy key to find field translations.
+     * This is the key used for DocumentManager::getTranslationStrategy
+     * @var string
+     */
+    public $translator;
 
     /**
      * READ-ONLY: The Id generator options.
@@ -434,6 +452,13 @@ class ClassMetadataInfo implements ClassMetadata
             $mapping['type'] = 'long';
         }
 
+        // Add the field to the list of translatable fields
+        if (isset($mapping['translated']) && $mapping['translated']) {
+            if (! array_key_exists($mapping['name'], $this->translatableFields)) {
+                $this->translatableFields[] = $mapping['name'];
+            }
+        }
+
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
     }
 
@@ -490,6 +515,12 @@ class ClassMetadataInfo implements ClassMetadata
         $mapping = $this->validateAndCompleteReferrersMapping($mapping, false);
         $mapping['name'] = $mapping['fieldName'];
         $this->referrersMappings[$mapping['fieldName']] = $mapping;
+    }
+
+    public function mapLocale(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->localeMapping = $mapping;
     }
 
     protected function validateAndCompleteReferrersMapping($mapping)
@@ -601,6 +632,14 @@ class ClassMetadataInfo implements ClassMetadata
     public function setIdGeneratorOptions($generatorOptions)
     {
         $this->generatorOptions = $generatorOptions;
+    }
+
+    /**
+     * Sets the translator strategy key
+     */
+    public function setTranslator($translator)
+    {
+        $this->translator = $translator;
     }
 
     /**

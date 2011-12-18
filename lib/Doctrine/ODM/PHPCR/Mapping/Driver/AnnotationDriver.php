@@ -34,6 +34,8 @@ use Doctrine\Common\Annotations\AnnotationReader,
  * @since       1.0
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
  */
 class AnnotationDriver implements Driver
 {
@@ -147,6 +149,10 @@ class AnnotationDriver implements Driver
             $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
 
+        if ($documentAnnot->translator) {
+            $class->setTranslator($documentAnnot->translator);
+        }
+
         foreach ($reflClass->getProperties() as $property) {
             $mapping = array();
             $mapping['fieldName'] = $property->getName();
@@ -182,6 +188,9 @@ class AnnotationDriver implements Driver
                 } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Referrers) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $class->mapReferrers($mapping);
+                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Locale) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $class->mapLocale($mapping);
                 }
 
                 if (!isset($mapping['name'])) {
@@ -214,6 +223,12 @@ class AnnotationDriver implements Driver
             }
         }
 
+        // Check there is a @Locale annotation for translatable documents
+        if (count($class->translatableFields)) {
+            if (!isset($class->localeMapping)) {
+                throw new MappingException("You must define a @Locale field for translatable document '$className'");
+            }
+        }
     }
 
     /**
