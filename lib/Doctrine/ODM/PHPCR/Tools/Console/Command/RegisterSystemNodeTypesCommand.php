@@ -40,24 +40,31 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $phpcrNamespace = 'phpcr';
+        $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
         $localeNamespace = Translation::LOCALE_NAMESPACE;
         $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
-        $cnd = <<<CND
+
+        $session = $this->getHelper('phpcr')->getSession();
+        if ($session instanceof \Jackalope\Session) {
+            $cnd = <<<CND
 // register phpcr_locale namespace
 <$localeNamespace='$localeNamespaceUri'>
 // register phpcr namespace
-<phpcr='http://www.doctrine-project.org/projects/phpcr_odm'>
+<$phpcrNamespace='$phpcrNamespaceUri'>
 [phpcr:managed]
   mixin
   - phpcr:class (STRING)
 CND
-        ;
-
-        $session = $this->getHelper('phpcr')->getSession();
-
-        // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
-        $this->updateFromCnd($input, $output, $session, $cnd, true);
-
+            ;
+            // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
+            $this->updateFromCnd($input, $output, $session, $cnd, true);
+        } else {
+            $ns = $session->getWorkspace()->getNamespaceRegistry();
+            $ns->registerNamespace($phpcrNamespace, $phpcrNamespaceUri);
+            $ns->registerNamespace($localeNamespace, $localeNamespaceUri);
+            $output->write(PHP_EOL.sprintf('WARNING: Missing the phpcr:managed mixin type to allow phpcr:class because this is not Jackalope.') . PHP_EOL);
+        }
         $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
     }
 }
