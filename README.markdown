@@ -11,7 +11,6 @@ PHPCR ODM for Doctrine2
 
 # TODO
 
-* ensure that no Jackalope specific classes are used (especially relevant for the tests)
 * have the register-system-node-types command provide api conform node type definition as well to support other implementations
 * write documentation
 * expand test suite
@@ -39,13 +38,21 @@ manual initialization.
     cd phpcr-odm
     git submodule update --init --recursive
 
+## Install a PHPCR provider
 
-## Install Jackrabbit
+PHPCR ODM uses the [PHP Content Repository API](http://phpcr.github.com/) for storage. You need to install one of the available providers:
 
-Jackalope with the Jackrabbit backend is the only PHPCR implementation that is
-enough feature complete for the PHPCR ODM.
+### Install Jackrabbit
+
+Jackalope with the Jackrabbit backend is the only PHPCR implementation that is enough feature complete for the PHPCR ODM.
 
 Follow [Running Jackrabbit Server](https://github.com/jackalope/jackalope/wiki/Running-a-jackrabbit-server) from the Jackalope wiki.
+
+### Install Midgard2 PHPCR
+
+[Midgard2](https://github.com/midgardproject/phpcr-midgard2) is a PHPCR provider that provides most of the functionality needed for PHPCR ODM, and can persist your content in typical relational databases like SQLite and MySQL. Midgard2 only needs [a PHP extension](https://github.com/midgardproject/midgard-php5) to run. On typical Linux setups getting the extension is as easy as:
+
+    $ sudo apt-get install php5-midgard2
 
 ## Enable the console
 
@@ -83,6 +90,7 @@ You need to make sure that the following paths are autoloaded (all paths relativ
 'PHPCR\Util'      => 'lib/vendor/jackalope/lib/phpcr-utils/src',
 'PHPCR'           => 'lib/vendor/jackalope/lib/phpcr/src',
 'Jackalope'       => 'lib/vendor/jackalope/src',
+'Midgard\PHPCR'   => 'lib/vendor/Midgard/PHPCR/src',
 'Doctrine\DBAL'   => 'lib/vendor/jackalope/lib/vendor/doctrine-dbal',
 ```
 
@@ -107,7 +115,7 @@ $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your
 
 ## Bootstrap the PHPCR session
 
-Eventually, this module will support all PHPCR backends, but at the moment it is only tested with jackalope jackrabbit.
+With the Jackrabbit provider, the PHPCR ODM connection can be configured with:
 
 ```php
 <?php
@@ -117,6 +125,26 @@ $credentials = new \PHPCR\SimpleCredentials('user', 'pass');
 $session = $repository->login($credentials, 'your_workspace');
 ```
 
+With Midgard2, the connection configuration (using MySQL as an example) would be something like:
+
+```php
+<?php
+$repository = \Midgard\PHPCR\RepositoryFactory::getRepository(
+    array(
+        'midgard2.configuration.db.type' => 'MySQL',
+        'midgard2.configuration.db.name' => 'phpcr',
+        'midgard2.configuration.db.host' => 'localhost',
+        'midgard2.configuration.db.username' => 'midgard',
+        'midgard2.configuration.db.password' => 'midgard',
+        'midgard2.configuration.blobdir' => '/some/path/for/blobs',
+        'midgard2.configuration.db.init' => true
+    )
+);
+$credentials = new \PHPCR\SimpleCredentials('admin', 'password');
+$session = $repository->login($credentials, 'your_workspace');
+```
+
+Note that the `midgard2.configuration.db.init` setting should only be used the first time you connect to the Midgard2 repository. After that the database is ready and this setting should be removed for better performance.
 
 ## Initialize the DocumentManager
 
