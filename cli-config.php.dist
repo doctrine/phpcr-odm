@@ -91,3 +91,24 @@ function initJackalopeDoctrineDbal()
     $credentials = new \PHPCR\SimpleCredentials(null, null);
     return $repository->login($credentials, $workspace);
 }
+
+/** for Midgard2 PHPCR provider, do this */
+function initMidgard2PHPCR()
+{
+    global $classLoader, $vendorDir, $extraCommands;
+    $classLoader->registerNamespaces(array(
+        'Midgard\PHPCR' =>  __DIR__ . '/../lib/vendor/Midgard/PHPCR/src'
+    ));
+
+    $params = array(
+        'midgard2.configuration.db.type' => 'SQLite',
+        'midgard2.configuration.db.name' => 'odm',
+        'midgard2.configuration.db.dir' => '/tmp',
+        'midgard2.configuration.db.init' => true,
+        'midgard2.configuration.db.blobdir' => '/tmp/blobs'
+    );
+
+    $repository = \Midgard\PHPCR\RepositoryFactory::getRepository($params);
+    $credentials = new \PHPCR\SimpleCredentials('admin', 'password');
+    return $repository->login($credentials, '');
+}
