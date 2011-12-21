@@ -37,11 +37,11 @@ class ParentIdGenerator extends IdGenerator
         $id = $cm->getFieldValue($document, $cm->identifier);
 
         if ((empty($parent) || empty($name)) && empty($id)) {
-            throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\ParentDocument and Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename annotation and that the property is set to the path where the document is to be store.');
+            throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\ParentDocument and Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename annotation and that the property is set to the path where the document is to be stored.');
         }
 
         // use assigned ID by default
-        if (!$parent) {
+        if (!$parent || empty($name)) {
             return $id;
         }
 

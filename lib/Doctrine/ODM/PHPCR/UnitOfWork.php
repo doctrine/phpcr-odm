@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
+use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
@@ -38,6 +39,9 @@ use PHPCR\NodeInterface;
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @author      Brian King <brian@liip.ch>
+ * @author      David Buchmann <david@liip.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class UnitOfWork
 {
@@ -124,6 +128,11 @@ class UnitOfWork
     /**
      * @var array
      */
+    private $multivaluePropertyCollections = array();
+
+    /**
+     * @var array
+     */
     private $idGenerators = array();
 
     /**
@@ -167,10 +176,13 @@ class UnitOfWork
     }
 
     /**
-     * Get an already fetched node for the proxyDocument from the nodesMap and create the associated document
+     * Get an already fetched node for the proxyDocument from the nodesMap and
+     * create the associated document.
      *
      * @param string $className
      * @param Proxy $document
+     * @param string $locale the locale to use or null to use the default
+     *      locale. if this is not a translatable document, locale will be ignored.
      * @return void
      */
     public function refreshDocumentForProxy($className, $document)
@@ -182,6 +194,11 @@ class UnitOfWork
 
     /**
      * Create a document given class, data and the doc-id and revision
+     *
+     * Supported hints are
+     * * refresh: reload the fields from the database
+     * * locale: use this locale instead of the one from the annotation or the default
+     * * fallback: whether to try other languages or throw a not found exception if the desired locale is not found
      *
      * @param null|string $className
      * @param \PHPCR\NodeInterface $node
@@ -204,7 +221,8 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    $documentState[$fieldName] = new ArrayCollection((array)$properties[$mapping['name']]);
+                    $documentState[$fieldName] = new MultivaluePropertyCollection(new ArrayCollection((array)$properties[$mapping['name']]));
+                    $this->multivaluePropertyCollections[] = $documentState[$fieldName];
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
@@ -319,7 +337,7 @@ class UnitOfWork
         }
 
         foreach ($class->referrersMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filterName']);
+            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
         }
 
         if ($overrideLocalValues) {
@@ -332,6 +350,12 @@ class UnitOfWork
                 $this->originalData[$oid][$prop] = $value;
             }
         }
+
+        // Load translations
+        $locale = isset($hints['locale']) ? $hints['locale'] : null;
+        $fallback = isset($hints['fallback']) ? $hints['fallback'] : false;
+
+        $this->doLoadTranslation($document, $class, $locale, $fallback);
 
         // Invoke the postLoad lifecycle callbacks and listeners
         if (isset($class->lifecycleCallbacks[Event::postLoad])) {
@@ -389,6 +413,7 @@ class UnitOfWork
     private function doScheduleInsert($document, &$visited, $overrideIdGenerator = null)
     {
         $oid = spl_object_hash($document);
+        // To avoid recursion loops (over children and parents)
         if (isset($visited[$oid])) {
             return;
         }
@@ -415,6 +440,8 @@ class UnitOfWork
                 throw new \InvalidArgumentException("Detached document passed to persist().");
                 break;
         }
+
+        $this->doSaveTranslation($document, $class);
 
         $this->cascadeScheduleInsert($class, $document, $visited);
     }
@@ -457,9 +484,26 @@ class UnitOfWork
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $id = $class->reflFields[$class->identifier]->getValue($document);
-                $childClass->reflFields[$childClass->identifier]->setValue($child , $id . '/'. $mapping['name']);
+                $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $mapping['name']);
                 $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+            }
+        }
+
+        foreach ($class->childrenMappings as $childName => $mapping) {
+            $children = $class->reflFields[$childName]->getValue($document);
+            if (empty($children)) {
+                continue;
+            }
+
+            foreach ($children as $child) {
+                if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
+                    $childClass = $this->dm->getClassMetadata(get_class($child));
+                    $id = $class->reflFields[$class->identifier]->getValue($document);
+                    $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $childClass->reflFields[$childClass->nodename]->getValue($child));
+                    $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
+                    $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                }
             }
         }
 
@@ -538,22 +582,27 @@ class UnitOfWork
             $id = $class->getIdentifierValue($document);
             if (!$id) {
                 return self::STATE_NEW;
-            } else if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
+            }
+
+            if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
                 || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
             ) {
                 if ($class->versionable) {
                     return $class->getFieldValue($document, $class->versionField)
                         ? self::STATE_DETACHED : self::STATE_NEW;
-                } elseif ($this->tryGetById($id)) {
-                    return self::STATE_DETACHED;
-                } else {
-                    return $this->dm->getPhpcrSession()->nodeExists($id)
-                        ? self::STATE_DETACHED : self::STATE_NEW;
                 }
-            } else {
-                return self::STATE_DETACHED;
+
+                if ($this->tryGetById($id)) {
+                    return self::STATE_DETACHED;
+                }
+
+                return $this->dm->getPhpcrSession()->nodeExists($id)
+                    ? self::STATE_DETACHED : self::STATE_NEW;
             }
+
+            return self::STATE_DETACHED;
         }
+
         return $this->documentState[$oid];
     }
 
@@ -575,6 +624,9 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
+        if ($document instanceof Proxy && !$document->__isInitialized__) {
+            return;
+        }
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
@@ -584,10 +636,10 @@ class UnitOfWork
                 && !($value instanceof PersistentCollection)
             ) {
                 if (!$value instanceof Collection) {
-                    $value = new ArrayCollection($value);
+                    $value = new MultivaluePropertyCollection(new ArrayCollection($value), true);
+                    $this->multivaluePropertyCollections[] = $value;
                 }
 
-                // TODO coll should be a new PersistentCollection
                 $coll = $value;
 
                 $class->reflFields[$fieldName]->setValue($document, $coll);
@@ -718,12 +770,13 @@ class UnitOfWork
         $targetClass = $this->dm->getClassMetadata(get_class($reference));
         $state = $this->getDocumentState($reference);
 
-        if ($state === self::STATE_NEW) {
-            $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-            $this->computeChangeSet($targetClass, $reference);
-        } elseif ($state === self::STATE_DETACHED) {
-            throw new \InvalidArgumentException("A detached document was found through a "
-                . "reference during cascading a persist operation.");
+        switch ($state) {
+            case self::STATE_NEW:
+                $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->computeChangeSet($targetClass, $reference);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException("A detached document was found through a reference during cascading a persist operation.");
         }
     }
 
@@ -951,6 +1004,10 @@ class UnitOfWork
             $col->takeSnapshot();
         }
 
+        foreach ($this->multivaluePropertyCollections as $col) {
+            $col->takeSnapshot();
+        }
+
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledRemovals =
@@ -994,6 +1051,11 @@ class UnitOfWork
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+                // Ignore translatable fields (they will be persisted by the translation strategy)
+                if (in_array($fieldName, $class->translatableFields)) {
+                    continue;
+                }
+
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
@@ -1006,6 +1068,8 @@ class UnitOfWork
                     $this->scheduledAssociationUpdates[$oid] = $document;
                 }
             }
+
+            $this->doSaveTranslation($document, $class);
 
             if (isset($class->lifecycleCallbacks[Event::postPersist])) {
                 $class->invokeLifecycleCallbacks(Event::postPersist, $document);
@@ -1044,6 +1108,11 @@ class UnitOfWork
             }
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+                // Ignore translatable fields (they will be persisted by the translation strategy)
+                if (in_array($fieldName, $class->translatableFields)) {
+                    continue;
+                }
+
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
@@ -1115,6 +1184,8 @@ class UnitOfWork
                 }
             }
 
+            $this->doSaveTranslation($document, $class);
+
             if ($dispatchEvents) {
                 if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
                     $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
@@ -1135,6 +1206,8 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
+
+            $this->doRemoveAllTranslations($document, $class);
 
             $this->nodesMap[$oid]->remove();
             $this->removeFromIdentityMap($document);
@@ -1380,7 +1453,7 @@ class UnitOfWork
     public function initializeObject($obj)
     {
         if ($obj instanceof Proxy) {
-            $obj->__doctrineLoad__();
+            $obj->__load();
         } else if ($obj instanceof PersistentCollection) {
             $obj->initialize();
         }
@@ -1410,5 +1483,150 @@ class UnitOfWork
         }
 
         return $this->session->refresh(false);
+    }
+
+    public function getLocalesFor($document)
+    {
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return array();
+        }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+
+        return $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+    }
+
+    protected function doSaveTranslation($document, $metadata)
+    {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+        $locale = $this->getLocale($document, $metadata);
+
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+        $strategy->saveTranslation($document, $node, $metadata, $locale);
+    }
+
+    /**
+     * Load the translatable fields of the document.
+     *
+     * If locale is not set then it is guessed using the
+     * LanguageChooserStrategy class.
+     *
+     * If the document is not translatable, this method returns immediatly.
+     *
+     * @param $document
+     * @param $metadata
+     * @param string $locale The locale to use or null if the default locale should be used
+     * @param boolean $fallback Whether to do try other languages
+     *
+     * @return void
+     */
+    protected function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
+    {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
+        // TODO: if locale is null, just get default locale, regardless of fallback or not
+
+        // Determine which languages we will try to load
+        if (!$fallback) {
+
+            if (is_null($locale)) {
+                throw new \InvalidArgumentException("Error while loading the translations, no locale specified and the language fallback is disabled");
+            }
+            $localesToTry = array($locale);
+
+        } else {
+            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
+        }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+        if (is_null($locale)) {
+            $locale = $this->getLocale($document, $metadata);
+        }
+
+        $translationFound = false;
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+        foreach ($localesToTry as $desiredLocale) {
+            $translationFound = $strategy->loadTranslation($document, $node, $metadata, $desiredLocale);
+            if ($translationFound) {
+                break;
+            }
+        }
+
+        if (!$translationFound) {
+            // We tried each possible language without finding the translations
+            // TODO what is the right exception? some "not found" probably
+            throw new \Exception("No translation found. Tried the following locales: " . print_r($localesToTry, true));
+        }
+
+        // Set the locale
+        if ($localField = $metadata->localeMapping['fieldName']) {
+            $document->$localField = $locale;
+        }
+    }
+
+    protected function doRemoveTranslation($document, $metadata, $locale)
+    {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+        $strategy->removeTranslation($document, $node, $metadata, $locale);
+
+        // Empty the locale field if what we removed was the current language
+        if ($localField = $metadata->localeMapping['fieldName']) {
+            if ($document->$localField === $locale) {
+                $document->$localField = null;
+            }
+        }
+    }
+
+    protected function doRemoveAllTranslations($document, $metadata)
+    {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
+        $node = $this->nodesMap[spl_object_hash($document)];
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+        $strategy->removeAllTranslations($document, $node, $metadata);
+    }
+
+    protected function getLocale($document, $metadata)
+    {
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            if(!$locale = $document->$localeField) {
+                $locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+                // TODO: use the fallback
+            }
+            return $locale;
+        }
+        // TODO: implement tracking @Locale without locale field
+        // TODO: check it's the correct exception
+        throw new \InvalidArgumentException("Locale not implemented");
+    }
+
+    /**
+     * Use the LocaleStrategyChooser to return list of fallback locales
+     * @param $desiredLocale
+     * @return array
+     */
+    protected function getFallbackLocales($document, $metadata, $desiredLocale)
+    {
+        $strategy = $this->dm->getLocaleChooserStrategy();
+        return $strategy->getPreferredLocalesOrder($document, $metadata, $desiredLocale);
+    }
+
+    protected function isDocumentTranslatable($metadata)
+    {
+        return count($metadata->translatableFields) !== 0;
     }
 }

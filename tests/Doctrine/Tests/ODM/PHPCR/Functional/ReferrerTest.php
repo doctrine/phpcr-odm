@@ -581,7 +581,7 @@ class AllReferrerRefNamedPropTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Referrers(filterName="namedReference") */
+    /** @PHPCRODM\Referrers(filter="namedReference") */
     public $referrers;
     /** @PHPCRODM\String */
     public $name;

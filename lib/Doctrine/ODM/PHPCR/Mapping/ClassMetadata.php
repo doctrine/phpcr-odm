@@ -169,4 +169,86 @@ class ClassMetadata extends ClassMetadataInfo
         }
         return clone $this->prototype;
     }
+
+    /**
+     * Sets the document identifier of a document.
+     *
+     * @param object $document
+     * @param mixed $id
+     */
+    public function setIdentifierValue($document, $id)
+    {
+        $this->reflFields[$this->identifier]->setValue($document, $id);
+    }
+
+    /**
+     * Gets the document identifier.
+     *
+     * @param object $document
+     * @return string $id
+     */
+    public function getIdentifierValue($document)
+    {
+        return (string) $this->getFieldValue($document, $this->identifier);
+    }
+
+    /**
+     * Get identifier values of this document.
+     *
+     * Since PHPCR only allows exactly one identifier field this is a proxy
+     * to {@see getIdentifierValue()} and returns an array with the identifier
+     * field as a key.
+     *
+     * @param object $document
+     * @return array
+     */
+    public function getIdentifierValues($document)
+    {
+        return array($this->identifier => $this->getIdentifierValue($document));
+    }
+
+    /**
+     * Sets the specified field to the specified value on the given document.
+     *
+     * @param object $document
+     * @param string $field
+     * @param mixed $value
+     */
+    public function setFieldValue($document, $field, $value)
+    {
+        $this->reflFields[$field]->setValue($document, $value);
+    }
+
+    /**
+     * Gets the specified field's value off the given document.
+     *
+     * @param object $document
+     * @param string $field
+     */
+    public function getFieldValue($document, $field)
+    {
+        if (isset($this->reflFields[$field])) {
+            return $this->reflFields[$field]->getValue($document);
+        }
+
+        return null;
+    }
+
+    /**
+     * Dispatches the lifecycle event of the given document to the registered
+     * lifecycle callbacks and lifecycle listeners.
+     *
+     * @param string $event The lifecycle event.
+     * @param Document $document The Document on which the event occured.
+     */
+    public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
+    {
+        foreach ($this->lifecycleCallbacks[$lifecycleEvent] as $callback) {
+            if ($arguments !== null) {
+                call_user_func_array(array($document, $callback), $arguments);
+            } else {
+                $document->$callback();
+            }
+        }
+    }
 }
