@@ -20,7 +20,6 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use ReflectionClass;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 
 /**
  * A <tt>ClassMetadata</tt> instance holds all the object-document mapping metadata
@@ -44,7 +43,7 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class ClassMetadataInfo implements ClassMetadata
+class ClassMetadataInfo
 {
     const TO_ONE = 5;
     const TO_MANY = 10;
@@ -676,6 +675,19 @@ class ClassMetadataInfo implements ClassMetadata
     public function getIdentifier()
     {
         return $this->identifier;
+    }
+
+    /**
+     * Get identifier field names of this class.
+     *
+     * Since PHPCR only allows exactly one identifier field this is a proxy
+     * to {@see getIdentifier()} and returns an array.
+     *
+     * @return array
+     */
+    public function getIdentifierFieldNames()
+    {
+        return array($this->identifier);
     }
 
     /**
