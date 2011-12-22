@@ -1,0 +1,51 @@
+<?php
+/**
+ * The config file is responsible to make class loading work and initialize a
+ * DocumentManagerHelper that contains the doctrine document manager with a
+ * Session of your phcpr implementation.
+ * The array $extraCommands can be used to inject implementation specific commands.
+ * Add instances of commands for eventual implementation specific commands to this array.
+ */
+
+$extraCommands = array();
+
+$vendorDir = __DIR__.'/lib/vendor';
+
+require_once $vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+$classLoader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
+$classLoader->register();
+
+$classLoader->registerNamespaces(array(
+    'Doctrine\ODM' => dirname($vendorDir),
+    'Doctrine\Common' => $vendorDir.'/doctrine-common/lib',
+    'Symfony' => array($vendorDir, $vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor'),
+    'PHPCR' => array($vendorDir.'/jackalope/lib/phpcr/src', $vendorDir.'/jackalope/lib/phpcr-utils/src'),
+));
+
+$classLoader->registerNamespaces(array(
+    'Jackalope'=> $vendorDir.'/jackalope/src',
+));
+
+$extraCommands[] = new \Jackalope\Tools\Console\Command\JackrabbitCommand();
+
+$params = array(
+    'jackalope.jackrabbit_uri'  => 'http://localhost:8080/server/',
+);
+
+$workspace = 'default';
+$user = 'admin';
+$pass = 'admin';
+
+/* bootstrapping the repository implementation. for jackalope, do this: */
+$repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository($params);
+$credentials = new \PHPCR\SimpleCredentials($user, $pass);
+$session = $repository->login($credentials, $workspace);
+
+/* prepare the doctrine configuration */
+$config = new \Doctrine\ODM\PHPCR\Configuration();
+
+$dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
+
+$helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
+    'dm' => new \Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper(null, $dm)
+));
