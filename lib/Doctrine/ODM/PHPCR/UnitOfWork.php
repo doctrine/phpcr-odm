@@ -1058,6 +1058,15 @@ class UnitOfWork
 
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
+                    if (null === $fieldValue && $node->hasProperty($class->fieldMappings[$fieldName]['name'])) {
+                        // Check whether we can remove the property first
+                        $property = $node->getProperty($class->fieldMappings[$fieldName]['name']);
+                        $definition = $property->getDefinition();
+                        if ($definition && ($definition->isMandatory() || $definition->isProtected())) {
+                            continue;
+                        }
+                    }
+
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
                         $value = $fieldValue === null ? null : $fieldValue->toArray();
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
@@ -1206,6 +1215,9 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
+            if (!isset($this->nodesMap[$oid])) {
+                continue;
+            }
 
             $this->doRemoveAllTranslations($document, $class);
 
