@@ -443,8 +443,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $hardReferrerTestObj->referenceToHard = $hardReferrerRefTestObj;
         $hardReferrerTestObj->referenceToAll = $allReferrerRefTestObj;
 
-        $this->dm->persist($weakReferrerTestObj);
         $this->dm->persist($hardReferrerTestObj);
+        $this->dm->persist($weakReferrerTestObj);
         $this->dm->flush();
         $this->dm->clear();
 
