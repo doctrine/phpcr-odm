@@ -1,0 +1,28 @@
+<phpunit bootstrap="./bootstrap_doctrine_dbal.php">
+    <php>
+        <var name="DOCTRINE_PHPCR_FACTORY" value="\Jackalope\RepositoryFactoryDoctrineDBAL" />
+        <var name="jackalope.doctrine.dbal.driver" value="pdo_mysql" />
+        <var name="jackalope.doctrine.dbal.host" value="localhost" />
+        <var name="jackalope.doctrine.dbal.user" value="root" />
+        <var name="jackalope.doctrine.dbal.password" value="" />
+        <var name="jackalope.doctrine.dbal.dbname" value="phpcr_odm_tests" />
+        <var name="DOCTRINE_PHPCR_USER" value="admin" />
+        <var name="DOCTRINE_PHPCR_PASS" value="admin" />
+        <var name="DOCTRINE_PHPCR_WORKSPACE" value="default" />
+        <!-- to adjust performance results to your specific hardware, use integers only. -->
+        <!-- the InsertPerformanceTest tries to insert count nodes in one second -->
+        <var name="DOCTRINE_PHPCR_PERFORMANCE_COUNT" value="100" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>./</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>../lib/Doctrine/ODM/PHPCR</directory>
+        </whitelist>
+    </filter>
+</phpunit>
