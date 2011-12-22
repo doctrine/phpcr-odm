@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
+
 /**
  * Metadata class
  *
@@ -30,7 +32,7 @@ namespace Doctrine\ODM\PHPCR\Mapping;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-class ClassMetadata extends ClassMetadataInfo
+class ClassMetadata extends ClassMetadataInfo implements ClassMetadataInterface
 {
     /**
      * The ReflectionProperty instances of the mapped class.
