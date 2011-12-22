@@ -11,6 +11,8 @@ use Jackalope\Factory;
 use Jackalope\Node;
 
 /**
+ * TODO: remove Jackalope dependency
+ *
  * @group unit
  */
 class UnitOfWorkTest extends PHPCRTestCase
@@ -20,7 +22,9 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
-        $this->factory = new Factory; // TODO: remove jackalope dependencies
+        $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
+
+        $this->factory = new Factory;
         $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
         // TODO: remove jackalope dependency:
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
@@ -39,8 +43,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     protected function createNode($id, $username)
     {
-        $this->markTestIncomplete('The Node needs to be properly mocked/stubbed. Remove dependeny to Jackalope');
-
         $nodeData = array(
             'jcr:primaryType' => "Name",
             "jcr:primaryType" => "rep:root",
