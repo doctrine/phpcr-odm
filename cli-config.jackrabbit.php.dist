@@ -23,24 +23,23 @@ $classLoader->registerNamespaces(array(
 ));
 
 $classLoader->registerNamespaces(array(
-    'Midgard\PHPCR' =>  __DIR__ . '/lib/vendor/Midgard/PHPCR/src'
+    'Jackalope'=> $vendorDir.'/jackalope/src',
 ));
 
+$extraCommands[] = new \Jackalope\Tools\Console\Command\JackrabbitCommand();
+
 $params = array(
-    'midgard2.configuration.db.type' => 'SQLite',
-    'midgard2.configuration.db.name' => 'odm',
-    'midgard2.configuration.db.dir' => '/tmp',
-    'midgard2.configuration.db.init' => true,
-    'midgard2.configuration.blobdir' => '/tmp/blobs'
+    'jackalope.jackrabbit_uri'  => 'http://localhost:8080/server/',
 );
 
-$workspace = '';
+$workspace = 'default';
 $user = 'admin';
-$pass = 'password';
+$pass = 'admin';
 
-$repository = \Midgard\PHPCR\RepositoryFactory::getRepository($params);
+/* bootstrapping the repository implementation. for jackalope, do this: */
+$repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository($params);
 $credentials = new \PHPCR\SimpleCredentials($user, $pass);
-$session =  $repository->login($credentials, $workspace);
+$session = $repository->login($credentials, $workspace);
 
 /* prepare the doctrine configuration */
 $config = new \Doctrine\ODM\PHPCR\Configuration();
