@@ -22,11 +22,12 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
-        $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
+        if (!class_exists('Jackalope\Factory', true)) {
+            $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
+        }
 
         $this->factory = new Factory;
         $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
-        // TODO: remove jackalope dependency:
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
 
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
@@ -43,6 +44,12 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     protected function createNode($id, $username)
     {
+        $repository = $this->getMockBuilder('Jackalope\Repository')->disableOriginalConstructor()->getMock();
+        $this->session->expects($this->any())
+            ->method('getRepository')
+            ->with()
+            ->will($this->returnValue($repository));
+
         $nodeData = array(
             'jcr:primaryType' => "Name",
             "jcr:primaryType" => "rep:root",
