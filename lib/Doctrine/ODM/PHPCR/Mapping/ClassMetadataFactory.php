@@ -19,10 +19,10 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\DocumentManager,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\PHPCRException,
-    Doctrine\Common\Cache\Cache;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
 
 /**
  * The ClassMetadataFactory is used to create ClassMetadata objects that contain all the
@@ -35,244 +35,105 @@ use Doctrine\ODM\PHPCR\DocumentManager,
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class ClassMetadataFactory
+class ClassMetadataFactory extends AbstractClassMetadataFactory
 {
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $cacheSalt = '\$PHPCRODMCLASSMETADATA';
+    
     /**
      * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var array
-     */
-    private $loadedMetadata = array();
-
-    /**
-     * @var array
-     */
-    private $loadedAliases = array();
-
-    /**
      *  The used metadata driver.
      *
-     * @var Doctrine\ODM\PHPCR\Mapping\Driver\Driver
+     * @var \Doctrine\ODM\PHPCR\Mapping\Driver\Driver
      */
     private $driver;
 
     /**
-     * The used cache driver.
-     *
-     * @var Cache
-     */
-    private $cacheDriver;
-
-    /**
      * Creates a new factory instance that uses the given DocumentManager instance.
      *
-     * @param $dm  The DocumentManager instance
+     * @param $dm The DocumentManager instance
      */
     public function __construct(DocumentManager $dm)
     {
-        $this->dm = $dm;
+        $this->dm     = $dm;
         $this->driver = $this->dm->getConfiguration()->getMetadataDriverImpl();
     }
 
     /**
-     * Sets the cache driver used by the factory to cache ClassMetadata instances.
-     *
-     * @param Doctrine\Common\Cache\Cache $cacheDriver
-     */
-    public function setCacheDriver($cacheDriver)
-    {
-        $this->cacheDriver = $cacheDriver;
-    }
-
-    /**
-     * Gets the cache driver used by the factory to cache ClassMetadata instances.
-     *
-     * @return Doctrine\Common\Cache\Cache
-     */
-    public function getCacheDriver()
-    {
-        return $this->cacheDriver;
-    }
-
-    /**
-     * Gets the array of loaded ClassMetadata instances.
-     *
-     * @return array $loadedMetadata The loaded metadata.
-     */
-    public function getLoadedMetadata()
-    {
-        return $this->loadedMetadata;
-    }
-
-    /**
-     * Forces the factory to load the metadata of all classes known to the underlying
-     * mapping driver.
-     *
-     * @return array The ClassMetadata instances of all mapped classes.
-     */
-    public function getAllMetadata()
-    {
-        $metadata = array();
-        foreach ($this->driver->getAllClassNames() as $className) {
-            $metadata[] = $this->getMetadataFor($className);
-        }
-
-        return $metadata;
-    }
-
-    public function getMetadataForAlias($alias)
-    {
-        if (isset($this->loadedAliases[$alias])) {
-            return $this->loadedAliases[$alias];
-        }
-
-        if ($this->cacheDriver && ($cached = $this->cacheDriver->fetch("$alias\$PHPCRODMALIAS")) !== false) {
-            return $this->loadedAliases[$alias] = $cached;
-        }
-
-        foreach ($this->loadedMetadata as $metadata) {
-            if ($metadata->alias === $alias) {
-                $this->loadedAliases[$alias] = $metadata;
-                if ($this->cacheDriver) {
-                    $this->cacheDriver->save(
-                        "$alias\$PHPCRODMALIAS", $this->loadedAliases[$alias], null
-                    );
-                }
-                return $metadata;
-            }
-        }
-
-        foreach ($this->driver->getAllClassNames() as $className) {
-            $metadata = $this->getMetadataFor($className);
-            if ($metadata->alias === $alias) {
-                $this->loadedAliases[$alias] = $metadata;
-                if ($this->cacheDriver) {
-                    $this->cacheDriver->save(
-                        "$alias\$PHPCRODMALIAS", $this->loadedAliases[$alias], null
-                    );
-                }
-                return $metadata;
-            }
-        }
-
-        throw new MappingException('Alias '.$alias.' could not be resolved to a document class name');
-    }
-
-    /**
-     * Gets the class metadata descriptor for a class.
-     *
-     * @param string $className The name of the class.
-     * @return Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * {@inheritdoc}
+     * 
+     * @throws MappingException
      */
     public function getMetadataFor($className)
     {
-        if (!isset($this->loadedMetadata[$className])) {
-            $realClassName = $className;
-
-            // Check for namespace alias
-            if (strpos($className, ':') !== false) {
-                list($namespaceAlias, $simpleClassName) = explode(':', $className);
-                $realClassName = $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias) . '\\' . $simpleClassName;
-
-                if (isset($this->loadedMetadata[$realClassName])) {
-                    // We do not have the alias name in the map, include it
-                    $this->loadedMetadata[$className] = $this->loadedMetadata[$realClassName];
-
-                    return $this->loadedMetadata[$realClassName];
-                }
-            }
-
-            if ($this->cacheDriver) {
-                if (($cached = $this->cacheDriver->fetch("$realClassName\$PHPCRODMCLASSMETADATA")) !== false) {
-                    $this->loadedMetadata[$realClassName] = $cached;
-                } else {
-                    foreach ($this->loadMetadata($realClassName) as $loadedClassName) {
-                        $this->cacheDriver->save(
-                            "$loadedClassName\$PHPCRODMCLASSMETADATA", $this->loadedMetadata[$loadedClassName], null
-                        );
-                    }
-                }
-            } else {
-                $this->loadMetadata($realClassName);
-            }
-
-            if ($className != $realClassName) {
-                // We do not have the alias name in the map, include it
-                $this->loadedMetadata[$className] = $this->loadedMetadata[$realClassName];
-            }
+        if ($metadata = parent::getMetadataFor($className)) {
+            return $metadata;
         }
+        throw MappingException::classNotMapped($className);
+    }
 
-        if (!isset($this->loadedMetadata[$className])) {
-            throw MappingException::classNotMapped();
+    /**
+     * {@inheritdoc}
+     * 
+     * @throws MappingException
+     */
+    function loadMetadata($className)
+    {
+        if (class_exists($className)) {
+            return parent::loadMetadata($className);
         }
-
-        return $this->loadedMetadata[$className];
+        throw MappingException::classNotFound($className);
     }
 
-    /**
-     * Loads the metadata of the class in question and all it's ancestors whose metadata
-     * is still not loaded.
-     *
-     * @param string $className The name of the class for which the metadata should get loaded.
-     */
-    private function loadMetadata($className)
-    {
-        if (!class_exists($className)) {
-            throw MappingException::classNotFound($className);
-        }
-
-        $this->loadedMetadata[$className] = new ClassMetadata($className);
-        $this->driver->loadMetadataForClass($className, $this->loadedMetadata[$className]);
-    }
 
     /**
-     * Checks whether the factory has the metadata for a class loaded already.
-     *
-     * @param string $className
-     * @return boolean TRUE if the metadata of the class in question is already loaded, FALSE otherwise.
-     */
-    public function hasMetadataFor($className)
-    {
-        return isset($this->loadedMetadata[$className]);
-    }
-
-    /**
-     * Sets the metadata descriptor for a specific class.
-     *
-     * NOTE: This is only useful in very special cases, like when generating proxy classes.
-     *
-     * @param string $className
-     * @param ClassMetadata $class
-     */
-    public function setMetadataFor($className, $class)
-    {
-        $this->loadedMetadata[$className] = $class;
-    }
-
-    /**
-     * Creates a new ClassMetadata instance for the given class name.
-     *
-     * @param string $className
-     * @return Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * {@inheritdoc}
      */
     protected function newClassMetadataInstance($className)
     {
         return new ClassMetadata($className);
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    protected function getFqcnFromAlias($namespaceAlias, $simpleClassName)
+    {
+        return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias) 
+            . '\\' . $simpleClassName;
+    }
 
     /**
-     * Whether the class with the specified name should have its metadata loaded.
-     * This is only the case if it is either mapped as an Entity or a
-     * MappedSuperclass.
-     *
-     * @param string $className
-     * @return boolean
+     * {@inheritdoc}
+     * 
+     * @todo unclear usage of rootEntityFound
      */
-    public function isTransient($className)
-    {
-        return $this->driver->isTransient($className);
+    protected function doLoadMetadata($class, $parent, $rootEntityFound) {
+        if ($parent) {
+            $this->getDriver()->loadMetadataForClass($parent->name, $parent);
+        }
+        $this->getDriver()->loadMetadataForClass($class->name, $class);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDriver() {
+        return $this->driver;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initialize() {
+        $this->initialized = true;
+    }
+    
 }
