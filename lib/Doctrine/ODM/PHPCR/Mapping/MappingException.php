@@ -71,9 +71,9 @@ class MappingException extends \Exception
         return new self('Document '.$document.' must specify an alias');
     }
 
-    public static function classNotMapped()
+    public static function classNotMapped($className)
     {
-        return new self();
+        return new self('Class ' . $className . ' is not mapped to a document');
     }
 
     public static function noTypeSpecified()
