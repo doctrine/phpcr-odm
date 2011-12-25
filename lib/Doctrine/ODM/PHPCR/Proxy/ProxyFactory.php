@@ -333,6 +333,11 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
         return $this->$name;
     }
 
+    public function __isInitialized()
+    {
+        return $this->__isInitialized__;
+    }
+
 }
 PHP;
 }
