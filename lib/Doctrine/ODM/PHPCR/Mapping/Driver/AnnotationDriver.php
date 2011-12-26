@@ -21,9 +21,10 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader,
     Doctrine\Common\Annotations\Reader,
+    Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver,
+    Doctrine\Common\Persistence\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Event,
     Doctrine\ODM\PHPCR\Mapping\Annotations as ODM,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 /**
@@ -37,87 +38,29 @@ use Doctrine\Common\Annotations\AnnotationReader,
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  */
-class AnnotationDriver implements Driver
+class AnnotationDriver extends AbstractAnnotationDriver implements Driver
 {
-    /**
-     * The AnnotationReader.
-     *
-     * @var AnnotationReader
-     */
-    private $reader;
 
     /**
-     * The paths where to look for mapping files.
-     *
-     * @var array
-     */
-    private $paths = array();
-
-    /**
-     * The file extension of mapping documents.
-     *
-     * @var string
-     */
-    private $fileExtension = '.php';
-
-    /**
-     * @param array
-     */
-    private $classNames;
-
-    /**
+     * {@inheritdoc}
+     * 
      * Document annotation classes, ordered by precedence.
      */
-    static private $documentAnnotationClasses = array(
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document',
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass',
+    protected $entityAnnotationClasses = array(
+        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document' => 0,
+        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass' => 1,
     );
-
-    /**
-     * Initializes a new AnnotationDriver that uses the given AnnotationReader for reading
-     * docblock annotations.
-     *
-     * @param $reader The AnnotationReader to use.
-     * @param string|array $paths One or multiple paths where mapping classes can be found.
-     */
-    public function __construct(Reader $reader, $paths = null)
-    {
-        $this->reader = $reader;
-        if ($paths) {
-            $this->addPaths((array) $paths);
-        }
-    }
-
-    /**
-     * Append lookup paths to metadata driver.
-     *
-     * @param array $paths
-     */
-    public function addPaths(array $paths)
-    {
-        $this->paths = array_unique(array_merge($this->paths, $paths));
-    }
-
-    /**
-     * Retrieve the defined metadata lookup paths.
-     *
-     * @return array
-     */
-    public function getPaths()
-    {
-        return $this->paths;
-    }
 
     /**
      * {@inheritdoc}
      */
-    public function loadMetadataForClass($className, ClassMetadata $class)
+    public function loadMetadataForClass($className, ClassMetadata $metadata)
     {
-        $reflClass = $class->getReflectionClass();
+        $reflClass = $metadata->getReflectionClass();
 
         $documentAnnots = array();
         foreach ($this->reader->getClassAnnotations($reflClass) as $annot) {
-            foreach (self::$documentAnnotationClasses as $i => $annotClass) {
+            foreach ($this->entityAnnotationClasses as $annotClass => $i) {
                 if ($annot instanceof $annotClass) {
                     $documentAnnots[$i] = $annot;
                 }
@@ -135,22 +78,22 @@ class AnnotationDriver implements Driver
             throw new MappingException("Alias must be specified in the Document() annotation mapping of $className");
         }
 
-        $class->setAlias($documentAnnot->alias);
+        $metadata->setAlias($documentAnnot->alias);
         if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
-            $class->setVersioned(true);
+            $metadata->setVersioned(true);
         }
-        $class->setNodeType($documentAnnot->nodeType);
+        $metadata->setNodeType($documentAnnot->nodeType);
 
         if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
-            $class->setReferenceable(true);
+            $metadata->setReferenceable(true);
         }
 
         if ($documentAnnot->repositoryClass) {
-            $class->setCustomRepositoryClassName($documentAnnot->repositoryClass);
+            $metadata->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }
 
         if ($documentAnnot->translator) {
-            $class->setTranslator($documentAnnot->translator);
+            $metadata->setTranslator($documentAnnot->translator);
         }
 
         foreach ($reflClass->getProperties() as $property) {
@@ -158,39 +101,39 @@ class AnnotationDriver implements Driver
             $mapping['fieldName'] = $property->getName();
 
             foreach ($this->reader->getPropertyAnnotations($property) as $fieldAnnot) {
-                if ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Property) {
+                if ($fieldAnnot instanceof ODM\Property) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapField($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Id) {
+                    $metadata->mapField($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Id) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapId($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Node) {
+                    $metadata->mapId($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Node) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapNode($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename) {
+                    $metadata->mapNode($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Nodename) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapNodename($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ParentDocument) {
+                    $metadata->mapNodename($mapping);
+                } elseif ($fieldAnnot instanceof ODM\ParentDocument) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapParentDocument($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Child) {
+                    $metadata->mapParentDocument($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Child) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapChild($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Children) {
+                    $metadata->mapChild($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Children) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapChildren($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceOne) {
+                    $metadata->mapChildren($mapping);
+                } elseif ($fieldAnnot instanceof ODM\ReferenceOne) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapManyToOne($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\ReferenceMany) {
+                    $metadata->mapManyToOne($mapping);
+                } elseif ($fieldAnnot instanceof ODM\ReferenceMany) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapManyToMany($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Referrers) {
+                    $metadata->mapManyToMany($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Referrers) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapReferrers($mapping);
-                } elseif ($fieldAnnot instanceof \Doctrine\ODM\PHPCR\Mapping\Annotations\Locale) {
+                    $metadata->mapReferrers($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Locale) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
-                    $class->mapLocale($mapping);
+                    $metadata->mapLocale($mapping);
                 }
 
                 if (!isset($mapping['name'])) {
@@ -203,106 +146,32 @@ class AnnotationDriver implements Driver
             if ($method->isPublic()) {
                 foreach ($this->reader->getMethodAnnotations($method) as $annot) {
                     if ($annot instanceof ODM\PrePersist) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::prePersist);
+                        $metadata->addLifecycleCallback($method->getName(), Event::prePersist);
                     } elseif ($annot instanceof  ODM\PostPersist) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postPersist);
+                        $metadata->addLifecycleCallback($method->getName(), Event::postPersist);
                     } elseif ($annot instanceof ODM\PreUpdate) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::preUpdate);
+                        $metadata->addLifecycleCallback($method->getName(), Event::preUpdate);
                     } elseif ($annot instanceof ODM\PostUpdate) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postUpdate);
+                        $metadata->addLifecycleCallback($method->getName(), Event::postUpdate);
                     } elseif ($annot instanceof ODM\PreRemove) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::preRemove);
+                        $metadata->addLifecycleCallback($method->getName(), Event::preRemove);
                     } elseif ($annot instanceof ODM\PostRemove) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postRemove);
+                        $metadata->addLifecycleCallback($method->getName(), Event::postRemove);
                     } elseif ($annot instanceof ODM\PreLoad) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::preLoad);
+                        $metadata->addLifecycleCallback($method->getName(), Event::preLoad);
                     } elseif ($annot instanceof  ODM\PostLoad) {
-                        $class->addLifecycleCallback($method->getName(), \Doctrine\ODM\PHPCR\Event::postLoad);
+                        $metadata->addLifecycleCallback($method->getName(), Event::postLoad);
                     }
                 }
             }
         }
 
         // Check there is a @Locale annotation for translatable documents
-        if (count($class->translatableFields)) {
-            if (!isset($class->localeMapping)) {
+        if (count($metadata->translatableFields)) {
+            if (!isset($metadata->localeMapping)) {
                 throw new MappingException("You must define a @Locale field for translatable document '$className'");
             }
         }
     }
 
-    /**
-     * Whether the class with the specified name is transient. Only non-transient
-     * classes, that is entities and mapped superclasses, should have their metadata loaded.
-     * A class is non-transient if it is annotated with either @Entity or
-     * @MappedSuperclass in the class doc block.
-     *
-     * @param string $className
-     * @return boolean
-     */
-    public function isTransient($className)
-    {
-        $rc = new \ReflectionClass($className);
-
-        if ($this->reader->getClassAnnotation($rc, 'Doctrine\ODM\PHPCR\Mapping\Annotations\Document')) {
-            return false;
-        }
-
-        if ($this->reader->getClassAnnotation($rc, 'Doctrine\ODM\PHPCR\Mapping\Annotations\MappedSuperclass')) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getAllClassNames()
-    {
-        if ($this->classNames !== null) {
-            return $this->classNames;
-        }
-
-        if (!$this->paths) {
-            throw MappingException::pathRequired();
-        }
-
-        $classes = array();
-        $includedFiles = array();
-
-        foreach ($this->paths as $path) {
-            if (!is_dir($path)) {
-                throw MappingException::fileMappingDriversRequireConfiguredDirectoryPath();
-            }
-
-            $iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            foreach ($iterator as $file) {
-                if (($file->getBasename($this->fileExtension)) == $file->getBasename()) {
-                    continue;
-                }
-
-                $sourceFile = realpath($file->getPathName());
-                require_once $sourceFile;
-                $includedFiles[] = $sourceFile;
-            }
-        }
-
-        $declared = get_declared_classes();
-
-        foreach ($declared as $className) {
-            $rc = new \ReflectionClass($className);
-            $sourceFile = $rc->getFileName();
-            if (in_array($sourceFile, $includedFiles) && !$this->isTransient($className)) {
-                $classes[] = $className;
-            }
-        }
-        $this->classNames = $classes;
-
-        return $classes;
-    }
 }

@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 
