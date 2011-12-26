@@ -62,7 +62,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     public function __construct(DocumentManager $dm)
     {
-        $this->dm     = $dm;
+        $this->dm = $dm;
         $conf = $this->dm->getConfiguration();
         $this->setCacheDriver($conf->getMetadataCacheImpl());
         $this->driver = $conf->getMetadataDriverImpl();
@@ -117,7 +117,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * 
      * @todo unclear usage of rootEntityFound
      */
-    protected function doLoadMetadata($class, $parent, $rootEntityFound) {
+    protected function doLoadMetadata($class, $parent, $rootEntityFound)
+    {
         if ($parent) {
             $this->getDriver()->loadMetadataForClass($parent->name, $parent);
         }
@@ -127,14 +128,16 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      * {@inheritdoc}
      */
-    protected function getDriver() {
+    protected function getDriver()
+    {
         return $this->driver;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function initialize() {
+    protected function initialize()
+    {
         $this->initialized = true;
     }
     

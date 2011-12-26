@@ -49,7 +49,8 @@ class MappingException extends \Exception
      * @param string $document The document's name
      * @param string $fieldName The name of the field that was already declared
      */
-    public static function duplicateFieldMapping($document, $fieldName) {
+    public static function duplicateFieldMapping($document, $fieldName)
+    {
         return new self('Property "'.$fieldName.'" in "'.$document.'" was already declared, but it must be declared only once');
     }
 
@@ -57,7 +58,8 @@ class MappingException extends \Exception
      * @param string $document The document's name
      * @param string $fieldName The name of the field that was already declared
      */
-    public static function missingTypeDefinition($document, $fieldName) {
+    public static function missingTypeDefinition($document, $fieldName)
+    {
         return new self('Property "'.$fieldName.'" in "'.$document.'" must have a type attribute defined');
     }
 
