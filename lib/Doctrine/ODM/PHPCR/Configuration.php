@@ -168,9 +168,6 @@ class Configuration
      */
     public function getMetadataCacheImpl()
     {
-        if($this->attributes['metadataCacheImpl'] === null) {
-            $this->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-        }
         return $this->attributes['metadataCacheImpl'];
     }
 
