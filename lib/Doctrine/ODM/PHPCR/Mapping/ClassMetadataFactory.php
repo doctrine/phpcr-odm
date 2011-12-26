@@ -63,7 +63,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     public function __construct(DocumentManager $dm)
     {
         $this->dm     = $dm;
-        $this->driver = $this->dm->getConfiguration()->getMetadataDriverImpl();
+        $conf = $this->dm->getConfiguration();
+        $this->setCacheDriver($conf->getMetadataCacheImpl());
+        $this->driver = $conf->getMetadataDriverImpl();
     }
 
     /**
