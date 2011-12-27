@@ -341,4 +341,3 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
 }
 PHP;
 }
-
