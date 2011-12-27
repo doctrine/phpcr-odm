@@ -75,7 +75,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     public function getMetadataFor($className)
     {
-        if ($metadata = parent::getMetadataFor($className)) {
+        $metadata = parent::getMetadataFor($className);
+        if ($metadata) {
             return $metadata;
         }
         throw MappingException::classNotMapped($className);
