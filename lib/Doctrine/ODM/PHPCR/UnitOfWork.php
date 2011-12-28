@@ -624,9 +624,10 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
-        if ($document instanceof Proxy && !$document->__isInitialized__) {
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
         }
+
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
