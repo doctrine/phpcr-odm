@@ -118,7 +118,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function doLoadMetadata($class, $parent, $rootEntityFound)
     {
-        $this->getDriver()->loadMetadataForClass($class->name, $class);
+        $this->getDriver()->loadMetadataForClass($class->getName(), $class);
     }
 
     /**
