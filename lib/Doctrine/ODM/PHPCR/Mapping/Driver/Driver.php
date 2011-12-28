@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * Contract for metadata drivers.
@@ -30,30 +30,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-interface Driver
+interface Driver extends MappingDriver
 {
-    /**
-     * Loads the metadata for the specified class into the provided container.
-     *
-     * @param string $className
-     * @param ClassMetadataInfo $metadata
-     */
-    function loadMetadataForClass($className, ClassMetadata $metadata);
 
-    /**
-     * Gets the names of all mapped classes known to this driver.
-     *
-     * @return array The names of all mapped classes known to this driver.
-     */
-    function getAllClassNames();
-
-    /**
-     * Whether the class with the specified name should have its metadata loaded.
-     * This is only the case if it is either mapped as an Document or a
-     * MappedSuperclass.
-     *
-     * @param string $className
-     * @return boolean
-     */
-    function isTransient($className);
 }
