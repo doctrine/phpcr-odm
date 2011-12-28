@@ -19,8 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 /**
  * The YamlDriver reads the mapping metadata from yaml schema files.
