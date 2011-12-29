@@ -297,8 +297,8 @@ namespace <namespace>;
 class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy\Proxy
 {
     private $__doctrineDocumentManager__;
-    private $__doctrineIdentifier__;
     public $__isInitialized__ = false;
+
     public function __construct($documentManager, $identifier)
     {
         <unsetattributes>
@@ -337,7 +337,6 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
     {
         return $this->__isInitialized__;
     }
-
 }
 PHP;
 }
