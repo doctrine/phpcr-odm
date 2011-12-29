@@ -34,11 +34,11 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->dm = DocumentManager::create($this->session);
         $this->uow = new UnitOfWork($this->dm);
 
-        $metadata = new ClassMetadata($this->type);
+        $cmf = $this->dm->getMetadataFactory();
+        $metadata = $cmf->getMetadataFor($this->type);
         $metadata->mapField(array('fieldName' => 'id', 'id' => true));
         $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
 
-        $cmf = $this->dm->getMetadataFactory();
         $cmf->setMetadataFor($this->type, $metadata);
     }
 

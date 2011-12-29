@@ -8,6 +8,8 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
 {
     public function testLoadMetadataForNonDocumentThrowsException()
     {
+        $this->markTestSkipped();
+        return;
         $cm = new ClassMetadata('stdClass');
         $reader = new \Doctrine\Common\Annotations\AnnotationReader(new \Doctrine\Common\Cache\ArrayCache());
         $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
