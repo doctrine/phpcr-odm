@@ -19,9 +19,12 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use ReflectionProperty;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
+use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
 
 /**
@@ -136,5 +139,41 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     {
         $this->initialized = true;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initializeReflection(ClassMetadataInterface $class, ReflectionService $reflService) {
+        $className = $class->getName();
+        $class->reflClass = $reflService->getClass($className);
+        $class->namespace = $reflService->getClassNamespace($className);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function wakeupReflection(ClassMetadataInterface $class, ReflectionService $reflService) {
+        $className = $class->getName();
+        $class->reflClass = $reflService->getClass($className);
+        $class->namespace = $reflService->getClassNamespace($className);
+        foreach ($class->fieldMappings as $field => $mapping) {
+            if (isset($mapping['declared'])) {
+                $reflField = new ReflectionProperty($mapping['declared'], $field);
+            } else {
+                $reflField = $class->reflClass->getProperty($field);
+            }
+            $reflField->setAccessible(true);
+            $class->reflFields[$field] = $reflField;
+        }
+        foreach ($this->fieldMappings as $field => $mapping) {
+            if (isset($mapping['declared'])) {
+                $reflField = new ReflectionProperty($mapping['declared'], $field);
+            } else {
+                $reflField = $class->reflClass->getProperty($field);
+            }
+            $reflField->setAccessible(true);
+            $class->reflFields[$field] = $reflField;
+        }
+    }
+
 }

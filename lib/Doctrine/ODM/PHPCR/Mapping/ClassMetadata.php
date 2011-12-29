@@ -19,8 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use ReflectionClass;
-use ReflectionProperty;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 
 /**
@@ -177,7 +175,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * The ReflectionClass instance of the mapped class.
      *
-     * @var ReflectionClass
+     * @var \ReflectionClass
      */
     public $reflClass;
 
@@ -263,8 +261,6 @@ class ClassMetadata implements ClassMetadataInterface
     public function __construct($className)
     {
         $this->name = $className;
-        $this->reflClass = new ReflectionClass($className);
-        $this->namespace = $this->reflClass->getNamespaceName();
     }
 
     /**
@@ -380,7 +376,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Gets the ReflectionProperties of the mapped class.
      *
-     * @return array An array of ReflectionProperty instances.
+     * @return array An array of \ReflectionProperty instances.
      */
     public function getReflectionProperties()
     {
@@ -391,7 +387,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets a ReflectionProperty for a specific field of the mapped class.
      *
      * @param string $name
-     * @return ReflectionProperty
+     * @return \ReflectionProperty
      */
     public function getReflectionProperty($name)
     {
@@ -642,9 +638,6 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getReflectionClass()
     {
-        if ( ! $this->reflClass) {
-            $this->reflClass = new ReflectionClass($this->name);
-        }
         return $this->reflClass;
     }
 
@@ -813,7 +806,6 @@ class ClassMetadata implements ClassMetadataInterface
             'fieldMappings',
             'identifier',
             'name',
-            'namespace', // TODO: REMOVE
 //            'collection',
 //            'generatorType',
             'generatorOptions',
@@ -838,38 +830,6 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         return $serialized;
-    }
-
-    /**
-     * Restores some state that can not be serialized/unserialized.
-     *
-     * @return void
-     */
-    public function __wakeup()
-    {
-        // Restore ReflectionClass and properties
-        $this->reflClass = new ReflectionClass($this->name);
-
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
-            $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
-        }
-
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
-
-            $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
-        }
     }
 
     /**
