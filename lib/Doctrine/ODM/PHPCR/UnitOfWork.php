@@ -289,11 +289,13 @@ class UnitOfWork
                     throw new PHPCRException("Expected referenced nodes passed as array.");
                 }
 
+                $referencedDocs = array();
                 foreach ($proxyNodes as $referencedNode) {
                     $referencedClass = isset($assocOptions['targetDocument']) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->createProxy(
-                        $referencedNode, $referencedClass
-                    );
+                    $referencedDocs[] = $this->createProxy($referencedNode, $referencedClass);
+                }
+                if (count($referencedDocs) > 0) {
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
                 }
             }
         }
@@ -458,17 +460,16 @@ class UnitOfWork
             $related = $class->reflFields[$assocName]->getValue($document);
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
-                    if (is_array($related)) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation.");
+                    if (is_array($related) || $related instanceof ReferenceManyCollection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a ReferenceManyCollection.");
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
-                    // $related can never be a persistent collection in case of a new document.
-                    if (!is_array($related)) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation.");
+                    if (!is_array($related) && ! $related instanceof ReferenceManyCollection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a ReferenceManyCollection.");
                     }
                     foreach ($related as $relatedDocument) {
                         if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
@@ -698,6 +699,10 @@ class UnitOfWork
                     }
                     $changed = true;
                     break;
+                } elseif ($fieldValue instanceof ReferenceManyCollection) {
+                    if ($fieldValue->changed()) {
+                        $changed = true;
+                    }
                 }
             }
 
@@ -719,7 +724,7 @@ class UnitOfWork
 
         foreach ($class->associationsMappings as $assocName => $assoc) {
             if ($actualData[$assocName]) {
-                if (is_array($actualData[$assocName])) {
+                if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof ReferenceManyCollection) {
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
                             $this->computeReferenceChanges($ref);
