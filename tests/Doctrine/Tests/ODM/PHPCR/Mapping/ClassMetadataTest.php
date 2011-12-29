@@ -6,6 +6,15 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
+
+    public function testGetTypeOfField()
+    {
+        $cmi = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $this->assertEquals(null, $cmi->getTypeOfField('some_field'));
+        $cmi->fieldMappings['some_field'] = array('type' => 'some_type');
+        $this->assertEquals('some_type', $cmi->getTypeOfField('some_field'));
+    }
+
     public function testClassName()
     {
         $cm = new ClassMetadata("Doctrine\Tests\ODM\PHPCR\Mapping\Person");
