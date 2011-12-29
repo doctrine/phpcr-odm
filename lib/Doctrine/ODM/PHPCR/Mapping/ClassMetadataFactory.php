@@ -121,7 +121,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function doLoadMetadata($class, $parent, $rootEntityFound)
     {
-        $this->getDriver()->loadMetadataForClass($class->getName(), $class);
+        if ($this->getDriver()) {
+            $this->getDriver()->loadMetadataForClass($class->getName(), $class);
+        }
     }
 
     /**
@@ -165,7 +167,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $reflField->setAccessible(true);
             $class->reflFields[$field] = $reflField;
         }
-        foreach ($this->fieldMappings as $field => $mapping) {
+        foreach ($class->fieldMappings as $field => $mapping) {
             if (isset($mapping['declared'])) {
                 $reflField = new ReflectionProperty($mapping['declared'], $field);
             } else {
