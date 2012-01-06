@@ -33,7 +33,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $doc->id = '/' . $this->testNodeName;
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
+        $doc->setText('Lorem ipsum...');
         $this->doc = $doc;
     }
 
@@ -204,7 +204,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $doc->id = '/' . $this->testNodeName;
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
+        $doc->setText('Lorem ipsum...');
         $this->dm->persistTranslation($doc, 'en');
 
         $locales = $this->dm->getLocalesFor($doc);

@@ -152,7 +152,7 @@ class DocumentManager implements ObjectManager
     public function getLocaleChooserStrategy()
     {
         if (is_null($this->localeChooserStrategy)) {
-            throw new \InvalidArgumentException("You must set a language chooser strategy for a document that contains translatable fields");
+            throw new \InvalidArgumentException("You must configure a language chooser strategy when having documents with the translatable annotation");
         }
         return $this->localeChooserStrategy;
     }

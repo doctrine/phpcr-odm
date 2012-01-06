@@ -32,7 +32,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
+        $doc->setText('Lorem ipsum...');
 
         $node = $this->getTestNode();
 
@@ -88,13 +88,13 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
-        $this->assertEquals('English text', $doc->text);
+        $this->assertEquals('English text', $doc->getText());
 
         // Load another language and test the document has been updated
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
-        $this->assertEquals('Texte français', $doc->text);
+        $this->assertEquals('Texte français', $doc->getText());
     }
 
     public function testRemoveTranslation()
@@ -103,7 +103,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
+        $doc->setText('Lorem ipsum...');
 
         $node = $this->getTestNode();
 

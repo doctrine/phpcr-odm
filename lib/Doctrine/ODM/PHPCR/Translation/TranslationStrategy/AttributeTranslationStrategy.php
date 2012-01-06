@@ -24,7 +24,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     {
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
-            $node->setProperty($propName, $document->$field);
+            $node->setProperty($propName, $metadata->reflFields[$field]->getValue($document));
         }
     }
 
@@ -39,7 +39,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 // Could not find the translation in the given language
                 return false;
             }
-            $document->$field = $node->getPropertyValue($propName);
+            $metadata->reflFields[$field]->setValue($document, $node->getPropertyValue($propName));
         }
         return true;
     }
