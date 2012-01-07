@@ -507,13 +507,6 @@ class UnitOfWork
                 }
             }
         }
-
-        foreach ($class->referrersMappings as $referrerName => $mapping) {
-            $referrer = $class->reflFields[$referrerName]->getValue($document);
-            if ($referrer !== null && $this->getDocumentState($referrer) === self::STATE_NEW) {
-                $this->doScheduleInsert($referrer, $visited);
-            }
-        }
     }
 
     private function cascadeScheduleParentInsert($class, $document, &$visited)
