@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class ChildMappingTest extends \PHPUnit_Framework_TestCase
 {
@@ -14,12 +15,11 @@ abstract class ChildMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadMapping()
     {
-        $this->markTestSkipped();
-        return;
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\ChildMappingObj';
         $mappingDriver = $this->loadDriver();
 
         $class = new ClassMetadata($className);
+        $class->initializeReflection(new RuntimeReflectionService());
         $mappingDriver->loadMetadataForClass($className, $class);
 
         return $class;
