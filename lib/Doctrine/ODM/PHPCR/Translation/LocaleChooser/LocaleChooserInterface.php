@@ -28,7 +28,8 @@ interface LocaleChooserInterface
     function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null);
 
     /**
-     * Get the ordered list of locales for the default locale
+     * Get the ordered list of locales for the default locale without any
+     * context
      *
      * @return array preferred locale order for the default locale
      */

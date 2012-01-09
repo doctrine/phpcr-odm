@@ -551,6 +551,16 @@ $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_no
 $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node', 'fr');
 ```
 
+## Limitations
+
+The provided translation strategies will report a translation as not existing
+if any of the fields declared in the document is not existing. This is a
+feature because you want to know when you try to load an incomplete document.
+But we are currently missing a concept how to do update the content to still be
+compatible when document annotations are changed. The solution could look
+similar to the ORM migrations issue.
+
+
 # Lifecycle callbacks
 
 You can use @PHPCRODM\PostLoad and friends to have doctrine call a method without

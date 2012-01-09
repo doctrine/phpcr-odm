@@ -63,7 +63,7 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function getDefaultLocalesOrder()
     {
-        return $this->getPreferredLocales($this->defaultLocale);
+        return $this->localePreference[$this->defaultLocale];
     }
 
     /**

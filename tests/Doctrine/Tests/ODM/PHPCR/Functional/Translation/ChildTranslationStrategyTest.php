@@ -71,6 +71,43 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
     public function testLoadTranslation()
     {
+        // First save some translations
+        $doc = new Article();
+        $doc->author = 'John Doe';
+        $doc->topic = 'English topic';
+        $doc->setText('English text');
+
+        $node = $this->getTestNode();
+
+        $strategy = new ChildTranslationStrategy();
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
+
+        // The document locale was not yet assigned so it must be set
+        $this->assertEquals('en', $doc->locale);
+
+        // Save translation in another language
+
+        $doc->topic = 'Sujet français';
+        $doc->setText(null);
+
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $this->dm->flush();
+
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
+
+        // And check the translatable properties have the correct value
+        $this->assertEquals('English topic', $doc->topic);
+        $this->assertEquals('English text', $doc->getText());
+
+        // Load another language and test the document has been updated
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
+
+        $this->assertEquals('Sujet français', $doc->topic);
+        $this->assertNull($doc->getText());
+    }
+
+    public function testTranslationNullProperties()
+    {
         // Create the node in the content repository
         $node = $this->fillTranslations();
 

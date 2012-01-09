@@ -17,15 +17,26 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  */
 class AttributeTranslationStrategy extends AbstractTranslationStrategy
 {
+    const NULLFIELDS = 'nullfields';
+
     /**
      * {@inheritdoc}
      */
     public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
+        $nullFields = array();
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
-            $node->setProperty($propName, $metadata->reflFields[$field]->getValue($document));
+            $propValue = $metadata->reflFields[$field]->getValue($document);
+            $node->setProperty($propName, $propValue);
+            if (null === $propValue) {
+                $nullFields[] = $field;
+            }
         }
+        if (empty($nullFields)) {
+            $nullFields = null;
+        }
+        $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, $nullFields); // no '-' to avoid nameclashes
     }
 
     /**
@@ -33,13 +44,23 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
+        if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
+            $nullFields = $node->getPropertyValue($this->prefix . ':' . $locale . self::NULLFIELDS);
+            $nullFields = array_flip($nullFields);
+        } else {
+            $nullFields = array();
+        }
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
-            if (!$node->hasProperty($propName)) {
+            if (isset($nullFields[$field])) {
+                $value = null;
+            } elseif ($node->hasProperty($propName)) {
+                $value = $node->getPropertyValue($propName);
+            } else {
                 // Could not find the translation in the given language
                 return false;
             }
-            $metadata->reflFields[$field]->setValue($document, $node->getPropertyValue($propName));
+            $metadata->reflFields[$field]->setValue($document, $value);
         }
         return true;
     }

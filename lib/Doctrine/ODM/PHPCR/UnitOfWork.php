@@ -1573,7 +1573,7 @@ class UnitOfWork
         if (!$translationFound) {
             // We tried each possible language without finding the translations
             // TODO what is the right exception? some "not found" probably
-            throw new \Exception("No translation found. Tried the following locales: " . print_r($localesToTry, true));
+            throw new \Exception("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: " . print_r($localesToTry, true));
         }
 
         // Set the locale
