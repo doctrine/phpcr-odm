@@ -196,9 +196,11 @@ class UnitOfWork
      * Create a document given class, data and the doc-id and revision
      *
      * Supported hints are
-     * * refresh: reload the fields from the database
-     * * locale: use this locale instead of the one from the annotation or the default
-     * * fallback: whether to try other languages or throw a not found exception if the desired locale is not found
+     * - refresh: reload the fields from the database
+     * - locale: use this locale instead of the one from the annotation or the default
+     * - fallback: whether to try other languages or throw a not found
+     *      exception if the desired locale is not found. defaults to true if
+     *      not set and locale is not given either.
      *
      * @param null|string $className
      * @param \PHPCR\NodeInterface $node
@@ -355,7 +357,7 @@ class UnitOfWork
 
         // Load translations
         $locale = isset($hints['locale']) ? $hints['locale'] : null;
-        $fallback = isset($hints['fallback']) ? $hints['fallback'] : false;
+        $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
 
         $this->doLoadTranslation($document, $class, $locale, $fallback);
 
@@ -1548,7 +1550,7 @@ class UnitOfWork
         if (!$fallback) {
 
             if (is_null($locale)) {
-                throw new \InvalidArgumentException("Error while loading the translations, no locale specified and the language fallback is disabled");
+                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled");
             }
             $localesToTry = array($locale);
 
