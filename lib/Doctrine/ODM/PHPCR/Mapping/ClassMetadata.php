@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use ReflectionProperty;
+use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 
 /**
@@ -261,6 +263,47 @@ class ClassMetadata implements ClassMetadataInterface
     public function __construct($className)
     {
         $this->name = $className;
+    }
+
+    /**
+     * Initializes a new ClassMetadata instance that will hold the 
+     * object-relational mapping metadata of the class with the given name.
+     *
+     * @param ReflectionService $reflService 
+     */
+    public function initializeReflection(ReflectionService $reflService)
+    {
+        $this->reflClass = $reflService->getClass($this->name);
+        $this->namespace = $reflService->getClassNamespace($this->name);
+    }
+
+    /**
+     * Restores some state that can not be serialized/unserialized.
+     * 
+     * @param ReflectionService $reflService
+     */
+    public function wakeupReflection(ReflectionService $reflService)
+    {
+        $this->reflClass = $reflService->getClass($this->name);
+        $this->namespace = $reflService->getClassNamespace($this->name);
+        foreach ($this->fieldMappings as $field => $mapping) {
+            if (isset($mapping['declared'])) {
+                $reflField = new ReflectionProperty($mapping['declared'], $field);
+            } else {
+                $reflField = $this->reflClass->getProperty($field);
+            }
+            $reflField->setAccessible(true);
+            $this->reflFields[$field] = $reflField;
+        }
+        foreach ($this->fieldMappings as $field => $mapping) {
+            if (isset($mapping['declared'])) {
+                $reflField = new ReflectionProperty($mapping['declared'], $field);
+            } else {
+                $reflField = $this->reflClass->getProperty($field);
+            }
+            $reflField->setAccessible(true);
+            $this->reflFields[$field] = $reflField;
+        }
     }
 
     /**
