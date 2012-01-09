@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,8 +17,9 @@ abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\PropertyMappingObj';
         $mappingDriver = $this->loadDriver();
-
+        
         $class = new ClassMetadata($className);
+        $class->initializeReflection(new RuntimeReflectionService());
         $mappingDriver->loadMetadataForClass($className, $class);
 
         return $class;

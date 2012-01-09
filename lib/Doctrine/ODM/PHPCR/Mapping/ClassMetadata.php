@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use ReflectionProperty;
+use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 
 /**
@@ -32,8 +34,32 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-class ClassMetadata extends ClassMetadataInfo implements ClassMetadataInterface
+class ClassMetadata implements ClassMetadataInterface
 {
+
+    const TO_ONE = 5;
+    const TO_MANY = 10;
+    const ONE_TO_ONE = 1;
+    const ONE_TO_MANY = 2;
+    const MANY_TO_ONE = 4;
+    const MANY_TO_MANY = 8;
+
+    /**
+     * means the repository will need to be able to generate the id.
+     */
+    const GENERATOR_TYPE_REPOSITORY = 1;
+
+    /**
+     * NONE means Doctrine will not generate any id for us and you are responsible for manually
+     * assigning an id.
+     */
+    const GENERATOR_TYPE_ASSIGNED = 2;
+
+    /**
+     * means the document uses the parent and name mapping to find its place.
+     */
+    const GENERATOR_TYPE_PARENT = 3;
+
     /**
      * The ReflectionProperty instances of the mapped class.
      *
@@ -49,6 +75,186 @@ class ClassMetadata extends ClassMetadataInfo implements ClassMetadataInterface
     private $prototype;
 
     /**
+     * READ-ONLY: The ID generator used for generating IDs for this class.
+     *
+     * @var AbstractIdGenerator
+     */
+    public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
+
+    /**
+     * READ-ONLY: The field name of the document identifier.
+     */
+    public $identifier;
+
+    /**
+     * READ-ONLY: The name of the document class that is stored in the phpcr:class property
+     */
+    public $name;
+
+    /**
+     * READ-ONLY: The namespace the document class is contained in.
+     *
+     * @var string
+     * @todo Not really needed. Usage could be localized.
+     */
+    public $namespace;
+
+    /**
+     * READ-ONLY: The class alias
+     *
+     * @var string
+     */
+    public $alias;
+
+    /**
+     * READ-ONLY: The JCR Nodetype to be used for this node
+     *
+     * @var string
+     */
+    public $nodeType;
+
+    /**
+     * READ-ONLY: The field name of the node
+     *
+     * @var string
+     */
+    public $node;
+
+    /**
+     * READ-ONLY except on document creation: The name of the node
+     *
+     * @var string
+     */
+    public $nodename;
+
+    /**
+     * READ-ONLY except on document creation: The name of the node
+     *
+     * @var string
+     */
+    public $parentMapping;
+
+    /**
+     * The name of the custom repository class used for the document class.
+     * (Optional).
+     *
+     * @var string
+     */
+    public $customRepositoryClassName;
+
+    /**
+     * READ-ONLY: The field mappings of the class.
+     * Keys are field names and values are mapping definitions.
+     *
+     * The mapping definition array has the following values:
+     *
+     * - <b>fieldName</b> (string)
+     * The name of the field in the Document.
+     *
+     * - <b>id</b> (boolean, optional)
+     * Marks the field as the primary key of the document. Multiple fields of an
+     * document can have the id attribute, forming a composite key.
+     *
+     * @var array
+     */
+    public $fieldMappings = array();
+
+    /**
+     * READ-ONLY: Array of fields to also load with a given method.
+     *
+     * @var array
+     */
+    public $alsoLoadMethods = array();
+
+    /**
+     * READ-ONLY: The registered lifecycle callbacks for documents of this class.
+     *
+     * @var array
+     */
+    public $lifecycleCallbacks = array();
+
+
+    /**
+     * The ReflectionClass instance of the mapped class.
+     *
+     * @var \ReflectionClass
+     */
+    public $reflClass;
+
+    /**
+     * READ-ONLY: Whether this class describes the mapping of a mapped superclass.
+     *
+     * @var boolean
+     */
+    public $isMappedSuperclass = false;
+
+    /**
+     * @var array
+     */
+    public $associationsMappings = array();
+
+    /**
+     * Mapping of child doucments that are child nodes in the repository
+     */
+    public $childMappings = array();
+
+    /**
+     * Mapping of children: access child nodes through a collection
+     */
+    public $childrenMappings = array();
+
+    /**
+     * Mapping of referrers: access referrer nodes through a collection
+     */
+    public $referrersMappings = array();
+
+    /**
+     * Mapping of locale (actual locale)
+     */
+    public $localeMapping;
+
+    /**
+     * List of translatable fields
+     * @var array
+     */
+    public $translatableFields = array();
+
+    /**
+     * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
+     *
+     * @var bool
+     */
+    public $versionable = false;
+
+    /**
+     * Version Field stores the PHPCR Revision
+     *
+     * @var string
+     */
+    public $versionField = null;
+
+    /**
+     * determines if the document is referenceable or not
+     *
+     * @var bool
+     */
+    public $referenceable = false;
+
+    /**
+     * Strategy key to find field translations.
+     * This is the key used for DocumentManager::getTranslationStrategy
+     * @var string
+     */
+    public $translator;
+
+    /**
+     * READ-ONLY: The Id generator options.
+     *
+     * @var array
+     */
+    public $generatorOptions = array();
+
+    /**
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
@@ -56,19 +262,562 @@ class ClassMetadata extends ClassMetadataInfo implements ClassMetadataInterface
      */
     public function __construct($className)
     {
-        parent::__construct($className);
-        $this->reflClass = new \ReflectionClass($className);
-        $this->namespace = $this->reflClass->getNamespaceName();
+        $this->name = $className;
+    }
+
+    /**
+     * Initializes a new ClassMetadata instance that will hold the 
+     * object-relational mapping metadata of the class with the given name.
+     *
+     * @param ReflectionService $reflService 
+     */
+    public function initializeReflection(ReflectionService $reflService)
+    {
+        $this->reflClass = $reflService->getClass($this->name);
+        $this->namespace = $reflService->getClassNamespace($this->name);
+    }
+
+    /**
+     * Restores some state that can not be serialized/unserialized.
+     * 
+     * @param ReflectionService $reflService
+     */
+    public function wakeupReflection(ReflectionService $reflService)
+    {
+        $this->reflClass = $reflService->getClass($this->name);
+        $this->namespace = $reflService->getClassNamespace($this->name);
+        foreach ($this->fieldMappings as $field => $mapping) {
+            if (isset($mapping['declared'])) {
+                $reflField = new ReflectionProperty($mapping['declared'], $field);
+            } else {
+                $reflField = $this->reflClass->getProperty($field);
+            }
+            $reflField->setAccessible(true);
+            $this->reflFields[$field] = $reflField;
+        }
+        foreach ($this->fieldMappings as $field => $mapping) {
+            if (isset($mapping['declared'])) {
+                $reflField = new ReflectionProperty($mapping['declared'], $field);
+            } else {
+                $reflField = $this->reflClass->getProperty($field);
+            }
+            $reflField->setAccessible(true);
+            $this->reflFields[$field] = $reflField;
+        }
+    }
+
+    /**
+     * INTERNAL:
+     * Sets the mapped identifier field of this class.
+     *
+     * @param string $identifier
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
+
+    /**
+     * Registers a custom repository class for the document class.
+     *
+     * @param string $mapperClassName  The class name of the custom mapper.
+     */
+    public function setCustomRepositoryClassName($repositoryClassName)
+    {
+        $this->customRepositoryClassName = $repositoryClassName;
+    }
+
+    /**
+     * Whether the class has any attached lifecycle listeners or callbacks for a lifecycle event.
+     *
+     * @param string $lifecycleEvent
+     * @return boolean
+     */
+    public function hasLifecycleCallbacks($lifecycleEvent)
+    {
+        return isset($this->lifecycleCallbacks[$lifecycleEvent]);
+    }
+
+    /**
+     * Gets the registered lifecycle callbacks for an event.
+     *
+     * @param string $event
+     * @return array
+     */
+    public function getLifecycleCallbacks($event)
+    {
+        return isset($this->lifecycleCallbacks[$event]) ? $this->lifecycleCallbacks[$event] : array();
+    }
+
+    /**
+     * Adds a lifecycle callback for documents of this class.
+     *
+     * Note: If the same callback is registered more than once, the old one
+     * will be overridden.
+     *
+     * @param string $callback
+     * @param string $event
+     */
+    public function addLifecycleCallback($callback, $event)
+    {
+        $this->lifecycleCallbacks[$event][] = $callback;
+    }
+
+    /**
+     * Sets the lifecycle callbacks for documents of this class.
+     * Any previously registered callbacks are overwritten.
+     *
+     * @param array $callbacks
+     */
+    public function setLifecycleCallbacks(array $callbacks)
+    {
+        $this->lifecycleCallbacks = $callbacks;
+    }
+
+    /**
+     * @param string $alias
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
+
+    /**
+     * @param bool $versionable
+     */
+    public function setVersioned($versionable)
+    {
+        $this->versionable = $versionable;
+    }
+
+    /**
+     * @param bool $referenceable
+     */
+    public function setReferenceable($referenceable)
+    {
+        $this->referenceable = $referenceable;
+    }
+
+    /**
+     * @param string $nodeType
+     */
+    public function setNodeType($nodeType)
+    {
+        $this->nodeType = $nodeType;
+    }
+
+    /**
+     * Registers a custom repository class for the document class.
+     *
+     * @param string $mapperClassName  The class name of the custom mapper.
+     */
+    public function setCustomRepositoryClass($repositoryClassName)
+    {
+        $this->customRepositoryClassName = $repositoryClassName;
+    }
+
+    /**
+     * Gets the ReflectionProperties of the mapped class.
+     *
+     * @return array An array of \ReflectionProperty instances.
+     */
+    public function getReflectionProperties()
+    {
+        return $this->reflFields;
+    }
+
+    /**
+     * Gets a ReflectionProperty for a specific field of the mapped class.
+     *
+     * @param string $name
+     * @return \ReflectionProperty
+     */
+    public function getReflectionProperty($name)
+    {
+        return $this->reflFields[$name];
+    }
+
+    /**
+     * The namespace this Document class belongs to.
+     *
+     * @return string $namespace The namespace name.
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    public function mapId(array $mapping)
+    {
+        if (isset($mapping['id']) && $mapping['id'] === true) {
+            $mapping['type'] = 'string';
+            $this->setIdentifier($mapping['fieldName']);
+            if (isset($mapping['strategy'])) {
+                $this->setIdGenerator($mapping['strategy']);
+            }
+        }
+
+        $this->validateAndCompleteFieldMapping($mapping, false);
+    }
+
+    public function mapNode(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->node = $mapping['fieldName'];
+    }
+
+    public function mapNodename(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->nodename = $mapping['fieldName'];
+    }
+
+    public function mapParentDocument(array $mapping)
+    {
+        $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->parentMapping = $mapping['fieldName'];
+        $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+    }
+
+    public function mapChild(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        if (!isset($mapping['name'])) {
+            $mapping['name'] = $mapping['fieldName'];
+        }
+        $this->childMappings[$mapping['fieldName']] = $mapping;
+    }
+
+    public function mapChildren(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $mapping['name'] = $mapping['fieldName'];
+        $this->childrenMappings[$mapping['fieldName']] = $mapping;
+    }
+
+    public function mapReferrers(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteReferrersMapping($mapping, false);
+        $mapping['name'] = $mapping['fieldName'];
+        $this->referrersMappings[$mapping['fieldName']] = $mapping;
+    }
+
+    public function mapLocale(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->localeMapping = $mapping;
+    }
+
+    protected function validateAndCompleteReferrersMapping($mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard'.");
+        }
+        return $mapping;
+    }
+
+    protected function validateAndCompleteFieldMapping($mapping, $isField = true)
+    {
+        if (!isset($mapping['fieldName'])) {
+            throw new MappingException("Mapping a property requires to specify the fieldName.");
+        }
+
+        if ($isField && !isset($mapping['name'])) {
+            $mapping['name'] = $mapping['fieldName'];
+        }
+
+        if (isset($this->fieldMappings[$mapping['fieldName']])
+            || ($this->nodename == $mapping['fieldName'])
+            || ($this->parentMapping == $mapping['fieldName'])
+            || isset($this->associationsMappings[$mapping['fieldName']])
+            || isset($this->childMappings[$mapping['fieldName']])
+            || isset($this->childrenMappings[$mapping['fieldName']])
+            || isset($this->referrersMappings[$mapping['fieldName']])
+        ) {
+            throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
+        }
+
+        if ($isField && !isset($mapping['type'])) {
+            throw MappingException::missingTypeDefinition($this->name, $mapping['fieldName']);
+        }
+
+        $reflProp = $this->reflClass->getProperty($mapping['fieldName']);
+        $reflProp->setAccessible(true);
+        $this->reflFields[$mapping['fieldName']] = $reflProp;
+
+        return $mapping;
+    }
+
+    protected function validateAndCompleteAssociationMapping($mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+
+        $mapping['sourceDocument'] = $this->name;
+        if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
+            $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
+        }
+        if (isset($mapping['weak']) && !is_bool($mapping['weak'])) {
+            throw new MappingException("The attribute 'weak' for the '" . $this->name . "' association has to be a boolean true or false.");
+        }
+        return $mapping;
+    }
+
+    public function mapManyToOne($mapping)
+    {
+        $mapping = $this->validateAndCompleteAssociationMapping($mapping);
+        $mapping['type'] = self::MANY_TO_ONE;
+
+        $this->storeAssociationMapping($mapping);
+    }
+
+    public function mapManyToMany($mapping)
+    {
+        $mapping = $this->validateAndCompleteAssociationMapping($mapping);
+        $mapping['type'] = self::MANY_TO_MANY;
+
+        $this->storeAssociationMapping($mapping);
+    }
+
+    private function storeAssociationMapping($mapping)
+    {
+        $this->associationsMappings[$mapping['fieldName']] = $mapping;
+    }
+
+    /**
+     * Gets the mapping of a field.
+     *
+     * @param string $fieldName  The field name.
+     * @return array  The field mapping.
+     */
+    public function getFieldMapping($fieldName)
+    {
+        if (!isset($this->fieldMappings[$fieldName])) {
+            throw MappingException::mappingNotFound($this->name, $fieldName);
+        }
+        return $this->fieldMappings[$fieldName];
+    }
+
+    /**
+     * Sets the ID generator used to generate IDs for instances of this class.
+     *
+     * @param AbstractIdGenerator $generator
+     */
+    public function setIdGenerator($generator)
+    {
+        if (is_string($generator)) {
+            $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($generator));
+        }
+        $this->idGenerator = $generator;
+    }
+
+    /**
+     * Sets the Id generator options.
+     */
+    public function setIdGeneratorOptions($generatorOptions)
+    {
+        $this->generatorOptions = $generatorOptions;
+    }
+
+    /**
+     * Sets the translator strategy key
+     */
+    public function setTranslator($translator)
+    {
+        $this->translator = $translator;
+    }
+
+    /**
+     * Checks whether the class will generate an id via the repository.
+     *
+     * @return boolean TRUE if the class uses the Repository generator, FALSE otherwise.
+     */
+    public function isIdGeneratorRepository()
+    {
+        return $this->idGenerator == self::GENERATOR_TYPE_REPOSITORY;
+    }
+
+    /**
+     * Checks whether the class uses no id generator.
+     *
+     * @return boolean TRUE if the class does not use any id generator, FALSE otherwise.
+     */
+    public function isIdGeneratorNone()
+    {
+        return $this->idGenerator == self::GENERATOR_TYPE_NONE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * Get identifier field names of this class.
+     *
+     * Since PHPCR only allows exactly one identifier field this is a proxy
+     * to {@see getIdentifier()} and returns an array.
+     *
+     * @return array
+     */
+    public function getIdentifierFieldNames()
+    {
+        return array($this->identifier);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getReflectionClass()
+    {
+        return $this->reflClass;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isIdentifier($fieldName)
+    {
+        return $this->identifier === $fieldName ? true : false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasField($fieldName)
+    {
+        return isset($this->fieldMappings[$fieldName]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasAssociation($fieldName)
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isSingleValuedAssociation($fieldName)
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isCollectionValuedAssociation($fieldName)
+    {
+        return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFieldNames()
+    {
+        return array_keys($this->fieldMappings);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAssociationNames()
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTypeOfField($fieldName)
+    {
+        return isset($this->fieldMappings[$fieldName]) ?
+            $this->fieldMappings[$fieldName]['type'] : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAssociationTargetClass($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAssociationMappedByTargetField($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isAssociationInverseSide($assocName)
+    {
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
     }
 
     /**
      * Map a field.
      *
+     * - type - The Doctrine Type of this field.
+     * - fieldName - The name of the property/field on the mapped php class
+     * - name - The Property key of this field in the PHPCR document
+     * - id - True for an ID field.
+     *
      * @param array $mapping The mapping information.
      */
     public function mapField(array $mapping)
     {
-        $mapping = parent::mapField($mapping);
+        if (isset($mapping['id']) && $mapping['id'] === true) {
+            $mapping['type'] = 'string';
+            $this->setIdentifier($mapping['fieldName']);
+            if (isset($mapping['strategy'])) {
+                $this->setIdGenerator($mapping['strategy']);
+            }
+        } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
+            $mapping['type'] = 'string';
+            $mapping['name'] = 'jcr:uuid';
+        } elseif (isset($mapping['isVersionField'])) {
+            $this->versionable = true;
+            $this->versionField = $mapping['fieldName'];
+
+        }
+
+        $mapping = $this->validateAndCompleteFieldMapping($mapping);
+
+        if (!isset($mapping['multivalue'])) {
+            $mapping['multivalue'] = false;
+        }
+
+        if ($mapping['type'] === 'int') {
+            $mapping['type'] = 'long';
+        }
+
+        // Add the field to the list of translatable fields
+        if (isset($mapping['translated']) && $mapping['translated']) {
+            if (! array_key_exists($mapping['name'], $this->translatableFields)) {
+                $this->translatableFields[] = $mapping['name'];
+            }
+        }
+
+        $this->fieldMappings[$mapping['fieldName']] = $mapping;
 
         // @codeCoverageIgnoreStart
         // FIXME never called; might be about lazy loading (code apparently taken from CouchDB/MongoDB)
@@ -100,7 +849,6 @@ class ClassMetadata extends ClassMetadataInfo implements ClassMetadataInterface
             'fieldMappings',
             'identifier',
             'name',
-            'namespace', // TODO: REMOVE
 //            'collection',
 //            'generatorType',
             'generatorOptions',
@@ -125,38 +873,6 @@ class ClassMetadata extends ClassMetadataInfo implements ClassMetadataInterface
         }
 
         return $serialized;
-    }
-
-    /**
-     * Restores some state that can not be serialized/unserialized.
-     *
-     * @return void
-     */
-    public function __wakeup()
-    {
-        // Restore ReflectionClass and properties
-        $this->reflClass = new \ReflectionClass($this->name);
-
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new \ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
-            $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
-        }
-
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new \ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
-
-            $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
-        }
     }
 
     /**

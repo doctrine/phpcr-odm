@@ -3,12 +3,14 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 class AnnotationDriverTest extends AbstractMappingDriverTest
 {
     public function testLoadMetadataForNonDocumentThrowsException()
     {
         $cm = new ClassMetadata('stdClass');
+        $cm->initializeReflection(new RuntimeReflectionService());
         $reader = new \Doctrine\Common\Annotations\AnnotationReader(new \Doctrine\Common\Cache\ArrayCache());
         $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
 

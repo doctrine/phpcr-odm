@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,6 +19,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $mappingDriver = $this->loadDriver();
 
         $class = new ClassMetadata($className);
+        $class->initializeReflection(new RuntimeReflectionService());
         $mappingDriver->loadMetadataForClass($className, $class);
 
         return $class;
