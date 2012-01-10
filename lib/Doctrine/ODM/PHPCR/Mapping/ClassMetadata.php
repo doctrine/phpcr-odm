@@ -248,6 +248,12 @@ class ClassMetadata implements ClassMetadataInterface
     public $translator;
 
     /**
+     * The type of versioning to be used ("simple", "full" or not set)
+     * @string
+     */
+    public $versioningType;
+
+    /**
      * READ-ONLY: The Id generator options.
      *
      * @var array
@@ -625,6 +631,14 @@ class ClassMetadata implements ClassMetadataInterface
     public function setTranslator($translator)
     {
         $this->translator = $translator;
+    }
+
+    /**
+     * Sets the type of versioning to use ("simple", "full" or not set)
+     */
+    public function setVersioningType($type)
+    {
+        $this->versioningType = $type;
     }
 
     /**

@@ -72,6 +72,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
 
         // find the winning document annotation
         ksort($documentAnnots);
+
         $documentAnnot = reset($documentAnnots);
 
         if (!$documentAnnot->alias) {
@@ -94,6 +95,10 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
 
         if ($documentAnnot->translator) {
             $metadata->setTranslator($documentAnnot->translator);
+        }
+
+        if ($documentAnnot->versioningType) {
+            $metadata->setVersioningType($documentAnnot->versioningType);
         }
 
         foreach ($reflClass->getProperties() as $property) {

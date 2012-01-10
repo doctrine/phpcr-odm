@@ -22,6 +22,8 @@ final class Document
     public $referenceable = false;
     /** @var string */
     public $translator;
+    /** @var string */
+    public $versioningType;
 }
 /**
  * @Annotation
