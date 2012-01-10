@@ -47,6 +47,39 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($reference->referrers->first()->id, "/functional/referrerTestObj");
     }
 
+    public function testJIRA41DonotPersistReferrersCollection()
+    {
+        $referrerTestObj = new ReferrerTestObj();
+        $referrerRefTestObj = new ReferrerRefTestObj();
+
+        $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerTestObj->name = "referrer";
+        $referrerRefTestObj->id = "/functional/referrerRefTestObj";
+        $referrerRefTestObj->name = "referenced";
+
+        $referrerTestObj->reference = $referrerRefTestObj;
+
+        $this->dm->persist($referrerTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+
+        $tmpReferrer = $this->dm->find(null, "/functional/referrerTestObj");
+        $tmpReferrer->name = "new referrer name";
+
+        $tmpReference = $this->dm->find(null, "/functional/referrerRefTestObj");
+
+        // persist referenced document again
+        $this->dm->persist($tmpReference);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
+
+        $this->assertEquals($reference->referrers->first()->name, "new referrer name");
+    }
+
     public function testCreateWithoutRef()
     {
         $referrerTestObj = new ReferrerRefTestObj();
@@ -443,8 +476,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $hardReferrerTestObj->referenceToHard = $hardReferrerRefTestObj;
         $hardReferrerTestObj->referenceToAll = $allReferrerRefTestObj;
 
-        $this->dm->persist($weakReferrerTestObj);
         $this->dm->persist($hardReferrerTestObj);
+        $this->dm->persist($weakReferrerTestObj);
         $this->dm->flush();
         $this->dm->clear();
 

@@ -11,6 +11,8 @@ use Jackalope\Factory;
 use Jackalope\Node;
 
 /**
+ * TODO: remove Jackalope dependency
+ *
  * @group unit
  */
 class UnitOfWorkTest extends PHPCRTestCase
@@ -20,26 +22,33 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
-        $this->factory = new Factory; // TODO: remove jackalope dependencies
+        if (!class_exists('Jackalope\Factory', true)) {
+            $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
+        }
+
+        $this->factory = new Factory;
         $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
-        // TODO: remove jackalope dependency:
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
 
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
         $this->dm = DocumentManager::create($this->session);
         $this->uow = new UnitOfWork($this->dm);
 
-        $metadata = new ClassMetadata($this->type);
+        $cmf = $this->dm->getMetadataFactory();
+        $metadata = $cmf->getMetadataFor($this->type);
         $metadata->mapField(array('fieldName' => 'id', 'id' => true));
         $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
 
-        $cmf = $this->dm->getMetadataFactory();
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
     protected function createNode($id, $username)
     {
-        $this->markTestIncomplete('The Node needs to be properly mocked/stubbed. Remove dependeny to Jackalope');
+        $repository = $this->getMockBuilder('Jackalope\Repository')->disableOriginalConstructor()->getMock();
+        $this->session->expects($this->any())
+            ->method('getRepository')
+            ->with()
+            ->will($this->returnValue($repository));
 
         $nodeData = array(
             'jcr:primaryType' => "Name",

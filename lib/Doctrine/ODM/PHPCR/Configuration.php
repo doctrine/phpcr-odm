@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Cache\Cache;
 use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
@@ -44,9 +45,10 @@ class Configuration
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
         'metadataDriverImpl' => null,
+        'metadataCacheImpl' => null,
         'documentClassMapper' => null,
         'proxyNamespace' => 'MyPHPCRProxyNS',
-        'autoGenerateProxyClasses' => true
+        'autoGenerateProxyClasses' => true,
     );
 
     /**
@@ -128,25 +130,48 @@ class Configuration
     }
 
     /**
-     * Sets the cache driver implementation that is used for metadata caching.
+     * Sets the driver implementation that is used to retrieve mapping metadata.
      *
      * @param Driver $driverImpl
      * @todo Force parameter to be a Closure to ensure lazy evaluation
      *       (as soon as a metadata cache is in effect, the driver never needs to initialize).
      */
-    public function setMetadataDriverImpl(Driver $driverImpl)
+    public function setMetadataDriverImpl(Driver $driverImpl, $useBuildInDocumentsDriver = true)
     {
-        $this->attributes['metadataDriverImpl'] = new BuiltinDocumentsDriver($driverImpl);
+        if ($useBuildInDocumentsDriver) {
+            $driverImpl = new BuiltinDocumentsDriver($driverImpl);
+        }
+        $this->attributes['metadataDriverImpl'] = $driverImpl;
     }
 
     /**
-     * Gets the cache driver implementation that is used for the mapping metadata.
+     * Gets the driver implementation that is used to retrieve mapping metadata.
      *
      * @return Mapping\Driver\Driver
      */
     public function getMetadataDriverImpl()
     {
         return $this->attributes['metadataDriverImpl'];
+    }
+
+    /**
+     * Sets the cache driver implementation that is used for metadata caching.
+     *
+     * @param Cache $metadataCacheImpl
+     */
+    public function setMetadataCacheImpl(Cache $metadataCacheImpl)
+    {
+        $this->attributes['metadataCacheImpl'] = $metadataCacheImpl;
+    }
+
+    /**
+     * Gets the cache driver implementation that is used for the mapping metadata.
+     *
+     * @return Cache|null
+     */
+    public function getMetadataCacheImpl()
+    {
+        return $this->attributes['metadataCacheImpl'];
     }
 
     /**

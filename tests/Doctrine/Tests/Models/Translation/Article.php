@@ -31,5 +31,14 @@ class Article
     public $topic;
 
     /** @PHPCRODM\String(translated=true) */
-    public $text;
+    private $text;
+
+    public function getText()
+    {
+        return $this->text;
+    }
+    public function setText($text)
+    {
+        $this->text = $text;
+    }
 }

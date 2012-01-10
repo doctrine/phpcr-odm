@@ -32,7 +32,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
+        $doc->setText('Lorem ipsum...');
 
         $node = $this->getTestNode();
 
@@ -88,13 +88,51 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
-        $this->assertEquals('English text', $doc->text);
+        $this->assertEquals('English text', $doc->getText());
 
         // Load another language and test the document has been updated
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
-        $this->assertEquals('Texte français', $doc->text);
+        $this->assertEquals('Texte français', $doc->getText());
+    }
+
+    /**
+     * Test what happens if some document field is null.
+     *
+     * If either load or save fail fix that first, as this test uses both.
+     */
+    public function testTranslationNullProperties()
+    {
+        // First save some translations
+        $doc = new Article();
+        $doc->author = 'John Doe';
+        $doc->topic = 'Some interesting subject';
+        $doc->setText('Lorem ipsum...');
+
+        $node = $this->getTestNode();
+
+        $strategy = new AttributeTranslationStrategy();
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
+
+        // The document locale was not yet assigned so it must be set
+        $this->assertEquals('en', $doc->locale);
+
+        // Save translation in another language
+
+        $doc->topic = 'Un sujet intéressant';
+        $doc->setText(null);
+
+        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $this->dm->flush();
+
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
+        $this->assertEquals('Some interesting subject', $doc->topic);
+        $this->assertEquals('Lorem ipsum...', $doc->getText());
+
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
+        $this->assertEquals('Un sujet intéressant', $doc->topic);
+        $this->assertNull($doc->getText());
     }
 
     public function testRemoveTranslation()
@@ -103,7 +141,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
-        $doc->text = 'Lorem ipsum...';
+        $doc->setText('Lorem ipsum...');
 
         $node = $this->getTestNode();
 

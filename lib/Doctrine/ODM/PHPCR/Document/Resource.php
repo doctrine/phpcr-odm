@@ -25,7 +25,7 @@ class Resource
     protected $data;
 
     /** @PHPCRODM\String(name="jcr:mimeType") */
-    protected $mimeType;
+    protected $mimeType = 'application/octet-stream';
 
     /** @PHPCRODM\String(name="jcr:encoding") */
     protected $encoding;

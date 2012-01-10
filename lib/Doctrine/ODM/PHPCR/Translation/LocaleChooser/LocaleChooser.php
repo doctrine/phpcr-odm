@@ -13,7 +13,9 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface,
 class LocaleChooser implements LocaleChooserInterface
 {
     /**
-     * $localePreference example:
+     * locale fallback list indexed by source locale
+     *
+     * example:
      *  array(
      *    'en' => array('en', 'de', 'fr'),
      *    'fr' => array('fr', 'de', 'en'),
@@ -24,7 +26,7 @@ class LocaleChooser implements LocaleChooserInterface
     protected $defaultLocale;
 
     /**
-     * @param array $localePreference array of arrays with a preffered locale order list
+     * @param array $localePreference array of arrays with a preferred locale order list
      *      for each locale
      * @param string $defaultLocale the default locale
      */
@@ -63,7 +65,7 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function getDefaultLocalesOrder()
     {
-        return $this->getPreferredLocales($this->defaultLocale);
+        return $this->localePreference[$this->defaultLocale];
     }
 
     /**
@@ -87,6 +89,4 @@ class LocaleChooser implements LocaleChooserInterface
 
         $this->defaultLocale = $locale;
     }
-
-
 }

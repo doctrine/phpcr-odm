@@ -12,16 +12,10 @@ $classLoader->register();
 $classLoader = new ClassLoader('Doctrine\ODM', __DIR__ . '/../lib');
 $classLoader->register();
 
-$classLoader = new ClassLoader('Doctrine\ODM\PHPCR\Mapping\Driver', __DIR__ . '/../lib/Doctrine/ODM/PHPCR/Mapping/Driver');
-$classLoader->register();
-
 $classLoader = new ClassLoader('Doctrine', __DIR__ . '/../lib/vendor/doctrine-common/lib');
 $classLoader->register();
 
 $classLoader = new ClassLoader('Documents', __DIR__);
-$classLoader->register();
-
-$classLoader = new ClassLoader('Jackalope', __DIR__ . '/../lib/vendor/jackalope/src');
 $classLoader->register();
 
 $classLoader = new ClassLoader('PHPCR\Util', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr-utils/src');

@@ -196,9 +196,11 @@ class UnitOfWork
      * Create a document given class, data and the doc-id and revision
      *
      * Supported hints are
-     * * refresh: reload the fields from the database
-     * * locale: use this locale instead of the one from the annotation or the default
-     * * fallback: whether to try other languages or throw a not found exception if the desired locale is not found
+     * - refresh: reload the fields from the database
+     * - locale: use this locale instead of the one from the annotation or the default
+     * - fallback: whether to try other languages or throw a not found
+     *      exception if the desired locale is not found. defaults to true if
+     *      not set and locale is not given either.
      *
      * @param null|string $className
      * @param \PHPCR\NodeInterface $node
@@ -289,11 +291,13 @@ class UnitOfWork
                     throw new PHPCRException("Expected referenced nodes passed as array.");
                 }
 
+                $referencedDocs = array();
                 foreach ($proxyNodes as $referencedNode) {
                     $referencedClass = isset($assocOptions['targetDocument']) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']][] = $this->createProxy(
-                        $referencedNode, $referencedClass
-                    );
+                    $referencedDocs[] = $this->createProxy($referencedNode, $referencedClass);
+                }
+                if (count($referencedDocs) > 0) {
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
                 }
             }
         }
@@ -353,7 +357,7 @@ class UnitOfWork
 
         // Load translations
         $locale = isset($hints['locale']) ? $hints['locale'] : null;
-        $fallback = isset($hints['fallback']) ? $hints['fallback'] : false;
+        $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
 
         $this->doLoadTranslation($document, $class, $locale, $fallback);
 
@@ -458,17 +462,16 @@ class UnitOfWork
             $related = $class->reflFields[$assocName]->getValue($document);
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
-                    if (is_array($related)) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation.");
+                    if (is_array($related) || $related instanceof ReferenceManyCollection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a ReferenceManyCollection.");
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
-                    // $related can never be a persistent collection in case of a new document.
-                    if (!is_array($related)) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation.");
+                    if (!is_array($related) && ! $related instanceof ReferenceManyCollection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a ReferenceManyCollection.");
                     }
                     foreach ($related as $relatedDocument) {
                         if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
@@ -504,13 +507,6 @@ class UnitOfWork
                     $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
-            }
-        }
-
-        foreach ($class->referrersMappings as $referrerName => $mapping) {
-            $referrer = $class->reflFields[$referrerName]->getValue($document);
-            if ($referrer !== null && $this->getDocumentState($referrer) === self::STATE_NEW) {
-                $this->doScheduleInsert($referrer, $visited);
             }
         }
     }
@@ -624,9 +620,10 @@ class UnitOfWork
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
-        if ($document instanceof Proxy && !$document->__isInitialized__) {
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
         }
+
         $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
@@ -697,6 +694,10 @@ class UnitOfWork
                     }
                     $changed = true;
                     break;
+                } elseif ($fieldValue instanceof ReferenceManyCollection) {
+                    if ($fieldValue->changed()) {
+                        $changed = true;
+                    }
                 }
             }
 
@@ -718,7 +719,7 @@ class UnitOfWork
 
         foreach ($class->associationsMappings as $assocName => $assoc) {
             if ($actualData[$assocName]) {
-                if (is_array($actualData[$assocName])) {
+                if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof ReferenceManyCollection) {
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
                             $this->computeReferenceChanges($ref);
@@ -1058,6 +1059,15 @@ class UnitOfWork
 
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
+                    if (null === $fieldValue && $node->hasProperty($class->fieldMappings[$fieldName]['name'])) {
+                        // Check whether we can remove the property first
+                        $property = $node->getProperty($class->fieldMappings[$fieldName]['name']);
+                        $definition = $property->getDefinition();
+                        if ($definition && ($definition->isMandatory() || $definition->isProtected())) {
+                            continue;
+                        }
+                    }
+
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
                         $value = $fieldValue === null ? null : $fieldValue->toArray();
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
@@ -1206,6 +1216,9 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
+            if (!isset($this->nodesMap[$oid])) {
+                continue;
+            }
 
             $this->doRemoveAllTranslations($document, $class);
 
@@ -1537,7 +1550,7 @@ class UnitOfWork
         if (!$fallback) {
 
             if (is_null($locale)) {
-                throw new \InvalidArgumentException("Error while loading the translations, no locale specified and the language fallback is disabled");
+                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled");
             }
             $localesToTry = array($locale);
 
@@ -1562,7 +1575,7 @@ class UnitOfWork
         if (!$translationFound) {
             // We tried each possible language without finding the translations
             // TODO what is the right exception? some "not found" probably
-            throw new \Exception("No translation found. Tried the following locales: " . print_r($localesToTry, true));
+            throw new \Exception("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: " . print_r($localesToTry, true));
         }
 
         // Set the locale

@@ -1,0 +1,55 @@
+<?php
+/**
+ * The config file is responsible to make class loading work and initialize a
+ * DocumentManagerHelper that contains the doctrine document manager with a
+ * Session of your phcpr implementation.
+ * The array $extraCommands can be used to inject implementation specific commands.
+ * Add instances of commands for eventual implementation specific commands to this array.
+ */
+
+$extraCommands = array();
+
+$vendorDir = __DIR__.'/lib/vendor';
+
+require_once $vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+$classLoader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
+$classLoader->register();
+
+$classLoader->registerNamespaces(array(
+    'Doctrine\ODM' => dirname($vendorDir),
+    'Doctrine\Common' => $vendorDir.'/doctrine-common/lib',
+    'Symfony' => array($vendorDir, $vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor'),
+    'PHPCR' => array($vendorDir.'/jackalope/lib/phpcr/src', $vendorDir.'/jackalope/lib/phpcr-utils/src'),
+));
+
+$classLoader->registerNamespaces(array(
+    'Midgard\PHPCR' =>  __DIR__ . '/lib/vendor/Midgard/PHPCR/src'
+));
+
+$params = array(
+    'midgard2.configuration.db.type' => 'MySQL',
+    'midgard2.configuration.db.name' => 'midgard2_test',
+    'midgard2.configuration.db.host' => '0.0.0.0',
+    'midgard2.configuration.db.port' => 3306,
+    'midgard2.configuration.db.username' => '',
+    'midgard2.configuration.db.password' => '',
+    'midgard2.configuration.db.init' => true,
+    'midgard2.configuration.blobdir' => '/tmp/blobs'
+);
+
+$workspace = '';
+$user = 'admin';
+$pass = 'password';
+
+$repository = \Midgard\PHPCR\RepositoryFactory::getRepository($params);
+$credentials = new \PHPCR\SimpleCredentials($user, $pass);
+$session =  $repository->login($credentials, $workspace);
+
+/* prepare the doctrine configuration */
+$config = new \Doctrine\ODM\PHPCR\Configuration();
+
+$dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
+
+$helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
+    'dm' => new \Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper(null, $dm)
+));

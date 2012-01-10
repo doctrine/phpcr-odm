@@ -36,27 +36,27 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
-        $versionNode = $this->node->addNode('node1');
+        $versionNode = $this->node->addNode('node1', 'nt:unstructured');
         $versionNode->setProperty('username', 'dbu');
         $versionNode->setProperty('numbers', array(3, 1, 2));
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node2');
+        $versionNode = $this->node->addNode('node2', 'nt:unstructured');
         $versionNode->setProperty('username', 'johannes');
         $versionNode->setProperty('numbers', array(3, 1, 2));
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node3');
+        $versionNode = $this->node->addNode('node3', 'nt:unstructured');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', array(3, 1, 2));
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node4');
+        $versionNode = $this->node->addNode('node4', 'nt:unstructured');
         $versionNode->setProperty('username', 'uwe');
         $versionNode->setProperty('numbers', array(3, 1, 2));
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node5');
+        $versionNode = $this->node->addNode('node5', 'nt:unstructured');
         $versionNode->setProperty('numbers', array(3, 1, 2));
         $versionNode->setProperty('phpcr:class', $this->type);
 
