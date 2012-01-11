@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
+use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use SimpleXmlElement;
@@ -32,20 +33,17 @@ use SimpleXmlElement;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-class XmlDriver extends AbstractFileDriver
+class XmlDriver extends FileDriver
 {
     
     const DEFAULT_FILE_EXTENSION = '.dcm.xml';
+
     /**
-     * The file extension of mapping documents.
-     *
-     * @var string
+     * {@inheritdoc}
      */
-    protected $fileExtension = '.dcm.xml';
-    
-    public function __construct($paths, $fileExtension = self::DEFAULT_FILE_EXTENSION)
+    public function __construct($locator, $fileExtension = self::DEFAULT_FILE_EXTENSION)
     {
-        parent::__construct($paths, $fileExtension);
+        parent::__construct($locator, $fileExtension);
     }
 
     /**
@@ -159,6 +157,9 @@ class XmlDriver extends AbstractFileDriver
         ));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function loadMappingFile($file)
     {
         $result = array();

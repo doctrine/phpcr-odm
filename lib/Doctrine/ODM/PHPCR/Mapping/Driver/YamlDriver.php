@@ -19,8 +19,10 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
+use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * The YamlDriver reads the mapping metadata from yaml schema files.
@@ -31,14 +33,18 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-class YamlDriver extends AbstractFileDriver
+class YamlDriver extends FileDriver
 {
+    
+    const DEFAULT_FILE_EXTENSION = '.dcm.yml';
+
     /**
-     * The file extension of mapping documents.
-     *
-     * @var string
+     * {@inheritdoc}
      */
-    protected $fileExtension = '.dcm.yml';
+    public function __construct($locator, $fileExtension = self::DEFAULT_FILE_EXTENSION)
+    {
+        parent::__construct($locator, $fileExtension);
+    }
 
     /**
      * {@inheritdoc}
@@ -77,24 +83,20 @@ class YamlDriver extends AbstractFileDriver
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                $this->addFieldMapping($class, $mapping);
+                $class->mapField($mapping);
             }
         }
         if (isset($element['id'])) {
-            $mapping = array('fieldName' => $element['id'], 'id' => true);
-            $this->addIdMapping($class, $mapping);
+            $class->mapId(array('fieldName' => $element['id'], 'id' => true));
         }
         if (isset($element['node'])) {
-            $mapping = array('fieldName' => $element['node']);
-            $this->addNodeMapping($class, $mapping);
+            $class->mapNode(array('fieldName' => $element['node']));
         }
         if (isset($element['nodename'])) {
-            $mapping = array('fieldName' => $element['nodename']);
-            $this->addNodenameMapping($class, $mapping);
+            $class->mapNodename(array('fieldName' => $element['nodename']));
         }
         if (isset($element['parentdocument'])) {
-            $mapping = array('fieldName' => $element['parentdocument']);
-            $this->addParentDocumentMapping($class, $mapping);
+            $class->mapParentDocument(array('fieldName' => $element['parentdocument']));
         }
         if (isset($element['child'])) {
             foreach ($element['child'] as $fieldName => $mapping) {
@@ -106,7 +108,7 @@ class YamlDriver extends AbstractFileDriver
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                $this->addChildMapping($class, $mapping);
+                $class->mapChild($mapping);
             }
         }
         if (isset($element['children'])) {
@@ -119,7 +121,7 @@ class YamlDriver extends AbstractFileDriver
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                $this->addChildrenMapping($class, $mapping);
+                $class->mapChildren($mapping);
             }
         }
         if (isset($element['referenceOne'])) {
@@ -142,56 +144,23 @@ class YamlDriver extends AbstractFileDriver
 
     }
 
-    private function addIdMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapId($mapping);
-    }
-
-    private function addFieldMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapField($mapping);
-    }
-
-    private function addNodeMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapNode($mapping);
-    }
-
-    private function addNodenameMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapNodename($mapping);
-    }
-
-    private function addParentDocumentMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapParentDocument($mapping);
-    }
-
-    private function addChildMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapChild($mapping);
-    }
-
-    private function addChildrenMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapChildren($mapping);
-    }
-
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
-        $mapping = array(
+        $class->mapField(array(
             'cascade'        => isset($reference['cascade']) ? $reference['cascade'] : null,
             'type'           => $type,
             'reference'      => true,
             'targetDocument' => isset($reference['targetDocument']) ? $reference['targetDocument'] : null,
             'fieldName'      => $fieldName,
             'strategy'       => isset($reference['strategy']) ? (string) $reference['strategy'] : 'pushPull',
-        );
-        $this->addFieldMapping($class, $mapping);
+        ));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function loadMappingFile($file)
     {
-        return \Symfony\Component\Yaml\Yaml::parse($file);
+        return Yaml::parse($file);
     }
 }
