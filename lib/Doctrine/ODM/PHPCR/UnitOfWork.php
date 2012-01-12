@@ -1252,7 +1252,7 @@ class UnitOfWork
         $node = $this->session->getNode($path);
         $node->addMixin("mix:versionable");
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->checkIn($path); // Checkin Node aka make a new Version
+        $vm->checkin($path); // Checkin Node aka make a new Version
     }
 
     /**
@@ -1266,7 +1266,7 @@ class UnitOfWork
         $node = $this->session->getNode($path);
         $node->addMixin("mix:versionable");
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->checkOut($path);
+        $vm->checkout($path);
     }
 
     /**
