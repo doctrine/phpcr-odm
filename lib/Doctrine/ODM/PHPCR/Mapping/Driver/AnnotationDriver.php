@@ -51,6 +51,8 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass' => 1,
     );
 
+    protected $validVersionableAnnotations = array('simple', 'full');
+
     /**
      * {@inheritdoc}
      */
@@ -81,7 +83,10 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
 
         $metadata->setAlias($documentAnnot->alias);
         if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
-            $metadata->setVersioned(true);
+            if (!in_array($documentAnnot->versionable, $this->validVersionableAnnotations)) {
+                throw new \InvalidArgumentException("Invalid value for the versionable annotation: '{$documentAnnot->versionable}'");
+            }
+            $metadata->setVersioned($documentAnnot->versionable);
         }
         $metadata->setNodeType($documentAnnot->nodeType);
 
@@ -95,10 +100,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
 
         if ($documentAnnot->translator) {
             $metadata->setTranslator($documentAnnot->translator);
-        }
-
-        if ($documentAnnot->versioningType) {
-            $metadata->setVersioningType($documentAnnot->versioningType);
         }
 
         foreach ($reflClass->getProperties() as $property) {

@@ -1038,7 +1038,13 @@ class UnitOfWork
             }
 
             if ($class->versionable) {
-                $node->addMixin('mix:versionable');
+                if ($class->versionable === 'simple') {
+                    $node->addMixin('mix:simpleVersionable');
+                } elseif ($class->versionable === 'full') {
+                    $node->addMixin('mix:versionable');
+                } else {
+                    throw new \InvalidArgumentException("Invalid value for the versionable annotation: '{$class->versionable}'");
+                }
             } elseif ($class->referenceable) {
                 // referenceable is a supertype of versionable, only set if not versionable
                 $node->addMixin('mix:referenceable');

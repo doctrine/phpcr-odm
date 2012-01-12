@@ -16,14 +16,12 @@ final class Document
     public $alias;
     /** @var string */
     public $repositoryClass;
-    /** @var boolean */
+    /** @var string */
     public $versionable = false;
     /** @var boolean */
     public $referenceable = false;
     /** @var string */
     public $translator;
-    /** @var string */
-    public $versioningType;
 }
 /**
  * @Annotation
