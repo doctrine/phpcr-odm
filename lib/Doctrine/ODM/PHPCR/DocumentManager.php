@@ -571,10 +571,10 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      */
-    public function checkIn($object)
+    public function checkin($object)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkIn($object);
+        $this->unitOfWork->checkin($object);
     }
 
     /**
@@ -582,10 +582,10 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      */
-    public function checkOut($object)
+    public function checkout($object)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkOut($object);
+        $this->unitOfWork->checkout($object);
     }
 
     /**

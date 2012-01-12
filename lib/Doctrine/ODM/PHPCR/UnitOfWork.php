@@ -1246,7 +1246,7 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkIn($document)
+    public function checkin($document)
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
@@ -1260,7 +1260,7 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkOut($document)
+    public function checkout($document)
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
