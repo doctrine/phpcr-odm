@@ -35,7 +35,6 @@ use SimpleXmlElement;
  */
 class XmlDriver extends FileDriver
 {
-    
     const DEFAULT_FILE_EXTENSION = '.dcm.xml';
 
     /**

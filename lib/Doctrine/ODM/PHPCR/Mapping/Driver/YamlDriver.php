@@ -35,7 +35,6 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlDriver extends FileDriver
 {
-    
     const DEFAULT_FILE_EXTENSION = '.dcm.yml';
 
     /**
