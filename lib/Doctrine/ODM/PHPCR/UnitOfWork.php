@@ -1264,6 +1264,50 @@ class UnitOfWork
     }
 
     /**
+     * Do a checkin operation followed immediately by a checkout operation.
+     * A new version is created and the writable document stays in checked out state
+     * @param object $document The document
+     * @return void
+     */
+    public function checkpoint($document)
+    {
+        $this->checkin($document);
+        $this->checkout($document);
+    }
+
+    /**
+     * Get the version history information for a document
+     *
+     * labels will be an empty array. TODO: implement labels once jackalope implements them
+     *
+     * @param object $document the document of which to get the version history
+     * @param int $limit an optional limit to only get the latest $limit information
+     *
+     * @return array of <versionname> => array("labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
+     *         oldest version first
+     */
+    public function getAllLinearVersions($document, $limit = -1)
+    {
+        $path = $this->getDocumentId($document);
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+
+        if (!$metadata->versionable) {
+            throw new \InvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
+        }
+
+        // TODO: this is not completely correct !
+        // With simple versioning it will always correspond to the linear versions
+        // With full versioning it will correspond only if the version history is linear
+        // With the current implementations of PHPCR, there is yet no way to create a non-linear version history so that
+        // this issue is not so bad for now.
+        return $this->session
+            ->getWorkspace()
+            ->getVersionManager()
+            ->getVersionHistory($path)
+            ->getAllVersions();
+    }
+
+    /**
      * Check restore - Save all current changes and then restore the Node by path.
      *
      * @return void

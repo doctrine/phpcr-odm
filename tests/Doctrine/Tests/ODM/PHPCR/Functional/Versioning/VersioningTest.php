@@ -45,6 +45,12 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->dm->checkin($user);
+
+        $this->assertInstanceOf('PHPCR\NodeInterface', $user->node);
+        $this->assertTrue($user->node->isNodeType('mix:simpleVersionable'));
+
+        // TODO: understand why jcr:isCheckedOut is true for a checked in node
+        //$this->assertFalse($user->node->getPropertyValue('jcr:isCheckedOut'));
     }
 
     public function testCheckout()
@@ -68,10 +74,46 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertEquals('lsmith', $user->username);
     }
+
+    public function testGetAllLinearVersions()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+
+        $this->dm->checkpoint($doc);
+        $this->dm->checkpoint($doc);
+        $this->dm->checkpoint($doc);
+        $this->dm->checkpoint($doc);
+
+        $versions = iterator_to_array($this->dm->getAllLinearVersions($doc));
+        $first = reset($versions);
+        $last = end($versions);
+
+        $this->assertEquals(5, count($versions));
+        $this->assertEmpty($first->getPredecessors());
+        $this->assertNotEmpty($first->getSuccessors());
+        $this->assertNotEmpty($last->getPredecessors());
+        $this->assertEmpty($last->getSuccessors());
+
+        $path = dirname($first->getPath());
+        foreach($versions as $version) {
+
+            $this->assertEquals($path, dirname($version->getPath()));
+
+            // If it's not the first
+            if ($version !== $first) {
+                $this->assertEquals(1, count($version->getPredecessors()));
+            }
+
+            // If it's not the last
+            if ($version !== $last) {
+                $this->assertEquals(1, count($version->getSuccessors()));
+            }
+        }
+    }
 }
 
 /**
- * @PHPCRODM\Document(alias="versionTestObj", versionable="simple")
+ * @PHPCRODM\Document(alias="versionTestObj", versionable="full")
  */
 class VersionTestObj
 {
