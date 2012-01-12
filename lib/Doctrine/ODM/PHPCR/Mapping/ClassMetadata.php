@@ -795,7 +795,10 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['type'] = 'string';
             $mapping['name'] = 'jcr:uuid';
         } elseif (isset($mapping['isVersionField'])) {
-            $this->versionable = true;
+            // The @Version annotation is set but the document is not Versionable
+            if (!$this->versionable) {
+                throw new \InvalidArgumentException(sprintf("You cannot use the @Version annotation on non-versionable documents (field = %s)", $mapping['fieldName']));
+            }
             $this->versionField = $mapping['fieldName'];
 
         }

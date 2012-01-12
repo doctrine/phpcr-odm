@@ -1038,13 +1038,7 @@ class UnitOfWork
             }
 
             if ($class->versionable) {
-                if ($class->versionable === 'simple') {
-                    $node->addMixin('mix:simpleVersionable');
-                } elseif ($class->versionable === 'full') {
-                    $node->addMixin('mix:versionable');
-                } else {
-                    throw new \InvalidArgumentException("Invalid value for the versionable annotation: '{$class->versionable}'");
-                }
+                $this->setVersionableMixin($class, $node);
             } elseif ($class->referenceable) {
                 // referenceable is a supertype of versionable, only set if not versionable
                 $node->addMixin('mix:referenceable');
@@ -1250,7 +1244,7 @@ class UnitOfWork
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
-        $node->addMixin("mix:versionable");
+        $this->setVersionableMixin($this->dm->getClassMetadata(get_class($document)), $node);
         $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkin($path); // Checkin Node aka make a new Version
     }
@@ -1264,7 +1258,7 @@ class UnitOfWork
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
-        $node->addMixin("mix:versionable");
+        $this->setVersionableMixin($this->dm->getClassMetadata(get_class($document)), $node);
         $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkout($path);
     }
@@ -1647,5 +1641,18 @@ class UnitOfWork
     protected function isDocumentTranslatable($metadata)
     {
         return count($metadata->translatableFields) !== 0;
+    }
+
+    protected function setVersionableMixin(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    {
+        if ($metadata->versionable === 'simple') {
+            $node->addMixin('mix:simpleVersionable');
+        } elseif ($metadata->versionable === 'full') {
+            $node->addMixin('mix:versionable');
+        } elseif ($metadata->versionable) {
+            throw new \InvalidArgumentException("Invalid value for the versionable annotation: '{$metadata->versionable}'");
+        } else {
+            throw new \InvalidArgumentException(sprintf("The document at '%s' is not versionable", $node->getPath()));
+        }
     }
 }

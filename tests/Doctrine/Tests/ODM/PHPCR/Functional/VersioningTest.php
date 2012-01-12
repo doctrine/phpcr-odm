@@ -44,23 +44,23 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCheckin()
     {
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
-        $this->dm->checkIn($user);
+        $this->dm->checkin($user);
     }
 
-    public function testCheckOut()
+    public function testCheckout()
     {
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
-        $this->dm->checkIn($user);
-        $this->dm->checkOut($user);
+        $this->dm->checkin($user);
+        $this->dm->checkout($user);
         $user->username = 'nicam';
-        $this->dm->checkIn($user);
+        $this->dm->checkin($user);
     }
 
     public function testRestore()
     {
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
-        $this->dm->checkIn($user);
-        $this->dm->checkOut($user);
+        $this->dm->checkin($user);
+        $this->dm->checkout($user);
         $user->username = 'nicam';
 
         $this->dm->restore('1.0', $user);
@@ -71,7 +71,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="versionTestObj")
+ * @PHPCRODM\Document(alias="versionTestObj", versionable="simple")
  */
 class VersionTestObj
 {

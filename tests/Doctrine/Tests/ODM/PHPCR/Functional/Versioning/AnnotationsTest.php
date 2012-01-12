@@ -43,6 +43,16 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
+     * Test that using the Version annotation on non-versionable documents will not work
+     * @expectedException \InvalidArgumentException
+     */
+    public function testLoadInconsistentAnnotations()
+    {
+        $factory = new ClassMetadataFactory($this->dm);
+        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle');
+    }
+
+    /**
      * Check that persisting a node with the versionable type will add the correct mixin to the node
      */
     public function testAnnotationOnPersist()
