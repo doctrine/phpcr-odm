@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\ODM\PHPCR\Functional;
+namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
@@ -20,7 +20,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\VersionTestObj';
+        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\VersionTestObj';
         $this->dm = $this->createDocumentManager();
 
         // Check that the repository supports versioning
