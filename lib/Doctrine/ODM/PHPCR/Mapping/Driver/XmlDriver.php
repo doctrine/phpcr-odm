@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
+use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use SimpleXmlElement;
@@ -32,14 +33,17 @@ use SimpleXmlElement;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-class XmlDriver extends AbstractFileDriver
+class XmlDriver extends FileDriver
 {
+    const DEFAULT_FILE_EXTENSION = '.dcm.xml';
+
     /**
-     * The file extension of mapping documents.
-     *
-     * @var string
+     * {@inheritdoc}
      */
-    protected $fileExtension = '.dcm.xml';
+    public function __construct($locator, $fileExtension = self::DEFAULT_FILE_EXTENSION)
+    {
+        parent::__construct($locator, $fileExtension);
+    }
 
     /**
      * {@inheritdoc}
@@ -78,24 +82,24 @@ class XmlDriver extends AbstractFileDriver
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }
-                $this->addFieldMapping($class, $mapping);
+                $class->mapField($mapping);
             }
         }
         if (isset($xmlRoot->id)) {
-            $mapping = array('fieldName' => (string) $xmlRoot->id->attributes()->name, 'id' => true);
-            $this->addIdMapping($class, $mapping);
+            $class->mapId(array(
+                'fieldName' => (string) $xmlRoot->id->attributes()->name,
+                'id' => true
+            ));
         }
         if (isset($xmlRoot->node)) {
-            $mapping = array('fieldName' => (string) $xmlRoot->node->attributes()->name);
-            $this->addNodeMapping($class, $mapping);
+            $class->mapNode(array('fieldName' => (string) $xmlRoot->node->attributes()->name));
+            
         }
         if (isset($xmlRoot->nodename)) {
-            $mapping = array('fieldName' => (string) $xmlRoot->nodename->attributes()->name);
-            $this->addNodenameMapping($class, $mapping);
+            $class->mapNodename(array('fieldName' => (string) $xmlRoot->nodename->attributes()->name));
         }
         if (isset($xmlRoot->parentdocument)) {
-            $mapping = array('fieldName' => (string) $xmlRoot->parentdocument->attributes()->name);
-            $this->addParentDocumentMapping($class, $mapping);
+            $class->mapParentDocument(array('fieldName' => (string) $xmlRoot->parentdocument->attributes()->name));
         }
         if (isset($xmlRoot->child)) {
             foreach ($xmlRoot->child as $child) {
@@ -104,7 +108,7 @@ class XmlDriver extends AbstractFileDriver
                 if (isset($attributes['name'])) {
                     $mapping['name'] = (string)$attributes->name;
                 }
-                $this->addChildMapping($class, $mapping);
+                $class->mapChild($mapping);
             }
         }
         if (isset($xmlRoot->children)) {
@@ -114,7 +118,7 @@ class XmlDriver extends AbstractFileDriver
                 if (isset($attributes['filter'])) {
                     $mapping['filter'] = (string)$attributes->filter;
                 }
-                $this->addChildrenMapping($class, $mapping);
+                $class->mapChildren($mapping);
             }
         }
         if (isset($xmlRoot->{'reference-many'})) {
@@ -136,41 +140,6 @@ class XmlDriver extends AbstractFileDriver
 
     }
 
-    private function addIdMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapId($mapping);
-    }
-
-    private function addFieldMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapField($mapping);
-    }
-
-    private function addNodeMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapNode($mapping);
-    }
-
-    private function addNodenameMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapNodename($mapping);
-    }
-
-    private function addParentDocumentMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapParentDocument($mapping);
-    }
-
-    private function addChildMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapChild($mapping);
-    }
-
-    private function addChildrenMapping(ClassMetadata $class, $mapping)
-    {
-        $class->mapChildren($mapping);
-    }
-
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)
     {
         $cascade = array_keys((array) $reference->cascade);
@@ -178,16 +147,18 @@ class XmlDriver extends AbstractFileDriver
             $cascade = current($cascade) ?: next($cascade);
         }
         $attributes = $reference->attributes();
-        $mapping = array(
+        $class->mapField(array(
             'cascade'        => $cascade,
             'type'           => $type,
             'reference'      => true,
             'targetDocument' => isset($attributes['target-document']) ? (string) $attributes['target-document'] : null,
             'name'           => (string) $attributes['field'],
-        );
-        $this->addFieldMapping($class, $mapping);
+        ));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function loadMappingFile($file)
     {
         $result = array();
