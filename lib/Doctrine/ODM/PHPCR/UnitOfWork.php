@@ -1283,7 +1283,7 @@ class UnitOfWork
      * @param object $document the document of which to get the version history
      * @param int $limit an optional limit to only get the latest $limit information
      *
-     * @return array of <versionname> => array("labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
+     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
      *         oldest version first
      */
     public function getAllLinearVersions($document, $limit = -1)
@@ -1295,16 +1295,29 @@ class UnitOfWork
             throw new \InvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
         }
 
-        // TODO: this is not completely correct !
+        // TODO: using getAllVersions here is not completely correct !
         // With simple versioning it will always correspond to the linear versions
         // With full versioning it will correspond only if the version history is linear
         // With the current implementations of PHPCR, there is yet no way to create a non-linear version history so that
         // this issue is not so bad for now.
-        return $this->session
+        $versions = $this->session
             ->getWorkspace()
             ->getVersionManager()
             ->getVersionHistory($path)
             ->getAllVersions();
+
+        $result = array();
+        foreach ($versions as $version) {
+
+            $result[$version->getName()] = array(
+                'name' => $version->getName(),
+                'labels' => array(),
+                'created' => $version->getCreated(),
+                'createdBy' => '', // TODO: For now we have no way to get this information
+            );
+        }
+
+        return $result;
     }
 
     /**

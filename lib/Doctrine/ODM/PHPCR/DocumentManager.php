@@ -628,12 +628,11 @@ class DocumentManager implements ObjectManager
      * @param object $document the document of which to get the version history
      * @param int $limit an optional limit to only get the latest $limit information
      *
-     * @return array of <versionname> => array("labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
+     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
      *         oldest version first
      */
     public function getAllLinearVersions($document, $limit = -1)
     {
-        // TODO: RETURN THE CORRECT TYPE AS EXPLAINED IN THE PHPDOC!
         $this->errorIfClosed();
         return $this->unitOfWork->getAllLinearVersions($document, $limit);
     }

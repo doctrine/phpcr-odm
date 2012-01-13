@@ -84,30 +84,20 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->checkpoint($doc);
         $this->dm->checkpoint($doc);
 
-        $versions = iterator_to_array($this->dm->getAllLinearVersions($doc));
-        $first = reset($versions);
-        $last = end($versions);
+        $versions = $this->dm->getAllLinearVersions($doc);
 
         $this->assertEquals(5, count($versions));
-        $this->assertEmpty($first->getPredecessors());
-        $this->assertNotEmpty($first->getSuccessors());
-        $this->assertNotEmpty($last->getPredecessors());
-        $this->assertEmpty($last->getSuccessors());
 
-        $path = dirname($first->getPath());
-        foreach($versions as $version) {
+        foreach ($versions as $key => $val) {
+            $this->assertTrue(isset($val['name']));
+            $this->assertTrue(isset($val['labels']));
+            $this->assertTrue(isset($val['created']));
+            $this->assertTrue(isset($val['createdBy']));
 
-            $this->assertEquals($path, dirname($version->getPath()));
-
-            // If it's not the first
-            if ($version !== $first) {
-                $this->assertEquals(1, count($version->getPredecessors()));
-            }
-
-            // If it's not the last
-            if ($version !== $last) {
-                $this->assertEquals(1, count($version->getSuccessors()));
-            }
+            $this->assertEquals($key, $val['name']);
+            $this->assertEmpty($val['labels']); // TODO: change this test once version labels are implemented
+            $this->assertInstanceOf('DateTime', $val['created']);
+            $this->assertEmpty($val['createdBy']); // TODO: change this test once we have the version creator
         }
     }
 }
