@@ -59,10 +59,11 @@ class XmlDriver extends FileDriver
             if (isset($xmlRoot['repository-class'])) {
                 $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
             }
-            if (!isset($xmlRoot['alias'])) {
-                throw MappingException::aliasIsNotSpecified($className);
+
+            if (isset($xmlRoot['alias'])) {
+                $class->setAlias((string) $xmlRoot['alias']);
             }
-            $class->setAlias((string) $xmlRoot['alias']);
+
             if (isset($xmlRoot['is-versioned']) && $xmlRoot['is-versioned'] === 'true') {
                 $class->setVersioned(true);
             }
