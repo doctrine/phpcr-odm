@@ -60,12 +60,11 @@ class YamlDriver extends FileDriver
             if (isset($element['repositoryClass'])) {
                 $class->setCustomRepositoryClassName($element['repositoryClass']);
             }
-            if (isset($element['alias'])) {
-                $class->setAlias($element['alias']);
-            }
+
             if (isset($element['versionable']) && $element['versionable']) {
                 $class->setVersioned(true);
             }
+
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
         } elseif ($element['type'] === 'mappedSuperclass') {
             $class->isMappedSuperclass = true;

@@ -120,7 +120,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 }
 
 /**
- * @PHPCRODM\Document(alias="name",translator="attribute")
+ * @PHPCRODM\Document(translator="attribute")
  */
 class NameDoc
 {

@@ -535,7 +535,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="HardReferrerTestObj")
+ * @PHPCRODM\Document()
  */
 class HardReferrerTestObj
 {
@@ -552,7 +552,7 @@ class HardReferrerTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="WeakReferrerTestObj")
+ * @PHPCRODM\Document()
  */
 class WeakReferrerTestObj
 {
@@ -569,7 +569,7 @@ class WeakReferrerTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="WeakReferrerRefTestObj", referenceable=true)
+ * @PHPCRODM\Document(referenceable=true)
  */
 class WeakReferrerRefTestObj
 {
@@ -582,7 +582,7 @@ class WeakReferrerRefTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="HardReferrerRefTestObj", referenceable=true)
+ * @PHPCRODM\Document(referenceable=true)
  */
 class HardReferrerRefTestObj
 {
@@ -595,7 +595,7 @@ class HardReferrerRefTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="AllReferrerRefTestObj", referenceable=true)
+ * @PHPCRODM\Document(referenceable=true)
  */
 class AllReferrerRefTestObj
 {
@@ -608,7 +608,7 @@ class AllReferrerRefTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="AllReferrerRefNamedPropTestObj", referenceable=true)
+ * @PHPCRODM\Document(referenceable=true)
  */
 class AllReferrerRefNamedPropTestObj
 {
@@ -621,7 +621,7 @@ class AllReferrerRefNamedPropTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="ReferrerTestObj")
+ * @PHPCRODM\Document()
  */
 class ReferrerTestObj
 {
@@ -634,7 +634,7 @@ class ReferrerTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="ReferrerNamedPropTestObj")
+ * @PHPCRODM\Document()
  */
 class ReferrerNamedPropTestObj
 {
@@ -647,7 +647,7 @@ class ReferrerNamedPropTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="ReferrerRefTestObj", referenceable=true)
+ * @PHPCRODM\Document(referenceable=true)
  */
 class ReferrerRefTestObj
 {

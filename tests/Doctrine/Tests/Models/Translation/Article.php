@@ -5,7 +5,7 @@ namespace Doctrine\Tests\Models\Translation;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="translation_article", translator="attribute")
+ * @PHPCRODM\Document(translator="attribute")
  */
 class Article
 {

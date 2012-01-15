@@ -74,11 +74,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
         ksort($documentAnnots);
         $documentAnnot = reset($documentAnnots);
 
-        if (!$documentAnnot->alias) {
-            throw new MappingException("Alias must be specified in the Document() annotation mapping of $className");
-        }
-
-        $metadata->setAlias($documentAnnot->alias);
         if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
             $metadata->setVersioned(true);
         }

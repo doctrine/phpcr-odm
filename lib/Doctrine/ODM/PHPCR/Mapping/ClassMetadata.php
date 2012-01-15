@@ -100,13 +100,6 @@ class ClassMetadata implements ClassMetadataInterface
     public $namespace;
 
     /**
-     * READ-ONLY: The class alias
-     *
-     * @var string
-     */
-    public $alias;
-
-    /**
      * READ-ONLY: The JCR Nodetype to be used for this node
      *
      * @var string
@@ -372,14 +365,6 @@ class ClassMetadata implements ClassMetadataInterface
     public function setLifecycleCallbacks(array $callbacks)
     {
         $this->lifecycleCallbacks = $callbacks;
-    }
-
-    /**
-     * @param string $alias
-     */
-    public function setAlias($alias)
-    {
-        $this->alias = $alias;
     }
 
     /**

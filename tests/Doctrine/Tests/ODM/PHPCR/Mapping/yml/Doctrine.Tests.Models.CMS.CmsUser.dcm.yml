@@ -1,5 +1,4 @@
 Doctrine\Tests\Models\CMS\CmsUser:
-  alias: cms_user
   id: id
   node: node
   fields:

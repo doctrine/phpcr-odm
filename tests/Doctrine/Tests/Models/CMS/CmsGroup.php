@@ -5,7 +5,7 @@ namespace Doctrine\Tests\Models\CMS;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="cms_group")
+ * @PHPCRODM\Document()
  */
 class CmsGroup
 {

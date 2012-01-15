@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * This class represents a jcr nt:resource and is used by the File document
  * @see http://wiki.apache.org/jackrabbit/nt:resource
  *
- * @PHPCRODM\Document(alias="resource", nodeType="nt:resource")
+ * @PHPCRODM\Document(nodeType="nt:resource")
  */
 class Resource
 {

@@ -1,5 +1,4 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\ChildMappingObj:
-  alias: parent
   id: id
   fields:
     name: string

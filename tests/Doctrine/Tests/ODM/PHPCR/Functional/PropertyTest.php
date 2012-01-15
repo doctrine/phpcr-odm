@@ -84,9 +84,8 @@ class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 }
 
-
 /**
- * @PHPCRODM\Document(alias="propertyTestObj")
+ * @PHPCRODM\Document()
  */
 class PropertyTestObj
 {

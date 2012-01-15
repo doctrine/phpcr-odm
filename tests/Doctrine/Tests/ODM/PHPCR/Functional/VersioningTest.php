@@ -71,7 +71,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="versionTestObj")
+ * @PHPCRODM\Document()
  */
 class VersionTestObj
 {

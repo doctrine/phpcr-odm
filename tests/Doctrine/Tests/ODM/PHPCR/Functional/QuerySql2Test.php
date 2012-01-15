@@ -105,7 +105,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="versionTestObj")
+ * @PHPCRODM\Document()
  */
 class QuerySql2TestObj
 {

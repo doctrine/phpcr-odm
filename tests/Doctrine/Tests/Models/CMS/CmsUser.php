@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="cms_user")
+ * @PHPCRODM\Document()
  */
 class CmsUser
 {

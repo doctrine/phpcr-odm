@@ -299,7 +299,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="user")
+ * @PHPCRODM\Document()
  */
 class User
 {
@@ -314,7 +314,7 @@ class User
 }
 
 /**
- * @PHPCRODM\Document(alias="user2")
+ * @PHPCRODM\Document()
  */
 class User2
 {
@@ -325,7 +325,7 @@ class User2
 }
 
 /**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository")
  */
 class User3
 {

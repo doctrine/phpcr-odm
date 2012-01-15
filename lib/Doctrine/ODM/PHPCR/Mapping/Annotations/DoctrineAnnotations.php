@@ -12,8 +12,6 @@ final class Document
 {
     /** @var string */
     public $nodeType = 'nt:unstructured';
-    /** @var string @Required */
-    public $alias;
     /** @var string */
     public $repositoryClass;
     /** @var boolean */

@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * To add files or folders to a folder, create the new File/Folder and set
  * this document as parent, then persist the new File/Folder.
  *
- * @PHPCRODM\Document(alias="folder", nodeType="nt:folder")
+ * @PHPCRODM\Document(nodeType="nt:folder")
  */
 class Folder extends AbstractFile
 {

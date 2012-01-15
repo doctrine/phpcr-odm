@@ -344,7 +344,7 @@ To use translatable documents you need to use several annotations and some boots
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="translation_article", translator="attribute")
+ * @PHPCRODM\Document(translator="attribute")
  */
 class Article
 {
@@ -418,7 +418,7 @@ After registering your new translation strategy you can use it in the @Document 
 ```php
 <?php
 /**
- * @PHPCRODM\Document(alias="translation_article", translator="my_strategy_name")
+ * @PHPCRODM\Document(translator="my_strategy_name")
  */
 class Article
 {
