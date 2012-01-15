@@ -60,10 +60,9 @@ class YamlDriver extends FileDriver
             if (isset($element['repositoryClass'])) {
                 $class->setCustomRepositoryClassName($element['repositoryClass']);
             }
-            if (!isset($element['alias'])) {
-                throw MappingException::aliasIsNotSpecified($className);
+            if (isset($element['alias'])) {
+                $class->setAlias($element['alias']);
             }
-            $class->setAlias($element['alias']);
             if (isset($element['versionable']) && $element['versionable']) {
                 $class->setVersioned(true);
             }
