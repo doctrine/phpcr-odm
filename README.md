@@ -191,7 +191,7 @@ $dm->flush();
 $qb = $dm->createQueryBuilder();
 
 // SELECT * FROM nt:unstructured WHERE name NOT IS NULL
-$qb = new QueryBuilder($factory);
+$factory = $qb->getQOMFactory();
 $qb->select($factory->selector('nt:unstructured'))
     ->where($factory->propertyExistance('name'))
     ->setFirstResult(10)
