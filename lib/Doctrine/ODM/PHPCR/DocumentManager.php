@@ -32,6 +32,7 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
+use PHPCR\Util\QOM\QueryBuilder;
 
 /**
  * Document Manager
@@ -385,6 +386,20 @@ class DocumentManager implements ObjectManager
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
         return $qm->createQuery($statement, $language);
+    }
+
+    /**
+     * Create the fluent query builder.
+     *
+     * After building your query, use DocumentManager::getDocumentsByQuery with the
+     * query returned by QueryBuilder::getQuery()
+     *
+     * @return QueryBuilder
+     */
+    public function createQueryBuilder()
+    {
+        $qm = $this->session->getWorkspace()->getQueryManager();
+        return new QueryBuilder($qm->getQOMFactory());
     }
 
     /**

@@ -188,16 +188,20 @@ $dm->persist($newUser);
 $dm->flush();
 
 // run a query
-$query = $dm->createQuery('SELECT *
-                    FROM [nt:unstructured]
-                    WHERE ISCHILDNODE("/functional")
-                    ORDER BY username',
-                    \PHPCR\Query\QueryInterface::JCR_SQL2);
-$query->setLimit(2);
-$result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
+$qb = $dm->createQueryBuilder();
+
+// SELECT * FROM nt:unstructured WHERE name NOT IS NULL
+$qb = new QueryBuilder($factory);
+$qb->select($factory->selector('nt:unstructured'))
+    ->where($factory->propertyExistance('name'))
+    ->setFirstResult(10)
+    ->setMaxResults(10)
+    ->execute();
+$result = $dm->getDocumentsByQuery($qb->getQuery());
 foreach ($result as $document) {
     echo $document->getId();
 }
+
 // remove a document - and all documents in paths under that one!
 $dm->remove($newUser);
 $dm->flush();
