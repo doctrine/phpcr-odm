@@ -752,3 +752,9 @@ See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
  * preUpdate - occurs before an existing document is updated in storage, during the flush operation
  * postUpdate - occurs after an existing document has successfully been updated in storage
  * postLoad - occurs after the document has been loaded from storage
+
+# Doc TODOS
+
+ * Explain Configuration class in more detail
+ * Proxy classes: Either configuration with setAutoGenerateProxyClasses(true) or make sure you generate proxies.
+    proxies are used when you have references, children and so on to not load the whole PHPCR repository.
