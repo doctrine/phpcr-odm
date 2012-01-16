@@ -397,13 +397,14 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 </tr>
 <tr>
     <td> Child(name=x): </td>
-    <td>Map the child with name x to this field.</td>
+    <td>Map the child with name x to this field. If name is not specified, the
+        name of the annotated varialbe is used.
+    </td>
 </tr>
 <tr>
     <td> Children(filter=x): </td>
-    <td>Map the collection of children with matching name to this field. Filter
-        is optional and works like the parameter in PHPCR Node::getNodes()
-        (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)
+    <td>Map the collection of children to this field. Filter is optional and
+        works like the parameter in <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">PHPCR Node::getNodes()</a>
     </td>
 </tr>
 <tr>
