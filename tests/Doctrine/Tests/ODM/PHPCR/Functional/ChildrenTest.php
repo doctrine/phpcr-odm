@@ -106,7 +106,6 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateChildren()
     {
-        $this->markTestSkipped('TODO: implement storing children and updating order');
         $children = array();
         $child = new ChildrenTestObj();
         $child->id = '/functional/parent/child-a/child-create-1';
