@@ -1505,7 +1505,7 @@ class UnitOfWork
     {
         $metadata = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($metadata)) {
-            throw new PHPCRException('This document is not translatable.');
+            throw new PHPCRException('This document is not translatable: '.get_class($document));
         }
 
         $node = $this->nodesMap[spl_object_hash($document)];

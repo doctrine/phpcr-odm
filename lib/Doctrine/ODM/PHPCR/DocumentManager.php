@@ -463,12 +463,12 @@ class DocumentManager implements ObjectManager
 
         $metadata = $this->getClassMetadata(get_class($object));
         if (! $this->unitOfWork->isDocumentTranslatable($metadata)) {
-            throw new PHPCRException('This document is not translatable, do not use persistTranslation.');
+            throw new PHPCRException('This document is not translatable, do not use persistTranslation: '.get_class($object));
         }
 
         // Set the @Locale field
         if (! $localeField = $metadata->localeMapping['fieldName']) {
-            throw new PHPCRException('Your translatable document must have a field annotated with @Locale. TODO: handle translated document without @Locale field');
+            throw new PHPCRException('Your translatable document must have a field annotated with @Locale. TODO: handle translated document without @Locale field. '.get_class($object));
         }
 
         $metadata->reflFields[$localeField]->setValue($object, $locale);
