@@ -1505,7 +1505,7 @@ class UnitOfWork
     {
         $metadata = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($metadata)) {
-            return array();
+            throw new PHPCRException('This document is not translatable.');
         }
 
         $node = $this->nodesMap[spl_object_hash($document)];
@@ -1641,8 +1641,19 @@ class UnitOfWork
         return $strategy->getPreferredLocalesOrder($document, $metadata, $desiredLocale);
     }
 
-    protected function isDocumentTranslatable($metadata)
+    /**
+     * Determine whether this document is translatable.
+     *
+     * To be translatable, it needs a translation strategy and have at least
+     * one translated field.
+     *
+     * @param $metadata the document meta data
+     * @return bool
+     */
+    public function isDocumentTranslatable($metadata)
     {
-        return count($metadata->translatableFields) !== 0;
+        return ! empty($metadata->translator) &&
+            is_string($metadata->translator) &&
+            count($metadata->translatableFields) !== 0;
     }
 }

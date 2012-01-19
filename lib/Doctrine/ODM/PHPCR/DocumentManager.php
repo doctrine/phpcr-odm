@@ -130,11 +130,13 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Get the assigned translation strategy. This function considers the document is translatable
-     * and thus must have an injected strategy. So don't call this on non-translatable documents
-     * since it will ALWAYS fail!
+     * Get the translation strategy based on the strategy short name.
+     *
      * @param string $key The name of the translation strategy
+     *
      * @return Translation\TranslationStrategy\TranslationStrategyInterface
+     *
+     * @throws InvalidArgumentException if there is no strategy registered with the given key
      */
     public function getTranslationStrategy($key)
     {
@@ -450,19 +452,26 @@ class DocumentManager implements ObjectManager
      *
      * This method will update the @Locale field if it does not match the $locale argument.
      *
-     * @param $object
-     * @param $locale The language to persist
+     * @param $object the document to persist a translation of
+     * @param $locale the locale this document currently has
+     *
+     * @throws PHPCRException if the document is not translatable
      */
     public function persistTranslation($object, $locale)
     {
         $this->errorIfClosed();
 
         $metadata = $this->getClassMetadata(get_class($object));
+        if (! $this->unitOfWork->isDocumentTranslatable($metadata)) {
+            throw new PHPCRException('This document is not translatable, do not use persistTranslation.');
+        }
 
         // Set the @Locale field
-        if ($localeField = $metadata->localeMapping['fieldName']) {
-            $object->$localeField = $locale;
+        if (! $localeField = $metadata->localeMapping['fieldName']) {
+            throw new PHPCRException('Your translatable document must have a field annotated with @Locale. TODO: handle translated document without @Locale field');
         }
+
+        $metadata->reflFields[$localeField]->setValue($object, $locale);
 
         $this->unitOfWork->scheduleInsert($object);
     }
@@ -470,8 +479,11 @@ class DocumentManager implements ObjectManager
     /**
      * Get the list of locales that exist for the specified document.
      *
-     * @param $document
-     * @return array
+     * @param $document the document to get the locales for
+     *
+     * @return array of strings with all locales existing for this particular document
+     *
+     * @throws PHPCRException if the document is not translatable
      */
     public function getLocalesFor($document)
     {
