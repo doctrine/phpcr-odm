@@ -132,14 +132,16 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('Un autre sujet', $doc->topic);
     }
 
+    /**
+     * Italian translation does not exist so as defined in $localePrefs we
+     * will get french as it has higher priority than english
+     */
     public function testFindTranslationWithLanguageFallback()
     {
         $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'it');
 
-        // Italian translation does not exist so as defined in $localePrefs we will get english
-
         $this->assertNotNull($doc);
-        $this->assertEquals('it', $doc->locale);
+        $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('Un autre sujet', $doc->topic);
     }
 
