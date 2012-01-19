@@ -1562,15 +1562,13 @@ class UnitOfWork
         }
 
         $node = $this->nodesMap[spl_object_hash($document)];
-        if (is_null($locale)) {
-            $locale = $this->getLocale($document, $metadata);
-        }
 
         $translationFound = false;
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         foreach ($localesToTry as $desiredLocale) {
             $translationFound = $strategy->loadTranslation($document, $node, $metadata, $desiredLocale);
             if ($translationFound) {
+                $localeUsed = $desiredLocale;
                 break;
             }
         }
@@ -1583,7 +1581,7 @@ class UnitOfWork
 
         // Set the locale
         if ($localField = $metadata->localeMapping['fieldName']) {
-            $document->$localField = $locale;
+            $document->$localField = $localeUsed;
         }
     }
 
