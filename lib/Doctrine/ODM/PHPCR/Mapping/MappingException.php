@@ -82,4 +82,9 @@ class MappingException extends \Exception
     {
         return new self("No mapping found for field '$fieldName' in class '$className'.");
     }
+
+    public static function mappingFileNotFound($className, $filedName)
+    {
+        return new self("No mapping file '$filedName' found for class '$className'.");
+    }
 }
