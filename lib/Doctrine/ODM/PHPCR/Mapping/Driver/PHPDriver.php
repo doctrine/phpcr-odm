@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * The PHPDriver invokes a static PHP function on the document class itself passing
@@ -31,7 +32,7 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
-class PHPDriver implements Driver
+class PHPDriver implements MappingDriver
 {
     /**
      * The paths where to look for mapping files.

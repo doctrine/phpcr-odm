@@ -4,6 +4,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 
@@ -16,7 +17,7 @@ use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
  * @since       1.0
  * @author      Uwe Jäger <uwej711e@googlemail.com>
  */
-class BuiltinDocumentsDriver implements Driver
+class BuiltinDocumentsDriver implements MappingDriver
 {
     /**
      * namespace of built-in documents
@@ -39,7 +40,7 @@ class BuiltinDocumentsDriver implements Driver
      * @param Driver $nestedDriver
      * @param string $namespace
      */
-    public function __construct(Driver $wrappedDriver)
+    public function __construct(MappingDriver $wrappedDriver)
     {
         $this->wrappedDriver = $wrappedDriver;
 

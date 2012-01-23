@@ -2,8 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata,
+    Doctrine\ODM\PHPCR\Mapping\MappingException,
+    Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * The DriverChain allows you to add multiple other mapping drivers for
@@ -16,7 +17,7 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
  * @author      Roman Borschel <roman@code-factory.org>
  * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
-class DriverChain implements Driver
+class DriverChain implements MappingDriver
 {
     /**
      * @var array
@@ -29,7 +30,7 @@ class DriverChain implements Driver
      * @param Driver $nestedDriver
      * @param string $namespace
      */
-    public function addDriver(Driver $nestedDriver, $namespace)
+    public function addDriver(MappingDriver $nestedDriver, $namespace)
     {
         $this->drivers[$namespace] = $nestedDriver;
     }
