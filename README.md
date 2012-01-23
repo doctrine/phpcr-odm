@@ -609,7 +609,10 @@ list and throws a not found exception if none of the languages exists.
 
 The default language chooser strategy (`Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser`) returns
 a configurable list of languages based on the requested language. On instantiation, you specify
-the default locale. This can be hardcoded or based on the request or whatever you chose.
+the default locale. This should be your application default locale. It is used to get the default locale order
+which usually should not vary based on the current locale.
+Based on the request or whatever criteria you have, you can use setLocale to have the document manager load
+your document in the right language.
 
 When you bootstrap the document manager, you need to set the language chooser strategy if you have
 any translatable documents:

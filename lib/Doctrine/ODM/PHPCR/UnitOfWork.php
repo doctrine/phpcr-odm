@@ -1617,9 +1617,8 @@ class UnitOfWork
     protected function getLocale($document, $metadata)
     {
         if ($localeField = $metadata->localeMapping['fieldName']) {
-            if(!$locale = $document->$localeField) {
-                $locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
-                // TODO: use the fallback
+            if (! $locale = $metadata->reflFields[$localeField]->getValue($document)) {
+                $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
             }
             return $locale;
         }

@@ -8,7 +8,8 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface,
 /**
  * Class to get the list of preferred locales.
  *
- * @author brian () liip.ch
+ * @author brian@liip.ch
+ * @author david@liip.ch
  */
 class LocaleChooser implements LocaleChooserInterface
 {
@@ -23,12 +24,23 @@ class LocaleChooser implements LocaleChooserInterface
      *  )
      */
     protected $localePreference;
+    /**
+     * The current locale to use
+     * @var string
+     */
+    protected $locale;
+    /**
+     * The default locale of the system used for getDefaultLocalesOrder
+     * and as fallback if locale is not set.
+     *
+     * @var string
+     */
     protected $defaultLocale;
 
     /**
      * @param array $localePreference array of arrays with a preferred locale order list
      *      for each locale
-     * @param string $defaultLocale the default locale
+     * @param string $defaultLocale the default locale to be used if locale is not set
      */
     public function __construct($localePreference, $defaultLocale)
     {
@@ -50,7 +62,7 @@ class LocaleChooser implements LocaleChooserInterface
     public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
     {
         if (is_null($forLocale)) {
-            return $this->localePreference[$this->defaultLocale];
+            return $this->localePreference[$this->getLocale()];
         } elseif (array_key_exists($forLocale, $this->localePreference)) {
             return $this->localePreference[$forLocale];
         }
@@ -66,6 +78,31 @@ class LocaleChooser implements LocaleChooserInterface
     public function getDefaultLocalesOrder()
     {
         return $this->localePreference[$this->defaultLocale];
+    }
+
+    /**
+     * @return string the locale to use
+     */
+    public function getLocale()
+    {
+        if (empty($this->locale)) {
+            return $this->defaultLocale;
+        }
+        return $this->locale;
+    }
+
+    /**
+     * Set the locale to currently use
+     *
+     * @throws InvalidArgumentException if the specified locale is not defined in the $localePreference array.
+     */
+    public function setLocale($locale)
+    {
+        if (! array_key_exists($locale, $this->localePreference)) {
+            throw new \InvalidArgumentException("The locale '$locale' is not present in the list of available locales");
+        }
+
+        $this->locale = $locale;
     }
 
     /**
