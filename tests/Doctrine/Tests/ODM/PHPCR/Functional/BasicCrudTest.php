@@ -296,6 +296,26 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($user2->node->hasProperty('username'));
         $this->assertNull($user2->username);
     }
+
+    public function testInheritance()
+    {
+        $user = new User4();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
+        $user->name = 'inheritance';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->name, $userNew->name);
+    }
 }
 
 /**
@@ -333,6 +353,15 @@ class User3
     public $id;
     /** @PHPCRODM\String(name="username") */
     public $username;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class User4 extends User
+{
+    /** @PHPCRODM\String(name="name") */
+    public $name;
 }
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
