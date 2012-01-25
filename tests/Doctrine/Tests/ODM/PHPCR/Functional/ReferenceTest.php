@@ -109,7 +109,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-many property. Use array notation or a ReferenceManyCollection.
+     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection.
      */
     public function testCreateManyNoArrayError()
     {
@@ -128,7 +128,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-one property. Don't use array notation or a ReferenceManyCollection.
+     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection.
      */
     public function testCreateOneArrayError()
     {
