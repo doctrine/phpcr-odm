@@ -1179,16 +1179,8 @@ class UnitOfWork
                             $this->purgeChildren($childDocument);
                             $child->remove();
                         }
-                    } elseif ($this->originalData[$oid][$fieldName] === null) {
-                        // TODO: store this new child
-                    } elseif (isset($this->originalData[$oid][$fieldName])) {
-                        // TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
-                        if ($fieldValue === $this->originalData[$oid][$fieldName]) {
-                            // TODO: save
-                        } else {
-                            // TODO this is currently not implemented the old child needs to be removed and the new child might be moved
-                            throw new PHPCRException('You can not move or copy children by assignment as it would be ambiguous. Please use the \PHPCR\Session::move() or \PHPCR\Session::copy() operations for this.');
-                        }
+                    } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
+                        throw new PHPCRException('You can not move or copy children by assignment as it would be ambiguous. Please use the \PHPCR\Session::move() or \PHPCR\Session::copy() operations for this.');
                     }
                 }
             }
