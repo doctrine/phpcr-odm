@@ -139,13 +139,8 @@ class XmlDriver extends FileDriver
 
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)
     {
-        $cascade = array_keys((array) $reference->cascade);
-        if (1 === count($cascade)) {
-            $cascade = current($cascade) ?: next($cascade);
-        }
         $attributes = $reference->attributes();
         $class->mapField(array(
-            'cascade'        => $cascade,
             'type'           => $type,
             'reference'      => true,
             'targetDocument' => isset($attributes['target-document']) ? (string) $attributes['target-document'] : null,

@@ -144,7 +144,6 @@ class YamlDriver extends FileDriver
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
         $class->mapField(array(
-            'cascade'        => isset($reference['cascade']) ? $reference['cascade'] : null,
             'type'           => $type,
             'reference'      => true,
             'targetDocument' => isset($reference['targetDocument']) ? $reference['targetDocument'] : null,

@@ -920,9 +920,6 @@ class UnitOfWork
         $class = $this->dm->getClassMetadata(get_class($document));
 
         foreach ($class->childrenMappings as $assoc) {
-            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
-                continue;
-            }
             $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
             if ($relatedDocuments instanceof Collection) {
                 if ($relatedDocuments instanceof PersistentCollection) {
@@ -938,9 +935,6 @@ class UnitOfWork
         }
 
         foreach ($class->referrersMappings as $assoc) {
-            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
-                continue;
-            }
             $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
             if ($relatedDocuments instanceof Collection) {
                 if ($relatedDocuments instanceof PersistentCollection) {
