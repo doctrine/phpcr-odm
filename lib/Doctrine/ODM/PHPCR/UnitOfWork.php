@@ -1155,10 +1155,11 @@ class UnitOfWork
                                 }
                                 $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
                             }
-                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $type);
-                            unset($refNodesIds);
-                        }
 
+                            if (!empty($refNodesIds)) {
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $type);
+                            }
+                        }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
                             $refOid = spl_object_hash($fieldValue);
