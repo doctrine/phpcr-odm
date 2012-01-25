@@ -462,16 +462,16 @@ class UnitOfWork
             $related = $class->reflFields[$assocName]->getValue($document);
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
-                    if (is_array($related) || $related instanceof ReferenceManyCollection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a ReferenceManyCollection.");
+                    if (is_array($related) || $related instanceof Collection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection.");
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
-                    if (!is_array($related) && ! $related instanceof ReferenceManyCollection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a ReferenceManyCollection.");
+                    if (!is_array($related) && ! $related instanceof Collection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection.");
                     }
                     foreach ($related as $relatedDocument) {
                         if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
@@ -722,7 +722,7 @@ class UnitOfWork
 
         foreach ($class->associationsMappings as $assocName => $assoc) {
             if ($actualData[$assocName]) {
-                if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof ReferenceManyCollection) {
+                if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof Collection) {
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
                             $this->computeReferenceChanges($ref);
