@@ -276,7 +276,8 @@ class UnitOfWork
 
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
-                $referencedClass = isset($assocOptions['targetDocument']) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
+                $referencedClass = isset($assocOptions['targetDocument'])
+                    ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->createProxy(
                     $referencedNode, $referencedClass
                 );
@@ -293,11 +294,13 @@ class UnitOfWork
 
                 $referencedDocs = array();
                 foreach ($proxyNodes as $referencedNode) {
-                    $referencedClass = isset($assocOptions['targetDocument']) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
+                    $referencedClass = isset($assocOptions['targetDocument'])
+                        ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
                     $referencedDocs[] = $this->createProxy($referencedNode, $referencedClass);
                 }
                 if (count($referencedDocs) > 0) {
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
+                    $coll = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
                 }
             }
         }
@@ -1172,8 +1175,6 @@ class UnitOfWork
                             $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $this->nodesMap[$refOid]->getIdentifier(), $type);
                         }
                     }
-
-                // child is set to null ... remove the node ...
                 } elseif (isset($class->childMappings[$fieldName])) {
                     // child is set to null ... remove the node ...
                     if ($fieldValue === null) {
@@ -1183,7 +1184,7 @@ class UnitOfWork
                             $this->purgeChildren($childDocument);
                             $child->remove();
                         }
-                    } elseif (is_null($this->originalData[$oid][$fieldName])) {
+                    } elseif ($this->originalData[$oid][$fieldName] === null) {
                         // TODO: store this new child
                     } elseif (isset($this->originalData[$oid][$fieldName])) {
                         // TODO: is this the correct test? if you put a different document as child and already had one, it means you moved stuff?
@@ -1191,7 +1192,7 @@ class UnitOfWork
                             // TODO: save
                         } else {
                             // TODO this is currently not implemented the old child needs to be removed and the new child might be moved
-                            throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.");
+                            throw new PHPCRException('You can not move or copy children by assignment as it would be ambiguous. Please use the \PHPCR\Session::move() or \PHPCR\Session::copy() operations for this.');
                         }
                     }
                 }
