@@ -1307,18 +1307,6 @@ class UnitOfWork
     }
 
     /**
-     * Do a checkin operation followed immediately by a checkout operation.
-     * A new version is created and the writable document stays in checked out state
-     * @param object $document The document
-     * @return void
-     */
-    public function checkpoint($document)
-    {
-        $this->checkin($document);
-        $this->checkout($document);
-    }
-
-    /**
      * Get the version history information for a document
      *
      * labels will be an empty array. TODO: implement labels once jackalope implements them

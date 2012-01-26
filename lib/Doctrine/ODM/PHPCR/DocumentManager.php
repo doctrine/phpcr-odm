@@ -580,6 +580,8 @@ class DocumentManager implements ObjectManager
     /**
      * Check Out in the Object, this makes the node writable again.
      *
+     * The restore is immediately propagated to the backend.
+     *
      * @param object $document
      */
     public function checkout($object)
@@ -588,14 +590,27 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->checkout($object);
     }
 
+    /**
+     * Do a checkin operation followed immediately by a checkout operation.
+     *
+     * A new version is created and the writable document stays in checked out state
+     *
+     * @param object $document The document
+     *
+     * @return void
+     */
     public function checkpoint($document)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkpoint($document);
+        $this->checkin($document);
+        $this->checkout($document);
     }
 
     /**
-     * Restores the document to the given version
+     * Restores the document to the given version in storage and refreshes the
+     * document object.
+     *
+     * The restore is immediately propagated to the backend.
      *
      * @see findVersionByName
      *
