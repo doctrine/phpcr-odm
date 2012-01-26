@@ -833,7 +833,8 @@ class UnitOfWork
      */
     public function persistNew($class, $document, $overrideIdGenerator = null)
     {
-        $id = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator)->generate($document, $class, $this->dm);
+        $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
+        $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
 
         $oid = $this->registerManaged($document, $id, null);
 
