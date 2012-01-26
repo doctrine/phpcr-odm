@@ -489,8 +489,8 @@ class UnitOfWork
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
-                $id = $class->reflFields[$class->identifier]->getValue($document);
-                $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $mapping['name']);
+                $id = $class->getIdentifierValue($document);
+                $childClass->setIdentifierValue($child, $id . '/' . $mapping['name']);
                 $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
@@ -505,11 +505,11 @@ class UnitOfWork
             foreach ($children as $child) {
                 if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                     $childClass = $this->dm->getClassMetadata(get_class($child));
-                    $id = $class->reflFields[$class->identifier]->getValue($document);
+                    $id = $class->getIdentifierValue($document);
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
-                        : basename($childClass->reflFields[$childClass->identifier]->getValue($child));
-                    $childClass->reflFields[$childClass->identifier]->setValue($child, $id . '/'. $nodename);
+                        : basename($childClass->getIdentifierValue($child));
+                    $childClass->setIdentifierValue($child, $id . '/' . $nodename);
                     $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
@@ -713,7 +713,7 @@ class UnitOfWork
             }
         }
 
-        $id = $class->reflFields[$class->identifier]->getValue($document);
+        $id = $class->getIdentifierValue($document);
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
@@ -757,7 +757,7 @@ class UnitOfWork
         $state = $this->getDocumentState($child);
 
         if ($state === self::STATE_NEW) {
-            $targetClass->reflFields[$targetClass->identifier]->setValue($child , $parentId . '/'. $mapping['name']);
+            $targetClass->setIdentifierValue($child, $parentId . '/' . $mapping['name']);
             $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $child);
         } elseif ($state === self::STATE_REMOVED) {
@@ -843,7 +843,7 @@ class UnitOfWork
         $this->nodesMap[$oid] = $node;
 
         if ($class->identifier) {
-            $class->reflFields[$class->identifier]->setValue($document, $id);
+            $class->setIdentifierValue($document, $id);
         }
         if ($class->node) {
             $class->reflFields[$class->node]->setValue($document, $node);
