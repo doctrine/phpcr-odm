@@ -638,6 +638,45 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Returns a read-only, detached document instance of the document at the
+     * specified path with the specified version name.
+     *
+     * @param null|string $className
+     * @param string $id id of the document
+     * @param string $versionname the version name as given by getLinearPredecessors
+     *
+     * @return the detached document or null if the document is not found
+     *
+     * @throws InvalidArgumentException if there is a document with $id but no version with $name
+     */
+    public function findVersionByName($className, $id, $versionname)
+    {
+        $this->errorIfClosed();
+
+        try {
+            $node = UUIDHelper::isUUID($id)
+                ? $this->session->getNodeByIdentifier($id)
+                : $this->session->getNode($id);
+        } catch (\PHPCR\PathNotFoundException $e) {
+            return null;
+        }
+
+        // TODO: what should this return? a node?
+        $node = $this->session
+            ->getWorkspace()
+            ->getVersionManager()
+            ->getVersionHistory($id)
+            ->getVersion($versionname)
+            ->getFrozenNode();
+
+        $document = $this->unitOfWork->createDocument($className, $node, $hints);
+
+        $this->detach($document);
+
+        return $document;
+    }
+
+    /**
      * @param  object $document
      * @return bool
      */
