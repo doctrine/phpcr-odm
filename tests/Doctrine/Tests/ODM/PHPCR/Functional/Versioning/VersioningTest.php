@@ -100,6 +100,44 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->assertEmpty($val['createdBy']); // TODO: change this test once we have the version creator
         }
     }
+
+    /**
+     * Test it's not possible to get a version of a non-versionable document
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFindVersionByNameNotVersionable()
+    {
+        $node = $this->node->addNode('/functional/noVersionTestObj');
+        $node->setProperty('username', 'admin');
+        $node->setProperty('phpcr:class', $this->type);
+        $this->dm->getPhpcrSession()->save();
+        $this->dm->findVersionByName($this->type, '/functional/noVersionTestObj', 'whatever');
+    }
+
+    /**
+     * Test that trying to read a non existing version fails
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFindVersionByNameVersionDoesNotExist()
+    {
+        $this->dm->findVersionByName($this->type, '/functional/versionTestObj', 'whatever');
+    }
+
+    public function testFindVersionByName()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->dm->checkpoint($doc);
+
+        $lastVersion = end($this->dm->getAllLinearVersions($doc));
+        $lastVersionName = $lastVersion['name'];
+
+        $frozenNode = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+
+        // TODO: not completely sure the frozenNode has the same properties as the
+        // "lastVersion" returned by getAllLinearVersions.
+        $this->assertEquals($lastVersionName, $frozenNode->getName());
+        $this->assertEquals($lastVersion['created'], $frozenNode->getCreated());
+    }
 }
 
 /**
