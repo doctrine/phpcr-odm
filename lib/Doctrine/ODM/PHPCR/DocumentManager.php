@@ -595,17 +595,17 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Restores an Object to a certain version.
+     * Restores the document to the given version
      *
-     * @param string $version The version to be restored e.g. 1.0 or 1.1
-     * @param object $document.
+     * @see findVersionByName
+     *
+     * @param string $DocumentVersion the version to be restored
      * @param bool $removeExisting Should the existing version be removed.
      */
-    public function restore($version, $object, $removeExisting = true)
+    public function restoreVersion($documentVersion, $removeExisting = true)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->restore($version, $object, $removeExisting);
-        $this->refresh($object);
+        $this->unitOfWork->restoreVersion($documentVersion, $removeExisting);
     }
 
     /**
@@ -641,39 +641,24 @@ class DocumentManager implements ObjectManager
      * Returns a read-only, detached document instance of the document at the
      * specified path with the specified version name.
      *
+     * The id of the returned document representing this version is not the id
+     * of the original document.
+     *
      * @param null|string $className
      * @param string $id id of the document
-     * @param string $versionname the version name as given by getLinearPredecessors
+     * @param string $versionName the version name as given by getLinearPredecessors
      *
      * @return the detached document or null if the document is not found
      *
-     * @throws InvalidArgumentException if there is a document with $id but no version with $name
+     * @throws InvalidArgumentException if there is a document with $id but no
+     *      version with $name
+     * @throws UnsupportedRepositoryOperationException if the implementation
+     *      does not support versioning
      */
-    public function findVersionByName($className, $id, $versionname)
+    public function findVersionByName($className, $id, $versionName)
     {
         $this->errorIfClosed();
-
-        try {
-            $node = UUIDHelper::isUUID($id)
-                ? $this->session->getNodeByIdentifier($id)
-                : $this->session->getNode($id);
-        } catch (\PHPCR\PathNotFoundException $e) {
-            return null;
-        }
-
-        // TODO: what should this return? a node?
-        $node = $this->session
-            ->getWorkspace()
-            ->getVersionManager()
-            ->getVersionHistory($id)
-            ->getVersion($versionname)
-            ->getFrozenNode();
-
-        $document = $this->unitOfWork->createDocument($className, $node, $hints);
-
-        $this->detach($document);
-
-        return $document;
+        return $this->unitOfWork->findVersionByName($className, $id, $versionName);
     }
 
     /**

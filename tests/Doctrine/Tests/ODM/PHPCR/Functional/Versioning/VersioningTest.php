@@ -62,16 +62,24 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->checkin($user);
     }
 
-    public function testRestore()
+    public function testRestoreVersion()
     {
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
-        $this->dm->checkin($user);
-        $this->dm->checkout($user);
+        $this->dm->checkpoint($user);
         $user->username = 'nicam';
+        $this->dm->flush();
 
-        $this->dm->restore('1.0', $user);
+        $versions = $this->dm->getAllLinearVersions($user);
+        each($versions);
+        list($dummy, $versionInfo) = each($versions);
+        $versionName = $versionInfo['name'];
+        $versionDocument = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $versionName);
+        $this->dm->restoreVersion($versionDocument);
+
+        $this->assertEquals('lsmith', $user->username);
+
+        $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/versionTestObj');
-
         $this->assertEquals('lsmith', $user->username);
     }
 
@@ -107,11 +115,11 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testFindVersionByNameNotVersionable()
     {
-        $node = $this->node->addNode('/functional/noVersionTestObj');
-        $node->setProperty('username', 'admin');
-        $node->setProperty('phpcr:class', $this->type);
-        $this->dm->getPhpcrSession()->save();
-        $this->dm->findVersionByName($this->type, '/functional/noVersionTestObj', 'whatever');
+        $session = $this->dm->getPhpcrSession();
+        $node = $session->getNode('/functional')->addNode('noVersionTestObj');
+        $session->save();
+        $id = $node->getPath();
+        $this->dm->findVersionByName($this->type, $id, 'whatever');
     }
 
     /**
@@ -131,12 +139,47 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $lastVersion = end($this->dm->getAllLinearVersions($doc));
         $lastVersionName = $lastVersion['name'];
 
-        $frozenNode = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+        $frozenDocument = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
 
-        // TODO: not completely sure the frozenNode has the same properties as the
-        // "lastVersion" returned by getAllLinearVersions.
-        $this->assertEquals($lastVersionName, $frozenNode->getName());
-        $this->assertEquals($lastVersion['created'], $frozenNode->getCreated());
+        $this->assertEquals('lsmith', $frozenDocument->username);
+        $this->assertEquals(array(3,1,2), iterator_to_array($frozenDocument->numbers));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testPersistVersionError()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->dm->checkpoint($doc);
+
+        $lastVersion = end($this->dm->getAllLinearVersions($doc));
+        $lastVersionName = $lastVersion['name'];
+
+        $frozenDocument = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+
+        $this->dm->persist($frozenDocument);
+    }
+
+    /**
+     * The version is detached and not tracked anymore.
+     */
+    public function testModifyVersion()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->dm->checkpoint($doc);
+
+        $lastVersion = end($this->dm->getAllLinearVersions($doc));
+        $lastVersionName = $lastVersion['name'];
+
+        $frozenDocument = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+
+        $doc->username = 'original';
+        $frozenDocument->username = 'changed';
+        $this->dm->flush();
+        $this->dm->clear();
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->assertEquals('original', $doc->username);
     }
 }
 
@@ -149,7 +192,10 @@ class VersionTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Version */
+    /**
+     * TODO: implement
+     * PHPCRODM\VersionName
+     */
     public $version;
     /** @PHPCRODM\String(name="username") */
     public $username;

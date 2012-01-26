@@ -71,6 +71,18 @@ class UnitOfWork
     private $documentIds = array();
 
     /**
+     * Track version history of the version documents we create, indexed by spl_object_hash
+     * @var array of \PHPCR\Version\VersionHistory
+     */
+    private $documentHistory = array();
+
+    /**
+     * Track version name of the version documents we create, indexed by spl_object_hash
+     * @var array
+     */
+    private $documentVersionName = array();
+
+    /**
      * @var array
      */
     private $documentRevisions = array();
@@ -583,11 +595,6 @@ class UnitOfWork
             if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
                 || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
             ) {
-                if ($class->versionable) {
-                    return $class->getFieldValue($document, $class->versionField)
-                        ? self::STATE_DETACHED : self::STATE_NEW;
-                }
-
                 if ($this->tryGetById($id)) {
                     return self::STATE_DETACHED;
                 }
@@ -1235,6 +1242,42 @@ class UnitOfWork
         }
     }
 
+
+    /**
+     * @see DocumentManager::findVersionByName
+     */
+    public function findVersionByName($className, $id, $versionName)
+    {
+        $versionManager = $this->session
+            ->getWorkspace()
+            ->getVersionManager();
+
+        try {
+            $history = $versionManager->getVersionHistory($id);
+        } catch(\PHPCR\ItemNotFoundException $e) {
+            // there is no document with $id
+            return null;
+        } catch(\PHPCR\UnsupportedRepositoryOperationException $e) {
+            throw new \InvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
+        }
+
+        try {
+            $node = $history->getVersion($versionName)->getFrozenNode();
+        } catch(\PHPCR\RepositoryException $e) {
+            throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
+        }
+
+        $hints = array('versionName' => $versionName);
+        $frozenDocument = $this->createDocument($className, $node, $hints);
+        $this->dm->detach($frozenDocument);
+
+        $oid = spl_object_hash($frozenDocument);
+        $this->documentHistory[$oid] = $history;
+        $this->documentVersionName[$oid] = $versionName;
+
+        return $frozenDocument;
+    }
+
     /**
      * Checkin operation - Save all current changes and then check in the Node by id.
      *
@@ -1325,11 +1368,17 @@ class UnitOfWork
      *
      * @return void
      */
-    public function restore($version, $document, $removeExisting)
+    public function restoreVersion($documentVersion, $removeExisting)
     {
+        $oid = spl_object_hash($documentVersion);
+        $history = $this->documentHistory[$oid];
+        $versionName = $this->documentVersionName[$oid];
+        $document = $this->dm->find(null, $history->getVersionableIdentifier());
         $path = $this->getDocumentId($document);
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->restore($removeExisting, $version, $path);
+        $vm->restore($removeExisting, $versionName, $path);
+
+        $this->dm->refresh($document);
     }
 
     /**
