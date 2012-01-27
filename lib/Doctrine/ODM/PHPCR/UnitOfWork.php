@@ -1369,6 +1369,18 @@ class UnitOfWork
         $this->dm->refresh($document);
     }
 
+    public function removeVersion($documentVersion)
+    {
+        $oid = spl_object_hash($documentVersion);
+        $history = $this->documentHistory[$oid];
+        $versionName = $this->documentVersionName[$oid];
+
+        $history->removeVersion($versionName);
+
+        unset($this->documentVersionName[$oid]);
+        unset($this->documentHistory[$oid]);
+    }
+
     /**
      * Gets all the predecessor objects of an object
      *

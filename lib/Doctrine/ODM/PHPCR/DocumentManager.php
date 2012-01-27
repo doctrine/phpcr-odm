@@ -677,6 +677,19 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Delete the specified version to clean up the history
+     *
+     * @param $documentVersion The version document as returned by findVersionByName
+     * @return void
+     * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
+     */
+    public function removeVersion($documentVersion)
+    {
+        $this->errorIfClosed();
+        $this->unitOfWork->removeVersion($documentVersion);
+    }
+
+    /**
      * @param  object $document
      * @return bool
      */

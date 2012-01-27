@@ -181,6 +181,71 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $doc = $this->dm->find($this->type, '/functional/versionTestObj');
         $this->assertEquals('original', $doc->username);
     }
+
+    /**
+     * Check we cannot remove the last version of a document (since it's the current version)
+     * @expectedException \PHPCR\ReferentialIntegrityException
+     */
+    public function testRemoveLastVersion()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->dm->checkpoint($doc);
+
+        $lastVersion = end($this->dm->getAllLinearVersions($doc));
+        $lastVersionName = $lastVersion['name'];
+
+        $version = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+        $this->dm->removeVersion($version);
+    }
+
+    /**
+     * Check we cannot remove the root version of a document
+     * @expectedException \PHPCR\Version\VersionException
+     */
+    public function testRemoveRootVersion()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->dm->checkpoint($doc);
+
+        $firstVersion = reset($this->dm->getAllLinearVersions($doc));
+        $firstVersionName = $firstVersion['name'];
+
+        $version = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $firstVersionName);
+        $this->dm->removeVersion($version);
+    }
+
+    public function testRemoveVersion()
+    {
+        $doc = $this->dm->find($this->type, '/functional/versionTestObj');
+        $this->dm->checkpoint($doc);
+
+        $lastVersion = end($this->dm->getAllLinearVersions($doc));
+        $lastVersionName = $lastVersion['name'];
+
+        // Create a new version so that we are not trying to remove the last version
+        $this->dm->checkpoint($doc);
+
+        // Remove the version
+        $version = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+        $removedVersionPath = $version->id;
+
+        $this->dm->removeVersion($version);
+
+        // Check it's not in the history anymore
+        $this->assertFalse($this->dm->getPhpcrSession()->nodeExists($removedVersionPath));
+
+        return $lastVersionName;
+    }
+
+    /**
+     * Check the version we removed in testRemoveVersion does not exist anymore
+     * @depends testRemoveVersion
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
+    {
+        $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+    }
 }
 
 /**
