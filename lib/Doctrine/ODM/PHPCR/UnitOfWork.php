@@ -1638,9 +1638,10 @@ class UnitOfWork
      */
     public function isDocumentTranslatable($metadata)
     {
-        return ! empty($metadata->translator) &&
-            is_string($metadata->translator) &&
-            count($metadata->translatableFields) !== 0;
+        return ! empty($metadata->translator)
+            && is_string($metadata->translator)
+            && count($metadata->translatableFields) !== 0;
+    }
 
     private static function objToStr($obj)
     {
