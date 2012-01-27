@@ -586,11 +586,13 @@ class DocumentManager implements ObjectManager
     /**
      * Flush all current changes, that is save them within the phpcr session
      * and commit that session to permanent storage.
+     *
+     * @param object $document
      */
-    public function flush()
+    public function flush($document = null)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->commit();
+        $this->unitOfWork->commit($document);
     }
 
     /**

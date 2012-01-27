@@ -608,13 +608,43 @@ class UnitOfWork
         return $this->documentState[$oid];
     }
 
-    private function detectChangedDocuments()
+    /**
+     * Detects the changes that need to be persisted
+     *
+     * @param object $document
+     *
+     * @return void
+     */
+    private function detectChangedDocuments($document = null)
     {
-        foreach ($this->identityMap as $document) {
+        if ($document) {
             $state = $this->getDocumentState($document);
-            if ($state === self::STATE_MANAGED) {
+            if ($state !== self::STATE_MANAGED) {
+                throw new \InvalidArgumentException("Document has to be managed for single computation " . self::objToStr($document));
+            }
+
+            foreach ($this->scheduledInserts as $insertedDocument) {
+                $class = $this->dm->getClassMetadata(get_class($insertedDocument));
+                $this->computeChangeSet($class, $insertedDocument);
+            }
+
+            // Ignore uninitialized proxy objects
+            if ($document instanceof Proxy && !$document->__isInitialized()) {
+                return;
+            }
+
+            $oid = spl_object_hash($document);
+            if (!isset($this->scheduledInserts[$oid]) && isset($this->documentState[$oid])) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
+            }
+        } else {
+            foreach ($this->identityMap as $document) {
+                $state = $this->getDocumentState($document);
+                if ($state === self::STATE_MANAGED) {
+                    $class = $this->dm->getClassMetadata(get_class($document));
+                    $this->computeChangeSet($class, $document);
+                }
             }
         }
     }
@@ -954,11 +984,13 @@ class UnitOfWork
     /**
      * Commits the UnitOfWork
      *
+     * @param object $document
+     *
      * @return void
      */
-    public function commit()
+    public function commit($document = null)
     {
-        $this->detectChangedDocuments();
+        $this->detectChangedDocuments($document);
 
         if ($this->evm->hasListeners(Event::onFlush)) {
             $this->evm->dispatchEvent(Event::onFlush, new OnFlushEventArgs($this));
