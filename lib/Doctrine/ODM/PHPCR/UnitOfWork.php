@@ -444,7 +444,7 @@ class UnitOfWork
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException("Detached document passed to persist().");
+                throw new \InvalidArgumentException("Detached document passed to persist(): " . self::objToStr($document));
                 break;
         }
 
@@ -466,7 +466,7 @@ class UnitOfWork
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
                     if (is_array($related) || $related instanceof Collection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection.");
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection: " . self::objToStr($document));
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
@@ -474,7 +474,7 @@ class UnitOfWork
                     }
                 } else {
                     if (!is_array($related) && ! $related instanceof Collection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection.");
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: " . self::objToStr($document));
                     }
                     foreach ($related as $relatedDocument) {
                         if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
@@ -690,13 +690,13 @@ class UnitOfWork
                     }
                 } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                     if ($class->nodename == $fieldName) {
-                        throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document.');
+                        throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document: '.self::objToStr($document));
                     }
                     if ($class->parentMapping == $fieldName) {
-                        throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document.');
+                        throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
                     }
                     if ($class->identifier == $fieldName) {
-                        throw new PHPCRException('The Id is immutable. Please use PHPCR\Session::move to move the document.');
+                        throw new PHPCRException('The Id is immutable. Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
                     }
                     $changed = true;
                     break;
@@ -717,7 +717,7 @@ class UnitOfWork
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.");
+                    throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: " . self::objToStr($document));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -1152,7 +1152,7 @@ class UnitOfWork
                                 $refOid = spl_object_hash($fv);
                                 $refClass = $this->dm->getClassMetadata(get_class($fv));
                                 if (!$refClass->referenceable) {
-                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation.', get_class($fv)));
+                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document), get_class($fv)));
                                 }
                                 $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
                             }
@@ -1166,7 +1166,7 @@ class UnitOfWork
                             $refOid = spl_object_hash($fieldValue);
                             $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
                             if (!$refClass->referenceable) {
-                                throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation.', get_class($fieldValue)));
+                                throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document), get_class($fieldValue)));
                             }
                             $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $this->nodesMap[$refOid]->getIdentifier(), $type);
                         }
@@ -1444,7 +1444,7 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         if (empty($this->documentIds[$oid])) {
-            throw new PHPCRException("Document is not managed and has no id.");
+            throw new PHPCRException("Document is not managed and has no id: " . self::objToStr($document));
         }
         return $this->documentIds[$oid];
     }
@@ -1494,7 +1494,7 @@ class UnitOfWork
     {
         $metadata = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($metadata)) {
-            throw new PHPCRException('This document is not translatable: '.get_class($document));
+            throw new PHPCRException('This document is not translatable: : '.self::objToStr($document));
         }
 
         $node = $this->nodesMap[spl_object_hash($document)];
@@ -1540,12 +1540,11 @@ class UnitOfWork
 
         // Determine which languages we will try to load
         if (!$fallback) {
-
-            if (is_null($locale)) {
-                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled");
+            if (null === $locale) {
+                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled: " . self::objToStr($document));
             }
-            $localesToTry = array($locale);
 
+            $localesToTry = array($locale);
         } else {
             $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
         }
@@ -1564,8 +1563,7 @@ class UnitOfWork
 
         if (!$translationFound) {
             // We tried each possible language without finding the translations
-            // TODO what is the right exception? some "not found" probably
-            throw new \Exception("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: " . print_r($localesToTry, true));
+            throw new \RuntimeException("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: " . var_export($localesToTry, true));
         }
 
         // Set the locale
@@ -1605,15 +1603,17 @@ class UnitOfWork
 
     protected function getLocale($document, $metadata)
     {
-        if ($localeField = $metadata->localeMapping['fieldName']) {
-            if (! $locale = $metadata->reflFields[$localeField]->getValue($document)) {
+        $localeField = $metadata->localeMapping['fieldName'];
+        if ($localeField) {
+            $locale = $metadata->reflFields[$localeField]->getValue($document);
+            if (!$locale) {
                 $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
             }
+
             return $locale;
         }
         // TODO: implement tracking @Locale without locale field
-        // TODO: check it's the correct exception
-        throw new \InvalidArgumentException("Locale not implemented");
+        throw new \RuntimeException("Locale not implemented: ".self::objToStr($document));
     }
 
     /**
@@ -1641,5 +1641,9 @@ class UnitOfWork
         return ! empty($metadata->translator) &&
             is_string($metadata->translator) &&
             count($metadata->translatableFields) !== 0;
+
+    private static function objToStr($obj)
+    {
+        return method_exists($obj, '__toString') ? (string)$obj : get_class($obj) . '@' . spl_object_hash($obj);
     }
 }

@@ -89,7 +89,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     * @expectedExceptionMessage Referenced document Doctrine\Tests\Models\References\NonRefTestObj is not referenceable. Use referenceable=true in Document annotation.
      */
     public function testReferenceNonReferenceable()
     {
@@ -103,13 +102,17 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refTestObj->setReference($refRefTestObj);
 
         $this->dm->persist($refTestObj);
-        $this->dm->flush();
+        try {
+            $this->dm->flush();
+        } catch (\Doctrine\ODM\PHPCR\PHPCRException $e) {
+            $this->assertContains('Referenced document Doctrine\Tests\Models\References\NonRefTestObj is not referenceable', $e->getMessage());
+            throw $e;
+        }
     }
 
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection.
      */
     public function testCreateManyNoArrayError()
     {
@@ -123,12 +126,16 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refManyTestObj->references = $refRefTestObj;
 
         $this->dm->persist($refManyTestObj);
-        $this->dm->flush();
+        try {
+            $this->dm->flush();
+        } catch (\Doctrine\ODM\PHPCR\PHPCRException $e) {
+            $this->assertContains('Referenced document is not stored correctly in a reference-many property.', $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     * @expectedExceptionMessage Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection.
      */
     public function testCreateOneArrayError()
     {
@@ -142,7 +149,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refTestObj->reference = array($refRefTestObj);
 
         $this->dm->persist($refTestObj);
-        $this->dm->flush();
+        try {
+            $this->dm->flush();
+        } catch (\Doctrine\ODM\PHPCR\PHPCRException $e) {
+            $this->assertContains('Referenced document is not stored correctly in a reference-one property.', $e->getMessage());
+            throw $e;
+        }
     }
 
     public function testCreateWithoutRef()
