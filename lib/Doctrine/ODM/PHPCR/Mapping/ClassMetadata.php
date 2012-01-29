@@ -259,10 +259,10 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Initializes a new ClassMetadata instance that will hold the 
+     * Initializes a new ClassMetadata instance that will hold the
      * object-relational mapping metadata of the class with the given name.
      *
-     * @param ReflectionService $reflService 
+     * @param ReflectionService $reflService
      */
     public function initializeReflection(ReflectionService $reflService)
     {
@@ -272,7 +272,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Restores some state that can not be serialized/unserialized.
-     * 
+     *
      * @param ReflectionService $reflService
      */
     public function wakeupReflection(ReflectionService $reflService)
@@ -953,5 +953,17 @@ class ClassMetadata implements ClassMetadataInterface
                 $document->$callback();
             }
         }
+    }
+
+    /**
+     * INTERNAL:
+     * Adds a field mapping without completing/validating it.
+     * This is mainly used to add inherited field mappings to derived classes.
+     *
+     * @param array $mapping
+     */
+    public function addInheritedFieldMapping(array $fieldMapping)
+    {
+        $this->fieldMappings[$fieldMapping['fieldName']] = $fieldMapping;
     }
 }

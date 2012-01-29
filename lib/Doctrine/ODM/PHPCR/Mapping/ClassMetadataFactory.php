@@ -45,7 +45,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * {@inheritdoc}
      */
     protected $cacheSalt = '\$PHPCRODMCLASSMETADATA';
-    
+
     /**
      * @var DocumentManager
      */
@@ -73,7 +73,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * @throws MappingException
      */
     public function getMetadataFor($className)
@@ -87,7 +87,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * @throws MappingException
      */
     function loadMetadata($className)
@@ -120,8 +120,35 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function doLoadMetadata($class, $parent, $rootEntityFound)
     {
+        if ($parent) {
+            $this->addInheritedFields($class, $parent);
+        }
+
         if ($this->getDriver()) {
             $this->getDriver()->loadMetadataForClass($class->getName(), $class);
+        }
+    }
+
+    /**
+    * Adds inherited fields to the subclass mapping.
+    *
+     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $subClass
+     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $parentClass
+     * @return void
+     */
+    private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
+    {
+        foreach ($parentClass->fieldMappings as $fieldName => $mapping) {
+            if ( ! isset($mapping['inherited']) && ! $parentClass->isMappedSuperclass) {
+                $mapping['inherited'] = $parentClass->name;
+            }
+            if ( ! isset($mapping['declared'])) {
+                $mapping['declared'] = $parentClass->name;
+            }
+            $subClass->addInheritedFieldMapping($mapping);
+        }
+        foreach ($parentClass->reflFields as $name => $field) {
+            $subClass->reflFields[$name] = $field;
         }
     }
 
