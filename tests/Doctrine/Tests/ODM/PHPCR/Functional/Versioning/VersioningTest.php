@@ -232,7 +232,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->removeVersion($version);
 
         // Check it's not in the history anymore
-        $this->assertFalse($this->dm->getPhpcrSession()->nodeExists($removedVersionPath));
+        $this->assertFalse($this->dm->getPhpcrSession()->nodeExists(dirname($removedVersionPath)));
 
         return $lastVersionName;
     }
