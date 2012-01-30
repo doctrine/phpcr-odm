@@ -269,6 +269,21 @@ final class Referrers
  * @Annotation
  * @Target("PROPERTY")
  */
+final class VersionName
+{
+}
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class VersionCreated
+{
+}
+
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
 final class Locale
 {
 }

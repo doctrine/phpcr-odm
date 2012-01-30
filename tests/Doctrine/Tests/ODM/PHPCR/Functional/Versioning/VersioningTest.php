@@ -143,6 +143,10 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertEquals('lsmith', $frozenDocument->username);
         $this->assertEquals(array(3,1,2), iterator_to_array($frozenDocument->numbers));
+
+        $this->assertEquals($lastVersionName, $frozenDocument->versionName);
+        $this->assertInstanceOf('DateTime', $frozenDocument->versionCreated);
+        $this->assertTrue(time() - $frozenDocument->versionCreated->getTimestamp() < 100);
     }
 
     /**
@@ -257,11 +261,13 @@ class VersionTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /**
-     * TODO: implement
-     * PHPCRODM\VersionName
-     */
-    public $version;
+
+    /** @PHPCRODM\VersionName */
+    public $versionName;
+
+    /** @PHPCRODM\VersionCreated */
+    public $versionCreated;
+
     /** @PHPCRODM\String(name="username") */
     public $username;
     /** @PHPCRODM\Int(name="numbers", multivalue=true) */

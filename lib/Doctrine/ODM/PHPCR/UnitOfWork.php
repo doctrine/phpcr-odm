@@ -1262,7 +1262,8 @@ class UnitOfWork
         }
 
         try {
-            $node = $history->getVersion($versionName)->getFrozenNode();
+            $version = $history->getVersion($versionName);
+            $node = $version->getFrozenNode();
         } catch(\PHPCR\RepositoryException $e) {
             throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
         }
@@ -1274,6 +1275,15 @@ class UnitOfWork
         $oid = spl_object_hash($frozenDocument);
         $this->documentHistory[$oid] = $history;
         $this->documentVersionName[$oid] = $versionName;
+
+        // Set the annotations
+        $metadata = $this->dm->getClassMetadata(get_class($frozenDocument));
+        if ($versionNameField = $metadata->versionNameMapping['fieldName']) {
+            $metadata->reflFields[$versionNameField]->setValue($frozenDocument, $versionName);
+        }
+        if ($versionCreatedField = $metadata->versionCreatedMapping['fieldName']) {
+            $metadata->reflFields[$versionCreatedField]->setValue($frozenDocument, $version->getCreated());
+        }
 
         return $frozenDocument;
     }
@@ -1685,8 +1695,8 @@ class UnitOfWork
         }
 
         // Set the locale
-        if ($localField = $metadata->localeMapping['fieldName']) {
-            $document->$localField = $locale;
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            $metadata->reflFields[$localeField]->setValue($document, $locale);
         }
     }
 
@@ -1701,9 +1711,9 @@ class UnitOfWork
         $strategy->removeTranslation($document, $node, $metadata, $locale);
 
         // Empty the locale field if what we removed was the current language
-        if ($localField = $metadata->localeMapping['fieldName']) {
-            if ($document->$localField === $locale) {
-                $document->$localField = null;
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            if ($metadata->reflFields[$localeField]->getValue($document) === $locale) {
+                $metadata->reflFields[$localeField]->setValue($document, null);
             }
         }
     }
@@ -1722,7 +1732,7 @@ class UnitOfWork
     protected function getLocale($document, $metadata)
     {
         if ($localeField = $metadata->localeMapping['fieldName']) {
-            if(!$locale = $document->$localeField) {
+            if(!$locale = $metadata->reflFields[$localeField]->getValue($document)) {
                 $locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
                 // TODO: use the fallback
             }

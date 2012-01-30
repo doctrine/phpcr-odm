@@ -214,6 +214,18 @@ class ClassMetadata implements ClassMetadataInterface
     public $localeMapping;
 
     /**
+     * Mapping of the version name
+     * @var string
+     */
+    public $versionNameMapping;
+
+    /**
+     * Mapping of the version creation date
+     * @var DateTime
+     */
+    public $versionCreatedMapping;
+
+    /**
      * List of translatable fields
      * @var array
      */
@@ -266,10 +278,10 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Initializes a new ClassMetadata instance that will hold the 
+     * Initializes a new ClassMetadata instance that will hold the
      * object-relational mapping metadata of the class with the given name.
      *
-     * @param ReflectionService $reflService 
+     * @param ReflectionService $reflService
      */
     public function initializeReflection(ReflectionService $reflService)
     {
@@ -279,7 +291,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Restores some state that can not be serialized/unserialized.
-     * 
+     *
      * @param ReflectionService $reflService
      */
     public function wakeupReflection(ReflectionService $reflService)
@@ -506,6 +518,18 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
         $this->localeMapping = $mapping;
+    }
+
+    public function mapVersionName(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->versionNameMapping = $mapping;
+    }
+
+    public function mapVersionCreated(array $mapping)
+    {
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->versionCreatedMapping = $mapping;
     }
 
     protected function validateAndCompleteReferrersMapping($mapping)
@@ -800,7 +824,6 @@ class ClassMetadata implements ClassMetadataInterface
                 throw new \InvalidArgumentException(sprintf("You cannot use the @Version annotation on non-versionable documents (field = %s)", $mapping['fieldName']));
             }
             $this->versionField = $mapping['fieldName'];
-
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
