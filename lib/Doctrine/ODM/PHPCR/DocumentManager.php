@@ -566,28 +566,38 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->commit();
     }
 
+
+    /**** VERSIONING METHODS START ****/
+
+
     /**
-     * Check in the Object, this makes the node read only and creates a new version.
+     * Create a new version of the document that has been previously persisted
+     * and flushed.
+     *
+     * The state that is stored is the one from the last flush, not from the
+     * current document state.
+     *
+     * The document is made read only until you call checkout again.
+     *
+     * @see checkpoint
      *
      * @param object $document
      */
-    public function checkin($object)
+    public function checkin($document)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkin($object);
+        $this->unitOfWork->checkin($document);
     }
 
     /**
-     * Check Out in the Object, this makes the node writable again.
-     *
-     * The restore is immediately propagated to the backend.
+     * Make a checked in document writable again.
      *
      * @param object $document
      */
-    public function checkout($object)
+    public function checkout($document)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkout($object);
+        $this->unitOfWork->checkout($document);
     }
 
     /**
@@ -607,20 +617,42 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Restores the document to the given version in storage and refreshes the
-     * document object.
+     * Restores the current checked out document to the values of the given
+     * version in storage and refreshes the document object.
+     *
+     * Note that this does not change anything on the version history.
      *
      * The restore is immediately propagated to the backend.
      *
      * @see findVersionByName
      *
      * @param string $DocumentVersion the version to be restored
-     * @param bool $removeExisting Should the existing version be removed.
+     * @param bool $removeExisting how to handle conflicts with unique
+     *      identifiers. If true, existing documents with the identical
+     *      identifier will be replaced, otherwise an exception is thrown.
      */
     public function restoreVersion($documentVersion, $removeExisting = true)
     {
         $this->errorIfClosed();
         $this->unitOfWork->restoreVersion($documentVersion, $removeExisting);
+    }
+
+    /**
+     * Delete the specified version to clean up the history.
+     *
+     * Note that you can not remove the currently active version, only old
+     * versions.
+     *
+     * @param $documentVersion The version document as returned by findVersionByName
+     *
+     * @return void
+     *
+     * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
+     */
+    public function removeVersion($documentVersion)
+    {
+        $this->errorIfClosed();
+        $this->unitOfWork->removeVersion($documentVersion);
     }
 
     /**
@@ -643,7 +675,7 @@ class DocumentManager implements ObjectManager
      * @param object $document the document of which to get the version history
      * @param int $limit an optional limit to only get the latest $limit information
      *
-     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
+     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
      *         oldest version first
      */
     public function getAllLinearVersions($document, $limit = -1)
@@ -676,18 +708,9 @@ class DocumentManager implements ObjectManager
         return $this->unitOfWork->findVersionByName($className, $id, $versionName);
     }
 
-    /**
-     * Delete the specified version to clean up the history
-     *
-     * @param $documentVersion The version document as returned by findVersionByName
-     * @return void
-     * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
-     */
-    public function removeVersion($documentVersion)
-    {
-        $this->errorIfClosed();
-        $this->unitOfWork->removeVersion($documentVersion);
-    }
+
+    /**** VERSIONING METHODS END ****/
+
 
     /**
      * @param  object $document
