@@ -199,6 +199,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $lastVersionName = $lastVersion['name'];
 
         $version = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
+        $this->assertNotNull($version);
         $this->dm->removeVersion($version);
     }
 
@@ -215,6 +216,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $firstVersionName = $firstVersion['name'];
 
         $version = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $firstVersionName);
+        $this->assertNotNull($version);
         $this->dm->removeVersion($version);
     }
 

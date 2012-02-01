@@ -80,7 +80,7 @@ class UnitOfWork
      * Track version name of the version documents we create, indexed by spl_object_hash
      * @var array
      */
-    private $documentVersionName = array();
+    private $documentVersion = array();
 
     /**
      * @var array
@@ -1274,7 +1274,7 @@ class UnitOfWork
 
         $oid = spl_object_hash($frozenDocument);
         $this->documentHistory[$oid] = $history;
-        $this->documentVersionName[$oid] = $versionName;
+        $this->documentVersion[$oid] = $version;
 
         // Set the annotations
         $metadata = $this->dm->getClassMetadata(get_class($frozenDocument));
@@ -1324,7 +1324,7 @@ class UnitOfWork
      * @param object $document the document of which to get the version history
      * @param int $limit an optional limit to only get the latest $limit information
      *
-     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>, "createdBy" => <username>)
+     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
      *         oldest version first
      */
     public function getAllLinearVersions($document, $limit = -1)
@@ -1336,16 +1336,11 @@ class UnitOfWork
             throw new \InvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
         }
 
-        // TODO: using getAllVersions here is not completely correct !
-        // With simple versioning it will always correspond to the linear versions
-        // With full versioning it will correspond only if the version history is linear
-        // With the current implementations of PHPCR, there is yet no way to create a non-linear version history so that
-        // this issue is not so bad for now.
         $versions = $this->session
             ->getWorkspace()
             ->getVersionManager()
             ->getVersionHistory($path)
-            ->getAllVersions();
+            ->getAllLinearVersions();
 
         $result = array();
         foreach ($versions as $version) {
@@ -1354,7 +1349,6 @@ class UnitOfWork
                 'name' => $version->getName(),
                 'labels' => array(),
                 'created' => $version->getCreated(),
-                'createdBy' => '', // TODO: For now we have no way to get this information
             );
         }
 
@@ -1370,12 +1364,11 @@ class UnitOfWork
     {
         $oid = spl_object_hash($documentVersion);
         $history = $this->documentHistory[$oid];
-        $versionName = $this->documentVersionName[$oid];
+        $version = $this->documentVersion[$oid];
         $document = $this->dm->find(null, $history->getVersionableIdentifier());
-        $path = $this->getDocumentId($document);
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->restore($removeExisting, $versionName, $path);
 
+        $vm->restore($removeExisting, $version);
         $this->dm->refresh($document);
     }
 
@@ -1383,11 +1376,11 @@ class UnitOfWork
     {
         $oid = spl_object_hash($documentVersion);
         $history = $this->documentHistory[$oid];
-        $versionName = $this->documentVersionName[$oid];
+        $version = $this->documentVersion[$oid];
 
-        $history->removeVersion($versionName);
+        $history->removeVersion($version->getName());
 
-        unset($this->documentVersionName[$oid]);
+        unset($this->documentVersion[$oid]);
         unset($this->documentHistory[$oid]);
     }
 
