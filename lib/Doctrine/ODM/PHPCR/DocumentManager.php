@@ -656,18 +656,6 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Gets the DocumentRepository and gets the Predeccors of the Object.
-     *
-     * @param  string $className
-     * @param  object $document
-     * @return array of \PHPCR\Version\Version objects
-     */
-    public function getPredecessors($className, $object)
-    {
-         return $this->getRepository($className)->getPredecessors($object);
-    }
-
-    /**
      * Get the version history information for a document
      *
      * labels will be an empty array.

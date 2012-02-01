@@ -1385,22 +1385,6 @@ class UnitOfWork
     }
 
     /**
-     * Gets all the predecessor objects of an object
-     *
-     * TODO: this uses jackalope specific hacks and relies on a bug in jackalope with getPredecessors
-     *
-     * @param object $document
-     * @return array of \PHPCR\Version\VersionInterface
-     */
-    public function getPredecessors($document)
-    {
-        $path = $this->getDocumentId($document);
-        $vm = $this->session->getWorkspace()->getVersionManager();
-        $vh = $vm->getVersionHistory($path);
-        return (array)$vh->getAllVersions();
-    }
-
-    /**
      * INTERNAL:
      * Removes an document from the identity map. This effectively detaches the
      * document from the persistence management of Doctrine.
