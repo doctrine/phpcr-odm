@@ -62,7 +62,8 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $child->topic = 'Some interesting subject';
         $child->text = 'Lorem ipsum...';
 
-        $this->dm->persistTranslation($child, 'fr');
+        $this->dm->persist($child);
+        $this->dm->bindTranslation($child, 'fr');
 
         $this->dm->flush();
 
@@ -80,9 +81,10 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $child->author = 'John Doe';
         $child->text = 'Lorem ipsum...';
         $child->topic = 'Interesting Topic';
-        $this->dm->persistTranslation($child, 'en');
+        $this->dm->persist($child);
+        $this->dm->bindTranslation($child, 'en');
         $child->topic = 'Sujet interessant';
-        $this->dm->persistTranslation($child, 'fr');
+        $this->dm->bindTranslation($child, 'fr');
 
         $this->dm->clear();
 
@@ -101,9 +103,10 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $child->author = 'John Doe';
         $child->text = 'Lorem ipsum...';
         $child->topic = 'Interesting Topic';
-        $this->dm->persistTranslation($child, 'en');
+        $this->dm->persist($child);
+        $this->dm->bindTranslation($child, 'en');
         $child->topic = 'Sujet interessant';
-        $this->dm->persistTranslation($child, 'fr');
+        $this->dm->bindTranslation($child, 'fr');
 
         $this->dm->clear();
 

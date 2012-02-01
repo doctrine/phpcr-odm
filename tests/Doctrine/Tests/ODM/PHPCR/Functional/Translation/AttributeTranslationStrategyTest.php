@@ -4,10 +4,10 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
+    Doctrine\ODM\PHPCR\Translation\Translation,
     Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 
 use Doctrine\Tests\Models\Translation\Article;
-use Doctrine\ODM\PHPCR\Translation\Translation;
 
 class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -29,28 +29,22 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     public function testSaveTranslation()
     {
         // First save some translations
-        $doc = new Article();
-        $doc->author = 'John Doe';
-        $doc->topic = 'Some interesting subject';
-        $doc->setText('Lorem ipsum...');
+        $data = array();
+        $data['author'] = 'John Doe';
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] ='Lorem ipsum...';
 
         $node = $this->getTestNode();
 
         $strategy = new AttributeTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
-
-        // The document locale was not yet assigned so it must be set
-        $this->assertEquals('en', $doc->locale);
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
 
-        $doc->topic = 'Un sujet intéressant';
+        $data['topic'] = 'Un sujet intéressant';
 
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
-
-        // The document locale was already set to it must not change
-        $this->assertEquals('en', $doc->locale);
 
         // Then test we have what we expect in the content repository
         $node = $this->session->getNode('/' . $this->testNodeName);
@@ -105,27 +99,28 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     public function testTranslationNullProperties()
     {
         // First save some translations
-        $doc = new Article();
-        $doc->author = 'John Doe';
-        $doc->topic = 'Some interesting subject';
-        $doc->setText('Lorem ipsum...');
+        $data = array();
+        $data['author'] = 'John Doe';
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
 
         $node = $this->getTestNode();
 
         $strategy = new AttributeTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
-
-        // The document locale was not yet assigned so it must be set
-        $this->assertEquals('en', $doc->locale);
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
 
-        $doc->topic = 'Un sujet intéressant';
-        $doc->setText(null);
+        $data['topic'] = 'Un sujet intéressant';
+        $data['text'] = null;
 
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
 
+        $doc = new Article;
+        $doc->author = $data['author'];
+        $doc->topic = $data['topic'];
+        $doc->setText($data['text']);
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
         $this->assertEquals('Some interesting subject', $doc->topic);
         $this->assertEquals('Lorem ipsum...', $doc->getText());
@@ -138,22 +133,26 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     public function testRemoveTranslation()
     {
         // First save some translations
-        $doc = new Article();
-        $doc->author = 'John Doe';
-        $doc->topic = 'Some interesting subject';
-        $doc->setText('Lorem ipsum...');
+        $data = array();
+        $data['author'] = 'John Doe';
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
 
         $node = $this->getTestNode();
 
         $strategy = new AttributeTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
-        $doc->topic = 'sujet interessant';
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
+        $doc['topic'] = 'sujet interessant';
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
 
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
 
         // Then remove the french translation
+        $doc = new Article;
+        $doc->author = $data['author'];
+        $doc->topic = $data['topic'];
+        $doc->setText($data['text']);
         $strategy->removeTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr', 'topic')));

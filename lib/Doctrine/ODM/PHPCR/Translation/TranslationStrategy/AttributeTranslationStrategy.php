@@ -22,12 +22,11 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     /**
      * {@inheritdoc}
      */
-    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         $nullFields = array();
-        foreach ($metadata->translatableFields as $field) {
+        foreach ($data as $field => $propValue) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
-            $propValue = $metadata->reflFields[$field]->getValue($document);
             $node->setProperty($propName, $propValue);
             if (null === $propValue) {
                 $nullFields[] = $field;

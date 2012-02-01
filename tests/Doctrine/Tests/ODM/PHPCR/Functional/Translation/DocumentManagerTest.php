@@ -60,22 +60,23 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('en', $this->doc->locale);
     }
 
-    public function testPersistTranslation()
+    public function testBindTranslation()
     {
         $this->removeTestNode();
 
-        $this->dm->persistTranslation($this->doc, 'en');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
 
         $this->doc->topic = 'Un sujet intéressant';
 
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $node = $this->getTestNode();
         $this->assertNotNull($node);
 
         $this->assertFalse($node->hasProperty('topic'));
-
         $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
         $this->assertEquals('Some interesting subject', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
@@ -92,7 +93,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
         $this->doc->topic = 'Un sujet intéressant';
 
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $this->doc->topic = 'Un autre sujet';
@@ -169,7 +170,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertTrue(in_array('en', $locales));
 
         // A second language is persisted
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
@@ -178,7 +179,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertTrue(in_array('fr', $locales));
 
         // A third language is persisted
-        $this->dm->persistTranslation($this->doc, 'de');
+        $this->dm->bindTranslation($this->doc, 'de');
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
@@ -192,8 +193,9 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
     {
         $this->removeTestNode();
 
-        $this->dm->persistTranslation($this->doc, 'en');
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $this->dm->remove($this->doc);
@@ -208,7 +210,9 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
-        $this->dm->persistTranslation($doc, 'en');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($doc);
         $this->assertEquals(array('en'), $locales, 'Removing a document must remove all translations');
@@ -223,21 +227,23 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
         $doc = new InvalidMapping();
         $doc->id = '/' . $this->testNodeName;
-        $this->dm->persistTranslation($doc, 'en');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
         $this->dm->flush();
     }
 
     /**
-     * persistTranslation with a document that is not translatable should fail
+     * bindTranslation with a document that is not translatable should fail
      *
      * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testPersistTranslationNonTranslatable()
+    public function testBindTranslationNonTranslatable()
     {
         $this->removeTestNode();
         $doc = new CmsArticle();
         $doc->id = '/' . $this->testNodeName;
-        $this->dm->persistTranslation($doc, 'en');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
     }
 
     protected function removeTestNode()
