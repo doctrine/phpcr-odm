@@ -100,12 +100,11 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->assertTrue(isset($val['name']));
             $this->assertTrue(isset($val['labels']));
             $this->assertTrue(isset($val['created']));
-            $this->assertTrue(isset($val['createdBy']));
 
             $this->assertEquals($key, $val['name']);
-            $this->assertEmpty($val['labels']); // TODO: change this test once version labels are implemented
+            // TODO: test once version labels are implemented
+            // $this->assertEmpty($val['labels']);
             $this->assertInstanceOf('DateTime', $val['created']);
-            $this->assertEmpty($val['createdBy']); // TODO: change this test once we have the version creator
         }
     }
 
