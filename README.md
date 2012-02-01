@@ -711,20 +711,21 @@ $doc->topic = 'An interesting subject';
 $doc->text = 'Lorem ipsum...';
 
 // Persist the document in English
-$this->dm->persistTranslation($this->doc, 'en');
+$dm->persist($doc);
+$dm->bindTranslation($doc, 'en');
 
 // Change the content and persist the document in French
-$this->doc->topic = 'Un sujet intéressant';
-$this->dm->persistTranslation($this->doc, 'fr');
+$doc->topic = 'Un sujet intéressant';
+$dm->bindTranslation($doc, 'fr');
 
 // Flush to write the changes to the phpcr backend
-$this->dm->flush();
+$dm->flush();
 
 // Get the document in default language (English if you bootstrapped as in the example)
-$doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node');
+$doc = $dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node');
 
 // Get the document in French
-$doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/my_test_node', 'fr');
+$doc = $dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/my_test_node', 'fr');
 ```
 
 ## Limitations
