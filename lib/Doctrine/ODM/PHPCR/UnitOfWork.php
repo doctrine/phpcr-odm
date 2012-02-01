@@ -922,7 +922,8 @@ class UnitOfWork
                 unset($this->scheduledRemovals[$oid], $this->scheduledUpdates[$oid],
                         $this->scheduledAssociationUpdates[$oid],
                         $this->originalData[$oid], $this->documentRevisions[$oid],
-                        $this->documentIds[$oid], $this->documentState[$oid]);
+                        $this->documentIds[$oid], $this->documentState[$oid],
+                        $this->documentTranslations[$oid]);
                 break;
             case self::STATE_NEW:
             case self::STATE_DETACHED:
@@ -1342,7 +1343,8 @@ class UnitOfWork
             unset($this->identityMap[$this->documentIds[$oid]],
                   $this->documentIds[$oid],
                   $this->documentRevisions[$oid],
-                  $this->documentState[$oid]);
+                  $this->documentState[$oid],
+                  $this->documentTranslations[$oid]);
 
             return true;
         }
