@@ -424,12 +424,12 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new \InvalidArgumentException("Document has to be managed for single computation " . self::objToStr($document));
+            throw new \InvalidArgumentException("Document has to be managed to be able to bind a translation " . self::objToStr($document));
         }
 
         $class = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($class)) {
-            throw new PHPCRException('This document is not translatable, do not use persistTranslation: ' . self::objToStr($document));
+            throw new PHPCRException('This document is not translatable, do not use bindTranslation: ' . self::objToStr($document));
         }
 
         // Set the @Locale field
