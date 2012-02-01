@@ -30,7 +30,6 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     {
         // First save some translations
         $data = array();
-        $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] ='Lorem ipsum...';
 

@@ -227,9 +227,23 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
         $doc = new InvalidMapping();
         $doc->id = '/' . $this->testNodeName;
-        $this->dm->persist($this->doc);
-        $this->dm->bindTranslation($this->doc, 'en');
+        $doc->topic = 'foo';
+        $this->dm->persist($doc);
+        $this->dm->bindTranslation($doc, 'en');
         $this->dm->flush();
+    }
+
+    /**
+     * bindTranslation with a document that is not persisted should fail
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testBindTranslationWithoutPersist()
+    {
+        $this->removeTestNode();
+        $doc = new CmsArticle();
+        $doc->id = '/' . $this->testNodeName;
+        $this->dm->bindTranslation($this->doc, 'en');
     }
 
     /**

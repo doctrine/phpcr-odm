@@ -30,7 +30,6 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
     {
         // First save some translations
         $data = array();
-        $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
 
