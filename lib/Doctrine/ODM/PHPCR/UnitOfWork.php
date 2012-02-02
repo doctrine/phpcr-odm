@@ -77,8 +77,8 @@ class UnitOfWork
     private $documentHistory = array();
 
     /**
-     * Track version name of the version documents we create, indexed by spl_object_hash
-     * @var array
+     * Track version objects of the version documents we create, indexed by spl_object_hash
+     * @var array of PHPCR\Version\Version
      */
     private $documentVersion = array();
 
@@ -1572,7 +1572,9 @@ class UnitOfWork
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
         $this->scheduledRemovals =
-        $this->visitedCollections = array();
+        $this->visitedCollections =
+        $this->documentHistory =
+        $this->documentVersion = array();
 
         if ($this->evm->hasListeners(Event::onClear)) {
             $this->evm->dispatchEvent(Event::onClear, new OnClearEventArgs($this->dm));
