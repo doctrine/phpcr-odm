@@ -249,9 +249,6 @@ class UnitOfWork
         if ($class->nodename) {
             $documentState[$class->nodename] = $node->getName();
         }
-        if ($class->versionField) {
-            $documentState[$class->versionField] = $properties['jcr:baseVersion'];
-        }
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getPath();
         }
@@ -660,9 +657,10 @@ class UnitOfWork
             }
         }
 
-        // unset the revision field if necessary, it is not to be managed by the user in write scenarios.
+        // unset the version info fields if they have values, they are not to be managed by the user in write scenarios.
         if ($class->versionable) {
-            unset($actualData[$class->versionField]);
+            unset($actualData[$class->versionNameField]);
+            unset($actualData[$class->versionCreatedField]);
         }
 
         if (!isset($this->originalData[$oid])) {
@@ -1270,11 +1268,11 @@ class UnitOfWork
 
         // Set the annotations
         $metadata = $this->dm->getClassMetadata(get_class($frozenDocument));
-        if ($versionNameField = $metadata->versionNameMapping['fieldName']) {
-            $metadata->reflFields[$versionNameField]->setValue($frozenDocument, $versionName);
+        if ($metadata->versionNameField) {
+            $metadata->reflFields[$metadata->versionNameField]->setValue($frozenDocument, $versionName);
         }
-        if ($versionCreatedField = $metadata->versionCreatedMapping['fieldName']) {
-            $metadata->reflFields[$versionCreatedField]->setValue($frozenDocument, $version->getCreated());
+        if ($metadata->versionCreatedField) {
+            $metadata->reflFields[$metadata->versionCreatedField]->setValue($frozenDocument, $version->getCreated());
         }
 
         return $frozenDocument;

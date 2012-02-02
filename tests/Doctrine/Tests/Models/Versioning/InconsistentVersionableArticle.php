@@ -25,8 +25,8 @@ class InconsistentVersionableArticle
     /** @PHPCRODM\String */
     private $text;
 
-    /** @PHPCRODM\Version */
-    public $version;
+    /** @PHPCRODM\VersionName */
+    public $versionName;
 
     public function getText()
     {

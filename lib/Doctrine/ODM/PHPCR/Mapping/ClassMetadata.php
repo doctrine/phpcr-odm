@@ -33,6 +33,8 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
+ * @author      David Buchmann <david@liip.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class ClassMetadata implements ClassMetadataInterface
 {
@@ -207,16 +209,16 @@ class ClassMetadata implements ClassMetadataInterface
     public $localeMapping;
 
     /**
-     * Mapping of the version name
+     * Name of the version name property of this document
      * @var string
      */
-    public $versionNameMapping;
+    public $versionNameField;
 
     /**
-     * Mapping of the version creation date
-     * @var DateTime
+     * Name of the version created property of this document
+     * @var string
      */
-    public $versionCreatedMapping;
+    public $versionCreatedField;
 
     /**
      * List of translatable fields
@@ -230,13 +232,6 @@ class ClassMetadata implements ClassMetadataInterface
      * @var bool
      */
     public $versionable = false;
-
-    /**
-     * Version Field stores the PHPCR Revision
-     *
-     * @var string
-     */
-    public $versionField = null;
 
     /**
      * determines if the document is referenceable or not
@@ -507,14 +502,22 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapVersionName(array $mapping)
     {
+        if (!$this->versionable) {
+            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
+        }
+
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
-        $this->versionNameMapping = $mapping;
+        $this->versionNameField = $mapping['fieldName'];
     }
 
     public function mapVersionCreated(array $mapping)
     {
+        if (!$this->versionable) {
+            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
+        }
+
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
-        $this->versionCreatedMapping = $mapping;
+        $this->versionCreatedField = $mapping['fieldName'];
     }
 
     protected function validateAndCompleteReferrersMapping($mapping)
@@ -803,12 +806,6 @@ class ClassMetadata implements ClassMetadataInterface
         } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
             $mapping['name'] = 'jcr:uuid';
-        } elseif (isset($mapping['isVersionField'])) {
-            // The @Version annotation is set but the document is not Versionable
-            if (!$this->versionable) {
-                throw new \InvalidArgumentException(sprintf("You cannot use the @Version annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
-            }
-            $this->versionField = $mapping['fieldName'];
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
@@ -876,7 +873,6 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->versionable) {
             $serialized[] = 'versionable';
-            $serialized[] = 'versionField';
         }
 
         if ($this->lifecycleCallbacks) {

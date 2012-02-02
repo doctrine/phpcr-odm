@@ -99,16 +99,6 @@ final class Uuid extends Property
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Version extends Property
-{
-    public $name = 'jcr:baseVersion';
-    public $type = 'string';
-    public $isVersionField = true;
-}
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
 final class String extends TranslatableProperty
 {
     public $type = 'string';
