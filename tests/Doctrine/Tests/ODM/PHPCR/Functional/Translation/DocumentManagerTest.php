@@ -184,6 +184,12 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         // A second language is persisted
         $this->dm->bindTranslation($this->doc, 'fr');
+        // Check that french is now also returned even without having flushed
+        $locales = $this->dm->getLocalesFor($this->doc);
+        $this->assertEquals(2, count($locales));
+        $this->assertTrue(in_array('en', $locales));
+        $this->assertTrue(in_array('fr', $locales));
+
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
