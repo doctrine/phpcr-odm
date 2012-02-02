@@ -141,7 +141,6 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
         $this->assertNull($parent);
     }
-    public function assertCount($exp, $col) {$this->assertTrue($exp==count($col));}
 }
 
 /**

@@ -94,7 +94,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $versions = $this->dm->getAllLinearVersions($doc);
 
-        $this->assertEquals(5, count($versions));
+        $this->assertCount(5, $versions);
 
         foreach ($versions as $key => $val) {
             $this->assertTrue(isset($val['name']));

@@ -15,7 +15,7 @@ final class Document
     /** @var string */
     public $repositoryClass;
     /** @var string */
-    public $versionable = false;
+    public $versionable;
     /** @var boolean */
     public $referenceable = false;
     /** @var string */
