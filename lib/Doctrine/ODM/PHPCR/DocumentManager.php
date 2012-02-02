@@ -593,54 +593,139 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->commit();
     }
 
+
+    /**** VERSIONING METHODS START ****/
+
+
     /**
-     * Check in the Object, this makes the node read only and creates a new version.
+     * Create a new version of the document that has been previously persisted
+     * and flushed.
+     *
+     * The state that is stored is the one from the last flush, not from the
+     * current document state.
+     *
+     * The document is made read only until you call checkout again.
+     *
+     * @see checkpoint
      *
      * @param object $document
      */
-    public function checkIn($object)
+    public function checkin($document)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkIn($object);
+        $this->unitOfWork->checkin($document);
     }
 
     /**
-     * Check Out in the Object, this makes the node writable again.
+     * Make a checked in document writable again.
      *
      * @param object $document
      */
-    public function checkOut($object)
+    public function checkout($document)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->checkOut($object);
+        $this->unitOfWork->checkout($document);
     }
 
     /**
-     * Restores an Object to a certain version.
+     * Do a checkin operation followed immediately by a checkout operation.
      *
-     * @param string $version The version to be restored e.g. 1.0 or 1.1
-     * @param object $document.
-     * @param bool $removeExisting Should the existing version be removed.
+     * A new version is created and the writable document stays in checked out state
+     *
+     * @param object $document The document
+     *
+     * @return void
      */
-    public function restore($version, $object, $removeExisting = true)
+    public function checkpoint($document)
     {
         $this->errorIfClosed();
-        $this->unitOfWork->restore($version, $object, $removeExisting);
-        $this->refresh($object);
+        $this->checkin($document);
+        $this->checkout($document);
     }
 
     /**
-     * Gets the DocumentRepository and gets the Predeccors of the Object.
+     * Restores the current checked out document to the values of the given
+     * version in storage and refreshes the document object.
      *
-     * @param  string $className
-     * @param  object $document
-     * @return array of \PHPCR\Version\Version objects
+     * Note that this does not change anything on the version history.
+     *
+     * The restore is immediately propagated to the backend.
+     *
+     * @see findVersionByName
+     *
+     * @param string $DocumentVersion the version to be restored
+     * @param bool $removeExisting how to handle conflicts with unique
+     *      identifiers. If true, existing documents with the identical
+     *      identifier will be replaced, otherwise an exception is thrown.
      */
-
-    public function getPredecessors($className, $object)
+    public function restoreVersion($documentVersion, $removeExisting = true)
     {
-         return $this->getRepository($className)->getPredecessors($object);
+        $this->errorIfClosed();
+        $this->unitOfWork->restoreVersion($documentVersion, $removeExisting);
     }
+
+    /**
+     * Delete the specified version to clean up the history.
+     *
+     * Note that you can not remove the currently active version, only old
+     * versions.
+     *
+     * @param $documentVersion The version document as returned by findVersionByName
+     *
+     * @return void
+     *
+     * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
+     */
+    public function removeVersion($documentVersion)
+    {
+        $this->errorIfClosed();
+        $this->unitOfWork->removeVersion($documentVersion);
+    }
+
+    /**
+     * Get the version history information for a document
+     *
+     * labels will be an empty array.
+     *
+     * @param object $document the document of which to get the version history
+     * @param int $limit an optional limit to only get the latest $limit information
+     *
+     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
+     *         oldest version first
+     */
+    public function getAllLinearVersions($document, $limit = -1)
+    {
+        $this->errorIfClosed();
+        return $this->unitOfWork->getAllLinearVersions($document, $limit);
+    }
+
+    /**
+     * Returns a read-only, detached document instance of the document at the
+     * specified path with the specified version name.
+     *
+     * The id of the returned document representing this version is not the id
+     * of the original document.
+     *
+     * @param null|string $className
+     * @param string $id id of the document
+     * @param string $versionName the version name as given by getLinearPredecessors
+     *
+     * @return the detached document or null if the document is not found
+     *
+     * @throws InvalidArgumentException if there is a document with $id but no
+     *      version with $name
+     * @throws UnsupportedRepositoryOperationException if the implementation
+     *      does not support versioning
+     */
+    public function findVersionByName($className, $id, $versionName)
+    {
+        $this->errorIfClosed();
+        return $this->unitOfWork->findVersionByName($className, $id, $versionName);
+    }
+
+
+    /**** VERSIONING METHODS END ****/
+
 
     /**
      * @param  object $document

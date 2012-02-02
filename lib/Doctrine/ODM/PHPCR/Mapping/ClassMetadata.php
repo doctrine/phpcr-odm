@@ -33,6 +33,8 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
+ * @author      David Buchmann <david@liip.ch>
+ * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class ClassMetadata implements ClassMetadataInterface
 {
@@ -59,6 +61,8 @@ class ClassMetadata implements ClassMetadataInterface
      * means the document uses the parent and name mapping to find its place.
      */
     const GENERATOR_TYPE_PARENT = 3;
+
+    protected static $validVersionableAnnotations = array('simple', 'full');
 
     /**
      * The ReflectionProperty instances of the mapped class.
@@ -207,24 +211,30 @@ class ClassMetadata implements ClassMetadataInterface
     public $localeMapping;
 
     /**
+     * Name of the version name property of this document
+     * @var string
+     */
+    public $versionNameField;
+
+    /**
+     * Name of the version created property of this document
+     * @var string
+     */
+    public $versionCreatedField;
+
+    /**
      * List of translatable fields
      * @var array
      */
     public $translatableFields = array();
 
     /**
-     * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
+     * Whether this document should be versioned. If this is not false, it will
+     * be one of the values from self::validVersionableAnnotations
      *
-     * @var bool
+     * @var bool|string
      */
     public $versionable = false;
-
-    /**
-     * Version Field stores the PHPCR Revision
-     *
-     * @var string
-     */
-    public $versionField = null;
 
     /**
      * determines if the document is referenceable or not
@@ -259,10 +269,10 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Initializes a new ClassMetadata instance that will hold the 
+     * Initializes a new ClassMetadata instance that will hold the
      * object-relational mapping metadata of the class with the given name.
      *
-     * @param ReflectionService $reflService 
+     * @param ReflectionService $reflService
      */
     public function initializeReflection(ReflectionService $reflService)
     {
@@ -272,7 +282,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Restores some state that can not be serialized/unserialized.
-     * 
+     *
      * @param ReflectionService $reflService
      */
     public function wakeupReflection(ReflectionService $reflService)
@@ -372,6 +382,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setVersioned($versionable)
     {
+        if (!in_array($versionable, self::$validVersionableAnnotations)) {
+            throw new \InvalidArgumentException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
+        }
         $this->versionable = $versionable;
     }
 
@@ -491,6 +504,26 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
         $this->localeMapping = $mapping;
+    }
+
+    public function mapVersionName(array $mapping)
+    {
+        if (!$this->versionable) {
+            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
+        }
+
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->versionNameField = $mapping['fieldName'];
+    }
+
+    public function mapVersionCreated(array $mapping)
+    {
+        if (!$this->versionable) {
+            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
+        }
+
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
+        $this->versionCreatedField = $mapping['fieldName'];
     }
 
     protected function validateAndCompleteReferrersMapping($mapping)
@@ -779,10 +812,6 @@ class ClassMetadata implements ClassMetadataInterface
         } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
             $mapping['type'] = 'string';
             $mapping['name'] = 'jcr:uuid';
-        } elseif (isset($mapping['isVersionField'])) {
-            $this->versionable = true;
-            $this->versionField = $mapping['fieldName'];
-
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping);
@@ -850,7 +879,6 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->versionable) {
             $serialized[] = 'versionable';
-            $serialized[] = 'versionField';
         }
 
         if ($this->lifecycleCallbacks) {

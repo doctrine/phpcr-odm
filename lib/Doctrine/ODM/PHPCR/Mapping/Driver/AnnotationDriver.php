@@ -44,7 +44,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * Document annotation classes, ordered by precedence.
      */
     protected $entityAnnotationClasses = array(
@@ -73,11 +73,13 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
 
         // find the winning document annotation
         ksort($documentAnnots);
+
         $documentAnnot = reset($documentAnnots);
 
         if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
-            $metadata->setVersioned(true);
+            $metadata->setVersioned($documentAnnot->versionable);
         }
+
         $metadata->setNodeType($documentAnnot->nodeType);
 
         if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
@@ -130,6 +132,12 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                 } elseif ($fieldAnnot instanceof ODM\Locale) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapLocale($mapping);
+                } elseif ($fieldAnnot instanceof ODM\VersionName) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $metadata->mapVersionName($mapping);
+                } elseif ($fieldAnnot instanceof ODM\VersionCreated) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $metadata->mapVersionCreated($mapping);
                 }
 
                 if (!isset($mapping['name'])) {

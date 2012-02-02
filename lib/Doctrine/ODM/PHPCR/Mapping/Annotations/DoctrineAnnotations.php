@@ -14,8 +14,8 @@ final class Document
     public $nodeType = 'nt:unstructured';
     /** @var string */
     public $repositoryClass;
-    /** @var boolean */
-    public $versionable = false;
+    /** @var string */
+    public $versionable;
     /** @var boolean */
     public $referenceable = false;
     /** @var string */
@@ -94,16 +94,6 @@ final class Uuid extends Property
 {
     public $name = 'jcr:uuid';
     public $type = 'string';
-}
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
-final class Version extends Property
-{
-    public $name = 'jcr:baseVersion';
-    public $type = 'string';
-    public $isVersionField = true;
 }
 /**
  * @Annotation
@@ -261,6 +251,21 @@ final class Referrers
     public $filter;
     /** @var string */
     public $referenceType;
+}
+
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class VersionName
+{
+}
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class VersionCreated
+{
 }
 
 /**
