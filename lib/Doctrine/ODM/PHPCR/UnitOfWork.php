@@ -1745,8 +1745,6 @@ class UnitOfWork
             $node->addMixin('mix:simpleVersionable');
         } elseif ($metadata->versionable === 'full') {
             $node->addMixin('mix:versionable');
-        } elseif ($metadata->versionable) {
-            throw new \InvalidArgumentException("Invalid value for the versionable annotation: '{$metadata->versionable}'");
         } else {
             throw new \InvalidArgumentException(sprintf("The document at '%s' is not versionable", $node->getPath()));
         }

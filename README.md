@@ -441,7 +441,7 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     </td>
 </tr>
 <tr>
-    <td> VersionName:   </td>
+    <td> VersionName:</td>
     <td>Read only, only populated for detached documents returned by
         findVersionByName. Stores the version name this document represents.
         Otherwise its ignored.
