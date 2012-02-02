@@ -261,7 +261,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="childTestObj")
+ * @PHPCRODM\Document()
  */
 class ChildChildTestObj
 {
@@ -274,7 +274,7 @@ class ChildChildTestObj
 }
 
 /**
- * @PHPCRODM\Document(alias="testObj")
+ * @PHPCRODM\Document()
  */
 class ChildTestObj
 {
@@ -289,7 +289,7 @@ class ChildTestObj
 }
 
 /**
-  * @PHPCRODM\Document(alias="ChildReferrerTestObj")
+  * @PHPCRODM\Document()
   */
 class ChildReferrerTestObj
 {
@@ -304,7 +304,7 @@ class ChildReferrerTestObj
 }
 
 /**
-  * @PHPCRODM\Document(alias="ChildReferenceableTestObj", referenceable=true)
+  * @PHPCRODM\Document(referenceable=true)
   */
 class ChildReferenceableTestObj
 {

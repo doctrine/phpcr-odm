@@ -68,11 +68,6 @@ class MappingException extends \Exception
         return new self('File mapping drivers must have a valid directory path, however the given path seems to be incorrect!');
     }
 
-    public static function aliasIsNotSpecified($document)
-    {
-        return new self('Document '.$document.' must specify an alias');
-    }
-
     public static function classNotMapped($className)
     {
         return new self('Class ' . $className . ' is not mapped to a document');
@@ -86,5 +81,10 @@ class MappingException extends \Exception
     public static function mappingNotFound($className, $fieldName)
     {
         return new self("No mapping found for field '$fieldName' in class '$className'.");
+    }
+
+    public static function mappingFileNotFound($className, $filedName)
+    {
+        return new self("No mapping file '$filedName' found for class '$className'.");
     }
 }

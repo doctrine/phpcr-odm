@@ -46,9 +46,8 @@ class FixPHPCR1Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
 }
 
-
 /**
- * @PHPCRODM\Document(alias="testObj")
+ * @PHPCRODM\Document()
  */
 class FixPHPCR1TestObj
 {

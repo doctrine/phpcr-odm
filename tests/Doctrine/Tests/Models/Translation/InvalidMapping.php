@@ -12,7 +12,7 @@ namespace Doctrine\Tests\Models\Translation;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="whatever", translator="some_unexisting_strategy")
+ * @PHPCRODM\Document(translator="some_unexisting_strategy")
  */
 class InvalidMapping
 {

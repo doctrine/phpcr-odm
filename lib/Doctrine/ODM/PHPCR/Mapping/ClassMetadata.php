@@ -100,13 +100,6 @@ class ClassMetadata implements ClassMetadataInterface
     public $namespace;
 
     /**
-     * READ-ONLY: The class alias
-     *
-     * @var string
-     */
-    public $alias;
-
-    /**
      * READ-ONLY: The JCR Nodetype to be used for this node
      *
      * @var string
@@ -384,14 +377,6 @@ class ClassMetadata implements ClassMetadataInterface
     public function setLifecycleCallbacks(array $callbacks)
     {
         $this->lifecycleCallbacks = $callbacks;
-    }
-
-    /**
-     * @param string $alias
-     */
-    public function setAlias($alias)
-    {
-        $this->alias = $alias;
     }
 
     /**
@@ -821,7 +806,7 @@ class ClassMetadata implements ClassMetadataInterface
         } elseif (isset($mapping['isVersionField'])) {
             // The @Version annotation is set but the document is not Versionable
             if (!$this->versionable) {
-                throw new \InvalidArgumentException(sprintf("You cannot use the @Version annotation on non-versionable documents (field = %s)", $mapping['fieldName']));
+                throw new \InvalidArgumentException(sprintf("You cannot use the @Version annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
             }
             $this->versionField = $mapping['fieldName'];
         }

@@ -106,14 +106,13 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     {
         return new ClassMetadata($className);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     protected function getFqcnFromAlias($namespaceAlias, $simpleClassName)
     {
-        return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias) 
-            . '\\' . $simpleClassName;
+        return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias) . '\\' . $simpleClassName;
     }
 
     /**

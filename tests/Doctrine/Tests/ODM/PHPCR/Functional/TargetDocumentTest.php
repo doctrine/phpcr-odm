@@ -83,7 +83,7 @@ class TargetDocumentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 }
 
 /**
- * @PHPCRODM\Document(alias="referenceManyObj")
+ * @PHPCRODM\Document()
  */
 class ReferenceManyObj
 {
@@ -96,7 +96,7 @@ class ReferenceManyObj
 }
 
 /**
- * @PHPCRODM\Document(alias="referenceOneObj")
+ * @PHPCRODM\Document()
  */
 class ReferenceOneObj
 {

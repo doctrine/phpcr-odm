@@ -5,7 +5,7 @@ namespace Doctrine\Tests\Models\References;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="RefDifTestObj")
+ * @PHPCRODM\Document()
  */
 class RefDifTestObj
 {

@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
  *
- * @PHPCRODM\Document(alias="odm_generic")
+ * @PHPCRODM\Document()
  */
 class Generic
 {

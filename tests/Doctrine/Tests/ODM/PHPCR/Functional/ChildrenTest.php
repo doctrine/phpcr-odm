@@ -54,15 +54,15 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
         $col = $this->dm->getChildren($parent);
 
-        $this->assertEquals(4, count($col));
+        $this->assertCount(4, $col);
         $childA = $col['child-a'];
         $this->assertEquals('Child A', $childA->name);
 
         $col = $this->dm->getChildren($parent, 'child*');
-        $this->assertEquals(4, count($col));
+        $this->assertCount(4, $col);
 
         $col = $this->dm->getChildren($parent, '*a');
-        $this->assertEquals(1, count($col));
+        $this->assertCount(1, $col);
         $this->assertTrue($childA === $col->first());
     }
 
@@ -73,8 +73,8 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent->aChildren->unwrap());
         $this->assertNull($parent->allChildren->unwrap());
         // loaded
-        $this->assertEquals(1, count($parent->aChildren));
-        $this->assertEquals(4, count($parent->allChildren));
+        $this->assertCount(1, $parent->aChildren);
+        $this->assertCount(4, $parent->allChildren);
     }
 
     public function testChildrenOfReference()
@@ -100,26 +100,25 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
 
-        $this->assertEquals(1, count($referrer->reference->allChildren));
+        $this->assertCount(1, $referrer->reference->allChildren);
         $this->assertEquals("childrenTestObj", $referrer->reference->allChildren->first()->name);
     }
 
     public function testCreateChildren()
     {
-        $this->markTestSkipped('TODO: implement storing children and updating order');
         $children = array();
         $child = new ChildrenTestObj();
-        $child->id = '/functional/parent/child-create-1';
+        $child->id = '/functional/parent/child-a/child-create-1';
         $child->name = 'Child A';
         $children[] = $child;
 
         $child = new ChildrenTestObj();
-        $child->id = '/functional/parent/child-create-2';
+        $child->id = '/functional/parent/child-a/child-create-2';
         $child->name = 'Child B';
         $children[] = $child;
 
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-a');
-        $this->assertEquals(0, count($parent->allChildren));
+        $this->assertCount(0, $parent->allChildren);
 
         $parent->allChildren = $children;
         $this->dm->persist($parent);
@@ -127,12 +126,26 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-a');
-        $this->assertEquals(2, count($parent->allChildren));
+        $this->assertCount(2, $parent->allChildren);
     }
+
+    public function testRemoveChildParent()
+    {
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(4, $parent->allChildren);
+
+        $this->dm->remove($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertNull($parent);
+    }
+    public function assertCount($exp, $col) {$this->assertTrue($exp==count($col));}
 }
 
 /**
-  * @PHPCRODM\Document(alias="childrenTest")
+  * @PHPCRODM\Document()
   */
 class ChildrenTestObj
 {
@@ -150,7 +163,7 @@ class ChildrenTestObj
 }
 
 /**
-  * @PHPCRODM\Document(alias="Referrer")
+  * @PHPCRODM\Document()
   */
 class ChildrenReferrerTestObj
 {
@@ -165,7 +178,7 @@ class ChildrenReferrerTestObj
 }
 
 /**
-  * @PHPCRODM\Document(alias="ChildrenReferenceableTestObj", referenceable=true)
+  * @PHPCRODM\Document(referenceable=true)
   */
 class ChildrenReferenceableTestObj
 {

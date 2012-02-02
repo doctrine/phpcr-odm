@@ -5,7 +5,7 @@ namespace Doctrine\Tests\Models\Versioning;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document(alias="translation_article", versionable="some_invalid_versioning_type")
+ * @PHPCRODM\Document(versionable="some_invalid_versioning_type")
  */
 class InvalidVersionableArticle
 {

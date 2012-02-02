@@ -4,7 +4,7 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
-/** @PHPCRODM\Document(alias="cms_user_rights") */
+/** @PHPCRODM\Document() */
 class CmsUserRights
 {
     /** @PHPCRODM\Id */

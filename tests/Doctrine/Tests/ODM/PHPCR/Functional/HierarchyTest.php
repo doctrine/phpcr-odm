@@ -149,7 +149,7 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="name")
+ * @PHPCRODM\Document()
  */
 class NameDoc
 {

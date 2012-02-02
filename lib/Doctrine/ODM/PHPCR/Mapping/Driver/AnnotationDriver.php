@@ -23,6 +23,7 @@ use Doctrine\Common\Annotations\AnnotationReader,
     Doctrine\Common\Annotations\Reader,
     Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver,
     Doctrine\Common\Persistence\Mapping\ClassMetadata,
+    Doctrine\Common\Persistence\Mapping\Driver\MappingDriver,
     Doctrine\ODM\PHPCR\Event,
     Doctrine\ODM\PHPCR\Mapping\Annotations as ODM,
     Doctrine\ODM\PHPCR\Mapping\MappingException;
@@ -38,7 +39,7 @@ use Doctrine\Common\Annotations\AnnotationReader,
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  */
-class AnnotationDriver extends AbstractAnnotationDriver implements Driver
+class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
 {
 
     /**
@@ -77,11 +78,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements Driver
 
         $documentAnnot = reset($documentAnnots);
 
-        if (!$documentAnnot->alias) {
-            throw new MappingException("Alias must be specified in the Document() annotation mapping of $className");
-        }
-
-        $metadata->setAlias($documentAnnot->alias);
         if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
             if (!in_array($documentAnnot->versionable, $this->validVersionableAnnotations)) {
                 throw new \InvalidArgumentException("Invalid value for the versionable annotation: '{$documentAnnot->versionable}'");

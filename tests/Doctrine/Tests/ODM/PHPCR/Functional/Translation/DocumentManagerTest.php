@@ -3,7 +3,8 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\Tests\Models\Translation\Article,
-    Doctrine\Tests\Models\Translation\InvalidMapping;
+    Doctrine\Tests\Models\Translation\InvalidMapping,
+    Doctrine\Tests\Models\CMS\CmsArticle;
 
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy,
     Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
@@ -131,14 +132,16 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('Un autre sujet', $doc->topic);
     }
 
+    /**
+     * Italian translation does not exist so as defined in $localePrefs we
+     * will get french as it has higher priority than english
+     */
     public function testFindTranslationWithLanguageFallback()
     {
         $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'it');
 
-        // Italian translation does not exist so as defined in $localePrefs we will get english
-
         $this->assertNotNull($doc);
-        $this->assertEquals('it', $doc->locale);
+        $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('Un autre sujet', $doc->topic);
     }
 
@@ -222,6 +225,19 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $doc->id = '/' . $this->testNodeName;
         $this->dm->persistTranslation($doc, 'en');
         $this->dm->flush();
+    }
+
+    /**
+     * persistTranslation with a document that is not translatable should fail
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testPersistTranslationNonTranslatable()
+    {
+        $this->removeTestNode();
+        $doc = new CmsArticle();
+        $doc->id = '/' . $this->testNodeName;
+        $this->dm->persistTranslation($doc, 'en');
     }
 
     protected function removeTestNode()

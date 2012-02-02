@@ -296,10 +296,56 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($user2->node->hasProperty('username'));
         $this->assertNull($user2->username);
     }
+
+    public function testInheritance()
+    {
+        $user = new User4();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
+        $user->name = 'inheritance';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->name, $userNew->name);
+    }
+
+    public function testNoIdProperty()
+    {
+        $functional = $this->dm->find(null, '/functional');
+
+        $user = new User5();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->nodename = 'test';
+        $user->parent = $functional;
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
+
+        $userNew->username = "test2";
+        $this->dm->flush();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals('test2', $userNew->username);
+        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+    }
 }
 
 /**
- * @PHPCRODM\Document(alias="user")
+ * @PHPCRODM\Document()
  */
 class User
 {
@@ -314,7 +360,7 @@ class User
 }
 
 /**
- * @PHPCRODM\Document(alias="user2")
+ * @PHPCRODM\Document()
  */
 class User2
 {
@@ -325,7 +371,7 @@ class User2
 }
 
 /**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository", alias="user3")
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository")
  */
 class User3
 {
@@ -333,6 +379,30 @@ class User3
     public $id;
     /** @PHPCRODM\String(name="username") */
     public $username;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class User4 extends User
+{
+    /** @PHPCRODM\String(name="name") */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class User5
+{
+    /** @PHPCRODM\Nodename */
+    public $nodename;
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+    /** @PHPCRODM\String(name="username") */
+    public $username;
+    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    public $numbers;
 }
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface

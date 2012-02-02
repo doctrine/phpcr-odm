@@ -254,7 +254,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(alias="versionTestObj", versionable="full")
+ * @PHPCRODM\Document(versionable="full")
  */
 class VersionTestObj
 {

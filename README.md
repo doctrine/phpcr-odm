@@ -50,7 +50,11 @@ Follow [Running Jackrabbit Server](https://github.com/jackalope/jackalope/wiki/R
 
 ### Install Midgard2 PHPCR
 
-[Midgard2](https://github.com/midgardproject/phpcr-midgard2) is a PHPCR provider that provides most of the functionality needed for PHPCR ODM, and can persist your content in typical relational databases like SQLite and MySQL. Midgard2 only needs [a PHP extension](https://github.com/midgardproject/midgard-php5) to run. On typical Linux setups getting the extension is as easy as:
+[Midgard2](https://github.com/midgardproject/phpcr-midgard2) is a PHPCR
+provider that provides most of the functionality needed for PHPCR ODM, and can
+persist your content in typical relational databases like SQLite and MySQL.
+Midgard2 only needs [a PHP extension](https://github.com/midgardproject/midgard-php5)
+to run. On typical Linux setups getting the extension is as easy as:
 
     $ sudo apt-get install php5-midgard2
 
@@ -144,7 +148,9 @@ $credentials = new \PHPCR\SimpleCredentials('admin', 'password');
 $session = $repository->login($credentials, 'your_workspace');
 ```
 
-Note that the `midgard2.configuration.db.init` setting should only be used the first time you connect to the Midgard2 repository. After that the database is ready and this setting should be removed for better performance.
+Note that the `midgard2.configuration.db.init` setting should only be used the
+first time you connect to the Midgard2 repository. After that the database is
+ready and this setting should be removed for better performance.
 
 ## Initialize the DocumentManager
 
@@ -163,7 +169,7 @@ Now you are ready to use the PHPCR ODM
 
 ```php
 <?php
-// fetching a document by JCR path (id in PHPCR ODM lingo)
+// fetching a document by PHPCR path (id in PHPCR ODM lingo)
 $user = $dm->getRepository('Namespace\For\Document\User')->find('/bob');
 //or let the odm find the document class for you
 $user = $dm->find('/bob');
@@ -182,16 +188,20 @@ $dm->persist($newUser);
 $dm->flush();
 
 // run a query
-$query = $dm->createQuery('SELECT *
-                    FROM [nt:unstructured]
-                    WHERE ISCHILDNODE("/functional")
-                    ORDER BY username',
-                    \PHPCR\Query\QueryInterface::JCR_SQL2);
-$query->setLimit(2);
-$result = $this->dm->getDocumentsByQuery($query, 'My\Document\Class');
+$qb = $dm->createQueryBuilder();
+
+// SELECT * FROM nt:unstructured WHERE name NOT IS NULL
+$factory = $qb->getQOMFactory();
+$qb->select($factory->selector('nt:unstructured'))
+    ->where($factory->propertyExistance('name'))
+    ->setFirstResult(10)
+    ->setMaxResults(10)
+    ->execute();
+$result = $dm->getDocumentsByQuery($qb->getQuery());
 foreach ($result as $document) {
     echo $document->getId();
 }
+
 // remove a document - and all documents in paths under that one!
 $dm->remove($newUser);
 $dm->flush();
@@ -199,7 +209,8 @@ $dm->flush();
 
 # Document Classes
 
-You write your own document classes that will be mapped to and from the phpcr database by doctrine. The documents are usually simple
+You write your own document classes that will be mapped to and from the phpcr
+database by doctrine. The documents are usually simple
 
 ```php
 <?php
@@ -228,26 +239,90 @@ class MyDocument
 }
 ```
 
-Note that there are basic Document classes for the standard PHPCR node types nt:file, nt:folder and nt:resource
-See lib/Doctrine/ODM/PHPCR/Document/
+Note that there are basic Document classes for the standard PHPCR node types
+``nt:file``, ``nt:folder`` and ``nt:resource``. See lib/Doctrine/ODM/PHPCR/Document/
+
 
 ## Storing documents in the repository: Id Generator Strategy
 
-When defining an ``id`` its possible to choose the generator strategy. The id
-is the path where in the phpcr content repository the document should be stored.
-By default the assigned id generator is used, which requires manual assignment
-of the path to a field annotated as being the Id.
-You can tell doctrine to use a different strategy to find the id.
+Every document needs an ``id``. This is used to later retrieve the document
+from storage again. The id is the path in the content repository to the node
+storing the document.
 
-A document id can be defined by the Nodename and the ParentDocument annotations.
-The resulting id will be the id of the parent concatenated with '/' and the
-Nodename.
+It is possible to choose the generator strategy.
+Currently, there are 3 strategies available:
 
-If you supply a ParentDocument annotation, the strategy is automatically set to parent. This strategy will check the parent and the name and will fall back to the id field if either is missing.
+* With the default "assigned id" you need to assign a path to your id field and
+    have to make sure yourself that the parent exists.
+* The "parent and name" strategy determines the path from the @ParentDocument
+    and the @Nodename fields. This is the most failsave strategy.
+* The repository strategy lets your custom repository determine an id so you
+    can implement any logic you might need.
 
-Currently, there is the "repository" strategy which calls can be used which
-calls generateId on the repository class to give you full control how you want
-to build the path.
+
+### Assigned Id
+
+This is the default but very unsafe strategy. You need to manually assign the
+path to the id field.
+A document is not allowed to have no parent, so you need to make sure that the
+parent of that path already exists. (It can be a plain PHPCR node not
+representing any PHPCR-ODM document, though.)
+
+```php
+<?php
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+/**
+ * @PHPCRODM\Document
+ */
+class Document
+{
+    /** @PHPCRODM\Id */
+    public $id;
+}
+
+$doc = new Document();
+$doc->id = '/test';
+```
+
+### Parent and name strategy (recommended)
+
+This strategy uses the @Nodename (desired name of this node) and
+@ParentDocument (PHPCR-ODM document that is the parent). The id is generated
+as the id of the parent concatenated with '/' and the Nodename.
+
+If you supply a ParentDocument annotation, the strategy is automatically set to
+parent. This strategy will check the parent and the name and will fall back to
+the assigned id if either is missing.
+
+
+```php
+<?php
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+/**
+ * @PHPCRODM\Document
+ */
+class Document
+{
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+    /** @PHPCRODM\Nodename */
+    public $nodename;
+}
+
+$doc = new Document();
+$doc->parent = $dm->find('/test');
+$doc->nodename = 'mynode';
+// => /test/mynode
+```
+
+### Repository strategy
+
+If you need custom logic to determine the id, you can explicitly set the
+strategy to "repository". You need to define the repositoryClass which will
+handle the task of generating the id from the information in the document.
+This gives you full control how you want to build the path.
 
 ```php
 <?php
@@ -278,42 +353,130 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
      */
     public function generateId($document)
     {
-        return 'functional/'.$document->title;
+        return '/functional/'.$document->title;
     }
 }
 ```
 
-## Available annotations
+## Available field annotations
 
 <table>
-<tr><td> Id:            </td><td>Read only except on new documents with the assigned id strategy. The phpcr path to this node. (see above). For new nodes not using the default strategy, it is populated during the persist() operation.</td></tr>
-<tr><td> Uuid:          </td><td>Read only (generated on flush). The unique id of this node. (only allowed if node is referenceable). </td></tr>
-<tr><td> Version:       </td><td>Read only. The uuid of the current version of this node, for versioned nodes. TODO: has no real use imo. remove?</td></tr>
-<tr><td> VersionName:   </td><td>Read only, only populated for detached documents returned by findVersionByName. Stores the version name this document represents. Otherwise its ignored.</td></tr>
-<tr><td> VersionCreated:</td><td>Read only, only populated for detached documents returned by findVersionByName. Stores the DateTime object when this version was created with the checkin() operation. Otherwise its ignored.</td></tr>
-<tr><td> Node:          </td><td>The PHPCR NodeInterface instance for direct access. This is populated as soon as you register the document with the manager using persist(). (This is subject to be removed when we have mapped all functionality you can get from the PHPCR node.) </td></tr>
-<tr><td> Nodename:      </td><td>Read only except for new documents with the parent and name strategy. The name of the PHPCR node (this is the part of the path after the last '/' in the id). This property is read only except on document creation with the parent strategy. For new nodes, it is populated during the persist() operation.</td></tr>
-<tr><td> ParentDocument:</td><td>Read only except for new documents with the parent and name strategy. The parent document of this document. If the repository knows the document class, the document will be of that type, otherwise Doctrine\ODM\PHPCR\Document\Generic will be used.</td></tr>
-<tr><td> Child(name=x): </td><td>Map the child with name x to this field. </td></tr>
-<tr><td> Children(filter=x): </td><td>Map the collection of children with matching name to this field. Filter is optional and works like the parameter in PHPCR Node::getNodes() (see the <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">API</a>)</td></tr>
-<tr><td> ReferenceOne(targetDocument="myDocument", weak=false):  (*)</td><td>Refers a document of the type myDocument. The default is a weak reference. By optionaly specifying weak=false you get a hard reference. It is optional to specify the targetDocument, you can reference any document.</td></tr>
-<tr><td> ReferenceMany(targetDocument="myDocument", weak=false): (*)</td><td>Same as ReferenceOne except that you can refer many documents with the same document and reference type. If you dont't specify targetDocument you can reference different documents with one property.</td></tr>
-<tr><td> Referrers(filter="x", referenceType=null): </td><td>A field of this type stores documents that refer this document. filter is optional. Its value is passed to the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/> or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>. You can also specify an optional referenceType, weak or hard, to only get documents that have either a weak or a hard reference to this document. If you specify null then all documents with weak or hard references are fetched, which is also the default behavior.</td></tr>
-<tr><td>Locale</td><td>Indentifies the field that will be used to store the current locale of the document. This annotation is required for translatable documents.</td></tr>
-<tr><td> String,               <br />
-         Binary,               <br />
-         Long (alias Int),     <br />
-         Decimal,              <br />
-         Double (alias Float), <br />
-         Date,                 <br />
-         Boolean,              <br />
-         Name,                 <br />
-         Path,                 <br />
-         Uri
-</td><td>Map node properties to the document. See <a href="http://phpcr.github.com/doc/html/phpcr/propertytype.html">PHPCR\PropertyType</a> for details about the types.</td></tr>
+<tr>
+    <td>Id:</td>
+    <td>Read only except on new documents with the assigned id strategy. The
+        PHPCR path to this node. (see above). For new nodes not using the
+        default strategy, it is populated during the persist() operation.
+    </td>
+</tr>
+<tr>
+    <td>Uuid:</td>
+    <td>Read only (generated on flush). The unique id of this node. (only allowed if node is referenceable).</td>
+</tr>
+<tr>
+    <td> Node:          </td>
+    <td>The PHPCR\NodeInterface instance for direct access. This is populated
+        as soon as you register the document with the manager using persist().
+    </td>
+</tr>
+<tr>
+    <td>Nodename:</td>
+    <td>Read only except for new documents with the parent and name strategy.
+        For new nodes with other id strategies, it is populated during the
+        persist() operation.
+        The name of the PHPCR node (this is the part of the path after the last
+        '/' in the id).
+    </td>
+</tr>
+<tr>
+    <td>ParentDocument:</td>
+    <td>Read only except for new documents with the parent and name strategy.
+        The parent document of this document. If the repository knows the
+        document class, the document will be of that type, otherwise
+        Doctrine\ODM\PHPCR\Document\Generic is used.
+    </td>
+</tr>
+<tr>
+    <td>Child(name=x):</td>
+    <td>Map the child with name x to this field. If name is not specified, the
+        name of the annotated varialbe is used.
+    </td>
+</tr>
+<tr>
+    <td>Children(filter=x): </td>
+    <td>Map the collection of children to this field. Filter is optional and
+        works like the parameter in <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">PHPCR Node::getNodes()</a>
+    </td>
+</tr>
+<tr>
+    <td>ReferenceOne(targetDocument="myDocument", weak=false):  (*)</td>
+    <td>Refers a document of the type myDocument. The default is a weak
+        reference. By optionaly specifying weak=false you get a hard reference.
+        It is optional to specify the targetDocument, you can reference any
+        document type.
+    </td>
+</tr>
+<tr>
+    <td> ReferenceMany(targetDocument="myDocument", weak=false): (*)</td>
+    <td>Same as ReferenceOne except that you can refer many documents with the
+        same document and reference type. If you dont't specify targetDocument
+        you can reference documents of mixed types in the same property.
+    </td>
+</tr>
+<tr>
+    <td>Referrers(filter="x", referenceType=null): </td>
+    <td>Read only, the inverse of the Reference field. This field is a
+        collection of all documents that refer this document. The ``filter``
+        is optional. If set, it is used as parameter ``name`` for <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/>
+        or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>.
+        You can also specify an optional referenceType, weak or hard, to only
+        get documents that have either a weak or a hard reference to this
+        document. If you specify null then all documents with weak or hard
+        references are fetched, which is also the default behavior.
+    </td>
+</tr>
+<tr>
+    <td>Locale:</td>
+    <td>Indentifies the field that will be used to store the current locale of
+        the document. This annotation is required for translatable documents.
+    </td>
+</tr>
+<tr>
+    <td> VersionName:   </td>
+    <td>Read only, only populated for detached documents returned by
+        findVersionByName. Stores the version name this document represents.
+        Otherwise its ignored.
+    </td>
+</tr>
+<tr>
+    <td>VersionCreated:</td>
+    <td>Read only, only populated for detached documents returned by
+        findVersionByName. Stores the DateTime object when this version was
+        created with the checkin() operation. Otherwise its ignored.
+    </td>
+</tr>
+<tr>
+    <td>
+        String,               <br />
+        Binary,               <br />
+        Long (alias Int),     <br />
+        Decimal,              <br />
+        Double (alias Float), <br />
+        Date,                 <br />
+        Boolean,              <br />
+        Name,                 <br />
+        Path,                 <br />
+        Uri
+    </td>
+    <td>Map node properties to the document. See
+        <a href="http://phpcr.github.com/doc/html/phpcr/propertytype.html">PHPCR\PropertyType</a>
+        for details about the types.
+    </td>
+</tr>
 </table>
 
-(*) Note that creating new references with the help of the ReferenceOne/ReferenceMany annotations is only possible if your PHPCR implementation supports programmatically setting the uuid property at node creation.
+(*) Note that creating new references with the help of the ReferenceOne/ReferenceMany
+annotations is only possible if your PHPCR implementation supports programmatically
+setting the uuid property at node creation.
 
 ### Parameters for the property types
 
@@ -321,9 +484,23 @@ In the parenthesis after the type, you can specify some additional information
 like the name of the PHPCR property to store the value in.
 
 <table>
-<tr><td>name</td><td>The property name to use for storing this field. If not specified, defaults to the php variable name.</td></tr>
-<tr><td>multivalue</td><td>Set multivalue=true to mark this property as multivalue. It then contains an array of values instead of just one value. For more complex data structures, use child nodes.</td></tr>
-<tr><td>translated</td><td>Set translated=true to mark this property as being translated. See below.</td></tr>
+<tr>
+    <td>name</td>
+    <td>The property name to use for storing this field. If not specified,
+        defaults to the php variable name.
+    </td>
+</tr>
+<tr>
+    <td>multivalue</td>
+    <td>Set multivalue=true to mark this property as multivalue. It then
+        contains a numerically indexed array of values instead of just one
+        value. For more complex data structures, use child nodes.
+    </td>
+</tr>
+<tr>
+    <td>translated</td>
+    <td>Set translated=true to mark this property as being translated. See below.</td>
+</tr>
 </table>
 
 ```php
@@ -337,9 +514,12 @@ private $cat;
 
 # Multilingual documents
 
-PHPCR-ODM supports multilingual documents so that you can mark properties as translatable and then make the document manager automatically store the translations.
+PHPCR-ODM supports multilingual documents so that you can mark properties as
+translatable and then make the document manager automatically store the
+translations.
 
-To use translatable documents you need to use several annotations and some bootstrapping code. Your document annotation must specify a translator type.
+To use translatable documents you need to use several annotations and some
+bootstrapping code. Your document annotation must specify a translator type.
 
 ```php
 <?php
@@ -357,7 +537,7 @@ class Article
      * The language this document currently is in
      * @PHPCRODM\Locale
      */
-    public $locale = 'en';
+    public $locale;
 
     /**
      * Untranslated property
@@ -398,7 +578,8 @@ It is possible to implement other strategies to persist the translations, see be
 
 ### Implementing your own translation strategy
 
-You may want to implement your own translation strategy to persist the translatable properties of a node. For example if you want all the translations to be stored in a separate branch of you content repository.
+You may want to implement your own translation strategy to persist the translatable properties of a node.
+For example if you want all the translations to be stored in a separate branch of you content repository.
 
 To do so you need to implement the `Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface`.
 
@@ -420,7 +601,7 @@ After registering your new translation strategy you can use it in the @Document 
 ```php
 <?php
 /**
- * @PHPCRODM\Document(alias="translation_article", translator="my_strategy_name")
+ * @PHPCRODM\Document(translator="my_strategy_name")
  */
 class Article
 {
@@ -438,7 +619,10 @@ list and throws a not found exception if none of the languages exists.
 
 The default language chooser strategy (`Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser`) returns
 a configurable list of languages based on the requested language. On instantiation, you specify
-the default locale. This can be hardcoded or based on the request or whatever you chose.
+the default locale. This should be your application default locale. It is used to get the default locale order
+which usually should not vary based on the current locale.
+Based on the request or whatever criteria you have, you can use setLocale to have the document manager load
+your document in the right language.
 
 When you bootstrap the document manager, you need to set the language chooser strategy if you have
 any translatable documents:
@@ -469,10 +653,10 @@ This is done with the `@Locale` annotation. You may set a default value.
 /**
  * @PHPCRODM\Locale
  */
-public $locale = 'en';
+public $locale;
 ```
 
-This field is __mandatory__ and is not persisted to the content repository.
+This field is __mandatory__. It is not literally persisted to the content repository but set from the context when loading a node.
 
 ## Setting properties as translatable
 
@@ -738,3 +922,9 @@ See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
  * preUpdate - occurs before an existing document is updated in storage, during the flush operation
  * postUpdate - occurs after an existing document has successfully been updated in storage
  * postLoad - occurs after the document has been loaded from storage
+
+# Doc TODOS
+
+ * Explain Configuration class in more detail
+ * Proxy classes: Either configuration with setAutoGenerateProxyClasses(true) or make sure you generate proxies.
+    proxies are used when you have references, children and so on to not load the whole PHPCR repository.

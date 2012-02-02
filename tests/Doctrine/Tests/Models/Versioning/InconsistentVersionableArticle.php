@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This document has a Version annotated field but it is not marked as versionable
- * @PHPCRODM\Document(alias="translation_article")
+ * @PHPCRODM\Document
  */
 class InconsistentVersionableArticle
 {

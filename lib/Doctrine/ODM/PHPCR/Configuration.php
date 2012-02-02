@@ -20,7 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Cache\Cache;
-use Doctrine\ODM\PHPCR\Mapping\Driver\Driver;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
 use Doctrine\ODM\PHPCR\DocumentClassMapper;
@@ -132,11 +132,11 @@ class Configuration
     /**
      * Sets the driver implementation that is used to retrieve mapping metadata.
      *
-     * @param Driver $driverImpl
+     * @param MappingDriver $driverImpl
      * @todo Force parameter to be a Closure to ensure lazy evaluation
      *       (as soon as a metadata cache is in effect, the driver never needs to initialize).
      */
-    public function setMetadataDriverImpl(Driver $driverImpl, $useBuildInDocumentsDriver = true)
+    public function setMetadataDriverImpl(MappingDriver $driverImpl, $useBuildInDocumentsDriver = true)
     {
         if ($useBuildInDocumentsDriver) {
             $driverImpl = new BuiltinDocumentsDriver($driverImpl);
@@ -147,7 +147,7 @@ class Configuration
     /**
      * Gets the driver implementation that is used to retrieve mapping metadata.
      *
-     * @return Mapping\Driver\Driver
+     * @return MappingDriver
      */
     public function getMetadataDriverImpl()
     {
