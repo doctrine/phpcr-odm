@@ -1562,14 +1562,15 @@ class UnitOfWork
             throw new PHPCRException('This document is not translatable: : '.self::objToStr($document));
         }
 
-        if (isset($this->nodesMap[spl_object_hash($document)])) {
-            $node = $this->nodesMap[spl_object_hash($document)];
+        $oid = spl_object_hash($document);
+
+        if (isset($this->nodesMap[$oid])) {
+            $node = $this->nodesMap[$oid];
             $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
         } else {
             $locales = array();
         }
 
-        $oid = spl_object_hash($document);
         if (isset($this->documentTranslations[$oid])) {
             $locales = array_unique(array_merge($locales, array_keys($this->documentTranslations[$oid])));
         }
@@ -1583,12 +1584,12 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
         $locale = $this->getLocale($document, $metadata);
         if ($locale) {
             $this->bindTranslation($document, $locale);
         }
 
+        $oid = spl_object_hash($document);
         if (!empty($this->documentTranslations[$oid])) {
             $strategy = $this->dm->getTranslationStrategy($metadata->translator);
             foreach ($this->documentTranslations[$oid] as $locale => $data) {
@@ -1631,7 +1632,8 @@ class UnitOfWork
             $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
+        $oid = spl_object_hash($document);
+        $node = $this->nodesMap[$oid];
 
         $translationFound = false;
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
@@ -1653,7 +1655,6 @@ class UnitOfWork
             $document->$localField = $localeUsed;
         }
 
-        $oid = spl_object_hash($document);
         $this->documentLocales[$oid] = array('original' => $locale, 'current' => $locale);
     }
 
