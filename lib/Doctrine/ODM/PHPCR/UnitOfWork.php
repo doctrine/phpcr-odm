@@ -765,7 +765,7 @@ class UnitOfWork
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException("You can not move or copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: " . self::objToStr($document));
+                    throw new PHPCRException("Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: " . self::objToStr($document));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -1040,6 +1040,7 @@ class UnitOfWork
             $col->takeSnapshot();
         }
 
+        $this->documentTranslations =
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledRemovals =
@@ -1085,7 +1086,7 @@ class UnitOfWork
             try {
                 $node->addMixin('phpcr:managed');
             } catch (\PHPCR\NodeType\NoSuchNodeTypeException $e) {
-                throw new PHPCRException("You need to register the node type phpcr:managed first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
+                throw new PHPCRException("Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
             }
 
             if ($class->versionable) {
@@ -1231,7 +1232,7 @@ class UnitOfWork
                             $child->remove();
                         }
                     } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw new PHPCRException('You can not move or copy children by assignment as it would be ambiguous. Please use the \PHPCR\Session::move() or \PHPCR\Session::copy() operations for this.');
+                        throw new PHPCRException("Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.");
                     }
                 }
             }
@@ -1550,12 +1551,15 @@ class UnitOfWork
             throw new PHPCRException('This document is not translatable: : '.self::objToStr($document));
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
-
-        $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+        if (isset($this->nodesMap[spl_object_hash($document)])) {
+            $node = $this->nodesMap[spl_object_hash($document)];
+            $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+        } else {
+            $locales = array();
+        }
 
         $oid = spl_object_hash($document);
-        if (empty($this->documentTranslations[$oid])) {
+        if (isset($this->documentTranslations[$oid])) {
             $locales = array_unique(array_merge($locales, array_keys($this->documentTranslations[$oid])));
         }
 
@@ -1716,7 +1720,7 @@ class UnitOfWork
      */
     public function isDocumentTranslatable($metadata)
     {
-        return ! empty($metadata->translator)
+        return !empty($metadata->translator)
             && is_string($metadata->translator)
             && count($metadata->translatableFields) !== 0;
     }
