@@ -4,13 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\Tests\Models\Translation\Article,
     Doctrine\Tests\Models\Translation\InvalidMapping,
-    Doctrine\Tests\Models\CMS\CmsArticle;
+    Doctrine\Tests\Models\CMS\CmsArticle,
+    Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy,
     Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 
-class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
     protected $testNodeName = '__my_test_node__';
 
@@ -18,6 +19,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
     public function setUp()
     {
+
         $localePrefs = array(
             'en' => array('en', 'de', 'fr'),
             'fr' => array('fr', 'de', 'en'),
@@ -26,16 +28,19 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+        $this->resetFunctionalNode($this->dm);
 
         $this->session = $this->dm->getPhpcrSession();
         $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
 
         $doc = new Article();
-        $doc->id = '/' . $this->testNodeName;
+        $doc->id = '/functional/' . $this->testNodeName;
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
         $this->doc = $doc;
+
+        $this->dm->clear();
     }
 
     public function testPersistNew()
@@ -107,15 +112,15 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->assertEquals('fr', $this->doc->locale);
     }
 
-    /**
-     * @depends testPersistNew
-     */
     public function testFind()
     {
-        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName);
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
+
+        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName);
 
         $this->assertNotNull($doc);
-        $this->assertEquals('en', $this->doc->locale);
+        $this->assertEquals('en', $doc->locale);
 
         $node = $this->getTestNode();
         $this->assertNotNull($node);
@@ -125,7 +130,12 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
     public function testFindTranslation()
     {
-        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'fr');
+        $this->doc->topic = 'Un autre sujet';
+        $this->doc->locale = 'fr';
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
+
+        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName, 'fr');
 
         $this->assertNotNull($doc);
         $this->assertEquals('fr', $doc->locale);
@@ -138,7 +148,12 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
      */
     public function testFindTranslationWithLanguageFallback()
     {
-        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'it');
+        $this->dm->persist($this->doc);
+        $this->doc->topic = 'Un autre sujet';
+        $this->doc->locale = 'fr';
+        $this->dm->flush();
+
+        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName, 'it');
 
         $this->assertNotNull($doc);
         $this->assertEquals('fr', $doc->locale);
@@ -150,11 +165,10 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
      */
     public function testFindTranslationWithInvalidLanguageFallback()
     {
-        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName, 'es');
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
 
-        $this->assertNotNull($doc);
-        $this->assertEquals('es', $doc->locale);
-        $this->assertEquals('Un autre sujet', $doc->topic);
+        $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName, 'es');
     }
 
     public function testGetLocaleFor()
@@ -200,11 +214,11 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->dm->flush();
         $this->dm->clear();
 
-        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/' . $this->testNodeName);
+        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName);
         $this->assertNull($doc, 'Document must be null after deletion');
 
         $doc = new Article();
-        $doc->id = '/' . $this->testNodeName;
+        $doc->id = '/functional/' . $this->testNodeName;
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
@@ -222,7 +236,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
         $this->removeTestNode();
 
         $doc = new InvalidMapping();
-        $doc->id = '/' . $this->testNodeName;
+        $doc->id = '/functional/' . $this->testNodeName;
         $this->dm->persistTranslation($doc, 'en');
         $this->dm->flush();
     }
@@ -236,7 +250,7 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
     {
         $this->removeTestNode();
         $doc = new CmsArticle();
-        $doc->id = '/' . $this->testNodeName;
+        $doc->id = '/functional/' . $this->testNodeName;
         $this->dm->persistTranslation($doc, 'en');
     }
 
@@ -251,6 +265,6 @@ class DocumentManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestC
 
     protected function getTestNode()
     {
-        return $this->session->getNode('/' . $this->testNodeName);
+        return $this->session->getNode('/functional/' . $this->testNodeName);
     }
 }
