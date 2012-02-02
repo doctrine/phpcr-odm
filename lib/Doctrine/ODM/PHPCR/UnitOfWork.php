@@ -86,6 +86,11 @@ class UnitOfWork
     private $documentTranslations = array();
 
     /**
+     * @var array
+     */
+    private $documentLocales = array();
+
+    /**
      * PHPCR always returns and updates the whole data of a document. If on update data is "missing"
      * this means the data is deleted. This also applies to attachments. This is why we need to ensure
      * that data that is not mapped is not lost. This map here saves all the "left-over" data and keeps
@@ -446,6 +451,8 @@ class UnitOfWork
         foreach ($class->translatableFields as $field) {
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
+
+        $this->documentLocales[$oid] = $locale;
     }
 
     /**
@@ -923,7 +930,7 @@ class UnitOfWork
                         $this->scheduledAssociationUpdates[$oid],
                         $this->originalData[$oid], $this->documentRevisions[$oid],
                         $this->documentIds[$oid], $this->documentState[$oid],
-                        $this->documentTranslations[$oid]);
+                        $this->documentTranslations[$oid], $this->documentLocales[$oid]);
                 break;
             case self::STATE_NEW:
             case self::STATE_DETACHED:
@@ -1518,6 +1525,8 @@ class UnitOfWork
         $this->documentIds =
         $this->documentRevisions =
         $this->documentState =
+        $this->documentTranslations =
+        $this->documentLocales =
         $this->nonMappedData =
         $this->originalData =
         $this->documentChangesets =
@@ -1559,21 +1568,17 @@ class UnitOfWork
             return;
         }
 
-        try {
-            $locale = $this->getLocale($document, $metadata);
-            $this->bindTranslation($document, $locale);
-        } catch (\Exception $e) {
-            // no Locale mapping, therefore the translation needs to be manually bound
-        }
-
         $oid = spl_object_hash($document);
-        if (empty($this->documentTranslations[$oid])) {
-            return;
+        $locale = $this->getLocale($document, $metadata);
+        if ($locale) {
+            $this->bindTranslation($document, $locale);
         }
 
-        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-        foreach ($this->documentTranslations[$oid] as $locale => $data) {
-            $strategy->saveTranslation($data, $node, $metadata, $locale);
+        if (!empty($this->documentTranslations[$oid])) {
+            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+            foreach ($this->documentTranslations[$oid] as $locale => $data) {
+                $strategy->saveTranslation($data, $node, $metadata, $locale);
+            }
         }
     }
 
@@ -1632,6 +1637,9 @@ class UnitOfWork
         if ($localField = $metadata->localeMapping['fieldName']) {
             $document->$localField = $localeUsed;
         }
+
+        $oid = spl_object_hash($document);
+        $this->documentLocales[$oid] = $localeUsed;
     }
 
     protected function doRemoveTranslation($document, $metadata, $locale)
@@ -1665,17 +1673,25 @@ class UnitOfWork
 
     protected function getLocale($document, $metadata)
     {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
         $localeField = $metadata->localeMapping['fieldName'];
         if ($localeField) {
             $locale = $metadata->reflFields[$localeField]->getValue($document);
-            if (!$locale) {
+        }
+
+        if (!$locale) {
+            $oid = spl_object_hash($document);
+            if (isset($this->documentLocales[$oid])) {
+                $locale = $this->documentLocales[$oid];
+            } else {
                 $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
             }
-
-            return $locale;
         }
-        // TODO: implement tracking @Locale without locale field
-        throw new \RuntimeException("Locale not implemented: ".self::objToStr($document));
+
+        return $locale;
     }
 
     /**
