@@ -62,6 +62,8 @@ class ClassMetadata implements ClassMetadataInterface
      */
     const GENERATOR_TYPE_PARENT = 3;
 
+    protected static $validVersionableAnnotations = array('simple', 'full');
+
     /**
      * The ReflectionProperty instances of the mapped class.
      *
@@ -227,9 +229,10 @@ class ClassMetadata implements ClassMetadataInterface
     public $translatableFields = array();
 
     /**
-     * PHPCR documents are always versioned, this flag determines if this version is exposed to the userland.
+     * Whether this document should be versioned. If this is not false, it will
+     * be one of the values from self::validVersionableAnnotations
      *
-     * @var bool
+     * @var bool|string
      */
     public $versionable = false;
 
@@ -379,6 +382,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setVersioned($versionable)
     {
+        if (!in_array($versionable, self::$validVersionableAnnotations)) {
+            throw new \InvalidArgumentException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
+        }
         $this->versionable = $versionable;
     }
 
