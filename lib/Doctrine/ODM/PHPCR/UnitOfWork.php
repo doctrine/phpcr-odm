@@ -740,7 +740,9 @@ class UnitOfWork
                     if ($class->nodename == $fieldName) {
                         throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document: '.self::objToStr($document));
                     }
-                    if ($class->parentMapping == $fieldName) {
+                    if ($class->parentMapping == $fieldName
+                        && null !== $this->originalData[$oid][$fieldName]
+                    ) {
                         throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
                     }
                     if ($class->identifier == $fieldName) {
