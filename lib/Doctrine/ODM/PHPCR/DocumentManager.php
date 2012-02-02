@@ -464,7 +464,8 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Get the list of locales that exist for the specified document.
+     * Get the list of locales that exist for the specified document,
+     * including those not yet flushed, but bound
      *
      * @param $document the document to get the locales for
      *

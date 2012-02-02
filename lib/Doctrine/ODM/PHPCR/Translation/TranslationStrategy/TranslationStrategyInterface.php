@@ -10,7 +10,7 @@ interface TranslationStrategyInterface
     /**
      * Save the translatable fields of a node
      *
-     * @param array $data Data to save
+     * @param array $data Data to save (field name => value to persist)
      * @param \PHPCR\NodeInterface $node The physical node in the content repository
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The Doctrine metadata of the document
      * @param $locale The language to persist the translations to
