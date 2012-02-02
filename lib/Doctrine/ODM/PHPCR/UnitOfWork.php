@@ -452,7 +452,10 @@ class UnitOfWork
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
 
-        $this->documentLocales[$oid] = $locale;
+        if (empty($this->documentLocales[$oid])) {
+            $this->documentLocales[$oid] = array('original' => $locale);
+        }
+        $this->documentLocales[$oid]['current'] = $locale;
     }
 
     /**
@@ -755,6 +758,12 @@ class UnitOfWork
                         $changed = true;
                     }
                 }
+            }
+
+            if (isset($this->documentLocales[$oid])
+                && $this->documentLocales[$oid]['current'] !== $this->documentLocales[$oid]['original']
+            ) {
+                $changed = true;
             }
 
             if ($changed) {
@@ -1645,7 +1654,7 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-        $this->documentLocales[$oid] = $localeUsed;
+        $this->documentLocales[$oid] = array('original' => $locale, 'current' => $locale);
     }
 
     protected function doRemoveTranslation($document, $metadata, $locale)
@@ -1690,8 +1699,8 @@ class UnitOfWork
 
         if (!$locale) {
             $oid = spl_object_hash($document);
-            if (isset($this->documentLocales[$oid])) {
-                $locale = $this->documentLocales[$oid];
+            if (isset($this->documentLocales[$oid]['current'])) {
+                $locale = $this->documentLocales[$oid]['current'];
             } else {
                 $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
             }
