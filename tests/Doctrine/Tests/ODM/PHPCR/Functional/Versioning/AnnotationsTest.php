@@ -49,7 +49,7 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testLoadInconsistentAnnotations()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle');
+        $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle');
     }
 
     /**
@@ -57,6 +57,11 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testAnnotationOnPersist()
     {
+        $repository = $this->dm->getPhpcrSession()->getRepository();
+        if (!$repository->getDescriptor('option.versioning.supported')) {
+            $this->markTestSkipped('PHPCR repository doesn\'t support versioning');
+        }
+
         $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\VersionableArticle');
         $this->assertTrue($node->isNodeType('mix:simpleVersionable'));
         $this->assertFalse($node->isNodeType('mix:versionable'));
