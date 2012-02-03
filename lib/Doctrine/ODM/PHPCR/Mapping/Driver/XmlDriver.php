@@ -60,8 +60,8 @@ class XmlDriver extends FileDriver
                 $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
             }
 
-            if (isset($xmlRoot['is-versioned']) && $xmlRoot['is-versioned'] === 'true') {
-                $class->setVersioned(true);
+            if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
+                $class->setVersioned($xmlRoot['versionable']);
             }
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
         } elseif ($xmlRoot->getName() === 'mapped-superclass') {
@@ -90,7 +90,7 @@ class XmlDriver extends FileDriver
         }
         if (isset($xmlRoot->node)) {
             $class->mapNode(array('fieldName' => (string) $xmlRoot->node->attributes()->name));
-            
+
         }
         if (isset($xmlRoot->nodename)) {
             $class->mapNodename(array('fieldName' => (string) $xmlRoot->nodename->attributes()->name));
@@ -127,6 +127,15 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->{'reference-one'} as $reference) {
                 $this->addReferenceMapping($class, $reference, 'one');
             }
+        }
+
+        // TODO: referrers, locale
+
+        if (isset($xmlRoot->versionname)) {
+            $class->mapVersionName(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
+        }
+        if (isset($xmlRoot->versioncreated)) {
+            $class->mapVersionCreated(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
         }
 
         if (isset($xmlRoot->{'lifecycle-callbacks'})) {

@@ -362,57 +362,53 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 
 <table>
 <tr>
-    <td> Id:            </td>
-    <td>The phpcr path to this node. (see above). For new nodes not using the
+    <td>Id:</td>
+    <td>Read only except on new documents with the assigned id strategy. The
+        PHPCR path to this node. (see above). For new nodes not using the
         default strategy, it is populated during the persist() operation.
     </td>
 </tr>
 <tr>
-    <td> Uuid:          </td>
-    <td>The unique id of this node. (only allowed if node is referenceable). </td>
-</tr>
-<tr>
-    <td> Version:       </td>
-    <td>The version of this node, for versioned nodes. </td>
+    <td>Uuid:</td>
+    <td>Read only (generated on flush). The unique id of this node. (only allowed if node is referenceable).</td>
 </tr>
 <tr>
     <td> Node:          </td>
-    <td>The PHPCR NodeInterface instance for direct access. This is populated
+    <td>The PHPCR\NodeInterface instance for direct access. This is populated
         as soon as you register the document with the manager using persist().
-        (This is subject to be removed when we have mapped all functionality
-        you can get from the PHPCR node.)
     </td>
 </tr>
 <tr>
-    <td> Nodename:          </td>
-    <td>The name of the PHPCR node (this is the part of the path after the last
-        '/' in the id). This property is read only except on document creation
-        with the parent strategy. For new nodes, it is populated during the
+    <td>Nodename:</td>
+    <td>Read only except for new documents with the parent and name strategy.
+        For new nodes with other id strategies, it is populated during the
         persist() operation.
+        The name of the PHPCR node (this is the part of the path after the last
+        '/' in the id).
     </td>
 </tr>
 <tr>
-    <td> ParentDocument:          </td>
-    <td>The parent document of this document. If a type is defined, the document
-        will be of that type, otherwise Doctrine\ODM\PHPCR\Document\Generic will
-        be used. This property is read only except on document creation with the
-        parent strategy.
+    <td>ParentDocument:</td>
+    <td>Read only except for new documents with the parent and name strategy.
+        The parent document of this document. If the repository knows the
+        document class, the document will be of that type, otherwise
+        Doctrine\ODM\PHPCR\Document\Generic is used.
     </td>
 </tr>
 <tr>
-    <td> Child(name=x): </td>
+    <td>Child(name=x):</td>
     <td>Map the child with name x to this field. If name is not specified, the
         name of the annotated varialbe is used.
     </td>
 </tr>
 <tr>
-    <td> Children(filter=x): </td>
+    <td>Children(filter=x): </td>
     <td>Map the collection of children to this field. Filter is optional and
         works like the parameter in <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">PHPCR Node::getNodes()</a>
     </td>
 </tr>
 <tr>
-    <td> ReferenceOne(targetDocument="myDocument", weak=false):  (*)</td>
+    <td>ReferenceOne(targetDocument="myDocument", weak=false):  (*)</td>
     <td>Refers a document of the type myDocument. The default is a weak
         reference. By optionaly specifying weak=false you get a hard reference.
         It is optional to specify the targetDocument, you can reference any
@@ -427,10 +423,10 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     </td>
 </tr>
 <tr>
-    <td> Referrers(filter="x", referenceType=null): </td>
-    <td>A field of this type loads all documents that refer this document. This
-        is a *read-only* field. ``filter`` is optional. Its value is passed to
-        the name parameter of <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/>
+    <td>Referrers(filter="x", referenceType=null): </td>
+    <td>Read only, the inverse of the Reference field. This field is a
+        collection of all documents that refer this document. The ``filter``
+        is optional. If set, it is used as parameter ``name`` for <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getReferences()<a/>
         or <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getWeakReferences%28%29">Node::getWeakReferences()</a>.
         You can also specify an optional referenceType, weak or hard, to only
         get documents that have either a weak or a hard reference to this
@@ -442,6 +438,20 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     <td>Locale:</td>
     <td>Indentifies the field that will be used to store the current locale of
         the document. This annotation is required for translatable documents.
+    </td>
+</tr>
+<tr>
+    <td> VersionName:</td>
+    <td>Read only, only populated for detached documents returned by
+        findVersionByName. Stores the version name this document represents.
+        Otherwise its ignored.
+    </td>
+</tr>
+<tr>
+    <td>VersionCreated:</td>
+    <td>Read only, only populated for detached documents returned by
+        findVersionByName. Stores the DateTime object when this version was
+        created with the checkin() operation. Otherwise its ignored.
     </td>
 </tr>
 <tr>
@@ -509,7 +519,7 @@ translatable and then make the document manager automatically store the
 translations.
 
 To use translatable documents you need to use several annotations and some
-bootstrapping code.
+bootstrapping code. Your document annotation must specify a translator type.
 
 ```php
 <?php
@@ -735,6 +745,163 @@ feature because you want to know when you try to load an incomplete document.
 But we are currently missing a concept how to do update the content to still be
 compatible when document annotations are changed. The solution could look
 similar to the ORM migrations issue.
+
+
+# Versioning documents
+
+PHPCR-ODM natively supports versioning documents, using the power of the PHPCR
+Version features. Before you try this out, make sure your implementation
+supports the versioning features.
+PHPCR-ODM does not replicate the complete PHPCR Version API (VersionManager,
+VersionHistory and Version). For the full power, you need to access the PHPCR
+session and interact with the VersionManager directly.
+PHPCR-ODM provides simple methods for the common operations.
+
+## Concept
+
+There are 2 levels: simpleVersionable and (full) versionable. Simple versioning
+consists of a linear verison history and the checkin/checkout possibility.
+Checking in a node creates a new version and makes the node readonly. You need
+to check it out again to write to it (or just do a checkpoint to do both in one
+call).
+Full versioning additionally has non-linear versioning (which the PHPCR-ODM
+does not provide any helper methods for) and version labels (which we plan to
+support once Jackalope supports them). For each node, you can add labels to
+version, but one label string may only occur once per version history (meaning
+if you want to label another version, you need to remove the label from the
+first version before you add the label).
+
+Version names are generated by PHPCR and can not be controlled by the client
+application. There is no concept of commit messages for PHPCR. We decided to
+not build something like that into the core of the ODM versioning system to
+avoid unnecessary overhead if the user does not need it. It is however doable
+with having a field on your document that you set to your commit message and
+flush before calling checkin().
+
+For more background, read the [Versioning section in the PHPCR Tutorial](https://github.com/phpcr/phpcr/blob/master/doc/Tutorial.md)
+and refer to the [specification JCR 2.0, Chapter 15](http://www.day.com/specs/jcr/2.0/15_Versioning.html).
+
+For the PHPCR-ODM layer, the following applies: Contrary to translations,
+getting an old version does not change the document representing the current
+version. An old version can't be modified and can't be persisted. (Except with
+the special restoreVersion and removeVersion methods.)
+What you get is a detached instance of the document which is ignored by flush
+and can not be persisted.
+
+
+
+## Translation API
+
+Please refer to the phpDoc of the following functions:
+
+__Read version information__:
+
+* DocumentManager::find (returns the current version of the document)
+* DocumentManager::getAllLinearVersions (returns information about existing versions)
+* DocumentManager::findVersionByName (returns a detached read-only document representing a version)
+
+__Modify the version history__:
+
+* DocumentManager::checkin (create new version of a flushed document and make it readonly)
+* DocumentManager::checkout (make a document that was checked in writable again)
+* DocumentManager::checkpoint (create a new version without making the document read-only, aka checkin followed by checkout)
+* DocumentManager::restoreVersion (restore the document to an old version)
+* DocumentManager::removeVersion (completely remove an old version from the history)
+
+
+## Example
+
+```php
+<?php
+$article = new Article();
+$article->id = '/test';
+$article->topic = 'Test';
+$dm->persist($article);
+$dm->flush();
+
+$dm->checkpoint($article);
+
+$article->topic = 'Newvalue';
+$dm->flush();
+
+$dm->checkpoint($article);
+
+$versioninfos = $dm->getAllLinearVersions($article->id);
+
+$firstVersion = reset($versioninfos);
+$oldVersion = $dm->findVersionByName(null, $article->id, $firstVersion['name']);
+
+echo $oldVersion->topic; // "Test"
+
+$article = $dm->find('/test');
+echo $article->topic; // "Newvalue"
+
+// create a new version with the old values
+$dm->restoreVersion($oldVersion);
+
+// the article document is refreshed
+echo $article->topic; // "Test"
+
+// remove the old version from the history
+$dm->removeVersion($oldVersion);
+```
+
+## Annotations
+
+To be able to use the versioning methods of the DocumentManager, you need to
+specify the versionable attribute in your @Document annotation. You can choose
+between "full" and "simple" versionable.
+
+If you only use the methods the DocumentManager offers, "simple" is enough.
+This will allow you to create a linear version history. The full versionable
+corresponds to the PHPCR mix:versionable that allows to branch versions. If you
+need that, you will need to access PHPCR directly for some operations.
+
+```php
+<?php
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+/**
+ * @PHPCRODM\Document(versionable="full")
+ */
+class Article
+{
+    ... // properties as normal
+}
+```
+
+Note that all fields of a document are automatically versioned, you can not
+exclude anything from being versioned. Referenced documents are not versioned,
+but it is stored to which document the reference pointed at this time.
+Children and parents are not versioned. (Actually children could be versioned
+if you are using a PHCPR node types that specifies to cascade versioning. This
+feature however is untested with PHPCR-ODM, if you have feedback please tell us.)
+
+
+You can track some information about old versions in PHPCR-ODM. The VersionName
+tracks the code that PHPCR assigned the version you created, VersionCreated the
+timestamp when the version was created.
+
+Be aware that there are two things:
+1. The document that is *versionable*. This is **the** document and you can
+    take snapshots of this document with the ``checkin()`` / ``checkpoint()``
+    methods.
+2. The frozen document that represents an old version of your document. You get
+    this document with the findVersionByName method. It is read-only.
+    The document class you use needs not be the same. You can define a *version*
+    document that is the same as your base document, but all fields are read
+    only and you use the VersionName and VersionCreated annotations on it. It
+    also does not need the versionable document attribute. (You do not create
+    versions of old versions, you only create versions of the main document.)
+
+```php
+<?php
+    /** @PHPCRODM\VersionName */
+    public $versionName;
+
+    /** @PHPCRODM\VersionCreated */
+    public $versionCreated;
+```
 
 
 # Lifecycle callbacks

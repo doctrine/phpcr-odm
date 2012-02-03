@@ -71,9 +71,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * Get the ordered list of locales for the default locale
-     *
-     * @return array preferred locale order for the default locale
+     * {@inheritDoc}
      */
     public function getDefaultLocalesOrder()
     {
@@ -81,7 +79,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * @return string the locale to use
+     * {@inheritDoc}
      */
     public function getLocale()
     {
@@ -92,7 +90,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * Set the locale to currently use
+     * Set the locale to use at this moment.
      *
      * @throws InvalidArgumentException if the specified locale is not defined in the $localePreference array.
      */
@@ -106,7 +104,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * @return string defaultLocale
+     * {@inheritDoc}
      */
     public function getDefaultLocale()
     {

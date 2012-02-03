@@ -62,7 +62,7 @@ class YamlDriver extends FileDriver
             }
 
             if (isset($element['versionable']) && $element['versionable']) {
-                $class->setVersioned(true);
+                $class->setVersioned($element['versionable']);
             }
 
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
@@ -131,6 +131,16 @@ class YamlDriver extends FileDriver
                 $this->addMappingFromReference($class, $fieldName, $reference, 'many');
             }
         }
+
+        // TODO: referrers, locale
+
+        if (isset($element['versionName'])) {
+            $class->mapVersionName(array('fieldName' => $element['versionName']));
+        }
+        if (isset($element['versionCreated'])) {
+            $class->mapVersionCreated(array('fieldName' => $element['versionCreated']));
+        }
+
         if (isset($element['lifecycleCallbacks'])) {
             foreach ($element['lifecycleCallbacks'] as $type => $methods) {
                 foreach ($methods as $method) {

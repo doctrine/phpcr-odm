@@ -71,6 +71,18 @@ class UnitOfWork
     private $documentIds = array();
 
     /**
+     * Track version history of the version documents we create, indexed by spl_object_hash
+     * @var array of \PHPCR\Version\VersionHistory
+     */
+    private $documentHistory = array();
+
+    /**
+     * Track version objects of the version documents we create, indexed by spl_object_hash
+     * @var array of PHPCR\Version\Version
+     */
+    private $documentVersion = array();
+
+    /**
      * @var array
      */
     private $documentRevisions = array();
@@ -236,9 +248,6 @@ class UnitOfWork
         }
         if ($class->nodename) {
             $documentState[$class->nodename] = $node->getName();
-        }
-        if ($class->versionField) {
-            $documentState[$class->versionField] = $properties['jcr:baseVersion'];
         }
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getPath();
@@ -589,11 +598,6 @@ class UnitOfWork
             if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
                 || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
             ) {
-                if ($class->versionable) {
-                    return $class->getFieldValue($document, $class->versionField)
-                        ? self::STATE_DETACHED : self::STATE_NEW;
-                }
-
                 if ($this->tryGetById($id)) {
                     return self::STATE_DETACHED;
                 }
@@ -653,9 +657,10 @@ class UnitOfWork
             }
         }
 
-        // unset the revision field if necessary, it is not to be managed by the user in write scenarios.
+        // unset the version info fields if they have values, they are not to be managed by the user in write scenarios.
         if ($class->versionable) {
-            unset($actualData[$class->versionField]);
+            unset($actualData[$class->versionNameField]);
+            unset($actualData[$class->versionCreatedField]);
         }
 
         if (!isset($this->originalData[$oid])) {
@@ -1039,7 +1044,7 @@ class UnitOfWork
             }
 
             if ($class->versionable) {
-                $node->addMixin('mix:versionable');
+                $this->setVersionableMixin($class, $node);
             } elseif ($class->referenceable) {
                 // referenceable is a supertype of versionable, only set if not versionable
                 $node->addMixin('mix:referenceable');
@@ -1227,18 +1232,64 @@ class UnitOfWork
         }
     }
 
+
+    /**
+     * @see DocumentManager::findVersionByName
+     */
+    public function findVersionByName($className, $id, $versionName)
+    {
+        $versionManager = $this->session
+            ->getWorkspace()
+            ->getVersionManager();
+
+        try {
+            $history = $versionManager->getVersionHistory($id);
+        } catch(\PHPCR\ItemNotFoundException $e) {
+            // there is no document with $id
+            return null;
+        } catch(\PHPCR\UnsupportedRepositoryOperationException $e) {
+            throw new \InvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
+        }
+
+        try {
+            $version = $history->getVersion($versionName);
+            $node = $version->getFrozenNode();
+        } catch(\PHPCR\RepositoryException $e) {
+            throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
+        }
+
+        $hints = array('versionName' => $versionName);
+        $frozenDocument = $this->createDocument($className, $node, $hints);
+        $this->dm->detach($frozenDocument);
+
+        $oid = spl_object_hash($frozenDocument);
+        $this->documentHistory[$oid] = $history;
+        $this->documentVersion[$oid] = $version;
+
+        // Set the annotations
+        $metadata = $this->dm->getClassMetadata(get_class($frozenDocument));
+        if ($metadata->versionNameField) {
+            $metadata->reflFields[$metadata->versionNameField]->setValue($frozenDocument, $versionName);
+        }
+        if ($metadata->versionCreatedField) {
+            $metadata->reflFields[$metadata->versionCreatedField]->setValue($frozenDocument, $version->getCreated());
+        }
+
+        return $frozenDocument;
+    }
+
     /**
      * Checkin operation - Save all current changes and then check in the Node by id.
      *
      * @return void
      */
-    public function checkIn($document)
+    public function checkin($document)
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
-        $node->addMixin("mix:versionable");
+        $this->setVersionableMixin($this->dm->getClassMetadata(get_class($document)), $node);
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->checkIn($path); // Checkin Node aka make a new Version
+        $vm->checkin($path); // Checkin Node aka make a new Version
     }
 
     /**
@@ -1246,13 +1297,52 @@ class UnitOfWork
      *
      * @return void
      */
-    public function checkOut($document)
+    public function checkout($document)
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
-        $node->addMixin("mix:versionable");
+        $this->setVersionableMixin($this->dm->getClassMetadata(get_class($document)), $node);
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->checkOut($path);
+        $vm->checkout($path);
+    }
+
+    /**
+     * Get the version history information for a document
+     *
+     * labels will be an empty array. TODO: implement labels once jackalope implements them
+     *
+     * @param object $document the document of which to get the version history
+     * @param int $limit an optional limit to only get the latest $limit information
+     *
+     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
+     *         oldest version first
+     */
+    public function getAllLinearVersions($document, $limit = -1)
+    {
+        $path = $this->getDocumentId($document);
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+
+        if (!$metadata->versionable) {
+            throw new \InvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
+        }
+
+        $versions = $this->session
+            ->getWorkspace()
+            ->getVersionManager()
+            ->getVersionHistory($path)
+            ->getAllLinearVersions();
+
+        $result = array();
+        foreach ($versions as $version) {
+
+            $result[$version->getName()] = array(
+                'name' => $version->getName(),
+                'labels' => array(),
+                'created' => $version->getCreated(),
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -1260,27 +1350,28 @@ class UnitOfWork
      *
      * @return void
      */
-    public function restore($version, $document, $removeExisting)
+    public function restoreVersion($documentVersion, $removeExisting)
     {
-        $path = $this->getDocumentId($document);
+        $oid = spl_object_hash($documentVersion);
+        $history = $this->documentHistory[$oid];
+        $version = $this->documentVersion[$oid];
+        $document = $this->dm->find(null, $history->getVersionableIdentifier());
         $vm = $this->session->getWorkspace()->getVersionManager();
-        $vm->restore($removeExisting, $version, $path);
+
+        $vm->restore($removeExisting, $version);
+        $this->dm->refresh($document);
     }
 
-    /**
-     * Gets all the predecessor objects of an object
-     *
-     * TODO: this uses jackalope specific hacks and relies on a bug in jackalope with getPredecessors
-     *
-     * @param object $document
-     * @return array of \PHPCR\Version\VersionInterface
-     */
-    public function getPredecessors($document)
+    public function removeVersion($documentVersion)
     {
-        $path = $this->getDocumentId($document);
-        $vm = $this->session->getWorkspace()->getVersionManager();
-        $vh = $vm->getVersionHistory($path);
-        return (array)$vh->getAllVersions();
+        $oid = spl_object_hash($documentVersion);
+        $history = $this->documentHistory[$oid];
+        $version = $this->documentVersion[$oid];
+
+        $history->removeVersion($version->getName());
+
+        unset($this->documentVersion[$oid]);
+        unset($this->documentHistory[$oid]);
     }
 
     /**
@@ -1481,7 +1572,9 @@ class UnitOfWork
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
         $this->scheduledRemovals =
-        $this->visitedCollections = array();
+        $this->visitedCollections =
+        $this->documentHistory =
+        $this->documentVersion = array();
 
         if ($this->evm->hasListeners(Event::onClear)) {
             $this->evm->dispatchEvent(Event::onClear, new OnClearEventArgs($this->dm));
@@ -1567,8 +1660,8 @@ class UnitOfWork
         }
 
         // Set the locale
-        if ($localField = $metadata->localeMapping['fieldName']) {
-            $document->$localField = $localeUsed;
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            $metadata->reflFields[$localeField]->setValue($document, $localeUsed);
         }
     }
 
@@ -1583,9 +1676,9 @@ class UnitOfWork
         $strategy->removeTranslation($document, $node, $metadata, $locale);
 
         // Empty the locale field if what we removed was the current language
-        if ($localField = $metadata->localeMapping['fieldName']) {
-            if ($document->$localField === $locale) {
-                $document->$localField = null;
+        if ($localeField = $metadata->localeMapping['fieldName']) {
+            if ($metadata->reflFields[$localeField]->getValue($document) === $locale) {
+                $metadata->reflFields[$localeField]->setValue($document, null);
             }
         }
     }
@@ -1646,5 +1739,16 @@ class UnitOfWork
     private static function objToStr($obj)
     {
         return method_exists($obj, '__toString') ? (string)$obj : get_class($obj) . '@' . spl_object_hash($obj);
+    }
+
+    protected function setVersionableMixin(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    {
+        if ($metadata->versionable === 'simple') {
+            $node->addMixin('mix:simpleVersionable');
+        } elseif ($metadata->versionable === 'full') {
+            $node->addMixin('mix:versionable');
+        } else {
+            throw new \InvalidArgumentException(sprintf("The document at '%s' is not versionable", $node->getPath()));
+        }
     }
 }
