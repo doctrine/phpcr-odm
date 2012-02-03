@@ -112,18 +112,4 @@ class LocaleChooser implements LocaleChooserInterface
     {
         return $this->defaultLocale;
     }
-
-    /**
-     * Set the default locale
-     *
-     * @throws InvalidArgumentException if the specified locale is not defined in the $localePreference array.
-     */
-    public function setDefaultLocale($locale)
-    {
-        if (! array_key_exists($locale, $this->localePreference)) {
-            throw new \InvalidArgumentException("The locale '$locale' is not present in the list of available locales");
-        }
-
-        $this->defaultLocale = $locale;
-    }
 }

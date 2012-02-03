@@ -15,6 +15,21 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
     protected $testNodeName = '__my_test_node__';
 
+    /**
+     * @var Doctrine\ODM\PHPCR\DocumentManager
+     */
+    protected $dm;
+
+    /**
+     * @var PHPCR\Session
+     */
+    protected $session;
+
+    /**
+     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     */
+    protected $metadata;
+
     protected $doc;
 
     public function setUp()
@@ -78,6 +93,12 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $node = $this->getTestNode();
+
+        $this->assertDocumentStored($node);
+    }
+
+    protected function assertDocumentStored($node)
+    {
         $this->assertNotNull($node);
 
         $this->assertFalse($node->hasProperty('topic'));
@@ -87,6 +108,43 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Un sujet intéressant', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
 
         $this->assertEquals('fr', $this->doc->locale);
+    }
+
+    /**
+     * find translation in non-default language and then save it back has to keep language
+     * @depends testBindTranslation
+     */
+    public function testFindTranslationAndUpdate()
+    {
+        // let the bind test prepare the data
+        $this->testBindTranslation();
+        $this->dm->clear();
+
+        $doc = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'fr');
+        $doc->topic = 'Un sujet intéressant';
+        $this->dm->flush();
+
+        $node = $this->getTestNode();
+        $this->assertDocumentStored($node);
+    }
+
+    /**
+     * changing the locale and flushing should pick up changes automatically
+     */
+    public function testUpdateLocalAndFlush()
+    {
+        $this->removeTestNode();
+
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
+
+        $this->doc->topic = 'Un sujet intéressant';
+        $this->doc->locale = 'fr';
+        $this->dm->flush();
+
+        $node = $this->getTestNode();
+        $this->assertDocumentStored($node);
     }
 
     public function testFlush()
@@ -179,30 +237,28 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(1, count($locales));
-        $this->assertTrue(in_array('en', $locales));
+        $this->assertEquals(array('en'), $locales);
 
         // A second language is persisted
         $this->dm->bindTranslation($this->doc, 'fr');
         // Check that french is now also returned even without having flushed
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(2, count($locales));
+        $this->assertCount(2, $locales);
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
 
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(2, count($locales));
+        $this->assertCount(2, $locales);
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
 
-        // A third language is persisted
+        // A third language is bound but not yet flushed
         $this->dm->bindTranslation($this->doc, 'de');
-        $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(3, count($locales));
+        $this->assertCount(3, $locales);
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
         $this->assertTrue(in_array('de', $locales));
