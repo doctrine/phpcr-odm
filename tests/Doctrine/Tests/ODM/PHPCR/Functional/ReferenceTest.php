@@ -1,7 +1,16 @@
 <?php
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
+
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
+use Doctrine\Tests\Models\References\RefTestObj;
+use Doctrine\Tests\Models\References\RefRefTestObj;
+use Doctrine\Tests\Models\References\RefTestPrivateObj;
+use Doctrine\Tests\Models\References\RefManyTestObj;
+use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
+
+use Doctrine\ODM\PHPCR\PHPCRException;
 
 /**
  * @group functional
@@ -35,8 +44,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreate()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -59,8 +68,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreatePrivate()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestPrivateObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestPrivateObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -92,7 +101,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testReferenceNonReferenceable()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestPrivateObj();
+        $refTestObj = new RefTestPrivateObj();
         $refRefTestObj = new \Doctrine\Tests\Models\References\NonRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
@@ -104,7 +113,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($refTestObj);
         try {
             $this->dm->flush();
-        } catch (\Doctrine\ODM\PHPCR\PHPCRException $e) {
+        } catch (PHPCRException $e) {
             $this->assertContains('Referenced document Doctrine\Tests\Models\References\NonRefTestObj is not referenceable', $e->getMessage());
             throw $e;
         }
@@ -116,8 +125,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testCreateManyNoArrayError()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refManyTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -128,7 +137,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($refManyTestObj);
         try {
             $this->dm->flush();
-        } catch (\Doctrine\ODM\PHPCR\PHPCRException $e) {
+        } catch (PHPCRException $e) {
             $this->assertContains('Referenced document is not stored correctly in a reference-many property.', $e->getMessage());
             throw $e;
         }
@@ -139,8 +148,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testCreateOneArrayError()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -151,7 +160,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($refTestObj);
         try {
             $this->dm->flush();
-        } catch (\Doctrine\ODM\PHPCR\PHPCRException $e) {
+        } catch (PHPCRException $e) {
             $this->assertContains('Referenced document is not stored correctly in a reference-one property.', $e->getMessage());
             throw $e;
         }
@@ -159,7 +168,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateWithoutRef()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
+        $refTestObj = new RefTestObj();
         $refTestObj->name = 'referrer';
         $refTestObj->id = '/functional/refTestObj';
 
@@ -172,7 +181,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateWithoutManyRef()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refTestObj = new RefManyTestObj();
         $refTestObj->name = 'referrer';
         $refTestObj->id = '/functional/refManyTestObj';
 
@@ -185,7 +194,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateAddRefLater()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
+        $refTestObj = new RefTestObj();
         $refTestObj->name = 'referrer';
         $refTestObj->id = '/functional/refTestObj';
 
@@ -196,7 +205,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
 
         $referrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
-        $referrer->reference = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $referrer->reference = new RefRefTestObj();
         $referrer->reference->id = '/functional/refRefTestObj';
         $referrer->reference->name = 'referenced';
 
@@ -212,7 +221,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateAddManyRefLater()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->name = 'referrer';
         $refManyTestObj->id = '/functional/refManyTestObj';
 
@@ -226,7 +235,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $referrer->references[] = $newRefRefTestObj;
@@ -248,8 +257,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testUpdate()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -274,12 +283,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testUpdateMany()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -301,7 +310,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
+        $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $i = 0;
         foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references')->getValue() as  $node) {
@@ -313,12 +322,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testUpdateOneInMany()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -354,8 +363,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRemoveReferrer()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -382,12 +391,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRemoveReferrerMany()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -420,8 +429,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testRemoveReferrerChangeBefore()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -453,12 +462,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testRemoveReferrerManyChangeBefore()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -490,8 +499,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testDeleteByRef()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -518,7 +527,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testWeakReference()
     {
         $weakRefTestObj = new \Doctrine\Tests\Models\References\WeakRefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $weakRefTestObj->id = "/functional/weakRefTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -542,7 +551,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testHardReferenceDelete()
     {
         $hardRefTestObj = new \Doctrine\Tests\Models\References\HardRefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $hardRefTestObj->id = "/functional/hardRefTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -565,7 +574,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testHardReferenceDeleteSuccess()
     {
         $hardRefTestObj = new \Doctrine\Tests\Models\References\HardRefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $hardRefTestObj->id = "/functional/hardRefTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -591,14 +600,14 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testReferenceMany()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = '/functional/refManyTestObj';
         $refManyTestObj->name = 'referrer';
 
         $max = 5;
 
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -620,12 +629,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testDeleteOneInMany()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -669,8 +678,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testModificationAfterPersist()
     {
-        $referrer = new \Doctrine\Tests\Models\References\RefTestObj();
-        $referenced = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $referrer = new RefTestObj();
+        $referenced = new RefRefTestObj();
 
         $referrer->id = '/functional/refTestObj';
         $referenced->id = "/functional/refRefTestObj";
@@ -700,12 +709,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testModificationManyAfterPersist()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
@@ -736,7 +745,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateCascade()
     {
-        $referrer = new \Doctrine\Tests\Models\References\RefTestObj();
+        $referrer = new RefTestObj();
         $referrer->id = "/functional/refTestObj";
 
         $refCascadeTestObj = new \Doctrine\Tests\Models\References\RefCascadeTestObj();
@@ -745,7 +754,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer->reference = $refCascadeTestObj;
 
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refRefTestObj = new RefRefTestObj();
         $refRefTestObj->id = "/functional/refRefTestObj";
         $refRefTestObj->name = "refRefTestObj";
 
@@ -769,7 +778,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCreateManyCascade()
     {
-        $refManyTestObjForCascade = new \Doctrine\Tests\Models\References\RefManyTestObjForCascade();
+        $refManyTestObjForCascade = new RefManyTestObjForCascade();
         $refManyTestObjForCascade->id = "/functional/refManyTestObjForCascade";
 
         $max = 5;
@@ -783,7 +792,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $j = 0;
         foreach ($refManyTestObjForCascade->references as $reference) {
             for ($i = 0; $i < $max; $i++) {
-                $newRefRefTestObj= new \Doctrine\Tests\Models\References\RefRefTestObj();
+                $newRefRefTestObj= new RefRefTestObj();
                 $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
                 $newRefRefTestObj->name = "refRefTestObj$j$i";
                 $reference->references[] = $newRefRefTestObj;
@@ -816,7 +825,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testManyCascadeChangeOne()
     {
-        $refManyTestObjForCascade = new \Doctrine\Tests\Models\References\RefManyTestObjForCascade();
+        $refManyTestObjForCascade = new RefManyTestObjForCascade();
         $refManyTestObjForCascade->id = "/functional/refManyTestObjForCascade";
 
         $max = 5;
@@ -830,7 +839,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $j = 0;
         foreach ($refManyTestObjForCascade->references as $reference) {
             for ($i = 0; $i < $max; $i++) {
-                $newRefRefTestObj= new \Doctrine\Tests\Models\References\RefRefTestObj();
+                $newRefRefTestObj= new RefRefTestObj();
                 $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
                 $newRefRefTestObj->name = "refRefTestObj$j$i";
                 $reference->references[] = $newRefRefTestObj;
@@ -856,7 +865,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testManyCascadeDeleteOne()
     {
-        $refManyTestObjForCascade = new \Doctrine\Tests\Models\References\RefManyTestObjForCascade();
+        $refManyTestObjForCascade = new RefManyTestObjForCascade();
         $refManyTestObjForCascade->id = "/functional/refManyTestObjForCascade";
 
         $max = 5;
@@ -870,7 +879,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $j = 0;
         foreach ($refManyTestObjForCascade->references as $reference) {
             for ($i = 0; $i < $max; $i++) {
-                $newRefRefTestObj= new \Doctrine\Tests\Models\References\RefRefTestObj();
+                $newRefRefTestObj= new RefRefTestObj();
                 $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
                 $newRefRefTestObj->name = "refRefTestObj$j$i";
                 $reference->references[] = $newRefRefTestObj;
@@ -955,8 +964,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testTwoDifferentObjectrefs()
     {
-        $refTestObj = new \Doctrine\Tests\Models\References\RefTestObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+        $refTestObj = new RefTestObj();
+        $refRefTestObj = new RefRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -980,12 +989,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testManyTwoDifferentObjectrefs()
     {
-        $refManyTestObj = new \Doctrine\Tests\Models\References\RefManyTestObj();
+        $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = "/functional/refManyTestObj";
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefRefTestObj = new \Doctrine\Tests\Models\References\RefRefTestObj();
+            $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
             $refManyTestObj->references[] = $newRefRefTestObj;
