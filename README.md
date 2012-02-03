@@ -645,8 +645,10 @@ This is useful to determine the default language based on some logic, or provide
 
 ## Mark a field as @Locale
 
-All the translatable documents (i.e. having at least one translatable field) must define a field that will hold the current locale of the node.
-This is done with the `@Locale` annotation. You may set a default value.
+If you annotate a field with this annotation, the current locale of the
+document is tracked there. It is populated when finding the document,
+updated when you call bindTranslation and also taken into account when
+you flush the document.
 
 ```php
 <?php
@@ -656,9 +658,7 @@ This is done with the `@Locale` annotation. You may set a default value.
 public $locale;
 ```
 
-This field is __mandatory__. It is not literally persisted to the content repository but set from the context when loading a node.
-
-## Setting properties as translatable
+## Defining properties as translatable
 
 A property is set as translatable adding the `translatable` parameter to the field definition annontation.
 
@@ -728,6 +728,9 @@ $dm->bindTranslation($doc, 'en');
 $doc->topic = 'Un sujet intéressant';
 $dm->bindTranslation($doc, 'fr');
 
+// locale is updated automatically if there is such an annotation
+echo $doc->locale; // fr
+
 // Flush to write the changes to the phpcr backend
 $dm->flush();
 
@@ -736,6 +739,8 @@ $doc = $dm->find('Doctrine\Tests\Models\Translation\Article', '/my_test_node');
 
 // Get the document in French
 $doc = $dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/my_test_node', 'fr');
+$doc->title = 'nouveau';
+$dm->flush(); // french is updated as the language is tracked by the dm
 ```
 
 ## Limitations
@@ -745,7 +750,7 @@ if any of the fields declared in the document is not existing. This is a
 feature because you want to know when you try to load an incomplete document.
 But we are currently missing a concept how to do update the content to still be
 compatible when document annotations are changed. The solution could look
-similar to the ORM migrations issue.
+similar to the ORM migrations concept.
 
 
 # Versioning documents
