@@ -342,6 +342,62 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('test2', $userNew->username);
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
+
+    public function testFlushSingleDocument()
+    {
+        $user1 = new User();
+        $user1->username = 'romanb';
+        $user1->id = '/functional/test';
+        $user2 = new User();
+        $user2->username = 'jwage';
+        $user2->id = '/functional/test2';
+        $this->dm->persist($user1);
+        $this->dm->persist($user2);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user1 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test');
+        $this->assertEquals('romanb', $user1->username);
+
+        $user2 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test2');
+        $this->assertEquals('jwage', $user2->username);
+
+        $user1->username = 'changed';
+        $user2->username = 'changed';
+        $this->dm->flush($user1);
+        $this->dm->clear();
+
+        $check = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test');
+        $this->assertEquals('changed', $check->username);
+
+        $check = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test2');
+        $this->assertEquals('jwage', $check->username);
+    }
+
+    public function testFlushSingleDocument2()
+    {
+        $user1 = new User();
+        $user1->username = 'romanb';
+        $user1->id = '/functional/test';
+        $user2 = new User();
+        $user2->username = 'jwage';
+        $user2->id = '/functional/test2';
+        $this->dm->persist($user1);
+        $this->dm->persist($user2);
+        $this->dm->flush();
+
+        $user1->username = 'changed';
+        $user2->username = 'changed';
+        $this->dm->flush($user1);
+
+        $check = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test');
+        $this->assertEquals('changed', $check->username);
+
+        $this->dm->flush();
+
+        $check = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test2');
+        $this->assertEquals('changed', $check->username);
+    }
 }
 
 /**
