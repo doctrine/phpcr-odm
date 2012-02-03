@@ -19,10 +19,10 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
     /**
      * {@inheritdoc}
      */
-    public function saveTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         $translationNode = $this->getTranslationNode($node, $locale);
-        parent::saveTranslation($document, $translationNode, $metadata, $locale);
+        parent::saveTranslation($data, $translationNode, $metadata, $locale);
     }
 
     /**

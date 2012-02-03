@@ -93,15 +93,6 @@ class UnitOfWorkTest extends PHPCRTestCase
      */
     public function testScheduleInsertion()
     {
-        $parent = $this->getMockBuilder('Jackalope\Node')->disableOriginalConstructor()->getMock();
-        $parent->expects($this->once())
-                      ->method('addNode')
-                      ->with('somepath', null);
-        $this->session->expects($this->once())
-                      ->method('getNode')
-                      ->with('/')
-                      ->will($this->returnValue($parent));
-
         $object = new UoWUser();
         $object->username = "bar";
         $object->id = '/somepath';

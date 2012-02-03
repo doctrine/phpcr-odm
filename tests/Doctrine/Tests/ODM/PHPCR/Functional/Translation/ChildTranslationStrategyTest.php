@@ -29,28 +29,21 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
     public function testSaveTranslation()
     {
         // First save some translations
-        $doc = new Article();
-        $doc->author = 'John Doe';
-        $doc->topic = 'Some interesting subject';
-        $doc->setText('Lorem ipsum...');
+        $data = array();
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
 
         $node = $this->getTestNode();
 
         $strategy = new ChildTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
-
-        // The document locale was not yet assigned so it must be set
-        $this->assertEquals('en', $doc->locale);
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
 
-        $doc->topic = 'Un sujet intéressant';
+        $data['topic'] = 'Un sujet intéressant';
 
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
-
-        // The document locale was already set to it must not change
-        $this->assertEquals('en', $doc->locale);
 
         // Then test we have what we expect in the content repository
         $node_en = $this->session->getNode($this->nodeNameForLocale('en'));
@@ -72,27 +65,28 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
     public function testLoadTranslation()
     {
         // First save some translations
-        $doc = new Article();
-        $doc->author = 'John Doe';
-        $doc->topic = 'English topic';
-        $doc->setText('English text');
+        $data = array();
+        $data['author'] = 'John Doe';
+        $data['topic'] = 'English topic';
+        $data['text'] = 'English text';
 
         $node = $this->getTestNode();
 
         $strategy = new ChildTranslationStrategy();
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'en');
-
-        // The document locale was not yet assigned so it must be set
-        $this->assertEquals('en', $doc->locale);
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
 
-        $doc->topic = 'Sujet français';
-        $doc->setText(null);
+        $data['topic'] = 'Sujet français';
+        $data['text'] = null;
 
-        $strategy->saveTranslation($doc, $node, $this->metadata, 'fr');
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
 
+        $doc = new Article;
+        $doc->author = $data['author'];
+        $doc->topic = $data['topic'];
+        $doc->setText($data['text']);
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
 
         // And check the translatable properties have the correct value

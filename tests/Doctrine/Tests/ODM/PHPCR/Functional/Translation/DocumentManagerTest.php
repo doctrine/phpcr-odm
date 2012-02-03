@@ -15,6 +15,21 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
     protected $testNodeName = '__my_test_node__';
 
+    /**
+     * @var Doctrine\ODM\PHPCR\DocumentManager
+     */
+    protected $dm;
+
+    /**
+     * @var PHPCR\Session
+     */
+    protected $session;
+
+    /**
+     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     */
+    protected $metadata;
+
     protected $doc;
 
     public function setUp()
@@ -29,6 +44,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
         $this->resetFunctionalNode($this->dm);
+        $this->dm->clear();
 
         $this->session = $this->dm->getPhpcrSession();
         $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
@@ -39,8 +55,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
         $this->doc = $doc;
-
-        $this->dm->clear();
     }
 
     public function testPersistNew()
@@ -65,28 +79,72 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('en', $this->doc->locale);
     }
 
-    public function testPersistTranslation()
+    public function testBindTranslation()
     {
         $this->removeTestNode();
 
-        $this->dm->persistTranslation($this->doc, 'en');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
 
         $this->doc->topic = 'Un sujet intéressant';
 
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $node = $this->getTestNode();
+
+        $this->assertDocumentStored($node);
+    }
+
+    protected function assertDocumentStored($node)
+    {
         $this->assertNotNull($node);
 
         $this->assertFalse($node->hasProperty('topic'));
-
         $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
         $this->assertEquals('Some interesting subject', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
         $this->assertEquals('Un sujet intéressant', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
 
         $this->assertEquals('fr', $this->doc->locale);
+    }
+
+    /**
+     * find translation in non-default language and then save it back has to keep language
+     * @depends testBindTranslation
+     */
+    public function testFindTranslationAndUpdate()
+    {
+        // let the bind test prepare the data
+        $this->testBindTranslation();
+        $this->dm->clear();
+
+        $doc = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'fr');
+        $doc->topic = 'Un sujet intéressant';
+        $this->dm->flush();
+
+        $node = $this->getTestNode();
+        $this->assertDocumentStored($node);
+    }
+
+    /**
+     * changing the locale and flushing should pick up changes automatically
+     */
+    public function testUpdateLocalAndFlush()
+    {
+        $this->removeTestNode();
+
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
+
+        $this->doc->topic = 'Un sujet intéressant';
+        $this->doc->locale = 'fr';
+        $this->dm->flush();
+
+        $node = $this->getTestNode();
+        $this->assertDocumentStored($node);
     }
 
     public function testFlush()
@@ -97,7 +155,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $this->doc->topic = 'Un sujet intéressant';
 
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $this->doc->topic = 'Un autre sujet';
@@ -179,24 +237,28 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(1, count($locales));
-        $this->assertTrue(in_array('en', $locales));
+        $this->assertEquals(array('en'), $locales);
 
         // A second language is persisted
-        $this->dm->persistTranslation($this->doc, 'fr');
-        $this->dm->flush();
-
+        $this->dm->bindTranslation($this->doc, 'fr');
+        // Check that french is now also returned even without having flushed
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(2, count($locales));
+        $this->assertCount(2, $locales);
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
 
-        // A third language is persisted
-        $this->dm->persistTranslation($this->doc, 'de');
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
-        $this->assertEquals(3, count($locales));
+        $this->assertCount(2, $locales);
+        $this->assertTrue(in_array('en', $locales));
+        $this->assertTrue(in_array('fr', $locales));
+
+        // A third language is bound but not yet flushed
+        $this->dm->bindTranslation($this->doc, 'de');
+
+        $locales = $this->dm->getLocalesFor($this->doc);
+        $this->assertCount(3, $locales);
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('fr', $locales));
         $this->assertTrue(in_array('de', $locales));
@@ -206,8 +268,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     {
         $this->removeTestNode();
 
-        $this->dm->persistTranslation($this->doc, 'en');
-        $this->dm->persistTranslation($this->doc, 'fr');
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
         $this->dm->remove($this->doc);
@@ -222,7 +285,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
-        $this->dm->persistTranslation($doc, 'en');
+        $this->dm->persist($doc);
+        $this->dm->bindTranslation($doc, 'en');
+        $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($doc);
         $this->assertEquals(array('en'), $locales, 'Removing a document must remove all translations');
@@ -237,21 +302,39 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $doc = new InvalidMapping();
         $doc->id = '/functional/' . $this->testNodeName;
-        $this->dm->persistTranslation($doc, 'en');
+        $doc->topic = 'foo';
+        $this->dm->persist($doc);
+        $this->dm->bindTranslation($doc, 'en');
         $this->dm->flush();
     }
 
     /**
-     * persistTranslation with a document that is not translatable should fail
+     * bindTranslation with a document that is not persisted should fail
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testBindTranslationWithoutPersist()
+    {
+        $this->removeTestNode();
+
+        $doc = new CmsArticle();
+        $doc->id = '/functional/' . $this->testNodeName;
+        $this->dm->bindTranslation($doc, 'en');
+    }
+
+    /**
+     * bindTranslation with a document that is not translatable should fail
      *
      * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testPersistTranslationNonTranslatable()
+    public function testBindTranslationNonTranslatable()
     {
         $this->removeTestNode();
+
         $doc = new CmsArticle();
         $doc->id = '/functional/' . $this->testNodeName;
-        $this->dm->persistTranslation($doc, 'en');
+        $this->dm->persist($doc);
+        $this->dm->bindTranslation($doc, 'en');
     }
 
     protected function removeTestNode()
