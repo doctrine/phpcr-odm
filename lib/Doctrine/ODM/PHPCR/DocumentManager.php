@@ -448,7 +448,7 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Persist the document in the specified locale.
+     * Bind the translatable fields of the document in the specified locale.
      *
      * This method will update the @Locale field if it does not match the $locale argument.
      *
@@ -457,27 +457,15 @@ class DocumentManager implements ObjectManager
      *
      * @throws PHPCRException if the document is not translatable
      */
-    public function persistTranslation($object, $locale)
+    public function bindTranslation($object, $locale)
     {
         $this->errorIfClosed();
-
-        $metadata = $this->getClassMetadata(get_class($object));
-        if (! $this->unitOfWork->isDocumentTranslatable($metadata)) {
-            throw new PHPCRException('This document is not translatable, do not use persistTranslation: '.get_class($object));
-        }
-
-        // Set the @Locale field
-        if (! $localeField = $metadata->localeMapping['fieldName']) {
-            throw new PHPCRException('Your translatable document must have a field annotated with @Locale. TODO: handle translated document without @Locale field. '.get_class($object));
-        }
-
-        $metadata->reflFields[$localeField]->setValue($object, $locale);
-
-        $this->unitOfWork->scheduleInsert($object);
+        $this->unitOfWork->bindTranslation($object, $locale);
     }
 
     /**
-     * Get the list of locales that exist for the specified document.
+     * Get the list of locales that exist for the specified document,
+     * including those not yet flushed, but bound
      *
      * @param $document the document to get the locales for
      *

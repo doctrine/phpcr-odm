@@ -93,6 +93,16 @@ class UnitOfWork
     private $documentState = array();
 
     /**
+     * @var array
+     */
+    private $documentTranslations = array();
+
+    /**
+     * @var array
+     */
+    private $documentLocales = array();
+
+    /**
      * PHPCR always returns and updates the whole data of a document. If on update data is "missing"
      * this means the data is deleted. This also applies to attachments. This is why we need to ensure
      * that data that is not mapped is not lost. This map here saves all the "left-over" data and keeps
@@ -415,6 +425,49 @@ class UnitOfWork
     }
 
     /**
+     * Bind the translatable fields of the document in the specified locale.
+     *
+     * This method will update the @Locale field if it does not match the $locale argument.
+     *
+     * @param $document the document to persist a translation of
+     * @param $locale the locale this document currently has
+     *
+     * @throws PHPCRException if the document is not translatable
+     */
+    public function bindTranslation($document, $locale)
+    {
+        $state = $this->getDocumentState($document);
+        if ($state !== self::STATE_MANAGED) {
+            throw new \InvalidArgumentException("Document has to be managed to be able to bind a translation " . self::objToStr($document));
+        }
+
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if (!$this->isDocumentTranslatable($class)) {
+            throw new PHPCRException('This document is not translatable, do not use bindTranslation: ' . self::objToStr($document));
+        }
+
+        // Set the @Locale field
+        $localeField = $class->localeMapping['fieldName'];
+        if ($localeField) {
+            $class->reflFields[$localeField]->setValue($document, $locale);
+        }
+
+        $oid = spl_object_hash($document);
+        if (empty($this->documentTranslations[$oid])) {
+            $this->documentTranslations[$oid] = array();
+        }
+
+        foreach ($class->translatableFields as $field) {
+            $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
+        }
+
+        if (empty($this->documentLocales[$oid])) {
+            $this->documentLocales[$oid] = array('original' => $locale);
+        }
+        $this->documentLocales[$oid]['current'] = $locale;
+    }
+
+    /**
      * Schedule insertion of this document and cascade if neccessary.
      *
      * @param object $document
@@ -456,8 +509,6 @@ class UnitOfWork
                 throw new \InvalidArgumentException("Detached document passed to persist(): " . self::objToStr($document));
                 break;
         }
-
-        $this->doSaveTranslation($document, $class);
 
         $this->cascadeScheduleInsert($class, $document, $visited);
     }
@@ -697,7 +748,9 @@ class UnitOfWork
                     if ($class->nodename == $fieldName) {
                         throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document: '.self::objToStr($document));
                     }
-                    if ($class->parentMapping == $fieldName) {
+                    if ($class->parentMapping == $fieldName
+                        && null !== $this->originalData[$oid][$fieldName]
+                    ) {
                         throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
                     }
                     if ($class->identifier == $fieldName) {
@@ -710,6 +763,12 @@ class UnitOfWork
                         $changed = true;
                     }
                 }
+            }
+
+            if (isset($this->documentLocales[$oid])
+                && $this->documentLocales[$oid]['current'] !== $this->documentLocales[$oid]['original']
+            ) {
+                $changed = true;
             }
 
             if ($changed) {
@@ -841,27 +900,8 @@ class UnitOfWork
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
 
-        $oid = $this->registerManaged($document, $id, null);
+        $this->registerManaged($document, $id, null);
 
-        $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
-        $node = $parentNode->addNode(basename($id), $class->nodeType);
-        $this->nodesMap[$oid] = $node;
-
-        if ($class->identifier) {
-            $class->setIdentifierValue($document, $id);
-        }
-        if ($class->node) {
-            $class->reflFields[$class->node]->setValue($document, $node);
-        }
-        if ($class->nodename) {
-            // make sure this reflects the id generator strategy generated id
-            $class->reflFields[$class->nodename]->setValue($document, $node->getName());
-        }
-        if ($class->parentMapping) {
-            // TODO: only do this if its not already set? or do we always update to sanitize?
-            // make sure this reflects the id generator strategy generated id
-            $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
-        }
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
         }
@@ -905,7 +945,8 @@ class UnitOfWork
                 unset($this->scheduledRemovals[$oid], $this->scheduledUpdates[$oid],
                         $this->scheduledAssociationUpdates[$oid],
                         $this->originalData[$oid], $this->documentRevisions[$oid],
-                        $this->documentIds[$oid], $this->documentState[$oid]);
+                        $this->documentIds[$oid], $this->documentState[$oid],
+                        $this->documentTranslations[$oid], $this->documentLocales[$oid]);
                 break;
             case self::STATE_NEW:
             case self::STATE_DETACHED:
@@ -1015,6 +1056,7 @@ class UnitOfWork
             $col->takeSnapshot();
         }
 
+        $this->documentTranslations =
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledRemovals =
@@ -1031,7 +1073,27 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $this->nodesMap[$oid];
+            $id = $this->getDocumentId($document);
+            $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
+
+            $node = $parentNode->addNode(basename($id), $class->nodeType);
+            $this->nodesMap[$oid] = $node;
+
+            if ($class->identifier) {
+                $class->setIdentifierValue($document, $id);
+            }
+            if ($class->node) {
+                $class->reflFields[$class->node]->setValue($document, $node);
+            }
+            if ($class->nodename) {
+                // make sure this reflects the id generator strategy generated id
+                $class->reflFields[$class->nodename]->setValue($document, $node->getName());
+            }
+            if ($class->parentMapping) {
+                // TODO: only do this if its not already set? or do we always update to sanitize?
+                // make sure this reflects the id generator strategy generated id
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
+            }
 
             if ($this->writeMetadata) {
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
@@ -1085,7 +1147,7 @@ class UnitOfWork
                 }
             }
 
-            $this->doSaveTranslation($document, $class);
+            $this->doSaveTranslation($document, $node, $class);
 
             if (isset($class->lifecycleCallbacks[Event::postPersist])) {
                 $class->invokeLifecycleCallbacks(Event::postPersist, $document);
@@ -1191,7 +1253,7 @@ class UnitOfWork
                 }
             }
 
-            $this->doSaveTranslation($document, $class);
+            $this->doSaveTranslation($document, $node, $class);
 
             if ($dispatchEvents) {
                 if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
@@ -1391,7 +1453,8 @@ class UnitOfWork
             unset($this->identityMap[$this->documentIds[$oid]],
                   $this->documentIds[$oid],
                   $this->documentRevisions[$oid],
-                  $this->documentState[$oid]);
+                  $this->documentState[$oid],
+                  $this->documentTranslations[$oid]);
 
             return true;
         }
@@ -1565,6 +1628,8 @@ class UnitOfWork
         $this->documentIds =
         $this->documentRevisions =
         $this->documentState =
+        $this->documentTranslations =
+        $this->documentLocales =
         $this->nonMappedData =
         $this->originalData =
         $this->documentChangesets =
@@ -1590,22 +1655,40 @@ class UnitOfWork
             throw new PHPCRException('This document is not translatable: : '.self::objToStr($document));
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
+        $oid = spl_object_hash($document);
 
-        return $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+        if (isset($this->nodesMap[$oid])) {
+            $node = $this->nodesMap[$oid];
+            $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+        } else {
+            $locales = array();
+        }
+
+        if (isset($this->documentTranslations[$oid])) {
+            $locales = array_unique(array_merge($locales, array_keys($this->documentTranslations[$oid])));
+        }
+
+        return $locales;
     }
 
-    protected function doSaveTranslation($document, $metadata)
+    protected function doSaveTranslation($document, $node, $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
         $locale = $this->getLocale($document, $metadata);
+        if ($locale) {
+            $this->bindTranslation($document, $locale);
+        }
 
-        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-        $strategy->saveTranslation($document, $node, $metadata, $locale);
+        $oid = spl_object_hash($document);
+        if (!empty($this->documentTranslations[$oid])) {
+            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+            foreach ($this->documentTranslations[$oid] as $locale => $data) {
+                $strategy->saveTranslation($data, $node, $metadata, $locale);
+            }
+        }
     }
 
     /**
@@ -1642,7 +1725,8 @@ class UnitOfWork
             $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
+        $oid = spl_object_hash($document);
+        $node = $this->nodesMap[$oid];
 
         $translationFound = false;
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
@@ -1663,6 +1747,8 @@ class UnitOfWork
         if ($localeField = $metadata->localeMapping['fieldName']) {
             $metadata->reflFields[$localeField]->setValue($document, $localeUsed);
         }
+
+        $this->documentLocales[$oid] = array('original' => $locale, 'current' => $locale);
     }
 
     protected function doRemoveTranslation($document, $metadata, $locale)
@@ -1696,17 +1782,25 @@ class UnitOfWork
 
     protected function getLocale($document, $metadata)
     {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
         $localeField = $metadata->localeMapping['fieldName'];
         if ($localeField) {
             $locale = $metadata->reflFields[$localeField]->getValue($document);
-            if (!$locale) {
+        }
+
+        if (!$locale) {
+            $oid = spl_object_hash($document);
+            if (isset($this->documentLocales[$oid]['current'])) {
+                $locale = $this->documentLocales[$oid]['current'];
+            } else {
                 $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
             }
-
-            return $locale;
         }
-        // TODO: implement tracking @Locale without locale field
-        throw new \RuntimeException("Locale not implemented: ".self::objToStr($document));
+
+        return $locale;
     }
 
     /**
@@ -1731,7 +1825,7 @@ class UnitOfWork
      */
     public function isDocumentTranslatable($metadata)
     {
-        return ! empty($metadata->translator)
+        return !empty($metadata->translator)
             && is_string($metadata->translator)
             && count($metadata->translatableFields) !== 0;
     }
