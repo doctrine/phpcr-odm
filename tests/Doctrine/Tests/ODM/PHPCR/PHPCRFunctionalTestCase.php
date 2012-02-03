@@ -28,8 +28,10 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
                     $params[substr($key, strlen('jackalope.doctrine.dbal.'))] = $value;
                 }
             }
-
-            $GLOBALS['jackalope.doctrine_dbal_connection'] = \Doctrine\DBAL\DriverManager::getConnection($params);;
+            if (isset($params['username'])) {
+                $params['user'] = $params['username'];
+            }
+            $GLOBALS['jackalope.doctrine_dbal_connection'] = \Doctrine\DBAL\DriverManager::getConnection($params);
         }
 
         $parameters = array_intersect_key($GLOBALS, $factoryclass::getConfigurationKeys());
