@@ -1122,9 +1122,15 @@ class UnitOfWork
                 $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
             if ($class->parentMapping) {
-                // TODO: only do this if its not already set? or do we always update to sanitize?
                 // make sure this reflects the id generator strategy generated id
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $node->getParent()));
+                if (!$class->reflFields[$class->parentMapping]->getValue($document)) {
+                    $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
+                } else {
+                    // TODO this might not even be necessary
+                    $parent = $class->reflFields[$class->parentMapping]->getValue($document);
+                    $parentOid = spl_object_hash($parent);
+                    $this->nodesMap[$parentOid] = $parentNode;
+                }
             }
 
             if ($this->writeMetadata) {
