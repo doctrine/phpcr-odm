@@ -107,6 +107,26 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename/child', $child->id);
     }
 
+    public function testInsertGrandchildWithParentIdStrategy()
+    {
+        $this->testInsertWithParentIdStrategy();
+
+        $doc = $this->dm->find($this->type, '/functional/thename/child');
+
+        $grandchild = new NameDoc();
+        $grandchild->parent = $doc;
+        $grandchild->nodename = 'grandchild';
+
+        $doc->children = array($grandchild);
+
+        $this->dm->persist($grandchild);
+
+        $this->dm->flush();
+
+        $this->assertTrue($this->node->getNode('thename')->getNode('child')->hasNode('grandchild'));
+        $this->assertEquals('/functional/thename/child/grandchild', $grandchild->id);
+    }
+
     public function testInsertChildWithNewParent()
     {
         $parent = new NameDoc();
@@ -124,6 +144,35 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->node->getNode('parent')->hasNode('child'));
         $this->assertEquals('/functional/parent/child', $child->id);
+    }
+
+    public function testInsertGrandchildWithNewParent()
+    {
+        $parent = new NameDoc();
+        $parent->id = '/functional/parent';
+
+        $child = new NameDoc();
+        $child->parent = $parent;
+        $child->nodename = 'child';
+
+        $parent->children = array($child);
+
+        # the granchild document
+        $grandchild = new NameDoc();
+        $grandchild->parent = $child;
+        $grandchild->nodename = 'grandchild';
+
+        $child->children = array($grandchild);
+
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+
+        $this->assertTrue($this->node->getNode('parent')->hasNode('child'));
+        $this->assertEquals('/functional/parent/child', $child->id);
+
+        $this->assertTrue($this->node->getNode('parent')->getNode('child')->hasNode('grandchild'));
+        $this->assertEquals('/functional/parent/child/grandchild', $grandchild->id);
     }
 
     function testProxyForParentIsUsed()
