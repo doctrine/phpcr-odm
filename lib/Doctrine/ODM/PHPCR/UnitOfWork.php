@@ -1153,8 +1153,9 @@ class UnitOfWork
 
             if ($class->versionable) {
                 $this->setVersionableMixin($class, $node);
-            } elseif ($class->referenceable) {
-                // referenceable is a supertype of versionable, only set if not versionable
+            }
+
+            if ($class->referenceable) {
                 $node->addMixin('mix:referenceable');
             }
 
