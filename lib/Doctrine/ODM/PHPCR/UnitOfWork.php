@@ -1103,6 +1103,8 @@ class UnitOfWork
             throw $e;
         }
 
+        $this->session->refresh(true);
+
         foreach ($this->visitedCollections as $col) {
             $col->takeSnapshot();
         }
