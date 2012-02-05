@@ -92,6 +92,22 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
+    public function testInsertChildWithManualPath()
+    {
+        $parent = new NameDoc();
+        $parent->id = '/functional/parent';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+
+        $child = new NameDoc();
+        $child->id = '/functional/parent/child';
+        $child->title = 'foo';
+
+        $this->dm->persist($child);
+        $this->dm->flush();
+    }
+
     public function testInsertWithParentIdStrategy()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
