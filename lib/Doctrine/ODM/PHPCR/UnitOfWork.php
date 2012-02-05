@@ -1891,16 +1891,17 @@ class UnitOfWork
     {
         if ($metadata->versionable === 'full') {
             $this->checkFullVersioning($metadata, $node);
-        } elseif ($metadata->versionable === 'simple') {
-            $node->addMixin('mix:simpleVersionable');
-        }
+        } else {
+            if ($metadata->versionable === 'simple') {
+                $node->addMixin('mix:simpleVersionable');
+            }
 
-        if ($metadata->referenceable) {
-            $node->addMixin('mix:referenceable');
+            if ($metadata->referenceable) {
+                $node->addMixin('mix:referenceable');
+            }
         }
 
         // we manually set the uuid to allow creating referenced and referencing document without flush in between.
-        // this check has to be done after any mixin types are set.
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
             // TODO do we need to check with the storage backend if the generated id really is unique?
             $node->setProperty('jcr:uuid', UUIDHelper::generateUUID());
