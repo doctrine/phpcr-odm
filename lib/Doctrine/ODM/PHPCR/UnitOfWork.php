@@ -1157,17 +1157,9 @@ class UnitOfWork
                 if ($class->versionable === 'simple') {
                     $node->addMixin('mix:simpleVersionable');
                 }
-                if ($class->referenceable) {
-                    $node->addMixin('mix:referenceable');
-                }
             }
 
-            // we manually set the uuid to allow creating referenced and referencing document without flush in between.
-            // this check has to be done after any mixin types are set.
-            if ($node->isNodeType('mix:referenceable')) {
-                // TODO do we need to check with the storage backend if the generated id really is unique?
-                $node->setProperty("jcr:uuid", \PHPCR\Util\UUIDHelper::generateUUID());
-            }
+            $this->checkReferenceable($class, $node);
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
@@ -1268,7 +1260,8 @@ class UnitOfWork
                                 }
                                 $refOid = spl_object_hash($fv);
                                 $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                if (!$refClass->referenceable) {
+                                $this->checkReferenceable($refClass, $this->nodesMap[$refOid]);
+                                if (!$this->nodesMap[$refOid]->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document), get_class($fv)));
                                 }
                                 $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
@@ -1282,7 +1275,8 @@ class UnitOfWork
                         if (isset($fieldValue)) {
                             $refOid = spl_object_hash($fieldValue);
                             $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                            if (!$refClass->referenceable) {
+                            $this->checkReferenceable($refClass, $this->nodesMap[$refOid]);
+                            if (!$this->nodesMap[$refOid]->isNodeType('mix:referenceable')) {
                                 throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document), get_class($fieldValue)));
                             }
                             $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $this->nodesMap[$refOid]->getIdentifier(), $type);
@@ -1892,5 +1886,19 @@ class UnitOfWork
         }
 
         $node->addMixin('mix:versionable');
+    }
+
+    protected function checkReferenceable(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    {
+        if (!$node->isNodeType('mix:referenceable') && $metadata->referenceable) {
+            $node->addMixin('mix:referenceable');
+        }
+
+        // we manually set the uuid to allow creating referenced and referencing document without flush in between.
+        // this check has to be done after any mixin types are set.
+        if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
+            // TODO do we need to check with the storage backend if the generated id really is unique?
+            $node->setProperty('jcr:uuid', \PHPCR\Util\UUIDHelper::generateUUID());
+        }
     }
 }
