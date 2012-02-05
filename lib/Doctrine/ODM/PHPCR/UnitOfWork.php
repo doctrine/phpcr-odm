@@ -1151,12 +1151,15 @@ class UnitOfWork
                 throw new PHPCRException("Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
             }
 
-            if ($class->versionable) {
-                $this->setVersionableMixin($class, $node);
-            }
-
-            if ($class->referenceable) {
-                $node->addMixin('mix:referenceable');
+            if ($class->versionable === 'full') {
+                $node->addMixin('mix:versionable');
+            } else {
+                if ($class->versionable === 'simple') {
+                    $node->addMixin('mix:simpleVersionable');
+                }
+                if ($class->referenceable) {
+                    $node->addMixin('mix:referenceable');
+                }
             }
 
             // we manually set the uuid to allow creating referenced and referencing document without flush in between.
@@ -1396,7 +1399,7 @@ class UnitOfWork
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
-        $this->setVersionableMixin($this->dm->getClassMetadata(get_class($document)), $node);
+        $this->checkFullVersioning($this->dm->getClassMetadata(get_class($document)), $node);
         $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkin($path); // Checkin Node aka make a new Version
     }
@@ -1410,7 +1413,7 @@ class UnitOfWork
     {
         $path = $this->getDocumentId($document);
         $node = $this->session->getNode($path);
-        $this->setVersionableMixin($this->dm->getClassMetadata(get_class($document)), $node);
+        $this->checkFullVersioning($this->dm->getClassMetadata(get_class($document)), $node);
         $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkout($path);
     }
@@ -1882,14 +1885,12 @@ class UnitOfWork
         return method_exists($obj, '__toString') ? (string)$obj : get_class($obj) . '@' . spl_object_hash($obj);
     }
 
-    protected function setVersionableMixin(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    protected function checkFullVersioning(Mapping\ClassMetadata $metadata, NodeInterface $node)
     {
-        if ($metadata->versionable === 'simple') {
-            $node->addMixin('mix:simpleVersionable');
-        } elseif ($metadata->versionable === 'full') {
-            $node->addMixin('mix:versionable');
-        } else {
-            throw new \InvalidArgumentException(sprintf("The document at '%s' is not versionable", $node->getPath()));
+        if ($metadata->versionable !== 'full') {
+            throw new \InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $node->getPath()));
         }
+
+        $node->addMixin('mix:versionable');
     }
 }
