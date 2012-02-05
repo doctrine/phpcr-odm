@@ -1156,13 +1156,7 @@ class UnitOfWork
                 throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
             }
 
-            if ($class->versionable === 'full') {
-                $node->addMixin('mix:versionable');
-            } elseif ($class->versionable === 'simple') {
-                $node->addMixin('mix:simpleVersionable');
-            }
-
-            $this->checkReferenceable($class, $node);
+            $this->setMixins($class, $node);
 
             foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
@@ -1263,7 +1257,7 @@ class UnitOfWork
                                 }
                                 $refOid = spl_object_hash($fv);
                                 $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                $this->checkReferenceable($refClass, $this->nodesMap[$refOid]);
+                                $this->setMixins($refClass, $this->nodesMap[$refOid]);
                                 if (!$this->nodesMap[$refOid]->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document), get_class($fv)));
                                 }
@@ -1278,7 +1272,7 @@ class UnitOfWork
                         if (isset($fieldValue)) {
                             $refOid = spl_object_hash($fieldValue);
                             $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                            $this->checkReferenceable($refClass, $this->nodesMap[$refOid]);
+                            $this->setMixins($refClass, $this->nodesMap[$refOid]);
                             if (!$this->nodesMap[$refOid]->isNodeType('mix:referenceable')) {
                                 throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document), get_class($fieldValue)));
                             }
@@ -1888,16 +1882,21 @@ class UnitOfWork
         }
 
         $node->addMixin('mix:versionable');
+        if (!$node->isNodeType('mix:referenceable')) {
+            $node->addMixin('mix:referenceable');
+        }
     }
 
-    protected function checkReferenceable(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    protected function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)
     {
-        if (!$node->isNodeType('mix:referenceable')) {
-            if ($metadata->versionable === 'full') {
-                $node->addMixin('mix:versionable');
-            } elseif ($metadata->referenceable) {
-                $node->addMixin('mix:referenceable');
-            }
+        if ($metadata->versionable === 'full') {
+            $this->checkFullVersioning($metadata, $node);
+        } elseif ($metadata->versionable === 'simple') {
+            $node->addMixin('mix:simpleVersionable');
+        }
+
+        if ($metadata->referenceable) {
+            $node->addMixin('mix:referenceable');
         }
 
         // we manually set the uuid to allow creating referenced and referencing document without flush in between.
