@@ -289,7 +289,7 @@ class UnitOfWork
         foreach ($class->associationsMappings as $assocName => $assocOptions) {
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
                 // TODO figure this one out which collection should be used
-                if (! $node->hasProperty($assocOptions['fieldName'])) {
+                if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
 
@@ -301,7 +301,7 @@ class UnitOfWork
                     $referencedNode, $referencedClass
                 );
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
-                if (! $node->hasProperty($assocOptions['fieldName'])) {
+                if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
 
@@ -438,12 +438,12 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new \InvalidArgumentException("Document has to be managed to be able to bind a translation " . self::objToStr($document));
+            throw new \InvalidArgumentException("Document has to be managed to be able to bind a translation ".self::objToStr($document));
         }
 
         $class = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($class)) {
-            throw new PHPCRException('This document is not translatable, do not use bindTranslation: ' . self::objToStr($document));
+            throw new PHPCRException('This document is not translatable, do not use bindTranslation: '.self::objToStr($document));
         }
 
         // Set the @Locale field
@@ -506,7 +506,7 @@ class UnitOfWork
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException("Detached document passed to persist(): " . self::objToStr($document));
+                throw new \InvalidArgumentException("Detached document passed to persist(): ".self::objToStr($document));
                 break;
         }
 
@@ -526,15 +526,15 @@ class UnitOfWork
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
                     if (is_array($related) || $related instanceof Collection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection: " . self::objToStr($document));
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection: ".self::objToStr($document));
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
-                    if (!is_array($related) && ! $related instanceof Collection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: " . self::objToStr($document));
+                    if (!is_array($related) && !$related instanceof Collection) {
+                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: ".self::objToStr($document));
                     }
                     foreach ($related as $relatedDocument) {
                         if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
@@ -550,7 +550,7 @@ class UnitOfWork
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $id = $class->getIdentifierValue($document);
-                $childClass->setIdentifierValue($child, $id . '/' . $mapping['name']);
+                $childClass->setIdentifierValue($child, $id.'/'.$mapping['name']);
                 $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
@@ -569,7 +569,7 @@ class UnitOfWork
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
                         : basename($childClass->getIdentifierValue($child));
-                    $childClass->setIdentifierValue($child, $id . '/' . $nodename);
+                    $childClass->setIdentifierValue($child, $id.'/'.$nodename);
                     $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
@@ -675,7 +675,7 @@ class UnitOfWork
         if ($document) {
             $state = $this->getDocumentState($document);
             if ($state !== self::STATE_MANAGED) {
-                throw new \InvalidArgumentException("Document has to be managed for single computation " . self::objToStr($document));
+                throw new \InvalidArgumentException("Document has to be managed for single computation ".self::objToStr($document));
             }
 
             foreach ($this->scheduledInserts as $insertedDocument) {
@@ -754,19 +754,19 @@ class UnitOfWork
                 && isset($actualData[$class->nodename])
                 && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
             ) {
-                throw new PHPCRException('The Nodename property is immutable (' . $this->originalData[$oid][$class->nodename] . ' !== ' . $actualData[$class->nodename] . '). Please use PHPCR\Session::move to rename the document: ' . self::objToStr($document));
+                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use PHPCR\Session::move to rename the document: '.self::objToStr($document));
             }
             if (isset($this->originalData[$oid][$class->parentMapping])
                 && isset($actualData[$class->parentMapping])
                 && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
             ) {
-                throw new PHPCRException('The ParentDocument property is immutable (' . $class->getIdentifierValue($this->originalData[$oid][$class->parentMapping]) . ' !== ' . $class->getIdentifierValue($actualData[$class->parentMapping]) . '). Please use PHPCR\Session::move to move the document: ' . self::objToStr($document));
+                throw new PHPCRException('The ParentDocument property is immutable ('.$class->getIdentifierValue($this->originalData[$oid][$class->parentMapping]).' !== '.$class->getIdentifierValue($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
             }
             if (isset($this->originalData[$oid][$class->identifier])
                 && isset($actualData[$class->identifier])
                 && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
             ) {
-                throw new PHPCRException('The Id is immutable (' . $this->originalData[$oid][$class->identifier] . ' !== ' . $actualData[$class->identifier] . '). Please use PHPCR\Session::move to move the document: ' . self::objToStr($document));
+                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
             }
 
             // Document is "fully" MANAGED: it was already fully persisted before
@@ -819,7 +819,7 @@ class UnitOfWork
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException("Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: " . self::objToStr($document));
+                    throw new PHPCRException("Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: ".self::objToStr($document));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -859,7 +859,7 @@ class UnitOfWork
         $state = $this->getDocumentState($child);
 
         if ($state === self::STATE_NEW) {
-            $targetClass->setIdentifierValue($child, $parentId . '/' . $mapping['name']);
+            $targetClass->setIdentifierValue($child, $parentId.'/'.$mapping['name']);
             $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $child);
         } elseif ($state === self::STATE_REMOVED) {
@@ -1648,7 +1648,7 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         if (empty($this->documentIds[$oid])) {
-            throw new PHPCRException("Document is not managed and has no id: " . self::objToStr($document));
+            throw new PHPCRException("Document is not managed and has no id: ".self::objToStr($document));
         }
         return $this->documentIds[$oid];
     }
@@ -1767,7 +1767,7 @@ class UnitOfWork
         // Determine which languages we will try to load
         if (!$fallback) {
             if (null === $locale) {
-                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled: " . self::objToStr($document));
+                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled: ".self::objToStr($document));
             }
 
             $localesToTry = array($locale);
@@ -1790,7 +1790,7 @@ class UnitOfWork
 
         if (!$translationFound) {
             // We tried each possible language without finding the translations
-            throw new \RuntimeException("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: " . var_export($localesToTry, true));
+            throw new \RuntimeException("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: ".var_export($localesToTry, true));
         }
 
         // Set the locale
@@ -1882,7 +1882,7 @@ class UnitOfWork
 
     private static function objToStr($obj)
     {
-        return method_exists($obj, '__toString') ? (string)$obj : get_class($obj) . '@' . spl_object_hash($obj);
+        return method_exists($obj, '__toString') ? (string)$obj : get_class($obj).'@'.spl_object_hash($obj);
     }
 
     protected function checkFullVersioning(Mapping\ClassMetadata $metadata, NodeInterface $node)
