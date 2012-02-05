@@ -750,6 +750,25 @@ class UnitOfWork
             $this->documentChangesets[$oid] = $actualData;
             $this->scheduledInserts[$oid] = $document;
         } else {
+            if (isset($this->originalData[$oid][$class->nodename])
+                && isset($actualData[$class->nodename])
+                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
+             ) {
+                throw new PHPCRException('The Nodename property is immutable (' . $this->originalData[$oid][$class->nodename] . ' !== ' . $actualData[$class->nodename] . '). Please use PHPCR\Session::move to rename the document: ' . self::objToStr($document));
+            }
+            if (isset($this->originalData[$oid][$class->parentMapping])
+                && isset($actualData[$class->parentMapping])
+                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
+            ) {
+                throw new PHPCRException('The ParentDocument property is immutable (' . $class->getIdentifierValue($this->originalData[$oid][$class->parentMapping]) . ' !== ' . $class->getIdentifierValue($actualData[$class->parentMapping]) . '). Please use PHPCR\Session::move to move the document: ' . self::objToStr($document));
+            }
+            if (isset($this->originalData[$oid][$class->identifier])
+                && isset($actualData[$class->identifier])
+                && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
+                ) {
+                throw new PHPCRException('The Id is immutable (' . $this->originalData[$oid][$class->identifier] . ' !== ' . $actualData[$class->identifier] . '). Please use PHPCR\Session::move to move the document: ' . self::objToStr($document));
+            }
+
             // Document is "fully" MANAGED: it was already fully persisted before
             // and we have a copy of the original data
 
@@ -775,17 +794,6 @@ class UnitOfWork
                         break;
                     }
                 } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
-                    if ($class->nodename == $fieldName) {
-                        throw new PHPCRException('The Nodename property is immutable. Please use PHPCR\Session::move to rename the document: '.self::objToStr($document));
-                    }
-                    if ($class->parentMapping == $fieldName
-                        && null !== $this->originalData[$oid][$fieldName]
-                    ) {
-                        throw new PHPCRException('The ParentDocument property is immutable. Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
-                    }
-                    if ($class->identifier == $fieldName) {
-                        throw new PHPCRException('The Id is immutable. Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
-                    }
                     $changed = true;
                     break;
                 } elseif ($fieldValue instanceof ReferenceManyCollection) {

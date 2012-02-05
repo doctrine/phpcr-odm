@@ -109,7 +109,14 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testInsertGrandchildWithParentIdStrategy()
     {
-        $this->testInsertWithParentIdStrategy();
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $child = new NameDoc();
+        $child->parent = $doc;
+        $child->nodename = 'child';
+
+        $this->dm->persist($child);
+
+        $this->dm->flush();
 
         $doc = $this->dm->find($this->type, '/functional/thename/child');
 
