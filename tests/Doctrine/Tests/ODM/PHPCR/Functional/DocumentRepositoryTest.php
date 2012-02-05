@@ -70,14 +70,14 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $this->dm->flush();
 
         $users1 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('username' =>'beberlei'));
-        $this->assertEquals(1, count($users1));
+        $this->assertCount(1, $users1);
         $this->assertEquals($user1->username, $users1['/functional/user1']->username);
 
         $users2 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'));
-        $this->assertEquals(2, count($users2));
+        $this->assertCount(2, $users2);
 
         $users3 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), null, 1);
-        $this->assertEquals(1, count($users3));
+        $this->assertCount(1, $users3);
 
         $users4 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name'), 2, 0);
         reset($users4);

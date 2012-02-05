@@ -141,9 +141,9 @@ class DocumentRepository implements ObjectRepository
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qf = $this->dm->getPhpcrSession()->getWorkspace()->getQueryManager()->getQOMFactory();
+        $qf = $qb->getQOMFactory();
 
-        $qb->from($qf->selector($this->dm->getClassMetadata($this->className)->nodeType));
+        $qb->from($qf->selector($this->class->nodeType));
         $qb->andWhere($qf->comparison($qf->propertyValue('[phpcr:class]'), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($this->className)));
         if ($limit) {
             $qb->setMaxResults($limit);
@@ -164,7 +164,7 @@ class DocumentRepository implements ObjectRepository
         $documents = array();
 
         foreach ($nodes as $path => $node) {
-            $documents[$path] = $this->dm->getunitOfWork()->createDocument($this->className, $node);
+            $documents[$path] = $this->uow->createDocument($this->className, $node);
         }
 
         return $documents;
