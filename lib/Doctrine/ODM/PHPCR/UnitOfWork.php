@@ -1892,8 +1892,12 @@ class UnitOfWork
 
     protected function checkReferenceable(Mapping\ClassMetadata $metadata, NodeInterface $node)
     {
-        if (!$node->isNodeType('mix:referenceable') && $metadata->referenceable) {
-            $node->addMixin('mix:referenceable');
+        if (!$node->isNodeType('mix:referenceable')) {
+            if ($metadata->versionable === 'full') {
+                $node->addMixin('mix:versionable');
+            } elseif ($metadata->referenceable) {
+                $node->addMixin('mix:referenceable');
+            }
         }
 
         // we manually set the uuid to allow creating referenced and referencing document without flush in between.
