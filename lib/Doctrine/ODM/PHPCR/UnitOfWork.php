@@ -753,7 +753,7 @@ class UnitOfWork
             if (isset($this->originalData[$oid][$class->nodename])
                 && isset($actualData[$class->nodename])
                 && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
-             ) {
+            ) {
                 throw new PHPCRException('The Nodename property is immutable (' . $this->originalData[$oid][$class->nodename] . ' !== ' . $actualData[$class->nodename] . '). Please use PHPCR\Session::move to rename the document: ' . self::objToStr($document));
             }
             if (isset($this->originalData[$oid][$class->parentMapping])
@@ -765,7 +765,7 @@ class UnitOfWork
             if (isset($this->originalData[$oid][$class->identifier])
                 && isset($actualData[$class->identifier])
                 && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
-                ) {
+            ) {
                 throw new PHPCRException('The Id is immutable (' . $this->originalData[$oid][$class->identifier] . ' !== ' . $actualData[$class->identifier] . '). Please use PHPCR\Session::move to move the document: ' . self::objToStr($document));
             }
 
@@ -1082,7 +1082,7 @@ class UnitOfWork
                 if ($utx) {
                     $utx->rollback();
                 }
-            } catch(\Exception $innerException) {
+            } catch (\Exception $innerException) {
                 //TODO: log error while closing dm after error: $innerException->getMessage
             }
             throw $e;
@@ -1189,7 +1189,7 @@ class UnitOfWork
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
                     }
-                }  elseif (isset($class->associationsMappings[$fieldName])) {
+                } elseif (isset($class->associationsMappings[$fieldName])) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
                 }
             }
@@ -1259,7 +1259,7 @@ class UnitOfWork
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
                             $refNodesIds = array();
-                            foreach ($fieldValue as $fv ) {
+                            foreach ($fieldValue as $fv) {
                                 if ($fv === null) {
                                     continue;
                                 }
@@ -1353,17 +1353,17 @@ class UnitOfWork
 
         try {
             $history = $versionManager->getVersionHistory($id);
-        } catch(\PHPCR\ItemNotFoundException $e) {
+        } catch (\PHPCR\ItemNotFoundException $e) {
             // there is no document with $id
             return null;
-        } catch(\PHPCR\UnsupportedRepositoryOperationException $e) {
+        } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
             throw new \InvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
         }
 
         try {
             $version = $history->getVersion($versionName);
             $node = $version->getFrozenNode();
-        } catch(\PHPCR\RepositoryException $e) {
+        } catch (\PHPCR\RepositoryException $e) {
             throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
         }
 
