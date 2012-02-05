@@ -159,23 +159,6 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Get all the Predecessors of a certain document.
-     *
-     * @param object $document
-     * @return array of documents
-     */
-    public function getPredecessors($document)
-    {
-        $predecessorNodes = $this->uow->getPredecessors($document);
-
-        $objects = $hints = array();
-        foreach ($predecessorNodes as $node) {
-            $objects[] = $this->createDocument($node, $hints);
-        }
-        return $objects;
-    }
-
-    /**
      * @param  object $document
      * @return object Document instance
      */
