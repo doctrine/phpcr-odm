@@ -29,6 +29,11 @@ use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
+use PHPCR\NodeType\NoSuchNodeTypeException;
+use PHPCR\ItemNotFoundException;
+use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\RepositoryException;
+use PHPCR\Util\UUIDHelper;
 
 /**
  * Unit of work class
@@ -308,7 +313,7 @@ class UnitOfWork
                 // get the already cached referenced nodes
                 $proxyNodes = $node->getPropertyValue($assocOptions['fieldName']);
                 if (!is_array($proxyNodes)) {
-                    throw new PHPCRException("Expected referenced nodes passed as array.");
+                    throw new PHPCRException('Expected referenced nodes passed as array.');
                 }
 
                 $referencedDocs = array();
@@ -438,7 +443,7 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new \InvalidArgumentException("Document has to be managed to be able to bind a translation ".self::objToStr($document));
+            throw new \InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document));
         }
 
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -506,7 +511,7 @@ class UnitOfWork
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException("Detached document passed to persist(): ".self::objToStr($document));
+                throw new \InvalidArgumentException('Detached document passed to persist(): '.self::objToStr($document));
                 break;
         }
 
@@ -526,7 +531,7 @@ class UnitOfWork
             if ($related !== null) {
                 if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
                     if (is_array($related) || $related instanceof Collection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-one property. Don't use array notation or a (ReferenceMany)Collection: ".self::objToStr($document));
+                        throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document));
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
@@ -534,7 +539,7 @@ class UnitOfWork
                     }
                 } else {
                     if (!is_array($related) && !$related instanceof Collection) {
-                        throw new PHPCRException("Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: ".self::objToStr($document));
+                        throw new PHPCRException('Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document));
                     }
                     foreach ($related as $relatedDocument) {
                         if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
@@ -675,7 +680,7 @@ class UnitOfWork
         if ($document) {
             $state = $this->getDocumentState($document);
             if ($state !== self::STATE_MANAGED) {
-                throw new \InvalidArgumentException("Document has to be managed for single computation ".self::objToStr($document));
+                throw new \InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document));
             }
 
             foreach ($this->scheduledInserts as $insertedDocument) {
@@ -819,7 +824,7 @@ class UnitOfWork
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException("Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: ".self::objToStr($document));
+                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($document));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -863,9 +868,9 @@ class UnitOfWork
             $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             $this->computeChangeSet($targetClass, $child);
         } elseif ($state === self::STATE_REMOVED) {
-            throw new \InvalidArgumentException("Removed child document detected during flush");
+            throw new \InvalidArgumentException('Removed child document detected during flush');
         } elseif ($state === self::STATE_DETACHED) {
-            throw new \InvalidArgumentException("A detached document was found through a child relationship during cascading a persist operation.");
+            throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
         }
     }
 
@@ -885,7 +890,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $reference);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException("A detached document was found through a reference during cascading a persist operation.");
+                throw new \InvalidArgumentException('A detached document was found through a reference during cascading a persist operation.');
         }
     }
 
@@ -905,7 +910,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException("A detached document was found through a referrer during cascading a persist operation.");
+                throw new \InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation.');
         }
     }
 
@@ -1057,7 +1062,7 @@ class UnitOfWork
             } else {
                 $utx->begin();
             }
-        } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+        } catch (UnsupportedRepositoryOperationException $e) {
             $utx = null;
         }
 
@@ -1147,16 +1152,14 @@ class UnitOfWork
 
             try {
                 $node->addMixin('phpcr:managed');
-            } catch (\PHPCR\NodeType\NoSuchNodeTypeException $e) {
-                throw new PHPCRException("Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed");
+            } catch (NoSuchNodeTypeException $e) {
+                throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
             }
 
             if ($class->versionable === 'full') {
                 $node->addMixin('mix:versionable');
-            } else {
-                if ($class->versionable === 'simple') {
-                    $node->addMixin('mix:simpleVersionable');
-                }
+            } elseif ($class->versionable === 'simple') {
+                $node->addMixin('mix:simpleVersionable');
             }
 
             $this->checkReferenceable($class, $node);
@@ -1168,7 +1171,7 @@ class UnitOfWork
                 }
 
                 if (isset($class->fieldMappings[$fieldName])) {
-                    $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
+                    $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if (null === $fieldValue && $node->hasProperty($class->fieldMappings[$fieldName]['name'])) {
                         // Check whether we can remove the property first
                         $property = $node->getProperty($class->fieldMappings[$fieldName]['name']);
@@ -1234,7 +1237,7 @@ class UnitOfWork
                 }
 
                 if (isset($class->fieldMappings[$fieldName])) {
-                    $type = \PHPCR\PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
+                    $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
                         $value = $fieldValue === null ? null : $fieldValue->toArray();
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
@@ -1249,7 +1252,7 @@ class UnitOfWork
                     }
 
                     $type = $class->associationsMappings[$fieldName]['weak']
-                        ? \PHPCR\PropertyType::WEAKREFERENCE : \PHPCR\PropertyType::REFERENCE;
+                        ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
 
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
@@ -1292,7 +1295,7 @@ class UnitOfWork
                             $child->remove();
                         }
                     } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw new PHPCRException("Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.");
+                        throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.');
                     }
                 }
             }
@@ -1350,17 +1353,17 @@ class UnitOfWork
 
         try {
             $history = $versionManager->getVersionHistory($id);
-        } catch (\PHPCR\ItemNotFoundException $e) {
+        } catch (ItemNotFoundException $e) {
             // there is no document with $id
             return null;
-        } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+        } catch (UnsupportedRepositoryOperationException $e) {
             throw new \InvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
         }
 
         try {
             $version = $history->getVersion($versionName);
             $node = $version->getFrozenNode();
-        } catch (\PHPCR\RepositoryException $e) {
+        } catch (RepositoryException $e) {
             throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
         }
 
@@ -1578,8 +1581,7 @@ class UnitOfWork
      * the document needs to match the given name and must store a reference of the
      * given type.
      * @param $document document instance which referrers should be loaded
-     * @param string $type optional type of the reference the referrer should have
-     * ("weak" or "hard")
+     * @param string $type optional type of the reference the referrer should have ('weak' or 'hard')
      * @param string $name optional name to match on referrers reference property
      * name
      * @return a collection of referrer documents
@@ -1596,9 +1598,9 @@ class UnitOfWork
         if ($type === null) {
             $referrerPropertiesW = $node->getWeakReferences($name);
             $referrerPropertiesH = $node->getReferences($name);
-        } elseif ($type === "weak") {
+        } elseif ($type === 'weak') {
             $referrerPropertiesW = $node->getWeakReferences($name);
-        } elseif ($type === "hard") {
+        } elseif ($type === 'hard') {
             $referrerPropertiesH = $node->getReferences($name);
         }
 
@@ -1642,7 +1644,7 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         if (empty($this->documentIds[$oid])) {
-            throw new PHPCRException("Document is not managed and has no id: ".self::objToStr($document));
+            throw new PHPCRException('Document is not managed and has no id: '.self::objToStr($document));
         }
         return $this->documentIds[$oid];
     }
@@ -1761,7 +1763,7 @@ class UnitOfWork
         // Determine which languages we will try to load
         if (!$fallback) {
             if (null === $locale) {
-                throw new \InvalidArgumentException("Error while loading the translations: no locale specified and the language fallback is disabled: ".self::objToStr($document));
+                throw new \InvalidArgumentException('Error while loading the translations: no locale specified and the language fallback is disabled: '.self::objToStr($document));
             }
 
             $localesToTry = array($locale);
@@ -1784,7 +1786,7 @@ class UnitOfWork
 
         if (!$translationFound) {
             // We tried each possible language without finding the translations
-            throw new \RuntimeException("No translation for ".$node->getPath()." found with strategy '".$metadata->translator."'. Tried the following locales: ".var_export($localesToTry, true));
+            throw new \RuntimeException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
         }
 
         // Set the locale
@@ -1898,7 +1900,7 @@ class UnitOfWork
         // this check has to be done after any mixin types are set.
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
             // TODO do we need to check with the storage backend if the generated id really is unique?
-            $node->setProperty('jcr:uuid', \PHPCR\Util\UUIDHelper::generateUUID());
+            $node->setProperty('jcr:uuid', UUIDHelper::generateUUID());
         }
     }
 }
