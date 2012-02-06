@@ -820,6 +820,16 @@ class UnitOfWork
             }
         }
 
+        if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
+            $parent = $actualData[$class->parentMapping];
+            $parentClass = $this->dm->getClassMetadata(get_class($parent));
+            $state = $this->getDocumentState($parent);
+
+            if ($state === self::STATE_MANAGED) {
+                $this->computeChangeSet($parentClass, $parent);
+            }
+        }
+
         $id = $class->getIdentifierValue($document);
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
@@ -1116,9 +1126,15 @@ class UnitOfWork
      */
     private function executeInserts($documents)
     {
+        $oids = array();
         foreach ($documents as $oid => $document) {
+            $oids[$oid] = $this->getDocumentId($document);
+        }
+        asort($oids);
+
+        foreach ($oids as $oid => $id) {
+            $document = $documents[$oid];
             $class = $this->dm->getClassMetadata(get_class($document));
-            $id = $this->getDocumentId($document);
             $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
 
             $node = $parentNode->addNode(basename($id), $class->nodeType);

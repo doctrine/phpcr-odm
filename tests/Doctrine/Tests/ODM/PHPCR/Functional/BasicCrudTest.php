@@ -374,7 +374,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('jwage', $check->username);
     }
 
-    public function testFlushSingleDocument2()
+    public function testFlushSingleDocumentThenFlush()
     {
         $user1 = new User();
         $user1->username = 'romanb';
@@ -397,6 +397,46 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $check = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test2');
         $this->assertEquals('changed', $check->username);
+    }
+
+    public function testFlushSingleDocumentWithParent()
+    {
+        $user1 = new User();
+        $user1->username = 'romanb';
+        $user1->id = '/functional/test';
+        $user2 = new TeamUser();
+        $user2->username = 'jwage';
+        $user2->id = '/functional/test/team';
+        $user2->parent = $user1;
+        $user3 = new TeamUser();
+        $user3->username = 'beberlei';
+        $user3->id = '/functional/test/team/team';
+        $user3->parent = $user2;
+        $this->dm->persist($user3);
+        $this->dm->flush($user3);
+
+        $user1 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test');
+        $this->assertEquals('romanb', $user1->username);
+
+        $user2 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test/team');
+        $this->assertEquals('jwage', $user2->username);
+
+        $user3 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test/team/team');
+        $this->assertEquals('beberlei', $user3->username);
+
+        $user1->username = 'changed';
+        $user2->username = 'changed';
+        $user3->username = 'changed';
+        $this->dm->flush($user3);
+
+        $user1 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test');
+        $this->assertEquals('changed', $user1->username);
+
+        $user2 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test/team');
+        $this->assertEquals('changed', $user2->username);
+
+        $user3 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test/team/team');
+        $this->assertEquals('changed', $user3->username);
     }
 }
 
@@ -474,3 +514,13 @@ class User3Repository extends DocumentRepository implements RepositoryIdInterfac
         return '/functional/'.$document->username;
     }
 }
+
+/**
+ * @PHPCRODM\Document()
+ */
+class TeamUser extends User
+{
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+}
+
