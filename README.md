@@ -825,30 +825,36 @@ $article->topic = 'Test';
 $dm->persist($article);
 $dm->flush();
 
+// generate a version snapshot of the document as currently stored
 $dm->checkpoint($article);
 
 $article->topic = 'Newvalue';
 $dm->flush();
 
-$dm->checkpoint($article);
-
-$versioninfos = $dm->getAllLinearVersions($article->id);
-
+// get the version information
+$versioninfos = $dm->getAllLinearVersions($article);
 $firstVersion = reset($versioninfos);
+// and use it to find the snapshot of an old version
 $oldVersion = $dm->findVersionByName(null, $article->id, $firstVersion['name']);
 
 echo $oldVersion->topic; // "Test"
 
+// find the head version
 $article = $dm->find('/test');
 echo $article->topic; // "Newvalue"
 
-// create a new version with the old values
+// restore the head to the old version
 $dm->restoreVersion($oldVersion);
 
 // the article document is refreshed
 echo $article->topic; // "Test"
 
-// remove the old version from the history
+// create a second version to demo removing a version
+$article->topic = 'Newvalue';
+$dm->flush();
+$dm->checkpoint($article);
+
+// remove the old version from the history (not allowed for the last version)
 $dm->removeVersion($oldVersion);
 ```
 
