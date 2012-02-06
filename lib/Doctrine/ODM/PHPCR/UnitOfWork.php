@@ -1882,15 +1882,12 @@ class UnitOfWork
         }
 
         $node->addMixin('mix:versionable');
-        if (!$node->isNodeType('mix:referenceable')) {
-            $node->addMixin('mix:referenceable');
-        }
     }
 
     protected function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)
     {
         if ($metadata->versionable === 'full') {
-            $this->checkFullVersioning($metadata, $node);
+            $node->addMixin('mix:versionable');
         } else {
             if ($metadata->versionable === 'simple') {
                 $node->addMixin('mix:simpleVersionable');
