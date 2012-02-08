@@ -159,13 +159,7 @@ class DocumentRepository implements ObjectRepository
         foreach ($criteria as $field => $value) {
             $qb->andWhere($qf->comparison($qf->propertyValue($field), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($value)));
         }
-        $nodes = $qb->execute()->getNodes(true);
-
-        $documents = array();
-
-        foreach ($nodes as $path => $node) {
-            $documents[$path] = $this->uow->createDocument($this->className, $node);
-        }
+        $documents = $this->getDocumentsByQuery($qb->getQuery());
 
         return $documents;
 
@@ -179,7 +173,8 @@ class DocumentRepository implements ObjectRepository
      */
     public function findOneBy(array $criteria)
     {
-        return $this->findBy($criteria, null, 1);
+        $documents = $this->findBy($criteria, null, 1);
+        return $documents->isEmpty() ? null : $documents->first();
     }
 
     /**
