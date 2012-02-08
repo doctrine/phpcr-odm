@@ -22,6 +22,8 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
+
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
  * business specific methods for retrieving documents.
@@ -138,10 +140,29 @@ class DocumentRepository implements ObjectRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        $qb = $this->dm->createQueryBuilder();
+        $qf = $qb->getQOMFactory();
 
-        // TODO: implemenent using QOM?
-        return $this->uow->getDocumentPersister($this->className)->loadAll($criteria);
+        $qb->from($qf->selector($this->class->nodeType));
+        $qb->andWhere($qf->comparison($qf->propertyValue('[phpcr:class]'), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($this->className)));
+        if ($limit) {
+            $qb->setMaxResults($limit);
+        }
+        if ($offset) {
+            $qb->setFirstResult($offset);
+        }
+        if ($orderBy) {
+            foreach ($orderBy as $ordering) {
+                $qb->addOrderBy($qf->propertyValue($ordering));
+            }
+        }
+        foreach ($criteria as $field => $value) {
+            $qb->andWhere($qf->comparison($qf->propertyValue($field), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($value)));
+        }
+        $documents = $this->getDocumentsByQuery($qb->getQuery());
+
+        return $documents;
+
     }
 
     /**
@@ -152,10 +173,8 @@ class DocumentRepository implements ObjectRepository
      */
     public function findOneBy(array $criteria)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
-
-        // TODO: implemenent using QOM?
-        return $this->uow->getDocumentPersister($this->className)->load($criteria);
+        $documents = $this->findBy($criteria, null, 1);
+        return $documents->isEmpty() ? null : $documents->first();
     }
 
     /**
