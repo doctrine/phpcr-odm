@@ -482,6 +482,18 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Move the previously persisted document and all its children in the tree
+     *
+     * @param object $object
+     * @param string $targetPath
+     */
+    public function move($object, $targetPath)
+    {
+        $this->errorIfClosed();
+        $this->unitOfWork->scheduleMove($object, $targetPath);
+    }
+
+    /**
      * Remove the previously persisted document and all its children from the tree
      *
      * Be aware of the PHPCR tree structure: this removes all nodes with a path under
