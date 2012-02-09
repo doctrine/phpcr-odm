@@ -118,6 +118,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
 
         $this->dm->move($user, '/functional/user2');
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
         $this->dm->flush();
         $this->dm->clear();
 
@@ -138,6 +140,17 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
+    public function testMoveNoFlush()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->move($user, '/functional/user2');
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+    }
+
     public function testRemoveWithClear()
     {
         $this->dm->clear();
@@ -145,6 +158,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
 
         $this->dm->remove($user);
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
         $this->dm->flush();
         $this->dm->clear();
 
@@ -163,6 +178,17 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertNull($user, 'User must be null after deletion');
+    }
+
+    public function testRemoveNoFlush()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
     }
 
     public function testRemoveAndInsertAfterFlush()
