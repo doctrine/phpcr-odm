@@ -54,6 +54,7 @@ class UnitOfWork
     const STATE_MANAGED = 2;
     const STATE_REMOVED = 3;
     const STATE_DETACHED = 4;
+    const STATE_MOVED = 5;
 
     /**
      * @var DocumentManager
@@ -141,6 +142,11 @@ class UnitOfWork
      * @var array
      */
     private $scheduledInserts = array();
+
+    /**
+     * @var array
+     */
+    private $scheduledMoves = array();
 
     /**
      * @var array
@@ -494,10 +500,10 @@ class UnitOfWork
         $visited[$oid] = true;
 
         $class = $this->dm->getClassMetadata(get_class($document));
-        $state = $this->getDocumentState($document);
 
         $this->cascadeScheduleParentInsert($class, $document, $visited);
 
+        $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_NEW:
                 $this->persistNew($class, $document, $overrideIdGenerator);
@@ -505,8 +511,11 @@ class UnitOfWork
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
                 break;
+            case self::STATE_MOVED:
+                unset($this->scheduledMoves[$oid]);
+                $this->documentState[$oid] = self::STATE_MANAGED;
+                break;
             case self::STATE_REMOVED:
-                // document becomes managed again
                 unset($this->scheduledRemovals[$oid]);
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
@@ -600,10 +609,45 @@ class UnitOfWork
         return $this->idGenerators[$type];
     }
 
+    public function scheduleMove($document, $targetPath)
+    {
+        $oid = spl_object_hash($document);
+        $this->scheduledMoves[$oid] = array($document, $targetPath);
+
+        $state = $this->getDocumentState($document);
+        switch ($state) {
+            case self::STATE_NEW:
+                unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_REMOVED:
+                unset($this->scheduledRemovals[$oid]);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document));
+                break;
+        }
+
+        $this->documentState[$oid] = self::STATE_MOVED;
+    }
+
     public function scheduleRemove($document)
     {
         $oid = spl_object_hash($document);
         $this->scheduledRemovals[$oid] = $document;
+
+        $state = $this->getDocumentState($document);
+        switch ($state) {
+            case self::STATE_NEW:
+                unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_MOVED:
+                unset($this->scheduledMoves[$oid]);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document));
+                break;
+        }
+
         $this->documentState[$oid] = self::STATE_REMOVED;
 
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -631,6 +675,7 @@ class UnitOfWork
                 $oid = spl_object_hash($child);
                 unset(
                     $this->scheduledRemovals[$oid],
+                    $this->scheduledMoves[$oid],
                     $this->scheduledInserts[$oid],
                     $this->scheduledUpdates[$oid],
                     $this->scheduledAssociationUpdates[$oid]
@@ -759,7 +804,7 @@ class UnitOfWork
                 && isset($actualData[$class->nodename])
                 && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
             ) {
-                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use PHPCR\Session::move to rename the document: '.self::objToStr($document));
+                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document));
             }
             if (isset($this->originalData[$oid][$class->parentMapping])
                 && isset($actualData[$class->parentMapping])
@@ -771,7 +816,7 @@ class UnitOfWork
                 && isset($actualData[$class->identifier])
                 && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
             ) {
-                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document));
+                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document));
             }
 
             // Document is "fully" MANAGED: it was already fully persisted before
@@ -834,7 +879,7 @@ class UnitOfWork
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($document));
+                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($document));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -1085,6 +1130,8 @@ class UnitOfWork
 
             $this->executeRemovals($this->scheduledRemovals);
 
+            $this->executeMoves($this->scheduledMoves);
+
             $this->session->save();
 
             if ($utx) {
@@ -1115,6 +1162,7 @@ class UnitOfWork
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledRemovals =
+        $this->scheduledMoves =
         $this->scheduledInserts =
         $this->visitedCollections = array();
     }
@@ -1305,7 +1353,7 @@ class UnitOfWork
                             $child->remove();
                         }
                     } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the PHPCR\Session::move() or PHPCR\Session::copy() operations for this.');
+                        throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this.');
                     }
                 }
             }
@@ -1324,6 +1372,30 @@ class UnitOfWork
     }
 
     /**
+     * Executes all document moves
+     *
+     * @param array $documents array of all to be moved documents
+     */
+    private function executeMoves($documents)
+    {
+        foreach ($documents as $oid => $value) {
+            list($document, $targetPath) = $value;
+            if (!isset($this->nodesMap[$oid])) {
+                continue;
+            }
+
+            $class = $this->dm->getClassMetadata(get_class($document));
+            $path = $class->getIdentifierValue($document);
+            $this->session->move($path, $targetPath);
+            if ($targetPath !== $this->nodesMap[$oid]->getPath()) {
+                throw new \RuntimeException("Move failed to move from '$path' to '$targetPath' for document: ".self::objToStr($document));
+            }
+            $class->setIdentifierValue($document, $targetPath);
+            $this->originalData[$oid][$class->identifier] = $targetPath;
+        }
+    }
+
+    /**
      * Executes all document removals
      *
      * @param array $documents array of all to be removed documents
@@ -1331,11 +1403,11 @@ class UnitOfWork
     private function executeRemovals($documents)
     {
         foreach ($documents as $oid => $document) {
-            $class = $this->dm->getClassMetadata(get_class($document));
             if (!isset($this->nodesMap[$oid])) {
                 continue;
             }
 
+            $class = $this->dm->getClassMetadata(get_class($document));
             $this->doRemoveAllTranslations($document, $class);
 
             $this->nodesMap[$oid]->remove();
@@ -1350,7 +1422,6 @@ class UnitOfWork
             }
         }
     }
-
 
     /**
      * @see DocumentManager::findVersionByName
@@ -1701,6 +1772,7 @@ class UnitOfWork
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
+        $this->scheduledMoves =
         $this->scheduledRemovals =
         $this->visitedCollections =
         $this->documentHistory =
