@@ -1095,9 +1095,9 @@ class UnitOfWork
 
             $this->executeUpdates($this->scheduledAssociationUpdates, false);
 
-            $this->executeMoves($this->scheduledMoves);
-
             $this->executeRemovals($this->scheduledRemovals);
+
+            $this->executeMoves($this->scheduledMoves);
 
             $this->session->save();
 
