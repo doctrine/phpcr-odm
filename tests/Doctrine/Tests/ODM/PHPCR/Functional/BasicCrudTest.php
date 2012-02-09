@@ -551,6 +551,55 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user3 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test/team/team');
         $this->assertEquals('changed', $user3->username);
     }
+
+    public function testDetach()
+    {
+        $user = $this->dm->find($this->type, '/functional/user');
+        $user->username = "new-name";
+
+        $this->dm->detach($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $newUser = $this->dm->find($this->type, '/functional/user');
+        $this->assertEquals('lsmith', $newUser->username);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDetachWithPerist()
+    {
+        $user = $this->dm->find($this->type, '/functional/user');
+        $user->username = "new-name";
+
+        $this->dm->detach($user);
+        $this->dm->persist($user);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDetachWithMove()
+    {
+        $user = $this->dm->find($this->type, '/functional/user');
+        $user->username = "new-name";
+
+        $this->dm->detach($user);
+        $this->dm->move($user, '/functional/user2');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDetachWithRemove()
+    {
+        $user = $this->dm->find($this->type, '/functional/user');
+        $user->username = "new-name";
+
+        $this->dm->detach($user);
+        $this->dm->remove($user);
+    }
 }
 
 /**
