@@ -414,6 +414,8 @@ class DocumentManager implements ObjectManager
      */
     public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $className = null)
     {
+        $this->errorIfClosed();
+
         $documents = array();
 
         // get all nodes from the node iterator
@@ -475,6 +477,7 @@ class DocumentManager implements ObjectManager
      */
     public function getLocalesFor($document)
     {
+        $this->errorIfClosed();
         return $this->unitOfWork->getLocalesFor($document);
     }
 
@@ -514,10 +517,10 @@ class DocumentManager implements ObjectManager
      */
     public function merge($document)
     {
+        $this->errorIfClosed();
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
 
         // TODO: implemenent
-        $this->errorIfClosed();
         return $this->getUnitOfWork()->merge($document);
     }
 
@@ -641,8 +644,7 @@ class DocumentManager implements ObjectManager
     public function checkpoint($document)
     {
         $this->errorIfClosed();
-        $this->checkin($document);
-        $this->checkout($document);
+        $this->unitOfWork->checkpoint($document);
     }
 
     /**
