@@ -54,6 +54,7 @@ class UnitOfWork
     const STATE_MANAGED = 2;
     const STATE_REMOVED = 3;
     const STATE_DETACHED = 4;
+    const STATE_MOVED = 5;
 
     /**
      * @var DocumentManager
@@ -499,16 +500,21 @@ class UnitOfWork
         $visited[$oid] = true;
 
         $class = $this->dm->getClassMetadata(get_class($document));
-        $state = $this->getDocumentState($document);
 
         $this->cascadeScheduleParentInsert($class, $document, $visited);
 
+        $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_NEW:
                 $this->persistNew($class, $document, $overrideIdGenerator);
                 break;
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
+                break;
+            case self::STATE_MOVED:
+                // document becomes managed again
+                unset($this->scheduledMoves[$oid]);
+                $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
             case self::STATE_REMOVED:
                 // document becomes managed again
@@ -609,12 +615,43 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         $this->scheduledMoves[$oid] = array($document, $targetPath);
+
+        $state = $this->getDocumentState($document);
+        switch ($state) {
+            case self::STATE_NEW:
+                unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_REMOVED:
+                // document becomes managed again
+                unset($this->scheduledRemovals[$oid]);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document));
+                break;
+        }
+
+        $this->documentState[$oid] = self::STATE_MOVED;
     }
 
     public function scheduleRemove($document)
     {
         $oid = spl_object_hash($document);
         $this->scheduledRemovals[$oid] = $document;
+
+        $state = $this->getDocumentState($document);
+        switch ($state) {
+            case self::STATE_NEW:
+                unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_MOVED:
+                // document becomes managed again
+                unset($this->scheduledMoves[$oid]);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document));
+                break;
+        }
+
         $this->documentState[$oid] = self::STATE_REMOVED;
 
         $class = $this->dm->getClassMetadata(get_class($document));

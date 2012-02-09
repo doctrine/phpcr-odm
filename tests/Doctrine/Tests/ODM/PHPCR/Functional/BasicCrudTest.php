@@ -140,6 +140,36 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
+    public function testMoveWithPersist()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->move($user, '/functional/user2');
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+    }
+
+    public function testMoveWithRemove()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->move($user, '/functional/user2');
+        $this->dm->remove($user);
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must be null after deletion');
+        $user = $this->dm->find($this->type, '/functional/user2');
+        $this->assertNull($user, 'User must be null after deletion');
+    }
+
     public function testMoveNoFlush()
     {
         $this->dm->clear();
@@ -178,6 +208,36 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertNull($user, 'User must be null after deletion');
+    }
+
+    public function testRemoveWithMove()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+        $this->dm->move($user, '/functional/user2');
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must be null after deletion');
+        $user = $this->dm->find($this->type, '/functional/user2');
+        $this->assertNotNull($user, 'User must exist');
+    }
+
+    public function testRemoveWithPersist()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
     }
 
     public function testRemoveNoFlush()
