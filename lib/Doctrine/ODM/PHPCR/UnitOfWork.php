@@ -1358,6 +1358,7 @@ class UnitOfWork
                 throw new \RuntimeException("Move failed to move from '$path' to '$targetPath' for document: ".self::objToStr($document));
             }
             $class->setIdentifierValue($document, $targetPath);
+            $this->originalData[$oid][$class->identifier] = $targetPath;
         }
     }
 
