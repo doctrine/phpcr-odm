@@ -1404,9 +1404,7 @@ class UnitOfWork
      */
     public function checkin($document)
     {
-        $path = $this->getDocumentId($document);
-        $node = $this->session->getNode($path);
-        $this->checkFullVersioning($this->dm->getClassMetadata(get_class($document)), $node);
+        $path = $this->getFullVersionedNodePath($document);
         $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkin($path); // Checkin Node aka make a new Version
     }
@@ -1418,17 +1416,28 @@ class UnitOfWork
      */
     public function checkout($document)
     {
-        $path = $this->getDocumentId($document);
-        $node = $this->session->getNode($path);
-        $this->checkFullVersioning($this->dm->getClassMetadata(get_class($document)), $node);
+        $path = $this->getFullVersionedNodePath($document);
         $vm = $this->session->getWorkspace()->getVersionManager();
         $vm->checkout($path);
     }
 
     /**
+     * Check point operation
+     *
+     * @return void
+     */
+    public function checkpoint($document)
+    {
+        $path = $this->getFullVersionedNodePath($document);
+        $vm = $this->session->getWorkspace()->getVersionManager();
+        $vm->checkpoint($path);
+    }
+
+    /**
      * Get the version history information for a document
      *
-     * labels will be an empty array. TODO: implement labels once jackalope implements them
+     * TODO: implement labels once jackalope implements them, until then labels will be an empty array.
+     * TODO: implement limit
      *
      * @param object $document the document of which to get the version history
      * @param int $limit an optional limit to only get the latest $limit information
@@ -1891,13 +1900,18 @@ class UnitOfWork
         return method_exists($obj, '__toString') ? (string)$obj : get_class($obj).'@'.spl_object_hash($obj);
     }
 
-    protected function checkFullVersioning(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    protected function getFullVersionedNodePath($document)
     {
+        $path = $this->getDocumentId($document);
+        $metadata = $this->dm->getClassMetadata(get_class($document));
         if ($metadata->versionable !== 'full') {
-            throw new \InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $node->getPath()));
+            throw new \InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $path));
         }
 
+        $node = $this->session->getNode($path);
         $node->addMixin('mix:versionable');
+
+        return $path;
     }
 
     protected function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)

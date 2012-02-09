@@ -632,8 +632,7 @@ class DocumentManager implements ObjectManager
     public function checkpoint($document)
     {
         $this->errorIfClosed();
-        $this->checkin($document);
-        $this->checkout($document);
+        $this->unitOfWork->checkpoint($document);
     }
 
     /**
