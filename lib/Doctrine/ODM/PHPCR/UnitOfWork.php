@@ -512,12 +512,10 @@ class UnitOfWork
                 // TODO: Change Tracking Deferred Explicit
                 break;
             case self::STATE_MOVED:
-                // document becomes managed again
                 unset($this->scheduledMoves[$oid]);
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
             case self::STATE_REMOVED:
-                // document becomes managed again
                 unset($this->scheduledRemovals[$oid]);
                 $this->documentState[$oid] = self::STATE_MANAGED;
                 break;
@@ -622,7 +620,6 @@ class UnitOfWork
                 unset($this->scheduledInserts[$oid]);
                 break;
             case self::STATE_REMOVED:
-                // document becomes managed again
                 unset($this->scheduledRemovals[$oid]);
                 break;
             case self::STATE_DETACHED:
@@ -644,7 +641,6 @@ class UnitOfWork
                 unset($this->scheduledInserts[$oid]);
                 break;
             case self::STATE_MOVED:
-                // document becomes managed again
                 unset($this->scheduledMoves[$oid]);
                 break;
             case self::STATE_DETACHED:
