@@ -982,4 +982,16 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
     }
+
+    /**
+     * INTERNAL:
+     * Adds a field mapping without completing/validating it.
+     * This is mainly used to add inherited field mappings to derived classes.
+     *
+     * @param array $mapping
+     */
+    public function addInheritedFieldMapping(array $fieldMapping)
+    {
+        $this->fieldMappings[$fieldMapping['fieldName']] = $fieldMapping;
+    }
 }
