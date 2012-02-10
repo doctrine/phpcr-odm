@@ -145,7 +145,7 @@ class DocumentRepository implements ObjectRepository
         $qf = $qb->getQOMFactory();
 
         $qb->from($qf->selector($this->class->nodeType));
-        $qb->andWhere($qf->comparison($qf->propertyValue('[phpcr:class]'), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($this->className)));
+        $qb->andWhere($qf->comparison($qf->propertyValue('phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($this->className)));
         if ($limit) {
             $qb->setMaxResults($limit);
         }
