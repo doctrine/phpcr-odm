@@ -258,6 +258,11 @@ class ClassMetadata implements ClassMetadataInterface
     public $generatorOptions = array();
 
     /**
+     * @var array
+     */
+    private $inheritedFields = array();
+
+    /**
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
@@ -458,6 +463,11 @@ class ClassMetadata implements ClassMetadataInterface
         $this->validateAndCompleteFieldMapping($mapping, false);
     }
 
+    public function setFieldInherited($fieldName)
+    {
+        $this->inheritedFields[$fieldName] = true;
+    }
+
     public function mapNode(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
@@ -546,8 +556,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (isset($this->fieldMappings[$mapping['fieldName']])
+            || ($this->node == $mapping['fieldName'])
             || ($this->nodename == $mapping['fieldName'])
             || ($this->parentMapping == $mapping['fieldName'])
+            || ($this->versionNameField == $mapping['fieldName'])
+            || ($this->versionCreatedField == $mapping['fieldName'])
             || isset($this->associationsMappings[$mapping['fieldName']])
             || isset($this->childMappings[$mapping['fieldName']])
             || isset($this->childrenMappings[$mapping['fieldName']])
@@ -798,51 +811,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isInheritedField($fieldName)
     {
-        return isset($this->fieldMappings[$fieldName]['inherited']);
-    }
-
-    /**
-     * Checks whether a mapped association field is inherited from a superclass.
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the field is inherited, FALSE otherwise.
-     */
-    public function isInheritedAssociation($fieldName)
-    {
-        return isset($this->associationsMappings[$fieldName]['inherited']);
-    }
-
-    /**
-     * Checks whether a mapped child field is inherited from a superclass.
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the field is inherited, FALSE otherwise.
-     */
-    public function isInheritedChild($fieldName)
-    {
-        return isset($this->childMappings[$fieldName]['inherited']);
-    }
-
-    /**
-     * Checks whether a mapped children field is inherited from a superclass.
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the field is inherited, FALSE otherwise.
-     */
-    public function isInheritedChildren($fieldName)
-    {
-        return isset($this->childrenMappings[$fieldName]['inherited']);
-    }
-
-    /**
-     * Checks whether a mapped referer field is inherited from a superclass.
-     *
-     * @param string $fieldName
-     * @return boolean TRUE if the field is inherited, FALSE otherwise.
-     */
-    public function isInheritedReferrer($fieldName)
-    {
-        return isset($this->referrersMappings[$fieldName]['inherited']);
+        return isset($this->inheritedFields[$fieldName]);
     }
 
     /**

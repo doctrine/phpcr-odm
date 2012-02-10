@@ -138,63 +138,49 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
         foreach ($parentClass->fieldMappings as $fieldName => $mapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $fieldName, $mapping);
+            $subClass->setFieldInherited($fieldName);
             $subClass->mapField($mapping);
         }
         foreach ($parentClass->associationsMappings as $fieldName => $mapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $fieldName, $mapping);
+            $subClass->setFieldInherited($fieldName);
             $subClass->storeAssociationMapping($mapping);
         }
         foreach ($parentClass->childMappings as $fieldName => $mapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $fieldName, $mapping);
+            $subClass->setFieldInherited($fieldName);
             $subClass->mapChild($mapping);
         }
         foreach ($parentClass->childrenMappings as $fieldName => $mapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $fieldName, $mapping);
+            $subClass->setFieldInherited($fieldName);
             $subClass->mapChildren($mapping);
         }
         foreach ($parentClass->referrersMappings as $fieldName => $mapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $fieldName, $mapping);
+            $subClass->setFieldInherited($fieldName);
             $subClass->mapReferrers($mapping);
         }
         if ($parentClass->node) {
-            $mapping = $this->addInheritanceKeys($parentClass, $parentClass->node);
-            $subClass->mapNode($mapping);
+            $subClass->setFieldInherited($parentClass->node);
+            $subClass->mapNode(array('fieldName' => $parentClass->node));
         }
         if ($parentClass->nodename) {
-            $mapping = $this->addInheritanceKeys($parentClass, $parentClass->nodename);
-            $subClass->mapNodename($mapping);
+            $subClass->setFieldInherited($parentClass->nodename);
+            $subClass->mapNodename(array('fieldName' => $parentClass->nodename));
         }
         if ($parentClass->parentMapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $parentClass->parentMapping);
-            $subClass->mapParentDocument($mapping);
+            $subClass->setFieldInherited($parentClass->parentMapping);
+            $subClass->mapParentDocument(array('fieldName' => $parentClass->parentMapping));
         }
         if ($parentClass->localeMapping) {
-            $mapping = $this->addInheritanceKeys($parentClass, $parentClass->localeMapping);
-            $subClass->mapLocale($mapping);
+            $subClass->setFieldInherited($parentClass->localeMapping);
+            $subClass->mapLocale(array('fieldName' => $parentClass->localeMapping));
         }
         if ($parentClass->versionNameField) {
-            $mapping = $this->addInheritanceKeys($parentClass, $parentClass->versionNameField);
-            $subClass->mapVersionName($mapping);
+            $subClass->setFieldInherited($parentClass->versionNameField);
+            $subClass->mapVersionName(array('fieldName' => $parentClass->versionNameField));
         }
         if ($parentClass->versionCreatedField) {
-            $mapping = $this->addInheritanceKeys($parentClass, $parentClass->versionCreatedField);
-            $subClass->mapVersionCreated($mapping);
+            $subClass->setFieldInherited($parentClass->versionCreatedField);
+            $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField));
         }
-    }
-
-    private function addInheritanceKeys(ClassMetadata $parentClass, $fieldName, array $mapping = array())
-    {
-        $mapping['fieldName'] = $fieldName;
-
-        if (!isset($mapping['inherited']) && !$parentClass->isMappedSuperclass) {
-            $mapping['inherited'] = $parentClass->name;
-        }
-        if (!isset($mapping['declared'])) {
-            $mapping['declared'] = $parentClass->name;
-        }
-
-        return $mapping;
     }
 
     /**
