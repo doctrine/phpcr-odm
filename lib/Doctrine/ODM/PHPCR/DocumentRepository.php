@@ -23,6 +23,7 @@ use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
+use PHPCR\Query\QueryInterface;
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -246,31 +247,35 @@ class DocumentRepository implements ObjectRepository
      * Create a Query
      *
      * @param  string $statement the SQL2 statement
-     * @param  string $type (see \PHPCR\Query\QueryInterface for list of supported types)
+     * @param  string $language (see QueryInterface for list of supported types)
      * @param  bool $replaceWithFieldnames if * should be replaced with Fieldnames automatically
      * @return PHPCR\Query\QueryResultInterface
      */
-    public function createQuery($statement, $type, $options = 0)
+    public function createQuery($statement, $language, $options = 0)
     {
-        if (\PHPCR\Query\QueryInterface::JCR_SQL2 === $type) {
-            // TODO maybe it would be better to convert to OQM here
-            // this might make it possible to more cleanly apply the following changes
-
-            if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES  && 0 === strpos($statement, 'SELECT *')) {
-                $statement = str_replace('SELECT *', 'SELECT '.implode(', ', $this->class->getFieldNames()), $statement);
-            }
-
-            $aliasFilter = '['.$this->class->nodeType.'].[phpcr:class] = '.$this->quote($this->className);
-            if (false !== strpos($statement, 'WHERE')) {
-                $statement = str_replace('WHERE', "WHERE $aliasFilter AND ", $statement);
-            } elseif (false !== strpos($statement, 'ORDER BY')) {
-                $statement = str_replace('ORDER BY', " WHERE $aliasFilter ORDER BY", $statement);
-            } else {
-                $statement.= " WHERE $aliasFilter";
+        $cb = $this->dm->createQueryBuilder()->setFromQuery($statement, $language);
+        if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES) {
+            $columns = $cb->getColumns();
+            if (1 === count($columns)) {
+                $column = reset($columns);
+                if ('*' === $column->getColumnName() && null == $column->getPropertyName()) {
+                    $cb->setColumns(array());
+                    foreach ($this->class->getFieldNames() as $name) {
+                        $cb->addSelect($name);
+                    }
+                }
             }
         }
 
-        return $this->dm->createQuery($statement, $type);
+        $factory = $cb->getQOMFactory();
+
+        $comparison = $factory->comparison(
+            $factory->propertyValue('phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $factory->literal($this->className)
+        );
+
+        $cb->andWhere($comparison);
+
+        return $cb->getQuery();
     }
 
     /**

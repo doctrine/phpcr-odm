@@ -30,6 +30,18 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         );
     }
 
+    public function queryRepositoryStatements()
+    {
+        return array(
+            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional")', 4),
+            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username', 4),
+            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") AND username="dbu"', 1),
+            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") AND username="notexisting"', 0),
+            array('invalidstatement', -1),
+            // TODO: try a join
+        );
+    }
+
     public function setUp()
     {
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\QuerySql2TestObj';
@@ -58,7 +70,6 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $versionNode = $this->node->addNode('node5', 'nt:unstructured');
         $versionNode->setProperty('numbers', array(3, 1, 2));
-        $versionNode->setProperty('phpcr:class', $this->type);
 
         $this->dm->getPhpcrSession()->save();
         $this->dm = $this->createDocumentManager();
@@ -74,6 +85,24 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->setExpectedException('PHPCR\Query\InvalidQueryException');
         }
         $query = $this->dm->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
+        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
+
+        $result = $this->dm->getDocumentsByQuery($query, $this->type);
+        $this->assertEquals($rowCount, count($result));
+    }
+
+    /**
+     * @dataProvider queryRepositoryStatements
+     */
+    public function testRepositporyQuery($statement, $rowCount)
+    {
+        if ($rowCount == -1) {
+            // magic to tell this is an invalid query
+            $this->setExpectedException('PHPCR\Query\InvalidQueryException');
+        }
+
+        $repository = $this->dm->getRepository($this->type);
+        $query = $repository->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
         $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
 
         $result = $this->dm->getDocumentsByQuery($query, $this->type);
