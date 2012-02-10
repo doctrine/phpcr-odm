@@ -458,7 +458,7 @@ class UnitOfWork
         }
 
         // Set the @Locale field
-        $localeField = $class->localeMapping['fieldName'];
+        $localeField = $class->localeMapping;
         if ($localeField) {
             $class->reflFields[$localeField]->setValue($document, $locale);
         }
@@ -1881,7 +1881,7 @@ class UnitOfWork
         }
 
         // Set the locale
-        if ($localeField = $metadata->localeMapping['fieldName']) {
+        if ($localeField = $metadata->localeMapping) {
             $metadata->reflFields[$localeField]->setValue($document, $localeUsed);
         }
 
@@ -1899,7 +1899,7 @@ class UnitOfWork
         $strategy->removeTranslation($document, $node, $metadata, $locale);
 
         // Empty the locale field if what we removed was the current language
-        if ($localeField = $metadata->localeMapping['fieldName']) {
+        if ($localeField = $metadata->localeMapping) {
             if ($metadata->reflFields[$localeField]->getValue($document) === $locale) {
                 $metadata->reflFields[$localeField]->setValue($document, null);
             }
@@ -1923,7 +1923,7 @@ class UnitOfWork
             return;
         }
 
-        $localeField = $metadata->localeMapping['fieldName'];
+        $localeField = $metadata->localeMapping;
         if ($localeField) {
             $locale = $metadata->reflFields[$localeField]->getValue($document);
         }

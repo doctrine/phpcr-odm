@@ -40,8 +40,8 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue(isset($metadata->translator));
         $this->assertEquals('attribute', $metadata->translator);
 
-        $this->assertTrue(isset($metadata->localeMapping['fieldName']));
-        $this->assertEquals('locale',$metadata->localeMapping['fieldName']);
+        $this->assertTrue(isset($metadata->localeMapping));
+        $this->assertEquals('locale',$metadata->localeMapping);
     }
 
     /**

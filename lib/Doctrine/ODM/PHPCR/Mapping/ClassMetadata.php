@@ -503,7 +503,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapLocale(array $mapping)
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
-        $this->localeMapping = $mapping;
+        $this->localeMapping = $mapping['fieldName'];
     }
 
     public function mapVersionName(array $mapping)
