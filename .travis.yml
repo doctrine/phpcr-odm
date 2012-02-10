@@ -6,8 +6,8 @@ php:
 
 env:
   - TRANSPORT=jackrabbit
-  - TRANSPORT=midgard_sqlite
-  - TRANSPORT=midgard_mysql
+#  - TRANSPORT=midgard_sqlite
+#  - TRANSPORT=midgard_mysql
 
 before_script:
   - ./tests/travis_${TRANSPORT}.sh
