@@ -597,7 +597,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->storeAssociationMapping($mapping);
     }
 
-    private function storeAssociationMapping($mapping)
+    public function storeAssociationMapping($mapping)
     {
         $this->associationsMappings[$mapping['fieldName']] = $mapping;
     }
@@ -792,6 +792,60 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
+     * Checks whether a mapped field is inherited from an entity superclass.
+     *
+     * @return boolean TRUE if the field is inherited, FALSE otherwise.
+     */
+    public function isInheritedField($fieldName)
+    {
+        return isset($this->fieldMappings[$fieldName]['inherited']);
+    }
+
+    /**
+     * Checks whether a mapped association field is inherited from a superclass.
+     *
+     * @param string $fieldName
+     * @return boolean TRUE if the field is inherited, FALSE otherwise.
+     */
+    public function isInheritedAssociation($fieldName)
+    {
+        return isset($this->associationsMappings[$fieldName]['inherited']);
+    }
+
+    /**
+     * Checks whether a mapped child field is inherited from a superclass.
+     *
+     * @param string $fieldName
+     * @return boolean TRUE if the field is inherited, FALSE otherwise.
+     */
+    public function isInheritedChild($fieldName)
+    {
+        return isset($this->childMappings[$fieldName]['inherited']);
+    }
+
+    /**
+     * Checks whether a mapped children field is inherited from a superclass.
+     *
+     * @param string $fieldName
+     * @return boolean TRUE if the field is inherited, FALSE otherwise.
+     */
+    public function isInheritedChildren($fieldName)
+    {
+        return isset($this->childrenMappings[$fieldName]['inherited']);
+    }
+
+    /**
+     * Checks whether a mapped referer field is inherited from a superclass.
+     *
+     * @param string $fieldName
+     * @return boolean TRUE if the field is inherited, FALSE otherwise.
+     */
+    public function isInheritedReferrer($fieldName)
+    {
+        return isset($this->referrersMappings[$fieldName]['inherited']);
+    }
+
+    /**
      * Map a field.
      *
      * - type - The Doctrine Type of this field.
@@ -832,15 +886,6 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
-
-        // @codeCoverageIgnoreStart
-        // FIXME never called; might be about lazy loading (code apparently taken from CouchDB/MongoDB)
-        if ($this->reflClass->hasProperty($mapping['fieldName'])) {
-            $reflProp = $this->reflClass->getProperty($mapping['fieldName']);
-            $reflProp->setAccessible(true);
-            $this->reflFields[$mapping['fieldName']] = $reflProp;
-        }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
