@@ -40,7 +40,6 @@ use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
  */
 class ClassMetadataFactory extends AbstractClassMetadataFactory
 {
-
     /**
      * {@inheritdoc}
      */
@@ -132,8 +131,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
     * Adds inherited fields to the subclass mapping.
     *
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $subClass
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $parentClass
+     * @param ClassMetadata $subClass
+     * @param ClassMetadata $parentClass
      * @return void
      */
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
