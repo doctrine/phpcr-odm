@@ -38,7 +38,6 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
  */
 class ClassMetadata implements ClassMetadataInterface
 {
-
     const TO_ONE = 5;
     const TO_MANY = 10;
     const ONE_TO_ONE = 1;
@@ -263,6 +262,11 @@ class ClassMetadata implements ClassMetadataInterface
     private $inheritedFields = array();
 
     /**
+     * @var array
+     */
+    private $declaredFields = array();
+
+    /**
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
@@ -463,9 +467,14 @@ class ClassMetadata implements ClassMetadataInterface
         $this->validateAndCompleteFieldMapping($mapping, false);
     }
 
-    public function setFieldInherited($fieldName)
+    public function setFieldInherited($fieldName, $className)
     {
-        $this->inheritedFields[$fieldName] = true;
+        $this->inheritedFields[$fieldName] = $className;
+    }
+
+    public function setDeclaredInherited($fieldName, $className)
+    {
+        $this->declaredFields[$fieldName] = $className;
     }
 
     public function mapNode(array $mapping)
@@ -812,6 +821,16 @@ class ClassMetadata implements ClassMetadataInterface
     public function isInheritedField($fieldName)
     {
         return isset($this->inheritedFields[$fieldName]);
+    }
+
+    /**
+     * Checks whether a mapped field is declared previously.
+     *
+     * @return boolean TRUE if the field is declared, FALSE otherwise.
+     */
+    public function isDeclaredField($fieldName)
+    {
+        return isset($this->declaredFields[$fieldName]);
     }
 
     /**

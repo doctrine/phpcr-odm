@@ -138,51 +138,60 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
         foreach ($parentClass->fieldMappings as $fieldName => $mapping) {
-            $subClass->setFieldInherited($fieldName);
+            $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->mapField($mapping);
         }
         foreach ($parentClass->associationsMappings as $fieldName => $mapping) {
-            $subClass->setFieldInherited($fieldName);
+            $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->storeAssociationMapping($mapping);
         }
         foreach ($parentClass->childMappings as $fieldName => $mapping) {
-            $subClass->setFieldInherited($fieldName);
+            $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->mapChild($mapping);
         }
         foreach ($parentClass->childrenMappings as $fieldName => $mapping) {
-            $subClass->setFieldInherited($fieldName);
+            $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->mapChildren($mapping);
         }
         foreach ($parentClass->referrersMappings as $fieldName => $mapping) {
-            $subClass->setFieldInherited($fieldName);
+            $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->mapReferrers($mapping);
         }
         if ($parentClass->node) {
-            $subClass->setFieldInherited($parentClass->node);
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->node);
             $subClass->mapNode(array('fieldName' => $parentClass->node));
         }
         if ($parentClass->nodename) {
-            $subClass->setFieldInherited($parentClass->nodename);
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->nodename);
             $subClass->mapNodename(array('fieldName' => $parentClass->nodename));
         }
         if ($parentClass->parentMapping) {
-            $subClass->setFieldInherited($parentClass->parentMapping);
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->parentMapping);
             $subClass->mapParentDocument(array('fieldName' => $parentClass->parentMapping));
         }
         if ($parentClass->localeMapping) {
-            $subClass->setFieldInherited($parentClass->localeMapping);
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->localeMapping);
             $subClass->mapLocale(array('fieldName' => $parentClass->localeMapping));
         }
         if ($parentClass->versionNameField) {
-            $subClass->setFieldInherited($parentClass->versionNameField);
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->versionNameField);
             $subClass->mapVersionName(array('fieldName' => $parentClass->versionNameField));
         }
         if ($parentClass->versionCreatedField) {
-            $subClass->setFieldInherited($parentClass->versionCreatedField);
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->versionCreatedField);
             $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField));
         }
     }
 
+    private function registerParentOnField(ClassMetadata $subClass, ClassMetadata $parentClass, $fieldName)
+    {
+        if (!$parentClass->isInheritedField($fieldName) && !$parentClass->isMappedSuperclass) {
+            $subClass->setFieldInherited($fieldName, $parentClass->name);
+        }
+        if (!$parentClass->isDeclaredField($fieldName)) {
+            $subClass->setDeclaredInherited($fieldName, $parentClass->name);
+        }
+    }
     /**
      * {@inheritdoc}
      */
