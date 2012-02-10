@@ -157,7 +157,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         }
 
         foreach ($reflClass->getMethods() as $method) {
-            if ($method->isPublic()) {
+            if ($method->isPublic() && $method->getDeclaringClass()->getName() == $metadata->name) {
                 foreach ($this->reader->getMethodAnnotations($method) as $annot) {
                     if ($annot instanceof ODM\PrePersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::prePersist);
