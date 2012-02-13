@@ -47,9 +47,9 @@ class ParentIdGenerator extends IdGenerator
 
         // determine ID based on the path and the node name
         $parentCm = $dm->getClassMetadata(get_class($parent));
-        $id = $parentCm->reflFields[$parentCm->identifier]->getValue($parent);
+        $id = $dm->getUnitOfWork()->getDocumentId($parent);
         if (!$id) {
-            throw new \RuntimeException('Parent ID could not be determined. Make sure the parent document has a property with the Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the parent document is to be store.');
+            throw new \RuntimeException('Parent ID could not be determined. Make sure the parent document has a property with the Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the parent document is to be stored.');
         }
         return $id . '/' . $name;
     }

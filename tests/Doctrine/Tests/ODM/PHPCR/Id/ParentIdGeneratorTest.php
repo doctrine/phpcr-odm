@@ -17,12 +17,24 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $generator = new ParentIdGenerator;
         $parent = new ParentDummy;
         $cm = new ParentClassMetadataProxy($parent, 'name', $id, new MockField($parent, '/miau'));
+        $uow = $this->getMockBuilder('Doctrine\ODM\PHPCR\UnitOfWork')->disableOriginalConstructor()->getMock();
+        $uow
+            ->expects($this->once())
+            ->method('getDocumentId')
+            ->with($this->equalTo($parent))
+            ->will($this->returnValue('/miau'))
+        ;
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
         $dm
             ->expects($this->once())
             ->method('getClassMetadata')
             ->with($this->equalTo('Doctrine\Tests\ODM\PHPCR\Id\ParentDummy'))
             ->will($this->returnValue($cm))
+        ;
+        $dm
+            ->expects($this->once())
+            ->method('getUnitOfWork')
+            ->will($this->returnValue($uow))
         ;
         $this->assertEquals('/miau/name', $generator->generate(null, $cm,  $dm));
     }
