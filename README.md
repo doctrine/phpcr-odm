@@ -187,6 +187,13 @@ $dm->persist($newUser);
 // store all changes, insertions, etc. with the storage backend
 $dm->flush();
 
+// move/rename a document in the tree
+$dm->move($newUser, '/tommy');
+$dm->flush();
+
+// make sure there is no documents left thinking $newUser at the old path
+$dm->clear();
+
 // run a query
 $qb = $dm->createQueryBuilder();
 

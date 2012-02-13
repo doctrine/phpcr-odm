@@ -484,6 +484,11 @@ class DocumentManager implements ObjectManager
     /**
      * Move the previously persisted document and all its children in the tree
      *
+     * Note that this does not update the @Id fields of child documents and
+     * neither fields with @Child/Children annotations. If you want to continue
+     * working with the manager after a move, you are probably safest calling
+     * DocumentManager::clear and re-loading the documents you need to use.
+     *
      * @param object $object
      * @param string $targetPath
      */
