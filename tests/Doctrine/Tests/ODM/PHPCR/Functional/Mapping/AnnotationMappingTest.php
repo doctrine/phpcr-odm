@@ -4,7 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
+    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 /**
  * @group functional
@@ -37,6 +38,35 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $second = new SecondLevel();
         $second->id = '/functional/second';
         $this->dm->persist($second);
+    }
+
+    public function testSecoundLevelOverwrite()
+    {
+
+        $localePrefs = array(
+            'en' => array('en', 'de'),
+            'de' => array('de', 'en'),
+        );
+
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+
+        $secondTrans = new SecondLevelOverwrite();
+        $secondTrans->id = '/functional/secondTrans';
+        $secondTrans->username = 'german';
+        $this->dm->persist($secondTrans);
+        $this->dm->bindTranslation($secondTrans, 'de');
+        $secondTrans->username = 'english';
+        $this->dm->bindTranslation($secondTrans, 'en');
+
+        $this->dm->flush();
+
+        $tmpDocDe = $this->dm->findTranslation(null, '/functional/secondTrans', 'de');
+
+        $this->assertEquals($tmpDocDe->username, 'german');
+
+        $tmpDocEn = $this->dm->findTranslation(null, '/functional/secondTrans', 'en');
+
+        $this->assertEquals($tmpDocEn->username, 'english');
     }
 
     // TODO comprehensive test for all possible mapped fields in an abstract test, trying to persist and check if properly set
@@ -74,4 +104,18 @@ class ExtendingClass extends Testclass
  */
 class SecondLevel extends ExtendingClass
 {
+}
+
+/**
+ * @PHPCRODM\Document(translator="attribute")
+ */
+class SecondLevelOverwrite extends ExtendingClass
+{
+    /**
+     * @PHPCRODM\Locale
+     */
+    public $locale;
+
+    /** @PHPCRODM\String(translated=true) */
+    public $username;
 }

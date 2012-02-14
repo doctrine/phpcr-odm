@@ -191,7 +191,11 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if (!$parentClass->isDeclaredField($fieldName)) {
             $subClass->setDeclaredInherited($fieldName, $parentClass->name);
         }
+        if ($parentClass->isInheritedField($fieldName)) {
+            $subClass->setDeclaredInherited($fieldName, $parentClass->name);
+        }
     }
+    
     /**
      * {@inheritdoc}
      */
