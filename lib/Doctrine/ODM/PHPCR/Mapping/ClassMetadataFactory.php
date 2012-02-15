@@ -137,6 +137,15 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
+        $inheritedFields = $parentClass->getInheritedFields();
+        foreach ($inheritedFields as $fieldName => $className) {
+            $subClass->setFieldInherited($fieldName, $className);
+        }
+        $delcaredFields = $parentClass->getDeclaredFields();
+        foreach ($delcaredFields as $fieldName => $className) {
+            $subClass->setFieldDeclared($fieldName, $className);
+        }
+
         foreach ($parentClass->fieldMappings as $fieldName => $mapping) {
             $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->mapField($mapping);
@@ -156,6 +165,10 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         foreach ($parentClass->referrersMappings as $fieldName => $mapping) {
             $this->registerParentOnField($subClass, $parentClass, $fieldName);
             $subClass->mapReferrers($mapping);
+        }
+        if ($parentClass->identifier) {
+            $this->registerParentOnField($subClass, $parentClass, $parentClass->identifier);
+            $subClass->mapId(array('fieldName' => $parentClass->identifier, 'id' => true, 'strategy' => $parentClass->idGenerator));
         }
         if ($parentClass->node) {
             $this->registerParentOnField($subClass, $parentClass, $parentClass->node);
@@ -189,7 +202,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $subClass->setFieldInherited($fieldName, $parentClass->name);
         }
         if (!$parentClass->isDeclaredField($fieldName)) {
-            $subClass->setDeclaredInherited($fieldName, $parentClass->name);
+            $subClass->setFieldDeclared($fieldName, $parentClass->name);
         }
     }
     /**

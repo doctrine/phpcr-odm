@@ -472,7 +472,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->inheritedFields[$fieldName] = $className;
     }
 
-    public function setDeclaredInherited($fieldName, $className)
+    public function setFieldDeclared($fieldName, $className)
     {
         $this->declaredFields[$fieldName] = $className;
     }
@@ -816,21 +816,41 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Checks whether a mapped field is inherited from an entity superclass.
      *
-     * @return boolean TRUE if the field is inherited, FALSE otherwise.
+     * @return boolean string clas naem if the field is inherited, FALSE otherwise.
      */
     public function isInheritedField($fieldName)
     {
-        return isset($this->inheritedFields[$fieldName]);
+        return isset($this->inheritedFields[$fieldName]) ? $this->inheritedFields[$fieldName] : false;
+    }
+
+    /**
+     * Get all the inherited fields
+     *
+     * @return array all inherited field
+     */
+    public function getInheritedFields()
+    {
+        return $this->inheritedFields;
     }
 
     /**
      * Checks whether a mapped field is declared previously.
      *
-     * @return boolean TRUE if the field is declared, FALSE otherwise.
+     * @return boolean string class name if the field is declared, FALSE otherwise.
      */
     public function isDeclaredField($fieldName)
     {
-        return isset($this->declaredFields[$fieldName]);
+        return isset($this->declaredFields[$fieldName]) ? $this->declaredFields[$fieldName] : false;
+    }
+
+    /**
+     * Get all the declared fields
+     *
+     * @return array all declared field
+     */
+    public function getDeclaredFields()
+    {
+        return $this->declaredFields;
     }
 
     /**

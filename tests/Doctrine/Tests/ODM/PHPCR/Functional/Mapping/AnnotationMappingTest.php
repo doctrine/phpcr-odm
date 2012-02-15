@@ -16,14 +16,9 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     private $dm;
 
-    private $type;
-
-    private $node;
-
     public function setUp()
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
-        $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testAnnotationInheritance()
@@ -32,9 +27,20 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $extending->id = '/functional/extending';
         $this->dm->persist($extending);
     }
+
     public function testSecondLevelInheritance()
     {
         $second = new SecondLevel();
+        $second->id = '/functional/second';
+        $this->dm->persist($second);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testSecondLevelInheritanceWithDuplicate()
+    {
+        $second = new SecondLevelWithDuplicate();
         $second->id = '/functional/second';
         $this->dm->persist($second);
     }
@@ -66,7 +72,7 @@ class Testclass
 class ExtendingClass extends Testclass
 {
     /** @PHPCRODM\String */
-    public $username;
+    public $name;
 }
 
 /**
@@ -74,4 +80,13 @@ class ExtendingClass extends Testclass
  */
 class SecondLevel extends ExtendingClass
 {
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class SecondLevelWithDuplicate extends ExtendingClass
+{
+    /** @PHPCRODM\String */
+    public $username;
 }
