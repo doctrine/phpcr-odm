@@ -942,7 +942,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setIdentifierValue($document, $id)
     {
-        $this->reflFields[$this->identifier]->setValue($document, $id);
+        if (isset($this->reflFields[$this->identifier])) {
+            $this->reflFields[$this->identifier]->setValue($document, $id);
+        }
     }
 
     /**
