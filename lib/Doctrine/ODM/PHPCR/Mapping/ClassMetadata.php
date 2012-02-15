@@ -564,16 +564,19 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['name'] = $mapping['fieldName'];
         }
 
-        if (isset($this->fieldMappings[$mapping['fieldName']])
-            || ($this->node == $mapping['fieldName'])
-            || ($this->nodename == $mapping['fieldName'])
-            || ($this->parentMapping == $mapping['fieldName'])
-            || ($this->versionNameField == $mapping['fieldName'])
-            || ($this->versionCreatedField == $mapping['fieldName'])
-            || isset($this->associationsMappings[$mapping['fieldName']])
-            || isset($this->childMappings[$mapping['fieldName']])
-            || isset($this->childrenMappings[$mapping['fieldName']])
-            || isset($this->referrersMappings[$mapping['fieldName']])
+        if ((isset($this->fieldMappings[$mapping['fieldName']])
+              || ($this->node == $mapping['fieldName'])
+              || ($this->nodename == $mapping['fieldName'])
+              || ($this->parentMapping == $mapping['fieldName'])
+              || ($this->versionNameField == $mapping['fieldName'])
+              || ($this->versionCreatedField == $mapping['fieldName'])
+              || isset($this->associationsMappings[$mapping['fieldName']])
+              || isset($this->childMappings[$mapping['fieldName']])
+              || isset($this->childrenMappings[$mapping['fieldName']])
+              || isset($this->referrersMappings[$mapping['fieldName']])
+            )
+            && !isset($this->inheritedFields[$mapping['fieldName']])
+            && !isset($this->declaredFields[$mapping['fieldName']])
         ) {
             throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
