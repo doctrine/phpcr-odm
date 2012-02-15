@@ -66,8 +66,6 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertEquals('foo', $user->username);
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($user));
         $this->assertEquals('/somepath', $this->uow->getDocumentId($user));
-
-        $this->assertEquals(array('id' => '/somepath', 'username' => 'foo'), $this->uow->getOriginalData($user));
     }
 
     public function testCreateDocumentUsingIdentityMap()
