@@ -427,15 +427,6 @@ class UnitOfWork
     }
 
     /**
-     * @param  object $document
-     * @return array
-     */
-    public function getOriginalData($document)
-    {
-        return $this->originalData[spl_object_hash($document)];
-    }
-
-    /**
      * Bind the translatable fields of the document in the specified locale.
      *
      * This method will update the @Locale field if it does not match the $locale argument.
@@ -997,8 +988,13 @@ class UnitOfWork
     {
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
-
         $this->registerManaged($document, $id, null);
+
+        if ($generator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
+            || $generator === ClassMetadata::GENERATOR_TYPE_PARENT
+        ) {
+            $class->setIdentifierValue($document, $id);
+        }
 
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
@@ -1969,7 +1965,20 @@ class UnitOfWork
 
     private static function objToStr($obj)
     {
-        return method_exists($obj, '__toString') ? (string)$obj : get_class($obj).'@'.spl_object_hash($obj);
+        if (method_exists($obj, '__toString')) {
+            return (string)$obj;
+        }
+
+        $string = get_class($obj).'@'.spl_object_hash($obj);
+
+        try {
+            $metadata = $this->dm->getClassMetadata(get_class($obj));
+            if ($metadata->getIdentifierValue($obj)) {
+                $string.= ' ('.$metadata->getIdentifierValue($obj).')';
+            }
+        } catch (\Exception $e) {}
+
+        return  $string;
     }
 
     protected function getFullVersionedNodePath($document)
