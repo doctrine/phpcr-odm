@@ -550,13 +550,16 @@ class UnitOfWork
             }
         }
 
+        $id = $class->getIdentifierValue($document);
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
-                $id = $class->getIdentifierValue($document);
-                $childClass->setIdentifierValue($child, $id.'/'.$mapping['name']);
-                $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
+                $childId = $id.'/'.$mapping['name'];
+                $childClass->setIdentifierValue($child, $childId);
+                $oid = spl_object_hash($child);
+                $this->documentState[$oid] = self::STATE_NEW;
+                $this->documentIds[spl_object_hash($child)] = $childId;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }
@@ -570,12 +573,14 @@ class UnitOfWork
             foreach ($children as $child) {
                 if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                     $childClass = $this->dm->getClassMetadata(get_class($child));
-                    $id = $class->getIdentifierValue($document);
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
                         : basename($childClass->getIdentifierValue($child));
-                    $childClass->setIdentifierValue($child, $id.'/'.$nodename);
-                    $this->documentState[spl_object_hash($child)] = self::STATE_NEW;
+                    $childId = $id.'/'.$nodename;
+                    $childClass->setIdentifierValue($child, $childId);
+                    $oid = spl_object_hash($child);
+                    $this->documentState[$oid] = self::STATE_NEW;
+                    $this->documentIds[spl_object_hash($child)] = $childId;
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
             }
@@ -716,7 +721,11 @@ class UnitOfWork
         if ($document) {
             $state = $this->getDocumentState($document);
             if ($state !== self::STATE_MANAGED) {
-                throw new \InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
+                if ($state === self::STATE_MOVE) {
+                    return;
+                }
+
+                throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
             }
 
             foreach ($this->scheduledInserts as $insertedDocument) {
@@ -1382,6 +1391,10 @@ class UnitOfWork
 
             $class = $this->dm->getClassMetadata(get_class($document));
             $path = $class->getIdentifierValue($document);
+            if ($path === $targetPath) {
+                continue;
+            }
+
             $this->session->move($path, $targetPath);
             if ($targetPath !== $this->nodesMap[$oid]->getPath()) {
                 throw new \RuntimeException("Move failed to move from '$path' to '$targetPath' for document: ".self::objToStr($document, $this->dm));
@@ -1981,7 +1994,7 @@ class UnitOfWork
             }
         }
 
-        return  $string;
+        return $string;
     }
 
     protected function getFullVersionedNodePath($document)
