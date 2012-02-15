@@ -27,12 +27,6 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
         $dm
             ->expects($this->once())
-            ->method('getClassMetadata')
-            ->with($this->equalTo('Doctrine\Tests\ODM\PHPCR\Id\ParentDummy'))
-            ->will($this->returnValue($cm))
-        ;
-        $dm
-            ->expects($this->once())
             ->method('getUnitOfWork')
             ->will($this->returnValue($uow))
         ;
