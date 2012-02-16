@@ -575,7 +575,13 @@ class ClassMetadata implements ClassMetadataInterface
             || isset($this->childrenMappings[$mapping['fieldName']])
             || isset($this->referrersMappings[$mapping['fieldName']])
         ) {
-            throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
+            if (!$isField
+                || empty($mapping['type'])
+                || empty($this->fieldMappings[$mapping['fieldName']])
+                || $this->fieldMappings[$mapping['fieldName']]['type'] !== $mapping['type']
+            ) {
+                throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
+            }
         }
 
         if ($isField && !isset($mapping['type'])) {

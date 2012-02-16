@@ -20,6 +20,7 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testAnnotationInheritance()
@@ -48,7 +49,6 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testSecoundLevelOverwrite()
     {
-
         $localePrefs = array(
             'en' => array('en', 'de'),
             'de' => array('de', 'en'),
