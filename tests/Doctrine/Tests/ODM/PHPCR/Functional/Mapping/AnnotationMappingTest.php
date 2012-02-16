@@ -119,7 +119,7 @@ class SecondLevel extends ExtendingClass
  */
 class SecondLevelWithDuplicate extends ExtendingClass
 {
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Int */
     public $username;
 }
 
