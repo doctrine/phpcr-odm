@@ -4,7 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
+    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 /**
  * @group functional
@@ -45,6 +46,35 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($second);
     }
 
+    public function testSecoundLevelOverwrite()
+    {
+
+        $localePrefs = array(
+            'en' => array('en', 'de'),
+            'de' => array('de', 'en'),
+        );
+
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+
+        $secondTrans = new SecondLevelWithDuplicateOverwrite();
+        $secondTrans->id = '/functional/secondTrans';
+        $secondTrans->text = 'deutsch';
+        $this->dm->persist($secondTrans);
+        $this->dm->bindTranslation($secondTrans, 'de');
+        $secondTrans->text = 'english';
+        $this->dm->bindTranslation($secondTrans, 'en');
+
+        $this->dm->flush();
+
+        $tmpDocDe = $this->dm->findTranslation(null, '/functional/secondTrans', 'de');
+
+        $this->assertEquals($tmpDocDe->text, 'deutsch');
+
+        $tmpDocEn = $this->dm->findTranslation(null, '/functional/secondTrans', 'en');
+
+        $this->assertEquals($tmpDocEn->text, 'english');
+    }
+
     // TODO comprehensive test for all possible mapped fields in an abstract test, trying to persist and check if properly set
     // then dm->clear and check if still properly set.
 
@@ -64,6 +94,8 @@ class Testclass
     public $username;
     /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
+    /** @PHPCRODM\String */
+    public $text;
 }
 
 /**
@@ -89,4 +121,15 @@ class SecondLevelWithDuplicate extends ExtendingClass
 {
     /** @PHPCRODM\String */
     public $username;
+}
+
+/**
+ * @PHPCRODM\Document(translator="attribute")
+ */
+class SecondLevelWithDuplicateOverwrite extends ExtendingClass
+{
+    /** @PHPCRODM\Locale */
+    public $locale;
+    /** @PHPCRODM\String(translated=true) */
+    public $text;
 }
