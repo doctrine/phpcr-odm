@@ -181,6 +181,52 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
+    public function testMoveWithChild()
+    {
+        $this->dm->clear();
+        $user1 = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user1, 'User must exist');
+
+        $user2 = new TeamUser();
+        $user2->username = 'jwage';
+        $user2->id = '/functional/user/team';
+        $user2->parent = $user1;
+        $user3 = new TeamUser();
+        $user3->username = 'beberlei';
+        $user3->id = '/functional/user/team/team';
+        $user3->parent = $user2;
+
+        $this->dm->persist($user3);
+
+        $this->dm->flush();
+        // TODO remove comment on clear once infinite recursion in Jackalope is fixed
+//        $this->dm->clear();
+
+        $user1 = $this->dm->find($this->type, '/functional/user');
+        $this->dm->move($user1, '/functional/user2');
+        $this->dm->flush();
+
+        // TODO remove comment on clear once infinite recursion in Jackalope is fixed
+        //        $this->dm->clear();
+
+        $user = $this->dm->find($this->type, '/functional/user2');
+        $this->assertNotNull($user, 'User must exist');
+        $user = $this->dm->find($this->type, '/functional/user2/team');
+        $this->assertNotNull($user, 'User must exist');
+        $user = $this->dm->find($this->type, '/functional/user2/team/team');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->move($user1, '/functional/user');
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+        $user = $this->dm->find($this->type, '/functional/user/team');
+        $this->assertNotNull($user, 'User must exist');
+        $user = $this->dm->find($this->type, '/functional/user/team/team');
+        $this->assertNotNull($user, 'User must exist');
+    }
+
     public function testRemoveWithClear()
     {
         $this->dm->clear();

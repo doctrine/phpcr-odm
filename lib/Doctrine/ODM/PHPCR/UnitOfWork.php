@@ -1399,8 +1399,28 @@ class UnitOfWork
             if ($targetPath !== $this->nodesMap[$oid]->getPath()) {
                 throw new \RuntimeException("Move failed to move from '$path' to '$targetPath' for document: ".self::objToStr($document, $this->dm));
             }
-            $class->setIdentifierValue($document, $targetPath);
-            $this->originalData[$oid][$class->identifier] = $targetPath;
+
+            foreach ($this->documentIds as $oid => $id) {
+                if (0 === strpos($id, $path)) {
+                    $newId = $targetPath.substr($id, strlen($path));
+                    $this->documentIds[$oid] = $newId;
+
+                    if (isset($this->identityMap[$id])) {
+                        $document = $this->identityMap[$id];
+                        unset($this->identityMap[$id]);
+                        $this->identityMap[$newId] = $document;
+                        if ($document instanceof Proxy && !$document->__isInitialized()) {
+                            continue;
+                        }
+
+                        $class = $this->dm->getClassMetadata(get_class($document));
+                        if ($class->identifier) {
+                            $class->setIdentifierValue($document, $newId);
+                            $this->originalData[$oid][$class->identifier] = $newId;
+                        }
+                    }
+                }
+            }
         }
     }
 
