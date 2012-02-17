@@ -337,7 +337,7 @@ class UnitOfWork
             $overrideLocalValuesOid = empty($hints['refresh']) ? false : spl_object_hash($document);
         } else {
             $document = $class->newInstance();
-            $overrideLocalValuesOid = $this->registerManaged($document, $id);
+            $overrideLocalValuesOid = $this->registerDocument($document, $id);
         }
 
         if (isset($requestedClassName) && $this->validateDocumentName && !($document instanceof $requestedClassName)) {
@@ -406,7 +406,7 @@ class UnitOfWork
         $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
 
         // register the document under its own id
-        $this->registerManaged($proxyDocument, $targetId);
+        $this->registerDocument($proxyDocument, $targetId);
 
         return $proxyDocument;
     }
@@ -503,11 +503,11 @@ class UnitOfWork
                 break;
             case self::STATE_MOVED:
                 unset($this->scheduledMoves[$oid]);
-                $this->documentState[$oid] = self::STATE_MANAGED;
+                $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_REMOVED:
                 unset($this->scheduledRemovals[$oid]);
-                $this->documentState[$oid] = self::STATE_MANAGED;
+                $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to persist(): '.self::objToStr($document, $this->dm));
@@ -616,7 +616,7 @@ class UnitOfWork
         }
 
         $this->scheduledMoves[$oid] = array($document, $targetPath);
-        $this->documentState[$oid] = self::STATE_MOVED;
+        $this->setDocumentState($oid, self::STATE_MOVED);
     }
 
     public function scheduleRemove($document)
@@ -637,7 +637,7 @@ class UnitOfWork
         }
 
         $this->scheduledRemovals[$oid] = $document;
-        $this->documentState[$oid] = self::STATE_REMOVED;
+        $this->setDocumentState($oid, self::STATE_REMOVED);
 
         $class = $this->dm->getClassMetadata(get_class($document));
         if (isset($class->lifecycleCallbacks[Event::preRemove])) {
@@ -652,6 +652,8 @@ class UnitOfWork
      * recurse over all known child documents to remove them form this unit of work
      * as their parent gets removed from phpcr. If you do not, flush will try to create
      * orphaned nodes if these documents are modified which leads to a PHPCR exception
+     *
+     * @param object $document
      */
     private function purgeChildren($document)
     {
@@ -660,22 +662,26 @@ class UnitOfWork
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null) {
                 $this->purgeChildren($child);
-
-                $oid = spl_object_hash($child);
-                unset(
-                    $this->scheduledRemovals[$oid],
-                    $this->scheduledMoves[$oid],
-                    $this->scheduledInserts[$oid],
-                    $this->scheduledUpdates[$oid],
-                    $this->scheduledAssociationUpdates[$oid]
-                );
-
-                $this->removeFromIdentityMap($child);
+                $this->unregisterDocument($child);
             }
         }
     }
 
-    public function getDocumentState($document)
+    /**
+     * @param object|string $document
+     * @param int $state
+     */
+    private function setDocumentState($document, $state)
+    {
+        $oid = is_object($document) ? spl_object_hash($document) : $document;
+        $this->documentState[$oid] = $state;
+    }
+
+    /**
+     * @param object $document
+     * @return int
+     */
+    private function getDocumentState($document)
     {
         $oid = spl_object_hash($document);
         if (!isset($this->documentState[$oid])) {
@@ -732,7 +738,7 @@ class UnitOfWork
             }
 
             $oid = spl_object_hash($document);
-            if (!isset($this->scheduledInserts[$oid]) && isset($this->documentState[$oid])) {
+            if (!isset($this->scheduledInserts[$oid])) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
             }
@@ -752,7 +758,7 @@ class UnitOfWork
      * @param object $document
      * @return void
      */
-    public function computeChangeSet(ClassMetadata $class, $document)
+    private function computeChangeSet(ClassMetadata $class, $document)
     {
         if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
@@ -976,7 +982,7 @@ class UnitOfWork
     {
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
-        $this->registerManaged($document, $id);
+        $this->registerDocument($document, $id);
 
         if ($generator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
             || $generator === ClassMetadata::GENERATOR_TYPE_PARENT
@@ -1019,16 +1025,10 @@ class UnitOfWork
 
         $visited[$oid] = $document; // mark visited
 
-        switch ($this->getDocumentState($document)) {
+        $state = $this->getDocumentState($document);
+        switch ($state) {
             case self::STATE_MANAGED:
-                if (isset($this->identityMap[$this->documentIds[$oid]])) {
-                    $this->removeFromIdentityMap($document);
-                }
-                unset($this->scheduledRemovals[$oid], $this->scheduledUpdates[$oid],
-                        $this->scheduledAssociationUpdates[$oid],
-                        $this->originalData[$oid],
-                        $this->documentIds[$oid], $this->documentState[$oid],
-                        $this->documentTranslations[$oid], $this->documentLocales[$oid]);
+                $this->unregisterDocument($document);
                 break;
             case self::STATE_NEW:
             case self::STATE_DETACHED:
@@ -1161,6 +1161,10 @@ class UnitOfWork
         // sort the documents to insert parents first
         $oids = array();
         foreach ($documents as $oid => $document) {
+            if (!$this->contains($oid)) {
+                continue;
+            }
+
             $oids[$oid] = $this->getDocumentId($document);
         }
         asort($oids);
@@ -1247,6 +1251,10 @@ class UnitOfWork
     private function executeUpdates($documents, $dispatchEvents = true)
     {
         foreach ($documents as $oid => $document) {
+            if (!$this->contains($oid)) {
+                continue;
+            }
+
             $class = $this->dm->getClassMetadata(get_class($document));
             $node = $this->session->getNode($this->getDocumentId($document));
 
@@ -1322,7 +1330,6 @@ class UnitOfWork
                         }
                     }
                 } elseif (isset($class->childMappings[$fieldName])) {
-                    // child is set to null ... remove the node ...
                     if ($fieldValue === null) {
                         if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
                             $child = $node->getNode($class->childMappings[$fieldName]['name']);
@@ -1356,7 +1363,11 @@ class UnitOfWork
      */
     private function executeMoves($documents)
     {
-        foreach ($documents as $value) {
+        foreach ($documents as $oid => $value) {
+            if (!$this->contains($oid)) {
+                continue;
+            }
+
             list($document, $targetPath) = $value;
 
             $class = $this->dm->getClassMetadata(get_class($document));
@@ -1368,23 +1379,28 @@ class UnitOfWork
             $this->session->move($path, $targetPath);
 
             foreach ($this->documentIds as $oid => $id) {
-                if (0 === strpos($id, $path)) {
-                    $newId = $targetPath.substr($id, strlen($path));
-                    $this->documentIds[$oid] = $newId;
+                if (0 !== strpos($id, $path)) {
+                    continue;
+                }
 
-                    $document = $this->getDocumentById($id);
-                    if ($document) {
-                        unset($this->identityMap[$id]);
-                        $this->identityMap[$newId] = $document;
-                        if ($document instanceof Proxy && !$document->__isInitialized()) {
-                            $document->__setIdentifier($newId);
-                        } else {
-                            $class = $this->dm->getClassMetadata(get_class($document));
-                            if ($class->identifier) {
-                                $class->setIdentifierValue($document, $newId);
-                                $this->originalData[$oid][$class->identifier] = $newId;
-                            }
-                        }
+                $newId = $targetPath.substr($id, strlen($path));
+                $this->documentIds[$oid] = $newId;
+
+                $document = $this->getDocumentById($id);
+                if (!$document) {
+                    continue;
+                }
+
+                unset($this->identityMap[$id]);
+                $this->identityMap[$newId] = $document;
+
+                if ($document instanceof Proxy && !$document->__isInitialized()) {
+                    $document->__setIdentifier($newId);
+                } else {
+                    $class = $this->dm->getClassMetadata(get_class($document));
+                    if ($class->identifier) {
+                        $class->setIdentifierValue($document, $newId);
+                        $this->originalData[$oid][$class->identifier] = $newId;
                     }
                 }
             }
@@ -1410,7 +1426,7 @@ class UnitOfWork
             $this->doRemoveAllTranslations($document, $class);
 
             $node->remove();
-            $this->removeFromIdentityMap($document);
+            $this->unregisterDocument($document);
             $this->purgeChildren($document);
 
             if (isset($class->lifecycleCallbacks[Event::postRemove])) {
@@ -1573,28 +1589,36 @@ class UnitOfWork
     }
 
     /**
-     * INTERNAL:
      * Removes an document from the identity map. This effectively detaches the
      * document from the persistence management of Doctrine.
      *
      * @ignore
      * @param object $document
-     * @return boolean
      */
-    public function removeFromIdentityMap($document)
+    private function unregisterDocument($document)
     {
         $oid = spl_object_hash($document);
 
-        if (isset($this->identityMap[$this->documentIds[$oid]])) {
-            unset($this->identityMap[$this->documentIds[$oid]],
-                  $this->documentIds[$oid],
-                  $this->documentState[$oid],
-                  $this->documentTranslations[$oid]);
-
-            return true;
+        if ($this->contains($document)) {
+            $id = $this->getDocumentId($document);
+            unset($this->identityMap[$id]);
         }
 
-        return false;
+        unset($this->scheduledRemovals[$oid],
+            $this->scheduledUpdates[$oid],
+            $this->scheduledMoves[$oid],
+            $this->scheduledInserts[$oid],
+            $this->scheduledAssociationUpdates[$oid],
+            $this->originalData[$oid],
+            $this->documentIds[$oid],
+            $this->documentState[$oid],
+            $this->documentTranslations[$oid],
+            $this->documentLocales[$oid],
+            $this->nonMappedData[$oid],
+            $this->documentChangesets[$oid],
+            $this->documentHistory[$oid],
+            $this->documentVersion[$oid]
+        );
     }
 
     /**
@@ -1602,12 +1626,12 @@ class UnitOfWork
      * @param string $id The document id to look for.
      * @return the generated object id
      */
-    public function registerManaged($document, $id)
+    private function registerDocument($document, $id)
     {
         $oid = spl_object_hash($document);
-        $this->documentState[$oid] = self::STATE_MANAGED;
         $this->documentIds[$oid] = $id;
         $this->identityMap[$id] = $document;
+        $this->setDocumentState($oid, self::STATE_MANAGED);
 
         return $oid;
     }
@@ -1790,7 +1814,7 @@ class UnitOfWork
         return $locales;
     }
 
-    protected function doSaveTranslation($document, $node, $metadata)
+    private function doSaveTranslation($document, $node, $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -1825,7 +1849,7 @@ class UnitOfWork
      *
      * @return void
      */
-    protected function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
+    private function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -1868,7 +1892,7 @@ class UnitOfWork
         $this->documentLocales[$oid] = array('original' => $locale, 'current' => $locale);
     }
 
-    protected function doRemoveTranslation($document, $metadata, $locale)
+    private function doRemoveTranslation($document, $metadata, $locale)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -1886,7 +1910,7 @@ class UnitOfWork
         }
     }
 
-    protected function doRemoveAllTranslations($document, $metadata)
+    private function doRemoveAllTranslations($document, $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -1897,7 +1921,7 @@ class UnitOfWork
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
 
-    protected function getLocale($document, $metadata)
+    private function getLocale($document, $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -1925,7 +1949,7 @@ class UnitOfWork
      * @param $desiredLocale
      * @return array
      */
-    protected function getFallbackLocales($document, $metadata, $desiredLocale)
+    private function getFallbackLocales($document, $metadata, $desiredLocale)
     {
         $strategy = $this->dm->getLocaleChooserStrategy();
         return $strategy->getPreferredLocalesOrder($document, $metadata, $desiredLocale);
@@ -1940,7 +1964,7 @@ class UnitOfWork
      * @param $metadata the document meta data
      * @return bool
      */
-    public function isDocumentTranslatable($metadata)
+    private function isDocumentTranslatable($metadata)
     {
         return !empty($metadata->translator)
             && is_string($metadata->translator)
@@ -1968,7 +1992,7 @@ class UnitOfWork
         return $string;
     }
 
-    protected function getFullVersionedNodePath($document)
+    private function getFullVersionedNodePath($document)
     {
         $path = $this->getDocumentId($document);
         $metadata = $this->dm->getClassMetadata(get_class($document));
@@ -1982,7 +2006,7 @@ class UnitOfWork
         return $path;
     }
 
-    protected function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)
     {
         if ($metadata->versionable === 'full') {
             $node->addMixin('mix:versionable');
