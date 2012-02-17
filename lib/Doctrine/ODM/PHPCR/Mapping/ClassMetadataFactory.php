@@ -154,8 +154,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $this->registerParentOnField($subClass, $parentClass, $fieldName);
             if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
                 $subClass->mapManyToOne($mapping);
-            }
-            else {
+            } else {
                 $subclass->mapManyToMany($mapping);
             }
         }
