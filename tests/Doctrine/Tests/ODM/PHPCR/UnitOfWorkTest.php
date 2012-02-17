@@ -76,11 +76,11 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertSame($user1, $user2);
     }
 
-    public function testTryGetById()
+    public function testGetDocumentById()
     {
         $user1 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
 
-        $user2 = $this->uow->tryGetById('/somepath', $this->type);
+        $user2 = $this->uow->getDocumentById('/somepath', $this->type);
 
         $this->assertSame($user1, $user2);
     }

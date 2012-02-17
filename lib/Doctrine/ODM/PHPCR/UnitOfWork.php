@@ -67,11 +67,6 @@ class UnitOfWork
     private $identityMap = array();
 
     /**
-     * @var array of \PHPCR\NodeInterface
-     */
-    private $nodesMap = array();
-
-    /**
      * @var array
      */
     private $documentIds = array();
@@ -209,23 +204,6 @@ class UnitOfWork
     }
 
     /**
-     * Get an already fetched node for the proxyDocument from the nodesMap and
-     * create the associated document.
-     *
-     * @param string $className
-     * @param Proxy $document
-     * @param string $locale the locale to use or null to use the default
-     *      locale. if this is not a translatable document, locale will be ignored.
-     * @return void
-     */
-    public function refreshDocumentForProxy($className, $document)
-    {
-        $node = $this->nodesMap[spl_object_hash($document)];
-        $hints = array('refresh' => true);
-        $this->createDocument($className, $node, $hints);
-    }
-
-    /**
      * Create a document given class, data and the doc-id and revision
      *
      * Supported hints are
@@ -312,9 +290,10 @@ class UnitOfWork
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedClass = isset($assocOptions['targetDocument'])
                     ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $this->createProxy(
-                    $referencedNode, $referencedClass
-                );
+                $proxy = $referencedClass
+                    ? $this->createProxy($referencedNode->getPath(), $referencedClass)
+                    : $this->createProxyFromNode($referencedNode);
+                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxy;
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
@@ -330,7 +309,10 @@ class UnitOfWork
                 foreach ($proxyNodes as $referencedNode) {
                     $referencedClass = isset($assocOptions['targetDocument'])
                         ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                    $referencedDocs[] = $this->createProxy($referencedNode, $referencedClass);
+                    $proxy = $referencedClass
+                        ? $this->createProxy($referencedNode->getPath(), $referencedClass)
+                        : $this->createProxyFromNode($referencedNode);
+                    $referencedDocs[] = $proxy;
                 }
                 if (count($referencedDocs) > 0) {
                     $collection = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
@@ -341,31 +323,21 @@ class UnitOfWork
 
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
-            $documentState[$class->parentMapping] = $this->createProxy($node->getParent());
+            $documentState[$class->parentMapping] = $this->createProxyFromNode($node->getParent());
         }
 
         foreach ($class->childMappings as $childName => $mapping) {
             $documentState[$class->childMappings[$childName]['fieldName']] = $node->hasNode($mapping['name'])
-                ? $this->createProxy($node->getNode($mapping['name']))
+                ? $this->createProxyFromNode($node->getNode($mapping['name']))
                 : null;
         }
 
-        if (isset($this->identityMap[$id])) {
-            $document = $this->identityMap[$id];
-            $overrideLocalValues = false;
-
-            if (isset($hints['refresh'])) {
-                $overrideLocalValues = true;
-                $oid = spl_object_hash($document);
-            }
+        $document = $this->getDocumentById($id);
+        if ($document) {
+            $overrideLocalValuesOid = empty($hints['refresh']) ? false : spl_object_hash($document);
         } else {
             $document = $class->newInstance();
-            $this->identityMap[$id] = $document;
-
-            $oid = spl_object_hash($document);
-            $this->documentState[$oid] = self::STATE_MANAGED;
-            $this->documentIds[$oid] = $id;
-            $overrideLocalValues = true;
+            $overrideLocalValuesOid = $this->registerManaged($document, $id);
         }
 
         if (isset($requestedClassName) && $this->validateDocumentName && !($document instanceof $requestedClassName)) {
@@ -381,14 +353,12 @@ class UnitOfWork
             $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
         }
 
-        if ($overrideLocalValues) {
-            $this->nodesMap[$oid] = $node;
-
-            $this->nonMappedData[$oid] = $nonMappedData;
+        if ($overrideLocalValuesOid) {
+            $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
             foreach ($class->reflFields as $prop => $reflFields) {
                 $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
                 $reflFields->setValue($document, $value);
-                $this->originalData[$oid][$prop] = $value;
+                $this->originalData[$overrideLocalValuesOid][$prop] = $value;
             }
         }
 
@@ -409,25 +379,50 @@ class UnitOfWork
         return $document;
     }
 
-    private function createProxy($node, $className = null)
+    private function createProxyFromNode($node)
     {
         $targetId = $node->getPath();
-        // check if referenced document already exists
-        if (isset($this->identityMap[$targetId])) {
-            return $this->identityMap[$targetId];
-        }
+        $className = $this->documentClassMapper->getClassName($this->dm, $node);
+        return $this->createProxy($targetId, $className);
+    }
 
-        if (null === $className) {
-            $className = $this->documentClassMapper->getClassName($this->dm, $node);
+    /**
+     * Create a proxy instance or return an existing document
+     *
+     * @param $targetId
+     * @param $className
+     *
+     * @return object
+     */
+    private function createProxy($targetId, $className)
+    {
+        $document = $this->getDocumentById($targetId);
+
+        // check if referenced document already exists
+        if ($document) {
+            return $document;
         }
 
         $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
 
         // register the document under its own id
-        $this->registerManaged($proxyDocument, $targetId, null);
-        $proxyOid = spl_object_hash($proxyDocument);
-        $this->nodesMap[$proxyOid] = $node;
+        $this->registerManaged($proxyDocument, $targetId);
+
         return $proxyDocument;
+    }
+
+    /**
+     * Populate the proxy with actual data
+     *
+     * @param string $className
+     * @param Proxy $document
+     * @return void
+     */
+    public function refreshDocumentForProxy($className, Proxy $document)
+    {
+        $node = $this->session->getNode($document->__getIdentifier());
+        $hints = array('refresh' => true);
+        $this->createDocument($className, $node, $hints);
     }
 
     /**
@@ -561,9 +556,6 @@ class UnitOfWork
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $childId = $id.'/'.$mapping['name'];
                 $childClass->setIdentifierValue($child, $childId);
-                $oid = spl_object_hash($child);
-                $this->documentState[$oid] = self::STATE_NEW;
-                $this->documentIds[$oid] = $childId;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }
@@ -582,9 +574,6 @@ class UnitOfWork
                         : basename($childClass->getIdentifierValue($child));
                     $childId = $id.'/'.$nodename;
                     $childClass->setIdentifierValue($child, $childId);
-                    $oid = spl_object_hash($child);
-                    $this->documentState[$oid] = self::STATE_NEW;
-                    $this->documentIds[spl_object_hash($child)] = $childId;
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
             }
@@ -688,7 +677,7 @@ class UnitOfWork
 
     public function getDocumentState($document)
     {
-        $oid = \spl_object_hash($document);
+        $oid = spl_object_hash($document);
         if (!isset($this->documentState[$oid])) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $id = $class->getIdentifierValue($document);
@@ -699,7 +688,7 @@ class UnitOfWork
             if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
                 || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
             ) {
-                if ($this->tryGetById($id)) {
+                if ($this->getDocumentById($id)) {
                     return self::STATE_DETACHED;
                 }
 
@@ -769,7 +758,6 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
             $value = $reflProperty->getValue($document);
@@ -782,11 +770,11 @@ class UnitOfWork
                     $this->multivaluePropertyCollections[] = $value;
                 }
 
-                $coll = $value;
+                $collection = $value;
 
-                $class->reflFields[$fieldName]->setValue($document, $coll);
+                $class->reflFields[$fieldName]->setValue($document, $collection);
 
-                $actualData[$fieldName] = $coll;
+                $actualData[$fieldName] = $collection;
             } else {
                 $actualData[$fieldName] = $value;
             }
@@ -798,6 +786,7 @@ class UnitOfWork
             unset($actualData[$class->versionCreatedField]);
         }
 
+        $oid = spl_object_hash($document);
         if (!isset($this->originalData[$oid])) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
@@ -974,20 +963,6 @@ class UnitOfWork
     }
 
     /**
-     * Gets the changeset for an document.
-     *
-     * @return array
-     */
-    public function getDocumentChangeSet($document)
-    {
-        $oid = spl_object_hash($document);
-        if (isset($this->documentChangesets[$oid])) {
-            return $this->documentChangesets[$oid];
-        }
-        return array();
-    }
-
-    /**
      * Persist new document, marking it managed and generating the id and the node.
      *
      * This method is either called through `DocumentManager#persist()` or during `DocumentManager#flush()`,
@@ -1001,7 +976,7 @@ class UnitOfWork
     {
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
-        $this->registerManaged($document, $id, null);
+        $this->registerManaged($document, $id);
 
         if ($generator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
             || $generator === ClassMetadata::GENERATOR_TYPE_PARENT
@@ -1051,7 +1026,7 @@ class UnitOfWork
                 }
                 unset($this->scheduledRemovals[$oid], $this->scheduledUpdates[$oid],
                         $this->scheduledAssociationUpdates[$oid],
-                        $this->originalData[$oid], $this->documentRevisions[$oid],
+                        $this->originalData[$oid],
                         $this->documentIds[$oid], $this->documentState[$oid],
                         $this->documentTranslations[$oid], $this->documentLocales[$oid]);
                 break;
@@ -1183,6 +1158,7 @@ class UnitOfWork
      */
     private function executeInserts($documents)
     {
+        // sort the documents to insert parents first
         $oids = array();
         foreach ($documents as $oid => $document) {
             $oids[$oid] = $this->getDocumentId($document);
@@ -1195,7 +1171,6 @@ class UnitOfWork
             $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
 
             $node = $parentNode->addNode(basename($id), $class->nodeType);
-            $this->nodesMap[$oid] = $node;
 
             if ($class->identifier) {
                 $class->setIdentifierValue($document, $id);
@@ -1207,16 +1182,9 @@ class UnitOfWork
                 // make sure this reflects the id generator strategy generated id
                 $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
-            if ($class->parentMapping) {
-                // make sure this reflects the id generator strategy generated id
-                if (!$class->reflFields[$class->parentMapping]->getValue($document)) {
-                    $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
-                } else {
-                    // TODO this might not even be necessary
-                    $parent = $class->reflFields[$class->parentMapping]->getValue($document);
-                    $parentOid = spl_object_hash($parent);
-                    $this->nodesMap[$parentOid] = $parentNode;
-                }
+            // make sure this reflects the id generator strategy generated id
+            if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
             }
 
             if ($this->writeMetadata) {
@@ -1280,7 +1248,7 @@ class UnitOfWork
     {
         foreach ($documents as $oid => $document) {
             $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $this->nodesMap[$oid];
+            $node = $this->session->getNode($this->getDocumentId($document));
 
             if ($this->writeMetadata) {
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
@@ -1328,13 +1296,14 @@ class UnitOfWork
                                 if ($fv === null) {
                                     continue;
                                 }
-                                $refOid = spl_object_hash($fv);
+
+                                $associatedNode = $this->session->getNode($this->getDocumentId($fv));
                                 $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                $this->setMixins($refClass, $this->nodesMap[$refOid]);
-                                if (!$this->nodesMap[$refOid]->isNodeType('mix:referenceable')) {
+                                $this->setMixins($refClass, $associatedNode);
+                                if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
                                 }
-                                $refNodesIds[] = $this->nodesMap[$refOid]->getIdentifier();
+                                $refNodesIds[] = $associatedNode->getIdentifier();
                             }
 
                             if (!empty($refNodesIds)) {
@@ -1343,13 +1312,13 @@ class UnitOfWork
                         }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
-                            $refOid = spl_object_hash($fieldValue);
+                            $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
                             $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                            $this->setMixins($refClass, $this->nodesMap[$refOid]);
-                            if (!$this->nodesMap[$refOid]->isNodeType('mix:referenceable')) {
+                            $this->setMixins($refClass, $associatedNode);
+                            if (!$associatedNode->isNodeType('mix:referenceable')) {
                                 throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
                             }
-                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $this->nodesMap[$refOid]->getIdentifier(), $type);
+                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getIdentifier(), $type);
                         }
                     }
                 } elseif (isset($class->childMappings[$fieldName])) {
@@ -1387,11 +1356,8 @@ class UnitOfWork
      */
     private function executeMoves($documents)
     {
-        foreach ($documents as $oid => $value) {
+        foreach ($documents as $value) {
             list($document, $targetPath) = $value;
-            if (!isset($this->nodesMap[$oid])) {
-                continue;
-            }
 
             $class = $this->dm->getClassMetadata(get_class($document));
             $path = $class->getIdentifierValue($document);
@@ -1400,9 +1366,6 @@ class UnitOfWork
             }
 
             $this->session->move($path, $targetPath);
-            if ($targetPath !== $this->nodesMap[$oid]->getPath()) {
-                throw new \RuntimeException("Move failed to move from '$path' to '$targetPath' for document: ".self::objToStr($document, $this->dm));
-            }
 
             foreach ($this->documentIds as $oid => $id) {
                 if (0 === strpos($id, $path)) {
@@ -1414,13 +1377,13 @@ class UnitOfWork
                         unset($this->identityMap[$id]);
                         $this->identityMap[$newId] = $document;
                         if ($document instanceof Proxy && !$document->__isInitialized()) {
-                            continue;
-                        }
-
-                        $class = $this->dm->getClassMetadata(get_class($document));
-                        if ($class->identifier) {
-                            $class->setIdentifierValue($document, $newId);
-                            $this->originalData[$oid][$class->identifier] = $newId;
+                            $document->__setIdentifier($newId);
+                        } else {
+                            $class = $this->dm->getClassMetadata(get_class($document));
+                            if ($class->identifier) {
+                                $class->setIdentifierValue($document, $newId);
+                                $this->originalData[$oid][$class->identifier] = $newId;
+                            }
                         }
                     }
                 }
@@ -1436,14 +1399,17 @@ class UnitOfWork
     private function executeRemovals($documents)
     {
         foreach ($documents as $oid => $document) {
-            if (!isset($this->nodesMap[$oid])) {
+            if (!$this->contains($oid)) {
                 continue;
             }
+
+            $id = $this->getDocumentId($document);
+            $node = $this->session->getNode($id);
 
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->doRemoveAllTranslations($document, $class);
 
-            $this->nodesMap[$oid]->remove();
+            $node->remove();
             $this->removeFromIdentityMap($document);
             $this->purgeChildren($document);
 
@@ -1622,7 +1588,6 @@ class UnitOfWork
         if (isset($this->identityMap[$this->documentIds[$oid]])) {
             unset($this->identityMap[$this->documentIds[$oid]],
                   $this->documentIds[$oid],
-                  $this->documentRevisions[$oid],
                   $this->documentState[$oid],
                   $this->documentTranslations[$oid]);
 
@@ -1634,27 +1599,27 @@ class UnitOfWork
 
     /**
      * @param object $document
-     * @return bool
-     */
-    public function contains($document)
-    {
-        return isset($this->documentIds[spl_object_hash($document)]);
-    }
-
-    /**
-     * @param object $document
      * @param string $id The document id to look for.
-     * @param string $revision The revision of the document.
      * @return the generated object id
      */
-    public function registerManaged($document, $id, $revision)
+    public function registerManaged($document, $id)
     {
         $oid = spl_object_hash($document);
         $this->documentState[$oid] = self::STATE_MANAGED;
         $this->documentIds[$oid] = $id;
-        $this->documentRevisions[$oid] = $revision;
         $this->identityMap[$id] = $document;
+
         return $oid;
+    }
+
+    /**
+     * @param object $document
+     * @return bool
+     */
+    public function contains($document)
+    {
+        $oid = is_object($document) ? spl_object_hash($document) : $document;
+        return isset($this->documentIds[$oid]);
     }
 
     /**
@@ -1666,7 +1631,7 @@ class UnitOfWork
      * @return mixed Returns the document with the specified id if it exists in
      *               this UnitOfWork, FALSE otherwise.
      */
-    public function tryGetById($id)
+    public function getDocumentById($id)
     {
         if (isset($this->identityMap[$id])) {
             return $this->identityMap[$id];
@@ -1685,8 +1650,7 @@ class UnitOfWork
      */
     public function getChildren($document, $filter = null)
     {
-        $oid = spl_object_hash($document);
-        $node = $this->nodesMap[$oid];
+        $node = $this->session->getNode($this->getDocumentId($document));
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
@@ -1711,8 +1675,7 @@ class UnitOfWork
      */
     public function getReferrers($document, $type = null, $name = null)
     {
-        $oid = spl_object_hash($document);
-        $node = $this->nodesMap[$oid];
+        $node = $this->session->getNode($this->getDocumentId($document));
 
         $referrerDocuments = array();
         $referrerPropertiesW = array();
@@ -1741,22 +1704,6 @@ class UnitOfWork
     }
 
     /**
-     * Get the PHPCR revision of the document that was current upon retrieval.
-     *
-     * @throws PHPCRException
-     * @param  object $document
-     * @return string
-     */
-    public function getDocumentRevision($document)
-    {
-        $oid = spl_object_hash($document);
-        if (empty($this->documentRevisions[$oid])) {
-            return null;
-        }
-        return $this->documentRevisions[$oid];
-    }
-
-    /**
      * Get the object ID for the given document
      *
      * @throws PHPCRException
@@ -1765,10 +1712,15 @@ class UnitOfWork
      */
     public function getDocumentId($document)
     {
-        $oid = spl_object_hash($document);
+        $oid = is_object($document) ? spl_object_hash($document) : $document;
         if (empty($this->documentIds[$oid])) {
-            throw new PHPCRException('Document is not managed and has no id: '.self::objToStr($document, $this->dm));
+            $msg = 'Document is not managed and has no id';
+            if (is_object($document)) {
+                $msg.= ': '.self::objToStr($document, $this->dm);
+            }
+            throw new PHPCRException($msg);
         }
+
         return $this->documentIds[$oid];
     }
 
@@ -1793,9 +1745,7 @@ class UnitOfWork
     public function clear()
     {
         $this->identityMap =
-        $this->nodesMap =
         $this->documentIds =
-        $this->documentRevisions =
         $this->documentState =
         $this->documentTranslations =
         $this->documentLocales =
@@ -1826,9 +1776,8 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-
-        if (isset($this->nodesMap[$oid])) {
-            $node = $this->nodesMap[$oid];
+        if ($this->contains($oid)) {
+            $node = $this->session->getNode($this->getDocumentId($document));
             $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
         } else {
             $locales = array();
@@ -1896,19 +1845,17 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-        $node = $this->nodesMap[$oid];
-
-        $translationFound = false;
+        $node = $this->session->getNode($this->getDocumentId($oid));
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+
         foreach ($localesToTry as $desiredLocale) {
-            $translationFound = $strategy->loadTranslation($document, $node, $metadata, $desiredLocale);
-            if ($translationFound) {
+            if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
                 $localeUsed = $desiredLocale;
                 break;
             }
         }
 
-        if (!$translationFound) {
+        if (empty($localeUsed)) {
             // We tried each possible language without finding the translations
             throw new \RuntimeException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
         }
@@ -1927,7 +1874,7 @@ class UnitOfWork
             return;
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
+        $node = $this->session->getNode($this->getDocumentId($document));
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         $strategy->removeTranslation($document, $node, $metadata, $locale);
 
@@ -1945,7 +1892,7 @@ class UnitOfWork
             return;
         }
 
-        $node = $this->nodesMap[spl_object_hash($document)];
+        $node = $this->session->getNode($this->getDocumentId($document));
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
