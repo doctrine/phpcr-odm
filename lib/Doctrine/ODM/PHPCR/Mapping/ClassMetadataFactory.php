@@ -152,7 +152,11 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
         foreach ($parentClass->associationsMappings as $fieldName => $mapping) {
             $this->registerParentOnField($subClass, $parentClass, $fieldName);
-            $subClass->storeAssociationMapping($mapping);
+            if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
+                $subClass->mapManyToOne($mapping);
+            } else {
+                $subclass->mapManyToMany($mapping);
+            }
         }
         foreach ($parentClass->childMappings as $fieldName => $mapping) {
             $this->registerParentOnField($subClass, $parentClass, $fieldName);
