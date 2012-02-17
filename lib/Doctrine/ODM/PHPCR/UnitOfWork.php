@@ -1372,8 +1372,8 @@ class UnitOfWork
                     $newId = $targetPath.substr($id, strlen($path));
                     $this->documentIds[$oid] = $newId;
 
-                    if (isset($this->identityMap[$id])) {
-                        $document = $this->identityMap[$id];
+                    $document = $this->getDocumentById($id);
+                    if ($document) {
                         unset($this->identityMap[$id]);
                         $this->identityMap[$newId] = $document;
                         if ($document instanceof Proxy && !$document->__isInitialized()) {
