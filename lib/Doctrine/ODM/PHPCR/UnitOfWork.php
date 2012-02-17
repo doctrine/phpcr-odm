@@ -256,7 +256,11 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    $documentState[$fieldName] = new MultivaluePropertyCollection(new ArrayCollection((array)$properties[$mapping['name']]));
+                    $collection = $properties[$mapping['name']] instanceof Collection
+                        ? $properties[$mapping['name']]
+                        : new ArrayCollection((array)$properties[$mapping['name']])
+                    ;
+                    $documentState[$fieldName] = new MultivaluePropertyCollection($collection);
                     $this->multivaluePropertyCollections[] = $documentState[$fieldName];
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
@@ -329,8 +333,8 @@ class UnitOfWork
                     $referencedDocs[] = $this->createProxy($referencedNode, $referencedClass);
                 }
                 if (count($referencedDocs) > 0) {
-                    $coll = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
+                    $collection = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $collection;
                 }
             }
         }
@@ -559,7 +563,7 @@ class UnitOfWork
                 $childClass->setIdentifierValue($child, $childId);
                 $oid = spl_object_hash($child);
                 $this->documentState[$oid] = self::STATE_NEW;
-                $this->documentIds[spl_object_hash($child)] = $childId;
+                $this->documentIds[$oid] = $childId;
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }

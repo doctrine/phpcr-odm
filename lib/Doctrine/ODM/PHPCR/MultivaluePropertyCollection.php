@@ -11,9 +11,9 @@ use Doctrine\Common\Collections\Collection;
  */
 class MultivaluePropertyCollection extends PersistentCollection
 {
-    public function __construct(Collection $coll, $isDirty = false)
+    public function __construct(Collection $collection, $isDirty = false)
     {
-        $this->coll = $coll;
+        $this->collection = $collection;
         $this->isDirty = $isDirty;
         $this->initialized = true;
     }

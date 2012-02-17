@@ -32,7 +32,7 @@ class ReferrersCollection extends PersistentCollection
         if (!$this->initialized) {
             $this->initialized = true;
 
-            $this->coll = $this->dm->getReferrers($this->document, $this->type, $this->name);
+            $this->collection = $this->dm->getReferrers($this->document, $this->type, $this->name);
         }
     }
 }

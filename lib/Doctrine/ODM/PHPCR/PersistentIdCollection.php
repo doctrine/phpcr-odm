@@ -19,10 +19,10 @@ class PersistentIdCollection extends PersistentCollection
     /** @var array */
     private $ids;
 
-    public function __construct(DocumentManager $dm, Collection $coll, ClassMetadata $class,  array $ids)
+    public function __construct(DocumentManager $dm, Collection $collection, ClassMetadata $class,  array $ids)
     {
         $this->dm = $dm;
-        $this->coll = $coll;
+        $this->collection = $collection;
         $this->class = $class;
         $this->ids = $ids;
 
@@ -38,15 +38,15 @@ class PersistentIdCollection extends PersistentCollection
         if (!$this->initialized) {
             $this->initialized = true;
 
-            $elements = $this->coll->toArray();
+            $elements = $this->collection->toArray();
 
             $repository = $this->dm->getRepository($this->class->getName());
             $objects = $repository->findMany($this->ids);
             foreach ($objects as $object) {
-                $this->coll->add($object);
+                $this->collection->add($object);
             }
             foreach ($elements as $object) {
-                $this->coll->add($object);
+                $this->collection->add($object);
             }
         }
     }

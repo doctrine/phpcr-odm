@@ -16,7 +16,7 @@ use Closure;
 abstract class PersistentCollection implements Collection
 {
     /** @var ArrayCollection */
-    protected $coll;
+    protected $collection;
 
     /**
      * Whether the collection is dirty and needs to be synchronized with the database
@@ -59,7 +59,7 @@ abstract class PersistentCollection implements Collection
      */
     public function unwrap()
     {
-        return $this->coll;
+        return $this->collection;
     }
 
     /** {@inheritDoc} */
@@ -67,7 +67,7 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->add($element);
+        return $this->collection->add($element);
     }
 
     /** {@inheritDoc} */
@@ -75,147 +75,147 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->clear();
+        return $this->collection->clear();
     }
 
     /** {@inheritDoc} */
     public function contains($element)
     {
         $this->initialize();
-        return $this->coll->contains($element);
+        return $this->collection->contains($element);
     }
 
     /** {@inheritDoc} */
     public function containsKey($key)
     {
         $this->initialize();
-        return $this->coll->containsKey($key);
+        return $this->collection->containsKey($key);
     }
 
     /** {@inheritDoc} */
     public function count()
     {
         $this->initialize();
-        return $this->coll->count();
+        return $this->collection->count();
     }
 
     /** {@inheritDoc} */
     public function current()
     {
         $this->initialize();
-        return $this->coll->current();
+        return $this->collection->current();
     }
 
     /** {@inheritDoc} */
     public function exists(Closure $p)
     {
         $this->initialize();
-        return $this->coll->exists($p);
+        return $this->collection->exists($p);
     }
 
     /** {@inheritDoc} */
     public function filter(Closure $p)
     {
         $this->initialize();
-        return $this->coll->filter($p);
+        return $this->collection->filter($p);
     }
 
     /** {@inheritDoc} */
     public function first()
     {
         $this->initialize();
-        return $this->coll->first();
+        return $this->collection->first();
     }
 
     /** {@inheritDoc} */
     public function forAll(Closure $p)
     {
         $this->initialize();
-        return $this->coll->forAll($p);
+        return $this->collection->forAll($p);
     }
 
     /** {@inheritDoc} */
     public function get($key)
     {
         $this->initialize();
-        return $this->coll->get($key);
+        return $this->collection->get($key);
     }
 
     /** {@inheritDoc} */
     public function getIterator()
     {
         $this->initialize();
-        return $this->coll->getIterator();
+        return $this->collection->getIterator();
     }
 
     /** {@inheritDoc} */
     public function getKeys()
     {
         $this->initialize();
-        return $this->coll->getKeys();
+        return $this->collection->getKeys();
     }
 
     /** {@inheritDoc} */
     public function getValues()
     {
         $this->initialize();
-        return $this->coll->getValues();
+        return $this->collection->getValues();
     }
 
     /** {@inheritDoc} */
     public function indexOf($element)
     {
         $this->initialize();
-        return $this->coll->indexOf($element);
+        return $this->collection->indexOf($element);
     }
 
     /** {@inheritDoc} */
     public function isEmpty()
     {
         $this->initialize();
-        return $this->coll->isEmpty();
+        return $this->collection->isEmpty();
     }
 
     /** {@inheritDoc} */
     public function key()
     {
         $this->initialize();
-        return $this->coll->key();
+        return $this->collection->key();
     }
 
     /** {@inheritDoc} */
     public function last()
     {
         $this->initialize();
-        return $this->coll->last();
+        return $this->collection->last();
     }
 
     /** {@inheritDoc} */
     public function map(Closure $func)
     {
         $this->initialize();
-        return $this->coll->map($func);
+        return $this->collection->map($func);
     }
 
     /** {@inheritDoc} */
     public function next()
     {
         $this->initialize();
-        return $this->coll->next();
+        return $this->collection->next();
     }
 
     /** {@inheritDoc} */
     public function offsetExists($offset)
     {
         $this->initialize();
-        return $this->coll->offsetExists($offset);
+        return $this->collection->offsetExists($offset);
     }
 
     /** {@inheritDoc} */
     public function offsetGet($offset)
     {
         $this->initialize();
-        return $this->coll->offsetGet($offset);
+        return $this->collection->offsetGet($offset);
     }
 
     /** {@inheritDoc} */
@@ -223,7 +223,7 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->offsetSet($offset, $value);
+        return $this->collection->offsetSet($offset, $value);
     }
 
     /** {@inheritDoc} */
@@ -231,14 +231,14 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->offsetUnset($offset);
+        return $this->collection->offsetUnset($offset);
     }
 
     /** {@inheritDoc} */
     public function partition(Closure $p)
     {
         $this->initialize();
-        return $this->coll->partition($p);
+        return $this->collection->partition($p);
     }
 
     /** {@inheritDoc} */
@@ -246,7 +246,7 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->remove($key);
+        return $this->collection->remove($key);
     }
 
     /** {@inheritDoc} */
@@ -254,7 +254,7 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->removeElement($element);
+        return $this->collection->removeElement($element);
     }
 
     /** {@inheritDoc} */
@@ -262,21 +262,21 @@ abstract class PersistentCollection implements Collection
     {
         $this->initialize();
         $this->isDirty = true;
-        return $this->coll->set($key, $value);
+        return $this->collection->set($key, $value);
     }
 
     /** {@inheritDoc} */
     public function slice($offset, $length = null)
     {
         $this->initialize();
-        return $this->coll->slice($offset, $length);
+        return $this->collection->slice($offset, $length);
     }
 
     /** {@inheritDoc} */
     public function toArray()
     {
         $this->initialize();
-        return $this->coll->toArray();
+        return $this->collection->toArray();
     }
 
     /**

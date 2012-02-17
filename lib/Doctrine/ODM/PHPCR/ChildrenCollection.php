@@ -36,7 +36,7 @@ class ChildrenCollection extends PersistentCollection
     {
         if (!$this->initialized) {
             $this->initialized = true;
-            $this->coll = $this->dm->getChildren($this->document, $this->filter);
+            $this->collection = $this->dm->getChildren($this->document, $this->filter);
         }
     }
 }
