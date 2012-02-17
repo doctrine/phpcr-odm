@@ -601,7 +601,6 @@ class UnitOfWork
     public function scheduleMove($document, $targetPath)
     {
         $oid = spl_object_hash($document);
-        $this->scheduledMoves[$oid] = array($document, $targetPath);
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -616,13 +615,13 @@ class UnitOfWork
                 break;
         }
 
+        $this->scheduledMoves[$oid] = array($document, $targetPath);
         $this->documentState[$oid] = self::STATE_MOVED;
     }
 
     public function scheduleRemove($document)
     {
         $oid = spl_object_hash($document);
-        $this->scheduledRemovals[$oid] = $document;
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -637,6 +636,7 @@ class UnitOfWork
                 break;
         }
 
+        $this->scheduledRemovals[$oid] = $document;
         $this->documentState[$oid] = self::STATE_REMOVED;
 
         $class = $this->dm->getClassMetadata(get_class($document));
