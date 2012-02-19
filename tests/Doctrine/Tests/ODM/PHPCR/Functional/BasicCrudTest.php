@@ -103,12 +103,28 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $userNew = $this->dm->find($this->type, '/functional/test');
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
 
-        $userNew->numbers = array(1,2);
+        $userNew->numbers = array(1, 2);
         $this->dm->flush();
         $this->dm->clear();
 
         $userNew2 = $this->dm->find($this->type, '/functional/test');
         $this->assertEquals($userNew->numbers->toArray(), $userNew2->numbers->toArray());
+    }
+
+    public function testMove()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->move($user, '/functional/user2');
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user2');
+        $this->assertNotNull($user, 'User must exist');
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must not exist');
     }
 
     public function testMoveWithClear()
@@ -122,19 +138,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
         $this->dm->flush();
         $this->dm->clear();
-
-        $user = $this->dm->find($this->type, '/functional/user2');
-        $this->assertNotNull($user, 'User must exist');
-    }
-
-    public function testMove()
-    {
-        $this->dm->clear();
-        $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertNotNull($user, 'User must exist');
-
-        $this->dm->move($user, '/functional/user2');
-        $this->dm->flush();
 
         $user = $this->dm->find($this->type, '/functional/user2');
         $this->assertNotNull($user, 'User must exist');
@@ -154,7 +157,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testMoveWithRemove()
+    public function testMoveThenRemove()
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -199,15 +202,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($user3);
 
         $this->dm->flush();
-        // TODO remove comment on clear once infinite recursion in Jackalope is fixed
-//        $this->dm->clear();
 
         $user1 = $this->dm->find($this->type, '/functional/user');
         $this->dm->move($user1, '/functional/user2');
         $this->dm->flush();
 
-        // TODO remove comment on clear once infinite recursion in Jackalope is fixed
-        //        $this->dm->clear();
+        $this->dm->clear();
+
+        $user1 = $this->dm->find($this->type, '/functional/user2');
 
         $user = $this->dm->find($this->type, '/functional/user2');
         $this->assertNotNull($user, 'User must exist');
@@ -227,6 +229,19 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
+    public function testRemove()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $this->dm->remove($user);
+        $this->dm->flush();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must be null after deletion');
+    }
+
     public function testRemoveWithClear()
     {
         $this->dm->clear();
@@ -243,20 +258,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-    public function testRemove()
-    {
-        $this->dm->clear();
-        $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertNotNull($user, 'User must exist');
-
-        $this->dm->remove($user);
-        $this->dm->flush();
-
-        $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertNull($user, 'User must be null after deletion');
-    }
-
-    public function testRemoveWithMove()
+    public function testRemoveThenMove()
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -266,10 +268,11 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->move($user, '/functional/user2');
         $this->dm->flush();
 
-        $user = $this->dm->find($this->type, '/functional/user');
-        $this->assertNull($user, 'User must be null after deletion');
         $user = $this->dm->find($this->type, '/functional/user2');
         $this->assertNotNull($user, 'User must exist');
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNull($user, 'User must be null after deletion');
     }
 
     public function testRemoveWithPersist()

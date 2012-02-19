@@ -8,6 +8,9 @@ sudo apt-get install -y libgda-4.0-mysql
 # Create the database
 mysql -e 'create database midgard2_test;'
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+php $DIR/vendor/vendors_midgard.php
+
 # Install Midgard2
 ./lib/vendor/Midgard/PHPCR/tests/travis_midgard.sh
 

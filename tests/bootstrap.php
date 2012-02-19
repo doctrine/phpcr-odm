@@ -18,10 +18,10 @@ $classLoader->register();
 $classLoader = new ClassLoader('Documents', __DIR__);
 $classLoader->register();
 
-$classLoader = new ClassLoader('PHPCR\Util', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr-utils/src');
+$classLoader = new ClassLoader('PHPCR\Util', __DIR__ . '/../lib/vendor/phpcr-utils/src');
 $classLoader->register();
 
-$classLoader = new ClassLoader('PHPCR', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr/src');
+$classLoader = new ClassLoader('PHPCR', __DIR__ . '/../lib/vendor/phpcr/src');
 $classLoader->register();
 
 $classLoader = new ClassLoader('Symfony\Component\Console', __DIR__ . '/../lib/vendor/jackalope/lib/phpcr-utils/lib/vendor');

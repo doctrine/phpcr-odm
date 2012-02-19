@@ -18,11 +18,8 @@ $classLoader->register();
 $classLoader->registerNamespaces(array(
     'Doctrine\ODM' => dirname($vendorDir),
     'Doctrine\Common' => $vendorDir.'/doctrine-common/lib',
-    'Symfony' => array($vendorDir, $vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor'),
-    'PHPCR' => array($vendorDir.'/jackalope/lib/phpcr/src', $vendorDir.'/jackalope/lib/phpcr-utils/src'),
-));
-
-$classLoader->registerNamespaces(array(
+    'Symfony' => array($vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor'),
+    'PHPCR' => array($vendorDir.'/phpcr/src', $vendorDir.'/phpcr-utils/src'),
     'Midgard\PHPCR' =>  __DIR__ . '/lib/vendor/Midgard/PHPCR/src'
 ));
 

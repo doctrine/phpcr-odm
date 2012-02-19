@@ -105,6 +105,9 @@ class ExtendingClass extends Testclass
 {
     /** @PHPCRODM\String */
     public $name;
+
+    /** @PHPCRODM\ReferenceOne */
+    public $reference;
 }
 
 /**

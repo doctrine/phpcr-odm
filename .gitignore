@@ -2,5 +2,6 @@ nbproject
 *~
 tests/phpunit.xml
 
+lib/vendor
 /cli-config.php
 jackrabbit/
