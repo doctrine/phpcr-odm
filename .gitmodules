@@ -1,12 +1,12 @@
 [submodule "lib/vendor/doctrine-common"]
 	path = lib/vendor/doctrine-common
 	url = git://github.com/doctrine/common.git
-[submodule "lib/vendor/jackalope"]
-	path = lib/vendor/jackalope
-	url = git://github.com/jackalope/jackalope.git
 [submodule "lib/vendor/Symfony/Component/Yaml"]
 	path = lib/vendor/Symfony/Component/Yaml
 	url = git://github.com/symfony/Yaml.git
-[submodule "lib/vendor/Midgard/PHPCR"]
-	path = lib/vendor/Midgard/PHPCR
-	url = git://github.com/midgardproject/phpcr-midgard2.git
+[submodule "lib/vendor/phpcr"]
+	path = lib/vendor/phpcr
+	url = git://github.com/phpcr/phpcr.git
+[submodule "lib/vendor/phpcr-utils"]
+	path = lib/vendor/phpcr-utils
+	url = git://github.com/phpcr/phpcr-utils.git
