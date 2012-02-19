@@ -202,15 +202,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($user3);
 
         $this->dm->flush();
-        // TODO remove comment on clear once infinite recursion in Jackalope is fixed
-//        $this->dm->clear();
 
         $user1 = $this->dm->find($this->type, '/functional/user');
         $this->dm->move($user1, '/functional/user2');
         $this->dm->flush();
 
-        // TODO remove comment on clear once infinite recursion in Jackalope is fixed
-        //        $this->dm->clear();
+        $this->dm->clear();
+
+        $user1 = $this->dm->find($this->type, '/functional/user2');
 
         $user = $this->dm->find($this->type, '/functional/user2');
         $this->assertNotNull($user, 'User must exist');
