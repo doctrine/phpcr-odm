@@ -19,7 +19,7 @@ $classLoader->registerNamespaces(array(
     'Doctrine\ODM' => dirname($vendorDir),
     'Doctrine\Common' => $vendorDir.'/doctrine-common/lib',
     'Symfony' => array($vendorDir.'/phpcr-utils/lib/vendor'),
-    'PHPCR' => array($vendorDir.'/phpcr/src', $vendorDir.'phpcr-utils/src'),
+    'PHPCR' => array($vendorDir.'/phpcr/src', $vendorDir.'/phpcr-utils/src'),
     'Jackalope'=> array($vendorDir.'/jackalope-jackrabbit/src', $vendorDir.'/jackalope-jackrabbit/lib/jackalope/src'),
 ));
 

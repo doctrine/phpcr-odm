@@ -4,7 +4,7 @@ require_once __DIR__ . '/../lib/vendor/doctrine-common/lib/Doctrine/Common/Class
 
 use Doctrine\Common\ClassLoader;
 
-$classLoader = new ClassLoader('Doctrine\DBAL', __DIR__ . '/../lib/vendor/jackalope-doctrine-dbal/lib/vendor/doctrine-dbal/lib');
+$classLoader = new ClassLoader('Doctrine\DBAL', __DIR__.'/../lib/vendor/jackalope-doctrine-dbal/lib/vendor/doctrine-dbal/lib');
 $classLoader->register();
 
 $classLoader = new ClassLoader('Jackalope', __DIR__.'/../lib/vendor/jackalope-doctrine-dbal/lib/jackalope/src');
@@ -13,7 +13,7 @@ $classLoader->register();
 //$classLoader = new ClassLoader('Jackalope', __DIR__.'/../lib/vendor/jackalope-doctrine-dbal/src');
 //$classLoader->register();
 
-require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__.'/bootstrap.php';
 
 require_once __DIR__.'/../lib/vendor/jackalope-doctrine-dbal/src/Jackalope/RepositoryFactoryDoctrineDBAL.php';
 require_once __DIR__.'/../lib/vendor/jackalope-doctrine-dbal/src/Jackalope/Transport/DoctrineDBAL/Client.php';
