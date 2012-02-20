@@ -379,7 +379,7 @@ class UnitOfWork
         return $document;
     }
 
-    private function createProxyFromNode($node)
+    public function createProxyFromNode($node)
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
@@ -394,7 +394,7 @@ class UnitOfWork
      *
      * @return object
      */
-    private function createProxy($targetId, $className)
+    public function createProxy($targetId, $className)
     {
         $document = $this->getDocumentById($targetId);
 
