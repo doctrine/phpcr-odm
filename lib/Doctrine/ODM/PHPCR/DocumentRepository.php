@@ -78,18 +78,6 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Create a document given class, data and the doc-id and revision
-     *
-     * @param \PHPCR\NodeInterface $node
-     * @param array $hints
-     * @return object
-     */
-    public function createDocument($node, array &$hints = array())
-    {
-        return $this->uow->createDocument($this->className, $node, $hints);
-    }
-
-    /**
      * Find a single document by its id
      *
      * The id may either be a PHPCR path or UUID
@@ -160,10 +148,8 @@ class DocumentRepository implements ObjectRepository
         foreach ($criteria as $field => $value) {
             $qb->andWhere($qf->comparison($qf->propertyValue($field), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($value)));
         }
-        $documents = $this->getDocumentsByQuery($qb->getQuery());
 
-        return $documents;
-
+        return $this->getDocumentsByQuery($qb->getQuery());
     }
 
     /**
@@ -218,16 +204,6 @@ class DocumentRepository implements ObjectRepository
     public function getClassMetadata()
     {
         return $this->class;
-    }
-
-    /**
-     * Get the alias of the document
-     *
-     * @return string
-     */
-    public function getAlias()
-    {
-        return $this->class->alias;
     }
 
     /**

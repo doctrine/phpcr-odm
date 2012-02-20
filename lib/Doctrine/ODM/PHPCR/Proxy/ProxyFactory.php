@@ -310,12 +310,14 @@ namespace <namespace>;
 class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy\Proxy
 {
     private $__doctrineDocumentManager__;
-    public $__isInitialized__ = false;
+    private $__isInitialized__ = false;
+    private $__identifier__;
 
     public function __construct($documentManager, $identifier)
     {
         <unsetattributes>
         $this->__doctrineDocumentManager__ = $documentManager;
+        $this->__identifier__ = $identifier;
     }
 
     public function __load()
@@ -332,6 +334,16 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
     public function __sleep()
     {
         <sleepImpl>
+    }
+
+    public function __getIdentifier()
+    {
+        return $this->__identifier__;
+    }
+
+    public function __setIdentifier($identifier)
+    {
+        $this->__identifier__ = $identifier;
     }
 
     public function __set($name, $value)

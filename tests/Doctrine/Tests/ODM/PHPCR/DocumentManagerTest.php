@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
+
 /**
  * @group unit
  */
@@ -16,7 +18,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $session = $this->getMock('PHPCR\SessionInterface');
         $config = new \Doctrine\ODM\PHPCR\Configuration();
 
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
+        $dm = DocumentManager::create($session, $config);
 
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentManager', $dm);
         $this->assertSame($config, $dm->getConfiguration());
@@ -29,7 +31,7 @@ class DocumentManagerTest extends PHPCRTestCase
     {
         $session = $this->getMock('PHPCR\SessionInterface');
 
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        $dm = DocumentManager::create($session);
 
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory', $dm->getMetadataFactory());
     }
@@ -41,7 +43,7 @@ class DocumentManagerTest extends PHPCRTestCase
     {
         $session = $this->getMock('PHPCR\SessionInterface');
 
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        $dm = DocumentManager::create($session);
 
         $cmf = $dm->getMetadataFactory();
         $cmf->setMetadataFor('stdClass', new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass'));
@@ -56,11 +58,15 @@ class DocumentManagerTest extends PHPCRTestCase
     {
         $session = $this->getMock('PHPCR\SessionInterface');
 
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        $dm = DocumentManager::create($session);
 
         $obj = new \stdClass;
         $uow = $dm->getUnitOfWork();
-        $uow->registerManaged($obj, '/foo', '');
+
+        $method = new \ReflectionMethod($uow, 'registerDocument');
+        $method->setAccessible(true);
+        $method->invoke($uow, $obj, '/foo');
+        $method->setAccessible(false);
 
         $this->assertTrue($dm->contains($obj));
     }
@@ -82,7 +88,7 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 }
 
-class DocumentManagerGetClassMetadata extends \Doctrine\ODM\PHPCR\DocumentManager
+class DocumentManagerGetClassMetadata extends DocumentManager
 {
     private $callCount = 0;
 
