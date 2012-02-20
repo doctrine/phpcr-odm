@@ -64,7 +64,13 @@ class UnitOfWorkTest extends PHPCRTestCase
         $user = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
         $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('foo', $user->username);
-        $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($user));
+
+        $method = new \ReflectionMethod($this->uow, 'getDocumentState');
+        $method->setAccessible(true);
+        $state = $method->invoke($this->uow, $user);
+        $method->setAccessible(false);
+
+        $this->assertEquals(UnitOfWork::STATE_MANAGED, $state);
         $this->assertEquals('/somepath', $this->uow->getDocumentId($user));
     }
 
@@ -76,11 +82,11 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertSame($user1, $user2);
     }
 
-    public function testTryGetById()
+    public function testGetDocumentById()
     {
         $user1 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
 
-        $user2 = $this->uow->tryGetById('/somepath', $this->type);
+        $user2 = $this->uow->getDocumentById('/somepath', $this->type);
 
         $this->assertSame($user1, $user2);
     }
@@ -111,11 +117,20 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         $this->uow->scheduleRemove($object);
 
-        $this->assertEquals(UnitOfWork::STATE_REMOVED, $this->uow->getDocumentState($object));
+        $method = new \ReflectionMethod($this->uow, 'getDocumentState');
+        $method->setAccessible(true);
+        $state = $method->invoke($this->uow, $object);
+        $method->setAccessible(false);
+
+        $this->assertEquals(UnitOfWork::STATE_REMOVED, $state);
 
         $this->uow->scheduleInsert($object);
 
-        $this->assertEquals(UnitOfWork::STATE_MANAGED, $this->uow->getDocumentState($object));
+        $method->setAccessible(true);
+        $state = $method->invoke($this->uow, $object);
+        $method->setAccessible(false);
+
+        $this->assertEquals(UnitOfWork::STATE_MANAGED, $state);
     }
 }
 

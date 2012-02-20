@@ -25,10 +25,17 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->id = "/functional/".$user->username;
 
         $this->dm->detach($user);
-        
-        $this->assertEquals(UnitOfWork::STATE_NEW, $this->dm->getUnitOfWork()->getDocumentState($user));
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $check = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $this->assertEquals('beberlei', $check->username);
     }
-    
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testDetachedKnownObject()
     {
         $user = new CmsUser();
@@ -40,7 +47,6 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         
         $this->dm->detach($user);
-        
-        $this->assertEquals(UnitOfWork::STATE_DETACHED, $this->dm->getUnitOfWork()->getDocumentState($user));
+        $this->dm->persist($user);
     }
 }
