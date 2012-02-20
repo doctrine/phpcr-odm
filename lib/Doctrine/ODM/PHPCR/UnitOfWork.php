@@ -275,7 +275,7 @@ class UnitOfWork
 
         if (count($refNodeUUIDs) > 0) {
             // ensure that the given nodes are in the in memory cache
-            $this->session->getNodesByIdentifier($refNodeUUIDs);
+         //  $this->session->getNodesByIdentifier($refNodeUUIDs);
         }
 
         // initialize inverse side collections
@@ -286,6 +286,7 @@ class UnitOfWork
                     continue;
                 }
 
+                //FIXME lazy load this as well...
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedClass = isset($assocOptions['targetDocument'])
@@ -298,25 +299,13 @@ class UnitOfWork
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
-
-                // get the already cached referenced nodes
-                $proxyNodes = $node->getPropertyValue($assocOptions['fieldName']);
-                if (!is_array($proxyNodes)) {
-                    throw new PHPCRException('Expected referenced nodes passed as array.');
+                $referencedDocUUIDs = array();
+                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
+                    $referencedDocUUIDs[] = $uuid;
                 }
-
-                $referencedDocs = array();
-                foreach ($proxyNodes as $referencedNode) {
-                    $referencedClass = isset($assocOptions['targetDocument'])
-                        ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                    $proxy = $referencedClass
-                        ? $this->createProxy($referencedNode->getPath(), $referencedClass)
-                        : $this->createProxyFromNode($referencedNode);
-                    $referencedDocs[] = $proxy;
-                }
-                if (count($referencedDocs) > 0) {
-                    $collection = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $collection;
+                if (count($referencedDocUUIDs) > 0) {
+                    $coll = new ReferenceManyCollection($this->dm, $this->session, $this, $referencedDocUUIDs, $assocOptions['targetDocument']);
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
                 }
             }
         }
