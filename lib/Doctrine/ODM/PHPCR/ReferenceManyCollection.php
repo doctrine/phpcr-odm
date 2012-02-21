@@ -15,6 +15,7 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
 
     private $session;
     private $referencedDocs;
+    private $targetDocument = null;
 
     /**
      * Creates a new persistent collection.
@@ -46,7 +47,7 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
             $referencedDocs = array();
             $referencedNodes = $this->session->getNodesByIdentifier($this->referencedDocUUIDs);
             foreach ($referencedNodes as $referencedNode) {
-                $referencedClass = isset($targetDocument) ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($targetDocument, '\\'))->name : null;
+                $referencedClass = $this->targetDocument ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($this->targetDocument, '\\'))->name : null;
                 $proxy = $referencedClass ? $this->uow->createProxy($referencedNode->getPath(), $referencedClass) : $this->uow->createProxyFromNode($referencedNode);
                 $referencedDocs[] = $proxy;
             }
