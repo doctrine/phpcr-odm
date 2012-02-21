@@ -13,16 +13,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ReferenceManyCollection extends MultivaluePropertyCollection
 {
 
+    private $dm;
     private $session;
-    private $referencedDocs;
+    private $uow;
+    private $referencedDocUUIDs;
     private $targetDocument = null;
-
+    
     /**
      * Creates a new persistent collection.
      *
      * @param DocumentManager $dm The DocumentManager the collection will be associated with.
-     * @param object $document Document instance
-     * @param string $filter filter string
+     * @param \Jackalope\Session $session The current session
+     * @param UnitOfWork $uow The Doctrine Unit Of Work instance
+     * @param array $referencedDocUUIDs An array of referenced UUIDs
+     * @param string $targetDocument the objectname of the target documents
      */
     public function __construct(DocumentManager $dm, \Jackalope\Session $session, UnitOfWork $uow, array $referencedDocUUIDs, $targetDocument)
     {
@@ -31,8 +35,6 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
         $this->uow = $uow;
         $this->referencedDocUUIDs = $referencedDocUUIDs;
         $this->targetDocument = $targetDocument;
-        
-       
     }
 
     /**
@@ -51,9 +53,8 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
                 $proxy = $referencedClass ? $this->uow->createProxy($referencedNode->getPath(), $referencedClass) : $this->uow->createProxyFromNode($referencedNode);
                 $referencedDocs[] = $proxy;
             }
-
+            
             $this->collection = new ArrayCollection($referencedDocs);
         }
     }
-    
 }
