@@ -1158,7 +1158,7 @@ class UnitOfWork
      */
     private function executeInserts($documents)
     {
-        // sort the documents to insert parents first
+        // sort the documents to insert parents first but maintain child order
         $oids = array();
         foreach ($documents as $oid => $document) {
             if (!$this->contains($oid)) {
@@ -1167,7 +1167,22 @@ class UnitOfWork
 
             $oids[$oid] = $this->getDocumentId($document);
         }
-        asort($oids);
+
+        $order = array_flip(array_values($oids));
+        uasort($oids, function ($a, $b) use ($order)
+            {
+                // compute the node depths
+                $aCount = substr_count($a, '/');
+                $bCount = substr_count($b, '/');
+
+                // ensure that the original order is maintained for nodes with the same depth
+                if ($aCount == $bCount) {
+                    return ($order[$a] < $order[$b]) ? -1 : 1;
+                }
+
+                return ($aCount < $bCount) ? -1 : 1;
+            }
+        );
 
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
