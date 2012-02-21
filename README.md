@@ -45,7 +45,17 @@ PHPCR ODM uses the [PHP Content Repository API](http://phpcr.github.com/) for st
 
 Jackalope with the Jackrabbit backend is the only PHPCR implementation that is enough feature complete for the PHPCR ODM.
 
+You will also need to check out [Jackalope Jackrabbit transport](http://github.com/jackalope/jackalope-jackrabbit)
+and the related dependencies.
+
 Follow [Running Jackrabbit Server](https://github.com/jackalope/jackalope/wiki/Running-a-jackrabbit-server) from the Jackalope wiki.
+
+### Install Doctrine DBAL
+
+Jackalope with the DBAL backend is partially working and can use any RDBMS support by Doctrine DBAL.
+
+You will also need to check out [Jackalope Doctrine DBAL transport](http://github.com/jackalope/jackalope-doctrine-dbal)
+and the related dependencies.
 
 ### Install Midgard2 PHPCR
 
