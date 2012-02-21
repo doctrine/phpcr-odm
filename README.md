@@ -24,7 +24,6 @@ PHPCR ODM for Doctrine2
 * libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
 * phpunit >= 3.6 and wget (if you want to run the tests)
 
-
 # Installation
 
 If you use the PHPCR ODM **Symfony Bundle**, please look into the README of the bundle.
