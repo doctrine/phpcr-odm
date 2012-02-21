@@ -24,6 +24,7 @@ PHPCR ODM for Doctrine2
 * libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
 * phpunit >= 3.6 and wget (if you want to run the tests)
 
+
 # Installation
 
 If you use the PHPCR ODM **Symfony Bundle**, please look into the README of the bundle.
@@ -78,6 +79,7 @@ We provide a command that makes it trivial to register this type and the phpcr n
     php bin/phpcr doctrine:phpcr:register-system-node-types
 
 ## Running the tests
+<<<<<<< HEAD
 This examples shows how to run the tests for jackrabbit. You can run the tests for the other backends (doctrine_dbal, midgard_mysql, midgard_sqlite) by replacing jackrabbit with the same commands. Just replace jackrabbit with the name of the backend you want to run.
 
 1. Make sure you have installed the submodules
@@ -87,6 +89,12 @@ This examples shows how to run the tests for jackrabbit. You can run the tests f
 
 3. Run the tests:
 
+=======
+1. Make sure you have installed the submodules
+2. Run this command to download jackrabbit and launch it (requires wget)
+    ./tests/travis_jackrabbit.sh
+3. Run the tests:
+>>>>>>> fixed bugs in documentation
     phpunit -c tests/phpunit_jackrabbit.xml.dist
 
 # Bootstrapping
