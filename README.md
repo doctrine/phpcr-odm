@@ -78,7 +78,8 @@ We provide a command that makes it trivial to register this type and the phpcr n
     php bin/phpcr doctrine:phpcr:register-system-node-types
 
 ## Running the tests
-This examples shows how to run the tests for jackrabbit. You can run the tests for the other backends (doctrine_dbal, midgard_mysql, midgard_sqlite) by replacing jackrabbit with the same commands. Just replace jackrabbit with the name of the backend you want to run.
+This examples shows how to run the tests for jackrabbit. You can run the tests for the other backends (doctrine_dbal, midgard_mysql, midgard_sqlite)
+by replacing jackrabbit with the same commands. Just replace jackrabbit with the name of the backend you want to run.
 
 1. Make sure you have installed the submodules
 2. Run this command to download jackrabbit and launch it (requires wget)
