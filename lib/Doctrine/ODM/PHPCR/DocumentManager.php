@@ -369,7 +369,24 @@ class DocumentManager implements ObjectManager
             $val = PropertyType::convertType($val, $type);
         }
 
-        return "'".str_replace("'", "''", $val)."'";
+        return "'".str_replace("'", "''", $this->escapeIllegalCharacters($val))."'";
+    }
+
+    /**
+     * Escape the illegal characters for inclusion in an SQL2 query. Escape Character is \\.
+     *
+     * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
+     * @param  string $string
+     * @return string Escaped String
+     */
+    public function escapeIllegalCharacters($string)
+    {
+        $illegalCharacters = array(
+            '!' => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
+            '[' => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
+            '\"' => '\\\"', '?' => '\\?',
+        );
+        return strtr($string, $illegalCharacters);
     }
 
     /**
