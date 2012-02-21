@@ -266,16 +266,14 @@ class UnitOfWork
 
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
                 $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
-            } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
-                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
-                    $refNodeUUIDs[] = $uuid;
-                }
-            }
+            } 
         }
 
         if (count($refNodeUUIDs) > 0) {
-            // ensure that the given nodes are in the in memory cache
-         //  $this->session->getNodesByIdentifier($refNodeUUIDs);
+            // ensure that the given nodes for MANY_TO_ONE are in the in memory cache
+            /* FIXME: Also make MANY_TO_ONE lazy load and get rid  of all this code
+                and the 10 lines before */
+            $this->session->getNodesByIdentifier($refNodeUUIDs);
         }
 
         // initialize inverse side collections
@@ -286,7 +284,7 @@ class UnitOfWork
                     continue;
                 }
 
-                //FIXME lazy load this as well...
+                // FIXME: Also make MANY_TO_ONE lazy load like the MANY_TO_MANY below
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedClass = isset($assocOptions['targetDocument'])
