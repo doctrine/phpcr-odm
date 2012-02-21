@@ -86,6 +86,19 @@ class DocumentManagerTest extends PHPCRTestCase
         // call again to test the cache
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
     }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::escapeIllegalCharacters
+     */
+    public function testEscapeIllegalCharacters()
+    {
+        $session = $this->getMock('PHPCR\SessionInterface');
+
+        $dm = DocumentManager::create($session);
+
+        $string = $dm->escapeIllegalCharacters('Some{String}Wit"h[]Illegal^^^Chara\cte?rs:!');
+        $this->assertEquals($string, 'Some\{String\}Wit"h\[\]Illegal\^\^\^Chara\cte\?rs\:\!');
+    }
 }
 
 class DocumentManagerGetClassMetadata extends DocumentManager
