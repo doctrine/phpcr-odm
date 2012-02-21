@@ -44,7 +44,17 @@ class Generic
     }
 
     /**
-     * The node name of the file.
+     * The node of for document.
+     *
+     * @return string
+     */
+    public function getNode()
+    {
+        return $this->node;
+    }
+
+    /**
+     * The node name of the document.
      *
      * @return string
      */
@@ -54,9 +64,9 @@ class Generic
     }
 
     /**
-     * Set the node name of the file. (only mutable on new document before the persist)
+     * Set the node name of the document. (only mutable on new document before the persist)
      *
-     * @param string $name the name of the file
+     * @param string $name the name of the document
      */
     public function setNodename($name)
     {
