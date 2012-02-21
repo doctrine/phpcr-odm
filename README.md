@@ -22,7 +22,7 @@ PHPCR ODM for Doctrine2
 
 * php >= 5.3
 * libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
-* phpunit >= 3.5 (if you want to run the tests)
+* phpunit >= 3.6 (if you want to run the tests)
 
 
 # Installation
