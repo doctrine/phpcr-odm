@@ -266,15 +266,13 @@ class UnitOfWork
 
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
                 $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
-            } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
-                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
-                    $refNodeUUIDs[] = $uuid;
-                }
-            }
+            } 
         }
 
         if (count($refNodeUUIDs) > 0) {
-            // ensure that the given nodes are in the in memory cache
+            // ensure that the given nodes for MANY_TO_ONE are in the in memory cache
+            /* FIXME: Also make MANY_TO_ONE lazy load and get rid  of all this code
+                and the 10 lines before */
             $this->session->getNodesByIdentifier($refNodeUUIDs);
         }
 
@@ -286,6 +284,7 @@ class UnitOfWork
                     continue;
                 }
 
+                // FIXME: Also make MANY_TO_ONE lazy load like the MANY_TO_MANY below
                 // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedClass = isset($assocOptions['targetDocument'])
@@ -298,25 +297,13 @@ class UnitOfWork
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
-
-                // get the already cached referenced nodes
-                $proxyNodes = $node->getPropertyValue($assocOptions['fieldName']);
-                if (!is_array($proxyNodes)) {
-                    throw new PHPCRException('Expected referenced nodes passed as array.');
+                $referencedDocUUIDs = array();
+                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
+                    $referencedDocUUIDs[] = $uuid;
                 }
-
-                $referencedDocs = array();
-                foreach ($proxyNodes as $referencedNode) {
-                    $referencedClass = isset($assocOptions['targetDocument'])
-                        ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                    $proxy = $referencedClass
-                        ? $this->createProxy($referencedNode->getPath(), $referencedClass)
-                        : $this->createProxyFromNode($referencedNode);
-                    $referencedDocs[] = $proxy;
-                }
-                if (count($referencedDocs) > 0) {
-                    $collection = new ReferenceManyCollection(new ArrayCollection($referencedDocs), true);
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $collection;
+                if (count($referencedDocUUIDs) > 0) {
+                    $coll = new ReferenceManyCollection($this->dm, $referencedDocUUIDs, $assocOptions['targetDocument']);
+                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
                 }
             }
         }
@@ -379,7 +366,7 @@ class UnitOfWork
         return $document;
     }
 
-    private function createProxyFromNode($node)
+    public function createProxyFromNode($node)
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
@@ -394,7 +381,7 @@ class UnitOfWork
      *
      * @return object
      */
-    private function createProxy($targetId, $className)
+    public function createProxy($targetId, $className)
     {
         $document = $this->getDocumentById($targetId);
 
