@@ -256,6 +256,22 @@ class UnitOfWork
             $documentState[$class->identifier] = $node->getPath();
         }
 
+        // pre-fetch all nodes for MANY_TO_ONE references
+        $refNodeUUIDs = array();
+        foreach ($class->associationsMappings as $assocOptions) {
+            if (!$node->hasProperty($assocOptions['fieldName'])) {
+                continue;
+            }
+
+            if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
+                $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
+            }
+        }
+
+        if (count($refNodeUUIDs)) {
+            $this->session->getNodesByIdentifier($refNodeUUIDs);
+        }
+
         // initialize inverse side collections
         foreach ($class->associationsMappings as $assocName => $assocOptions) {
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
@@ -274,12 +290,10 @@ class UnitOfWork
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
-
                 $referencedDocUUIDs = array();
                 foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
                     $referencedDocUUIDs[] = $uuid;
                 }
-
                 if (count($referencedDocUUIDs) > 0) {
                     $coll = new ReferenceManyCollection($this->dm, $referencedDocUUIDs, $assocOptions['targetDocument']);
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
