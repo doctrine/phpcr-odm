@@ -13,7 +13,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ReferenceManyCollection extends MultivaluePropertyCollection
 {
 
-    private $dm;
     private $session;
     private $uow;
     private $referencedDocUUIDs;
@@ -23,12 +22,12 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
      * Creates a new persistent collection.
      *
      * @param DocumentManager $dm The DocumentManager the collection will be associated with.
-     * @param \Jackalope\Session $session The current session
+     * @param \PHPCR\SessionInterface $session The current session
      * @param UnitOfWork $uow The Doctrine Unit Of Work instance
      * @param array $referencedDocUUIDs An array of referenced UUIDs
      * @param string $targetDocument the objectname of the target documents
      */
-    public function __construct(DocumentManager $dm, \Jackalope\Session $session, UnitOfWork $uow, array $referencedDocUUIDs, $targetDocument)
+    public function __construct(DocumentManager $dm, \PHPCR\SessionInterface $session, UnitOfWork $uow, array $referencedDocUUIDs, $targetDocument)
     {
         $this->dm = $dm;
         $this->session = $session;
