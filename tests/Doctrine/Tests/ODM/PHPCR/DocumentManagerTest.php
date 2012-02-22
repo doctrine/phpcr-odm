@@ -88,15 +88,15 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::escapeIllegalCharacters
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::escapeFullText
      */
-    public function testEscapeIllegalCharacters()
+    public function testEscapeFullText()
     {
         $session = $this->getMock('PHPCR\SessionInterface');
 
         $dm = DocumentManager::create($session);
 
-        $string = $dm->escapeIllegalCharacters('Some{String}Wit"h[]Illegal^^^Chara\cte?rs:!');
+        $string = $dm->escapeFullText('Some{String}Wit"h[]Illegal^^^Chara\cte?rs:!');
         $this->assertEquals($string, 'Some\{String\}Wit"h\[\]Illegal\^\^\^Chara\cte\?rs\:\!');
     }
 }

@@ -363,23 +363,23 @@ class DocumentManager implements ObjectManager
      * @param  int $type
      * @return string
      */
-    public function quote($val, $type = null)
+    public function quote($val, $type = PropertyType::STRING)
     {
         if (null !== $type) {
             $val = PropertyType::convertType($val, $type);
         }
 
-        return "'".str_replace("'", "''", $this->escapeIllegalCharacters($val))."'";
+        return "'".str_replace("'", "''", $val)."'";
     }
 
     /**
-     * Escape the illegal characters for inclusion in an SQL2 query. Escape Character is \\.
+     * Escape the illegal characters for inclusion in a fulltext statement. Escape Character is \\.
      *
      * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
      * @param  string $string
      * @return string Escaped String
      */
-    public function escapeIllegalCharacters($string)
+    public function escapeFullText($string)
     {
         $illegalCharacters = array(
             '!' => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',

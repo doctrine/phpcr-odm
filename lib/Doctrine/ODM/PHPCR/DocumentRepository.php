@@ -220,6 +220,18 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
+     * Escape the illegal characters for inclusion in an SQL2 query. Escape Character is \\.
+     *
+     * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
+     * @param  string $string
+     * @return string Escaped String
+     */
+    public function escapeFullText($string)
+    {
+        return $this->dm->escapeFullText($string);
+    }
+
+    /**
      * Create a Query
      *
      * @param  string $statement the SQL2 statement
