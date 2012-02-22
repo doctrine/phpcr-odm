@@ -302,7 +302,7 @@ class UnitOfWork
                     $referencedDocUUIDs[] = $uuid;
                 }
                 if (count($referencedDocUUIDs) > 0) {
-                    $coll = new ReferenceManyCollection($this->dm, $this->session, $referencedDocUUIDs, $assocOptions['targetDocument']);
+                    $coll = new ReferenceManyCollection($this->dm, $referencedDocUUIDs, $assocOptions['targetDocument']);
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
                 }
             }
