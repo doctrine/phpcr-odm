@@ -14,7 +14,6 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
 {
 
     private $session;
-    private $uow;
     private $referencedDocUUIDs;
     private $targetDocument = null;
     
@@ -23,15 +22,13 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
      *
      * @param DocumentManager $dm The DocumentManager the collection will be associated with.
      * @param \PHPCR\SessionInterface $session The current session
-     * @param UnitOfWork $uow The Doctrine Unit Of Work instance
      * @param array $referencedDocUUIDs An array of referenced UUIDs
      * @param string $targetDocument the objectname of the target documents
      */
-    public function __construct(DocumentManager $dm, \PHPCR\SessionInterface $session, UnitOfWork $uow, array $referencedDocUUIDs, $targetDocument)
+    public function __construct(DocumentManager $dm, \PHPCR\SessionInterface $session, array $referencedDocUUIDs, $targetDocument)
     {
         $this->dm = $dm;
         $this->session = $session;
-        $this->uow = $uow;
         $this->referencedDocUUIDs = $referencedDocUUIDs;
         $this->targetDocument = $targetDocument;
     }
@@ -47,9 +44,10 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
 
             $referencedDocs = array();
             $referencedNodes = $this->session->getNodesByIdentifier($this->referencedDocUUIDs);
+            $uow = $this->dm->getUnitOfWork();
             foreach ($referencedNodes as $referencedNode) {
                 $referencedClass = $this->targetDocument ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($this->targetDocument, '\\'))->name : null;
-                $proxy = $referencedClass ? $this->uow->createProxy($referencedNode->getPath(), $referencedClass) : $this->uow->createProxyFromNode($referencedNode);
+                $proxy = $referencedClass ? $uow->createProxy($referencedNode->getPath(), $referencedClass) : $uow->createProxyFromNode($referencedNode);
                 $referencedDocs[] = $proxy;
             }
             
