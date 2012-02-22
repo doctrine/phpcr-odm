@@ -256,36 +256,13 @@ class UnitOfWork
             $documentState[$class->identifier] = $node->getPath();
         }
 
-        // collect uuids of all referenced nodes and get them all within one single call
-        // they will get cached so you have more performance when they are accessed later
-        $refNodeUUIDs = array();
-        foreach ($class->associationsMappings as $assocOptions) {
-            if (!$node->hasProperty($assocOptions['fieldName'])) {
-                continue;
-            }
-
-            if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
-                $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
-            } 
-        }
-
-        if (count($refNodeUUIDs) > 0) {
-            // ensure that the given nodes for MANY_TO_ONE are in the in memory cache
-            /* FIXME: Also make MANY_TO_ONE lazy load and get rid  of all this code
-                and the 10 lines before */
-            $this->session->getNodesByIdentifier($refNodeUUIDs);
-        }
-
         // initialize inverse side collections
         foreach ($class->associationsMappings as $assocName => $assocOptions) {
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
-                // TODO figure this one out which collection should be used
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
 
-                // FIXME: Also make MANY_TO_ONE lazy load like the MANY_TO_MANY below
-                // get the already cached referenced node
                 $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
                 $referencedClass = isset($assocOptions['targetDocument'])
                     ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
@@ -297,10 +274,12 @@ class UnitOfWork
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
+
                 $referencedDocUUIDs = array();
                 foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
                     $referencedDocUUIDs[] = $uuid;
                 }
+
                 if (count($referencedDocUUIDs) > 0) {
                     $coll = new ReferenceManyCollection($this->dm, $referencedDocUUIDs, $assocOptions['targetDocument']);
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
