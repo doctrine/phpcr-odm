@@ -1844,7 +1844,7 @@ class UnitOfWork
      *
      * @return void
      */
-    private function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
+    public function doLoadTranslation($document, $metadata = null, $locale = null, $fallback = false)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
