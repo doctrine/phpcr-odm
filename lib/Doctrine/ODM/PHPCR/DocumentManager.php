@@ -33,6 +33,7 @@ use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder;
+use PHPCR\PathNotFoundException;
 
 /**
  * Document Manager
@@ -274,10 +275,17 @@ class DocumentManager implements ObjectManager
     public function find($className, $id)
     {
         try {
-            $node = UUIDHelper::isUUID($id)
-                ? $this->session->getNodeByIdentifier($id)
-                : $this->session->getNode($id);
-        } catch (\PHPCR\PathNotFoundException $e) {
+            if (UUIDHelper::isUUID($id)) {
+                $node = $this->session->getNodeByIdentifier($id);
+            } else {
+                $document = $this->unitOfWork->getDocumentById($id);
+                if ($document) {
+                    $this->unitOfWork->validateDocumentName($className, $document);
+                    return $document;
+                }
+                $node = $this->session->getNode($id);
+            }
+        } catch (PathNotFoundException $e) {
             return null;
         }
 
@@ -294,11 +302,23 @@ class DocumentManager implements ObjectManager
      */
     public function findMany($className, array $ids)
     {
-        $nodes = UUIDHelper::isUUID(reset($ids))
-            ? $this->session->getNodesByIdentifier($ids)
-            : $this->session->getNodes($ids);
-
         $documents = array();
+
+        if (UUIDHelper::isUUID(reset($ids))) {
+            $nodes = $this->session->getNodesByIdentifier($ids);
+        } else {
+            foreach ($ids as $key => $id) {
+                $document = $this->unitOfWork->getDocumentById($id);
+                if ($document) {
+                    $this->unitOfWork->validateDocumentName($className, $document);
+                    $documents[$id] = $document;
+                    unset($ids[$key]);
+                }
+            }
+
+            $nodes = $this->session->getNodes($ids);
+        }
+
         foreach ($nodes as $node) {
             $documents[$node->getPath()] = $this->unitOfWork->createDocument($className, $node);
         }
@@ -325,10 +345,19 @@ class DocumentManager implements ObjectManager
     public function findTranslation($className, $id, $locale, $fallback = true)
     {
         try {
-            $node = UUIDHelper::isUUID($id)
-                ? $this->session->getNodeByIdentifier($id)
-                : $this->session->getNode($id);
-        } catch (\PHPCR\PathNotFoundException $e) {
+            if (UUIDHelper::isUUID($id)) {
+                $node = $this->session->getNodeByIdentifier($id);
+            } else {
+                $document = $this->unitOfWork->getDocumentById($id);
+                if ($document) {
+                    $this->unitOfWork->validateDocumentName($className, $document);
+                    $class = $this->getClassMetadata(get_class($document));
+                    $this->unitOfWork->doLoadTranslation($document, $class, $locale, $fallback);
+                    return $document;
+                }
+                $node = $this->session->getNode($id);
+            }
+        } catch (PathNotFoundException $e) {
             return null;
         }
 
