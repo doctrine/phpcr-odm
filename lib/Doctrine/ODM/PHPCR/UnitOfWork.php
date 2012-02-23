@@ -319,11 +319,9 @@ class UnitOfWork
             $document = $class->newInstance();
             $overrideLocalValuesOid = $this->registerDocument($document, $id);
         }
+        
+        $this->validateDocumentName($requestedClassName, $document);
 
-        if (isset($requestedClassName) && $this->validateDocumentName && !($document instanceof $requestedClassName)) {
-            $msg = "Doctrine metadata mismatch! Requested type '$requestedClassName' type does not match type '".get_class($document)."' stored in the metadata";
-            throw new \InvalidArgumentException($msg);
-        }
 
         foreach ($class->childrenMappings as $mapping) {
             $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter']);
@@ -357,6 +355,14 @@ class UnitOfWork
         }
 
         return $document;
+    }
+    
+    
+    public function validateDocumentName($requestedClassName, $document) {
+        if (isset($requestedClassName) && $this->validateDocumentName && !($document instanceof $requestedClassName)) {
+            $msg = "Doctrine metadata mismatch! Requested type '$requestedClassName' type does not match type '".get_class($document)."' stored in the metadata";
+            throw new \InvalidArgumentException($msg);
+        }
     }
 
     public function createProxyFromNode($node)
