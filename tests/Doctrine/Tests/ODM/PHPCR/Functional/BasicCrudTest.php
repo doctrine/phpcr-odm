@@ -75,6 +75,21 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('dbu', $userWithAlias->username);
     }
 
+    public function testFindNonPersisted()
+    {
+        $user = new User();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+
+        $userNew = $this->dm->find($this->type, '/functional/test');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+    }
+
     public function testInsertWithCustomIdStrategy()
     {
         $user = new User3();

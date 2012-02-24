@@ -204,6 +204,19 @@ class UnitOfWork
     }
 
     /**
+     * @param $document
+     * @param $className
+     * @throws \InvalidArgumentException
+     */
+    public function validateClassName($document, $className)
+    {
+        if (isset($className) && $this->validateDocumentName && !($document instanceof $className)) {
+            $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata";
+            throw new \InvalidArgumentException($msg);
+        }
+    }
+
+    /**
      * Create a document given class, data and the doc-id and revision
      *
      * Supported hints are
@@ -320,10 +333,7 @@ class UnitOfWork
             $overrideLocalValuesOid = $this->registerDocument($document, $id);
         }
 
-        if (isset($requestedClassName) && $this->validateDocumentName && !($document instanceof $requestedClassName)) {
-            $msg = "Doctrine metadata mismatch! Requested type '$requestedClassName' type does not match type '".get_class($document)."' stored in the metadata";
-            throw new \InvalidArgumentException($msg);
-        }
+        $this->validateClassName($document, $requestedClassName);
 
         foreach ($class->childrenMappings as $mapping) {
             $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter']);
@@ -1844,7 +1854,7 @@ class UnitOfWork
      *
      * @return void
      */
-    private function doLoadTranslation($document, $metadata, $locale = null, $fallback = false)
+    public function doLoadTranslation($document, $metadata = null, $locale = null, $fallback = false)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
