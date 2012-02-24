@@ -280,6 +280,7 @@ class DocumentManager implements ObjectManager
             } else {
                 $document = $this->unitOfWork->getDocumentById($id);
                 if ($document) {
+                    $this->unitOfWork->validateClassName($document, $className);
                     return $document;
                 }
                 $node = $this->session->getNode($id);
@@ -309,8 +310,13 @@ class DocumentManager implements ObjectManager
             foreach ($ids as $key => $id) {
                 $document = $this->unitOfWork->getDocumentById($id);
                 if ($document) {
-                    $documents[$id] = $document;
-                    unset($ids[$key]);
+                    try {
+                        $this->unitOfWork->validateClassName($document, $className);
+                        $documents[$id] = $document;
+                        unset($ids[$key]);
+                    } catch (\InvalidArgumentException $e) {
+                        // ignore on class mismatch
+                    }
                 }
             }
 
@@ -348,6 +354,7 @@ class DocumentManager implements ObjectManager
             } else {
                 $document = $this->unitOfWork->getDocumentById($id);
                 if ($document) {
+                    $this->unitOfWork->validateClassName($document, $className);
                     $class = $this->getClassMetadata(get_class($document));
                     $this->unitOfWork->doLoadTranslation($document, $class, $locale, $fallback);
                     return $document;
