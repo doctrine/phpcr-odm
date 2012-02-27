@@ -436,18 +436,23 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     </td>
 </tr>
 <tr>
-    <td>ReferenceOne(targetDocument="myDocument", weak=false):  (*)</td>
+    <td>ReferenceOne(targetDocument="myDocument", strategy="weak"):  (*)</td>
     <td>Refers a document of the type myDocument. The default is a weak
-        reference. By optionaly specifying weak=false you get a hard reference.
+        reference. By optionaly specifying strategy="hard" you get a hard reference.
+        Finally with strategy="path" it will simply store the path to the node,
+        but automatically dereference.
         It is optional to specify the targetDocument, you can reference any
-        document type.
+        document type. However using strategy="path" will be faster if a targetDocument
+        is set.
     </td>
 </tr>
 <tr>
-    <td> ReferenceMany(targetDocument="myDocument", weak=false): (*)</td>
+    <td> ReferenceMany(targetDocument="myDocument", weak="weak"): (*)</td>
     <td>Same as ReferenceOne except that you can refer many documents with the
         same document and reference type. If you dont't specify targetDocument
-        you can reference documents of mixed types in the same property.
+        you can reference documents of mixed types in the same property. This
+        type of collection will always be lazy loaded regardless of the strategy
+        chosen.
     </td>
 </tr>
 <tr>

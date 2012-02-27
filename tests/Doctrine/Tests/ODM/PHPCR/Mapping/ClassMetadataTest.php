@@ -132,10 +132,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, serialize($cm));
     }
 
-    /**
-     * @depends testClassName
-     */
-    public function testUnserialize($cm)
+    public function testUnserialize()
     {
         $cm = unserialize('O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":11:{s:13:"fieldMappings";a:0:{}s:10:"identifier";N;s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:9:"namespace";s:32:"Doctrine\Tests\ODM\PHPCR\Mapping";s:16:"generatorOptions";a:0:{}s:11:"idGenerator";i:2;s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:12:"versionField";N;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}');
 
@@ -162,6 +159,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
             'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address',
             'sourceDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Person',
             'type' => ClassMetadata::MANY_TO_ONE,
+            'strategy' => 'weak',
         ), $cm->associationsMappings['address']);
 
         return $cm;

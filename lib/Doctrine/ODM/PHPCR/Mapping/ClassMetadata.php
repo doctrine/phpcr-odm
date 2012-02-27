@@ -603,8 +603,8 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }
-        if (isset($mapping['weak']) && !is_bool($mapping['weak']) && !in_array($mapping['weak'], array('uuid', 'path'))) {
-            throw new MappingException("The attribute 'weak' for the '" . $this->name . "' association has to be either a boolean, 'uuid' or 'path': ".$mapping['weak']);
+        if (isset($mapping['strategy']) && !in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
+            throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
         return $mapping;
     }
@@ -627,8 +627,8 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function storeAssociationMapping($mapping)
     {
-        if (!empty($mapping['weak']) && is_bool($mapping['weak'])) {
-            $mapping['weak'] = 'uuid';
+        if (empty($mapping['strategy'])) {
+            $mapping['strategy'] = 'weak';
         }
         $this->associationsMappings[$mapping['fieldName']] = $mapping;
     }

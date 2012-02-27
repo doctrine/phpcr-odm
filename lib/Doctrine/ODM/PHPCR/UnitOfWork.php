@@ -264,7 +264,7 @@ class UnitOfWork
             }
 
             if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE
-                && $assocOptions['weak'] !== 'path'
+                && $assocOptions['strategy'] !== 'path'
             ) {
                 $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
             }
@@ -284,7 +284,7 @@ class UnitOfWork
                 if (isset($assocOptions['targetDocument'])) {
                     $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
 
-                    if ($assocOptions['weak'] === 'path') {
+                    if ($assocOptions['strategy'] === 'path') {
                         $path = $node->getProperty($assocOptions['fieldName'])->getString();
                     } else {
                         $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
@@ -1303,15 +1303,15 @@ class UnitOfWork
                         continue;
                     }
 
-                    switch ($class->associationsMappings[$fieldName]['weak']) {
-                        case 'uuid':
-                            $type = PropertyType::WEAKREFERENCE;
+                    switch ($class->associationsMappings[$fieldName]['strategy']) {
+                        case 'hard':
+                            $strategy = PropertyType::REFERENCE;
                             break;
                         case 'path':
-                            $type = PropertyType::PATH;
+                            $strategy = PropertyType::PATH;
                             break;
                         default:
-                            $type = PropertyType::REFERENCE;
+                            $strategy = PropertyType::WEAKREFERENCE;
                             break;
                     }
 
@@ -1324,7 +1324,7 @@ class UnitOfWork
                                 }
 
                                 $associatedNode = $this->session->getNode($this->getDocumentId($fv));
-                                if ($type === PropertyType::PATH) {
+                                if ($strategy === PropertyType::PATH) {
                                     $refNodesIds[] = $associatedNode->getPath();
                                 } else {
                                     $refClass = $this->dm->getClassMetadata(get_class($fv));
@@ -1337,22 +1337,22 @@ class UnitOfWork
                             }
 
                             if (!empty($refNodesIds)) {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $type);
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
                             }
                         }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
                             $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
 
-                            if ($type === PropertyType::PATH) {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getPath(), $type);
+                            if ($strategy === PropertyType::PATH) {
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getPath(), $strategy);
                             } else {
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
                                 $this->setMixins($refClass, $associatedNode);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
                                 }
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getIdentifier(), $type);
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getIdentifier(), $strategy);
                             }
                         }
                     }
