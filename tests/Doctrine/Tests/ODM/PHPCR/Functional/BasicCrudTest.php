@@ -96,6 +96,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = "test3";
 
         $this->dm->persist($user);
+
+        $this->assertEquals('/functional/test3', $user->id);
+
         $this->dm->flush();
         $this->dm->clear();
 

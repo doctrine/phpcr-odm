@@ -971,12 +971,11 @@ class UnitOfWork
     public function persistNew($class, $document, $overrideIdGenerator = null)
     {
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
+
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
         $this->registerDocument($document, $id);
 
-        if ($generator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
-            || $generator === ClassMetadata::GENERATOR_TYPE_PARENT
-        ) {
+        if ($generator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
             $class->setIdentifierValue($document, $id);
         }
 
