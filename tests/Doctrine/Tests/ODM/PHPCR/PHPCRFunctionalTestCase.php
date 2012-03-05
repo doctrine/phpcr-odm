@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 
 abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 {
-    private $_session;
+    private $sessions = array();
 
     public function createDocumentManager(array $paths = null)
     {
@@ -51,12 +51,13 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
             ? $GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
 
         $credentials = new \PHPCR\SimpleCredentials($user, $pass);
-        $this->_session = $repository->login($credentials, $workspace);
+        $session = $repository->login($credentials, $workspace);
+        $this->sessions[] = $session;
 
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $config->setMetadataDriverImpl($metaDriver);
 
-        return DocumentManager::create($this->_session, $config);
+        return DocumentManager::create($session, $config);
     }
 
     public function resetFunctionalNode($dm)
@@ -78,8 +79,9 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        if ($this->_session) {
-            $this->_session->logout();
+        foreach ($this->sessions as $session) {
+            $session->logout();
         }
+        $this->sessions = array();
     }
 }
