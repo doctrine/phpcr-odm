@@ -558,11 +558,14 @@ class WeakReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=true) */
+    /**
+     * Should implicitly default to weak="uuid"
+     * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj")
+     */
     public $referenceToWeak;
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak="uuid") */
     public $referenceToHard;
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak="uuid") */
     public $referenceToAll;
     /** @PHPCRODM\String */
     public $name;

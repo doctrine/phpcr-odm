@@ -205,8 +205,7 @@ class Reference
 {
     /** @var string */
     public $targetDocument;
-    /** @var boolean */
-    public $weak = true;
+    public $weak = 'uuid';
 }
 /**
  * @Annotation

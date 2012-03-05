@@ -7,11 +7,11 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * @PHPCRODM\Document()
  */
-class WeakRefTestObj
+class RefTestObjByPath
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", weak="uuid") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", weak="path") */
     public $reference;
     /** @PHPCRODM\String */
     public $name;
