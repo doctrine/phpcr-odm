@@ -54,11 +54,11 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
     
     public function count() 
     {
-            return count($this->referencedDocUUIDs);
+        return count($this->referencedDocUUIDs);
     }
     
     public function isEmpty() 
     {
-            return ($this->count() == 0);
+        return ($this->count() == 0);
     }
 }
