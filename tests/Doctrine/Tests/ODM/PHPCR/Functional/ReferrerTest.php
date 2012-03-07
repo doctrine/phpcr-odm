@@ -541,11 +541,11 @@ class HardReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="hard") */
     public $referenceToHard;
-    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", strategy="hard") */
     public $referenceToWeak;
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=false) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="hard") */
     public $referenceToAll;
     /** @PHPCRODM\String */
     public $name;
@@ -558,11 +558,14 @@ class WeakReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", weak=true) */
+    /**
+     * Should implicitly default to strategy="weak"
+     * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj")
+     */
     public $referenceToWeak;
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="weak") */
     public $referenceToHard;
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", weak=true) */
+    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="weak") */
     public $referenceToAll;
     /** @PHPCRODM\String */
     public $name;

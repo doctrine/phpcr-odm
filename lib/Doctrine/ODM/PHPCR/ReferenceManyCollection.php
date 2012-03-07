@@ -12,21 +12,20 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ReferenceManyCollection extends MultivaluePropertyCollection
 {
-
-    private $referencedDocUUIDs;
+    private $referencedNodes;
     private $targetDocument = null;
     
     /**
      * Creates a new persistent collection.
      *
      * @param DocumentManager $dm The DocumentManager the collection will be associated with.
-     * @param array $referencedDocUUIDs An array of referenced UUIDs
+     * @param array $referencedNodes An array of referenced nodes (UUID or path)
      * @param string $targetDocument the objectname of the target documents
      */
-    public function __construct(DocumentManager $dm, array $referencedDocUUIDs, $targetDocument)
+    public function __construct(DocumentManager $dm, array $referencedNodes, $targetDocument)
     {
         $this->dm = $dm;
-        $this->referencedDocUUIDs = $referencedDocUUIDs;
+        $this->referencedNodes = $referencedNodes;
         $this->targetDocument = $targetDocument;
     }
 
@@ -40,25 +39,31 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
             $this->initialized = true;
 
             $referencedDocs = array();
-            $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedDocUUIDs);
+            $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
             $uow = $this->dm->getUnitOfWork();
+
+            $referencedClass = $this->targetDocument
+                ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($this->targetDocument, '\\'))->name
+                : null;
+
             foreach ($referencedNodes as $referencedNode) {
-                $referencedClass = $this->targetDocument ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($this->targetDocument, '\\'))->name : null;
-                $proxy = $referencedClass ? $uow->createProxy($referencedNode->getPath(), $referencedClass) : $uow->createProxyFromNode($referencedNode);
+                $proxy = $referencedClass
+                    ? $uow->createProxy($referencedNode->getPath(), $referencedClass)
+                    : $uow->createProxyFromNode($referencedNode);
                 $referencedDocs[] = $proxy;
             }
             
             $this->collection = new ArrayCollection($referencedDocs);
         }
     }
-    
+
     public function count() 
     {
-        return count($this->referencedDocUUIDs);
+        return count($this->referencedNodes);
     }
     
     public function isEmpty() 
     {
-        return ($this->count() == 0);
+        return !$this->count();
     }
 }

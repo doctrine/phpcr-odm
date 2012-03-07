@@ -276,7 +276,9 @@ class UnitOfWork
                 continue;
             }
 
-            if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
+            if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE
+                && $assocOptions['strategy'] !== 'path'
+            ) {
                 $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
             }
         }
@@ -292,23 +294,35 @@ class UnitOfWork
                     continue;
                 }
 
-                $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
-                $referencedClass = isset($assocOptions['targetDocument'])
-                    ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name : null;
-                $proxy = $referencedClass
-                    ? $this->createProxy($referencedNode->getPath(), $referencedClass)
-                    : $this->createProxyFromNode($referencedNode);
+                if (isset($assocOptions['targetDocument'])) {
+                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
+
+                    if ($assocOptions['strategy'] === 'path') {
+                        $path = $node->getProperty($assocOptions['fieldName'])->getString();
+                    } else {
+                        $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
+                        $path = $referencedNode->getPath();
+                    }
+
+                    $proxy = $this->createProxy($path, $referencedClass);
+                } else {
+                    $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
+                    $proxy = $this->createProxyFromNode($referencedNode);
+                }
+
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxy;
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
                 if (!$node->hasProperty($assocOptions['fieldName'])) {
                     continue;
                 }
-                $referencedDocUUIDs = array();
-                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $uuid) {
-                    $referencedDocUUIDs[] = $uuid;
+
+                $referencedNodes = array();
+                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $reference) {
+                    $referencedNodes[] = $reference;
                 }
-                if (count($referencedDocUUIDs) > 0) {
-                    $coll = new ReferenceManyCollection($this->dm, $referencedDocUUIDs, $assocOptions['targetDocument']);
+
+                if (count($referencedNodes) > 0) {
+                    $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $assocOptions['targetDocument']);
                     $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
                 }
             }
@@ -1298,8 +1312,17 @@ class UnitOfWork
                         continue;
                     }
 
-                    $type = $class->associationsMappings[$fieldName]['weak']
-                        ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
+                    switch ($class->associationsMappings[$fieldName]['strategy']) {
+                        case 'hard':
+                            $strategy = PropertyType::REFERENCE;
+                            break;
+                        case 'path':
+                            $strategy = PropertyType::PATH;
+                            break;
+                        default:
+                            $strategy = PropertyType::WEAKREFERENCE;
+                            break;
+                    }
 
                     if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
@@ -1310,27 +1333,36 @@ class UnitOfWork
                                 }
 
                                 $associatedNode = $this->session->getNode($this->getDocumentId($fv));
-                                $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                $this->setMixins($refClass, $associatedNode);
-                                if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
+                                if ($strategy === PropertyType::PATH) {
+                                    $refNodesIds[] = $associatedNode->getPath();
+                                } else {
+                                    $refClass = $this->dm->getClassMetadata(get_class($fv));
+                                    $this->setMixins($refClass, $associatedNode);
+                                    if (!$associatedNode->isNodeType('mix:referenceable')) {
+                                        throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
+                                    }
+                                    $refNodesIds[] = $associatedNode->getIdentifier();
                                 }
-                                $refNodesIds[] = $associatedNode->getIdentifier();
                             }
 
                             if (!empty($refNodesIds)) {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $type);
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
                             }
                         }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
                             $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
-                            $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                            $this->setMixins($refClass, $associatedNode);
-                            if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
+
+                            if ($strategy === PropertyType::PATH) {
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getPath(), $strategy);
+                            } else {
+                                $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
+                                $this->setMixins($refClass, $associatedNode);
+                                if (!$associatedNode->isNodeType('mix:referenceable')) {
+                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
+                                }
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getIdentifier(), $strategy);
                             }
-                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getIdentifier(), $type);
                         }
                     }
                 } elseif (isset($class->childMappings[$fieldName])) {
