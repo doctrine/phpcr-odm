@@ -1,0 +1,21 @@
+{
+    "name": "doctrine/phpcr-odm",
+    "type": "library",
+    "description": "Object-Document-Mapper for PHPCR",
+    "keywords": ["odm", "phpcr", "database"],
+    "homepage": "http://www.doctrine-project.org",
+    "license": "LGPL",
+    "authors":[
+        {"name":"Jordi Boggiano", "email":"j.boggiano@seld.be"},
+        {"name":"David Buchmann", "email":"david@liip.ch"},
+        {"name":"Lukas Kahwe Smith", "email":"smith@pooteeweet.org"}
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "doctrine/common": "dev-master",
+        "phpcr/phpcr-implementation":"2.1.0-beta3"
+    },
+    "autoload": {
+        "psr-0": { "Doctrine\\ODM\\PHPCR": "lib/" }
+    }
+}

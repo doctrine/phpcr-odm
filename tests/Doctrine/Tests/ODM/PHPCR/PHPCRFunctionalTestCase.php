@@ -7,6 +7,8 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 
 abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 {
+    private $sessions = array();
+
     public function createDocumentManager(array $paths = null)
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
@@ -50,6 +52,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
         $credentials = new \PHPCR\SimpleCredentials($user, $pass);
         $session = $repository->login($credentials, $workspace);
+        $this->sessions[] = $session;
 
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $config->setMetadataDriverImpl($metaDriver);
@@ -73,4 +76,12 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 
         return $node;
    }
+
+    public function tearDown()
+    {
+        foreach ($this->sessions as $session) {
+            $session->logout();
+        }
+        $this->sessions = array();
+    }
 }

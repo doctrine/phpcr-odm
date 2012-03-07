@@ -12,7 +12,6 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ReferenceManyCollection extends MultivaluePropertyCollection
 {
-
     private $referencedNodes;
     private $targetDocument = null;
     
@@ -56,5 +55,15 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
             
             $this->collection = new ArrayCollection($referencedDocs);
         }
+    }
+
+    public function count() 
+    {
+        return count($this->referencedNodes);
+    }
+    
+    public function isEmpty() 
+    {
+        return !$this->count();
     }
 }

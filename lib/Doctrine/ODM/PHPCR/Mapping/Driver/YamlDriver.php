@@ -84,7 +84,11 @@ class YamlDriver extends FileDriver
             }
         }
         if (isset($element['id'])) {
-            $class->mapId(array('fieldName' => $element['id'], 'id' => true));
+            $mapping = array('fieldName' => $element['id'], 'id' => true);
+            if (isset($element['id']['generator']['strategy'])) {
+                $mapping = $element['id']['generator']['strategy'];
+            }
+            $class->mapId($mapping);
         }
         if (isset($element['node'])) {
             $class->mapNode(array('fieldName' => $element['node']));

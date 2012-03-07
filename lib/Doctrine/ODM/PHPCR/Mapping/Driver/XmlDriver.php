@@ -83,10 +83,14 @@ class XmlDriver extends FileDriver
             }
         }
         if (isset($xmlRoot->id)) {
-            $class->mapId(array(
-                'fieldName' => (string) $xmlRoot->id->attributes()->name,
-                'id' => true
-            ));
+            $mapping = array(
+                'fieldName' => (string)$xmlRoot->id->attributes()->name,
+                'id' => true,
+            );
+            if (isset($xmlRoot->id->generator) && isset($xmlRoot->id->generator->attributes()->strategy)) {
+                $mapping['strategy'] = (string) $xmlRoot->id->generator->attributes()->strategy;
+            }
+            $class->mapId($mapping);
         }
         if (isset($xmlRoot->node)) {
             $class->mapNode(array('fieldName' => (string) $xmlRoot->node->attributes()->name));
