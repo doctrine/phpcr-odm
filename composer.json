@@ -13,7 +13,8 @@
     "require": {
         "php": ">=5.3.2",
         "doctrine/common": "dev-master",
-        "phpcr/phpcr-implementation":"2.1.0-beta3"
+        "phpcr/phpcr-implementation": "2.1.0-beta3",
+        "phpcr/phpcr-utils": "dev-master"
     },
     "autoload": {
         "psr-0": { "Doctrine\\ODM\\PHPCR": "lib/" }
