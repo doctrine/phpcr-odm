@@ -5,12 +5,15 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 use Doctrine\Tests\Models\References\RefTestObj;
+use Doctrine\Tests\Models\References\RefTestObjByPath;
 use Doctrine\Tests\Models\References\RefRefTestObj;
 use Doctrine\Tests\Models\References\RefTestPrivateObj;
 use Doctrine\Tests\Models\References\RefManyTestObj;
 use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
 
 use Doctrine\ODM\PHPCR\PHPCRException;
+
+use PHPCR\Util\UUIDHelper;
 
 /**
  * @group functional
@@ -64,6 +67,32 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue(), $this->session->getNode('/functional')->getNode('refRefTestObj'));
 
         $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getIdentifier());
+        $this->assertTrue(UUIDHelper::isUUID($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString()));
+    }
+
+    public function testCreateByPath()
+    {
+        $refTestObj = new RefTestObjByPath();
+        $refRefTestObj = new RefRefTestObj();
+
+        $refTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refTestObj->reference = $refRefTestObj;
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->session->getNode('/functional')->hasNode('refRefTestObj'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refRefTestObj')->getProperty('name')->getString(), 'referenced');
+
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refTestObj')->hasProperty('reference'));
+        $this->assertEquals($this->session->getNode('/functional')->getNode('refTestObj')->getProperty('reference')->getValue(), "/functional/refRefTestObj");
+
+        $this->assertEquals($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString(), $this->session->getNode('/functional')->getNode('refRefTestObj')->getPath());
+        $this->assertFalse(UUIDHelper::isUUID($this->session->getNode('/functional')->getProperty('refTestObj/reference')->getString()));
     }
 
     public function testCreatePrivate()

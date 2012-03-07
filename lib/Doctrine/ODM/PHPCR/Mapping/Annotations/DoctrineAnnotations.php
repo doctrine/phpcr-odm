@@ -205,8 +205,8 @@ class Reference
 {
     /** @var string */
     public $targetDocument;
-    /** @var boolean */
-    public $weak = true;
+    /** @var string */
+    public $strategy = 'weak';
 }
 /**
  * @Annotation

@@ -549,7 +549,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
         if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard'.");
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
         }
         return $mapping;
     }
@@ -603,8 +603,8 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }
-        if (isset($mapping['weak']) && !is_bool($mapping['weak'])) {
-            throw new MappingException("The attribute 'weak' for the '" . $this->name . "' association has to be a boolean true or false.");
+        if (isset($mapping['strategy']) && !in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
+            throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
         return $mapping;
     }
@@ -627,6 +627,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function storeAssociationMapping($mapping)
     {
+        if (empty($mapping['strategy'])) {
+            $mapping['strategy'] = 'weak';
+        }
         $this->associationsMappings[$mapping['fieldName']] = $mapping;
     }
 
