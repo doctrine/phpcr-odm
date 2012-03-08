@@ -26,8 +26,15 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\NameDoc';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
+
+        $root = $this->dm->getPhpcrSession()->getNode('/');
+        if ($root->hasNode('childOfRoot')) {
+            $root->getNode('childOfRoot')->remove();
+        }
+
         $user = $this->node->addNode('thename');
         $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
+
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -214,6 +221,17 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $doc = $this->dm->find($this->type, '/functional/thename');
         $this->assertTrue($doc->child instanceof Proxy);
+    }
+
+    function testChildOfRoot()
+    {
+        $root = $this->dm->find(null, '/');
+        $child = new NameDoc();
+        $child->parent = $root;
+        $child->nodename = 'childOfRoot';
+        $this->dm->persist($child);
+        $this->dm->flush();
+        $this->assertEquals('/childOfRoot', $child->id);
     }
 
     // TODO: move? is to be done through phpcr session directly
