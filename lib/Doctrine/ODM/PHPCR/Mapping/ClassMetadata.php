@@ -46,6 +46,11 @@ class ClassMetadata implements ClassMetadataInterface
     const MANY_TO_MANY = 8;
 
     /**
+     * means no strategy has been set so far.
+     */
+    const GENERATOR_TYPE_NONE = 0;
+
+    /**
      * means the repository will need to be able to generate the id.
      */
     const GENERATOR_TYPE_REPOSITORY = 1;
@@ -83,6 +88,13 @@ class ClassMetadata implements ClassMetadataInterface
      * @var AbstractIdGenerator
      */
     public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
+
+    /**
+     * keep track whether an id strategy was explicitly set
+     *
+     * @var boolean
+     */
+    private $idStrategySet = false;
 
     /**
      * READ-ONLY: The field name of the document identifier.
@@ -459,10 +471,11 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($mapping['id']) && $mapping['id'] === true) {
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
-            if (null !== $this->parentMapping) {
-                $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
-            } else if (isset($mapping['strategy'])) {
+            if (isset($mapping['strategy'])) {
                 $this->setIdGenerator($mapping['strategy']);
+                $this->idStrategySet = true;
+            } elseif (null !== $this->parentMapping && null !== $this->nodename) {
+                $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
             }
         }
 
@@ -489,13 +502,19 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->nodename = $mapping['fieldName'];
-    }
+        if (null !== $this->parentMapping && !$this->idStrategySet)
+        {
+            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+        }}
 
     public function mapParentDocument(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->parentMapping = $mapping['fieldName'];
-        $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+        if (null !== $this->nodename && !$this->idStrategySet)
+        {
+            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+        }
     }
 
     public function mapChild(array $mapping)
@@ -652,7 +671,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Sets the ID generator used to generate IDs for instances of this class.
      *
-     * @param AbstractIdGenerator $generator
+     * @param string $generator
      */
     public function setIdGenerator($generator)
     {
