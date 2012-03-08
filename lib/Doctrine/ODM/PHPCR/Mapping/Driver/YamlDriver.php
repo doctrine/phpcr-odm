@@ -86,7 +86,7 @@ class YamlDriver extends FileDriver
         if (isset($element['id'])) {
             $mapping = array('fieldName' => $element['id'], 'id' => true);
             if (isset($element['id']['generator']['strategy'])) {
-                $mapping = $element['id']['generator']['strategy'];
+                $mapping['strategy'] = $element['id']['generator']['strategy'];
             }
             $class->mapId($mapping);
         }

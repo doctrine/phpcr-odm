@@ -84,7 +84,7 @@ final class Id
     public $id = true;
     public $type = 'string';
     /** @var string */
-    public $strategy = 'assigned';
+    public $strategy;
 }
 /**
  * @Annotation
