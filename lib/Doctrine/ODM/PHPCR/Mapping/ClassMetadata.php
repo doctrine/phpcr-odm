@@ -502,17 +502,16 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->nodename = $mapping['fieldName'];
-        if (null !== $this->parentMapping && !$this->idStrategySet)
-        {
+        if (null !== $this->parentMapping && !$this->idStrategySet) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
-        }}
+        }
+    }
 
     public function mapParentDocument(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->parentMapping = $mapping['fieldName'];
-        if (null !== $this->nodename && !$this->idStrategySet)
-        {
+        if (null !== $this->nodename && !$this->idStrategySet) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
         }
     }
