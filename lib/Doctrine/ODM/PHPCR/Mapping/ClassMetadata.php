@@ -459,7 +459,9 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($mapping['id']) && $mapping['id'] === true) {
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
-            if (isset($mapping['strategy'])) {
+            if (null !== $this->parentMapping) {
+                $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+            } else if (isset($mapping['strategy'])) {
                 $this->setIdGenerator($mapping['strategy']);
             }
         }
