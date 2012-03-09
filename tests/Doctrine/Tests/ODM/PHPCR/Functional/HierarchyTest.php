@@ -243,14 +243,14 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
  */
 class NameDoc
 {
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
     /** @PHPCRODM\Id */
     public $id;
     /** @PHPCRODM\Node */
     public $node;
     /** @PHPCRODM\Nodename */
     public $nodename;
-    /** @PHPCRODM\ParentDocument */
-    public $parent;
     /** @PHPCRODM\Children */
     public $children;
     /** @PHPCRODM\Child */
