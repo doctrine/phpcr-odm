@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Generic
 {
-    /** @PHPCRODM\Id */
+    /** @PHPCRODM\Id(strategy="parent") */
     protected $id;
 
     /** @PHPCRODM\Node */
