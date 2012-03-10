@@ -60,6 +60,8 @@ class DocumentClassMapper implements DocumentClassMapperInterface
      */
     public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className)
     {
-        $node->setProperty('phpcr:class', $className, PropertyType::STRING);
+        if ('Doctrine\ODM\PHPCR\Document\Generic' !== $className) {
+            $node->setProperty('phpcr:class', $className, PropertyType::STRING);
+        }
     }
 }
