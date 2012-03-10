@@ -829,7 +829,7 @@ and can not be persisted.
 
 
 
-## Translation API
+## Versioning API
 
 Please refer to the phpDoc of the following functions:
 
