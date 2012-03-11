@@ -86,11 +86,6 @@ class UnitOfWork
     /**
      * @var array
      */
-    private $documentRevisions = array();
-
-    /**
-     * @var array
-     */
     private $documentState = array();
 
     /**
