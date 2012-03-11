@@ -45,4 +45,11 @@ interface DocumentClassMapperInterface
      * @param string $className
      */
     function writeMetadata(DocumentManager $dm, NodeInterface $node, $className);
+
+    /**
+     * @param object $document
+     * @param string $className
+     * @throws \InvalidArgumentException
+     */
+    function validateClassName($document, $className);
 }

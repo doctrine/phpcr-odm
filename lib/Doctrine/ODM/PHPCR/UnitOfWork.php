@@ -204,15 +204,14 @@ class UnitOfWork
     }
 
     /**
-     * @param $document
-     * @param $className
+     * @param object $document
+     * @param string $className
      * @throws \InvalidArgumentException
      */
     public function validateClassName($document, $className)
     {
-        if (isset($className) && $this->validateDocumentName && !($document instanceof $className)) {
-            $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata";
-            throw new \InvalidArgumentException($msg);
+        if (isset($className) && $this->validateDocumentName) {
+            $this->documentClassMapper->validateClassName($document, $className);
         }
     }
 

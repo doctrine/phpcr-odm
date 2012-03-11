@@ -64,4 +64,17 @@ class DocumentClassMapper implements DocumentClassMapperInterface
             $node->setProperty('phpcr:class', $className, PropertyType::STRING);
         }
     }
+
+    /**
+     * @param object $document
+     * @param string $className
+     * @throws \InvalidArgumentException
+     */
+    public function validateClassName($document, $className)
+    {
+        if (!$document instanceof $className) {
+            $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata";
+            throw new \InvalidArgumentException($msg);
+        }
+    }
 }
