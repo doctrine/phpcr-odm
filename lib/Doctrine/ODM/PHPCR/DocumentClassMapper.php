@@ -66,14 +66,17 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     }
 
     /**
+     * @param DocumentManager
      * @param object $document
      * @param string $className
      * @throws \InvalidArgumentException
      */
-    public function validateClassName($document, $className)
+    public function validateClassName(DocumentManager $dm, $document, $className)
     {
         if (!$document instanceof $className) {
-            $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata";
+            $class = $dm->getClassMetadata(get_class($document));
+            $path = $class->getIdentifierValue($document);
+            $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata at path '$path'";
             throw new \InvalidArgumentException($msg);
         }
     }

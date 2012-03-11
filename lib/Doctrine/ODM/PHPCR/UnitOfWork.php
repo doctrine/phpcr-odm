@@ -211,7 +211,7 @@ class UnitOfWork
     public function validateClassName($document, $className)
     {
         if (isset($className) && $this->validateDocumentName) {
-            $this->documentClassMapper->validateClassName($document, $className);
+            $this->documentClassMapper->validateClassName($this->dm, $document, $className);
         }
     }
 
