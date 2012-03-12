@@ -115,6 +115,8 @@ class UnitOfWorkTest extends PHPCRTestCase
         $object->username = "bar";
         $object->id = '/somepath';
 
+        $this->uow->scheduleInsert($object);
+
         $this->uow->scheduleRemove($object);
 
         $method = new \ReflectionMethod($this->uow, 'getDocumentState');
