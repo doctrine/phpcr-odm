@@ -787,14 +787,13 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-        if (!isset($this->originalData[$oid])) {
+        $isNew = !isset($this->originalData[$oid]);
+
+        if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = $actualData;
             $this->scheduledInserts[$oid] = $document;
-            $computeChanges = false;
-        } else {
-            $computeChanges = true;
         }
 
         if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
@@ -831,15 +830,7 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->referrersMappings as $name => $referrerMapping) {
-            if ($this->originalData[$oid][$name]) {
-                foreach ($this->originalData[$oid][$name] as $referrer) {
-                    $this->computeReferrerChanges($referrer);
-                }
-            }
-        }
-
-        if ($computeChanges) {
+        if (!$isNew) {
             if (isset($this->originalData[$oid][$class->nodename])
                 && isset($actualData[$class->nodename])
                 && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
@@ -893,6 +884,14 @@ class UnitOfWork
             if (count($actualData)) {
                 $this->documentChangesets[$oid] = $actualData;
                 $this->scheduledUpdates[$oid] = $document;
+            }
+
+            foreach ($class->referrersMappings as $name => $referrerMapping) {
+                if ($this->originalData[$oid][$name]) {
+                    foreach ($this->originalData[$oid][$name] as $referrer) {
+                        $this->computeReferrerChanges($referrer);
+                    }
+                }
             }
         }
     }
