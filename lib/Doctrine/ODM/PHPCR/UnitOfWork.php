@@ -1108,9 +1108,13 @@ class UnitOfWork
 
             $this->executeRemovals($this->scheduledRemovals);
 
-            $this->executeMoves($this->scheduledMoves);
-
             $this->session->save();
+
+            if (!empty($this->scheduledMoves)) {
+                $this->executeMoves($this->scheduledMoves);
+
+                $this->session->save();
+            }
 
             if ($utx) {
                 $utx->commit();
