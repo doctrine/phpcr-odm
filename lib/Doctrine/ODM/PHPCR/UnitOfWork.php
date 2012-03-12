@@ -547,7 +547,7 @@ class UnitOfWork
             }
         }
 
-        $id = $class->getIdentifierValue($document);
+        $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
@@ -803,7 +803,7 @@ class UnitOfWork
                 && isset($actualData[$class->parentMapping])
                 && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
             ) {
-                throw new PHPCRException('The ParentDocument property is immutable ('.$class->getIdentifierValue($this->originalData[$oid][$class->parentMapping]).' !== '.$class->getIdentifierValue($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
+                throw new PHPCRException('The ParentDocument property is immutable ('.$this->getDocumentId($this->originalData[$oid][$class->parentMapping]).' !== '.$this->getDocumentId($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
             }
             if (isset($this->originalData[$oid][$class->identifier])
                 && isset($actualData[$class->identifier])
@@ -868,7 +868,7 @@ class UnitOfWork
             }
         }
 
-        $id = $class->getIdentifierValue($document);
+        $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
@@ -1402,8 +1402,7 @@ class UnitOfWork
 
             list($document, $targetPath) = $value;
 
-            $class = $this->dm->getClassMetadata(get_class($document));
-            $path = $class->getIdentifierValue($document);
+            $path = $this->getDocumentId($document);
             if ($path === $targetPath) {
                 continue;
             }
@@ -1772,7 +1771,7 @@ class UnitOfWork
         if (empty($this->documentIds[$oid])) {
             $msg = 'Document is not managed and has no id';
             if (is_object($document)) {
-                $msg.= ': '.self::objToStr($document, $this->dm);
+                $msg.= ': '.self::objToStr($document);
             }
             throw new PHPCRException($msg);
         }
@@ -2013,10 +2012,8 @@ class UnitOfWork
 
         if ($dm) {
             try {
-                $metadata = $dm->getClassMetadata(get_class($obj));
-                if ($metadata->getIdentifierValue($obj)) {
-                    $string .= ' ('.$metadata->getIdentifierValue($obj).')';
-                }
+                $id = $dm->getUnitOfWork()->getDocumentId($obj);
+                $string .= " ($id)";
             } catch (\Exception $e) {
             }
         }
