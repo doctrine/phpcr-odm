@@ -436,7 +436,7 @@ class UnitOfWork
     public function bindTranslation($document, $locale)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED) {
+        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
             throw new \InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
         }
 
@@ -717,11 +717,7 @@ class UnitOfWork
     {
         if ($document) {
             $state = $this->getDocumentState($document);
-            if ($state !== self::STATE_MANAGED) {
-                if ($state === self::STATE_MOVE) {
-                    return;
-                }
-
+            if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
                 throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
             }
 
@@ -743,7 +739,7 @@ class UnitOfWork
         } else {
             foreach ($this->identityMap as $document) {
                 $state = $this->getDocumentState($document);
-                if ($state === self::STATE_MANAGED) {
+                if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
                     $class = $this->dm->getClassMetadata(get_class($document));
                     $this->computeChangeSet($class, $document);
                 }
@@ -867,7 +863,7 @@ class UnitOfWork
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
-            if ($state === self::STATE_MANAGED) {
+            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
                 $this->computeChangeSet($parentClass, $parent);
             }
         }
@@ -1025,6 +1021,7 @@ class UnitOfWork
         $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_MANAGED:
+            case self::STATE_MOVED:
                 $this->unregisterDocument($document);
                 break;
             case self::STATE_NEW:
@@ -1111,9 +1108,14 @@ class UnitOfWork
 
             $this->executeRemovals($this->scheduledRemovals);
 
-            $this->executeMoves($this->scheduledMoves);
-
             $this->session->save();
+
+            if (!empty($this->scheduledMoves)) {
+                // TODO: this is a hack to work around https://github.com/jackalope/jackalope/issues/99
+                $this->executeMoves($this->scheduledMoves);
+
+                $this->session->save();
+            }
 
             if ($utx) {
                 $utx->commit();
