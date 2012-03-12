@@ -170,9 +170,27 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->move($user, '/functional/user2');
         $this->dm->persist($user);
         $this->dm->flush();
+        $this->dm->clear();
 
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertNotNull($user, 'User must exist');
+    }
+
+    public function testMoveFirstPersist()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertNotNull($user, 'User must exist');
+
+        $user->username = 'new name';
+        $this->dm->persist($user);
+        $this->dm->move($user, '/functional/user2');
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find($this->type, '/functional/user2');
+        $this->assertNotNull($user, 'User must exist');
+        $this->assertEquals('new name', $user->username);
     }
 
     public function testMoveThenRemove()
