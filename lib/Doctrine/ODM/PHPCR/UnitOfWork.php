@@ -792,70 +792,9 @@ class UnitOfWork
             $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = $actualData;
             $this->scheduledInserts[$oid] = $document;
+            $computeChanges = false;
         } else {
-            if (isset($this->originalData[$oid][$class->nodename])
-                && isset($actualData[$class->nodename])
-                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
-            ) {
-                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
-            }
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($actualData[$class->parentMapping])
-                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
-            ) {
-                throw new PHPCRException('The ParentDocument property is immutable ('.$class->getIdentifierValue($this->originalData[$oid][$class->parentMapping]).' !== '.$class->getIdentifierValue($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
-            }
-            if (isset($this->originalData[$oid][$class->identifier])
-                && isset($actualData[$class->identifier])
-                && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
-            ) {
-                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
-            }
-
-            // Document is "fully" MANAGED: it was already fully persisted before
-            // and we have a copy of the original data
-
-            $changed = false;
-            foreach ($actualData as $fieldName => $fieldValue) {
-                if (!isset($class->fieldMappings[$fieldName])
-                    && !isset($class->childMappings[$fieldName])
-                    && !isset($class->associationsMappings[$fieldName])
-                    && !isset($class->referrersMappings[$fieldName])
-                    && !isset($class->parentMapping[$fieldName])
-                    && !isset($class->nodename)
-                ) {
-                    continue;
-                }
-                if ($class->isCollectionValuedAssociation($fieldName)) {
-                    if (!$fieldValue instanceof PersistentCollection) {
-                        // if its not a persistent collection and the original value changed. otherwise it could just be null
-                        $changed = true;
-                        break;
-                    } elseif ($fieldValue->changed()) {
-                        $this->visitedCollections[] = $fieldValue;
-                        $changed = true;
-                        break;
-                    }
-                } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
-                    $changed = true;
-                    break;
-                } elseif ($fieldValue instanceof ReferenceManyCollection) {
-                    if ($fieldValue->changed()) {
-                        $changed = true;
-                    }
-                }
-            }
-
-            if (isset($this->documentLocales[$oid])
-                && $this->documentLocales[$oid]['current'] !== $this->documentLocales[$oid]['original']
-            ) {
-                $changed = true;
-            }
-
-            if ($changed) {
-                $this->documentChangesets[$oid] = $actualData;
-                $this->scheduledUpdates[$oid] = $document;
-            }
+            $computeChanges = true;
         }
 
         if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
@@ -899,6 +838,63 @@ class UnitOfWork
                 }
             }
         }
+
+        if ($computeChanges) {
+            if (isset($this->originalData[$oid][$class->nodename])
+                && isset($actualData[$class->nodename])
+                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
+            ) {
+                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
+            }
+            if (isset($this->originalData[$oid][$class->parentMapping])
+                && isset($actualData[$class->parentMapping])
+                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
+            ) {
+                throw new PHPCRException('The ParentDocument property is immutable ('.$class->getIdentifierValue($this->originalData[$oid][$class->parentMapping]).' !== '.$class->getIdentifierValue($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
+            }
+            if (isset($this->originalData[$oid][$class->identifier])
+                && isset($actualData[$class->identifier])
+                && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
+            ) {
+                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+            }
+
+            if (!isset($this->documentLocales[$oid])
+                || $this->documentLocales[$oid]['current'] === $this->documentLocales[$oid]['original']
+            ) {
+                // remove anything from $actualData that did not change
+                foreach ($actualData as $fieldName => $fieldValue) {
+                    if (isset($class->fieldMappings[$fieldName])
+                        || isset($class->childMappings[$fieldName])
+                        || isset($class->associationsMappings[$fieldName])
+                        || isset($class->referrersMappings[$fieldName])
+                        || isset($class->parentMapping[$fieldName])
+                        || isset($class->nodename)
+                    ) {
+                        if ($class->isCollectionValuedAssociation($fieldName)) {
+                            if (!$fieldValue instanceof PersistentCollection) {
+                                // if its not a persistent collection, otherwise it would just be null
+                                continue;
+                            } elseif ($fieldValue->changed()) {
+                                $this->visitedCollections[] = $fieldValue;
+                                continue;
+                            }
+                        } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                            continue;
+                        } elseif ($fieldValue instanceof ReferenceManyCollection && $fieldValue->changed()) {
+                            continue;
+                        }
+                    }
+
+                    unset($actualData[$fieldName]);
+                }
+            }
+
+            if (count($actualData)) {
+                $this->documentChangesets[$oid] = $actualData;
+                $this->scheduledUpdates[$oid] = $document;
+            }
+        }
     }
 
     /**
@@ -911,14 +907,18 @@ class UnitOfWork
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
 
-        if ($state === self::STATE_NEW) {
-            $targetClass->setIdentifierValue($child, $parentId.'/'.$mapping['name']);
-            $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-            $this->computeChangeSet($targetClass, $child);
-        } elseif ($state === self::STATE_REMOVED) {
-            throw new \InvalidArgumentException('Removed child document detected during flush');
-        } elseif ($state === self::STATE_DETACHED) {
-            throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
+        switch ($state) {
+            case self::STATE_NEW:
+                $targetClass->setIdentifierValue($child, $parentId.'/'.$mapping['name']);
+                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->computeChangeSet($targetClass, $child);
+                break;
+            case self::STATE_REMOVED:
+                throw new \InvalidArgumentException('Removed child document detected during flush');
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
+                break;
         }
     }
 
