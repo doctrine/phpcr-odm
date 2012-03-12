@@ -1111,6 +1111,7 @@ class UnitOfWork
             $this->session->save();
 
             if (!empty($this->scheduledMoves)) {
+                // TODO: this is a hack to work around https://github.com/jackalope/jackalope/issues/99
                 $this->executeMoves($this->scheduledMoves);
 
                 $this->session->save();
