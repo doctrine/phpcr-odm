@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
+    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
     Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
@@ -75,6 +76,22 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($tmpDocEn->text, 'english');
     }
 
+    public function testIdStrategy()
+    {
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\ParentIdStrategy');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_PARENT, $metadata->idGenerator, 'parentId');
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\ParentIdStrategyDifferentOrder');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_PARENT, $metadata->idGenerator, 'parentId2');
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\AssignedIdStrategy');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'assigned');
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\RepositoryIdStrategy');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_REPOSITORY, $metadata->idGenerator, 'repository');
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\AutoAssignedIdStrategy');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'autoassigned');
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\StandardCase');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'standardcase');
+    }
+
     // TODO comprehensive test for all possible mapped fields in an abstract test, trying to persist and check if properly set
     // then dm->clear and check if still properly set.
 
@@ -135,4 +152,85 @@ class SecondLevelWithDuplicateOverwrite extends ExtendingClass
     public $locale;
     /** @PHPCRODM\String(translated=true) */
     public $text;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
+class ParentIdStrategy
+{
+    /** @PHPCRODM\Id */
+    public $id;
+
+    /** @PHPCRODM\Nodename */
+    public $name;
+
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
+class ParentIdStrategyDifferentOrder
+{
+    /** @PHPCRODM\Nodename */
+    public $name;
+
+       /** @PHPCRODM\ParentDocument */
+    public $parent;
+
+    /** @PHPCRODM\Id */
+    public $id;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
+class AssignedIdStrategy
+{
+    /** @PHPCRODM\Id(strategy="assigned") */
+    public $id;
+
+    /** @PHPCRODM\Nodename */
+    public $name;
+
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
+class RepositoryIdStrategy
+{
+    /** @PHPCRODM\Nodename */
+    public $name;
+
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+
+    /** @PHPCRODM\Id(strategy="repository") */
+    public $id;
+}
+
+/**
+* @PHPCRODM\Document
+*/
+class AutoAssignedIdStrategy
+{
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+
+    /** @PHPCRODM\Id() */
+    public $id;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
+class StandardCase
+{
+    /** @PHPCRODM\Id */
+    public $id;
 }

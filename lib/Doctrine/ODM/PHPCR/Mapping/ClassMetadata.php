@@ -46,6 +46,11 @@ class ClassMetadata implements ClassMetadataInterface
     const MANY_TO_MANY = 8;
 
     /**
+     * means no strategy has been set so far.
+     */
+    const GENERATOR_TYPE_NONE = 0;
+
+    /**
      * means the repository will need to be able to generate the id.
      */
     const GENERATOR_TYPE_REPOSITORY = 1;
@@ -83,6 +88,13 @@ class ClassMetadata implements ClassMetadataInterface
      * @var AbstractIdGenerator
      */
     public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
+
+    /**
+     * keep track whether an id strategy was explicitly set
+     *
+     * @var boolean
+     */
+    private $idStrategySet = false;
 
     /**
      * READ-ONLY: The field name of the document identifier.
@@ -461,6 +473,9 @@ class ClassMetadata implements ClassMetadataInterface
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
                 $this->setIdGenerator($mapping['strategy']);
+                $this->idStrategySet = true;
+            } elseif (null !== $this->parentMapping && null !== $this->nodename) {
+                $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
             }
         }
 
@@ -487,13 +502,18 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->nodename = $mapping['fieldName'];
+        if (null !== $this->parentMapping && !$this->idStrategySet) {
+            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+        }
     }
 
     public function mapParentDocument(array $mapping)
     {
         $this->validateAndCompleteFieldMapping($mapping, false);
         $this->parentMapping = $mapping['fieldName'];
-        $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+        if (null !== $this->nodename && !$this->idStrategySet) {
+            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+        }
     }
 
     public function mapChild(array $mapping)
@@ -549,7 +569,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
         if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard'.");
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
         }
         return $mapping;
     }
@@ -603,8 +623,8 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }
-        if (isset($mapping['weak']) && !is_bool($mapping['weak'])) {
-            throw new MappingException("The attribute 'weak' for the '" . $this->name . "' association has to be a boolean true or false.");
+        if (isset($mapping['strategy']) && !in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
+            throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
         return $mapping;
     }
@@ -627,6 +647,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function storeAssociationMapping($mapping)
     {
+        if (empty($mapping['strategy'])) {
+            $mapping['strategy'] = 'weak';
+        }
         $this->associationsMappings[$mapping['fieldName']] = $mapping;
     }
 
@@ -647,7 +670,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Sets the ID generator used to generate IDs for instances of this class.
      *
-     * @param AbstractIdGenerator $generator
+     * @param string $generator
      */
     public function setIdGenerator($generator)
     {

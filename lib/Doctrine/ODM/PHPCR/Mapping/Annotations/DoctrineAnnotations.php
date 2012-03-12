@@ -84,7 +84,7 @@ final class Id
     public $id = true;
     public $type = 'string';
     /** @var string */
-    public $strategy = 'assigned';
+    public $strategy;
 }
 /**
  * @Annotation
@@ -205,8 +205,8 @@ class Reference
 {
     /** @var string */
     public $targetDocument;
-    /** @var boolean */
-    public $weak = true;
+    /** @var string */
+    public $strategy = 'weak';
 }
 /**
  * @Annotation

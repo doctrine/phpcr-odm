@@ -60,6 +60,24 @@ class DocumentClassMapper implements DocumentClassMapperInterface
      */
     public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className)
     {
-        $node->setProperty('phpcr:class', $className, PropertyType::STRING);
+        if ('Doctrine\ODM\PHPCR\Document\Generic' !== $className) {
+            $node->setProperty('phpcr:class', $className, PropertyType::STRING);
+        }
+    }
+
+    /**
+     * @param DocumentManager
+     * @param object $document
+     * @param string $className
+     * @throws \InvalidArgumentException
+     */
+    public function validateClassName(DocumentManager $dm, $document, $className)
+    {
+        if (!$document instanceof $className) {
+            $class = $dm->getClassMetadata(get_class($document));
+            $path = $class->getIdentifierValue($document);
+            $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata at path '$path'";
+            throw new \InvalidArgumentException($msg);
+        }
     }
 }

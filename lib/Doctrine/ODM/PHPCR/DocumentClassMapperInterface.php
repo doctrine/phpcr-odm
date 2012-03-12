@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+
 use PHPCR\NodeInterface;
 
 interface DocumentClassMapperInterface
@@ -45,4 +46,12 @@ interface DocumentClassMapperInterface
      * @param string $className
      */
     function writeMetadata(DocumentManager $dm, NodeInterface $node, $className);
+
+    /**
+     * @param DocumentManager
+     * @param object $document
+     * @param string $className
+     * @throws \InvalidArgumentException
+     */
+    function validateClassName(DocumentManager $dm, $document, $className);
 }

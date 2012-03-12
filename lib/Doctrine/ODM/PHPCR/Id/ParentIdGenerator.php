@@ -50,6 +50,10 @@ class ParentIdGenerator extends IdGenerator
         if (!$id) {
             throw new \RuntimeException('Parent ID could not be determined. Make sure to persist the parent document before persisting this document.');
         }
+        // edge case parent is root
+        if ('/' === $id) {
+            $id = '';
+        }
         return $id . '/' . $name;
     }
 }
