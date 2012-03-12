@@ -529,7 +529,7 @@ class UnitOfWork
             }
         }
 
-        $id = $class->getIdentifierValue($document);
+        $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
@@ -1377,8 +1377,7 @@ class UnitOfWork
 
             list($document, $targetPath) = $value;
 
-            $class = $this->dm->getClassMetadata(get_class($document));
-            $path = $class->getIdentifierValue($document);
+            $path = $this->getDocumentId($document);
             if ($path === $targetPath) {
                 continue;
             }
@@ -1744,7 +1743,7 @@ class UnitOfWork
         if (empty($this->documentIds[$oid])) {
             $msg = 'Document is not managed and has no id';
             if (is_object($document)) {
-                $msg.= ': '.self::objToStr($document, $this->dm);
+                $msg.= ': '.self::objToStr($document);
             }
             throw new PHPCRException($msg);
         }
@@ -1983,10 +1982,8 @@ class UnitOfWork
 
         if ($dm) {
             try {
-                $metadata = $dm->getClassMetadata(get_class($obj));
-                if ($metadata->getIdentifierValue($obj)) {
-                    $string .= ' ('.$metadata->getIdentifierValue($obj).')';
-                }
+                $id = $dm->getUnitOfWork()->getDocumentId($obj);
+                $string .= " ($id)";
             } catch (\Exception $e) {
             }
         }
