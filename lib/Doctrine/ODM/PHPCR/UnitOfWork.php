@@ -740,6 +740,9 @@ class UnitOfWork
             return;
         }
 
+        $id = $this->getDocumentId($document);
+        $oid = spl_object_hash($document);
+
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
             $value = $reflProperty->getValue($document);
@@ -772,74 +775,6 @@ class UnitOfWork
             $parentClass = $this->dm->getClassMetadata(get_class($actualData[$class->parentMapping]));
         }
 
-        $id = $this->getDocumentId($document);
-        $oid = spl_object_hash($document);
-        if (!$this->session->nodeExists($id)) {
-            // Document is new and should be inserted
-            $this->documentChangesets[$oid] = $actualData;
-            $this->scheduledInserts[$oid] = $document;
-        } else {
-            $node = $this->session->getNode($id);
-            $originalData = $node->getPropertiesValues();
-            if (isset($actualData[$class->nodename])
-                && $node->getName() !== $actualData[$class->nodename]
-            ) {
-                throw new PHPCRException('The Nodename property is immutable ('.$node->getName().' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
-            }
-            if (isset($parentClass) && ($parent = $this->getDocumentById(dirname($id))) && $parent !== $actualData[$class->parentMapping]) {
-                throw new PHPCRException('The ParentDocument property is immutable ('.self::objToStr($parent, $this->dm).' !== '.self::objToStr($actualData[$class->parentMapping], $this->dm).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
-            }
-            if (isset($actualData[$class->identifier])
-                && $id !== $actualData[$class->identifier]
-            ) {
-                throw new PHPCRException('The Id is immutable ('.$id.' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
-            }
-
-            $changed = false;
-            foreach ($actualData as $fieldName => $fieldValue) {
-                if (!isset($class->fieldMappings[$fieldName])
-                    && !isset($class->childMappings[$fieldName])
-                    && !isset($class->associationsMappings[$fieldName])
-                    && !isset($class->referrersMappings[$fieldName])
-                    && !isset($class->parentMapping[$fieldName])
-                    && !isset($class->nodename)
-                ) {
-                    continue;
-                }
-                if ($class->isCollectionValuedAssociation($fieldName)) {
-                    if (!$fieldValue instanceof PersistentCollection) {
-                        // if its not a persistent collection and the original value changed. otherwise it could just be null
-                        $changed = true;
-                        break;
-                    } elseif ($fieldValue->changed()) {
-                        $this->visitedCollections[] = $fieldValue;
-                        $changed = true;
-                        break;
-                    }
-                } elseif (!array_key_exists($fieldName, $originalData)
-                    || $originalData[$fieldName] !== $fieldValue
-                ) {
-                    $changed = true;
-                    break;
-                } elseif ($fieldValue instanceof ReferenceManyCollection) {
-                    if ($fieldValue->changed()) {
-                        $changed = true;
-                    }
-                }
-            }
-
-            if (isset($this->documentLocales[$oid])
-                && $this->documentLocales[$oid]['current'] !== $this->documentLocales[$oid]['original']
-            ) {
-                $changed = true;
-            }
-
-            if ($changed) {
-                $this->documentChangesets[$oid] = $actualData;
-                $this->scheduledUpdates[$oid] = $document;
-            }
-        }
-
         if (isset($parentClass)) {
             $state = $this->getDocumentState($actualData[$class->parentMapping]);
             if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
@@ -847,7 +782,6 @@ class UnitOfWork
             }
         }
 
-        $id = $class->getIdentifierValue($document);
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 $child = $this->getDocumentById($id.'/'.$childMapping['name']);
@@ -872,10 +806,71 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->referrersMappings as $name => $referrerMapping) {
-            if (isset($originalData[$name])) {
-                foreach ($originalData[$name] as $referrer) {
-                    $this->computeReferrerChanges($referrer);
+        if (!$this->session->nodeExists($id)) {
+            // Document is new and should be inserted
+            $this->documentChangesets[$oid] = $actualData;
+            $this->scheduledInserts[$oid] = $document;
+        } else {
+            $node = $this->session->getNode($id);
+            $originalData = $node->getPropertiesValues();
+
+            if (isset($actualData[$class->nodename])
+                && $node->getName() !== $actualData[$class->nodename]
+            ) {
+                throw new PHPCRException('The Nodename property is immutable ('.$node->getName().' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
+            }
+            if (isset($parentClass) && ($parent = $this->getDocumentById(dirname($id))) && $parent !== $actualData[$class->parentMapping]) {
+                throw new PHPCRException('The ParentDocument property is immutable ('.self::objToStr($parent, $this->dm).' !== '.self::objToStr($actualData[$class->parentMapping], $this->dm).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
+            }
+            if (isset($actualData[$class->identifier])
+                && $id !== $actualData[$class->identifier]
+            ) {
+                throw new PHPCRException('The Id is immutable ('.$id.' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+            }
+
+            if (!isset($this->documentLocales[$oid])
+                || $this->documentLocales[$oid]['current'] === $this->documentLocales[$oid]['original']
+            ) {
+                // remove anything from $actualData that did not change
+                foreach ($actualData as $fieldName => $fieldValue) {
+                    if (isset($class->fieldMappings[$fieldName])
+                        || isset($class->childMappings[$fieldName])
+                        || isset($class->associationsMappings[$fieldName])
+                        || isset($class->referrersMappings[$fieldName])
+                        || isset($class->parentMapping[$fieldName])
+                        || isset($class->nodename)
+                    ) {
+                        if ($class->isCollectionValuedAssociation($fieldName)) {
+                            if (!$fieldValue instanceof PersistentCollection) {
+                                // if its not a persistent collection, otherwise it would just be null
+                                continue;
+                            } elseif ($fieldValue->changed()) {
+                                $this->visitedCollections[] = $fieldValue;
+                                continue;
+                            }
+                        } elseif (!array_key_exists($fieldName, $originalData)
+                            || $originalData[$fieldName] !== $fieldValue
+                        ) {
+                            continue;
+                        } elseif ($fieldValue instanceof ReferenceManyCollection && $fieldValue->changed()) {
+                            continue;
+                        }
+                    }
+
+                    unset($actualData[$fieldName]);
+                }
+            }
+
+            if (count($actualData)) {
+                $this->documentChangesets[$oid] = $actualData;
+                $this->scheduledUpdates[$oid] = $document;
+            }
+
+            foreach ($class->referrersMappings as $name => $referrerMapping) {
+                if (isset($originalData[$name])) {
+                    foreach ($originalData[$name] as $referrer) {
+                        $this->computeReferrerChanges($referrer);
+                    }
                 }
             }
         }
