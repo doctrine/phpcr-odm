@@ -509,7 +509,6 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to persist(): '.self::objToStr($document, $this->dm));
-                break;
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -610,7 +609,6 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
-                break;
         }
 
         $this->scheduledMoves[$oid] = array($document, $targetPath);
@@ -631,7 +629,6 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
-                break;
         }
 
         $this->scheduledRemovals[$oid] = $document;
@@ -914,10 +911,8 @@ class UnitOfWork
                 break;
             case self::STATE_REMOVED:
                 throw new \InvalidArgumentException('Removed child document detected during flush');
-                break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
-                break;
         }
     }
 
