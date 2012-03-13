@@ -6,12 +6,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * @PHPCRODM\Document()
+ * @PHPCRODM\Document(referenceable=true)
  */
 class CmsUser
 {
-// /** @Id */
-// public $id;
     /** @PHPCRODM\Id */
     public $id;
     /** @PHPCRODM\Node */
@@ -22,23 +20,8 @@ class CmsUser
     public $username;
     /** @PHPCRODM\String(name="name") */
     public $name;
-
-    // * @ReferenceOne(targetDocument="CmsUserRights") */
-    // public $rights;
-    //
-    // /**
-    //  * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
-    //
-    // public $articles;
-    //
-    // /** @ReferenceMany(targetDocument="CmsGroup") */
-    // public $groups;
-
-    public function __construct()
-    {
-        $this->articles = new ArrayCollection;
-        $this->groups = new ArrayCollection;
-    }
+    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress") */
+    public $address;
 
     public function getId()
     {
@@ -60,20 +43,14 @@ class CmsUser
         return $this->name;
     }
 
-    public function addArticle(CmsArticle $article)
+    public function setAddress(CmsAddress $address)
     {
-        $this->articles[] = $article;
-        $article->setAuthor($this);
+        $this->address = $address;
+        $address->setUser($this);
     }
 
-    public function addGroup(CmsGroup $group)
+    public function getAddress()
     {
-        $this->groups[] = $group;
-        $group->addUser($this);
-    }
-
-    public function getGroups()
-    {
-        return $this->groups;
+        return $this->address;
     }
 }

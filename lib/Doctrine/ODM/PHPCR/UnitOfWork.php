@@ -1656,7 +1656,7 @@ class UnitOfWork
      * @param string $id The document id to look for.
      * @return the generated object id
      */
-    private function registerDocument($document, $id)
+    public function registerDocument($document, $id)
     {
         $oid = spl_object_hash($document);
         $this->documentIds[$oid] = $id;
