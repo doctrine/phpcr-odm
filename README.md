@@ -15,7 +15,6 @@ PHPCR ODM for Doctrine2
 * write documentation
 * expand test suite
 * translations
-    * make it work without the @Locale field too (store locale in meta instead on document instance)
     * provide a method to get a detached translated document so the relations can be translated automatically
 
 # Preconditions
