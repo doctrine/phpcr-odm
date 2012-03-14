@@ -15,18 +15,17 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
 
     public function testInsertDocuments()
     {
-        if (\extension_loaded('xdebug')) {
+        if (extension_loaded('xdebug')) {
             $this->markTestSkipped('Performance-Testing with xdebug enabled makes no sense.');
         }
 
         $s = microtime(true);
 
-        for($i = 0; $i < $this->count; $i++) {
+        for ($i = 0; $i < $this->count; $i++) {
             $user = new \Doctrine\Tests\Models\CMS\CmsUser();
             $user->name = "Benjamin";
             $user->username = "beberlei";
             $user->status = "active";
-            $user->id = "/functional/node$i";
 
             $this->dm->persist($user);
         }

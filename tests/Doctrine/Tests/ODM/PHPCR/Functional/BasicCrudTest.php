@@ -646,7 +646,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->name = 'Dominik';
         $user->username = 'domnikl';
         $user->status = 'developer';
-        $user->id = "/functional/".$user->username;
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -665,7 +664,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->name = 'Dominik';
         $user->username = 'domnikl';
         $user->status = 'developer';
-        $user->id = "/functional/".$user->username;
 
         $this->setExpectedException('InvalidArgumentException');
         $this->dm->flush($user);
@@ -677,7 +675,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->name = 'Dominik';
         $user->username = 'domnikl';
         $user->status = 'developer';
-        $user->id = "/functional/".$user->username;
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -686,17 +683,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $otherUser->name = 'Dominik2';
         $otherUser->username = 'domnikl2';
         $otherUser->status = 'developer';
-        $otherUser->id = "/functional/".$otherUser->username;
 
         $user->status = 'administrator';
 
         $this->dm->persist($otherUser);
         $this->dm->flush($user);
 
-        $this->assertTrue($this->dm->contains($otherUser), "Other user is contained in DocumentManager");
-
-        $this->dm->clear();
-        $this->assertNull($this->dm->find(null, $otherUser->id));
+        $this->assertTrue($this->dm->contains($otherUser), "Other user is not contained in DocumentManager");
+        $this->assertTrue($otherUser->id != null, "other user has no id");
     }
 
     public function testFlushAndCascadePersist()
@@ -705,7 +699,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->name = 'Dominik';
         $user->username = 'domnikl';
         $user->status = 'developer';
-        $user->id = "/functional/".$user->username;
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -716,13 +709,12 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $address->country = "Germany";
         $address->street = "Foo Street";
         $address->user = $user;
-        $address->id = '/functional/springfield_de';
         $user->address = $address;
 
         $this->dm->flush($user);
 
         $this->assertTrue($this->dm->contains($address), "Address is not contained in DocumentManager");
-        $this->assertNotNull($this->dm->find(null, $address->id));
+        $this->assertTrue($address->id != null, "address user has no id");
     }
 
     public function testProxyIsIgnored()
@@ -731,7 +723,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->name = 'Dominik';
         $user->username = 'domnikl';
         $user->status = 'developer';
-        $user->id = "/functional/".$user->username;
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -743,16 +734,12 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $otherUser->name = 'Dominik2';
         $otherUser->username = 'domnikl2';
         $otherUser->status = 'developer';
-        $otherUser->id = "/functional/".$otherUser->username;
 
         $this->dm->persist($otherUser);
         $this->dm->flush($user);
 
         $this->assertTrue($this->dm->contains($otherUser), "Other user is contained in DocumentManager");
-
-        $this->dm->clear();
-        $this->assertNull($this->dm->find(null, $otherUser->id));
-    }
+        $this->assertTrue($otherUser->id != null, "other user has no id");    }
 
     public function testDetach()
     {

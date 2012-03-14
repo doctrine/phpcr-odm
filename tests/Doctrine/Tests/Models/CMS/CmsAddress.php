@@ -5,13 +5,15 @@ namespace Documents;
 namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 
 /**
- * @PHPCRODM\Document(referenceable=true)
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsAddressRepository", referenceable=true)
  */
 class CmsAddress
 {
-    /** @PHPCRODM\Id */
+    /** @PHPCRODM\Id(strategy="repository") */
     public $id;
 
     /** @PHPCRODM\String */
@@ -57,5 +59,19 @@ class CmsAddress
             $this->user = $user;
             $user->setAddress($this);
         }
+    }
+}
+
+class CmsAddressRepository extends DocumentRepository implements RepositoryIdInterface
+{
+    /**
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
+     */
+    public function generateId($document)
+    {
+        return '/functional/'.$document->city.'_'.$document->zip;
     }
 }

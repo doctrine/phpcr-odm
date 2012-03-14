@@ -4,13 +4,15 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 
 /**
- * @PHPCRODM\Document(referenceable=true)
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
  */
 class CmsUser
 {
-    /** @PHPCRODM\Id */
+    /** @PHPCRODM\Id(strategy="repository") */
     public $id;
     /** @PHPCRODM\Node */
     public $node;
@@ -52,5 +54,19 @@ class CmsUser
     public function getAddress()
     {
         return $this->address;
+    }
+}
+
+class CmsUserRepository extends DocumentRepository implements RepositoryIdInterface
+{
+    /**
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
+     */
+    public function generateId($document)
+    {
+        return '/functional/'.$document->username;
     }
 }
