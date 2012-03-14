@@ -928,7 +928,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->persistNew($targetClass, $reference);
                 $this->computeChangeSet($targetClass, $reference);
                 break;
             case self::STATE_DETACHED:
@@ -948,7 +948,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->persistNew($targetClass, $referrer, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->persistNew($targetClass, $referrer);
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
