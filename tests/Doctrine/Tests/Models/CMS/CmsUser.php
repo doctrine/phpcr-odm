@@ -4,15 +4,15 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 
 /**
- * @PHPCRODM\Document()
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
  */
 class CmsUser
 {
-// /** @Id */
-// public $id;
-    /** @PHPCRODM\Id */
+    /** @PHPCRODM\Id(strategy="repository") */
     public $id;
     /** @PHPCRODM\Node */
     public $node;
@@ -22,23 +22,8 @@ class CmsUser
     public $username;
     /** @PHPCRODM\String(name="name") */
     public $name;
-
-    // * @ReferenceOne(targetDocument="CmsUserRights") */
-    // public $rights;
-    //
-    // /**
-    //  * @ReferenceMany(targetDocument="CmsArticle", mappedBy="user")
-    //
-    // public $articles;
-    //
-    // /** @ReferenceMany(targetDocument="CmsGroup") */
-    // public $groups;
-
-    public function __construct()
-    {
-        $this->articles = new ArrayCollection;
-        $this->groups = new ArrayCollection;
-    }
+    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress") */
+    public $address;
 
     public function getId()
     {
@@ -60,20 +45,28 @@ class CmsUser
         return $this->name;
     }
 
-    public function addArticle(CmsArticle $article)
+    public function setAddress(CmsAddress $address)
     {
-        $this->articles[] = $article;
-        $article->setAuthor($this);
+        $this->address = $address;
+        $address->setUser($this);
     }
 
-    public function addGroup(CmsGroup $group)
+    public function getAddress()
     {
-        $this->groups[] = $group;
-        $group->addUser($this);
+        return $this->address;
     }
+}
 
-    public function getGroups()
+class CmsUserRepository extends DocumentRepository implements RepositoryIdInterface
+{
+    /**
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
+     */
+    public function generateId($document)
     {
-        return $this->groups;
+        return '/functional/'.$document->username;
     }
 }

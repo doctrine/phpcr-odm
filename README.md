@@ -15,7 +15,6 @@ PHPCR ODM for Doctrine2
 * write documentation
 * expand test suite
 * translations
-    * make it work without the @Locale field too (store locale in meta instead on document instance)
     * provide a method to get a detached translated document so the relations can be translated automatically
 
 # Preconditions
@@ -26,7 +25,7 @@ PHPCR ODM for Doctrine2
 
 # Installation
 
-If you use the PHPCR ODM **Symfony Bundle**, please look into the README of the bundle.
+If you use the Doctrine PHPCR ODM **Symfony Bundle**, please look into the [Tutorial to install the DoctrinePHPCRBundle](https://github.com/symfony-cmf/symfony-cmf-docs/blob/master/tutorials/installing-configuring-doctrine-phpcr-odm.rst).
 This documentation explains how to use PHPCR ODM outside of symfony, which requires some
 manual initialization.
 

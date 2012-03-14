@@ -22,7 +22,6 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
-        $user->id = "/functional/".$user->username;
 
         $this->dm->detach($user);
 
@@ -41,11 +40,10 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
-        $user->id = "/functional/".$user->username;
 
         $this->dm->persist($user);
         $this->dm->flush();
-        
+
         $this->dm->detach($user);
         $this->dm->persist($user);
     }

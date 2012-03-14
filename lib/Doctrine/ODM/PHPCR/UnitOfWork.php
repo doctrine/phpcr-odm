@@ -491,7 +491,6 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to persist(): '.self::objToStr($document, $this->dm));
-                break;
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -592,7 +591,6 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
-                break;
         }
 
         $this->scheduledMoves[$oid] = array($document, $targetPath);
@@ -613,7 +611,6 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
-                break;
         }
 
         $this->scheduledRemovals[$oid] = $document;
@@ -886,14 +883,16 @@ class UnitOfWork
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
 
-        if ($state === self::STATE_NEW) {
-            $targetClass->setIdentifierValue($child, $parentId.'/'.$mapping['name']);
-            $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-            $this->computeChangeSet($targetClass, $child);
-        } elseif ($state === self::STATE_REMOVED) {
-            throw new \InvalidArgumentException('Removed child document detected during flush');
-        } elseif ($state === self::STATE_DETACHED) {
-            throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
+        switch ($state) {
+            case self::STATE_NEW:
+                $targetClass->setIdentifierValue($child, $parentId.'/'.$mapping['name']);
+                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->computeChangeSet($targetClass, $child);
+                break;
+            case self::STATE_REMOVED:
+                throw new \InvalidArgumentException('Removed child document detected during flush');
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
         }
     }
 
@@ -909,7 +908,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->persistNew($targetClass, $reference, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->persistNew($targetClass, $reference);
                 $this->computeChangeSet($targetClass, $reference);
                 break;
             case self::STATE_DETACHED:
@@ -929,7 +928,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                $this->persistNew($targetClass, $referrer, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                $this->persistNew($targetClass, $referrer);
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
@@ -1629,7 +1628,7 @@ class UnitOfWork
      * @param string $id The document id to look for.
      * @return the generated object id
      */
-    private function registerDocument($document, $id)
+    public function registerDocument($document, $id)
     {
         $oid = spl_object_hash($document);
         $this->documentIds[$oid] = $id;

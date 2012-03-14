@@ -6,6 +6,9 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
     Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsAddress;
+
 /**
  * @group functional
  */
@@ -636,6 +639,107 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user3 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User', '/functional/test/team/team');
         $this->assertEquals('changed', $user3->username);
     }
+
+    public function testFlushSingleManagedDocument()
+    {
+        $user = new CmsUser;
+        $user->name = 'Dominik';
+        $user->username = 'domnikl';
+        $user->status = 'developer';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $user->status = 'administrator';
+        $this->dm->flush($user);
+        $this->dm->clear();
+
+        $user = $this->dm->find(get_class($user), $user->id);
+        $this->assertEquals('administrator', $user->status);
+    }
+
+    public function testFlushSingleUnmanagedDocument()
+    {
+        $user = new CmsUser;
+        $user->name = 'Dominik';
+        $user->username = 'domnikl';
+        $user->status = 'developer';
+
+        $this->setExpectedException('InvalidArgumentException');
+        $this->dm->flush($user);
+    }
+
+    public function testFlushSingleAndNewDocument()
+    {
+        $user = new CmsUser;
+        $user->name = 'Dominik';
+        $user->username = 'domnikl';
+        $user->status = 'developer';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $otherUser = new CmsUser;
+        $otherUser->name = 'Dominik2';
+        $otherUser->username = 'domnikl2';
+        $otherUser->status = 'developer';
+
+        $user->status = 'administrator';
+
+        $this->dm->persist($otherUser);
+        $this->dm->flush($user);
+
+        $this->assertTrue($this->dm->contains($otherUser), "Other user is not contained in DocumentManager");
+        $this->assertTrue($otherUser->id != null, "other user has no id");
+    }
+
+    public function testFlushAndCascadePersist()
+    {
+        $user = new CmsUser;
+        $user->name = 'Dominik';
+        $user->username = 'domnikl';
+        $user->status = 'developer';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $address = new CmsAddress();
+        $address->city = "Springfield";
+        $address->zip = "12354";
+        $address->country = "Germany";
+        $address->street = "Foo Street";
+        $address->user = $user;
+        $user->address = $address;
+
+        $this->dm->flush($user);
+
+        $this->assertTrue($this->dm->contains($address), "Address is not contained in DocumentManager");
+        $this->assertTrue($address->id != null, "address user has no id");
+    }
+
+    public function testProxyIsIgnored()
+    {
+        $user = new CmsUser;
+        $user->name = 'Dominik';
+        $user->username = 'domnikl';
+        $user->status = 'developer';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->getReference(get_class($user), $user->id);
+
+        $otherUser = new CmsUser;
+        $otherUser->name = 'Dominik2';
+        $otherUser->username = 'domnikl2';
+        $otherUser->status = 'developer';
+
+        $this->dm->persist($otherUser);
+        $this->dm->flush($user);
+
+        $this->assertTrue($this->dm->contains($otherUser), "Other user is contained in DocumentManager");
+        $this->assertTrue($otherUser->id != null, "other user has no id");    }
 
     public function testDetach()
     {

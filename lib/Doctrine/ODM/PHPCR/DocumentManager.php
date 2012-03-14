@@ -653,6 +653,33 @@ class DocumentManager implements ObjectManager
         $this->unitOfWork->commit($document);
     }
 
+    /**
+     * Gets a reference to the document identified by the given type and identifier
+     * without actually loading it.
+     *
+     * If partial objects are allowed, this method will return a partial object that only
+     * has its identifier populated. Otherwise a proxy is returned that automatically
+     * loads itself on first access.
+     *
+     * @param string $documentName
+     * @param string|object $id
+     * @return mixed|object The document reference.
+     */
+    public function getReference($documentName, $id)
+    {
+        $class = $this->metadataFactory->getMetadataFor($documentName);
+
+        // Check identity map first, if its already in there just return it.
+        $document = $this->unitOfWork->getDocumentById($id);
+        if ($document) {
+            return $document;
+        }
+
+        $document = $this->proxyFactory->getProxy($class->name, $id);
+        $this->unitOfWork->registerDocument($document, $id);
+
+        return $document;
+    }
 
     /**** VERSIONING METHODS START ****/
 

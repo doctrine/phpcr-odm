@@ -18,6 +18,6 @@ class RefManyTestObj
 
     public function __construct()
     {
-       $references = new \Doctrine\Common\Collections\ArrayCollection();
+       $this->references = new \Doctrine\Common\Collections\ArrayCollection();
     }
 }
