@@ -40,7 +40,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $this->assertContains($rightClassName, $classes);
     }
 
-    public function testGetClassNamesReturnsOnlyTheAppropriateClasses()
+    public function testGetAllClassNamesReturnsOnlyTheAppropriateClasses()
     {
         $extraneousClassName = 'Doctrine\Tests\Models\ECommerce\ECommerceCart';
         $this->ensureIsLoaded($extraneousClassName);
