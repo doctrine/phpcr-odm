@@ -30,6 +30,7 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 
 use PHPCR\SessionInterface;
+use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder;
@@ -462,7 +463,7 @@ class DocumentManager implements ObjectManager
      *
      * @return array of document instances
      */
-    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query, $className = null)
+    public function getDocumentsByQuery(QueryInterface $query, $className = null)
     {
         $this->errorIfClosed();
 
@@ -493,10 +494,14 @@ class DocumentManager implements ObjectManager
      *   - If the document was previously loaded from the DocumentManager it has a non-empty @Locale
      *   - Otherwise its a new document. The language chooser strategy is asked for the default language and that is used to store. The field is updated with the locale.
      */
-    public function persist($object)
+    public function persist($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
-        $this->unitOfWork->scheduleInsert($object);
+        $this->unitOfWork->scheduleInsert($document);
     }
 
     /**
@@ -504,15 +509,19 @@ class DocumentManager implements ObjectManager
      *
      * This method will update the @Locale field if it does not match the $locale argument.
      *
-     * @param $object the document to persist a translation of
+     * @param $document the document to persist a translation of
      * @param $locale the locale this document currently has
      *
      * @throws PHPCRException if the document is not translatable
      */
-    public function bindTranslation($object, $locale)
+    public function bindTranslation($document, $locale)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
-        $this->unitOfWork->bindTranslation($object, $locale);
+        $this->unitOfWork->bindTranslation($document, $locale);
     }
 
     /**
@@ -527,6 +536,10 @@ class DocumentManager implements ObjectManager
      */
     public function getLocalesFor($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         return $this->unitOfWork->getLocalesFor($document);
     }
@@ -539,13 +552,17 @@ class DocumentManager implements ObjectManager
      * working with the manager after a move, you are probably safest calling
      * DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object $object
+     * @param object $document
      * @param string $targetPath
      */
-    public function move($object, $targetPath)
+    public function move($document, $targetPath)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
-        $this->unitOfWork->scheduleMove($object, $targetPath);
+        $this->unitOfWork->scheduleMove($document, $targetPath);
     }
 
     /**
@@ -555,12 +572,16 @@ class DocumentManager implements ObjectManager
      * the path of this object, even if there are no @Parent / @Child annotations
      * that make the relationship explicit.
      *
-     * @param object $object
+     * @param object $document
      */
-    public function remove($object)
+    public function remove($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
-        $this->unitOfWork->scheduleRemove($object);
+        $this->unitOfWork->scheduleRemove($document);
     }
 
     /**
@@ -572,10 +593,12 @@ class DocumentManager implements ObjectManager
      */
     public function merge($document)
     {
-        $this->errorIfClosed();
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
 
-        // TODO: implemenent
+        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        $this->errorIfClosed();
         return $this->getUnitOfWork()->merge($document);
     }
 
@@ -591,6 +614,10 @@ class DocumentManager implements ObjectManager
      */
     public function detach($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         $this->getUnitOfWork()->detach($document);
     }
@@ -603,6 +630,10 @@ class DocumentManager implements ObjectManager
      */
     public function refresh($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         $this->session->refresh(true);
         $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
@@ -622,6 +653,10 @@ class DocumentManager implements ObjectManager
      */
     public function getChildren($document, $filter = null)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         return $this->unitOfWork->getChildren($document, $filter);
     }
@@ -637,6 +672,10 @@ class DocumentManager implements ObjectManager
      */
     public function getReferrers($document, $type = null, $name = null)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         return $this->unitOfWork->getReferrers($document, $type, $name);
     }
@@ -685,9 +724,6 @@ class DocumentManager implements ObjectManager
         return $document;
     }
 
-    /**** VERSIONING METHODS START ****/
-
-
     /**
      * Create a new version of the document that has been previously persisted
      * and flushed.
@@ -703,6 +739,10 @@ class DocumentManager implements ObjectManager
      */
     public function checkin($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         $this->unitOfWork->checkin($document);
     }
@@ -714,6 +754,10 @@ class DocumentManager implements ObjectManager
      */
     public function checkout($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         $this->unitOfWork->checkout($document);
     }
@@ -729,6 +773,10 @@ class DocumentManager implements ObjectManager
      */
     public function checkpoint($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         $this->unitOfWork->checkpoint($document);
     }
@@ -785,6 +833,10 @@ class DocumentManager implements ObjectManager
      */
     public function getAllLinearVersions($document, $limit = -1)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         $this->errorIfClosed();
         return $this->unitOfWork->getAllLinearVersions($document, $limit);
     }
@@ -813,16 +865,16 @@ class DocumentManager implements ObjectManager
         return $this->unitOfWork->findVersionByName($className, $id, $versionName);
     }
 
-
-    /**** VERSIONING METHODS END ****/
-
-
     /**
      * @param  object $document
      * @return bool
      */
     public function contains($document)
     {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
         return $this->unitOfWork->contains($document);
     }
 
@@ -866,10 +918,14 @@ class DocumentManager implements ObjectManager
      *
      * This method is a no-op for other objects
      *
-     * @param object $obj
+     * @param object $document
      */
-    public function initializeObject($obj)
+    public function initializeObject($document)
     {
-        $this->unitOfWork->initializeObject($obj);
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
+        $this->unitOfWork->initializeObject($document);
     }
 }
