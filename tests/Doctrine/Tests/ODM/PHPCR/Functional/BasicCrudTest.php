@@ -6,6 +6,8 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
     Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
+use PHPCR\PropertyType;
+
 /**
  * @group functional
  */
@@ -29,7 +31,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 
