@@ -704,59 +704,68 @@ class UnitOfWork
     }
 
     /**
-     * Detects the changes that need to be persisted
+     * Detects the changes for a single document
      *
      * @param object $document
+     * @return void
+     */
+    private function computeSingleDocumentChangeSet($document)
+    {
+        $state = $this->getDocumentState($document);
+        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
+            throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
+        }
+
+        foreach ($this->scheduledInserts as $insertedDocument) {
+            $class = $this->dm->getClassMetadata(get_class($insertedDocument));
+            $this->computeChangeSet($class, $insertedDocument);
+        }
+
+        // Ignore uninitialized proxy objects
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
+            return;
+        }
+
+        $oid = spl_object_hash($document);
+        if (!isset($this->scheduledInserts[$oid])) {
+            $class = $this->dm->getClassMetadata(get_class($document));
+            $this->computeChangeSet($class, $document);
+        }
+    }
+
+    /**
+     * Detects the changes that need to be persisted
      *
      * @return void
      */
-    private function detectChangedDocuments($document = null)
+    private function computeChangeSets()
     {
-        if ($document) {
+        foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
-            if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
-                throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
-            }
-
-            foreach ($this->scheduledInserts as $insertedDocument) {
-                $class = $this->dm->getClassMetadata(get_class($insertedDocument));
-                $this->computeChangeSet($class, $insertedDocument);
-            }
-
-            // Ignore uninitialized proxy objects
-            if ($document instanceof Proxy && !$document->__isInitialized()) {
-                return;
-            }
-
-            $oid = spl_object_hash($document);
-            if (!isset($this->scheduledInserts[$oid])) {
+            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
-            }
-        } else {
-            foreach ($this->identityMap as $document) {
-                $state = $this->getDocumentState($document);
-                if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
-                    $class = $this->dm->getClassMetadata(get_class($document));
-                    $this->computeChangeSet($class, $document);
-                }
             }
         }
     }
 
     /**
+     * Get a documents actual data, flattening all the objects to arrays.
+     *
      * @param ClassMetadata $class
      * @param object $document
-     * @return void
+     * @return array
      */
-    private function computeChangeSet(ClassMetadata $class, $document)
+    private function getDocumentActualData(ClassMetadata $class, $document)
     {
-        if ($document instanceof Proxy && !$document->__isInitialized()) {
-            return;
-        }
-
         $actualData = array();
         foreach ($class->reflFields as $fieldName => $reflProperty) {
+            // do not set the version info fields if they have values, they are not to be managed by the user in write scenarios.
+            if ($fieldName === $class->versionNameField
+                || $fieldName === $class->versionCreatedField
+            ) {
+                continue;
+            }
             $value = $reflProperty->getValue($document);
             if ($class->isCollectionValuedAssociation($fieldName)
                 && $value !== null
@@ -777,15 +786,23 @@ class UnitOfWork
             }
         }
 
-        // unset the version info fields if they have values, they are not to be managed by the user in write scenarios.
-        if ($class->versionable) {
-            unset($actualData[$class->versionNameField]);
-            unset($actualData[$class->versionCreatedField]);
+        return $actualData;
+    }
+
+    /**
+     * @param ClassMetadata $class
+     * @param object $document
+     * @return void
+     */
+    private function computeChangeSet(ClassMetadata $class, $document)
+    {
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
+            return;
         }
 
+        $actualData = $this->getDocumentActualData($class, $document);
         $oid = spl_object_hash($document);
         $isNew = !isset($this->originalData[$oid]);
-
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
@@ -1076,7 +1093,15 @@ class UnitOfWork
      */
     public function commit($document = null)
     {
-        $this->detectChangedDocuments($document);
+        if ($document === null) {
+            $this->computeChangeSets();
+        } else if (is_object($document)) {
+            $this->computeSingleDocumentChangeSet($document);
+        } else if (is_array($document)) {
+            foreach ($document as $object) {
+                $this->computeSingleDocumentChangeSet($object);
+            }
+        }
 
         if ($this->evm->hasListeners(Event::onFlush)) {
             $this->evm->dispatchEvent(Event::onFlush, new OnFlushEventArgs($this->dm));

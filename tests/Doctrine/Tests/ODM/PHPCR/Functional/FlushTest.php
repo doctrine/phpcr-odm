@@ -136,6 +136,26 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('administrator', $user->status);
     }
 
+    public function testFlushManyExplicitDocuments()
+    {
+        $userA = new CmsUser('userA');
+        $userA->username = 'userA';
+        $userB = new CmsUser('userB');
+        $userB->username = 'userB';
+        $userC = new CmsUser('userC');
+        $userC->username = 'userC';
+
+        $this->dm->persist($userA);
+        $this->dm->persist($userB);
+        $this->dm->persist($userC);
+
+        $this->dm->flush(array($userA, $userB, $userC));
+
+        $this->assertNotNull($userA->id);
+        $this->assertNotNull($userB->id);
+        $this->assertNotNull($userC->id);
+    }
+
     public function testFlushSingleUnmanagedDocument()
     {
         $user = new CmsUser();
