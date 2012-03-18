@@ -46,7 +46,9 @@ EOT
         $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
 
         $session = $this->getHelper('phpcr')->getSession();
-        if ($session instanceof \Jackalope\Session) {
+        if ($session instanceof \Jackalope\Session
+            && $session->getTransport() instanceof \Jackalope\Transport\Jackrabbit\Client
+        ) {
             $cnd = <<<CND
 // register phpcr_locale namespace
 <$localeNamespace='$localeNamespaceUri'>
@@ -63,7 +65,16 @@ CND
             $ns = $session->getWorkspace()->getNamespaceRegistry();
             $ns->registerNamespace($phpcrNamespace, $phpcrNamespaceUri);
             $ns->registerNamespace($localeNamespace, $localeNamespaceUri);
-            $output->write(PHP_EOL.sprintf('WARNING: Missing the phpcr:managed mixin type to allow phpcr:class because this is not Jackalope.') . PHP_EOL);
+            $nt = $session->getWorkspace()->getNodeTypeManager();
+            $proptpl = $nt->createPropertyDefinitionTemplate();
+            $proptpl->setName('phpcr:class');
+            $proptpl->setRequiredType(\PHPCR\PropertyType::STRING);
+            $tpl = $nt->createNodeTypeTemplate();
+            $tpl->setName('phpcr:managed');
+            $tpl->setMixin(true);
+            $props = $tpl->getPropertyDefinitionTemplates();
+            $props->offsetSet(null, $proptpl);
+            $nt->registerNodeType($tpl, true);
         }
         $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
     }
