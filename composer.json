@@ -12,12 +12,13 @@
     ],
     "require": {
         "php": ">=5.3.2",
-        "doctrine/common": "dev-master",
+        "doctrine/common": "dev-master as 2.3-dev",
         "phpcr/phpcr-implementation": "2.1.0-beta3",
         "phpcr/phpcr-utils": "dev-master"
     },
     "suggest": {
         "symfony/yaml": ">=2.0.0,<2.2.0-dev",
+        "jackalope/jackalope-doctrine-dbal": "dev-master",
         "jackalope/jackalope-jackrabbit": "dev-master"
     },
     "autoload": {
