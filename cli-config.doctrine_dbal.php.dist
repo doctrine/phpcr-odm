@@ -7,23 +7,9 @@
  * Add instances of commands for eventual implementation specific commands to this array.
  */
 
+require_once './bootstrap.php';
+
 $extraCommands = array();
-
-$vendorDir = __DIR__.'/lib/vendor';
-
-require_once $vendorDir.'/phpcr-utils/lib/vendor/Symfony/Component/ClassLoader/UniversalClassLoader.php';
-$classLoader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
-$classLoader->register();
-
-$classLoader->registerNamespaces(array(
-    'Doctrine\ODM' => dirname($vendorDir),
-    'Doctrine\Common' => $vendorDir.'/doctrine-common/lib',
-    'Symfony' => array($vendorDir.'/jackalope-doctrine-dbal/lib/jackalope/lib/phpcr-utils/lib/vendor'),
-    'PHPCR' => array($vendorDir.'/phpcr/src', $vendorDir.'/phpcr-utils/src'),
-    'Jackalope'=> array($vendorDir.'/jackalope-doctrine-dbal/src', $vendorDir.'/jackalope-doctrine-dbal/lib/jackalope/src'),
-    'Doctrine\DBAL'=> $vendorDir.'/jackalope-doctrine-dbal/lib/vendor/doctrine-dbal/lib',
-));
-
 $extraCommands[] = new \Jackalope\Tools\Console\Command\InitDoctrineDbalCommand();
 
 $params = array(

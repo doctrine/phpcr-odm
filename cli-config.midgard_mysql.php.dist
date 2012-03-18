@@ -7,21 +7,9 @@
  * Add instances of commands for eventual implementation specific commands to this array.
  */
 
+require_once './bootstrap.php';
+
 $extraCommands = array();
-
-$vendorDir = __DIR__.'/lib/vendor';
-
-require_once $vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor/Symfony/Component/ClassLoader/UniversalClassLoader.php';
-$classLoader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
-$classLoader->register();
-
-$classLoader->registerNamespaces(array(
-    'Doctrine\ODM' => dirname($vendorDir),
-    'Doctrine\Common' => $vendorDir.'/doctrine-common/lib',
-    'Symfony' => array($vendorDir.'/jackalope/lib/phpcr-utils/lib/vendor'),
-    'PHPCR' => array($vendorDir.'/phpcr/src', $vendorDir.'/phpcr-utils/src'),
-    'Midgard\PHPCR' =>  __DIR__ . '/lib/vendor/Midgard/PHPCR/src'
-));
 
 $params = array(
     'midgard2.configuration.db.type' => 'MySQL',
