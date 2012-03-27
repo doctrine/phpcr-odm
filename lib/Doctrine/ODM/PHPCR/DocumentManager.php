@@ -552,8 +552,8 @@ class DocumentManager implements ObjectManager
      * working with the manager after a move, you are probably safest calling
      * DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object $document
-     * @param string $targetPath
+     * @param object $document an already registered document
+     * @param string $targetPath the target path including the nodename
      */
     public function move($document, $targetPath)
     {
