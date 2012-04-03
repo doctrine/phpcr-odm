@@ -5,10 +5,10 @@ php:
   - 5.4
 
 env:
-  - TRANSPORT=jackrabbit
+#  - TRANSPORT=jackrabbit
 #  - TRANSPORT=doctrine-dbal
-#  - TRANSPORT=midgard_sqlite
-#  - TRANSPORT=midgard_mysql
+  - TRANSPORT=midgard_sqlite
+  - TRANSPORT=midgard_mysql
 
 before_script:
   - wget -nc http://getcomposer.org/composer.phar
@@ -17,6 +17,6 @@ before_script:
 
 script: phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
 
-notifications:
-  irc: "irc.freenode.org#symfony-cmf"
-  email: "symfony-cmf-devs@googlegroups.com"
+# notifications:
+#  irc: "irc.freenode.org#symfony-cmf"
+#  email: "symfony-cmf-devs@googlegroups.com"
