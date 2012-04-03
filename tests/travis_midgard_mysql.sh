@@ -1,7 +1,5 @@
 #!/bin/bash
 
-git submodule update --init --recursive
-
 # Install libgda MySQL connector
 sudo apt-get install -y libgda-4.0-mysql
 
