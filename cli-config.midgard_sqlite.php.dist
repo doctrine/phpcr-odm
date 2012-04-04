@@ -11,10 +11,6 @@ require_once './bootstrap.php';
 
 $extraCommands = array();
 
-$classLoader->registerNamespaces(array(
-    'Midgard\PHPCR' =>  __DIR__ . '/lib/vendor/Midgard/PHPCR/src'
-));
-
 $params = array(
     'midgard2.configuration.db.type' => 'SQLite',
     'midgard2.configuration.db.name' => 'odm',
