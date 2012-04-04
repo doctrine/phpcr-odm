@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install Midgard2
-./travis_midgard_install.sh
+./tests/travis_midgard_install.sh
 
 # Copy PHPCR schemas to Midgard's global schema dir
 sudo cp -r ./lib/vendor/Midgard/PHPCR/data/share/* /usr/share/midgard2
