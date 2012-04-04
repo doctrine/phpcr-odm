@@ -20,3 +20,4 @@ script: phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
 # notifications:
 #  irc: "irc.freenode.org#symfony-cmf"
 #  email: "symfony-cmf-devs@googlegroups.com"
+
