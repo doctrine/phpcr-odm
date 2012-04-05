@@ -9,5 +9,3 @@ chmod +x ./travis_midgard.sh
 sudo wget --directory-prefix=/usr/share/midgard2/schema https://github.com/midgardproject/phpcr-midgard2/raw/master/data/share/schema/midgard_namespace_registry.xml
 sudo wget --directory-prefix=/usr/share/midgard2/schema https://github.com/midgardproject/phpcr-midgard2/raw/master/data/share/schema/midgard_tree_node.xml
 
-# Copy odm schema
-sudo cp ./data/share/odm_schemas.xml /usr/share/midgard2/schema
