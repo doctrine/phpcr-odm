@@ -17,7 +17,7 @@ abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\PropertyMappingObj';
         $mappingDriver = $this->loadDriver();
-        
+
         $class = new ClassMetadata($className);
         $class->initializeReflection(new RuntimeReflectionService());
         $mappingDriver->loadMetadataForClass($className, $class);
@@ -31,7 +31,7 @@ abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testPropertyMappings($class)
     {
-        $this->assertEquals(10, count($class->fieldMappings));
+        $this->assertCount(10, $class->fieldMappings);
         $this->assertTrue(isset($class->fieldMappings['string']));
         $this->assertEquals('string', $class->fieldMappings['string']['name']);
         $this->assertTrue(isset($class->fieldMappings['binary']));

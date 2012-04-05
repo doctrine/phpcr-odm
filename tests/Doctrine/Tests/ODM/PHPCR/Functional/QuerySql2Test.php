@@ -88,7 +88,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
 
         $result = $this->dm->getDocumentsByQuery($query, $this->type);
-        $this->assertEquals($rowCount, count($result));
+        $this->assertCount($rowCount, $result);
     }
 
     /**
@@ -106,7 +106,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
 
         $result = $this->dm->getDocumentsByQuery($query, $this->type);
-        $this->assertEquals($rowCount, count($result));
+        $this->assertCount($rowCount, $result);
     }
 
     public function testQueryLimit()
@@ -116,7 +116,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
         $query->setLimit(2);
         $result = $this->dm->getDocumentsByQuery($query, $this->type);
-        $this->assertEquals(2, count($result));
+        $this->assertCount(2, $result);
         $ids = array();
         $vals = array();
         $nums = array();

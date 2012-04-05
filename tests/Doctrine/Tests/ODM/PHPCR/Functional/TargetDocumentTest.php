@@ -43,7 +43,7 @@ class TargetDocumentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->clear();
         $referer = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ReferenceManyObj', '/functional/referer');
         $this->assertEquals('Referer', $referer->name);
-        $this->assertEquals(2, count($referer->references));
+        $this->assertCount(2, $referer->references);
         $this->assertTrue($referer->references[0] instanceof MODEL\RefType1TestObj);
         $this->assertTrue($referer->references[1] instanceof MODEL\RefType2TestObj);
     }

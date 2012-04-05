@@ -167,7 +167,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
         $this->assertInternalType('array', $locales);
-        $this->assertEquals(3, count($locales));
+        $this->assertCount(3, $locales);
         $this->assertContains('fr', $locales);
         $this->assertContains('en', $locales);
         $this->assertContains('de', $locales);

@@ -177,7 +177,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
         $this->assertTrue(is_array($locales));
-        $this->assertEquals(3, count($locales));
+        $this->assertCount(3, $locales);
         $this->assertContains('fr', $locales);
         $this->assertContains('en', $locales);
         $this->assertContains('de', $locales);

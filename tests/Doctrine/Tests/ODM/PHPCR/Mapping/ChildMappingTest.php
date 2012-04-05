@@ -31,7 +31,7 @@ abstract class ChildMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testChildMappings($class)
     {
-        $this->assertEquals(2, count($class->childMappings));
+        $this->assertCount(2, $class->childMappings);
         $this->assertTrue(isset($class->childMappings['child1']));
         $this->assertEquals('first', $class->childMappings['child1']['name']);
         $this->assertTrue(isset($class->childMappings['child2']));
@@ -46,7 +46,7 @@ abstract class ChildMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testChildrenMappings($class)
     {
-        $this->assertEquals(2, count($class->childrenMappings));
+        $this->assertCount(2, $class->childrenMappings);
         $this->assertTrue(isset($class->childrenMappings['all']));
         $this->assertFalse(isset($class->childrenMappings['all']['filter']));
         $this->assertTrue(isset($class->childrenMappings['some']));
