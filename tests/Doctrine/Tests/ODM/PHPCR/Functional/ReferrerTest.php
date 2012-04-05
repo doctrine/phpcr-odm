@@ -43,8 +43,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
-        $this->assertEquals(count($reference->referrers), 1);
-        $this->assertEquals($reference->referrers->first()->id, "/functional/referrerTestObj");
+        $this->assertEquals(1, count($reference->referrers));
+        $this->assertEquals("/functional/referrerTestObj", $reference->referrers->first()->id);
     }
 
     public function testJIRA41DonotPersistReferrersCollection()
@@ -77,7 +77,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
-        $this->assertEquals($reference->referrers->first()->name, "new referrer name");
+        $this->assertEquals("new referrer name", $reference->referrers->first()->name);
     }
 
     public function testCreateWithoutRef()
@@ -92,7 +92,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $document = $this->dm->find(null, '/functional/referrerRefTestObj');
 
-        $this->assertEquals(count($document->referrers), 0);
+        $this->assertEquals(0, count($document->referrers));
     }
 
     public function testCreateManyRef()
@@ -118,7 +118,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
-        $this->assertEquals(count($reference->referrers), $max);
+        $this->assertEquals($max, count($reference->referrers));
 
         $tmpIds = array();
         foreach ($reference->referrers as $referrer) {
@@ -153,7 +153,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
-        $this->assertEquals($referrer->name, "referrer changed");
+        $this->assertEquals("referrer changed", $referrer->name);
     }
 
     public function testUpdateMany()
@@ -268,8 +268,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
-        $this->assertEquals(count($reference->referrers), 1);
-        $this->assertEquals($reference->referrers->first()->id, "/functional/referrerTestObj");
+        $this->assertEquals(1, count($reference->referrers));
+        $this->assertEquals("/functional/referrerTestObj", $reference->referrers->first()->id);
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
         $this->dm->remove($referrer);
@@ -281,7 +281,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
-        $this->assertEquals(count($reference->referrers), 0);
+        $this->assertEquals(0, count($reference->referrers));
         $this->assertFalse($reference->referrers->first());
     }
 
@@ -316,7 +316,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
-        $this->assertEquals(count($reference->referrers), $max -1);
+        $this->assertEquals($max -1, count($reference->referrers));
 
         $tmpIds = array();
         foreach ($reference->referrers as $referrer) {
@@ -352,7 +352,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
         $referrer->reference = null;
- 
+
         $this->dm->remove($reference);
         $this->dm->flush();
         $this->dm->clear();
@@ -361,7 +361,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($reference);
 
         $referrer = $this->dm->find(null, "/functional/referrerTestObj");
-        $this->assertEquals($referrer->name, "referenced changed");
+        $this->assertEquals("referenced changed", $referrer->name);
     }
 
     /**
@@ -395,7 +395,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $referrer->name = $name;
             $i++;
         }
-        $this->assertEquals($i, $max);
+        $this->assertEquals($max, $i);
 
         for ($i = 0; $i < $max; $i++) {
             $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
@@ -411,7 +411,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
             $refNames[] = $referrer->name;
         }
-        $this->assertEquals($i, $max);
+        $this->assertEquals($max, $i);
 
         foreach ($names as $name) {
             $this->assertTrue(in_array($name, $refNames));
@@ -440,7 +440,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertEquals(count($this->dm->find(null, "/functional/referrerRefTestObj")->referrers), 0);
+        $this->assertEquals(0, count($this->dm->find(null, "/functional/referrerRefTestObj")->referrers));
         $this->assertFalse($this->session->getNode("/functional")->hasNode("referrerTestObj"));
     }
 
@@ -482,15 +482,15 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $weakReferrerRefTestObj = $this->dm->find(null, "/functional/weakReferrerRefTestObj");
-        $this->assertEquals(count($weakReferrerRefTestObj->referrers), 1);
-        $this->assertEquals($weakReferrerRefTestObj->referrers[0]->name, "weakReferrerTestObj");
+        $this->assertEquals(1, count($weakReferrerRefTestObj->referrers));
+        $this->assertEquals("weakReferrerTestObj", $weakReferrerRefTestObj->referrers[0]->name);
 
         $hardReferrerRefTestObj = $this->dm->find(null, "/functional/hardReferrerRefTestObj");
-        $this->assertEquals(count($hardReferrerRefTestObj->referrers), 1);
-        $this->assertEquals($hardReferrerRefTestObj->referrers[0]->name, "hardReferrerTestObj");
+        $this->assertEquals(1, count($hardReferrerRefTestObj->referrers));
+        $this->assertEquals("hardReferrerTestObj", $hardReferrerRefTestObj->referrers[0]->name);
 
         $allReferrerRefTestObj = $this->dm->find(null, "/functional/allReferrerRefTestObj");
-        $this->assertEquals(count($allReferrerRefTestObj->referrers), 2);
+        $this->assertEquals(2, count($allReferrerRefTestObj->referrers));
 
         $tmpNames = array();
         foreach ($allReferrerRefTestObj->referrers as $referrer) {
@@ -529,8 +529,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, "/functional/allReferrerRefNamedPropTestObj");
 
-        $this->assertEquals(count($reference->referrers), 1);
-        $this->assertEquals($reference->referrers[0]->name, "referrerNamedPropTestObj");
+        $this->assertEquals(1, count($reference->referrers));
+        $this->assertEquals("referrerNamedPropTestObj", $reference->referrers[0]->name);
     }
 }
 
