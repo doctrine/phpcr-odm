@@ -13,6 +13,7 @@ class ChildrenCollection extends PersistentCollection
 {
     private $document;
     private $filter;
+    private $originalNodenames = array();
 
     /**
      * Creates a new persistent collection.
@@ -37,6 +38,17 @@ class ChildrenCollection extends PersistentCollection
         if (!$this->initialized) {
             $this->initialized = true;
             $this->collection = $this->dm->getChildren($this->document, $this->filter);
+            $this->originalNodenames = $this->collection->getKeys();
         }
+    }
+
+    /**
+     * Return the ordered list of node names of children that existed when the collection was initialized
+     *
+     * @return array
+     */
+    public function getOriginalNodeNames()
+    {
+        return $this->originalNodenames;
     }
 }

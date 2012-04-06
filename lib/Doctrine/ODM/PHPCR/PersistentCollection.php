@@ -290,6 +290,14 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
+     * If the collection has been initializes
+     */
+    public function isInitialized()
+    {
+        return $this->initialized;
+    }
+
+    /**
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */
