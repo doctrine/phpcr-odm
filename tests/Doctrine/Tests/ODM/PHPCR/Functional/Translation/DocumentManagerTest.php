@@ -34,7 +34,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
     public function setUp()
     {
-
         $localePrefs = array(
             'en' => array('en', 'de', 'fr'),
             'fr' => array('fr', 'de', 'en'),
@@ -57,10 +56,27 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc = $doc;
     }
 
+    protected function getTestNode()
+    {
+        return $this->session->getNode('/functional/'.$this->testNodeName);
+    }
+
+    protected function assertDocumentStored()
+    {
+        $node = $this->getTestNode();
+        $this->assertNotNull($node);
+
+        $this->assertFalse($node->hasProperty('topic'));
+        $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
+        $this->assertEquals('Some interesting subject', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
+        $this->assertEquals('Un sujet intéressant', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
+
+        $this->assertEquals('fr', $this->doc->locale);
+    }
+
     public function testPersistNew()
     {
-        $this->removeTestNode();
-
         $this->dm->persist($this->doc);
         $this->dm->flush();
 
@@ -81,51 +97,36 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
     public function testBindTranslation()
     {
-        $this->removeTestNode();
-
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
         $this->dm->flush();
 
         $this->doc->topic = 'Un sujet intéressant';
-
         $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
 
-        $node = $this->getTestNode();
-
-        $this->assertDocumentStored($node);
-    }
-
-    protected function assertDocumentStored($node)
-    {
-        $this->assertNotNull($node);
-
-        $this->assertFalse($node->hasProperty('topic'));
-        $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
-        $this->assertEquals('Some interesting subject', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
-        $this->assertTrue($node->hasProperty(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
-        $this->assertEquals('Un sujet intéressant', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
-
-        $this->assertEquals('fr', $this->doc->locale);
+        $this->assertDocumentStored();
     }
 
     /**
      * find translation in non-default language and then save it back has to keep language
-     * @depends testBindTranslation
      */
     public function testFindTranslationAndUpdate()
     {
-        // let the bind test prepare the data
-        $this->testBindTranslation();
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
+
+        $this->doc->topic = 'Un sujet intéressant';
+        $this->dm->bindTranslation($this->doc, 'fr');
+        $this->dm->flush();
         $this->dm->clear();
 
         $doc = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'fr');
         $doc->topic = 'Un sujet intéressant';
         $this->dm->flush();
 
-        $node = $this->getTestNode();
-        $this->assertDocumentStored($node);
+        $this->assertDocumentStored();
     }
 
     /**
@@ -133,8 +134,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     public function testUpdateLocalAndFlush()
     {
-        $this->removeTestNode();
-
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
         $this->dm->flush();
@@ -143,14 +142,11 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->locale = 'fr';
         $this->dm->flush();
 
-        $node = $this->getTestNode();
-        $this->assertDocumentStored($node);
+        $this->assertDocumentStored();
     }
 
     public function testFlush()
     {
-        $this->removeTestNode();
-
         $this->dm->persist($this->doc);
 
         $this->doc->topic = 'Un sujet intéressant';
@@ -232,7 +228,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     public function testGetLocaleFor()
     {
         // Only 1 language is persisted
-        $this->removeTestNode();
         $this->dm->persist($this->doc);
         $this->dm->flush();
 
@@ -266,8 +261,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
     public function testRemove()
     {
-        $this->removeTestNode();
-
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
         $this->dm->bindTranslation($this->doc, 'fr');
@@ -298,8 +291,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     public function testInvalidTranslationStrategy()
     {
-        $this->removeTestNode();
-
         $doc = new InvalidMapping();
         $doc->id = '/functional/' . $this->testNodeName;
         $doc->topic = 'foo';
@@ -315,8 +306,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     public function testBindTranslationWithoutPersist()
     {
-        $this->removeTestNode();
-
         $doc = new CmsArticle();
         $doc->id = '/functional/' . $this->testNodeName;
         $this->dm->bindTranslation($doc, 'en');
@@ -329,25 +318,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     public function testBindTranslationNonTranslatable()
     {
-        $this->removeTestNode();
-
         $doc = new CmsArticle();
         $doc->id = '/functional/' . $this->testNodeName;
         $this->dm->persist($doc);
         $this->dm->bindTranslation($doc, 'en');
-    }
-
-    protected function removeTestNode()
-    {
-        $root = $this->session->getRootNode();
-        if ($root->hasNode($this->testNodeName)) {
-            $root->getNode($this->testNodeName)->remove();
-            $this->session->save();
-        }
-    }
-
-    protected function getTestNode()
-    {
-        return $this->session->getNode('/functional/' . $this->testNodeName);
     }
 }
