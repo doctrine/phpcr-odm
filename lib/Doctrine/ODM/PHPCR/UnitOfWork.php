@@ -789,6 +789,24 @@ class UnitOfWork
         return $actualData;
     }
 
+    private function getChildNodename($id, $nodename, $child)
+    {
+        $childClass = $this->dm->getClassMetadata(get_class($child));
+        if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
+            $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
+        } else {
+            $childId = $childClass->getIdentifierValue($child);
+            if ('' !== $childId) {
+                if ($childId !== $id.'/'.basename($childId)) {
+                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($child, $this->dm));
+                }
+                $nodename = basename($childId);
+            }
+        }
+
+        return $nodename;
+    }
+
     /**
      * @param ClassMetadata $class
      * @param object $document
@@ -802,12 +820,24 @@ class UnitOfWork
 
         $actualData = $this->getDocumentActualData($class, $document);
         $oid = spl_object_hash($document);
+        $id = $this->getDocumentId($document);
+
         $isNew = !isset($this->originalData[$oid]);
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = $actualData;
             $this->scheduledInserts[$oid] = $document;
+
+            foreach ($class->childrenMappings as $name => $childMapping) {
+                if ($actualData[$name]) {
+                    foreach ($actualData[$name] as $nodename => $child) {
+                        $nodename = $this->getChildNodename($id, $nodename, $child);
+                        $this->computeChildChanges($childMapping, $child, $id, $nodename);
+                        $childNames[] = $nodename;
+                    }
+                }
+            }
         }
 
         if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
@@ -820,11 +850,10 @@ class UnitOfWork
             }
         }
 
-        $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($document, $this->dm));
+                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($actualData[$name], $this->dm));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -862,6 +891,46 @@ class UnitOfWork
                 && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
             ) {
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+            }
+
+            foreach ($class->childrenMappings as $name => $childMapping) {
+                $childNames = array();
+                if ($actualData[$name]
+                    && $actualData[$name] instanceof ChildrenCollection
+                    && !$actualData[$name]->isInitialized()
+                    && $this->originalData[$oid][$name]
+                    && $actualData[$name] === $this->originalData[$oid][$name]
+                ) {
+                    continue;
+                }
+
+                if ($actualData[$name]) {
+                    foreach ($actualData[$name] as $nodename => $child) {
+                        $nodename = $this->getChildNodename($id, $nodename, $child);
+                        $this->computeChildChanges($childMapping, $child, $id, $nodename);
+                        $childNames[] = $nodename;
+                    }
+                }
+
+                if ($this->originalData[$oid][$name] instanceof ChildrenCollection) {
+                    $originalNames = $this->originalData[$oid][$name]->getOriginalNodenames();
+                    foreach ($originalNames as $key => $childName) {
+                        if (!in_array($childName, $childNames)) {
+                            $child = $this->getDocumentById($id.'/'.$childName);
+                            $this->scheduleRemove($child);
+                            unset($originalNames[$key]);
+                        }
+                    }
+                }
+
+                if (!empty($childNames) && isset($originalNames)) {
+                    // reindex the arrays to avoid holes in the indexes
+                    $originalNames = array_values($originalNames);
+                    $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
+                    if ($originalNames !== $childNames) {
+                        // TODO implement reordering detection
+                    }
+                }
             }
 
             if (!isset($this->documentLocales[$oid])
@@ -915,19 +984,18 @@ class UnitOfWork
      *
      * @param mixed $child the child document.
      */
-    private function computeChildChanges($mapping, $child, $parentId)
+    private function computeChildChanges($mapping, $child, $parentId, $nodename = null)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
 
         switch ($state) {
             case self::STATE_NEW:
-                $targetClass->setIdentifierValue($child, $parentId.'/'.$mapping['name']);
+                $nodename = $nodename ? : $mapping['name'];
+                $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
                 $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 $this->computeChangeSet($targetClass, $child);
                 break;
-            case self::STATE_REMOVED:
-                throw new \InvalidArgumentException('Removed child document detected during flush');
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
         }
