@@ -20,7 +20,7 @@
         "symfony/yaml": ">=2.0.0,<2.2.0-dev",
         "jackalope/jackalope-doctrine-dbal": "dev-master",
         "jackalope/jackalope-jackrabbit": "dev-master",
-	"midgard/phpcr": "dev-master"
+        "midgard/phpcr": "dev-master",
     },
     "autoload": {
         "psr-0": { "Doctrine\\ODM\\PHPCR": "lib/" }
