@@ -290,7 +290,19 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * If the collection has been initializes
+     * Sets the initialized flag of the collection, forcing it into that state.
+     *
+     * @param boolean $bool
+     */
+    public function setInitialized($bool)
+    {
+        $this->initialized = $bool;
+    }
+
+    /**
+     * Checks whether this collection has been initialized.
+     *
+     * @return boolean
      */
     public function isInitialized()
     {
