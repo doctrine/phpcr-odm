@@ -886,12 +886,14 @@ class UnitOfWork
             ) {
                 throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
             }
+
             if (isset($this->originalData[$oid][$class->parentMapping])
                 && isset($actualData[$class->parentMapping])
                 && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
             ) {
                 throw new PHPCRException('The ParentDocument property is immutable ('.$this->getDocumentId($this->originalData[$oid][$class->parentMapping]).' !== '.$this->getDocumentId($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
             }
+
             if (isset($this->originalData[$oid][$class->identifier])
                 && isset($actualData[$class->identifier])
                 && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
