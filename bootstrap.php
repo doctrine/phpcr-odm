@@ -9,9 +9,6 @@ if (file_exists($file)) {
     throw new RuntimeException('Install dependencies to run test suite.');
 }
 
-$autoload->add('Doctrine\ODM\PHPCR', __DIR__.'/lib');
-$autoload->add('Doctrine\Tests', __DIR__.'/tests');
-
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 AnnotationRegistry::registerLoader(function($class) use ($autoload) {
@@ -19,3 +16,5 @@ AnnotationRegistry::registerLoader(function($class) use ($autoload) {
     return class_exists($class, false);
 });
 AnnotationRegistry::registerFile(__DIR__.'/lib/Doctrine/ODM/PHPCR/Mapping/Annotations/DoctrineAnnotations.php');
+
+return $autoload;
