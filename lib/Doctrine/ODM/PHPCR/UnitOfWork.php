@@ -798,7 +798,7 @@ class UnitOfWork
             $childId = $childClass->getIdentifierValue($child);
             if ('' !== $childId) {
                 if ($childId !== $id.'/'.basename($childId)) {
-                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($child, $this->dm));
+                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
                 }
                 $nodename = basename($childId);
             }
@@ -853,7 +853,7 @@ class UnitOfWork
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
                 if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($actualData[$name], $this->dm));
+                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($actualData[$name], $this->dm));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
             }
@@ -1454,7 +1454,7 @@ class UnitOfWork
                             $child->remove();
                         }
                     } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this.');
+                        throw PHPCRException::cannotMoveByAssignment(self::objToStr($fieldValue, $this->dm));
                     }
                 }
             }
