@@ -894,16 +894,13 @@ class UnitOfWork
             }
 
             foreach ($class->childrenMappings as $name => $childMapping) {
-                $childNames = array();
-                if ($actualData[$name]
-                    && $actualData[$name] instanceof ChildrenCollection
+                if ($actualData[$name] instanceof PersistentCollection
                     && !$actualData[$name]->isInitialized()
-                    && $this->originalData[$oid][$name]
-                    && $actualData[$name] === $this->originalData[$oid][$name]
                 ) {
                     continue;
                 }
 
+                $childNames = array();
                 if ($actualData[$name]) {
                     foreach ($actualData[$name] as $nodename => $child) {
                         $nodename = $this->getChildNodename($id, $nodename, $child);
