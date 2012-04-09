@@ -971,14 +971,6 @@ class UnitOfWork
                 $this->documentChangesets[$oid] = $actualData;
                 $this->scheduledUpdates[$oid] = $document;
             }
-
-            foreach ($class->referrersMappings as $name => $referrerMapping) {
-                if ($this->originalData[$oid][$name]) {
-                    foreach ($this->originalData[$oid][$name] as $referrer) {
-                        $this->computeReferrerChanges($referrer);
-                    }
-                }
-            }
         }
     }
 
