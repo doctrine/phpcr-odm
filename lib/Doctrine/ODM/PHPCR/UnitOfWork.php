@@ -861,6 +861,12 @@ class UnitOfWork
 
         foreach ($class->associationsMappings as $assocName => $assoc) {
             if ($actualData[$assocName]) {
+                if ($actualData[$assocName] instanceof PersistentCollection
+                    && !$actualData[$assocName]->isInitialized()
+                ) {
+                    continue;
+                }
+
                 if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof Collection) {
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
