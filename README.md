@@ -11,8 +11,7 @@ PHPCR ODM for Doctrine2
 
 # TODO
 
-* have the register-system-node-types command provide api conform node type definition as well to support other implementations
-* write documentation
+* write documentation [PHPCR-21](http://www.doctrine-project.org/jira/browse/PHPCR-21)
 * expand test suite
 * translations
     * provide a method to get a detached translated document so the relations can be translated automatically
@@ -21,58 +20,74 @@ PHPCR ODM for Doctrine2
 
 * php >= 5.3
 * libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
-* phpunit >= 3.6 and wget (if you want to run the tests)
+* phpunit >= 3.6 (if you want to run the tests)
+* [composer](http://getcomposer.org/)
+
 
 # Installation
 
-If you use the Doctrine PHPCR ODM **Symfony Bundle**, please look into the [Tutorial to install the DoctrinePHPCRBundle](https://github.com/symfony-cmf/symfony-cmf-docs/blob/master/tutorials/installing-configuring-doctrine-phpcr-odm.rst).
+If you use the Doctrine PHPCR ODM **Symfony Bundle**, please look into the
+ [Tutorial to install the DoctrinePHPCRBundle](https://github.com/symfony-cmf/symfony-cmf-docs/blob/master/tutorials/installing-configuring-doctrine-phpcr-odm.rst).
 This documentation explains how to use PHPCR ODM outside of symfony, which requires some
 manual initialization.
 
 
 ## Clone the repository and initialize all dependencies (submodules)
 
+If you do not yet have composer, install it like this
+
+    curl -s http://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin
+
+Install phpcr-odm
+
     git clone git://github.com/doctrine/phpcr-odm.git
     cd phpcr-odm
-    git submodule update --init --recursive
+    php /usr/local/bin/composer.phar install --install-suggests
+
 
 ## Install a PHPCR provider
 
-PHPCR ODM uses the [PHP Content Repository API](http://phpcr.github.com/) for storage. You need to install one of the available providers:
+PHPCR ODM uses the [PHP Content Repository API](http://phpcr.github.com/) for
+storage. You can force one of the available providers in your projects
+composer.json file "require" section by specifying one of the "suggest"
+libraries in the phpcr-odm composer.json
 
-### Install Jackrabbit
+Each of the providers requires some additional setup.
 
-Jackalope with the Jackrabbit backend is the only PHPCR implementation that is enough feature complete for the PHPCR ODM.
 
-You will also need to check out [Jackalope Jackrabbit transport](http://github.com/jackalope/jackalope-jackrabbit)
-and the related dependencies.
+### Install Jackalope-Jackrabbit PHCPR provider
 
-Follow [Running Jackrabbit Server](https://github.com/jackalope/jackalope/wiki/Running-a-jackrabbit-server) from the Jackalope wiki.
+Jackalope-Jackrabbit uses the Java backend jackrabbit.jar for storage.
 
-### Install Doctrine DBAL
+Follow [Running Jackrabbit Server](https://github.com/jackalope/jackalope/wiki/Running-a-jackrabbit-server)
+from the Jackalope wiki to have the storage backend.
 
-Jackalope with the DBAL backend is partially working and can use any RDBMS support by Doctrine DBAL.
 
-You will also need to check out [Jackalope Doctrine DBAL transport](http://github.com/jackalope/jackalope-doctrine-dbal)
-and the related dependencies.
+### Install Jackalope Doctrine DBAL PHPCR provider
 
-### Install Midgard2 PHPCR
+Jackalope Doctrine DBAL maps PHPCR to relational databases. It supports all
+databases that Doctrine DBAL can support.
 
-[Midgard2](https://github.com/midgardproject/phpcr-midgard2) is a PHPCR
-provider that provides most of the functionality needed for PHPCR ODM, and can
-persist your content in typical relational databases like SQLite and MySQL.
-Midgard2 only needs [a PHP extension](https://github.com/midgardproject/midgard-php5)
+Create the database as described in the README of
+[Jackalope Doctrine DBAL](http://github.com/jackalope/jackalope-doctrine-dbal).
+
+
+### Install Midgard2 PHPCR provider
+
+[Midgard2](https://github.com/midgardproject/phpcr-midgard2) is a PHP extension
+that persists PHPCR into relational databases like SQLite and MySQL.
+
+Midgard2 needs [a PHP extension](https://github.com/midgardproject/midgard-php5)
 to run. On typical Linux setups getting the extension is as easy as:
 
-    $ sudo apt-get install php5-midgard2
+    sudo apt-get install php5-midgard2
+
 
 ## Enable the console
 
-The console provides a bunch of useful commands:
-
-    # in the phpcr-odm root directoy
-    cp cli-config.php.dist cli-config.php
-    # edit the file and adjust if needed - the defaults expect all submodules in place
+The console provides a bunch of useful commands. Copy the cli-config dist file
+with the implementation name of your choice to ``cli-config.php`` and adjust if
+needed.
 
 Now running ``php bin/phpcr`` will show you a list of the available commands.
 ``php bin/phpcr help <cmd>`` displays additional information for that command.
@@ -82,15 +97,19 @@ Now running ``php bin/phpcr`` will show you a list of the available commands.
 
 PHPCR ODM uses a [custom node type](https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr%3Amanaged)
 to track meta information without interfering with your content.
-We provide a command that makes it trivial to register this type and the phpcr namespace.
+We provide a command that makes it trivial to register this type and the phpcr
+namespace.
 
     php bin/phpcr doctrine:phpcr:register-system-node-types
 
-## Running the tests
-This examples shows how to run the tests for jackrabbit. You can run the tests for the other backends (doctrine_dbal, midgard_mysql, midgard_sqlite)
-by replacing jackrabbit with the same commands. Just replace jackrabbit with the name of the backend you want to run.
 
-1. Make sure you have installed the submodules
+## Running the tests
+
+This examples shows how to run the tests for jackrabbit. You can run the tests
+for the other backends. Just replace jackrabbit with the name of the backend
+you want to run.
+
+1. Make sure you have installed the dependencies
 2. Run this command to download jackrabbit and launch it (requires wget)
 
     ./tests/travis_jackrabbit.sh
@@ -99,47 +118,54 @@ by replacing jackrabbit with the same commands. Just replace jackrabbit with the
 
     phpunit -c tests/phpunit_jackrabbit.xml.dist
 
+
 # Bootstrapping
 
 ## Set up autoloading
 
-For an inspiration for the autoloading, have a look at ``cli-config.php.dist``.
-You need to make sure that the following paths are autoloaded (all paths relative to the phpcr-odm root directory):
-
-```php
-'Doctrine\ODM'    => 'lib',
-'Doctrine\Common' => 'lib/vendor/doctrine-common/lib',
-'Symfony\Component\Console' => 'lib/vendor/jackalope/lib/phpcr-utils/lib/vendor',
-'Symfony'         => 'lib/vendor,
-'PHPCR\Util'      => 'lib/vendor/jackalope/lib/phpcr-utils/src',
-'PHPCR'           => 'lib/vendor/jackalope/lib/phpcr/src',
-'Jackalope'       => 'lib/vendor/jackalope/src',
-'Midgard\PHPCR'   => 'lib/vendor/Midgard/PHPCR/src',
-'Doctrine\DBAL'   => 'lib/vendor/jackalope/lib/vendor/doctrine-dbal',
-```
+Composer provides an autoloader configured for phpcr-odm and all dependencies
+in ``vendor/.composer/autoload.php``.
 
 
 ## Define a mapping driver
 
-You can choose between the drivers for annotations, xml and yml configuration files:
+You can choose between the drivers for annotations, xml and yml configuration files.
+
+### Annotation mappings
 
 ```php
 <?php
-// Annotation driver
+use Doctrine\Common\Annotations\AnnotationRegistry;
+
+AnnotationRegistry::registerLoader(function($class) use ($autoload) {
+    $autoload->loadClass($class);
+    return class_exists($class, false);
+});
+AnnotationRegistry::registerFile(__DIR__.'/lib/Doctrine/ODM/PHPCR/Mapping/Annotations/DoctrineAnnotations.php');
+
 $reader = new \Doctrine\Common\Annotations\AnnotationReader();
 $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader, array('/path/to/your/document/classes'));
+```
 
-// Xml driver
+### XML mappings
+```php
+<?php
 $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver(array('/path/to/your/mapping/files'));
+```
 
-// Yaml driver
+### YML mappings
+
+This needs the suggested symfony/yaml dependency to be installed
+
+```php
+<?php
 $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver(array('/path/to/your/mapping/files'));
 ```
 
 
 ## Bootstrap the PHPCR session
 
-With the Jackrabbit provider, the PHPCR ODM connection can be configured with:
+With the jackalope-jackrabbit provider, the PHPCR ODM connection can be configured with:
 
 ```php
 <?php
@@ -147,6 +173,34 @@ $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
                     array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
 $credentials = new \PHPCR\SimpleCredentials('user', 'pass');
 $session = $repository->login($credentials, 'your_workspace');
+```
+
+With the jackalope-doctrine-dbal provider, set up the connection like this:
+
+```php
+<?php
+$driver   = 'pdo_mysql';
+$host     = 'localhost';
+$user     = 'root';
+$password = '';
+$database = 'jackalope';
+$workspace  = 'default';
+
+// Bootstrap Doctrine
+$dbConn = \Doctrine\DBAL\DriverManager::getConnection(array(
+    'driver'    => $driver,
+    'host'      => $host,
+    'user'      => $user,
+    'password'  => $pass,
+    'dbname'    => $database,
+));
+
+$repository = \Jackalope\RepositoryFactoryDoctrineDBAL::getRepository(
+    array('jackalope.doctrine_dbal_connection' => $dbConn)
+);
+// dummy credentials to comply with the API
+$credentials = new \PHPCR\SimpleCredentials(null, null);
+$session = $repository->login($credentials, $workspace);
 ```
 
 With Midgard2, the connection configuration (using MySQL as an example) would be something like:
