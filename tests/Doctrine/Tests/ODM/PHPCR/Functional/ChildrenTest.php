@@ -69,6 +69,14 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue($childA === $col->first());
     }
 
+    public function testNoChildrenInitOnFlush()
+    {
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->dm->flush();
+
+        $this->assertFalse($parent->allChildren->isInitialized());
+    }
+
     public function testAnnotation()
     {
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');

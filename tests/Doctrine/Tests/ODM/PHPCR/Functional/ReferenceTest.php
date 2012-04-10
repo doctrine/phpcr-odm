@@ -656,6 +656,31 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
     }
 
+    public function testNoReferenceInitOnFlush()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refManyTestObj->id = '/functional/refManyTestObj';
+        $refManyTestObj->name = 'referrer';
+
+        $max = 5;
+
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referencing = $this->dm->find('Doctrine\Tests\Models\References\RefManyTestObj', '/functional/refManyTestObj');
+        $this->dm->flush();
+
+        $this->assertFalse($referencing->references->isInitialized());
+    }
+
     public function testDeleteOneInMany()
     {
         $refManyTestObj = new RefManyTestObj();
@@ -683,8 +708,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($referrer);
         $this->dm->flush();
         $this->dm->clear();
-
-        $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $names = array();
         for ($i = 0; $i < $max; $i++) {

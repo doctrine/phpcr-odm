@@ -130,6 +130,33 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
     }
 
+    public function testNoReferrerInitOnFlush()
+    {
+        $max = 5;
+
+        $referrerRefTestObj = new ReferrerRefTestObj();
+        $referrerRefTestObj->id = "/functional/referrerRefTestObj";
+        $referrerRefTestObj->name = "referenced";
+
+        $ids = array();
+        for ($i = 0; $i < $max; $i++) {
+            $referrerTestObj = new ReferrerTestObj();
+            $referrerTestObj->id = "/functional/referrerTestObj$i";
+            $referrerTestObj->name = "referrer $i";
+            $referrerTestObj->reference = $referrerRefTestObj;
+            $this->dm->persist($referrerTestObj);
+            $ids[] = "/functional/referrerTestObj$i";
+        }
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
+        $this->dm->flush();
+
+        $this->assertFalse($reference->referrers->isInitialized());
+    }
+
     public function testUpdate()
     {
         $referrerTestObj = new ReferrerTestObj();
