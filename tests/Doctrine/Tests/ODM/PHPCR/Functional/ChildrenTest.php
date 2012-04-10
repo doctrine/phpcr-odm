@@ -203,7 +203,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
         $this->assertCount(2, $parent->allChildren);
-return;
+
         $child1 = new ChildrenTestObj();
         $child1->name = 'Child H';
 
