@@ -99,21 +99,6 @@ class UnitOfWork
     private $documentLocales = array();
 
     /**
-     * PHPCR always returns and updates the whole data of a document. If on update data is "missing"
-     * this means the data is deleted. This also applies to attachments. This is why we need to ensure
-     * that data that is not mapped is not lost. This map here saves all the "left-over" data and keeps
-     * track of it if necessary.
-     *
-     * @var array
-     */
-    private $nonMappedData = array();
-
-    /**
-     * @var array
-     */
-    private $originalData = array();
-
-    /**
      * @var array
      */
     private $documentChangesets = array();
@@ -232,7 +217,6 @@ class UnitOfWork
         $class = $this->dm->getClassMetadata($className);
 
         $documentState = array();
-        $nonMappedData = array();
         $id = $node->getPath();
 
         // second param is false to get uuid rather than dereference reference properties to node instances
@@ -352,11 +336,9 @@ class UnitOfWork
         }
 
         if ($overrideLocalValuesOid) {
-            $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
             foreach ($class->reflFields as $prop => $reflFields) {
                 $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
                 $reflFields->setValue($document, $value);
-                $this->originalData[$overrideLocalValuesOid][$prop] = $value;
             }
         }
 
@@ -801,29 +783,24 @@ class UnitOfWork
         }
 
         $actualData = $this->getDocumentActualData($class, $document);
+        $id = $this->getDocumentId($document);
         $oid = spl_object_hash($document);
-        $isNew = !isset($this->originalData[$oid]);
-        if ($isNew) {
-            // Document is New and should be inserted
-            $this->originalData[$oid] = $actualData;
-            $this->documentChangesets[$oid] = $actualData;
-            $this->scheduledInserts[$oid] = $document;
-        }
 
         if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
-            $parent = $actualData[$class->parentMapping];
-            $parentClass = $this->dm->getClassMetadata(get_class($parent));
-            $state = $this->getDocumentState($parent);
+            $parentClass = $this->dm->getClassMetadata(get_class($actualData[$class->parentMapping]));
+        }
 
+        if (isset($parentClass)) {
+            $state = $this->getDocumentState($actualData[$class->parentMapping]);
             if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
-                $this->computeChangeSet($parentClass, $parent);
+                $this->computeChangeSet($parentClass, $actualData[$class->parentMapping]);
             }
         }
 
-        $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $name => $childMapping) {
             if ($actualData[$name]) {
-                if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
+                $child = $this->getDocumentById($id.'/'.$childMapping['name']);
+                if ($child && $child !== $actualData[$name]) {
                     throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.self::objToStr($document, $this->dm));
                 }
                 $this->computeChildChanges($childMapping, $actualData[$name], $id);
@@ -844,24 +821,26 @@ class UnitOfWork
             }
         }
 
-        if (!$isNew) {
-            if (isset($this->originalData[$oid][$class->nodename])
-                && isset($actualData[$class->nodename])
-                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
+        if (!$this->session->nodeExists($id)) {
+            // Document is new and should be inserted
+            $this->documentChangesets[$oid] = $actualData;
+            $this->scheduledInserts[$oid] = $document;
+        } else {
+            $node = $this->session->getNode($id);
+            $originalData = $node->getPropertiesValues();
+
+            if (isset($actualData[$class->nodename])
+                && $node->getName() !== $actualData[$class->nodename]
             ) {
-                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
+                throw new PHPCRException('The Nodename property is immutable ('.$node->getName().' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
             }
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($actualData[$class->parentMapping])
-                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
-            ) {
-                throw new PHPCRException('The ParentDocument property is immutable ('.$this->getDocumentId($this->originalData[$oid][$class->parentMapping]).' !== '.$this->getDocumentId($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
+            if (isset($parentClass) && ($parent = $this->getDocumentById(dirname($id))) && $parent !== $actualData[$class->parentMapping]) {
+                throw new PHPCRException('The ParentDocument property is immutable ('.self::objToStr($parent, $this->dm).' !== '.self::objToStr($actualData[$class->parentMapping], $this->dm).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
             }
-            if (isset($this->originalData[$oid][$class->identifier])
-                && isset($actualData[$class->identifier])
-                && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
+            if (isset($actualData[$class->identifier])
+                && $id !== $actualData[$class->identifier]
             ) {
-                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+                throw new PHPCRException('The Id is immutable ('.$id.' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
             }
 
             if (!isset($this->documentLocales[$oid])
@@ -884,7 +863,9 @@ class UnitOfWork
                                 $this->visitedCollections[] = $fieldValue;
                                 continue;
                             }
-                        } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                        } elseif (!array_key_exists($fieldName, $originalData)
+                            || $originalData[$fieldName] !== $fieldValue
+                        ) {
                             continue;
                         } elseif ($fieldValue instanceof ReferenceManyCollection && $fieldValue->changed()) {
                             continue;
@@ -901,8 +882,8 @@ class UnitOfWork
             }
 
             foreach ($class->referrersMappings as $name => $referrerMapping) {
-                if ($this->originalData[$oid][$name]) {
-                    foreach ($this->originalData[$oid][$name] as $referrer) {
+                if (isset($originalData[$name])) {
+                    foreach ($originalData[$name] as $referrer) {
                         $this->computeReferrerChanges($referrer);
                     }
                 }
@@ -1380,16 +1361,16 @@ class UnitOfWork
                             }
                         }
                     }
-                } elseif (isset($class->childMappings[$fieldName])) {
-                    if ($fieldValue === null) {
-                        if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
-                            $child = $node->getNode($class->childMappings[$fieldName]['name']);
-                            $childDocument = $this->createDocument(null, $child);
-                            $this->purgeChildren($childDocument);
-                            $child->remove();
-                        }
-                    } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw new PHPCRException('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this.');
+                } elseif (isset($class->childMappings[$fieldName])
+                    && $node->hasNode($class->childMappings[$fieldName]['name'])
+                    && $fieldValue === null
+                ) {
+                    $childDocument = $this->getDocumentById($node->getPath().'/'.$class->childMappings[$fieldName]['name']);
+                    if (empty($childDocument) || $childDocument instanceof Proxy) {
+                        $child = $node->getNode($class->childMappings[$fieldName]['name']);
+                        $childDocument = $this->createDocument(null, $child);
+                        $this->purgeChildren($childDocument);
+                        $child->remove();
                     }
                 }
             }
@@ -1450,7 +1431,6 @@ class UnitOfWork
                     $class = $this->dm->getClassMetadata(get_class($document));
                     if ($class->identifier) {
                         $class->setIdentifierValue($document, $newId);
-                        $this->originalData[$oid][$class->identifier] = $newId;
                     }
                 }
             }
@@ -1659,12 +1639,10 @@ class UnitOfWork
             $this->scheduledMoves[$oid],
             $this->scheduledInserts[$oid],
             $this->scheduledAssociationUpdates[$oid],
-            $this->originalData[$oid],
             $this->documentIds[$oid],
             $this->documentState[$oid],
             $this->documentTranslations[$oid],
             $this->documentLocales[$oid],
-            $this->nonMappedData[$oid],
             $this->documentChangesets[$oid],
             $this->documentHistory[$oid],
             $this->documentVersion[$oid]
@@ -1823,8 +1801,6 @@ class UnitOfWork
         $this->documentState =
         $this->documentTranslations =
         $this->documentLocales =
-        $this->nonMappedData =
-        $this->originalData =
         $this->documentChangesets =
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
