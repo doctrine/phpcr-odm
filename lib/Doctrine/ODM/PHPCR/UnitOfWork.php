@@ -818,8 +818,13 @@ class UnitOfWork
             return;
         }
 
-        $actualData = $this->getDocumentActualData($class, $document);
         $oid = spl_object_hash($document);
+
+        if (isset($this->documentChangesets[$oid])) {
+            return;
+        }
+
+        $actualData = $this->getDocumentActualData($class, $document);
         $id = $this->getDocumentId($document);
 
         $isNew = !isset($this->originalData[$oid]);
@@ -1232,6 +1237,16 @@ class UnitOfWork
         $this->scheduledMoves =
         $this->scheduledInserts =
         $this->visitedCollections = array();
+
+        if (null === $document) {
+            $this->documentChangesets = array();
+        } else if (is_object($document)) {
+            unset($this->documentChangesets[spl_object_hash($document)]);
+        } else if (is_array($document)) {
+            foreach ($document as $object) {
+                unset($this->documentChangesets[spl_object_hash($object)]);
+            }
+        }
     }
 
     /**
