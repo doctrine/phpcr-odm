@@ -1236,17 +1236,8 @@ class UnitOfWork
         $this->scheduledRemovals =
         $this->scheduledMoves =
         $this->scheduledInserts =
-        $this->visitedCollections = array();
-
-        if (null === $document) {
-            $this->documentChangesets = array();
-        } else if (is_object($document)) {
-            unset($this->documentChangesets[spl_object_hash($document)]);
-        } else if (is_array($document)) {
-            foreach ($document as $object) {
-                unset($this->documentChangesets[spl_object_hash($object)]);
-            }
-        }
+        $this->visitedCollections =
+        $this->documentChangesets = array();
     }
 
     /**
