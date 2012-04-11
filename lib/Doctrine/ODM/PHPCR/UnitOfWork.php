@@ -156,6 +156,11 @@ class UnitOfWork
     /**
      * @var array
      */
+    private $changesetComputed = array();
+     
+    /**
+     * @var array
+     */
     private $idGenerators = array();
 
     /**
@@ -820,9 +825,11 @@ class UnitOfWork
 
         $oid = spl_object_hash($document);
 
-        if (isset($this->documentChangesets[$oid])) {
+        if (in_array($oid, $this->changesetComputed)) {
             return;
         }
+
+        $this->changesetComputed[] = $oid;
 
         $actualData = $this->getDocumentActualData($class, $document);
         $id = $this->getDocumentId($document);
@@ -1237,7 +1244,8 @@ class UnitOfWork
         $this->scheduledMoves =
         $this->scheduledInserts =
         $this->visitedCollections =
-        $this->documentChangesets = array();
+        $this->documentChangesets =
+        $this->changesetComputed = array();
     }
 
     /**
@@ -1740,6 +1748,8 @@ class UnitOfWork
             $this->documentHistory[$oid],
             $this->documentVersion[$oid]
         );
+
+        $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
     }
 
     /**
@@ -1897,6 +1907,7 @@ class UnitOfWork
         $this->nonMappedData =
         $this->originalData =
         $this->documentChangesets =
+        $this->changesetComputed =
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
