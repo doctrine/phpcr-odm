@@ -309,9 +309,4 @@ final class PostRemove {}
  * @Annotation
  * @Target("METHOD")
  */
-final class PreLoad {}
-/**
- * @Annotation
- * @Target("METHOD")
- */
 final class PostLoad {}

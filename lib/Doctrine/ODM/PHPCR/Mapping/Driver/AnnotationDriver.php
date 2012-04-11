@@ -169,8 +169,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                         $metadata->addLifecycleCallback($method->getName(), Event::preRemove);
                     } elseif ($annot instanceof ODM\PostRemove) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postRemove);
-                    } elseif ($annot instanceof ODM\PreLoad) {
-                        $metadata->addLifecycleCallback($method->getName(), Event::preLoad);
                     } elseif ($annot instanceof  ODM\PostLoad) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postLoad);
                     }
