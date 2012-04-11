@@ -1002,15 +1002,15 @@ Be aware that there are two things:
 ```
 
 
-# Lifecycle callbacks
+# Lifecycle callbacks and event listeners / subscribers
 
 You can use @PHPCRODM\PostLoad and friends to have doctrine call a method without
 parameters on your entity.
 
-You can also define event listeners on the DocumentManager with
-```$dm->getEventManager()->addEventListener(array(<events>), listenerclass);```
-Your class needs event name methods for the events. They get a parameter of type
-Doctrine\Common\EventArgs.
+You can also define event listeners and subscribers on the DocumentManager with
+```$dm->getEventManager()->addEventListener(array(<eventnames>), listenerclass);```
+Your class needs methods with the event names to get the events. They are passed
+a parameter of the type Doctrine\ODM\PHPCR\Event\LifecycleEventArgs.
 See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
 
  * preRemove - occurs before a document is removed from the storage
@@ -1020,6 +1020,11 @@ See also http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html
  * preUpdate - occurs before an existing document is updated in storage, during the flush operation
  * postUpdate - occurs after an existing document has successfully been updated in storage
  * postLoad - occurs after the document has been loaded from storage
+
+Note: If you use this inside symfony2, you can use the tag
+doctrine_phpcr.event_listener to register a service as event listener.
+See the [README of the DoctrinePHPCRBundle](https://github.com/doctrine/DoctrinePHPCRBundle)
+for more information.
 
 # Doc TODOS
 
