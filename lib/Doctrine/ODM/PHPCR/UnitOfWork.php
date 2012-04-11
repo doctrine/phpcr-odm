@@ -156,6 +156,11 @@ class UnitOfWork
     /**
      * @var array
      */
+    private $changesetComputed = array();
+     
+    /**
+     * @var array
+     */
     private $idGenerators = array();
 
     /**
@@ -818,8 +823,15 @@ class UnitOfWork
             return;
         }
 
-        $actualData = $this->getDocumentActualData($class, $document);
         $oid = spl_object_hash($document);
+
+        if (in_array($oid, $this->changesetComputed)) {
+            return;
+        }
+
+        $this->changesetComputed[] = $oid;
+
+        $actualData = $this->getDocumentActualData($class, $document);
         $id = $this->getDocumentId($document);
 
         $isNew = !isset($this->originalData[$oid]);
@@ -1231,7 +1243,9 @@ class UnitOfWork
         $this->scheduledRemovals =
         $this->scheduledMoves =
         $this->scheduledInserts =
-        $this->visitedCollections = array();
+        $this->visitedCollections =
+        $this->documentChangesets =
+        $this->changesetComputed = array();
     }
 
     /**
@@ -1734,6 +1748,8 @@ class UnitOfWork
             $this->documentHistory[$oid],
             $this->documentVersion[$oid]
         );
+
+        $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
     }
 
     /**
@@ -1891,6 +1907,7 @@ class UnitOfWork
         $this->nonMappedData =
         $this->originalData =
         $this->documentChangesets =
+        $this->changesetComputed =
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
