@@ -6,12 +6,13 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
+use PHPCR\UnsupportedRepositoryOperationException;
+
 /**
  * @group functional
  */
 class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
-
   /**
      * @var DocumentManager
      */
@@ -200,27 +201,58 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->flush();
         $this->dm->clear();
+    }
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-        $this->assertCount(2, $parent->allChildren);
-return;
-        $child1 = new ChildrenTestObj();
-        $child1->name = 'Child H';
+    public function testReorderChildren()
+    {
+        $this->testModifyChildren();
 
-        $child2 = new ChildrenTestObj();
-        $child2->name = 'Child I';
+        try {
+            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+            $this->assertCount(2, $parent->allChildren);
 
-        $child3 = new ChildrenTestObj();
-        $child3->name = 'Child J';
+            $data = array(
+                'child-g' => $parent->allChildren->last(),
+                'child-f' => $parent->allChildren->first(),
+            );
 
-        $parent->allChildren = new ArrayCollection(array('child-i' => $child2, 'child-h' => $child1, 'child-g' => $parent->allChildren->last(), 'child-f' => $parent->allChildren->first(), 'child-j' => $child3));
+            $parent->allChildren = new ArrayCollection($data);
 
-        $this->dm->flush();
-        $this->dm->clear();
+            $this->dm->flush();
+            $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-        $this->assertCount(5, $parent->allChildren);
-        $this->assertEquals(array('child-i', 'child-h', 'child-g', 'child-f', 'child-j'), $parent->allChildren->getKeys());
+            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+            $this->assertCount(count($data), $parent->allChildren);
+            $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
+
+            $child1 = new ChildrenTestObj();
+            $child1->name = 'Child H';
+
+            $child2 = new ChildrenTestObj();
+            $child2->name = 'Child I';
+
+            $child3 = new ChildrenTestObj();
+            $child3->name = 'Child J';
+
+            $data = array(
+                'child-i' => $child2,
+                'child-h' => $child1,
+                'child-f' => $parent->allChildren->last(),
+                'child-g' => $parent->allChildren->first(),
+                'child-j' => $child3
+            );
+
+            $parent->allChildren = new ArrayCollection($data);
+
+            $this->dm->flush();
+            $this->dm->clear();
+
+            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+            $this->assertCount(count($data), $parent->allChildren);
+            $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
+        } catch (UnsupportedRepositoryOperationException $e) {
+            $this->markTestSkipped('Reordering of children not supported');
+        }
     }
 }
 
