@@ -947,25 +947,30 @@ class UnitOfWork
                     if ($originalNames !== $childNames) {
                         $reordering = array();
 
-                        for ($i = count($childNames) - 1; $i >= 0; $i--) {
-                            $targetKey = array_search($childNames[$i], $originalNames);
-                            if ($targetKey !== $i) {
-                                $reordering[$childNames[$i]] = $childNames[$i + 1];
-                                $value = $originalNames[$targetKey];
-                                unset($originalNames[$targetKey]);
-                                $part1 = array_slice($originalNames, 0, $i);
-                                $part2 = array_slice($originalNames, $i);
-                                $originalNames = array_merge($part1, array($value), $part2);
-                                if ($originalNames === $childNames) {
-                                    break;
+                        $count = count($childNames);
+                        if ($count === 2) {
+                            $reordering[$childNames[0]] = $childNames[1];
+                        } else {
+                            for ($i = $count - 1; $i >= 0; $i--) {
+                                $targetKey = array_search($childNames[$i], $originalNames);
+                                if ($targetKey !== $i) {
+                                    $reordering[$childNames[$i]] = $childNames[$i + 1];
+                                    $value = $originalNames[$targetKey];
+                                    unset($originalNames[$targetKey]);
+                                    $part1 = array_slice($originalNames, 0, $i);
+                                    $part2 = array_slice($originalNames, $i);
+                                    $originalNames = array_merge($part1, array($value), $part2);
+                                    if ($originalNames === $childNames) {
+                                        break;
+                                    }
                                 }
                             }
                         }
 
                         if (empty($this->documentChangesets[$oid])) {
-                            $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($name => $reordering));
+                            $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($reordering));
                         } else {
-                            $this->documentChangesets[$oid]['reorderings'][$name] = $reordering;
+                            $this->documentChangesets[$oid]['reorderings'][] = $reordering;
                         }
 
                         $this->scheduledUpdates[$oid] = $document;
