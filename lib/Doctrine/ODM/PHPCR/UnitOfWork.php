@@ -838,7 +838,7 @@ class UnitOfWork
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
-            $this->documentChangesets[$oid] = $actualData;
+            $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
             $this->scheduledInserts[$oid] = $document;
 
             foreach ($class->childrenMappings as $name => $childMapping) {
@@ -945,7 +945,30 @@ class UnitOfWork
                     $originalNames = array_values($originalNames);
                     $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
                     if ($originalNames !== $childNames) {
-                        // TODO implement reordering detection
+                        $reordering = array();
+
+                        for ($i = count($childNames) - 1; $i >= 0; $i--) {
+                            $targetKey = array_search($childNames[$i], $originalNames);
+                            if ($targetKey !== $i) {
+                                $reordering[$childNames[$i]] = $childNames[$i + 1];
+                                $value = $originalNames[$targetKey];
+                                unset($originalNames[$targetKey]);
+                                $part1 = array_slice($originalNames, 0, $i);
+                                $part2 = array_slice($originalNames, $i);
+                                $originalNames = array_merge($part1, array($value), $part2);
+                                if ($originalNames === $childNames) {
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (empty($this->documentChangesets[$oid])) {
+                            $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($name => $reordering));
+                        } else {
+                            $this->documentChangesets[$oid]['reorderings'][$name] = $reordering;
+                        }
+
+                        $this->scheduledUpdates[$oid] = $document;
                     }
                 }
             }
@@ -982,7 +1005,12 @@ class UnitOfWork
             }
 
             if (count($actualData)) {
-                $this->documentChangesets[$oid] = $actualData;
+                if (empty($this->documentChangesets[$oid])) {
+                    $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
+                } else {
+                    $this->documentChangesets[$oid]['fields'] = $actualData;
+                }
+
                 $this->scheduledUpdates[$oid] = $document;
             }
         }
@@ -1315,7 +1343,7 @@ class UnitOfWork
 
             $this->setMixins($class, $node);
 
-            foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
                     continue;
@@ -1385,7 +1413,7 @@ class UnitOfWork
                 }
             }
 
-            foreach ($this->documentChangesets[$oid] as $fieldName => $fieldValue) {
+            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
                     continue;
@@ -1470,6 +1498,12 @@ class UnitOfWork
                     } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
                         throw PHPCRException::cannotMoveByAssignment(self::objToStr($fieldValue, $this->dm));
                     }
+                }
+            }
+
+            foreach ($this->documentChangesets[$oid]['reorderings'] as $reorderings) {
+                foreach ($reorderings as $srcChildRelPath => $destChildRelPath) {
+                    $node->orderBefore($srcChildRelPath, $destChildRelPath);
                 }
             }
 
