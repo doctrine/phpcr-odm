@@ -53,14 +53,14 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      *  The used metadata driver.
      *
-     * @var \Doctrine\ODM\PHPCR\Mapping\Driver\Driver
+     * @var \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
      */
     private $driver;
 
     /**
      * Creates a new factory instance that uses the given DocumentManager instance.
      *
-     * @param $dm The DocumentManager instance
+     * @param DocumentManager $dm The DocumentManager instance
      */
     public function __construct(DocumentManager $dm)
     {
@@ -155,7 +155,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
                 $subClass->mapManyToOne($mapping);
             } else {
-                $subclass->mapManyToMany($mapping);
+                $subClass->mapManyToMany($mapping);
             }
         }
         foreach ($parentClass->childMappings as $fieldName => $mapping) {
@@ -197,6 +197,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if ($parentClass->versionCreatedField) {
             $this->registerParentOnField($subClass, $parentClass, $parentClass->versionCreatedField);
             $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField));
+        }
+        if ($parentClass->lifecycleCallbacks) {
+            $subClass->setLifecycleCallbacks($parentClass->lifecycleCallbacks);
         }
     }
 
