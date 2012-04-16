@@ -565,6 +565,11 @@ class ClassMetadata implements ClassMetadataInterface
         $this->versionCreatedField = $mapping['fieldName'];
     }
 
+    public function mapLifecycleCallbacks(array $mapping)
+    {
+        $this->setLifecycleCallbacks($mapping);
+    }
+
     protected function validateAndCompleteReferrersMapping($mapping)
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, false);
