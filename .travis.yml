@@ -12,7 +12,7 @@ env:
 
 before_script:
   - wget -nc http://getcomposer.org/composer.phar
-  - php composer.phar install --install-suggests
+  - php composer.phar install --dev
   - ./tests/travis_${TRANSPORT}.sh
 
 script: phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
