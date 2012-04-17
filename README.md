@@ -42,7 +42,7 @@ Install phpcr-odm
 
     git clone git://github.com/doctrine/phpcr-odm.git
     cd phpcr-odm
-    php /usr/local/bin/composer.phar install --install-suggests
+    php /usr/local/bin/composer.phar install --dev
 
 
 ## Install a PHPCR provider
