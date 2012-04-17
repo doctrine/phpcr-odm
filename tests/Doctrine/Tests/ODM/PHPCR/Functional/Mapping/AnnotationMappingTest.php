@@ -30,7 +30,8 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $extending->id = '/functional/extending';
         $this->dm->persist($extending);
         $this->dm->flush();
-        $this->assertTrue($extending->callback_run);
+        $this->assertEquals(1, $extending->callback_run);
+        $this->assertEquals(1, $extending->extending_run);
     }
 
     public function testSecondLevelInheritance()
@@ -115,14 +116,14 @@ class Testclass
     public $numbers;
     /** @PHPCRODM\String */
     public $text;
-    public $callback_run = false;
+    public $callback_run = 0;
 
     /**
      * @PHPCRODM\PostPersist
      */
     public function callback()
     {
-        $this->callback_run = true;
+        $this->callback_run++;
     }
 }
 
@@ -136,6 +137,16 @@ class ExtendingClass extends Testclass
 
     /** @PHPCRODM\ReferenceOne */
     public $reference;
+
+    public $extending_run = 0;
+
+    /**
+     * @PHPCRODM\PostPersist
+     */
+    public function extendingCallback()
+    {
+        $this->extending_run++;
+    }
 }
 
 /**

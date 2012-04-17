@@ -199,7 +199,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField));
         }
         if ($parentClass->lifecycleCallbacks) {
-            $subClass->setLifecycleCallbacks($parentClass->lifecycleCallbacks);
+            $subClass->mapLifecycleCallbacks($parentClass->lifecycleCallbacks);
         }
     }
 
