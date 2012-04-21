@@ -189,6 +189,11 @@ class UnitOfWork
     private $writeMetadata;
 
     /**
+     * @var boolean
+     */
+    private $useFetchDepth;
+
+    /**
      * @param DocumentManager $dm
      */
     public function __construct(DocumentManager $dm)
@@ -201,6 +206,18 @@ class UnitOfWork
         $this->documentClassMapper = $config->getDocumentClassMapper();
         $this->validateDocumentName = $config->getValidateDoctrineMetadata();
         $this->writeMetadata = $config->getWriteDoctrineMetadata();
+
+        if (method_exists($this->session, 'setSessionOption')) {
+            $options = $config->getCustomSessionOptions();
+            foreach ($options as $key => $value) {
+                $this->session->setSessionOption($key, $value);
+            }
+
+            // determine if fetch depth is to be enabled
+            if (isset($options['jackalope.fetch_depth'])) {
+                $this->useFetchDepth = 'jackalope.fetch_depth';
+            }
+        }
     }
 
     /**
@@ -349,7 +366,7 @@ class UnitOfWork
         $this->validateClassName($document, $requestedClassName);
 
         foreach ($class->childrenMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter']);
+            $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth']);
         }
 
         foreach ($class->referrersMappings as $mapping) {
@@ -1843,17 +1860,30 @@ class UnitOfWork
      * a given filter (same as PHPCR Node::getNodes)
      * @param $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on children's names
+     * @param integer $fetchDepth optional fetch depth
      * @return a collection of child documents
      */
-    public function getChildren($document, $filter = null)
+    public function getChildren($document, $filter = null, $fetchDepth = null)
     {
+        if ($this->useFetchDepth && $fetchDepth > 0) {
+            $originalFetchDepth = $this->session->getSessionOption($this->useFetchDepth);
+            $this->session->setSessionOption($this->useFetchDepth, $fetchDepth);
+        }
+
         $node = $this->session->getNode($this->getDocumentId($document));
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
             $childDocuments[$name] = $this->createDocument(null, $childNode);
         }
-        return new ArrayCollection($childDocuments);
+
+        $children = new ArrayCollection($childDocuments);
+
+        if (isset($originalFetchDepth)) {
+            $this->session->setSessionOption($this->useFetchDepth, $originalFetchDepth);
+        }
+
+        return $children;
     }
 
     /**

@@ -240,6 +240,8 @@ final class Children
 {
     /** @var string */
     public $filter;
+    /** @var int */
+    public $fetchDepth;
 }
 /**
  * @Annotation

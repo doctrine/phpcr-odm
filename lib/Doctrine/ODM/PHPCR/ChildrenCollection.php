@@ -21,12 +21,14 @@ class ChildrenCollection extends PersistentCollection
      * @param DocumentManager $dm The DocumentManager the collection will be associated with.
      * @param object $document Document instance
      * @param string $filter filter string
+     * @param integer $fetchDepth fetch depth
      */
-    public function __construct(DocumentManager $dm, $document, $filter = null)
+    public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = null)
     {
         $this->dm = $dm;
         $this->document = $document;
         $this->filter = $filter;
+        $this->fetchDepth = $fetchDepth;
     }
 
     /**
@@ -37,7 +39,7 @@ class ChildrenCollection extends PersistentCollection
     {
         if (!$this->initialized) {
             $this->initialized = true;
-            $this->collection = $this->dm->getChildren($this->document, $this->filter);
+            $this->collection = $this->dm->getChildren($this->document, $this->filter, $this->fetchDepth);
             $this->originalNodenames = $this->collection->getKeys();
         }
     }
