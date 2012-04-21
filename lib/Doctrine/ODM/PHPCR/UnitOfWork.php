@@ -213,9 +213,15 @@ class UnitOfWork
                 $this->session->setSessionOption($key, $value);
             }
 
+            // list of all option names that determine that fetch depth is enabled
+            $fetchDepthOptions = array(
+                'jackalope.fetch_depth'
+            );
             // determine if fetch depth is to be enabled
-            if (isset($options['jackalope.fetch_depth'])) {
-                $this->useFetchDepth = 'jackalope.fetch_depth';
+            foreach ($fetchDepthOptions as $name) {
+                if (isset($options[$name])) {
+                    $this->useFetchDepth = $name;
+                }
             }
         }
     }
