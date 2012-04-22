@@ -2106,13 +2106,11 @@ class UnitOfWork
             $locale = $metadata->reflFields[$localeField]->getValue($document);
         }
 
-        if (!$locale) {
+        if (empty($locale)) {
             $oid = spl_object_hash($document);
-            if (isset($this->documentLocales[$oid]['current'])) {
-                $locale = $this->documentLocales[$oid]['current'];
-            } else {
-                $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
-            }
+            $locale = isset($this->documentLocales[$oid]['current'])
+                ? $this->documentLocales[$oid]['current'];
+                : $this->dm->getLocaleChooserStrategy()->getLocale();
         }
 
         return $locale;
