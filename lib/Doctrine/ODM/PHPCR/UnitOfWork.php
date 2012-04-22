@@ -27,6 +27,8 @@ use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
 use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
+use Jackalope\Session as JackalopeSession;
+
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\NodeType\NoSuchNodeTypeException;
@@ -207,22 +209,9 @@ class UnitOfWork
         $this->validateDocumentName = $config->getValidateDoctrineMetadata();
         $this->writeMetadata = $config->getWriteDoctrineMetadata();
 
-        if (method_exists($this->session, 'setSessionOption')) {
-            $options = $config->getCustomSessionOptions();
-            foreach ($options as $key => $value) {
-                $this->session->setSessionOption($key, $value);
-            }
-
-            // list of all option names that determine that fetch depth is enabled
-            $fetchDepthOptions = array(
-                'jackalope.fetch_depth'
-            );
-            // determine if fetch depth is to be enabled
-            foreach ($fetchDepthOptions as $name) {
-                if (isset($options[$name])) {
-                    $this->useFetchDepth = $name;
-                }
-            }
+        // determine if fetch depth is to be enabled
+        if ($this->session instanceof JackalopeSession) {
+            $this->useFetchDepth = 'jackalope.fetch_depth';
         }
     }
 

@@ -49,7 +49,6 @@ class Configuration
         'documentClassMapper' => null,
         'proxyNamespace' => 'MyPHPCRProxyNS',
         'autoGenerateProxyClasses' => true,
-        'customSessionOptions' => array(),
     );
 
     /**
@@ -262,25 +261,5 @@ class Configuration
     public function getAutoGenerateProxyClasses()
     {
         return $this->attributes['autoGenerateProxyClasses'];
-    }
-
-    /**
-     * Sets all custom session options
-     *
-     * @param array $options
-     */
-    public function setCustomSessionOptions(array $options)
-    {
-        $this->attributes['customSessionOptions'] = $options;
-    }
-
-    /**
-     * Gets all custom session options
-     *
-     * @return array
-     */
-    public function getCustomSessionOptions()
-    {
-        return $this->attributes['customSessionOptions'];
     }
 }
