@@ -1860,7 +1860,7 @@ class UnitOfWork
      */
     public function getChildren($document, $filter = null, $fetchDepth = null)
     {
-        if ($this->useFetchDepth && $fetchDepth > 0) {
+        if ($this->useFetchDepth && null !== $fetchDepth) {
             $originalFetchDepth = $this->session->getSessionOption($this->useFetchDepth);
             $this->session->setSessionOption($this->useFetchDepth, $fetchDepth);
         }
