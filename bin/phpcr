@@ -35,7 +35,7 @@ $cli->addCommands(array(
     new \PHPCR\Util\Console\Command\DumpCommand(),
     new \PHPCR\Util\Console\Command\PurgeCommand(),
     new \PHPCR\Util\Console\Command\RegisterNodeTypesCommand(),
-    new \PHPCR\Util\Console\Command\Sql2Command(),
+    new \PHPCR\Util\Console\Command\QueryCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
 ));
 if (isset($extraCommands) && ! empty($extraCommands)) {
