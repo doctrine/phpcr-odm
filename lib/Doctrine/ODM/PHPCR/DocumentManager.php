@@ -649,16 +649,17 @@ class DocumentManager implements ObjectManager
      * a given filter (same as PHPCR Node::getNodes)
      * @param $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on childrens names
+     * @param integer $fetchDepth optional fetch depth
      * @return a collection of child documents
      */
-    public function getChildren($document, $filter = null)
+    public function getChildren($document, $filter = null, $fetchDepth = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException(gettype($document));
         }
 
         $this->errorIfClosed();
-        return $this->unitOfWork->getChildren($document, $filter);
+        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth);
     }
 
     /**
