@@ -2109,7 +2109,7 @@ class UnitOfWork
         if (empty($locale)) {
             $oid = spl_object_hash($document);
             $locale = isset($this->documentLocales[$oid]['current'])
-                ? $this->documentLocales[$oid]['current'];
+                ? $this->documentLocales[$oid]['current']
                 : $this->dm->getLocaleChooserStrategy()->getLocale();
         }
 
