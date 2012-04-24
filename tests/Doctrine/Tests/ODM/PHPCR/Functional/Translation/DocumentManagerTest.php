@@ -32,6 +32,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
     protected $doc;
 
+    protected $class = 'Doctrine\Tests\Models\Translation\Article';
+
     public function setUp()
     {
         $localePrefs = array(
@@ -46,7 +48,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->session = $this->dm->getPhpcrSession();
-        $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
+        $this->metadata = $this->dm->getClassMetadata($this->class);
 
         $doc = new Article();
         $doc->id = '/functional/' . $this->testNodeName;
@@ -171,7 +173,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->persist($this->doc);
         $this->dm->flush();
 
-        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName);
+        $doc = $this->dm->find($this->class, '/functional/' . $this->testNodeName);
 
         $this->assertNotNull($doc);
         $this->assertEquals('en', $doc->locale);
@@ -189,11 +191,26 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->persist($this->doc);
         $this->dm->flush();
 
-        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName, 'fr');
+        $doc = $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'fr');
 
         $this->assertNotNull($doc);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('Un autre sujet', $doc->topic);
+    }
+
+    public function testFindByUUID()
+    {
+        $this->doc->topic = 'Un autre sujet';
+        $this->doc->locale = 'fr';
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
+
+        $node = $this->session->getNode('/functional/'.$this->testNodeName);
+        $node->addMixin('mix:referenceable');
+        $this->session->save();
+
+        $document = $this->dm->findTranslation($this->class, $node->getIdentifier(), 'fr');
+        $this->assertInstanceOf($this->class, $document);
     }
 
     /**
@@ -207,7 +224,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->locale = 'fr';
         $this->dm->flush();
 
-        $doc = $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName, 'it');
+        $doc = $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'it');
 
         $this->assertNotNull($doc);
         $this->assertEquals('fr', $doc->locale);
@@ -222,7 +239,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->persist($this->doc);
         $this->dm->flush();
 
-        $this->dm->findTranslation('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName, 'es');
+        $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'es');
     }
 
     public function testGetLocaleFor()
@@ -270,7 +287,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $doc = $this->dm->find('Doctrine\Tests\Models\Translation\Article', '/functional/' . $this->testNodeName);
+        $doc = $this->dm->find($this->class, '/functional/' . $this->testNodeName);
         $this->assertNull($doc, 'Document must be null after deletion');
 
         $doc = new Article();

@@ -22,8 +22,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     public function setUp()
     {
-        $this->dm = $this->createDocumentManager();
-
         $this->referrerType = 'Doctrine\Tests\Models\References\RefTestObj';
         $this->referencedType = 'Doctrine\Tests\Models\References\RefRefTestObj';
         $this->referrerManyType = 'Doctrine\Tests\Models\References\RefManyTestObj';
@@ -32,17 +30,9 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->hardReferrerType = 'Doctrine\Tests\Models\References\HardRefTestObj';
         $this->referrerDifType = 'Doctrine\Tests\Models\References\RefDifTestObj';
 
+        $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
-        $root = $this->session->getNode('/');
-
-        if ($root->hasNode('functional')) {
-            $root->getNode('functional')->remove();
-            $this->session->save();
-        }
-
-        $this->node = $root->addNode('functional');
-
-        $this->session->save();
+        $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testCreate()
@@ -69,6 +59,25 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertEquals($refRefTestNode->getIdentifier(), $refTestNode->getProperty('reference')->getString());
         $this->assertTrue(UUIDHelper::isUUID($refTestNode->getProperty('reference')->getString()));
+    }
+
+    public function testFindByUUID()
+    {
+        $refTestObj = new RefRefTestObj();
+
+        $refTestObj->id = "/functional/refRefTestObj";
+
+        $this->dm->persist($refTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $node = $this->session->getNode($refTestObj->id);
+
+        $document = $this->dm->find($this->referencedType, $node->getIdentifier());
+        $this->assertInstanceOf($this->referencedType, $document);
+
+        $documents = $this->dm->findMany($this->referencedType, array($node->getIdentifier()));
+        $this->assertInstanceOf($this->referencedType, $documents->first());
     }
 
     public function testCreateByPath()

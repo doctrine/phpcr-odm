@@ -11,18 +11,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->dm = $this->createDocumentManager();
-
         $this->session = $this->dm->getPhpcrSession();
-        $root = $this->session->getNode('/');
-
-        if ($root->hasNode('functional')) {
-            $root->getNode('functional')->remove();
-            $this->session->save();
-        }
-
-        $this->node = $root->addNode('functional');
-
-        $this->session->save();
+        $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testCreate()

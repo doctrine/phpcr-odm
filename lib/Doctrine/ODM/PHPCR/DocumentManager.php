@@ -277,15 +277,16 @@ class DocumentManager implements ObjectManager
     {
         try {
             if (UUIDHelper::isUUID($id)) {
-                $node = $this->session->getNodeByIdentifier($id);
-            } else {
-                $document = $this->unitOfWork->getDocumentById($id);
-                if ($document) {
-                    $this->unitOfWork->validateClassName($document, $className);
-                    return $document;
-                }
-                $node = $this->session->getNode($id);
+                $id = $this->session->getNodeByIdentifier($id)->getPath();
             }
+
+            $document = $this->unitOfWork->getDocumentById($id);
+            if ($document) {
+                $this->unitOfWork->validateClassName($document, $className);
+                return $document;
+            }
+
+            $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
             return null;
         }
@@ -307,23 +308,29 @@ class DocumentManager implements ObjectManager
 
         if (UUIDHelper::isUUID(reset($ids))) {
             $nodes = $this->session->getNodesByIdentifier($ids);
-        } else {
-            foreach ($ids as $key => $id) {
-                $document = $this->unitOfWork->getDocumentById($id);
-                if ($document) {
-                    try {
-                        $this->unitOfWork->validateClassName($document, $className);
-                        $documents[$id] = $document;
-                        unset($ids[$key]);
-                    } catch (\InvalidArgumentException $e) {
-                        // ignore on class mismatch
-                    }
-                }
+
+            $tmp = array();
+            foreach ($nodes as $node) {
+                $tmp[] = $node->getPath();
             }
 
-            $nodes = $this->session->getNodes($ids);
+            $ids = $tmp;
         }
 
+        foreach ($ids as $key => $id) {
+            $document = $this->unitOfWork->getDocumentById($id);
+            if ($document) {
+                try {
+                    $this->unitOfWork->validateClassName($document, $className);
+                    $documents[$id] = $document;
+                    unset($ids[$key]);
+                } catch (\InvalidArgumentException $e) {
+                    // ignore on class mismatch
+                }
+            }
+        }
+
+        $nodes = $this->session->getNodes($ids);
         foreach ($nodes as $node) {
             $documents[$node->getPath()] = $this->unitOfWork->createDocument($className, $node);
         }
@@ -351,17 +358,18 @@ class DocumentManager implements ObjectManager
     {
         try {
             if (UUIDHelper::isUUID($id)) {
-                $node = $this->session->getNodeByIdentifier($id);
-            } else {
-                $document = $this->unitOfWork->getDocumentById($id);
-                if ($document) {
-                    $this->unitOfWork->validateClassName($document, $className);
-                    $class = $this->getClassMetadata(get_class($document));
-                    $this->unitOfWork->doLoadTranslation($document, $class, $locale, $fallback);
-                    return $document;
-                }
-                $node = $this->session->getNode($id);
+                $id = $this->session->getNodeByIdentifier($id)->getPath();
             }
+
+            $document = $this->unitOfWork->getDocumentById($id);
+            if ($document) {
+                $this->unitOfWork->validateClassName($document, $className);
+                $class = $this->getClassMetadata(get_class($document));
+                $this->unitOfWork->doLoadTranslation($document, $class, $locale, $fallback);
+                return $document;
+            }
+
+            $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
             return null;
         }
