@@ -114,6 +114,7 @@ class YamlDriver extends FileDriver
         }
         if (isset($element['children'])) {
             foreach ($element['children'] as $fieldName => $mapping) {
+                // TODO should we really support this syntax?
                 if (is_string($mapping)) {
                     $filter = $mapping;
                     $mapping = array();
@@ -121,6 +122,12 @@ class YamlDriver extends FileDriver
                 }
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;
+                }
+                if (!isset($mapping['filter'])) {
+                    $mapping['filter'] = null;
+                }
+                if (!isset($mapping['fetchDepth'])) {
+                    $mapping['fetchDepth'] = null;
                 }
                 $class->mapChildren($mapping);
             }
