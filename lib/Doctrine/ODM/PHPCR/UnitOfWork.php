@@ -668,7 +668,7 @@ class UnitOfWork
     }
 
     /**
-     * @param object|string $document
+     * @param object|string $document document instance or document object hash
      * @param int $state
      */
     private function setDocumentState($document, $state)
@@ -1810,7 +1810,7 @@ class UnitOfWork
     }
 
     /**
-     * @param object $document
+     * @param object|string $document document instance or document object hash
      * @return bool
      */
     public function contains($document)
@@ -1904,7 +1904,7 @@ class UnitOfWork
      * Get the object ID for the given document
      *
      * @throws PHPCRException
-     * @param  object $document
+     * @param object|string $document document instance or document object hash
      * @return string
      */
     public function getDocumentId($document)
