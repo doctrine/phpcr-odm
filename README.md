@@ -454,7 +454,7 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     <td>Read only (generated on flush). The unique id of this node. (only allowed if node is referenceable).</td>
 </tr>
 <tr>
-    <td> Node:          </td>
+    <td>Node:</td>
     <td>The PHPCR\NodeInterface instance for direct access. This is populated
         as soon as you register the document with the manager using persist().
     </td>
@@ -477,15 +477,18 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     </td>
 </tr>
 <tr>
-    <td>Child(name=x):</td>
+    <td>Child(name="x"):</td>
     <td>Map the child with name x to this field. If name is not specified, the
         name of the annotated varialbe is used.
     </td>
 </tr>
 <tr>
-    <td>Children(filter=x): </td>
+    <td>Children(filter="x", fetchDepth=y): </td>
     <td>Map the collection of children to this field. Filter is optional and
-        works like the parameter in <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">PHPCR Node::getNodes()</a>
+        works like the parameter in <a href="http://phpcr.github.com/doc/html/phpcr/nodeinterface.html#getNodes()">PHPCR Node::getNodes()</a>.
+        FetchDepth is also optional and will temporarily set the fetch depth on
+        the session (if supported by the given PHPCR implementation) to
+        the given value and then restore the original value.
     </td>
 </tr>
 <tr>
@@ -1031,3 +1034,19 @@ for more information.
  * Explain Configuration class in more detail
  * Proxy classes: Either configuration with setAutoGenerateProxyClasses(true) or make sure you generate proxies.
     proxies are used when you have references, children and so on to not load the whole PHPCR repository.
+
+# Other features
+
+## Fetch depth
+
+Some PHPCR implementations allow setting a fetch depth on the session in order
+to prefetch children upto a certain depth when a node is fetched. This feature
+can either be leveraged when mapping a Children collection (see above) or via
+and explicit call on the ``UnitOfWork`` to set a permanent global default
+fetch depth.
+
+```php
+<?php
+
+$dm->getUnitOfWork()->setFetchDepth(2);
+```
