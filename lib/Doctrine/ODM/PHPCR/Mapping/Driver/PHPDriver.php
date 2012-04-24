@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 /**
  * The PHPDriver invokes a static PHP function on the document class itself passing
@@ -86,7 +87,8 @@ class PHPDriver implements MappingDriver
 
     /**
      * {@inheritDoc}
-     * @todo Same code exists in AnnotationDriver, should we re-use it somehow or not worry about it?
+     * @TODO Same code exists in \Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver
+     * @TODO Should we re-use it somehow or not worry about it?
      */
     public function getAllClassNames()
     {
@@ -103,21 +105,23 @@ class PHPDriver implements MappingDriver
 
         foreach ($this->paths as $path) {
             if (!is_dir($path)) {
-                throw MappingException::fileMappingDriversRequireConfiguredDirectoryPath();
+                throw MappingException::fileMappingDriversRequireConfiguredDirectoryPath($path);
             }
 
-            $iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path),
-                \RecursiveIteratorIterator::LEAVES_ONLY
+            $iterator = new \RegexIterator(
+                new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                ),
+                '/^.+'.str_replace('.', '\.', $this->fileExtension).'$/i',
+                \RecursiveRegexIterator::GET_MATCH
             );
 
             foreach ($iterator as $file) {
-                if (($fileName = $file->getBasename($this->fileExtension)) == $file->getBasename()) {
-                    continue;
-                }
+                $sourceFile = realpath($file[0]);
 
-                $sourceFile = realpath($file->getPathName());
                 require_once $sourceFile;
+
                 $includedFiles[] = $sourceFile;
             }
         }

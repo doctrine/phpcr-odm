@@ -63,9 +63,9 @@ class MappingException extends \Exception
         return new self('Property "'.$fieldName.'" in "'.$document.'" must have a type attribute defined');
     }
 
-    public static function fileMappingDriversRequireConfiguredDirectoryPath()
+    public static function fileMappingDriversRequireConfiguredDirectoryPath($path)
     {
-        return new self('File mapping drivers must have a valid directory path, however the given path seems to be incorrect!');
+        return new self("File mapping drivers must have a valid directory path, however the given path '$path' seems to be incorrect!");
     }
 
     public static function classNotMapped($className)
@@ -73,9 +73,14 @@ class MappingException extends \Exception
         return new self('Class ' . $className . ' is not mapped to a document');
     }
 
+    public static function pathRequired()
+    {
+        return new self('Path is requiredt');
+    }
+
     public static function noTypeSpecified()
     {
-        return new self();
+        return new self('No type specified');
     }
 
     public static function mappingNotFound($className, $fieldName)
