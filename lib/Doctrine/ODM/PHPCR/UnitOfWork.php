@@ -433,8 +433,8 @@ class UnitOfWork
      *
      * This method will update the @Locale field if it does not match the $locale argument.
      *
-     * @param $document the document to persist a translation of
-     * @param $locale the locale this document currently has
+     * @param object $document the document to persist a translation of
+     * @param string $locale the locale this document currently has
      *
      * @throws PHPCRException if the document is not translatable
      */
@@ -1841,7 +1841,7 @@ class UnitOfWork
      *
      * This methods gets all child nodes as a collection of documents that matches
      * a given filter (same as PHPCR Node::getNodes)
-     * @param $document document instance which children should be loaded
+     * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on children's names
      * @return a collection of child documents
      */
@@ -1864,7 +1864,7 @@ class UnitOfWork
      * and hard) the given document. The property of the referrer node that referes
      * the document needs to match the given name and must store a reference of the
      * given type.
-     * @param $document document instance which referrers should be loaded
+     * @param object $document document instance which referrers should be loaded
      * @param string $type optional type of the reference the referrer should have ('weak' or 'hard')
      * @param string $name optional name to match on referrers reference property
      * name
@@ -2016,8 +2016,8 @@ class UnitOfWork
      *
      * If the document is not translatable, this method returns immediatly.
      *
-     * @param $document
-     * @param $metadata
+     * @param object $document
+     * @param ClassMetadata $metadata
      * @param string $locale The locale to use or null if the default locale should be used
      * @param boolean $fallback Whether to do try other languages
      *
@@ -2133,7 +2133,7 @@ class UnitOfWork
      * To be translatable, it needs a translation strategy and have at least
      * one translated field.
      *
-     * @param $metadata the document meta data
+     * @param ClassMetadata $metadata the document meta data
      * @return bool
      */
     private function isDocumentTranslatable($metadata)

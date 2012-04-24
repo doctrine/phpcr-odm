@@ -53,8 +53,8 @@ class LocaleChooser implements LocaleChooserInterface
      *
      * If forLocale is not present in the list of preferred locales, return the preference order for the defaultLocale.
      *
-     * @param $document The document object
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata The metadata of the document class
+     * @param object $document The document object
+     * @param ClassMetadata $metadata The metadata of the document class
      * @param string $forLocale for which locale you need the locale order, e.g. the current request locale
      *
      * @return array $preferredLocales

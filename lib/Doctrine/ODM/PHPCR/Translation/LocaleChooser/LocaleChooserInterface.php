@@ -25,8 +25,8 @@ interface LocaleChooserInterface
      * Example return value with param $forLocale = 'en':
      *  array('en', 'fr', 'de')
      *
-     * @param $document The document object
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata The metadata of the document class
+     * @param object $document The document object
+     * @param ClassMetadata $metadata The metadata of the document class
      * @param string $forLocale for which locale you need the locale order, e.g. the current request locale
      *
      * @return array $preferredLocales

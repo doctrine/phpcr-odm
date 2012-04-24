@@ -343,7 +343,7 @@ class DocumentManager implements ObjectManager
      *
      * @param $className
      * @param $id
-     * @param $locale The language to try to load
+     * @param string $locale The language to try to load
      * @param bool $fallback Set to true if the language fallback mechanism should be used
      * @return object
      */
@@ -509,8 +509,8 @@ class DocumentManager implements ObjectManager
      *
      * This method will update the @Locale field if it does not match the $locale argument.
      *
-     * @param $document the document to persist a translation of
-     * @param $locale the locale this document currently has
+     * @param object $document the document to persist a translation of
+     * @param string $locale the locale this document currently has
      *
      * @throws PHPCRException if the document is not translatable
      */
@@ -528,7 +528,7 @@ class DocumentManager implements ObjectManager
      * Get the list of locales that exist for the specified document,
      * including those not yet flushed, but bound
      *
-     * @param $document the document to get the locales for
+     * @param object $document the document to get the locales for
      *
      * @return array of strings with all locales existing for this particular document
      *
@@ -647,7 +647,7 @@ class DocumentManager implements ObjectManager
      *
      * This methods gets all child nodes as a collection of documents that matches
      * a given filter (same as PHPCR Node::getNodes)
-     * @param $document document instance which children should be loaded
+     * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on childrens names
      * @return a collection of child documents
      */
@@ -666,7 +666,7 @@ class DocumentManager implements ObjectManager
      *
      * This methods gets all nodes as a collection of documents that refer the
      * given document and matches a given name.
-     * @param $document document instance which referrers should be loaded
+     * @param object $document document instance which referrers should be loaded
      * @param string|array $name optional name to match on referrers names
      * @return a collection of referrer documents
      */
@@ -808,7 +808,7 @@ class DocumentManager implements ObjectManager
      * Note that you can not remove the currently active version, only old
      * versions.
      *
-     * @param $documentVersion The version document as returned by findVersionByName
+     * @param object $documentVersion The version document as returned by findVersionByName
      *
      * @return void
      *

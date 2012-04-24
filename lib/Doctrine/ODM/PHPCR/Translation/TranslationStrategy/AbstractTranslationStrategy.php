@@ -32,7 +32,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
 
     /**
      * Get the name of the property where to store the translations of a given property in a given language
-     * @param $locale The language to store
+     * @param string $locale The language to store
      * @param $fieldName The name of the field to translate
      * @return string The name of the property where to store the translation
      */
