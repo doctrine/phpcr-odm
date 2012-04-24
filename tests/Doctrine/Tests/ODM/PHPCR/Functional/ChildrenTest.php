@@ -267,10 +267,10 @@ class ChildrenTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\Children(filter="*a") */
+  /** @PHPCRODM\Children(filter="*a", fetchDepth=1) */
   public $aChildren;
 
-  /** @PHPCRODM\Children */
+  /** @PHPCRODM\Children(fetchDepth=2) */
   public $allChildren;
 }
 

@@ -116,9 +116,8 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->children as $children) {
                 $attributes = $children->attributes();
                 $mapping = array('fieldName' => (string) $attributes->fieldName);
-                if (isset($attributes['filter'])) {
-                    $mapping['filter'] = (string)$attributes->filter;
-                }
+                $mapping['filter'] = isset($attributes['filter']) ? (string) $attributes->filter : null;
+                $mapping['fetchDepth'] = isset($attributes['fetchDepth']) ? (int) $attributes->fetchDepth : null;
                 $class->mapChildren($mapping);
             }
         }
