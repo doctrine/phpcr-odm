@@ -2217,7 +2217,7 @@ class UnitOfWork
      * Sets the fetch depth on the session if the PHPCR session instance supports it
      * and returns the previous fetch depth value
      *
-     * @param null $fetchDepth
+     * @param int|null $fetchDepth
      * @return int previous fetch depth value
      */
     public function setFetchDepth($fetchDepth = null)
