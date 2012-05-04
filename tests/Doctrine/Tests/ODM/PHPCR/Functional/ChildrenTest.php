@@ -78,7 +78,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($parent->allChildren->isInitialized());
     }
 
-    public function testAnnotation()
+    public function testLazyLoading()
     {
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
         // lazy loaded
