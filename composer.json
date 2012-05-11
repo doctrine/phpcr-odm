@@ -4,7 +4,7 @@
     "description": "Object-Document-Mapper for PHPCR",
     "keywords": ["odm", "phpcr", "database"],
     "homepage": "http://www.doctrine-project.org",
-    "license": "LGPL",
+    "license": "MIT",
     "authors":[
         {"name":"Jordi Boggiano", "email":"j.boggiano@seld.be"},
         {"name":"David Buchmann", "email":"david@liip.ch"},

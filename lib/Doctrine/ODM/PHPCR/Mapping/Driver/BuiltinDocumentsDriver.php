@@ -12,7 +12,7 @@ use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
  * The BuiltinDocumentsDriver is used internally to make sure
  * that the mapping for the built-in documents can be loaded
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  * @link        www.doctrine-project.org
  * @since       1.0
  * @author      Uwe Jäger <uwej711e@googlemail.com>

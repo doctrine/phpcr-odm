@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
 
 /**
  * Translation strategy that stores the translations in a child nodes of the current node.
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>

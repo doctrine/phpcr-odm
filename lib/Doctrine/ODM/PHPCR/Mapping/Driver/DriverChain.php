@@ -10,7 +10,7 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata,
  * The DriverChain allows you to add multiple other mapping drivers for
  * certain namespaces
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  * @link        www.doctrine-project.org
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
