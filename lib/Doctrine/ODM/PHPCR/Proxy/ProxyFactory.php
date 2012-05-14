@@ -334,7 +334,6 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
             unset($this->__doctrineDocumentManager__);
         }
     }
-
     <methods>
     public function __sleep()
     {
@@ -362,7 +361,7 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
         $this->$name = $value;
     }
 
-    public function __get($name)
+    public function &__get($name)
     {
         $this->__load();
         return $this->$name;
