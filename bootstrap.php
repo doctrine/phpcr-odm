@@ -2,7 +2,7 @@
 
 $vendorDir = __DIR__.'/vendor';
 
-$file = $vendorDir.'/.composer/autoload.php';
+$file = $vendorDir.'/autoload.php';
 if (file_exists($file)) {
     $autoload = require_once $file;
 } else {

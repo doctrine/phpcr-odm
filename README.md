@@ -124,7 +124,7 @@ you want to run.
 ## Set up autoloading
 
 Composer provides an autoloader configured for phpcr-odm and all dependencies
-in ``vendor/.composer/autoload.php``.
+in ``vendor/autoload.php``.
 
 
 ## Define a mapping driver
