@@ -140,13 +140,21 @@ class ProxyFactory
     private function generateProxyClass($class, $proxyFileName, $template)
     {
         $methods = $this->generateMethods($class);
-        $unsetAttributes = $this->getUnsetAttributes($class);
+        $attributes = $this->getUnsetAttributes($class);
+        if (empty($attributes)) {
+            $unsetAttributes = $unsetAttributesList = '';
+        } else {
+            $unsetAttributes = 'unset($this->'.implode(', $this->', $attributes).');';
+            $unsetAttributesList = var_export($attributes, true);
+        }
+
         $sleepImpl = $this->generateSleep($class);
 
         $placeholders = array(
             '<namespace>',
             '<proxyClassName>', '<className>',
             '<unsetattributes>',
+            '<unsetattributesList>',
             '<methods>', '<sleepImpl>'
         );
 
@@ -161,6 +169,7 @@ class ProxyFactory
             $proxyClassName,
             $className,
             $unsetAttributes,
+            $unsetAttributesList,
             $methods,
             $sleepImpl
         );
@@ -174,39 +183,34 @@ class ProxyFactory
      * Get the attributes of the document class
      *
      * @param ClassMetadata $class
-     * @return string The unset command for all document attributes
+     * @return array List of attributes to unset
      */
     private function getUnsetAttributes(ClassMetadata $class)
     {
-        $attributes = "";
+        $attributes = array();
         foreach ($class->fieldMappings as $field) {
-            $attributes .= '$this->'.$field["fieldName"];
-            $attributes .= ", ";
+            $attributes[] = $field["fieldName"];
         }
 
         foreach ($class->associationsMappings as $field) {
-            $attributes .= '$this->'.$field["fieldName"];
-            $attributes .= ", ";
+            $attributes[] = $field["fieldName"];
         }
 
         foreach ($class->referrersMappings as $field) {
-            $attributes .= '$this->'.$field["fieldName"];
-            $attributes .= ", ";
+            $attributes[] = $field["fieldName"];
         }
 
         foreach ($class->childrenMappings as $field) {
-            $attributes .= '$this->'.$field["fieldName"];
-            $attributes .= ", ";
+            $attributes[] = $field["fieldName"];
         }
 
         foreach ($class->childMappings as $field) {
-            $attributes .= '$this->'.$field["fieldName"];
-            $attributes .= ", ";
+            $attributes[] = $field["fieldName"];
         }
 
-        $attributes .= '$this->id';
+        $attributes[] = $class->identifier;
 
-        return "unset(".$attributes.");";
+        return $attributes;
     }
 
     /**
@@ -312,10 +316,12 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
     private $__doctrineDocumentManager__;
     private $__isInitialized__ = false;
     private $__identifier__;
+    private $__unsetAttributes__;
 
     public function __construct($documentManager, $identifier)
     {
         <unsetattributes>
+        $this->__unsetAttributes__ = <unsetattributesList>;
         $this->__doctrineDocumentManager__ = $documentManager;
         $this->__identifier__ = $identifier;
     }
@@ -330,7 +336,6 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
     }
 
     <methods>
-
     public function __sleep()
     {
         <sleepImpl>
@@ -346,13 +351,18 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
         $this->__identifier__ = $identifier;
     }
 
+    public function __isset($name)
+    {
+        return in_array($name, $this->__unsetAttributes__);
+    }
+
     public function __set($name, $value)
     {
         $this->__load();
         $this->$name = $value;
     }
 
-    public function &__get($name)
+    public function __get($name)
     {
         $this->__load();
         return $this->$name;
