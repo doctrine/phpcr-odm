@@ -208,6 +208,8 @@ class ProxyFactory
             $attributes[] = $field["fieldName"];
         }
 
+        $attributes[] = $class->identifier;
+
         return $attributes;
     }
 
