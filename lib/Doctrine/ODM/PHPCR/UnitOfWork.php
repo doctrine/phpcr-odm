@@ -159,7 +159,7 @@ class UnitOfWork
      * @var array
      */
     private $changesetComputed = array();
-     
+
     /**
      * @var array
      */
@@ -237,11 +237,11 @@ class UnitOfWork
      *      not set and locale is not given either.
      *
      * @param null|string $className
-     * @param \PHPCR\NodeInterface $node
+     * @param NodeInterface $node
      * @param array $hints
      * @return object
      */
-    public function createDocument($className, $node, array &$hints = array())
+    public function createDocument($className, NodeInterface $node, array &$hints = array())
     {
         $requestedClassName = $className;
         $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
@@ -310,13 +310,13 @@ class UnitOfWork
                     if ($assocOptions['strategy'] === 'path') {
                         $path = $node->getProperty($assocOptions['fieldName'])->getString();
                     } else {
-                        $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
+                        $referencedNode = $node->getProperty($assocOptions['fieldName'])->getNode();
                         $path = $referencedNode->getPath();
                     }
 
                     $proxy = $this->createProxy($path, $referencedClass);
                 } else {
-                    $referencedNode = $node->getPropertyValue($assocOptions['fieldName']);
+                    $referencedNode = $node->getProperty($assocOptions['fieldName'])->getNode();
                     $proxy = $this->createProxyFromNode($referencedNode);
                 }
 
@@ -393,7 +393,7 @@ class UnitOfWork
         return $document;
     }
 
-    public function createProxyFromNode($node)
+    public function createProxyFromNode(NodeInterface $node)
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
@@ -2004,7 +2004,7 @@ class UnitOfWork
         return $locales;
     }
 
-    private function doSaveTranslation($document, $node, $metadata)
+    private function doSaveTranslation($document, NodeInterface $node, $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
