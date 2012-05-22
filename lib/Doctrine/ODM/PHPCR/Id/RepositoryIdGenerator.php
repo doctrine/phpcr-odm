@@ -30,14 +30,14 @@ class RepositoryIdGenerator extends IdGenerator
      * @param DocumentManager $dm
      * @return string
      */
-    public function generate($document, ClassMetadata $cm, DocumentManager $dm)
+    public function generate($document, ClassMetadata $cm, DocumentManager $dm, $parent = null)
     {
         $repository = $dm->getRepository($cm->name);
         if (!($repository instanceof RepositoryIdInterface)) {
             throw new \RuntimeException("ID could not be determined. Make sure the that the Repository '".get_class($repository)."' implements RepositoryIdInterface");
         }
 
-        $id = $repository->generateId($document);
+        $id = $repository->generateId($document, $parent);
         if (!$id) {
             throw new \RuntimeException("ID could not be determined. Repository was unable to generate an ID");
         }
