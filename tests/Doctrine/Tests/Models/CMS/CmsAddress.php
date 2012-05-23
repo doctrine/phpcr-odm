@@ -70,7 +70,7 @@ class CmsAddressRepository extends DocumentRepository implements RepositoryIdInt
      * @param object $document
      * @return string
      */
-    public function generateId($document)
+    public function generateId($document, $parent = null)
     {
         return '/functional/'.$document->city.'_'.$document->zip;
     }

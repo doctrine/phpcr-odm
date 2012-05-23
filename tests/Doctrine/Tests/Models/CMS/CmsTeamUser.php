@@ -23,7 +23,7 @@ class CmsTeamUserRepository extends DocumentRepository implements RepositoryIdIn
      * @param object $document
      * @return string
      */
-    public function generateId($document)
+    public function generateId($document, $parent = null)
     {
         return $document->parent->id.'/'.$document->username;
     }

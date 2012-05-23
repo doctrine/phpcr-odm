@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
+    Doctrine\ODM\PHPCR\DocumentRepository,
+    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -276,14 +278,36 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->markTestSkipped('Reordering of children not supported');
         }
     }
+
+    public function testInsertWithCustomIdStrategy()
+    {
+        $children = array();
+        $child = new ChildrenTestObj();
+        $child->name = 'ChildA';
+        $children[] = $child;
+
+        $child = new ChildrenTestObj();
+        $child->name = 'ChildB';
+        $children[] = $child;
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-a');
+        $this->assertCount(0, $parent->allChildren);
+
+        $parent->allChildren = $children;
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-a');
+        $this->assertCount(2, $parent->allChildren);
+    }
 }
 
 /**
-  * @PHPCRODM\Document()
-  */
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObjRepository")
+ */
 class ChildrenTestObj
 {
-  /** @PHPCRODM\Id */
+  /** @PHPCRODM\Id(strategy="repository") */
   public $id;
 
   /** @PHPCRODM\String */
@@ -294,6 +318,25 @@ class ChildrenTestObj
 
   /** @PHPCRODM\Children(fetchDepth=2) */
   public $allChildren;
+}
+
+class ChildrenTestObjRepository extends DocumentRepository implements RepositoryIdInterface
+{
+    /**
+     * Generate a document id
+     *
+     * @param object $document
+     * @return string
+     */
+    public function generateId($document, $parent = null)
+    {
+        if ($document->id) {
+            return $document->id;
+        }
+
+        $parent = $parent ? $parent->id : '/functional';
+        return $parent.'/'.$document->name;
+    }
 }
 
 /**

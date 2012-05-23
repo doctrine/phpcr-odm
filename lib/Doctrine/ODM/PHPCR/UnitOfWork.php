@@ -702,18 +702,12 @@ class UnitOfWork
                 return self::STATE_NEW;
             }
 
-            if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
-                || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
-            ) {
-                if ($this->getDocumentById($id)) {
-                    return self::STATE_DETACHED;
-                }
-
-                return $this->dm->getPhpcrSession()->nodeExists($id)
-                    ? self::STATE_DETACHED : self::STATE_NEW;
+            if ($this->getDocumentById($id)) {
+                return self::STATE_DETACHED;
             }
 
-            return self::STATE_DETACHED;
+            return $this->dm->getPhpcrSession()->nodeExists($id)
+                ? self::STATE_DETACHED : self::STATE_NEW;
         }
 
         return $this->documentState[$oid];
@@ -856,7 +850,7 @@ class UnitOfWork
                 if ($actualData[$name]) {
                     foreach ($actualData[$name] as $nodename => $child) {
                         $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($childMapping, $child, $id, $nodename);
+                        $this->computeChildChanges($childMapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
@@ -935,7 +929,7 @@ class UnitOfWork
                 if ($actualData[$name]) {
                     foreach ($actualData[$name] as $nodename => $child) {
                         $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($childMapping, $child, $id, $nodename);
+                        $this->computeChildChanges($childMapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
@@ -1040,7 +1034,7 @@ class UnitOfWork
      *
      * @param mixed $child the child document.
      */
-    private function computeChildChanges($mapping, $child, $parentId, $nodename = null)
+    private function computeChildChanges($mapping, $child, $parentId, $nodename = null, $parent = null)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
@@ -1048,8 +1042,10 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 $nodename = $nodename ? : $mapping['name'];
-                $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
-                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
+                if ($nodename) {
+                    $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
+                }
+                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
                 $this->computeChangeSet($targetClass, $child);
                 break;
             case self::STATE_DETACHED:
@@ -1107,11 +1103,11 @@ class UnitOfWork
      * @param object $document
      * @return void
      */
-    public function persistNew($class, $document, $overrideIdGenerator = null)
+    public function persistNew($class, $document, $overrideIdGenerator = null, $parent = null)
     {
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
 
-        $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm);
+        $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm, $parent);
         $this->registerDocument($document, $id);
 
         if ($generator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
