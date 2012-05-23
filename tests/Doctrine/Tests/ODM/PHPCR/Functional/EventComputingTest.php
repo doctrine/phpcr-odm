@@ -11,7 +11,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function setUp()
     {
-        $this->listener = new TestListener();
+        $this->listener = new TestEventDocumentChanger();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate'), $this->listener);
@@ -40,7 +40,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
     }
 }
 
-class TestListener
+class TestEventDocumentChanger
 {
     public $prePersist = false;
     public $postPersist = false;
