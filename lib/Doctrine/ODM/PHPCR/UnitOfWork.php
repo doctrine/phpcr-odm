@@ -963,7 +963,7 @@ class UnitOfWork
                             // special handling for 2 children collections
                             $reordering[$childNames[0]] = $childNames[1];
                         } else {
-                            for ($i = $count - 1; $i >= 0; $i--) {
+                            for ($i = $count - 2; $i >= 0; $i--) {
                                 $targetKey = array_search($childNames[$i], $originalNames);
                                 if ($targetKey !== $i) {
                                     // child needs to be moved

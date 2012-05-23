@@ -250,6 +250,28 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
             $this->assertCount(count($data), $parent->allChildren);
             $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
+
+            $last = $parent->allChildren->last();
+            $parent->allChildren->remove($parent->allChildren->key());
+            $secondlast = $parent->allChildren->last();
+            $parent->allChildren->remove($parent->allChildren->key());
+            $parent->allChildren->add($last);
+            $parent->allChildren->add($secondlast);
+
+            $this->dm->flush();
+            $this->dm->clear();
+
+            $keys = array(
+                'child-i',
+                'child-h',
+                'child-f',
+                'child-j',
+                'child-g',
+            );
+
+            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+            $this->assertCount(count($keys), $parent->allChildren);
+            $this->assertEquals($keys, $parent->allChildren->getKeys());
         } catch (UnsupportedRepositoryOperationException $e) {
             $this->markTestSkipped('Reordering of children not supported');
         }
