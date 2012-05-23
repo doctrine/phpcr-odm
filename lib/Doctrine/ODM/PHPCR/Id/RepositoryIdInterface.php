@@ -25,8 +25,9 @@ interface RepositoryIdInterface
      * Generate a document id
      *
      * @param object $document
-     * 
+     * @param object $parent
+     *
      * @return string
      */
-    function generateId($document);
+    function generateId($document, $parent = null);
 }
