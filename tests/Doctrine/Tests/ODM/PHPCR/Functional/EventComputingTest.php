@@ -27,7 +27,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->persist($user);
         $this->dm->flush();
 
-        // temporary disabling following test
+        // temporary disabling following test, in unitofwork, the persistNew method doesnt call the computeChangeset method
         //$this->assertTrue($user->name=='prepersist');
         $this->assertTrue($user->username=='postpersist');
 
