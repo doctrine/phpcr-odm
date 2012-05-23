@@ -1424,10 +1424,12 @@ class UnitOfWork
             if ($dispatchEvents) {
                 if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
                     $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
+                    $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
                     $this->computeChangeSet($class, $document);
                 }
                 if ($this->evm->hasListeners(Event::preUpdate)) {
                     $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
+                    $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
                     $this->computeChangeSet($class, $document);
                 }
             }
