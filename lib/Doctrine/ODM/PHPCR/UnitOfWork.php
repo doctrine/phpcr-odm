@@ -702,18 +702,12 @@ class UnitOfWork
                 return self::STATE_NEW;
             }
 
-            if ($class->idGenerator === ClassMetadata::GENERATOR_TYPE_ASSIGNED
-                || $class->idGenerator === ClassMetadata::GENERATOR_TYPE_PARENT
-            ) {
-                if ($this->getDocumentById($id)) {
-                    return self::STATE_DETACHED;
-                }
-
-                return $this->dm->getPhpcrSession()->nodeExists($id)
-                    ? self::STATE_DETACHED : self::STATE_NEW;
+            if ($this->getDocumentById($id)) {
+                return self::STATE_DETACHED;
             }
 
-            return self::STATE_DETACHED;
+            return $this->dm->getPhpcrSession()->nodeExists($id)
+                ? self::STATE_DETACHED : self::STATE_NEW;
         }
 
         return $this->documentState[$oid];
