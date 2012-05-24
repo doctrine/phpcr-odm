@@ -19,18 +19,23 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testTriggerEvents()
     {
+        // Create initial user
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user->name = 'mdekrijger';
         $user->username = 'mdekrijger';
         $user->status = 'active';
 
+        // In prepersist the name will be changed
+        // In postpersist the username will be changed
         $this->dm->persist($user);
         $this->dm->flush();
 
-        // temporary disabling following test, in unitofwork, the persistNew method doesnt call the computeChangeset method
-        //$this->assertTrue($user->name=='prepersist');
+        $this->assertTrue($user->name=='prepersist');
         $this->assertTrue($user->username=='postpersist');
 
+        // Change document
+        // In preupdate the name will be changed
+        // In postupdate the username will be changed
         $user->status = 'changed';
         $this->dm->persist($user);
         $this->dm->flush();
@@ -38,6 +43,9 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertTrue($user->name=='preupdate');
         $this->assertTrue($user->username=='postupdate');
 
+        // Clean up
+        $this->dm->remove($user);
+        $this->dm->flush();
     }
 }
 
@@ -71,6 +79,7 @@ class TestEventDocumentChanger
 
     public function postUpdate(EventArgs $e)
     {
+
         $document = $e->getDocument();
         $document->username = 'postupdate';
     }
