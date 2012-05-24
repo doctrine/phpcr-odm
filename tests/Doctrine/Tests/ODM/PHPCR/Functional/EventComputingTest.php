@@ -17,7 +17,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate'), $this->listener);
     }
 
-    public function testTriggerEvents()
+    public function testComputingBetweenEvents()
     {
         // Create initial user
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
@@ -29,9 +29,14 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         // In postpersist the username will be changed
         $this->dm->persist($user);
         $this->dm->flush();
+        $this->dm->clear();
 
-        $this->assertTrue($user->name=='prepersist');
+        // Post persist data is not saved to document, so check before reloading document
         $this->assertTrue($user->username=='postpersist');
+
+        // Be sure that document is really saved by refetching it from ODM
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $this->assertTrue($user->name=='prepersist');
 
         // Change document
         // In preupdate the name will be changed
@@ -39,9 +44,14 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user->status = 'changed';
         $this->dm->persist($user);
         $this->dm->flush();
+        $this->dm->clear();
 
-        $this->assertTrue($user->name=='preupdate');
+        // Post persist data is not saved to document, so check before reloading document
         $this->assertTrue($user->username=='postupdate');
+
+        // Be sure that document is really saved by refetching it from ODM
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $this->assertTrue($user->name=='preupdate');
 
         // Clean up
         $this->dm->remove($user);
@@ -79,7 +89,6 @@ class TestEventDocumentChanger
 
     public function postUpdate(EventArgs $e)
     {
-
         $document = $e->getDocument();
         $document->username = 'postupdate';
     }
