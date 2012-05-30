@@ -49,6 +49,13 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->id, $user2->id));
         $this->assertEquals($user1->username, $users['/functional/beberlei']->username);
         $this->assertEquals($user2->username, $users['/functional/lsmith']->username);
+
+        $this->dm->clear();
+
+        // read second document into memory
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->find($user2->id);
+        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->id, $user2->id));
+        $this->assertEquals('/functional/beberlei', $users->key(), 'Documents are not returned in the order they were requested');
     }
 
     public function testFindBy()

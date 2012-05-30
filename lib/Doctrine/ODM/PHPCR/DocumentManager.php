@@ -317,22 +317,20 @@ class DocumentManager implements ObjectManager
             $ids = $tmp;
         }
 
-        foreach ($ids as $key => $id) {
+        $nodes = $this->session->getNodes($ids);
+
+        foreach ($ids as $id) {
             $document = $this->unitOfWork->getDocumentById($id);
             if ($document) {
                 try {
                     $this->unitOfWork->validateClassName($document, $className);
                     $documents[$id] = $document;
-                    unset($ids[$key]);
                 } catch (\InvalidArgumentException $e) {
                     // ignore on class mismatch
                 }
+            } elseif (isset($nodes[$id])) {
+                $documents[$id] = $this->unitOfWork->createDocument($className, $nodes[$id]);
             }
-        }
-
-        $nodes = $this->session->getNodes($ids);
-        foreach ($nodes as $node) {
-            $documents[$node->getPath()] = $this->unitOfWork->createDocument($className, $node);
         }
 
         return new ArrayCollection($documents);
