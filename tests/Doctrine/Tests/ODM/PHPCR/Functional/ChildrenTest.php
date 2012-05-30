@@ -84,8 +84,8 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
         // lazy loaded
-        $this->assertNull($parent->aChildren->unwrap());
-        $this->assertNull($parent->allChildren->unwrap());
+        $this->assertCount(0, $parent->aChildren->unwrap());
+        $this->assertCount(0, $parent->allChildren->unwrap());
         // loaded
         $this->assertCount(1, $parent->aChildren);
         $this->assertCount(4, $parent->allChildren);

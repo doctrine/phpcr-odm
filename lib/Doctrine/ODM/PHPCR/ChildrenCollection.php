@@ -2,6 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * Children collection class
  *
@@ -53,5 +55,17 @@ class ChildrenCollection extends PersistentCollection
     public function getOriginalNodeNames()
     {
         return $this->originalNodenames;
+    }
+
+    /**
+     * @return ArrayCollection  The collection
+     */
+    public function unwrap()
+    {
+        if (!$this->initialized) {
+            return new ArrayCollection();
+        }
+
+        return parent::unwrap();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * Referrer collection class
  *
@@ -34,5 +36,17 @@ class ReferrersCollection extends PersistentCollection
 
             $this->collection = $this->dm->getReferrers($this->document, $this->type, $this->name);
         }
+    }
+
+    /**
+     * @return ArrayCollection  The collection
+     */
+    public function unwrap()
+    {
+        if (!$this->initialized) {
+            return new ArrayCollection();
+        }
+
+        return parent::unwrap();
     }
 }
