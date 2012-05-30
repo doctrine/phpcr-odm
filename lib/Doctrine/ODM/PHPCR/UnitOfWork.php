@@ -1176,10 +1176,6 @@ class UnitOfWork
         foreach ($class->childrenMappings as $assoc) {
             $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
             if ($relatedDocuments instanceof Collection) {
-                if ($relatedDocuments instanceof PersistentCollection) {
-                    // Unwrap so that foreach() does not initialize
-                    $relatedDocuments = $relatedDocuments->unwrap();
-                }
                 foreach ($relatedDocuments as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
@@ -1191,10 +1187,6 @@ class UnitOfWork
         foreach ($class->referrersMappings as $assoc) {
             $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
             if ($relatedDocuments instanceof Collection) {
-                if ($relatedDocuments instanceof PersistentCollection) {
-                    // Unwrap so that foreach() does not initialize
-                    $relatedDocuments = $relatedDocuments->unwrap();
-                }
                 foreach ($relatedDocuments as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
