@@ -1149,6 +1149,8 @@ class UnitOfWork
 
         $visited[$oid] = $document; // mark visited
 
+        $this->cascadeDetach($document, $visited);
+
         $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_MANAGED:
@@ -1159,8 +1161,6 @@ class UnitOfWork
             case self::STATE_DETACHED:
                 return;
         }
-
-        $this->cascadeDetach($document, $visited);
     }
 
     /**

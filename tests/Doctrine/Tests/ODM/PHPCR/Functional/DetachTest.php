@@ -105,4 +105,11 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->detach($user);
         $this->dm->remove($user);
     }
+
+    public function testDetachWithChildren()
+    {
+        $parent = $this->dm->find(null, '/functional');
+
+        $this->dm->detach($parent);
+    }
 }
