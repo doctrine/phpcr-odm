@@ -63,6 +63,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount(4, $col);
         $childA = $col['child-a'];
         $this->assertEquals('Child A', $childA->name);
+        $this->assertEquals('child-a', $col->key());
 
         $col = $this->dm->getChildren($parent, 'child*');
         $this->assertCount(4, $col);
@@ -70,6 +71,19 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $col = $this->dm->getChildren($parent, '*a');
         $this->assertCount(1, $col);
         $this->assertTrue($childA === $col->first());
+
+        $this->dm->clear();
+
+        $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-d');
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $col = $this->dm->getChildren($parent);
+        $this->assertEquals('child-a', $col->key());
+
+        $this->dm->clear();
+
+        $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/child-d');
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertEquals('child-a', $parent->allChildren->key());
     }
 
     public function testNoChildrenInitOnFlush()
