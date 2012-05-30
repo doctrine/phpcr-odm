@@ -473,15 +473,14 @@ class DocumentManager implements ObjectManager
     {
         $this->errorIfClosed();
 
-        $documents = array();
+        $result = $query->execute();
 
-        // get all nodes from the node iterator
-        $nodes = $query->execute()->getNodes(true);
-        foreach ($nodes as $node) {
-            $documents[$node->getPath()] = $this->unitOfWork->createDocument($className, $node);
+        $ids = array();
+        foreach ($result->getRows() as $row) {
+            $ids[] = $row->getPath();
         }
 
-        return new ArrayCollection($documents);
+        return $this->findMany($className, $ids);
     }
 
     /**
