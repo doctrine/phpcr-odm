@@ -47,6 +47,10 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $this->dm->clear();
 
         $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findMany(array($user1->id, $user2->id));
+        $this->assertTrue(isset($users['/functional/beberlei']));
+        $this->assertTrue(isset($users['/functional/lsmith']));
+        $this->assertInstanceOf('Doctrine\\Tests\\Models\\CMS\\CmsUser', $users['/functional/beberlei']);
+        $this->assertInstanceOf('Doctrine\\Tests\\Models\\CMS\\CmsUser', $users['/functional/lsmith']);
         $this->assertEquals($user1->username, $users['/functional/beberlei']->username);
         $this->assertEquals($user2->username, $users['/functional/lsmith']->username);
 
