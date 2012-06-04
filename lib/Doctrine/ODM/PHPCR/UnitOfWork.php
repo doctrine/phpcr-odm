@@ -1566,6 +1566,17 @@ class UnitOfWork
 
             $this->session->move($path, $targetPath);
 
+            // update fields nodename and parentMapping if they exist in this type
+            $class = $this->dm->getClassMetadata(get_class($document));
+            $node = $class->getFieldValue($document, $class->node);
+            if ($class->nodename) {
+                $class->setFieldValue($document, $class->nodename, $node->getName());
+            }
+            if ($class->parentMapping) {
+                $class->setFieldValue($document, $class->parentMapping, $this->createProxyFromNode($node->getParent()));
+            }
+
+            // update all cached children of the document to reflect the move (path id changes)
             foreach ($this->documentIds as $oid => $id) {
                 if (0 !== strpos($id, $path)) {
                     continue;
