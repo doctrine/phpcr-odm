@@ -13,6 +13,9 @@ class CmsTeamUser extends CmsUser
 {
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
+    /** @PHPCRODM\Nodename */
+    public $nodename;
 }
 
 class CmsTeamUserRepository extends DocumentRepository implements RepositoryIdInterface
