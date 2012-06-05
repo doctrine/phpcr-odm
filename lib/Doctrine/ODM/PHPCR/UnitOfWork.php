@@ -897,18 +897,34 @@ class UnitOfWork
         }
 
         if (!$isNew) {
-            if (isset($this->originalData[$oid][$class->nodename])
-                && isset($actualData[$class->nodename])
-                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
-            ) {
-                throw new PHPCRException('The Nodename property is immutable ('.$this->originalData[$oid][$class->nodename].' !== '.$actualData[$class->nodename].'). Please use DocumentManager::move to rename the document: '.self::objToStr($document, $this->dm));
-            }
+
+            // collect assignment move operations
+            $destPath = $destName = false;
 
             if (isset($this->originalData[$oid][$class->parentMapping])
                 && isset($actualData[$class->parentMapping])
                 && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
             ) {
-                throw new PHPCRException('The ParentDocument property is immutable ('.$this->getDocumentId($this->originalData[$oid][$class->parentMapping]).' !== '.$this->getDocumentId($actualData[$class->parentMapping]).'). Please use PHPCR\Session::move to move the document: '.self::objToStr($document, $this->dm));
+                $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+            }
+
+            if (isset($this->originalData[$oid][$class->nodename])
+                && isset($actualData[$class->nodename])
+                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
+            ) {
+                $destName = $actualData[$class->nodename];
+            }
+
+            // there was assignment move
+            if ($destPath || $destName) {
+                // add the other field if only one was changed
+                if (false === $destPath) {
+                    $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                }
+                if (false === $destName) {
+                    $destName = $actualData[$class->nodename];
+                }
+                $this->scheduleMove($document, "$destPath/$destName");
             }
 
             if (isset($this->originalData[$oid][$class->identifier])
