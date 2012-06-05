@@ -72,16 +72,6 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * @expectedException Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testNodenameChangeException()
-    {
-        $doc = $this->dm->find($this->type, '/functional/thename');
-        $doc->nodename = 'x';
-        $this->dm->flush();
-    }
-
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testParentChangeException()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
