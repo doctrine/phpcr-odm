@@ -186,4 +186,32 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find($this->type, '/functional/lsmith');
         $this->assertNull($user, 'User must be null after deletion');
     }
+
+    public function testMoveUpdateFields()
+    {
+        $this->dm->clear();
+        $user1 = $this->dm->find($this->type, '/functional/lsmith');
+        $this->assertNotNull($user1, 'User must exist');
+
+        $user2 = new CmsTeamUser();
+        $user2->username = 'jwage';
+        $user2->parent = $user1;
+        $user3 = new CmsTeamUser();
+        $user3->username = 'beberlei';
+        $user3->parent = $user2;
+
+        $this->dm->persist($user3);
+
+        $this->dm->flush();
+
+        // property is updated after flush
+        $this->assertEquals('beberlei', $user3->nodename);
+        $this->assertSame($user2, $user3->parent);
+
+        $this->dm->move($user3, '/functional/lsmith/user');
+        $this->dm->flush();
+
+        $this->assertEquals('user', $user3->nodename);
+        $this->assertSame($user1, $user3->parent);
+    }
 }
