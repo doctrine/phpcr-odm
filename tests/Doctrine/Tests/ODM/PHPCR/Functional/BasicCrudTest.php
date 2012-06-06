@@ -14,12 +14,19 @@ use PHPCR\PropertyType;
 class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
 
+    /**
+     * Class name of the document class
+     * @var string
+     */
     private $type;
 
+    /**
+     * @var \PHPCR\NodeInterface
+     */
     private $node;
 
     public function setUp()

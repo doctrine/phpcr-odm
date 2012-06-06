@@ -11,10 +11,13 @@ use Doctrine\ODM\PHPCR\Document\Folder;
 class FolderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
 
+    /**
+     * @var \PHPCR\NodeInterface
+     */
     private $node;
 
     public function setUp()

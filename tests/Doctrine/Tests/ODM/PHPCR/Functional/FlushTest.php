@@ -14,10 +14,14 @@ use Doctrine\Tests\Models\CMS\CmsAddress;
 class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
 
+    /**
+     * Class name of the document class
+     * @var string
+     */
     private $type;
 
     public function setUp()
@@ -203,7 +207,6 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $address->city = "Springfield";
         $address->zip = "12354";
         $address->country = "Germany";
-        $address->street = "Foo Street";
         $address->user = $user;
         $user->address = $address;
 

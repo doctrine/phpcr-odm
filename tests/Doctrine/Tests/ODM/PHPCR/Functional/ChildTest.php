@@ -10,13 +10,25 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
 
+    /**
+     * Class name of the document class
+     * @var string
+     */
     private $type;
+
+    /**
+     * Class name of the child document class
+     * @var string
+     */
     private $childType;
 
+    /**
+     * @var \PHPCR\NodeInterface
+     */
     private $node;
 
     public function setUp()

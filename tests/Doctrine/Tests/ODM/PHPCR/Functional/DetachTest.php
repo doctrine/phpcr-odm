@@ -7,11 +7,21 @@ use Doctrine\ODM\PHPCR\UnitOfWork;
 
 class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
     private $dm;
 
-    private $node;
-
+    /**
+     * Class name of the document class
+     * @var string
+     */
     private $type;
+
+    /**
+     * @var \PHPCR\NodeInterface
+     */
+    private $node;
 
     public function setUp()
     {
@@ -25,7 +35,7 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
-    
+
     public function testDetachNewObject()
     {
         $user = new CmsUser();

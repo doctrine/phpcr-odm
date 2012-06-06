@@ -6,7 +6,14 @@ use Doctrine\Common\EventArgs;
 
 class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var TestListener
+     */
     private $listener;
+
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
     private $dm;
 
     public function setUp()

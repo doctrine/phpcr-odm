@@ -20,6 +20,31 @@ use PHPCR\Util\UUIDHelper;
  */
 class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * Class name of the document class
+     * @var \PHPCR\SessionInterface
+     */
+    private $session;
+
+    /**
+     * @var \PHPCR\NodeInterface
+     */
+    private $node;
+
+    private $referrerType;
+    private $referencedType;
+    private $referrerManyType;
+    private $referrerManyForCascadeType;
+    private $weakReferrerType;
+    private $hardReferrerType;
+    private $referrerDifType;
+
     public function setUp()
     {
         $this->referrerType = 'Doctrine\Tests\Models\References\RefTestObj';

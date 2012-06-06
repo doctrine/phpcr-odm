@@ -6,7 +6,14 @@ use Doctrine\Common\EventArgs;
 
 class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var TestEventDocumentChanger
+     */
     private $listener;
+
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
     private $dm;
 
     public function setUp()

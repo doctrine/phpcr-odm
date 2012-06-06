@@ -9,6 +9,15 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
 
 class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @var \PHPCR\WorkspaceInterface
+     */
+    private $workspace;
 
     public function setup()
     {

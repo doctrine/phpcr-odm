@@ -13,6 +13,26 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 {
     protected $testNodeName = '__test-node__';
 
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @var \PHPCR\SessionInterface
+     */
+    private $session;
+
+    /**
+     * @var \PHPCR\WorkspaceInterface
+     */
+    private $workspace;
+
+    /**
+     * @var ClassMetadata
+     */
+    private $metadata;
+
     public function setup()
     {
         $this->dm = $this->createDocumentManager();

@@ -6,6 +6,11 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 
 class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
     public function setUp()
     {
         $session = $this->getMock('PHPCR\SessionInterface');

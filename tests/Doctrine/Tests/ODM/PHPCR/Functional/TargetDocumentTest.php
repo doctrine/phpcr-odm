@@ -11,9 +11,13 @@ use Doctrine\Tests\Models\References as MODEL;
 class TargetDocumentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
+
+    /**
+     * @var \PHPCR\NodeInterface
+     */
     private $node;
 
     public function setUp()

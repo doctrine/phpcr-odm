@@ -8,6 +8,16 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
 class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
 
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @var \PHPCR\SessionInterface
+     */
+    private $session;
+
     public function setup()
     {
         $this->dm = $this->createDocumentManager();
@@ -78,9 +88,11 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * Create a document, save it, and return the underlying PHPCR node.
-     * @param $name The name of the new node (will be created under root)
-     * @param $class The class name of the document
-     * @return \PHPCR\NodeInteface
+     *
+     * @param string $name The name of the new node (will be created under root)
+     * @param string $class The class name of the document
+     *
+     * @return \PHPCR\NodeInterface
      */
     protected function createTestDocument($name, $class)
     {
@@ -103,7 +115,9 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * Remove a PHPCR node under the root node
-     * @param $name The name of the node to remove
+     *
+     * @param string $name The name of the node to remove
+     *
      * @return void
      */
     protected function removeTestNode($name)

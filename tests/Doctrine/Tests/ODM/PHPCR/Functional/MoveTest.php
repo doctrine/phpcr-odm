@@ -15,7 +15,7 @@ use Doctrine\Tests\Models\CMS\CmsTeamUser;
 class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
 

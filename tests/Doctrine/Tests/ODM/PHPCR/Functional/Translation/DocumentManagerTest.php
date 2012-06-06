@@ -16,22 +16,28 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     protected $testNodeName = '__my_test_node__';
 
     /**
-     * @var Doctrine\ODM\PHPCR\DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     protected $dm;
 
     /**
-     * @var PHPCR\Session
+     * @var \PHPCR\SessionInterface
      */
     protected $session;
 
     /**
-     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * @var \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
      */
     protected $metadata;
 
+    /**
+     * @var Article
+     */
     protected $doc;
 
+    /**
+     * @var string
+     */
     protected $class = 'Doctrine\Tests\Models\Translation\Article';
 
     public function setUp()

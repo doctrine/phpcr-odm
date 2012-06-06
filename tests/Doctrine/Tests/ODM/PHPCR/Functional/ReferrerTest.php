@@ -8,6 +8,21 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @var \PHPCR\SessionInterface
+     */
+    private $session;
+
+    /**
+     * @var \PHPCR\NodeInterface
+     */
+    private $node;
+
     public function setUp()
     {
         $this->dm = $this->createDocumentManager();
