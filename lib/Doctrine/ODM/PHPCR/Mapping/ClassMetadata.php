@@ -584,6 +584,10 @@ class ClassMetadata implements ClassMetadataInterface
         if (!isset($mapping['fieldName']) || empty($mapping['fieldName'])) {
             throw new MappingException("Mapping a property requires to specify the fieldName.");
         }
+        
+        if (!is_string($mapping['fieldName'])) {
+            throw new MappingException("fieldName must be of type string.");
+        }
 
         if ($isField && !isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];

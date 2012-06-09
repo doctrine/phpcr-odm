@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\RepositoryMappingObject" repository-class="Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository">
+        <id name="id">
+            <generator strategy="repository" />
+        </id>
+    </document>
+</doctrine-mapping>

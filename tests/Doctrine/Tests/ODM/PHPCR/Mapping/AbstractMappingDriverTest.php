@@ -342,4 +342,21 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('*some*', $class->childrenMappings['some']['filter']);
         $this->assertEquals(2, $class->childrenMappings['some']['fetchDepth']);
     }
+    
+    public function testLoadRepositoryMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\RepositoryMappingObject';
+        
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadRepositoryMapping
+     * @param ClassMetadata $class
+     */
+    public function testRepositoryMapping($class)
+    {
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $class->customRepositoryClassName);
+        $this->assertTrue($class->isIdGeneratorRepository());
+    }
 }

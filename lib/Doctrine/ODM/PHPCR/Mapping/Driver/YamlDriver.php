@@ -91,7 +91,18 @@ class YamlDriver extends FileDriver
             }
         }
         if (isset($element['id'])) {
-            $mapping = array('fieldName' => $element['id'], 'id' => true);
+            if(is_array($element['id'])) {
+                if(!isset($element['id']['fieldName'])) {
+                    throw new MappingException("Missing fieldName property for id field");
+                }
+                else {
+                    $fieldName = $element['id']['fieldName'];
+                }
+            }
+            else {
+                $fieldName = $element['id'];
+            }
+            $mapping = array('fieldName' => $fieldName, 'id' => true);
             if (isset($element['id']['generator']['strategy'])) {
                 $mapping['strategy'] = $element['id']['generator']['strategy'];
             }
