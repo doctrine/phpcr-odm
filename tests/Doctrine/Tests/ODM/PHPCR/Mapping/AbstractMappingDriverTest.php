@@ -8,6 +8,12 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
     abstract protected function loadDriver();
+    
+    protected function ensureIsLoaded($entityClassName)
+    {
+        new $entityClassName;
+    }
+    
     /**
      * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
      * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
