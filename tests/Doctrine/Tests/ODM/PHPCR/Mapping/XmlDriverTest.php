@@ -10,13 +10,18 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
  */
 class XmlDriverTest extends AbstractMappingDriverTest
 {
+    /**
+     * @return \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver 
+     */
     protected function loadDriver()
-    {
-        $entityClassName = 'Doctrine\Tests\Models\CMS\CmsUser';
-        $this->ensureIsLoaded($entityClassName);
-        
+    {   
         $location = __DIR__ . '/xml';
         
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver($location);
+    }
+    
+    protected function loadDriverForCMSDocuments()
+    {
+        return $this->loadDriver();
     }
 }

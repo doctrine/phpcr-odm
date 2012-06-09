@@ -50,7 +50,13 @@ class XmlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        $xmlRoot = $this->getElement($className);
+        try {
+            $xmlRoot = $this->getElement($className);
+        }
+        catch(\Doctrine\Common\Persistence\Mapping\MappingException $e) {
+            throw new MappingException($e->getMessage());
+        }
+        
         if (!$xmlRoot) {
             return;
         }

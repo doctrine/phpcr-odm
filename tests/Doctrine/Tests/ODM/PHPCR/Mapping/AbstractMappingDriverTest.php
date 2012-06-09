@@ -30,6 +30,28 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 
         return $class;
     }
+    
+    public function testLoadMetadataForNonDocumentThrowsException()
+    {
+        $cm = new ClassMetadata('stdClass');
+        $cm->initializeReflection(new RuntimeReflectionService());
+        
+        $driver = $this->loadDriver();
+
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
+        $driver->loadMetadataForClass('stdClass', $cm);
+    }
+
+    public function testGetAllClassNamesIsIdempotent()
+    {
+        $annotationDriver = $this->loadDriverForCMSDocuments();
+        $original = $annotationDriver->getAllClassNames();
+
+        $annotationDriver = $this->loadDriverForCMSDocuments();
+        $afterTestReset = $annotationDriver->getAllClassNames();
+
+        $this->assertEquals($original, $afterTestReset);
+    }
 
     /**
      * @depends testLoadMapping
