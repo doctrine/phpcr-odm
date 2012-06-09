@@ -8,6 +8,7 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
     abstract protected function loadDriver();
+    abstract protected function loadDriverForCMSDocuments();
     
     protected function ensureIsLoaded($entityClassName)
     {
