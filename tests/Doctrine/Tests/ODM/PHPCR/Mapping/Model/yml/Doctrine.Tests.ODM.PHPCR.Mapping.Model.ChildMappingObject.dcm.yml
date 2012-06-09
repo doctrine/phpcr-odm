@@ -1,4 +1,4 @@
-Doctrine\Tests\ODM\PHPCR\Mapping\Models\ChildMappingObject:
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject:
   id: id
   child:
     child1:

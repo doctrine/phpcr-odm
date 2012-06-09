@@ -15,7 +15,7 @@ class XmlDriverTest extends AbstractMappingDriverTest
      */
     protected function loadDriver()
     {   
-        $location = __DIR__ . '/Models/xml';
+        $location = __DIR__ . '/Model/xml';
         
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver($location);
     }

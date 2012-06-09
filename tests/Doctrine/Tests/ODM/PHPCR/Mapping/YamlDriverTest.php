@@ -15,7 +15,7 @@ class YamlDriverTest extends AbstractMappingDriverTest
      */
     protected function loadDriver()
     {   
-        $location = __DIR__ . '/Models/yml';
+        $location = __DIR__ . '/Model/yml';
         
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver($location);
     }

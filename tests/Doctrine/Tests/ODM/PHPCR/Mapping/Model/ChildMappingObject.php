@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\ODM\PHPCR\Mapping\Models;
+namespace Doctrine\Tests\ODM\PHPCR\Mapping\Model;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
@@ -9,14 +9,14 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * 
  * @PHPCRODM\Document
  */
-class ChildrenMappingObject
+class ChildMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
     
-    /** @PHPCRODM\Children() */
-    public $all;
+    /** @PHPCRODM\Child(name="first") */
+    public $child1;
     
-    /** @PHPCRODM\Children(filter="*some*", fetchDepth=2) */
-    public $some;
+    /** @PHPCRODM\Child(name="second") */
+    public $child2;
 }

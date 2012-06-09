@@ -1,3 +1,0 @@
-Doctrine\Tests\ODM\PHPCR\Mapping\Models\ParentDocumentMappingObject:
-  id: id
-  parentdocument: parent

@@ -20,7 +20,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     protected function loadDriverForTestMappingDocuments()
     {
         $annotationDriver = $this->loadDriver();
-        $annotationDriver->addPaths(array(__DIR__ . '/Models'));
+        $annotationDriver->addPaths(array(__DIR__ . '/Model'));
         return $annotationDriver;
     }
 }

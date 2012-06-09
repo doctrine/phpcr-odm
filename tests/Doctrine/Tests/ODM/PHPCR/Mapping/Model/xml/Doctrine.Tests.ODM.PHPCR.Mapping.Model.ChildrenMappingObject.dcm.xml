@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doctrine-mapping>
-    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Models\ChildrenMappingObject">
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject">
         <id name="id" />
         <children fieldName="all" name="all" />
         <children fieldName="some" name="some" filter="*some*" fetchDepth="2" />

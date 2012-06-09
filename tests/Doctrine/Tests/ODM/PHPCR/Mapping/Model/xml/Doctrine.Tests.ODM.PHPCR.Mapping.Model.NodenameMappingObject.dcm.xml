@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doctrine-mapping>
-    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Models\NodenameMappingObject">
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodenameMappingObject">
         <id name="id" />
         <nodename name="namefield" />
     </document>
