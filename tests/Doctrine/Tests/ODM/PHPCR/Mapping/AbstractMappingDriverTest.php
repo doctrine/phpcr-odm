@@ -39,7 +39,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     
     public function testGetAllClassNamesReturnsAlreadyLoadedClassesIfAppropriate()
     {
-        $rightClassName = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\PropertyMappingObject';
+        $rightClassName = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\FieldMappingObject';
         $this->ensureIsLoaded($rightClassName);
 
         $driver = $this->loadDriverForTestMappingDocuments();
@@ -66,7 +66,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\PropertyMappingObject';
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\FieldMappingObject';
         $mappingDriver = $this->loadDriver();
 
         $class = new ClassMetadata($className);

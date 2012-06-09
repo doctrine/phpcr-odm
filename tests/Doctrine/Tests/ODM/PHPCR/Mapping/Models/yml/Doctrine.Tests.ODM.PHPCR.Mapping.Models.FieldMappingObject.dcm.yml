@@ -1,4 +1,4 @@
-Doctrine\Tests\ODM\PHPCR\Mapping\Models\PropertyMappingObject:
+Doctrine\Tests\ODM\PHPCR\Mapping\Models\FieldMappingObject:
   id: id
   fields:
     string:   string

@@ -5,11 +5,11 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping\Models;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * A class that contains mapped properties 
+ * A class that contains mapped fields via properties 
  * 
  * @PHPCRODM\Document
  */
-class PropertyMappingObject
+class FieldMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
