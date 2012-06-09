@@ -85,6 +85,10 @@ class XmlDriver extends FileDriver
                     if ($key === 'id' || $key === 'multivalue') {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
+                    // Large numbers bcmath compatible strings
+                    if($key === 'type' && $value == 'decimal') {
+                        $mapping[$key] = 'string';
+                    }
                 }
                 $class->mapField($mapping);
             }

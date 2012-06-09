@@ -8,6 +8,7 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 abstract class PropertyMappingTest extends \PHPUnit_Framework_TestCase
 {
     abstract protected function loadDriver();
+    
     /**
      * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
      * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass

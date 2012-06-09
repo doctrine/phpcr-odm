@@ -17,10 +17,10 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
     }
     
-    protected function loadDriverForCMSDocuments()
+    protected function loadDriverForTestMappingDocuments()
     {
         $annotationDriver = $this->loadDriver();
-        $annotationDriver->addPaths(array(__DIR__ . '/../../../../../Doctrine/Tests/Models/CMS'));
+        $annotationDriver->addPaths(array(__DIR__ . '/Models'));
         return $annotationDriver;
     }
 }

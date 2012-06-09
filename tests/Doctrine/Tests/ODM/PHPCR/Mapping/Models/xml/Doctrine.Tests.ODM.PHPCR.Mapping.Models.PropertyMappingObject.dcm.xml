@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Models\PropertyMappingObject">
+        <id name="id" />
+        <field fieldName="string" type="string" />
+        <field fieldName="binary" type="binary" />
+        <field fieldName="long" type="long" />
+        <field fieldName="int" type="int" />
+        <field fieldName="decimal" type="decimal" />
+        <field fieldName="double" type="double" />
+        <field fieldName="float" type="float" />
+        <field fieldName="date" type="date" />
+        <field fieldName="boolean" type="boolean" />
+        <field fieldName="name" type="name" />
+        <field fieldName="path" type="path" />
+        <field fieldName="uri" type="uri" />
+    </document>
+</doctrine-mapping>
