@@ -14,23 +14,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         new $entityClassName;
     }
     
-    /**
-     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
-     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
-     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
-     */
-    public function testLoadMapping()
-    {
-        $className = 'Doctrine\Tests\Models\CMS\CmsUser';
-        $mappingDriver = $this->loadDriver();
-
-        $class = new ClassMetadata($className);
-        $class->initializeReflection(new RuntimeReflectionService());
-        $mappingDriver->loadMetadataForClass($className, $class);
-
-        return $class;
-    }
-    
     public function testLoadMetadataForNonDocumentThrowsException()
     {
         $cm = new ClassMetadata('stdClass');
@@ -73,6 +56,23 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $classes = $driver->getAllClassNames();
 
         $this->assertNotContains($extraneousClassName, $classes);
+    }
+    
+    /**
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
+     */
+    public function testLoadMapping()
+    {
+        $className = 'Doctrine\Tests\Models\CMS\CmsUser';
+        $mappingDriver = $this->loadDriver();
+
+        $class = new ClassMetadata($className);
+        $class->initializeReflection(new RuntimeReflectionService());
+        $mappingDriver->loadMetadataForClass($className, $class);
+
+        return $class;
     }
 
     /**
