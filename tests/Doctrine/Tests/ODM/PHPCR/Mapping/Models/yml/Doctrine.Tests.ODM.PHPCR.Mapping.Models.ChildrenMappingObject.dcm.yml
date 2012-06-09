@@ -1,0 +1,7 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Models\ChildrenMappingObject:
+  id: id
+  children:
+    all:
+    some:
+      filter: "*some*"
+      fetchDepth: 2

@@ -320,4 +320,26 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->childMappings['child2']));
         $this->assertEquals('second', $class->childMappings['child2']['name']);
     }
+    
+    public function testLoadChildrenMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\ChildrenMappingObject';
+        
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadChildrenMapping
+     * @param ClassMetadata $class
+     */
+    public function testChildrenMapping($class)
+    {
+        $this->assertTrue(isset($class->childrenMappings));
+        $this->assertCount(2, $class->childrenMappings);
+        $this->assertTrue(isset($class->childrenMappings['all']));
+        $this->assertFalse(isset($class->childrenMappings['all']['filter']));
+        $this->assertTrue(isset($class->childrenMappings['some']));
+        $this->assertEquals('*some*', $class->childrenMappings['some']['filter']);
+        $this->assertEquals(2, $class->childrenMappings['some']['fetchDepth']);
+    }
 }
