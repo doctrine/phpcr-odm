@@ -919,6 +919,10 @@ class ClassMetadata implements ClassMetadataInterface
         if ($mapping['type'] === 'int') {
             $mapping['type'] = 'long';
         }
+        
+        if ($mapping['type'] === 'float') {
+            $mapping['type'] = 'double';
+        }
 
         // Add the field to the list of translatable fields
         if (isset($mapping['translated']) && $mapping['translated']) {

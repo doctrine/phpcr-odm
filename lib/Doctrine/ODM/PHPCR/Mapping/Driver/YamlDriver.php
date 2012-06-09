@@ -82,15 +82,7 @@ class YamlDriver extends FileDriver
                 if (is_string($mapping)) {
                     $type = $mapping;
                     $mapping = array();
-                    
-                    // Large numbers bcmath compatible strings
-                    if($type == 'decimal') {
-                        $type = 'string';
-                    }
-                    
                     $mapping['type'] = $type;
-                    
-                    
                 }
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;

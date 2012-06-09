@@ -168,7 +168,7 @@ final class Boolean extends TranslatableProperty
  */
 final class Name extends TranslatableProperty
 {
-    public $type = 'string';
+    public $type = 'name';
 }
 /**
  * String that is an absolute or relative path in the repository
@@ -177,7 +177,7 @@ final class Name extends TranslatableProperty
  */
 final class Path extends TranslatableProperty
 {
-    public $type = 'string';
+    public $type = 'path';
 }
 /**
  * String that is validated to be an URI
@@ -186,7 +186,7 @@ final class Path extends TranslatableProperty
  */
 final class Uri extends TranslatableProperty
 {
-    public $type = 'string';
+    public $type = 'uri';
 }
 /**
  * Large numbers bcmath compatible strings
@@ -195,7 +195,7 @@ final class Uri extends TranslatableProperty
  */
 final class Decimal extends TranslatableProperty
 {
-    public $type = 'string';
+    public $type = 'decimal';
 }
 
 /**

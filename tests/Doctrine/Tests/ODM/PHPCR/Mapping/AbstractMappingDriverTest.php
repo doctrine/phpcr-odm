@@ -150,10 +150,22 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      * @depends testFieldMappings
      * @param ClassMetadata $class
      */
+    public function testIntFieldMappings($class)
+    {
+        $this->assertEquals('int', $class->fieldMappings['int']['name']);
+        $this->assertEquals('long', $class->fieldMappings['int']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
     public function testDecimalFieldMappings($class)
     {
         $this->assertEquals('decimal', $class->fieldMappings['decimal']['name']);
-        $this->assertEquals('string', $class->fieldMappings['decimal']['type']);
+        $this->assertEquals('decimal', $class->fieldMappings['decimal']['type']);
 
         return $class;
     }
@@ -166,6 +178,78 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals('double', $class->fieldMappings['double']['name']);
         $this->assertEquals('double', $class->fieldMappings['double']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
+    public function testFloatFieldMappings($class)
+    {
+        $this->assertEquals('float', $class->fieldMappings['float']['name']);
+        $this->assertEquals('double', $class->fieldMappings['float']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
+    public function testDateFieldMappings($class)
+    {
+        $this->assertEquals('date', $class->fieldMappings['date']['name']);
+        $this->assertEquals('date', $class->fieldMappings['date']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
+    public function testBooleanFieldMappings($class)
+    {
+        $this->assertEquals('boolean', $class->fieldMappings['boolean']['name']);
+        $this->assertEquals('boolean', $class->fieldMappings['boolean']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
+    public function testNameFieldMappings($class)
+    {
+        $this->assertEquals('name', $class->fieldMappings['name']['name']);
+        $this->assertEquals('name', $class->fieldMappings['name']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
+    public function testPathFieldMappings($class)
+    {
+        $this->assertEquals('path', $class->fieldMappings['path']['name']);
+        $this->assertEquals('path', $class->fieldMappings['path']['type']);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testFieldMappings
+     * @param ClassMetadata $class
+     */
+    public function testUriFieldMappings($class)
+    {
+        $this->assertEquals('uri', $class->fieldMappings['uri']['name']);
+        $this->assertEquals('uri', $class->fieldMappings['uri']['type']);
 
         return $class;
     }
