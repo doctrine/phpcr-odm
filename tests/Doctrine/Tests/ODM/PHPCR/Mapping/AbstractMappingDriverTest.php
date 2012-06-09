@@ -64,7 +64,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
      * @covers Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
      */
-    public function testLoadMapping()
+    public function testLoadFieldMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\FieldMappingObject';
         $mappingDriver = $this->loadDriver();
@@ -77,7 +77,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @depends testLoadMapping
+     * @depends testLoadFieldMapping
      * @param ClassMetadata $class
      */
     public function testFieldMappings($class)
@@ -252,5 +252,32 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('uri', $class->fieldMappings['uri']['type']);
 
         return $class;
+    }
+    
+    /**
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
+     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
+     */
+    public function testLoadNodenameMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\NodenameMappingObject';
+        $mappingDriver = $this->loadDriver();
+
+        $class = new ClassMetadata($className);
+        $class->initializeReflection(new RuntimeReflectionService());
+        $mappingDriver->loadMetadataForClass($className, $class);
+
+        return $class;
+    }
+    
+    /**
+     * @depends testLoadNodenameMapping
+     * @param ClassMetadata $class
+     */
+    public function testNodenameMapping($class)
+    {
+        $this->assertTrue(isset($class->nodename));
+        $this->assertEquals('namefield', $class->nodename);
     }
 }

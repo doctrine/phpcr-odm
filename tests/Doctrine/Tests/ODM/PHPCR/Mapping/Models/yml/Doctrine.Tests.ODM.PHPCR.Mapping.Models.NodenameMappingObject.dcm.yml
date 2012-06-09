@@ -1,0 +1,3 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Models\NodenameMappingObject:
+  id: id
+  nodename: namefield
