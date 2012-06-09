@@ -1,0 +1,8 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Models\ChildMappingObject:
+  id: id
+  child:
+    child1:
+      name: first
+    child2: second
+
+    
