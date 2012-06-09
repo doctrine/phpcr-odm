@@ -64,9 +64,4 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
     }
-
-    protected function ensureIsLoaded($entityClassName)
-    {
-        new $entityClassName;
-    }
 }
