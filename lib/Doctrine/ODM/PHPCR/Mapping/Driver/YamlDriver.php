@@ -50,7 +50,14 @@ class YamlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        $element = $this->getElement($className);
+        try {
+            $element = $this->getElement($className);
+        }
+        catch(\Doctrine\Common\Persistence\Mapping\MappingException $e) {
+            // Convert Exception type for consistency with other drivers
+            throw new MappingException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
+        
         if (!$element) {
             return;
         }
