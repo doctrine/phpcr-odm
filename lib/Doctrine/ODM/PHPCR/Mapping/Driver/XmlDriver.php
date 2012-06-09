@@ -54,7 +54,8 @@ class XmlDriver extends FileDriver
             $xmlRoot = $this->getElement($className);
         }
         catch(\Doctrine\Common\Persistence\Mapping\MappingException $e) {
-            throw new MappingException($e->getMessage());
+            // Convert Exception type for consistency with other drivers
+            throw new MappingException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
         
         if (!$xmlRoot) {
