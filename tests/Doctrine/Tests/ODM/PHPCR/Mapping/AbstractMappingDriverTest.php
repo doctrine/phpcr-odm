@@ -15,6 +15,24 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         new $entityClassName;
     }
     
+    /**
+     * Returns a ClassMetadata objet for the given class, loaded using the driver associated with a concrete child
+     * of this class.
+     *
+     * @param string $className
+     * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata 
+     */
+    protected function loadMetadataForClassname($className)
+    {
+        $mappingDriver = $this->loadDriver();
+
+        $class = new ClassMetadata($className);
+        $class->initializeReflection(new RuntimeReflectionService());
+        $mappingDriver->loadMetadataForClass($className, $class);
+
+        return $class;
+    }
+
     public function testLoadMetadataForNonDocumentThrowsException()
     {
         $cm = new ClassMetadata('stdClass');
@@ -67,13 +85,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testLoadFieldMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\FieldMappingObject';
-        $mappingDriver = $this->loadDriver();
-
-        $class = new ClassMetadata($className);
-        $class->initializeReflection(new RuntimeReflectionService());
-        $mappingDriver->loadMetadataForClass($className, $class);
-
-        return $class;
+        return $this->loadMetadataForClassName($className);
     }
 
     /**
@@ -257,13 +269,8 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testLoadNodenameMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\NodenameMappingObject';
-        $mappingDriver = $this->loadDriver();
-
-        $class = new ClassMetadata($className);
-        $class->initializeReflection(new RuntimeReflectionService());
-        $mappingDriver->loadMetadataForClass($className, $class);
-
-        return $class;
+        
+        return $this->loadMetadataForClassname($className);
     }
     
     /**
@@ -279,13 +286,8 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testLoadParentDocumentMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Models\ParentDocumentMappingObject';
-        $mappingDriver = $this->loadDriver();
-
-        $class = new ClassMetadata($className);
-        $class->initializeReflection(new RuntimeReflectionService());
-        $mappingDriver->loadMetadataForClass($className, $class);
-
-        return $class;
+        
+        return $this->loadMetadataForClassname($className);
     }
 
     /**
