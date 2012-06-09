@@ -52,6 +52,17 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($original, $afterTestReset);
     }
+    
+    public function testGetAllClassNamesReturnsAlreadyLoadedClassesIfAppropriate()
+    {
+        $rightClassName = 'Doctrine\Tests\Models\CMS\CmsUser';
+        $this->ensureIsLoaded($rightClassName);
+
+        $driver = $this->loadDriverForCMSDocuments();
+        $classes = $driver->getAllClassNames();
+
+        $this->assertContains($rightClassName, $classes);
+    }
 
     /**
      * @depends testLoadMapping

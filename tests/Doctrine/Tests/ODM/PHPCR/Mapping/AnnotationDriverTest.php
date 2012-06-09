@@ -10,17 +10,6 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
  */
 class AnnotationDriverTest extends AbstractMappingDriverTest
 {
-    public function testGetAllClassNamesReturnsAlreadyLoadedClassesIfAppropriate()
-    {
-        $rightClassName = 'Doctrine\Tests\Models\CMS\CmsUser';
-        $this->ensureIsLoaded($rightClassName);
-
-        $annotationDriver = $this->loadDriverForCMSDocuments();
-        $classes = $annotationDriver->getAllClassNames();
-
-        $this->assertContains($rightClassName, $classes);
-    }
-
     public function testGetAllClassNamesReturnsOnlyTheAppropriateClasses()
     {
         $extraneousClassName = 'Doctrine\Tests\Models\ECommerce\ECommerceCart';
