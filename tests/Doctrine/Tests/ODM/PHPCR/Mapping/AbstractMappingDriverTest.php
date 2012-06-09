@@ -44,11 +44,11 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAllClassNamesIsIdempotent()
     {
-        $annotationDriver = $this->loadDriverForCMSDocuments();
-        $original = $annotationDriver->getAllClassNames();
+        $driver = $this->loadDriverForCMSDocuments();
+        $original = $driver->getAllClassNames();
 
-        $annotationDriver = $this->loadDriverForCMSDocuments();
-        $afterTestReset = $annotationDriver->getAllClassNames();
+        $driver = $this->loadDriverForCMSDocuments();
+        $afterTestReset = $driver->getAllClassNames();
 
         $this->assertEquals($original, $afterTestReset);
     }
@@ -62,6 +62,17 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $classes = $driver->getAllClassNames();
 
         $this->assertContains($rightClassName, $classes);
+    }
+    
+    public function testGetAllClassNamesReturnsOnlyTheAppropriateClasses()
+    {
+        $extraneousClassName = 'Doctrine\Tests\Models\ECommerce\ECommerceCart';
+        $this->ensureIsLoaded($extraneousClassName);
+
+        $driver = $this->loadDriverForCMSDocuments();
+        $classes = $driver->getAllClassNames();
+
+        $this->assertNotContains($extraneousClassName, $classes);
     }
 
     /**
