@@ -581,7 +581,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
-        if (!isset($mapping['fieldName']) || empty($mapping['fieldName'])) {
+        if (empty($mapping['fieldName'])) {
             throw new MappingException("Mapping a property requires to specify the fieldName.");
         }
         
