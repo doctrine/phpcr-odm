@@ -53,8 +53,7 @@ class YamlDriver extends FileDriver
     {
         try {
             $element = $this->getElement($className);
-        }
-        catch (DoctrineMappingException $e) {
+        } catch (DoctrineMappingException $e) {
             // Convert Exception type for consistency with other drivers
             throw new MappingException($e->getMessage(), $e->getCode(), $e);
         }
