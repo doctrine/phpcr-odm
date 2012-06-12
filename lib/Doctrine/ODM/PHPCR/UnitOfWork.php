@@ -1568,7 +1568,7 @@ class UnitOfWork
 
             // update fields nodename and parentMapping if they exist in this type
             $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $class->getFieldValue($document, $class->node);
+            $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
             if ($class->nodename) {
                 $class->setFieldValue($document, $class->nodename, $node->getName());
             }
