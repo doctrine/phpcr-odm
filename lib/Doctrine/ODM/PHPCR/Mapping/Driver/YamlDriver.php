@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -53,9 +54,9 @@ class YamlDriver extends FileDriver
         try {
             $element = $this->getElement($className);
         }
-        catch(\Doctrine\Common\Persistence\Mapping\MappingException $e) {
+        catch (DoctrineMappingException $e) {
             // Convert Exception type for consistency with other drivers
-            throw new MappingException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            throw new MappingException($e->getMessage(), $e->getCode(), $e);
         }
         
         if (!$element) {
