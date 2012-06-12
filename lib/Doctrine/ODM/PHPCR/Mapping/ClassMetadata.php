@@ -85,7 +85,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
      *
-     * @var AbstractIdGenerator
+     * @var \Doctrine\ODM\PHPCR\Id\IdGenerator
      */
     public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
 
@@ -202,7 +202,7 @@ class ClassMetadata implements ClassMetadataInterface
     public $associationsMappings = array();
 
     /**
-     * Mapping of child doucments that are child nodes in the repository
+     * Mapping of child documents that are child nodes in the repository
      */
     public $childMappings = array();
 
@@ -449,6 +449,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets a ReflectionProperty for a specific field of the mapped class.
      *
      * @param string $name
+     *
      * @return \ReflectionProperty
      */
     public function getReflectionProperty($name)
@@ -1042,8 +1043,11 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Gets the specified field's value off the given document.
      *
-     * @param object $document
-     * @param string $field
+     * @param object $document the document to get the field from
+     * @param string $field the name of the field
+     *
+     * @return mixed|null the value of this field for the document or null if
+     *      not found
      */
     public function getFieldValue($document, $field)
     {
@@ -1059,7 +1063,8 @@ class ClassMetadata implements ClassMetadataInterface
      * lifecycle callbacks and lifecycle listeners.
      *
      * @param string $event The lifecycle event.
-     * @param Document $document The Document on which the event occured.
+     * @param object $document The Document on which the event occured.
+     * @param array $arguments the arguments to pass to the callback
      */
     public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
     {

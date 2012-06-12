@@ -171,7 +171,7 @@ class UnitOfWork
     private $session;
 
     /**
-     * @var EventManager
+     * @var \Doctrine\Common\EventManager
      */
     private $evm;
 
@@ -1872,7 +1872,7 @@ class UnitOfWork
      * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on children's names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
-     * @return a collection of child documents
+     * @return Collection a collection of child documents
      */
     public function getChildren($document, $filter = null, $fetchDepth = null)
     {
