@@ -1,0 +1,3 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject:
+  type: mappedSuperclass
+  id: id
