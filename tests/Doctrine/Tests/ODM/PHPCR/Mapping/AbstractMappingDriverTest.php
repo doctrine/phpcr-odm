@@ -423,4 +423,37 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals('node', $class->node);
     }
+    
+    public function testLoadReferenceManyMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject';
+        
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadReferenceManyMapping
+     * @param ClassMetadata $class
+     */
+    public function testReferenceManyMapping($class)
+    {
+        $this->assertEquals(2, count($class->associationsMappings));
+        $this->assertTrue(isset($class->associationsMappings['referenceManyWeak']));
+        
+        $referenceManyWeak = $class->associationsMappings['referenceManyWeak'];
+        $this->assertEquals('referenceManyWeak', $referenceManyWeak['fieldName']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceManyWeak['targetDocument']);
+        $this->assertEquals('weak', $referenceManyWeak['strategy']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject', $referenceManyWeak['sourceDocument']);
+        $this->assertEquals(ClassMetadata::MANY_TO_MANY, $referenceManyWeak['type']);
+        
+        $referenceManyHard = $class->associationsMappings['referenceManyHard'];
+        $this->assertEquals('referenceManyHard', $referenceManyHard['fieldName']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceManyHard['targetDocument']);
+        $this->assertEquals('hard', $referenceManyHard['strategy']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject', $referenceManyHard['sourceDocument']);
+        $this->assertEquals(ClassMetadata::MANY_TO_MANY, $referenceManyHard['type']);
+        
+        
+    }
 }

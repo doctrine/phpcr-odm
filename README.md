@@ -503,7 +503,7 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
     </td>
 </tr>
 <tr>
-    <td> ReferenceMany(targetDocument="myDocument", weak="weak"): (*)</td>
+    <td> ReferenceMany(targetDocument="myDocument", strategy="weak"): (*)</td>
     <td>Same as ReferenceOne except that you can refer many documents with the
         same document and reference type. If you dont't specify targetDocument
         you can reference documents of mixed types in the same property. This

@@ -158,13 +158,14 @@ class XmlDriver extends FileDriver
 
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)
     {
-        $attributes = $reference->attributes();
-        $class->mapField(array(
-            'type'           => $type,
-            'reference'      => true,
-            'targetDocument' => isset($attributes['target-document']) ? (string) $attributes['target-document'] : null,
-            'name'           => (string) $attributes['field'],
-        ));
+        $attributes = (array) $reference->attributes();
+        $mapping = $attributes["@attributes"];
+        
+        if ($type === 'many') {
+            $class->mapManyToMany($mapping);
+        } elseif ($type === 'one') {
+            $class->mapManyToOne($mapping);
+        }
     }
 
     /**

@@ -179,13 +179,13 @@ class YamlDriver extends FileDriver
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
-        $class->mapField(array(
-            'type'           => $type,
-            'reference'      => true,
-            'targetDocument' => isset($reference['targetDocument']) ? $reference['targetDocument'] : null,
-            'fieldName'      => $fieldName,
-            'strategy'       => isset($reference['strategy']) ? (string) $reference['strategy'] : 'pushPull',
-        ));
+        $mapping = array_merge(array('fieldName' => $fieldName), $reference);
+        
+        if ($type === 'many') {
+            $class->mapManyToMany($mapping);
+        } elseif ($type === 'one') {
+            $class->mapManyToOne($mapping);
+        }
     }
 
     /**
