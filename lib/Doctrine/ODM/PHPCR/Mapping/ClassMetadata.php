@@ -399,7 +399,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param bool $versionable
+     * @param string $versionable A valid versionable annotation.
      */
     public function setVersioned($versionable)
     {
