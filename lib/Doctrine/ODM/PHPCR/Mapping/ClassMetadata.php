@@ -923,9 +923,7 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($mapping['type'] === 'int') {
             $mapping['type'] = 'long';
-        }
-        
-        if ($mapping['type'] === 'float') {
+        } elseif ($mapping['type'] === 'float') {
             $mapping['type'] = 'double';
         }
 
