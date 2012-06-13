@@ -1,0 +1,3 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeMappingObject:
+  id: id
+  node: node

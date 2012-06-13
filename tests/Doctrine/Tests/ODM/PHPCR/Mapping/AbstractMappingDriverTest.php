@@ -407,4 +407,20 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue($class->isMappedSuperclass);
     }
+    
+    public function testLoadNodeMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeMappingObject';
+        
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadNodeMapping
+     * @param ClassMetadata $class
+     */
+    public function testNodeMapping($class)
+    {
+        $this->assertEquals('node', $class->node);
+    }
 }
