@@ -168,4 +168,9 @@ class Generic
 
         $this->referrers->add($referrer);
     }
+
+    public function __toString()
+    {
+        return $this->nodename;
+    }
 }

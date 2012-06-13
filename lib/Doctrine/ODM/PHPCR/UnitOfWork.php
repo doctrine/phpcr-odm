@@ -171,7 +171,7 @@ class UnitOfWork
     private $session;
 
     /**
-     * @var EventManager
+     * @var \Doctrine\Common\EventManager
      */
     private $evm;
 
@@ -1568,7 +1568,7 @@ class UnitOfWork
 
             // update fields nodename and parentMapping if they exist in this type
             $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $class->getFieldValue($document, $class->node);
+            $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
             if ($class->nodename) {
                 $class->setFieldValue($document, $class->nodename, $node->getName());
             }
@@ -1872,7 +1872,7 @@ class UnitOfWork
      * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on children's names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
-     * @return a collection of child documents
+     * @return Collection a collection of child documents
      */
     public function getChildren($document, $filter = null, $fetchDepth = null)
     {

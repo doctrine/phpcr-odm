@@ -56,7 +56,7 @@ class DocumentManager implements ObjectManager
     private $config;
 
     /**
-     * @var Mapping\ClassMetadataFactory
+     * @var ClassMetadataFactory
      */
     private $metadataFactory;
 
@@ -88,12 +88,12 @@ class DocumentManager implements ObjectManager
     private $closed = false;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface
+     * @var TranslationStrategyInterface
      */
     protected $translationStrategy;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface
+     * @var LocaleChooserInterface
      */
     protected $localeChooserStrategy;
 
@@ -120,10 +120,12 @@ class DocumentManager implements ObjectManager
     /**
      * Add or replace a translation strategy
      *
-     * note that you do not need to set the default strategies attribute and child unless you want to replace them.
+     * Note that you do not need to set the default strategies attribute and
+     * child unless you want to replace them.
      *
      * @param string $key The name of the translation strategy.
-     * @param \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface $strategy the strategy that implements this label
+     * @param TranslationStrategyInterface $strategy the strategy that
+     *      is used with this key
      *
      */
     public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
@@ -138,7 +140,7 @@ class DocumentManager implements ObjectManager
      *
      * @return Translation\TranslationStrategy\TranslationStrategyInterface
      *
-     * @throws InvalidArgumentException if there is no strategy registered with the given key
+     * @throws \InvalidArgumentException if there is no strategy registered with the given key
      */
     public function getTranslationStrategy($key)
     {
@@ -149,10 +151,10 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Get the assigned language chooser strategy. This function considers the document is translatable
-     * and thus must have an injected strategy. So don't call this on non-translatable documents
-     * since it will ALWAYS fail!
-     * @return Translation\LocaleChooser\LocaleChooserInterface
+     * Get the assigned language chooser strategy previously set with
+     * setLocaleChooserStrategy
+     *
+     * @return LocaleChooserInterface
      */
     public function getLocaleChooserStrategy()
     {
@@ -194,6 +196,8 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Access the underlying PHPCR session this manager is using.
+     *
      * @return \PHPCR\SessionInterface
      */
     public function getPhpcrSession()
@@ -207,6 +211,7 @@ class DocumentManager implements ObjectManager
      * @param SessionInterface $session
      * @param Configuration $config
      * @param EventManager $evm
+     *
      * @return DocumentManager
      */
     public static function create(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
@@ -245,7 +250,7 @@ class DocumentManager implements ObjectManager
     /**
      * Check if the Document manager is open or closed.
      *
-     * @return bool
+     * @return boolean true if open, false if closed
      */
     public function isOpen()
     {
@@ -253,25 +258,29 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * @param  string $class
-     * @return ClassMetadata
+     * Get the ClassMetadata object for a class
+     *
+     * @param  string $className document class name to get metadata for
+     *
+     * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
      */
-    public function getClassMetadata($class)
+    public function getClassMetadata($className)
     {
-        return $this->metadataFactory->getMetadataFor($class);
+        return $this->metadataFactory->getMetadataFor($className);
     }
 
     /**
      * Find the Document with the given id.
      *
-     * Will return null if the document wasn't found.
+     * Will return null if the document was not found.
      *
-     * If the document is translatable, then the language chooser strategy is used to load the best
-     * suited language for the translatable fields.
+     * If the document is translatable, then the language chooser strategy is
+     * used to load the best * suited language for the translatable fields.
      *
-     * @param null|string $className
-     * @param string $id
-     * @return object
+     * @param null|string $className optional object class name to use
+     * @param string $id the path or uuid of the document to find
+     *
+     * @return object|null the document if found, otherwise null
      */
     public function find($className, $id)
     {
@@ -300,6 +309,7 @@ class DocumentManager implements ObjectManager
      *
      * @param null|string $className
      * @param array $ids
+     *
      * @return object
      */
     public function findMany($className, array $ids)
@@ -311,6 +321,7 @@ class DocumentManager implements ObjectManager
 
             $tmp = array();
             foreach ($nodes as $node) {
+                /** @var $node \PHPCR\NodeInterface */
                 $tmp[] = $node->getPath();
             }
 
@@ -346,11 +357,12 @@ class DocumentManager implements ObjectManager
      * Note that this will be the same object as you got with a previous find/findTranslation call - we can't
      * allow copies of objects to exist
      *
-     * @param $className
-     * @param $id
+     * @param null|string $className the class name to find the translation for
+     * @param string $id the identifier of the class (path or uuid)
      * @param string $locale The language to try to load
-     * @param bool $fallback Set to true if the language fallback mechanism should be used
-     * @return object
+     * @param boolean $fallback Set to true if the language fallback mechanism should be used
+     *
+     * @return object the translated document
      */
     public function findTranslation($className, $id, $locale, $fallback = true)
     {
@@ -377,8 +389,11 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * @param  string $className
-     * @return Doctrine\ODM\PHPCR\DocumentRepository
+     * Get the repository for the specified class
+     *
+     * @param  string $className The document class name to get the repository for
+     *
+     * @return DocumentRepository
      */
     public function getRepository($className)
     {
@@ -398,10 +413,12 @@ class DocumentManager implements ObjectManager
     /**
      * Quote a string for inclusion in an SQL2 query
      *
-     * @see \PHPCR\PropertyType
      * @param  string $val
      * @param  int $type
+     *
      * @return string
+     *
+     * @see \PHPCR\PropertyType
      */
     public function quote($val, $type = PropertyType::STRING)
     {
@@ -415,9 +432,11 @@ class DocumentManager implements ObjectManager
     /**
      * Escape the illegal characters for inclusion in a fulltext statement. Escape Character is \\.
      *
-     * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
      * @param  string $string
+     *
      * @return string Escaped String
+     *
+     * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
      */
     public function escapeFullText($string)
     {
@@ -439,7 +458,8 @@ class DocumentManager implements ObjectManager
      *
      * @param  string $statement the statement in the specified language
      * @param  string $language the query language
-     * @return PHPCR\Query\QueryInterface
+     *
+     * @return QueryInterface
      */
     public function createQuery($statement, $language)
     {
@@ -464,7 +484,8 @@ class DocumentManager implements ObjectManager
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param  \PHPCR\Query\QueryInterface $query the query instance as acquired through createQuery()
+     * @param  \PHPCR\Query\QueryInterface $query the query instance as
+     *      acquired through createQuery()
      * @param  string $documentName document class
      *
      * @return array of document instances
@@ -477,6 +498,7 @@ class DocumentManager implements ObjectManager
 
         $ids = array();
         foreach ($result->getRows() as $row) {
+            /** @var $row \PHPCR\Query\RowInterface */
             $ids[] = $row->getPath();
         }
 
@@ -496,8 +518,13 @@ class DocumentManager implements ObjectManager
      * For translatable documents has to determine the locale:
      *
      *   - If there is a non-empty @Locale that field value is used
-     *   - If the document was previously loaded from the DocumentManager it has a non-empty @Locale
-     *   - Otherwise its a new document. The language chooser strategy is asked for the default language and that is used to store. The field is updated with the locale.
+     *   - If the document was previously loaded from the DocumentManager it
+     *      has a non-empty @Locale
+     *   - Otherwise its a new document. The language chooser strategy is asked
+     *      for the default language and that is used to store. The field is
+     *      updated with the locale.
+     *
+     * @param object $document the document to persist
      */
     public function persist($document)
     {
@@ -615,6 +642,7 @@ class DocumentManager implements ObjectManager
      * reference it.
      *
      * @param object $document The object to detach.
+     *
      * @return void
      */
     public function detach($document)
@@ -652,10 +680,12 @@ class DocumentManager implements ObjectManager
      *
      * This methods gets all child nodes as a collection of documents that matches
      * a given filter (same as PHPCR Node::getNodes)
+     *
      * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on childrens names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
-     * @return a collection of child documents
+     *
+     * @return \Doctrine\Common\Collections\Collection collection of child documents
      */
     public function getChildren($document, $filter = null, $fetchDepth = null)
     {
@@ -672,9 +702,11 @@ class DocumentManager implements ObjectManager
      *
      * This methods gets all nodes as a collection of documents that refer the
      * given document and matches a given name.
+     *
      * @param object $document document instance which referrers should be loaded
      * @param string|array $name optional name to match on referrers names
-     * @return a collection of referrer documents
+     *
+     * @return \Doctrine\Common\Collections\Collection collection of referrer documents
      */
     public function getReferrers($document, $type = null, $name = null)
     {
@@ -712,6 +744,7 @@ class DocumentManager implements ObjectManager
      *
      * @param string $documentName
      * @param string|object $id
+     *
      * @return mixed|object The document reference.
      */
     public function getReference($documentName, $id)
@@ -858,11 +891,11 @@ class DocumentManager implements ObjectManager
      * @param string $id id of the document
      * @param string $versionName the version name as given by getLinearPredecessors
      *
-     * @return the detached document or null if the document is not found
+     * @return object the detached document or null if the document is not found
      *
-     * @throws InvalidArgumentException if there is a document with $id but no
+     * @throws \InvalidArgumentException if there is a document with $id but no
      *      version with $name
-     * @throws UnsupportedRepositoryOperationException if the implementation
+     * @throws \PHPCR\UnsupportedRepositoryOperationException if the implementation
      *      does not support versioning
      */
     public function findVersionByName($className, $id, $versionName)
@@ -872,8 +905,11 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Check if this repository contains the object
+     *
      * @param  object $document
-     * @return bool
+     *
+     * @return boolean true if the repository contains the object, false otherwise
      */
     public function contains($document)
     {
@@ -885,6 +921,10 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Client code should not access the UnitOfWork except in special
+     * circumstances. Methods on UnitOfWork might be changed without special
+     * notice
+     *
      * @return UnitOfWork
      */
     public function getUnitOfWork()
