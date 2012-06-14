@@ -1,0 +1,15 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject:
+  id: id
+  fields:
+    string:   string
+    binary:   binary
+    long:     long
+    int:      int
+    decimal:  decimal
+    double:   double
+    float:    float
+    date:     date
+    boolean:  boolean
+    name:     name
+    path:     path
+    uri:      uri

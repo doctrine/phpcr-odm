@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\PropertyType;
 
 /**
  * @group functional
@@ -46,7 +47,7 @@ class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $doc->date = $date;
         $doc->boolean = true;
         $doc->name = 'aname';
-        $doc->path = '../';
+        $doc->path = '../a';
         $doc->uri = 'http://cmf.symfony.com:8080/about.html#there';
 
         $this->dm->persist($doc);
@@ -54,16 +55,37 @@ class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->assertTrue($this->node->getNode('p')->hasProperty('string'));
+        $this->assertEquals(PropertyType::STRING, $this->node->getNode('p')->getProperty('string')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('long'));
+        $this->assertEquals(PropertyType::LONG, $this->node->getNode('p')->getProperty('long')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('int'));
+        $this->assertEquals(PropertyType::LONG, $this->node->getNode('p')->getProperty('int')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('decimal'));
+        $this->assertEquals(PropertyType::DECIMAL, $this->node->getNode('p')->getProperty('decimal')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('double'));
+        $this->assertEquals(PropertyType::DOUBLE, $this->node->getNode('p')->getProperty('double')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('float'));
+        $this->assertEquals(PropertyType::DOUBLE, $this->node->getNode('p')->getProperty('float')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('date'));
+        $this->assertEquals(PropertyType::DATE, $this->node->getNode('p')->getProperty('date')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('boolean'));
+        $this->assertEquals(PropertyType::BOOLEAN, $this->node->getNode('p')->getProperty('boolean')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('name'));
+        $this->assertEquals(PropertyType::NAME, $this->node->getNode('p')->getProperty('name')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('path'));
+        $this->assertEquals(PropertyType::PATH, $this->node->getNode('p')->getProperty('path')->getType());
+        
         $this->assertTrue($this->node->getNode('p')->hasProperty('uri'));
+        $this->assertEquals(PropertyType::URI, $this->node->getNode('p')->getProperty('uri')->getType());
 
         $doc = $this->dm->find($this->type, '/functional/p');
         $this->assertNotNull($doc->string);
@@ -85,7 +107,7 @@ class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($doc->name);
         $this->assertEquals('aname', $doc->name);
         $this->assertNotNull($doc->path);
-        $this->assertEquals('../', $doc->path);
+        $this->assertEquals('../a', $doc->path);
         $this->assertNotNull($doc->uri);
         $this->assertEquals('http://cmf.symfony.com:8080/about.html#there', $doc->uri);
     }

@@ -1,0 +1,9 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject:
+  id: id
+  referenceMany:
+    referenceManyWeak:
+      targetDocument: myDocument
+      strategy: weak
+    referenceManyHard:
+      targetDocument: myDocument
+      strategy: hard

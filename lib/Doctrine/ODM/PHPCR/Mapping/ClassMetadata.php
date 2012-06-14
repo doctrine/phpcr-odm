@@ -399,7 +399,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param bool $versionable
+     * @param string $versionable A valid versionable annotation.
      */
     public function setVersioned($versionable)
     {
@@ -582,8 +582,12 @@ class ClassMetadata implements ClassMetadataInterface
 
     protected function validateAndCompleteFieldMapping($mapping, $isField = true)
     {
-        if (!isset($mapping['fieldName'])) {
+        if (empty($mapping['fieldName'])) {
             throw new MappingException("Mapping a property requires to specify the fieldName.");
+        }
+        
+        if (!is_string($mapping['fieldName'])) {
+            throw new MappingException("fieldName must be of type string.");
         }
 
         if ($isField && !isset($mapping['name'])) {
@@ -919,6 +923,8 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($mapping['type'] === 'int') {
             $mapping['type'] = 'long';
+        } elseif ($mapping['type'] === 'float') {
+            $mapping['type'] = 'double';
         }
 
         // Add the field to the list of translatable fields

@@ -75,6 +75,10 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         ksort($documentAnnots);
 
         $documentAnnot = reset($documentAnnots);
+        
+        if ($documentAnnot instanceof ODM\MappedSuperclass) {
+            $metadata->isMappedSuperclass = true;
+        }
 
         if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
             $metadata->setVersioned($documentAnnot->versionable);
