@@ -27,6 +27,12 @@ final class Document
  */
 final class MappedSuperclass
 {
+    /** @var string */
+    public $nodeType = 'nt:unstructured';
+    /** @var string */
+    public $repositoryClass;
+    /** @var string */
+    public $translator;
 }
 /**
  * @Annotation
