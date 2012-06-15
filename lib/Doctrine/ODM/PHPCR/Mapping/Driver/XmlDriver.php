@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use SimpleXmlElement;
 
 /**
@@ -50,7 +51,13 @@ class XmlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        $xmlRoot = $this->getElement($className);
+        try {
+            $xmlRoot = $this->getElement($className);
+        } catch (DoctrineMappingException $e) {
+            // Convert Exception type for consistency with other drivers
+            throw new MappingException($e->getMessage(), $e->getCode(), $e);
+        }
+        
         if (!$xmlRoot) {
             return;
         }
@@ -151,13 +158,14 @@ class XmlDriver extends FileDriver
 
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)
     {
-        $attributes = $reference->attributes();
-        $class->mapField(array(
-            'type'           => $type,
-            'reference'      => true,
-            'targetDocument' => isset($attributes['target-document']) ? (string) $attributes['target-document'] : null,
-            'name'           => (string) $attributes['field'],
-        ));
+        $attributes = (array) $reference->attributes();
+        $mapping = $attributes["@attributes"];
+        
+        if ($type === 'many') {
+            $class->mapManyToMany($mapping);
+        } elseif ($type === 'one') {
+            $class->mapManyToOne($mapping);
+        }
     }
 
     /**

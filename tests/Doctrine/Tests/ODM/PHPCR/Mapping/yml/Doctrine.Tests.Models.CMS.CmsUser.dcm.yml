@@ -1,7 +1,0 @@
-Doctrine\Tests\Models\CMS\CmsUser:
-  id: id
-  node: node
-  fields:
-    status: string
-    username: string
-    name: string

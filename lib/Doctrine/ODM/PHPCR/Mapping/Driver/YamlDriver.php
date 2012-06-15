@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -50,7 +51,13 @@ class YamlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        $element = $this->getElement($className);
+        try {
+            $element = $this->getElement($className);
+        } catch (DoctrineMappingException $e) {
+            // Convert Exception type for consistency with other drivers
+            throw new MappingException($e->getMessage(), $e->getCode(), $e);
+        }
+        
         if (!$element) {
             return;
         }
@@ -84,7 +91,15 @@ class YamlDriver extends FileDriver
             }
         }
         if (isset($element['id'])) {
-            $mapping = array('fieldName' => $element['id'], 'id' => true);
+            if (is_array($element['id'])) {
+                if (!isset($element['id']['fieldName'])) {
+                    throw new MappingException("Missing fieldName property for id field");
+                }
+                $fieldName = $element['id']['fieldName'];
+            } else {
+                $fieldName = $element['id'];
+            }
+            $mapping = array('fieldName' => $fieldName, 'id' => true);
             if (isset($element['id']['generator']['strategy'])) {
                 $mapping['strategy'] = $element['id']['generator']['strategy'];
             }
@@ -164,13 +179,13 @@ class YamlDriver extends FileDriver
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
-        $class->mapField(array(
-            'type'           => $type,
-            'reference'      => true,
-            'targetDocument' => isset($reference['targetDocument']) ? $reference['targetDocument'] : null,
-            'fieldName'      => $fieldName,
-            'strategy'       => isset($reference['strategy']) ? (string) $reference['strategy'] : 'pushPull',
-        ));
+        $mapping = array_merge(array('fieldName' => $fieldName), $reference);
+        
+        if ($type === 'many') {
+            $class->mapManyToMany($mapping);
+        } elseif ($type === 'one') {
+            $class->mapManyToOne($mapping);
+        }
     }
 
     /**

@@ -1,0 +1,6 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\RepositoryMappingObject:
+  repositoryClass: Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository
+  id:
+    fieldName: id
+    generator:
+      strategy: repository

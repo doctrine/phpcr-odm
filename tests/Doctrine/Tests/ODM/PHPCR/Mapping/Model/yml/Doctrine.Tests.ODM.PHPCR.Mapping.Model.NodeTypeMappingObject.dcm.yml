@@ -1,0 +1,3 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeTypeMappingObject:
+  nodeType: nt:test
+  id: id
