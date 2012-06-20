@@ -71,6 +71,11 @@ class XmlDriver extends FileDriver
             if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
                 $class->setVersioned($xmlRoot['versionable']);
             }
+
+            if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
+                $class->setReferenceable($xmlRoot['referenceable']);
+            }
+
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
         } elseif ($xmlRoot->getName() === 'mapped-superclass') {
             $class->isMappedSuperclass = true;
