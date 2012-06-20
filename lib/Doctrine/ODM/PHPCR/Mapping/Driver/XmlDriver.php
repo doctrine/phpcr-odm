@@ -51,13 +51,14 @@ class XmlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
+        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         try {
             $xmlRoot = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
             // Convert Exception type for consistency with other drivers
             throw new MappingException($e->getMessage(), $e->getCode(), $e);
         }
-        
+
         if (!$xmlRoot) {
             return;
         }
@@ -160,7 +161,7 @@ class XmlDriver extends FileDriver
     {
         $attributes = (array) $reference->attributes();
         $mapping = $attributes["@attributes"];
-        
+
         if ($type === 'many') {
             $class->mapManyToMany($mapping);
         } elseif ($type === 'one') {
