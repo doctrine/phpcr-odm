@@ -1614,7 +1614,7 @@ class UnitOfWork
     private function executeRemovals($documents)
     {
         foreach ($documents as $oid => $document) {
-            if (!$this->contains($oid)) {
+            if (empty($this->documentIds[$oid])) {
                 continue;
             }
 
@@ -1798,9 +1798,8 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
 
-        if ($this->contains($document)) {
-            $id = $this->getDocumentId($document);
-            unset($this->identityMap[$id]);
+        if (isset($this->documentIds[$oid])) {
+            unset($this->identityMap[$this->documentIds[$oid]]);
         }
 
         unset($this->scheduledRemovals[$oid],
@@ -1844,7 +1843,7 @@ class UnitOfWork
     public function contains($document)
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
-        return isset($this->documentIds[$oid]);
+        return isset($this->documentIds[$oid]) && !isset($this->scheduledRemovals[$oid]);
     }
 
     /**

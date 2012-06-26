@@ -55,7 +55,7 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->listener->preRemove);
         $this->assertFalse($this->listener->postRemove);
-        $this->assertTrue($this->dm->contains($user));
+        $this->assertFalse($this->dm->contains($user));
 
         $this->dm->flush();
 
