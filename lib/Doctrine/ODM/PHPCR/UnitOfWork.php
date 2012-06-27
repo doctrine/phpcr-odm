@@ -1339,6 +1339,12 @@ class UnitOfWork
 
             $node = $parentNode->addNode(basename($id), $class->nodeType);
 
+            try {
+                $node->addMixin('phpcr:managed');
+            } catch (NoSuchNodeTypeException $e) {
+                throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
+            }
+
             if ($class->identifier) {
                 $class->setIdentifierValue($document, $id);
             }
@@ -1358,12 +1364,6 @@ class UnitOfWork
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
-            try {
-                $node->addMixin('phpcr:managed');
-            } catch (NoSuchNodeTypeException $e) {
-                throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
-            }
-
             $this->setMixins($class, $node);
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
@@ -1374,11 +1374,19 @@ class UnitOfWork
 
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
-                    if (null === $fieldValue && $node->hasProperty($class->fieldMappings[$fieldName]['name'])) {
-                        // Check whether we can remove the property first
-                        $property = $node->getProperty($class->fieldMappings[$fieldName]['name']);
-                        $definition = $property->getDefinition();
-                        if ($definition && ($definition->isMandatory() || $definition->isProtected())) {
+                    if (null === $fieldValue) {
+                        $types = $node->getMixinNodeTypes();
+                        array_push($types, $node->getPrimaryNodeType());
+                        $protected = false;
+                        foreach ($types as $nt) {
+                            /** @var $nt \PHPCR\NodeType\NodeTypeInterface */
+                            if (! $nt->canRemoveProperty($class->fieldMappings[$fieldName]['name'])) {
+                                $protected = true;
+                                break;
+                            }
+                        }
+
+                        if ($protected) {
                             continue;
                         }
                     }
