@@ -324,7 +324,6 @@ class DocumentManager implements ObjectManager
                 $uuids[$id] = $key;
             } elseif (strpos($id, '/') !== 0) {
                 $ids[$key] = '/'.$id;
-
             }
         }
 
