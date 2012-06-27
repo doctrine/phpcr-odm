@@ -287,6 +287,8 @@ class DocumentManager implements ObjectManager
         try {
             if (UUIDHelper::isUUID($id)) {
                 $id = $this->session->getNodeByIdentifier($id)->getPath();
+            } elseif (strpos($id, '/') !== 0) {
+                $id = '/'.$id;
             }
 
             $document = $this->unitOfWork->getDocumentById($id);
@@ -316,16 +318,22 @@ class DocumentManager implements ObjectManager
     {
         $documents = array();
 
-        if (UUIDHelper::isUUID(reset($ids))) {
-            $nodes = $this->session->getNodesByIdentifier($ids);
+        $uuids = array();
+        foreach ($ids as $key => $id) {
+            if (UUIDHelper::isUUID($id)) {
+                $uuids[$id] = $key;
+            } elseif (strpos($id, '/') !== 0) {
+                $ids[$key] = '/'.$id;
+            }
+        }
 
-            $tmp = array();
+        if (!empty($uuids)) {
+            $nodes = $this->session->getNodesByIdentifier(array_keys($uuids));
+
             foreach ($nodes as $node) {
                 /** @var $node \PHPCR\NodeInterface */
-                $tmp[] = $node->getPath();
+                $ids[$uuids[$node->getIdentifier()]] = $node->getPath();
             }
-
-            $ids = $tmp;
         }
 
         $nodes = $this->session->getNodes($ids);
@@ -369,6 +377,8 @@ class DocumentManager implements ObjectManager
         try {
             if (UUIDHelper::isUUID($id)) {
                 $id = $this->session->getNodeByIdentifier($id)->getPath();
+            } elseif (strpos($id, '/') !== 0) {
+                $id = '/'.$id;
             }
 
             $document = $this->unitOfWork->getDocumentById($id);

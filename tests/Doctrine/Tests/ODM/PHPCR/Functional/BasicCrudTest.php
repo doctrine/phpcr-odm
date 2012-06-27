@@ -51,6 +51,12 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertEquals('lsmith', $user->username);
         $this->assertEquals(array(3, 1, 2), $user->numbers->toArray());
+
+        $user = $this->dm->find($this->type, 'functional/user');
+        $this->assertInstanceOf($this->type, $user);
+
+        $user = $this->dm->find($this->type, 'functional/user');
+        $this->assertInstanceOf($this->type, $user);
     }
 
     public function testInsert()
