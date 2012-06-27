@@ -1,5 +1,7 @@
 #!/bin/bash
 
+tests/travis_midgard_install.sh
+
 # Install libgda MySQL connector
 sudo apt-get install -y libgda-4.0-mysql
 
