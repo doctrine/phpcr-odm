@@ -17,10 +17,13 @@
         "phpcr/phpcr-utils": "2.1.*"
     },
     "require-dev": {
-        "symfony/yaml": ">=2.0.0,<2.2.0-dev",
-        "jackalope/jackalope-doctrine-dbal": "dev-master",
-        "jackalope/jackalope-jackrabbit": "1.0.*",
-        "midgard/phpcr": "dev-master"
+        "symfony/yaml": ">=2.0.0,<2.2.0-dev"
+    },
+    "suggests":{
+        "symfony/yaml":">=2.0.0,<2.2.0-dev",
+        "jackalope/jackalope-doctrine-dbal":"dev-master",
+        "jackalope/jackalope-jackrabbit":"1.0.*",
+        "midgard/phpcr":"dev-master"
     },
     "autoload": {
         "psr-0": { "Doctrine\\ODM\\PHPCR": "lib/" }
