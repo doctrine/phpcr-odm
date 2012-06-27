@@ -1,5 +1,7 @@
 #!/bin/bash
 
+php composer.phar require jackalope/jackalope-doctrine-dbal:dev-master
+
 mysql -e 'create database IF NOT EXISTS phpcr_odm_tests;' -u root
 
 cp cli-config.doctrine_dbal.php.dist cli-config.php
