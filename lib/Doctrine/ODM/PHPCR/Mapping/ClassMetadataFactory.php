@@ -246,4 +246,11 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $class->wakeupReflection($reflService);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    protected function isEntity(ClassMetadataInterface $class)
+    {
+        return isset($class->isMappedSuperclass) && $class->isMappedSuperclass === false;
+    }
 }
