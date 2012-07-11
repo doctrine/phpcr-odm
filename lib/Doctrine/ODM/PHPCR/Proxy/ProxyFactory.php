@@ -224,7 +224,7 @@ class ProxyFactory
         $methods = '';
 
         foreach ($class->reflClass->getMethods() as $method) {
-            /* @var $method ReflectionMethod */
+            /* @var $method \ReflectionMethod */
             if ($method->isConstructor() || strtolower($method->getName()) == "__sleep") {
                 continue;
             }
@@ -239,6 +239,7 @@ class ProxyFactory
                 $parameterString = $argumentString = '';
 
                 foreach ($method->getParameters() as $param) {
+                    /** @var $param \ReflectionParameter */
                     if ($firstParam) {
                         $firstParam = false;
                     } else {
