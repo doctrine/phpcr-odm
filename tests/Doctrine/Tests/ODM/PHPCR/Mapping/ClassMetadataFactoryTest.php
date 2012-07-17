@@ -39,7 +39,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAllMetadata()
     {
-        $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
+        $driver = new \Doctrine\Common\Persistence\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
         $this->dm->getConfiguration()->setMetadataDriverImpl($driver);
 
         $cmf = new ClassMetadataFactory($this->dm);
