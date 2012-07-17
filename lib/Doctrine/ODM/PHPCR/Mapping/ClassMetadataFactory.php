@@ -117,7 +117,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      * {@inheritdoc}
      */
-    protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents)
+    protected function doLoadMetadata($class, $parent, $rootEntityFound)
     {
         if ($parent) {
             $this->addInheritedFields($class, $parent);
