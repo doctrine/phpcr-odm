@@ -1,8 +1,6 @@
 <?php
 
-$vendorDir = __DIR__.'/vendor';
-
-$file = $vendorDir.'/autoload.php';
+$file = './vendor/autoload.php';
 if (file_exists($file)) {
     $autoload = require_once $file;
 } else {
