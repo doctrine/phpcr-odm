@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-$configFile = getcwd() . DIRECTORY_SEPARATOR . 'cli-config.php';
+$configFile = __DIR__ . DIRECTORY_SEPARATOR . '/../cli-config.php';
 
 $helperSet = null;
 if (file_exists($configFile)) {
