@@ -184,7 +184,7 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $parent->children = array($child);
 
-        # the granchild document
+        # the grand child document
         $grandchild = new NameDoc();
         $grandchild->parent = $child;
         $grandchild->nodename = 'grandchild';
@@ -231,6 +231,24 @@ class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('/childOfRoot', $child->id);
     }
 
+    function testParentOfReference()
+    {
+        $doc = $this->dm->find($this->type, '/functional/thename');
+        $doc->node->addMixin('mix:referenceable');
+        $this->dm->getPhpcrSession()->save();
+
+        $referrer = new NameDocWithRef();
+        $referrer->id = '/functional/referrer';
+        $referrer->ref = $doc;
+        $this->dm->persist($referrer);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find(null, '/functional/referrer');
+        $this->assertInstanceOf('\Doctrine\ODM\PHPCR\Document\Generic', $referrer->ref->parent);
+    }
+
     // TODO: move? is to be done through phpcr session directly
 
 }
@@ -254,4 +272,13 @@ class NameDoc
     public $child;
     /** @PHPCRODM\String */
     public $title;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class NameDocWithRef extends NameDoc
+{
+    /** @PHPCRODM\ReferenceOne() */
+    public $ref;
 }

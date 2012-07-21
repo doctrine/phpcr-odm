@@ -208,6 +208,18 @@ class ProxyFactory
             $attributes[] = $field["fieldName"];
         }
 
+        if ($class->parentMapping) {
+            $attributes[] = $class->parentMapping;
+        }
+
+        if ($class->node) {
+            $attributes[] = $class->node;
+        }
+
+        if ($class->nodename) {
+            $attributes[] = $class->nodename;
+        }
+
         $attributes[] = $class->identifier;
 
         return $attributes;
