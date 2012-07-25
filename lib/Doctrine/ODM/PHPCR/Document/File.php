@@ -51,8 +51,14 @@ class File extends AbstractFile
 
         $this->content->setData($stream);
         $this->content->setLastModified(new \DateTime('@'.filemtime($filename)));
-        $this->content->setMimeType(mime_content_type($filename));
-        //encoding???
+        
+        $finfoMimeType = new \finfo(FILEINFO_MIME_TYPE);
+        $this->content->setMimeType($finfoMimeType->file($filename));
+        unset($finfoMimeType);
+        
+        $finfoMimeEnc = new \finfo(FILEINFO_MIME_ENCODING);
+        $this->content->setEncoding($finfoMimeEnc->file($filename));
+        unset($finfoMimeEnc);
     }
 
     /**
