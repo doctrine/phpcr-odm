@@ -113,7 +113,7 @@ class File extends AbstractFile
      *
      * @return Resource
      */
-    private function getContent()
+    public function getContent()
     {
         if ($this->content === null) {
             $this->content = new Resource();
