@@ -113,8 +113,17 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function setLocale($locale)
     {
-        if (! array_key_exists($locale, $this->localePreference)) {
-            throw new \InvalidArgumentException("The locale '$locale' is not present in the list of available locales");
+        if (! isset($this->localePreference[$locale])) {
+            $localeBase = substr($locale, 0, 2);
+
+            // Strip region from locale if not configured
+            if (isset($this->localePreference[$localeBase])) {
+                $locale = $localeBase;
+            } else {
+                throw new \InvalidArgumentException(
+                    "The locale '$locale' is not present in the list of available locales"
+                );
+            }
         }
 
         $this->locale = $locale;

@@ -74,4 +74,11 @@ class LocaleChooserTest extends PHPCRTestCase
         $locale = $this->localeChooser->getDefaultLocale();
         $this->assertEquals('en', $locale);
     }
+
+    public function testSetLocaleRegionNotConfigured()
+    {
+        $this->localeChooser->setLocale('en_GB');
+        $locale = $this->localeChooser->getLocale();
+        $this->assertEquals('en', $locale);
+    }
 }
