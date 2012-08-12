@@ -72,6 +72,10 @@ class YamlDriver extends FileDriver
                 $class->setVersioned($element['versionable']);
             }
 
+            if (isset($element['referenceable']) && $element['referenceable'] !== 'false') {
+                $class->setReferenceable($element['referenceable']);
+            }
+
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
         } elseif ($element['type'] === 'mappedSuperclass') {
             $class->isMappedSuperclass = true;
