@@ -184,4 +184,14 @@ class Resource
     {
         return $this->lastModifiedBy;
     }
+    
+        
+    /**
+     * get mime and encoding (RFC2045)
+     * @return string
+     */
+    public function getMime() 
+    {
+      return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
+    }
 }
