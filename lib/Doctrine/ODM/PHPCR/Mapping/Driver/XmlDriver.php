@@ -69,11 +69,11 @@ class XmlDriver extends FileDriver
             }
 
             if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
-                $class->setVersioned($xmlRoot['versionable']);
+                $class->setVersioned((string)$xmlRoot['versionable']);
             }
 
             if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
-                $class->setReferenceable($xmlRoot['referenceable']);
+                $class->setReferenceable((bool)$xmlRoot['referenceable']);
             }
 
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
