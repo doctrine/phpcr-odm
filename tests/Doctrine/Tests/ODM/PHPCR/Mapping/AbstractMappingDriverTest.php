@@ -472,4 +472,42 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         
         
     }
+
+    public function testLoadReferrersMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadReferrersMapping
+     * @param ClassMetadata $class
+     */
+    public function testReferrersMapping($class)
+    {
+        $all = $class->referrersMappings['allReferrers'];
+        $this->assertEquals('allReferrers', $all['fieldName']);
+        $this->assertEquals('allReferrers', $all['name']);
+        $this->assertEmpty($all['filter']);
+        $this->assertNull($all['referenceType']);
+
+        $filtered = $class->referrersMappings['filteredReferrers'];
+        $this->assertEquals('filteredReferrers', $filtered['fieldName']);
+        $this->assertEquals('filteredReferrers', $filtered['name']);
+        $this->assertEquals('test_filter', $filtered['filter']);
+        $this->assertEmpty($filtered['referenceType']);
+
+        $hard = $class->referrersMappings['hardReferrers'];
+        $this->assertEquals('hardReferrers', $hard['fieldName']);
+        $this->assertEquals('hardReferrers', $hard['name']);
+        $this->assertEmpty($hard['filter']);
+        $this->assertEquals('hard', $hard['referenceType']);
+
+        $weak = $class->referrersMappings['weakReferrers'];
+        $this->assertEquals('weakReferrers', $weak['fieldName']);
+        $this->assertEquals('weakReferrers', $weak['name']);
+        $this->assertEmpty($weak['filter']);
+        $this->assertEquals('weak', $weak['referenceType']);
+    }
 }
