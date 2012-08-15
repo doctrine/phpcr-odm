@@ -145,8 +145,19 @@ class XmlDriver extends FileDriver
             }
         }
 
-        // TODO: referrers, locale
+        // TODO: locale
 
+        if (isset($xmlRoot->referrers)) {
+            foreach ($xmlRoot->referrers as $referrers) {
+                $attributes = $referrers->attributes();
+                $mapping = array('fieldName' => (string) $attributes->fieldName);
+                $mapping['filter'] = isset($attributes['filter'])
+                    ? (string) $attributes->filter : null;
+                $mapping['referenceType'] = isset($attributes['reference-type'])
+                    ? (string) $attributes->{'reference-type'} : null;
+                $class->mapReferrers($mapping);
+            }
+        }
         if (isset($xmlRoot->versionname)) {
             $class->mapVersionName(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
         }
