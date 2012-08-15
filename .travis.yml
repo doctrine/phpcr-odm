@@ -12,7 +12,7 @@ env:
 
 before_script:
   - ./tests/travis_${TRANSPORT}.sh
-  - php composer install --dev
+  - composer install --dev
 
 script: phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
 
