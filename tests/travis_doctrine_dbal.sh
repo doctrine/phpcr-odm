@@ -1,6 +1,6 @@
 #!/bin/bash
 
-php composer.phar require jackalope/jackalope-doctrine-dbal:dev-master
+php composer require jackalope/jackalope-doctrine-dbal:dev-master
 
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-php composer.phar require jackalope/jackalope-jackrabbit:1.*
+php composer require jackalope/jackalope-jackrabbit:1.*
 
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"

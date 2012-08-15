@@ -11,9 +11,8 @@ env:
   - TRANSPORT=midgard_mysql
 
 before_script:
-  - wget -nc http://getcomposer.org/composer.phar
   - ./tests/travis_${TRANSPORT}.sh
-  - php composer.phar install --dev
+  - php composer install --dev
 
 script: phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
 
