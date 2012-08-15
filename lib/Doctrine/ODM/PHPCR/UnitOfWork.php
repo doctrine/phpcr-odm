@@ -2094,9 +2094,8 @@ class UnitOfWork
         }
 
         if (empty($localeUsed)) {
-            $localeUsed = reset($localesToTry);
             // We tried each possible language without finding the translations
-//            throw new \RuntimeException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
+            throw new \RuntimeException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
         }
 
         // Set the locale
