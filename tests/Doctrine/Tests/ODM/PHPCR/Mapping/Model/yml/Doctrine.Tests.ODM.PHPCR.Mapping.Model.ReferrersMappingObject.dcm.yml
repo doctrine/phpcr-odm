@@ -1,0 +1,11 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject:
+    type: document
+    referenceable: true
+    referrers:
+        allReferrers:
+        filteredReferrers:
+            filter: test_filter
+        weakReferrers:
+            referenceType: weak
+        hardReferrers:
+            referenceType: hard

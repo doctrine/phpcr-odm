@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject" referenceable="true">
+        <id name="id" />
+        <referrers fieldName="allReferrers"/>
+        <referrers fieldName="filteredReferrers" filter="test_filter" />
+        <referrers fieldName="weakReferrers" reference-type="weak" />
+        <referrers fieldName="hardReferrers" reference-type="hard" />
+    </document>
+</doctrine-mapping>
