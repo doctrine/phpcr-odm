@@ -510,4 +510,24 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($weak['filter']);
         $this->assertEquals('weak', $weak['referenceType']);
     }
+
+    public function testLoadTranslatorMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadTranslatorMapping
+     * @param ClassMetadata $class
+     */
+    public function testTranslatorMapping($class)
+    {
+        $this->assertEquals('attribute', $class->translator);
+        $this->assertEquals('doclocale', $class->localeMapping);
+        $this->assertEquals(2, count($class->translatableFields));
+        $this->assertContains('topic', $class->translatableFields);
+        $this->assertContains('image', $class->translatableFields);
+    }
 }
