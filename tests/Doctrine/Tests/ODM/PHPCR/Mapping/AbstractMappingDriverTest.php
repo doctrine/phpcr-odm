@@ -440,6 +440,39 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('node', $class->node);
     }
     
+    public function testLoadReferenceOneMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject';
+        
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadReferenceOneMapping
+     * @param ClassMetadata $class
+     */
+    public function testReferenceOneMapping($class)
+    {
+        $this->assertEquals(2, count($class->associationsMappings));
+        $this->assertTrue(isset($class->associationsMappings['referenceOneWeak']));
+        
+        $referenceOneWeak = $class->associationsMappings['referenceOneWeak'];
+        $this->assertEquals('referenceOneWeak', $referenceOneWeak['fieldName']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceOneWeak['targetDocument']);
+        $this->assertEquals('weak', $referenceOneWeak['strategy']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneWeak['sourceDocument']);
+        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneWeak['type']);
+        
+        $referenceOneHard = $class->associationsMappings['referenceOneHard'];
+        $this->assertEquals('referenceOneHard', $referenceOneHard['fieldName']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceOneHard['targetDocument']);
+        $this->assertEquals('hard', $referenceOneHard['strategy']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneHard['sourceDocument']);
+        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneHard['type']);
+        
+        
+    }
+
     public function testLoadReferenceManyMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject';
