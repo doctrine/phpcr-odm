@@ -1,0 +1,11 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject:
+    type: document
+    id: id
+    lifecycleCallbacks:
+        preRemove: [ preRemoveFunc ]
+        postRemove: [ postRemoveFunc ]
+        prePersist: [ prePersistFunc ]
+        postPersist: [ postPersistFunc ]
+        preUpdate: [ preUpdateFunc ]
+        postUpdate: [ postUpdateFunc ]
+        postLoad: [ postLoadFunc ]

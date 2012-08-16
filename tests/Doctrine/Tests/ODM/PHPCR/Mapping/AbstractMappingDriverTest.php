@@ -530,4 +530,27 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('topic', $class->translatableFields);
         $this->assertContains('image', $class->translatableFields);
     }
+
+    public function testLoadLifecycleCallbackMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadLifecycleCallbackMapping
+     * @param ClassMetadata $class
+     */
+    public function testLifecycleCallbackMapping($class)
+    {
+        $this->assertEquals(7, count($class->lifecycleCallbacks));
+        $this->assertEquals('preRemoveFunc', $class->lifecycleCallbacks['preRemove'][0]);
+        $this->assertEquals('postRemoveFunc', $class->lifecycleCallbacks['postRemove'][0]);
+        $this->assertEquals('prePersistFunc', $class->lifecycleCallbacks['prePersist'][0]);
+        $this->assertEquals('postPersistFunc', $class->lifecycleCallbacks['postPersist'][0]);
+        $this->assertEquals('preUpdateFunc', $class->lifecycleCallbacks['preUpdate'][0]);
+        $this->assertEquals('postUpdateFunc', $class->lifecycleCallbacks['postUpdate'][0]);
+        $this->assertEquals('postLoadFunc', $class->lifecycleCallbacks['postLoad'][0]);
+    }
 }
