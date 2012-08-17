@@ -13,4 +13,10 @@ class VersionableMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
+
+    /** @PHPCRODM\VersionName */
+    private $versionName;
+
+    /** @PHPCRODM\VersionCreated */
+    private $versionCreated;
 }

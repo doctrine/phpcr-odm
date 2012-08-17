@@ -374,6 +374,8 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testVersionableMapping($class)
     {
         $this->assertEquals('simple', $class->versionable);
+        $this->assertEquals('versionName', $class->versionNameField);
+        $this->assertEquals('versionCreated', $class->versionCreatedField);
     }
     
     public function testLoadReferenceableMapping()

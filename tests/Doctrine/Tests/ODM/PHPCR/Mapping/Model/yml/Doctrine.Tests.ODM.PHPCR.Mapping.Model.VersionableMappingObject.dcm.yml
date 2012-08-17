@@ -1,3 +1,5 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject:
   versionable: simple
+  versionName: versionName
+  versionCreated: versionCreated
   id: id
