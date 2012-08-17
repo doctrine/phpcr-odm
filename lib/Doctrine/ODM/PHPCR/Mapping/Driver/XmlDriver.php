@@ -164,11 +164,11 @@ class XmlDriver extends FileDriver
                 $class->mapReferrers($mapping);
             }
         }
-        if (isset($xmlRoot->versionname)) {
-            $class->mapVersionName(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
+        if (isset($xmlRoot->{'version-name'})) {
+            $class->mapVersionName(array('fieldName' => (string) $xmlRoot->{'version-name'}->attributes()->fieldName));
         }
-        if (isset($xmlRoot->versioncreated)) {
-            $class->mapVersionCreated(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
+        if (isset($xmlRoot->{'version-created'})) {
+            $class->mapVersionCreated(array('fieldName' => (string) $xmlRoot->{'version-created'}->attributes()->fieldName));
         }
 
         if (isset($xmlRoot->{'lifecycle-callbacks'})) {
