@@ -68,6 +68,10 @@ class YamlDriver extends FileDriver
                 $class->setCustomRepositoryClassName($element['repositoryClass']);
             }
 
+            if (isset($element['translator'])) {
+                $class->setTranslator($element['translator']);
+            }
+
             if (isset($element['versionable']) && $element['versionable']) {
                 $class->setVersioned($element['versionable']);
             }
@@ -162,7 +166,9 @@ class YamlDriver extends FileDriver
             }
         }
 
-        // TODO: locale
+        if (isset($element['locale'])) {
+            $class->mapLocale(array('fieldName' => $element['locale']));
+        }
 
         if (isset($element['referrers'])) {
             foreach ($element['referrers'] as $name=>$attributes) {
