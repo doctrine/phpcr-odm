@@ -68,6 +68,10 @@ class XmlDriver extends FileDriver
                 $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
             }
 
+            if (isset($xmlRoot['translator'])) {
+                $class->setTranslator((string) $xmlRoot['translator']);
+            }
+
             if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
                 $class->setVersioned((string)$xmlRoot['versionable']);
             }
@@ -145,7 +149,9 @@ class XmlDriver extends FileDriver
             }
         }
 
-        // TODO: locale
+        if (isset($xmlRoot->locale)) {
+            $class->mapLocale(array('fieldName' => (string) $xmlRoot->locale->attributes()->fieldName));
+        }
 
         if (isset($xmlRoot->referrers)) {
             foreach ($xmlRoot->referrers as $referrers) {
