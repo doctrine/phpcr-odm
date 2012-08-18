@@ -344,7 +344,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Registers a custom repository class for the document class.
      *
-     * @param string $mapperClassName  The class name of the custom mapper.
+     * @param string $repositoryClassName  The class name of the custom repository.
      */
     public function setCustomRepositoryClassName($repositoryClassName)
     {
@@ -423,16 +423,6 @@ class ClassMetadata implements ClassMetadataInterface
     public function setNodeType($nodeType)
     {
         $this->nodeType = $nodeType;
-    }
-
-    /**
-     * Registers a custom repository class for the document class.
-     *
-     * @param string $mapperClassName  The class name of the custom mapper.
-     */
-    public function setCustomRepositoryClass($repositoryClassName)
-    {
-        $this->customRepositoryClassName = $repositoryClassName;
     }
 
     /**
