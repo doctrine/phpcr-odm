@@ -96,17 +96,29 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertCount(12, $class->fieldMappings);
         $this->assertTrue(isset($class->fieldMappings['string']));
+        $this->assertEquals('string', $class->fieldMappings['string']['type']);
         $this->assertTrue(isset($class->fieldMappings['binary']));
+        $this->assertEquals('binary', $class->fieldMappings['binary']['type']);
         $this->assertTrue(isset($class->fieldMappings['long']));
+        $this->assertEquals('long', $class->fieldMappings['long']['type']);
         $this->assertTrue(isset($class->fieldMappings['int']));
+        $this->assertEquals('long', $class->fieldMappings['int']['type']);
         $this->assertTrue(isset($class->fieldMappings['decimal']));
+        $this->assertEquals('decimal', $class->fieldMappings['decimal']['type']);
         $this->assertTrue(isset($class->fieldMappings['double']));
+        $this->assertEquals('double', $class->fieldMappings['double']['type']);
         $this->assertTrue(isset($class->fieldMappings['float']));
+        $this->assertEquals('double', $class->fieldMappings['float']['type']);
         $this->assertTrue(isset($class->fieldMappings['date']));
+        $this->assertEquals('date', $class->fieldMappings['date']['type']);
         $this->assertTrue(isset($class->fieldMappings['boolean']));
+        $this->assertEquals('boolean', $class->fieldMappings['boolean']['type']);
         $this->assertTrue(isset($class->fieldMappings['name']));
+        $this->assertEquals('name', $class->fieldMappings['name']['type']);
         $this->assertTrue(isset($class->fieldMappings['path']));
+        $this->assertEquals('path', $class->fieldMappings['path']['type']);
         $this->assertTrue(isset($class->fieldMappings['uri']));
+        $this->assertEquals('uri', $class->fieldMappings['uri']['type']);
 
         return $class;
     }
