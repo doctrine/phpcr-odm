@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject">
+        <id name="id" />
+        <lifecycle-callbacks>
+            <lifecycle-callback type="preRemove" method="preRemoveFunc"/>
+            <lifecycle-callback type="postRemove" method="postRemoveFunc"/>
+            <lifecycle-callback type="prePersist" method="prePersistFunc"/>
+            <lifecycle-callback type="postPersist" method="postPersistFunc"/>
+            <lifecycle-callback type="preUpdate" method="preUpdateFunc"/>
+            <lifecycle-callback type="postUpdate" method="postUpdateFunc"/>
+            <lifecycle-callback type="postLoad" method="postLoadFunc"/>
+        </lifecycle-callbacks>
+    </document>
+</doctrine-mapping>

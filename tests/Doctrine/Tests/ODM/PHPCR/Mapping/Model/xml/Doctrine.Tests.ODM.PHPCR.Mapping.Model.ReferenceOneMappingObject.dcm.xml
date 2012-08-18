@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject">
+        <id name="id" />
+        <reference-one fieldName="referenceOneWeak" targetDocument="myDocument" strategy="weak" />
+        <reference-one fieldName="referenceOneHard" targetDocument="myDocument" strategy="hard" />
+    </document>
+</doctrine-mapping>

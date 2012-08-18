@@ -2,5 +2,7 @@
 <doctrine-mapping>
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject" versionable="simple">
         <id name="id" />
+        <version-name fieldName="versionName"/>
+        <version-created fieldName="versionCreated"/>
     </document>
 </doctrine-mapping>

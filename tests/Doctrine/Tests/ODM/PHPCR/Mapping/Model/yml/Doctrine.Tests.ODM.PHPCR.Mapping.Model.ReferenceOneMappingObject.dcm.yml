@@ -1,0 +1,9 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject:
+  id: id
+  referenceOne:
+    referenceOneWeak:
+      targetDocument: myDocument
+      strategy: weak
+    referenceOneHard:
+      targetDocument: myDocument
+      strategy: hard
