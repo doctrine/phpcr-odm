@@ -96,17 +96,29 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertCount(12, $class->fieldMappings);
         $this->assertTrue(isset($class->fieldMappings['string']));
+        $this->assertEquals('string', $class->fieldMappings['string']['type']);
         $this->assertTrue(isset($class->fieldMappings['binary']));
+        $this->assertEquals('binary', $class->fieldMappings['binary']['type']);
         $this->assertTrue(isset($class->fieldMappings['long']));
+        $this->assertEquals('long', $class->fieldMappings['long']['type']);
         $this->assertTrue(isset($class->fieldMappings['int']));
+        $this->assertEquals('long', $class->fieldMappings['int']['type']);
         $this->assertTrue(isset($class->fieldMappings['decimal']));
+        $this->assertEquals('decimal', $class->fieldMappings['decimal']['type']);
         $this->assertTrue(isset($class->fieldMappings['double']));
+        $this->assertEquals('double', $class->fieldMappings['double']['type']);
         $this->assertTrue(isset($class->fieldMappings['float']));
+        $this->assertEquals('double', $class->fieldMappings['float']['type']);
         $this->assertTrue(isset($class->fieldMappings['date']));
+        $this->assertEquals('date', $class->fieldMappings['date']['type']);
         $this->assertTrue(isset($class->fieldMappings['boolean']));
+        $this->assertEquals('boolean', $class->fieldMappings['boolean']['type']);
         $this->assertTrue(isset($class->fieldMappings['name']));
+        $this->assertEquals('name', $class->fieldMappings['name']['type']);
         $this->assertTrue(isset($class->fieldMappings['path']));
+        $this->assertEquals('path', $class->fieldMappings['path']['type']);
         $this->assertTrue(isset($class->fieldMappings['uri']));
+        $this->assertEquals('uri', $class->fieldMappings['uri']['type']);
 
         return $class;
     }
@@ -374,6 +386,8 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testVersionableMapping($class)
     {
         $this->assertEquals('simple', $class->versionable);
+        $this->assertEquals('versionName', $class->versionNameField);
+        $this->assertEquals('versionCreated', $class->versionCreatedField);
     }
     
     public function testLoadReferenceableMapping()
@@ -440,6 +454,39 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('node', $class->node);
     }
     
+    public function testLoadReferenceOneMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject';
+        
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadReferenceOneMapping
+     * @param ClassMetadata $class
+     */
+    public function testReferenceOneMapping($class)
+    {
+        $this->assertEquals(2, count($class->associationsMappings));
+        $this->assertTrue(isset($class->associationsMappings['referenceOneWeak']));
+        
+        $referenceOneWeak = $class->associationsMappings['referenceOneWeak'];
+        $this->assertEquals('referenceOneWeak', $referenceOneWeak['fieldName']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceOneWeak['targetDocument']);
+        $this->assertEquals('weak', $referenceOneWeak['strategy']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneWeak['sourceDocument']);
+        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneWeak['type']);
+        
+        $referenceOneHard = $class->associationsMappings['referenceOneHard'];
+        $this->assertEquals('referenceOneHard', $referenceOneHard['fieldName']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceOneHard['targetDocument']);
+        $this->assertEquals('hard', $referenceOneHard['strategy']);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneHard['sourceDocument']);
+        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneHard['type']);
+        
+        
+    }
+
     public function testLoadReferenceManyMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject';
@@ -529,5 +576,28 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($class->translatableFields));
         $this->assertContains('topic', $class->translatableFields);
         $this->assertContains('image', $class->translatableFields);
+    }
+
+    public function testLoadLifecycleCallbackMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadLifecycleCallbackMapping
+     * @param ClassMetadata $class
+     */
+    public function testLifecycleCallbackMapping($class)
+    {
+        $this->assertEquals(7, count($class->lifecycleCallbacks));
+        $this->assertEquals('preRemoveFunc', $class->lifecycleCallbacks['preRemove'][0]);
+        $this->assertEquals('postRemoveFunc', $class->lifecycleCallbacks['postRemove'][0]);
+        $this->assertEquals('prePersistFunc', $class->lifecycleCallbacks['prePersist'][0]);
+        $this->assertEquals('postPersistFunc', $class->lifecycleCallbacks['postPersist'][0]);
+        $this->assertEquals('preUpdateFunc', $class->lifecycleCallbacks['preUpdate'][0]);
+        $this->assertEquals('postUpdateFunc', $class->lifecycleCallbacks['postUpdate'][0]);
+        $this->assertEquals('postLoadFunc', $class->lifecycleCallbacks['postLoad'][0]);
     }
 }
