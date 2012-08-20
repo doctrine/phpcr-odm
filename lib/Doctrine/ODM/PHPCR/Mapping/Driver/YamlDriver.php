@@ -76,7 +76,7 @@ class YamlDriver extends FileDriver
                 $class->setVersioned($element['versionable']);
             }
 
-            if (isset($element['referenceable']) && $element['referenceable'] !== 'false') {
+            if (isset($element['referenceable']) && $element['referenceable']) {
                 $class->setReferenceable($element['referenceable']);
             }
 
