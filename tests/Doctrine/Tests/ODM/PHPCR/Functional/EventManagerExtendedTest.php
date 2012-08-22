@@ -7,7 +7,7 @@ use Doctrine\Common\EventArgs;
 class EventManagerExtendedTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
-     * @var TestListener
+     * @var TestPersistenceListener
      */
     private $listener;
 
@@ -18,7 +18,7 @@ class EventManagerExtendedTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
     public function setUp()
     {
-        $this->listener = new TestListener();
+        $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preRemove', 'postRemove', 'onFlush'), $this->listener);
@@ -80,7 +80,7 @@ class EventManagerExtendedTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
     }
 }
 
-class TestListener
+class TestPersistenceListener
 {
     public $pagePrePersist = false;
     public $pagePostPersist = false;
