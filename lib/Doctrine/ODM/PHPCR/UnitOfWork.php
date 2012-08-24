@@ -1153,7 +1153,7 @@ class UnitOfWork
         if ($this->evm->hasListeners(Event::prePersist)) {
             $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
         }
-        
+
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
 
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm, $parent);
@@ -1666,7 +1666,7 @@ class UnitOfWork
                 if (!$before) {
                     $dest = null;
                     $found = false;
-                    foreach($children as $name => $child) {
+                    foreach ($children as $name => $child) {
                         if ($name == $target) {
                             $found = true;
                         } elseif ($found) {
