@@ -57,6 +57,7 @@ class UnitOfWork
     const STATE_REMOVED = 3;
     const STATE_DETACHED = 4;
     const STATE_MOVED = 5;
+    const STATE_REORDER = 6;
 
     /**
      * @var DocumentManager
@@ -139,6 +140,11 @@ class UnitOfWork
      * @var array
      */
     private $scheduledMoves = array();
+
+    /**
+     * @var array
+     */
+    private $scheduledReorders = array();
 
     /**
      * @var array
@@ -629,6 +635,26 @@ class UnitOfWork
 
         $this->scheduledMoves[$oid] = array($document, $targetPath);
         $this->setDocumentState($oid, self::STATE_MOVED);
+    }
+
+    public function scheduleReorder($document, $srcName, $targetName, $before)
+    {
+        $oid = spl_object_hash($document);
+
+        $state = $this->getDocumentState($document);
+        switch ($state) {
+            case self::STATE_NEW:
+                unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_REMOVED:
+                unset($this->scheduledRemovals[$oid]);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
+        }
+
+        $this->scheduledReorders[$oid] = array($document, $srcName, $targetName, $before);
+        $this->setDocumentState($oid, self::STATE_REORDER);
     }
 
     public function scheduleRemove($document)
@@ -1255,6 +1281,8 @@ class UnitOfWork
 
             $this->executeRemovals($this->scheduledRemovals);
 
+            $this->executeReorders($this->scheduledReorders);
+
             $this->session->save();
 
             if (!empty($this->scheduledMoves)) {
@@ -1293,6 +1321,7 @@ class UnitOfWork
         $this->scheduledAssociationUpdates =
         $this->scheduledRemovals =
         $this->scheduledMoves =
+        $this->scheduledReorders =
         $this->scheduledInserts =
         $this->visitedCollections =
         $this->documentChangesets =
@@ -1610,6 +1639,46 @@ class UnitOfWork
                         $this->originalData[$oid][$class->identifier] = $newId;
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Execute reorderings
+     *
+     * @param $documents
+     */
+    private function executeReorders($documents)
+    {
+        foreach ($documents as $oid => $value) {
+            if (!$this->contains($oid)) {
+                continue;
+            }
+            list($parent, $src, $target, $before) = $value;
+
+            $parentNode = $this->session->getNode($this->getDocumentId($parent));
+            $children = $parentNode->getNodes();
+
+            // check for src and target ...
+            $dest = $target;
+            if (isset($children[$src]) && isset($children[$target])) {
+                // there is no orderAfter, so we need to find the child after target to use it in orderBefore
+                if (!$before) {
+                    $dest = null;
+                    $found = false;
+                    foreach($children as $name => $child) {
+                        if ($name == $target) {
+                            $found = true;
+                        } elseif ($found) {
+                            $dest = $name;
+                            break;
+                        }
+                    }
+                }
+                $parentNode->orderBefore($src, $dest);
+
+                // TODO: reorder children in children mappings?
+
             }
         }
     }
@@ -1994,6 +2063,7 @@ class UnitOfWork
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
         $this->scheduledMoves =
+        $this->scheduledReorders =
         $this->scheduledRemovals =
         $this->visitedCollections =
         $this->documentHistory =

@@ -608,6 +608,28 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Reorder a child of the given document
+     *
+     * Note that this does not update the fields with @Child/Children annotations.
+     * If you want to continue working with the manager after a reorder, you are probably
+     * safest calling DocumentManager::clear and re-loading the documents you need to use.
+     *
+     * @param object $document an already registered document
+     * @param string $srcName the nodename of the child to be reordered
+     * @param string $targetName the nodename of the target of the reordering
+     * @param boolean $before insert before or after the target
+     */
+    public function reorder($document, $srcName, $targetName, $before)
+    {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException(gettype($document));
+        }
+
+        $this->errorIfClosed();
+        $this->unitOfWork->scheduleReorder($document, $srcName, $targetName, $before);
+    }
+
+    /**
      * Remove the previously persisted document and all its children from the tree
      *
      * Be aware of the PHPCR tree structure: this removes all nodes with a path under
