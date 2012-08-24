@@ -603,6 +603,10 @@ class DocumentManager implements ObjectManager
             throw new \InvalidArgumentException(gettype($document));
         }
 
+        if (strpos($targetPath, '/') !== 0) {
+            $targetPath = '/'.$targetPath;
+        }
+
         $this->errorIfClosed();
         $this->unitOfWork->scheduleMove($document, $targetPath);
     }
