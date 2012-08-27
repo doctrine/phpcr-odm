@@ -68,8 +68,16 @@ class YamlDriver extends FileDriver
                 $class->setCustomRepositoryClassName($element['repositoryClass']);
             }
 
+            if (isset($element['translator'])) {
+                $class->setTranslator($element['translator']);
+            }
+
             if (isset($element['versionable']) && $element['versionable']) {
                 $class->setVersioned($element['versionable']);
+            }
+
+            if (isset($element['referenceable']) && $element['referenceable']) {
+                $class->setReferenceable($element['referenceable']);
             }
 
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
@@ -158,8 +166,20 @@ class YamlDriver extends FileDriver
             }
         }
 
-        // TODO: referrers, locale
+        if (isset($element['locale'])) {
+            $class->mapLocale(array('fieldName' => $element['locale']));
+        }
 
+        if (isset($element['referrers'])) {
+            foreach ($element['referrers'] as $name=>$attributes) {
+                $mapping = array('fieldName' => $name);
+                $mapping['filter'] = isset($attributes['filter'])
+                    ? $attributes['filter'] : null;
+                $mapping['referenceType'] = isset($attributes['referenceType'])
+                    ? $attributes['referenceType'] : null;
+                $class->mapReferrers($mapping);
+            }
+        }
         if (isset($element['versionName'])) {
             $class->mapVersionName(array('fieldName' => $element['versionName']));
         }

@@ -1121,6 +1121,13 @@ class UnitOfWork
      */
     public function persistNew($class, $document, $overrideIdGenerator = null, $parent = null)
     {
+        if (isset($class->lifecycleCallbacks[Event::prePersist])) {
+            $class->invokeLifecycleCallbacks(Event::prePersist, $document);
+        }
+        if ($this->evm->hasListeners(Event::prePersist)) {
+            $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
+        }
+        
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
 
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm, $parent);
@@ -1128,13 +1135,6 @@ class UnitOfWork
 
         if ($generator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
             $class->setIdentifierValue($document, $id);
-        }
-
-        if (isset($class->lifecycleCallbacks[Event::prePersist])) {
-            $class->invokeLifecycleCallbacks(Event::prePersist, $document);
-        }
-        if ($this->evm->hasListeners(Event::prePersist)) {
-            $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
         }
     }
 

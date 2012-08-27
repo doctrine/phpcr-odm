@@ -7,16 +7,10 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * A class that uses the repository strategy to generate IDs
  * 
- * @PHPCRODM\Document(versionable="simple")
+ * @PHPCRODM\Document(referenceable=true)
  */
-class VersionableMappingObject
+class ReferenceableMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-
-    /** @PHPCRODM\VersionName */
-    private $versionName;
-
-    /** @PHPCRODM\VersionCreated */
-    private $versionCreated;
 }

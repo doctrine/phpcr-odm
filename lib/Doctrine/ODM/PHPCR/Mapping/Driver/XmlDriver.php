@@ -68,12 +68,16 @@ class XmlDriver extends FileDriver
                 $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
             }
 
+            if (isset($xmlRoot['translator'])) {
+                $class->setTranslator((string) $xmlRoot['translator']);
+            }
+
             if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
-                $class->setVersioned($xmlRoot['versionable']);
+                $class->setVersioned((string)$xmlRoot['versionable']);
             }
 
             if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
-                $class->setReferenceable($xmlRoot['referenceable']);
+                $class->setReferenceable((bool)$xmlRoot['referenceable']);
             }
 
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
@@ -145,13 +149,26 @@ class XmlDriver extends FileDriver
             }
         }
 
-        // TODO: referrers, locale
-
-        if (isset($xmlRoot->versionname)) {
-            $class->mapVersionName(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
+        if (isset($xmlRoot->locale)) {
+            $class->mapLocale(array('fieldName' => (string) $xmlRoot->locale->attributes()->fieldName));
         }
-        if (isset($xmlRoot->versioncreated)) {
-            $class->mapVersionCreated(array('fieldName' => (string) $xmlRoot->versionname->attributes()->name));
+
+        if (isset($xmlRoot->referrers)) {
+            foreach ($xmlRoot->referrers as $referrers) {
+                $attributes = $referrers->attributes();
+                $mapping = array('fieldName' => (string) $attributes->fieldName);
+                $mapping['filter'] = isset($attributes['filter'])
+                    ? (string) $attributes->filter : null;
+                $mapping['referenceType'] = isset($attributes['reference-type'])
+                    ? (string) $attributes->{'reference-type'} : null;
+                $class->mapReferrers($mapping);
+            }
+        }
+        if (isset($xmlRoot->{'version-name'})) {
+            $class->mapVersionName(array('fieldName' => (string) $xmlRoot->{'version-name'}->attributes()->fieldName));
+        }
+        if (isset($xmlRoot->{'version-created'})) {
+            $class->mapVersionCreated(array('fieldName' => (string) $xmlRoot->{'version-created'}->attributes()->fieldName));
         }
 
         if (isset($xmlRoot->{'lifecycle-callbacks'})) {
