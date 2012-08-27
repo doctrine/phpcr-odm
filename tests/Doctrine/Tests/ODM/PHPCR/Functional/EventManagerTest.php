@@ -4,10 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\EventArgs;
 
-class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\Tests\Models\CMS\CmsPage;
+use Doctrine\Tests\Models\CMS\CmsItem;
+
+class EventManagerTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var TestListener
+     * @var TestPersistenceListener
      */
     private $listener;
 
@@ -18,7 +22,7 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->listener = new TestListener();
+        $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preRemove', 'postRemove', 'onFlush'), $this->listener);
@@ -26,66 +30,105 @@ class EventManagerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testTriggerEvents()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
-        $user->name = "beberlei";
-        $user->username = "beberlei";
-        $user->status = "active";
+        $page = new CmsPage();
+        $page->title = "my-page";
+        $page->content = "long story";
 
-        $this->dm->persist($user);
+        $this->dm->persist($page);
 
-        $this->assertTrue($this->listener->prePersist);
+        $this->assertTrue($this->listener->pagePrePersist);
+        $this->assertFalse($this->listener->itemPrePersist);
 
         $this->dm->flush();
 
         $this->assertTrue($this->listener->onFlush);
         $this->assertFalse($this->listener->preUpdate);
         $this->assertFalse($this->listener->postUpdate);
-        $this->assertTrue($this->listener->postPersist);
-        $this->assertFalse($this->listener->preRemove);
-        $this->assertFalse($this->listener->postRemove);
+        $this->assertTrue($this->listener->pagePostPersist);
+        $this->assertFalse($this->listener->itemPostPersist);
+        $this->assertFalse($this->listener->pagePreRemove);
+        $this->assertFalse($this->listener->pagePostRemove);
+        $this->assertFalse($this->listener->itemPreRemove);
+        $this->assertFalse($this->listener->itemPostRemove);
+        
+        $item = new CmsItem();
+        $item->name = "my-item";
+        $item->documentTarget = $page;
 
+        $page->content = "short story";
+        $page->addItem($item);
 
-        $user->status = "changed";
-        $this->dm->persist($user);
+        $this->dm->persist($page);
         $this->dm->flush();
         $this->assertTrue($this->listener->preUpdate);
+        $this->assertTrue($this->listener->itemPrePersist);
         $this->assertTrue($this->listener->postUpdate);
+        $this->assertTrue($this->listener->itemPostPersist);
 
-        $this->dm->remove($user);
+        $this->dm->remove($item);
+        $this->dm->remove($page);
 
-        $this->assertTrue($this->listener->preRemove);
-        $this->assertFalse($this->listener->postRemove);
-        $this->assertFalse($this->dm->contains($user));
+        $this->assertTrue($this->listener->pagePreRemove);
+        $this->assertTrue($this->listener->itemPreRemove);
+        $this->assertFalse($this->listener->pagePostRemove);
+        $this->assertFalse($this->listener->itemPostRemove);
+        $this->assertFalse($this->dm->contains($page));
+        $this->assertFalse($this->dm->contains($item));
 
         $this->dm->flush();
 
-        $this->assertFalse($this->dm->contains($user));
-        $this->assertTrue($this->listener->postRemove);
+        $this->assertFalse($this->dm->contains($page));
+        $this->assertFalse($this->dm->contains($item));
+        $this->assertTrue($this->listener->pagePostRemove);
+        $this->assertTrue($this->listener->itemPostRemove);
     }
 }
 
-class TestListener
+class TestPersistenceListener
 {
-    public $prePersist = false;
-    public $postPersist = false;
+    public $pagePrePersist = false;
+    public $pagePostPersist = false;
+    public $itemPrePersist = false;
+    public $itemPostPersist = false;
     public $preUpdate = false;
     public $postUpdate = false;
-    public $preRemove = false;
-    public $postRemove = false;
+    public $pagePreRemove = false;
+    public $pagePostRemove = false;
+    public $itemPreRemove = false;
+    public $itemPostRemove = false;
     public $onFlush = false;
-
+    
     public function prePersist(EventArgs $e)
     {
-        $this->prePersist = true;
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePrePersist = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPrePersist = true;
+        }
     }
 
     public function postPersist(EventArgs $e)
     {
-        $this->postPersist = true;
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePostPersist = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPostPersist = true;
+        }
     }
 
     public function preUpdate(EventArgs $e)
     {
+        $document = $e->getDocument();
+        if (! $document instanceof CmsPage ){
+            return;
+        }
+        $dm = $e->getDocumentManager();
+
+        foreach ($document->getItems() as $item) {
+            $dm->persist($item);
+        }
         $this->preUpdate = true;
     }
 
@@ -96,12 +139,22 @@ class TestListener
 
     public function preRemove(EventArgs $e)
     {
-        $this->preRemove = true;
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePreRemove = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPreRemove = true;
+        }
     }
 
     public function postRemove(EventArgs $e)
     {
-        $this->postRemove = true;
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePostRemove = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPostRemove = true;
+        }
     }
 
     public function onFlush(EventArgs $e)

@@ -885,6 +885,10 @@ class UnitOfWork
                 }
 
                 if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof Collection) {
+                    if ($actualData[$assocName] instanceof PersistentCollection && !$actualData[$assocName]->isInitialized()) {
+                        continue;
+                    }
+
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
                             $this->computeReferenceChanges($ref);
@@ -892,6 +896,18 @@ class UnitOfWork
                     }
                 } else {
                     $this->computeReferenceChanges($actualData[$assocName]);
+                }
+            }
+        }
+
+        foreach ($class->referrersMappings as $name => $referrerMapping) {
+            if ($actualData[$name]) {
+                if ($actualData[$name] instanceof PersistentCollection && !$actualData[$name]->isInitialized()) {
+                    continue;
+                }
+
+                foreach ($actualData[$name] as $referrer) {
+                    $this->computeReferrerChanges($referrer);
                 }
             }
         }
