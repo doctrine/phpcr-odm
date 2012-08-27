@@ -20,9 +20,8 @@ class CmsPage
     public $content;
     /** @PHPCRODM\String(name="title") */
     public $title;
-    /** @PHPCRODM\Referrers(referenceType="hard", filter="documentTarget") */
+    /** @PHPCRODM\Referrers(referenceType="hard") */
     public $items = array();
-
 
     public function getId()
     {
@@ -75,8 +74,6 @@ class CmsPage
             }
         }
     }
-
-
 }
 
 class CmsPageRepository extends DocumentRepository implements RepositoryIdInterface
