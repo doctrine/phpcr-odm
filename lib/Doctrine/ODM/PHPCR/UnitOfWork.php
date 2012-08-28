@@ -1676,9 +1676,12 @@ class UnitOfWork
                     }
                 }
                 $parentNode->orderBefore($src, $dest);
-
-                // TODO: reorder children in children mappings?
-
+                // set all children collection to initialized = false to force reload after reordering
+                $class = $this->dm->getClassMetadata(get_class($parent));
+                foreach ($class->childrenMappings as $childrenMapping) {
+                    $children = $class->reflFields[$childrenMapping['fieldName']]->getValue($parent);
+                    $children->setInitialized(false);
+                }
             }
         }
     }
