@@ -1348,6 +1348,8 @@ class UnitOfWork
             }
         );
 
+        $associationChangesets = array();
+
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
             $class = $this->dm->getClassMetadata(get_class($document));
@@ -1415,6 +1417,11 @@ class UnitOfWork
                     }
                 } elseif (isset($class->associationsMappings[$fieldName])) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
+                    
+                    //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates) to only update association fields
+                    $data = isset($associationChangesets[$oid]['fields'])?$associationChangesets[$oid]['fields']:array();
+                    $data[$class->associationsMappings[$fieldName]['fieldName']] = $fieldValue;
+                    $associationChangesets[$oid] = array('fields' => $data, 'reorderings' => array());
                 }
             }
 
@@ -1426,6 +1433,10 @@ class UnitOfWork
             if ($this->evm->hasListeners(Event::postPersist)) {
                 $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
             }
+        }
+
+        foreach($associationChangesets as $oid => $changeset) {
+            $this->documentChangesets[$oid] = $changeset;
         }
     }
 
@@ -1474,7 +1485,7 @@ class UnitOfWork
                         $value = $fieldValue === null ? null : $fieldValue->toArray();
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
                     } else {
-                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type, false);
+                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
                     }
                 } elseif (isset($class->associationsMappings[$fieldName]) && $this->writeMetadata) {
 
