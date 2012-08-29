@@ -1419,7 +1419,7 @@ class UnitOfWork
                     $this->scheduledAssociationUpdates[$oid] = $document;
                     
                     //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates) to only update association fields
-                    $data = isset($associationChangesets[$oid]['fields'])?$associationChangesets[$oid]['fields']:array();
+                    $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
                     $data[$class->associationsMappings[$fieldName]['fieldName']] = $fieldValue;
                     $associationChangesets[$oid] = array('fields' => $data, 'reorderings' => array());
                 }
@@ -1435,7 +1435,7 @@ class UnitOfWork
             }
         }
 
-        foreach($associationChangesets as $oid => $changeset) {
+        foreach ($associationChangesets as $oid => $changeset) {
             $this->documentChangesets[$oid] = $changeset;
         }
     }
