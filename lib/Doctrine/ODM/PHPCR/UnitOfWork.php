@@ -458,7 +458,7 @@ class UnitOfWork
     public function bindTranslation($document, $locale)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
+        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED && $state !== self::STATE_REORDER) {
             throw new \InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
         }
 
@@ -523,6 +523,10 @@ class UnitOfWork
                 break;
             case self::STATE_MOVED:
                 unset($this->scheduledMoves[$oid]);
+                $this->setDocumentState($oid, self::STATE_MANAGED);
+                break;
+            case self::STATE_REORDER:
+                unset($this->scheduledReorders[$oid]);
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_REMOVED:
@@ -626,6 +630,9 @@ class UnitOfWork
             case self::STATE_NEW:
                 unset($this->scheduledInserts[$oid]);
                 break;
+            case self::STATE_REORDER:
+                unset($this->scheduledReorders[$oid]);
+                break;
             case self::STATE_REMOVED:
                 unset($this->scheduledRemovals[$oid]);
                 break;
@@ -645,6 +652,9 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_MOVED:
+                unset($this->scheduledMoves[$oid]);
                 break;
             case self::STATE_REMOVED:
                 unset($this->scheduledRemovals[$oid]);
@@ -668,6 +678,9 @@ class UnitOfWork
                 break;
             case self::STATE_MOVED:
                 unset($this->scheduledMoves[$oid]);
+                break;
+            case self::STATE_REORDER:
+                unset($this->scheduledReorders[$oid]);
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
@@ -748,7 +761,7 @@ class UnitOfWork
     private function computeSingleDocumentChangeSet($document)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
+        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED && $state !== self::STATE_REORDER) {
             throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
         }
 
@@ -778,7 +791,7 @@ class UnitOfWork
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
-            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
+            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED && $state !== self::STATE_REORDER) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
             }
@@ -888,7 +901,7 @@ class UnitOfWork
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
-            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
+            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED && $state !== self::STATE_REORDER) {
                 $this->computeChangeSet($parentClass, $parent);
             }
         }
@@ -1197,6 +1210,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_MANAGED:
             case self::STATE_MOVED:
+            case self::STATE_REORDER:
                 $this->unregisterDocument($document);
                 break;
             case self::STATE_NEW:
@@ -1885,6 +1899,7 @@ class UnitOfWork
         unset($this->scheduledRemovals[$oid],
             $this->scheduledUpdates[$oid],
             $this->scheduledMoves[$oid],
+            $this->scheduledReorders[$oid],
             $this->scheduledInserts[$oid],
             $this->scheduledAssociationUpdates[$oid],
             $this->originalData[$oid],

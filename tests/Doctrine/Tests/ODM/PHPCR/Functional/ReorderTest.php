@@ -29,6 +29,10 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
+        $repository = $this->dm->getPhpcrSession()->getRepository();
+        if (!$repository->getDescriptor('node.type.management.orderable.child.nodes.supported')) {
+            $this->markTestSkipped('PHPCR repository doesn\'t support orderable child nodes');
+        }
         $this->node = $this->resetFunctionalNode($this->dm);
         $parent = $this->dm->find(null, $this->node->getPath());
         $this->childrenNames = array('first', 'second', 'third', 'fourth');
