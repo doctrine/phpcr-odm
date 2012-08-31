@@ -650,7 +650,7 @@ class UnitOfWork
                 unset($this->scheduledRemovals[$oid]);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
+                throw new \InvalidArgumentException('Detached document passed to reorder(): '.self::objToStr($document, $this->dm));
         }
 
         $this->scheduledReorders[$oid] = array($document, $srcName, $targetName, $before);
@@ -1667,7 +1667,7 @@ class UnitOfWork
                     $dest = null;
                     $found = false;
                     foreach ($children as $name => $child) {
-                        if ($name == $target) {
+                        if ($name === $target) {
                             $found = true;
                         } elseif ($found) {
                             $dest = $name;

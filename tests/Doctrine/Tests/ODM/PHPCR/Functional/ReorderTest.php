@@ -55,6 +55,14 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
+
+    public function testReorderNoObject() {
+        $this->setExpectedException('InvalidArgumentException');
+        $this->dm->reorder('parent', 'first', 'second', false);
+        $this->dm->flush();
+    }
+
+
     public function testReorderBeforeFirst() {
         $parent = $this->dm->find(null, $this->node->getPath());
         $children = $parent->getChildren();
