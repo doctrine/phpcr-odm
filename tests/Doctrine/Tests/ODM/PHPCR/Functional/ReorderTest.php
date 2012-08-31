@@ -16,7 +16,6 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     private $dm;
 
-
     /**
      * @var NodeInterface
      */
@@ -42,7 +41,8 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testReorder() {
+    public function testReorder()
+    {
         $parent = $this->dm->find(null, $this->node->getPath());
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
@@ -55,15 +55,15 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
-
-    public function testReorderNoObject() {
+    public function testReorderNoObject()
+    {
         $this->setExpectedException('InvalidArgumentException');
         $this->dm->reorder('parent', 'first', 'second', false);
         $this->dm->flush();
     }
 
-
-    public function testReorderBeforeFirst() {
+    public function testReorderBeforeFirst()
+    {
         $parent = $this->dm->find(null, $this->node->getPath());
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
@@ -76,7 +76,8 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
-    public function testReorderAfterLast() {
+    public function testReorderAfterLast()
+    {
         $parent = $this->dm->find(null, $this->node->getPath());
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
@@ -89,7 +90,8 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame(array('second', 'third', 'fourth', 'first'), $this->getChildrenNames($parent->getChildren()));
     }
 
-    public function testReorderUpdatesChildren() {
+    public function testReorderUpdatesChildren()
+    {
         $parent = $this->dm->find(null, $this->node->getPath());
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
@@ -107,6 +109,4 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
         return $result;
     }
-
-
 }
