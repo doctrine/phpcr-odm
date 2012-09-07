@@ -35,28 +35,54 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
         $this->node = $this->resetFunctionalNode($this->dm);
         $parent = $this->dm->find(null, $this->node->getPath());
+
+        $node1 = new Generic();
+        $node1->setParent($parent);
+        $node1->setNodename('source');
+        $this->dm->persist($node1);
+
         $this->childrenNames = array('first', 'second', 'third', 'fourth');
         foreach ($this->childrenNames as $childName) {
             $child = new Generic();
             $child->setNodename($childName);
-            $child->setParent($parent);
+            $child->setParent($node1);
             $this->dm->persist($child);
         }
+
+        $node2 = new Generic();
+        $node2->setNodename('target');
+        $node2->setParent($parent);
+        $this->dm->persist($node2);
+
         $this->dm->flush();
+        $this->dm->clear();
     }
 
     public function testReorder()
     {
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
+
         $children = $parent->getChildren();
+
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
+    }
+
+    public function testReorderNoop()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+        $children = $parent->getChildren();
+        $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
+
+        $this->dm->reorder($parent, 'first', 'second', true);
+        $this->dm->flush();
+        $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
     }
 
     public function testReorderNoObject()
@@ -68,7 +94,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testReorderBeforeFirst()
     {
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
@@ -76,13 +102,13 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderAfterLast()
     {
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
@@ -90,18 +116,62 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
         $this->assertSame(array('second', 'third', 'fourth', 'first'), $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderUpdatesChildren()
     {
-        $parent = $this->dm->find(null, $this->node->getPath());
+        $parent = $this->dm->find(null, '/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->flush();
+        $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
+    }
+
+    public function testReorderBeforeMove()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->dm->reorder($parent, 'first', 'second', false);
+        $this->dm->move($parent, '/functional/target/new');
+        $this->dm->flush();
+
+        $parent = $this->dm->find(null, '/functional/target/new');
+        $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
+    }
+
+    public function testReorderAfterMove()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->dm->move($parent, '/functional/target/new');
+        $this->dm->reorder($parent, 'first', 'second', false);
+        $this->dm->flush();
+
+        $parent = $this->dm->find(null, '/functional/target/new');
+        $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
+    }
+
+    public function testRemoveAfterReorder()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->dm->reorder($parent, 'first', 'second', false);
+        $this->dm->remove($parent);
+        $this->dm->flush();
+
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->assertNull($parent);
+    }
+
+    public function testReorderAfterRemove()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->dm->remove($parent);
+        $this->dm->reorder($parent, 'first', 'second', false);
+        $this->dm->flush();
+
+        $parent = $this->dm->find(null, '/functional/source');
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
