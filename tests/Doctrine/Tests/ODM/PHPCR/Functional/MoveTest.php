@@ -79,7 +79,7 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find($this->type, '/functional/lsmith');
+        $user = $this->dm->find($this->type, '/functional/user2');
         $this->assertNotNull($user, 'User must exist');
     }
 

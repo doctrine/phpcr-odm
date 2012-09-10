@@ -56,7 +56,6 @@ class UnitOfWork
     const STATE_MANAGED = 2;
     const STATE_REMOVED = 3;
     const STATE_DETACHED = 4;
-    const STATE_MOVED = 5;
 
     /**
      * @var DocumentManager
@@ -139,6 +138,11 @@ class UnitOfWork
      * @var array
      */
     private $scheduledMoves = array();
+
+    /**
+     * @var array
+     */
+    private $scheduledReorders = array();
 
     /**
      * @var array
@@ -452,7 +456,7 @@ class UnitOfWork
     public function bindTranslation($document, $locale)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
+        if ($state !== self::STATE_MANAGED) {
             throw new \InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
         }
 
@@ -514,10 +518,6 @@ class UnitOfWork
                 break;
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
-                break;
-            case self::STATE_MOVED:
-                unset($this->scheduledMoves[$oid]);
-                $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_REMOVED:
                 unset($this->scheduledRemovals[$oid]);
@@ -628,7 +628,27 @@ class UnitOfWork
         }
 
         $this->scheduledMoves[$oid] = array($document, $targetPath);
-        $this->setDocumentState($oid, self::STATE_MOVED);
+        $this->setDocumentState($oid, self::STATE_MANAGED);
+    }
+
+    public function scheduleReorder($document, $srcName, $targetName, $before)
+    {
+        $oid = spl_object_hash($document);
+
+        $state = $this->getDocumentState($document);
+        switch ($state) {
+            case self::STATE_NEW:
+                unset($this->scheduledInserts[$oid]);
+                break;
+            case self::STATE_REMOVED:
+                unset($this->scheduledRemovals[$oid]);
+                break;
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document passed to reorder(): '.self::objToStr($document, $this->dm));
+        }
+
+        $this->scheduledReorders[$oid] = array($document, $srcName, $targetName, $before);
+        $this->setDocumentState($oid, self::STATE_MANAGED);
     }
 
     public function scheduleRemove($document)
@@ -640,8 +660,9 @@ class UnitOfWork
             case self::STATE_NEW:
                 unset($this->scheduledInserts[$oid]);
                 break;
-            case self::STATE_MOVED:
+            case self::STATE_MANAGED:
                 unset($this->scheduledMoves[$oid]);
+                unset($this->scheduledReorders[$oid]);
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
@@ -722,7 +743,7 @@ class UnitOfWork
     private function computeSingleDocumentChangeSet($document)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED && $state !== self::STATE_MOVED) {
+        if ($state !== self::STATE_MANAGED) {
             throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
         }
 
@@ -752,7 +773,7 @@ class UnitOfWork
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
-            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
+            if ($state === self::STATE_MANAGED) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
             }
@@ -862,7 +883,7 @@ class UnitOfWork
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
-            if ($state === self::STATE_MANAGED || $state === self::STATE_MOVED) {
+            if ($state === self::STATE_MANAGED) {
                 $this->computeChangeSet($parentClass, $parent);
             }
         }
@@ -1143,7 +1164,7 @@ class UnitOfWork
         if ($this->evm->hasListeners(Event::prePersist)) {
             $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
         }
-        
+
         $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
 
         $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm, $parent);
@@ -1186,7 +1207,6 @@ class UnitOfWork
         $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_MANAGED:
-            case self::STATE_MOVED:
                 $this->unregisterDocument($document);
                 break;
             case self::STATE_NEW:
@@ -1271,6 +1291,8 @@ class UnitOfWork
 
             $this->executeRemovals($this->scheduledRemovals);
 
+            $this->executeReorders($this->scheduledReorders);
+
             $this->session->save();
 
             if (!empty($this->scheduledMoves)) {
@@ -1309,6 +1331,7 @@ class UnitOfWork
         $this->scheduledAssociationUpdates =
         $this->scheduledRemovals =
         $this->scheduledMoves =
+        $this->scheduledReorders =
         $this->scheduledInserts =
         $this->visitedCollections =
         $this->documentChangesets =
@@ -1641,6 +1664,49 @@ class UnitOfWork
     }
 
     /**
+     * Execute reorderings
+     *
+     * @param $documents
+     */
+    private function executeReorders($documents)
+    {
+        foreach ($documents as $oid => $value) {
+            if (!$this->contains($oid)) {
+                continue;
+            }
+            list($parent, $src, $target, $before) = $value;
+
+            $parentNode = $this->session->getNode($this->getDocumentId($parent));
+            $children = $parentNode->getNodes();
+
+            // check for src and target ...
+            $dest = $target;
+            if (isset($children[$src]) && isset($children[$target])) {
+                // there is no orderAfter, so we need to find the child after target to use it in orderBefore
+                if (!$before) {
+                    $dest = null;
+                    $found = false;
+                    foreach ($children as $name => $child) {
+                        if ($name === $target) {
+                            $found = true;
+                        } elseif ($found) {
+                            $dest = $name;
+                            break;
+                        }
+                    }
+                }
+                $parentNode->orderBefore($src, $dest);
+                // set all children collection to initialized = false to force reload after reordering
+                $class = $this->dm->getClassMetadata(get_class($parent));
+                foreach ($class->childrenMappings as $childrenMapping) {
+                    $children = $class->reflFields[$childrenMapping['fieldName']]->getValue($parent);
+                    $children->setInitialized(false);
+                }
+            }
+        }
+    }
+
+    /**
      * Executes all document removals
      *
      * @param array $documents array of all to be removed documents
@@ -1839,6 +1905,7 @@ class UnitOfWork
         unset($this->scheduledRemovals[$oid],
             $this->scheduledUpdates[$oid],
             $this->scheduledMoves[$oid],
+            $this->scheduledReorders[$oid],
             $this->scheduledInserts[$oid],
             $this->scheduledAssociationUpdates[$oid],
             $this->originalData[$oid],
@@ -2020,6 +2087,7 @@ class UnitOfWork
         $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
         $this->scheduledMoves =
+        $this->scheduledReorders =
         $this->scheduledRemovals =
         $this->visitedCollections =
         $this->documentHistory =

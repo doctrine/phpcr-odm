@@ -539,7 +539,7 @@ class DocumentManager implements ObjectManager
     public function persist($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -559,7 +559,7 @@ class DocumentManager implements ObjectManager
     public function bindTranslation($document, $locale)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -579,7 +579,7 @@ class DocumentManager implements ObjectManager
     public function getLocalesFor($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -600,7 +600,7 @@ class DocumentManager implements ObjectManager
     public function move($document, $targetPath)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         if (strpos($targetPath, '/') !== 0) {
@@ -609,6 +609,28 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
         $this->unitOfWork->scheduleMove($document, $targetPath);
+    }
+
+    /**
+     * Reorder a child of the given document
+     *
+     * Note that this does not update the fields with @Child/Children annotations.
+     * If you want to continue working with the manager after a reorder, you are probably
+     * safest calling DocumentManager::clear and re-loading the documents you need to use.
+     *
+     * @param object $document an already registered document
+     * @param string $srcName the nodename of the child to be reordered
+     * @param string $targetName the nodename of the target of the reordering
+     * @param boolean $before insert before or after the target
+     */
+    public function reorder($document, $srcName, $targetName, $before)
+    {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+        }
+
+        $this->errorIfClosed();
+        $this->unitOfWork->scheduleReorder($document, $srcName, $targetName, $before);
     }
 
     /**
@@ -623,7 +645,7 @@ class DocumentManager implements ObjectManager
     public function remove($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -640,7 +662,7 @@ class DocumentManager implements ObjectManager
     public function merge($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
@@ -662,7 +684,7 @@ class DocumentManager implements ObjectManager
     public function detach($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -678,7 +700,7 @@ class DocumentManager implements ObjectManager
     public function refresh($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -704,7 +726,7 @@ class DocumentManager implements ObjectManager
     public function getChildren($document, $filter = null, $fetchDepth = null)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -725,7 +747,7 @@ class DocumentManager implements ObjectManager
     public function getReferrers($document, $type = null, $name = null)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -741,7 +763,7 @@ class DocumentManager implements ObjectManager
     public function flush($document = null)
     {
         if (null !== $document && !is_object($document) && !is_array($document)) {
-             throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -793,7 +815,7 @@ class DocumentManager implements ObjectManager
     public function checkin($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -808,7 +830,7 @@ class DocumentManager implements ObjectManager
     public function checkout($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -827,7 +849,7 @@ class DocumentManager implements ObjectManager
     public function checkpoint($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -887,7 +909,7 @@ class DocumentManager implements ObjectManager
     public function getAllLinearVersions($document, $limit = -1)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -928,7 +950,7 @@ class DocumentManager implements ObjectManager
     public function contains($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         return $this->unitOfWork->contains($document);
@@ -983,7 +1005,7 @@ class DocumentManager implements ObjectManager
     public function initializeObject($document)
     {
         if (!is_object($document)) {
-            throw new \InvalidArgumentException(gettype($document));
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->unitOfWork->initializeObject($document);
