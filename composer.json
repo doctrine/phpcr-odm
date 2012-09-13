@@ -29,6 +29,7 @@
     "autoload": {
         "psr-0": { "Doctrine\\ODM\\PHPCR": "lib/" }
     },
+    "bin": ["bin/phpcr", "bin/phpcr.php"],
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
