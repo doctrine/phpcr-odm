@@ -7,8 +7,6 @@
  * Add instances of commands for eventual implementation specific commands to this array.
  */
 
-require_once __DIR__.'/bootstrap.php';
-
 $extraCommands = array();
 
 $params = array(

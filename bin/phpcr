@@ -1,46 +1,4 @@
 #!/usr/bin/env php
 <?php
 
-$configFile = __DIR__ . DIRECTORY_SEPARATOR . '/../cli-config.php';
-
-$helperSet = null;
-if (file_exists($configFile)) {
-    if (!is_readable($configFile)) {
-        trigger_error(
-            'Configuration file [' . $configFile . '] does not have read permission.', E_USER_ERROR
-        );
-    }
-
-    require $configFile;
-
-    foreach ($GLOBALS as $helperSetCandidate) {
-        if ($helperSetCandidate instanceof \Symfony\Component\Console\Helper\HelperSet) {
-            $helperSet = $helperSetCandidate;
-            break;
-        }
-    }
-} else {
-    trigger_error(
-        'Configuration file [' . $configFile . '] does not exist. See https://github.com/doctrine/phpcr-odm/wiki/Command-line-tool-configuration', E_USER_ERROR
-    );
-}
-
-$helperSet = ($helperSet) ?: new \Symfony\Component\Console\Helper\HelperSet();
-
-$cli = new \Symfony\Component\Console\Application('Doctrine ODM PHPCR Command Line Interface', Doctrine\ODM\PHPCR\Version::VERSION);
-$cli->setCatchExceptions(true);
-$cli->setHelperSet($helperSet);
-$cli->addCommands(array(
-    new \PHPCR\Util\Console\Command\CreateWorkspaceCommand(),
-    new \PHPCR\Util\Console\Command\ImportXmlCommand(),
-    new \PHPCR\Util\Console\Command\DumpCommand(),
-    new \PHPCR\Util\Console\Command\PurgeCommand(),
-    new \PHPCR\Util\Console\Command\RegisterNodeTypesCommand(),
-    new \PHPCR\Util\Console\Command\QueryCommand(),
-    new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
-));
-if (isset($extraCommands) && ! empty($extraCommands)) {
-    $cli->addCommands($extraCommands);
-}
-$cli->run();
-
+include('phpcr.php');
