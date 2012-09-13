@@ -19,7 +19,7 @@ PHPCR ODM for Doctrine2
 
 # Documentation
 
-Please refer to [doctrine-project.org](http://www.doctrine-project.org/...) for the documentation.
+Please refer to [doctrine-project.org](http://docs.doctrine-project.org/projects/doctrine-phpcr-odm/en/latest/) for the documentation.
 
 
 # Running the tests
