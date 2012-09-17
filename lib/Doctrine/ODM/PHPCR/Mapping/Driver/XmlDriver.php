@@ -197,7 +197,9 @@ class XmlDriver extends FileDriver
     protected function loadMappingFile($file)
     {
         $result = array();
-        $xmlElement = simplexml_load_file($file);
+        $entity = libxml_disable_entity_loader(true);
+        $xmlElement = simplexml_load_string(file_get_contents($file));
+        libxml_disable_entity_loader($entity);
 
         foreach (array('document', 'mapped-superclass') as $type) {
             if (isset($xmlElement->$type)) {
