@@ -335,11 +335,9 @@ class UnitOfWork
                     $referencedNodes[] = $reference;
                 }
 
-                if (count($referencedNodes) > 0) {
-                    $targetDocument = isset($assocOptions['targetDocument']) ? $assocOptions['targetDocument'] : null;
-                    $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument);
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
-                }
+                $targetDocument = isset($assocOptions['targetDocument']) ? $assocOptions['targetDocument'] : null;
+                $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument);
+                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
             }
         }
 
@@ -1441,7 +1439,7 @@ class UnitOfWork
                     }
                 } elseif (isset($class->associationsMappings[$fieldName])) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
-                    
+
                     //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates)
                     //to only update association fields
                     $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
@@ -1550,9 +1548,7 @@ class UnitOfWork
                                 }
                             }
 
-                            if (!empty($refNodesIds)) {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
-                            }
+                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
                         }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
