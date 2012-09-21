@@ -254,7 +254,9 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $references = $this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references');
+        $this->assertEquals(0, count($references->getValue()));
     }
 
     public function testCreateAddRefLater()
@@ -294,7 +296,9 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $references = $this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references');
+        $this->assertEquals(0, count($references->getValue()));
 
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 

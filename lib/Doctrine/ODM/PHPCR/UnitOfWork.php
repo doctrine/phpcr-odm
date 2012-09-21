@@ -1550,11 +1550,7 @@ class UnitOfWork
                                 }
                             }
 
-                            if (empty($refNodesIds)) {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], null, $strategy);
-                            } else {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
-                            }
+                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
                         }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
