@@ -455,10 +455,12 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
         unset($refManyTestObj->references[0]);
         $this->assertEquals(0, count($refManyTestObj->references));
+        $this->assertNotNull($refManyTestObj->references);
         $this->dm->flush();
         $this->dm->clear();
 
         $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertNotNull($refManyTestObj->references);
         $this->assertEquals(0, count($refManyTestObj->references));
     }
 
@@ -489,6 +491,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
         unset($refManyTestObj->references[0]);
+        $this->assertNotNull($refManyTestObj->references);
         $this->assertEquals(1, count($refManyTestObj->references));
         $this->dm->flush();
         $this->dm->clear();
@@ -496,11 +499,13 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
         $this->assertEquals(1, count($refManyTestObj->references));
         unset($refManyTestObj->references[0]);
+        $this->assertNotNull($refManyTestObj->references);
         $this->assertEquals(0, count($refManyTestObj->references));
         $this->dm->flush();
         $this->dm->clear();
 
         $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertNotNull($refManyTestObj->references);
         $this->assertEquals(0, count($refManyTestObj->references));
     }
 
