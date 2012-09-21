@@ -254,7 +254,9 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $references = $this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references');
+        $this->assertEquals(0, count($references->getValue()));
     }
 
     public function testCreateAddRefLater()
@@ -294,7 +296,9 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $this->assertTrue($this->session->getNode('/functional')->getNode('refManyTestObj')->hasProperty('references'));
+        $references = $this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('references');
+        $this->assertEquals(0, count($references->getValue()));
 
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
@@ -425,6 +429,156 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $i++;
         }
         $this->assertEquals($max, $i);
+    }
+
+    public function testRemoveReference()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObj = new RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refManyTestObj->references[] = $refRefTestObj;
+
+        $this->assertEquals(1, count($refManyTestObj->references));
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        unset($refManyTestObj->references[0]);
+        $this->assertEquals(0, count($refManyTestObj->references));
+        $this->assertNotNull($refManyTestObj->references);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertNotNull($refManyTestObj->references);
+        $this->assertEquals(0, count($refManyTestObj->references));
+    }
+
+    public function testRemoveMultipleReferences()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObjA = new RefRefTestObj();
+        $refRefTestObjB = new RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObjA->id = "/functional/refRefTestObjA";
+        $refRefTestObjA->name = "referencedA";
+        $refRefTestObjB->id = "/functional/refRefTestObjB";
+        $refRefTestObjB->name = "referencedB";
+
+        $refManyTestObj->references[] = $refRefTestObjA;
+        $refManyTestObj->references[] = $refRefTestObjB;
+
+        $this->assertEquals(2, count($refManyTestObj->references));
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(2, count($refManyTestObj->references));
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        unset($refManyTestObj->references[0]);
+        $this->assertNotNull($refManyTestObj->references);
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(1, count($refManyTestObj->references));
+        unset($refManyTestObj->references[0]);
+        $this->assertNotNull($refManyTestObj->references);
+        $this->assertEquals(0, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertNotNull($refManyTestObj->references);
+        $this->assertEquals(0, count($refManyTestObj->references));
+    }
+
+    public function testRemoveAllReferences()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObjA = new RefRefTestObj();
+        $refRefTestObjB = new RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObjA->id = "/functional/refRefTestObjA";
+        $refRefTestObjA->name = "referencedA";
+        $refRefTestObjB->id = "/functional/refRefTestObjB";
+        $refRefTestObjB->name = "referencedB";
+
+        $refManyTestObj->references[] = $refRefTestObjA;
+        $refManyTestObj->references[] = $refRefTestObjB;
+
+        $this->assertEquals(2, count($refManyTestObj->references));
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(2, count($refManyTestObj->references));
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        unset($refManyTestObj->references[0]);
+        unset($refManyTestObj->references[1]);
+        $this->assertEquals(0, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(0, count($refManyTestObj->references));
+    }
+
+    public function testAddMultipleReferences()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObjA = new RefRefTestObj();
+        $refRefTestObjB = new RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObjA->id = "/functional/refRefTestObjA";
+        $refRefTestObjA->name = "referencedA";
+        $refRefTestObjB->id = "/functional/refRefTestObjB";
+        $refRefTestObjB->name = "referencedB";
+
+        $this->assertEquals(0, count($refManyTestObj->references));
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(0, count($refManyTestObj->references));
+        $refManyTestObj->references[] = $refRefTestObjA;
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $refManyTestObj->references[] = $refRefTestObjB;
+        $this->assertEquals(2, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(2, count($refManyTestObj->references));
     }
 
     public function testRemoveReferrer()
