@@ -1441,7 +1441,7 @@ class UnitOfWork
                     }
                 } elseif (isset($class->associationsMappings[$fieldName])) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
-                    
+
                     //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates)
                     //to only update association fields
                     $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
@@ -1550,7 +1550,9 @@ class UnitOfWork
                                 }
                             }
 
-                            if (!empty($refNodesIds)) {
+                            if (empty($refNodesIds)) {
+                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], null, $strategy);
+                            } else {
                                 $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
                             }
                         }
