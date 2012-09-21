@@ -326,13 +326,11 @@ class UnitOfWork
 
                 $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxy;
             } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
-                if (!$node->hasProperty($assocOptions['fieldName'])) {
-                    continue;
-                }
-
                 $referencedNodes = array();
-                foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $reference) {
-                    $referencedNodes[] = $reference;
+                if ($node->hasProperty($assocOptions['fieldName'])) {
+                    foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $reference) {
+                        $referencedNodes[] = $reference;
+                    }
                 }
 
                 $targetDocument = isset($assocOptions['targetDocument']) ? $assocOptions['targetDocument'] : null;
@@ -1548,6 +1546,7 @@ class UnitOfWork
                                 }
                             }
 
+                            $refNodesIds = empty($refNodesIds) ? null : $refNodesIds;
                             $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
                         }
                     } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
