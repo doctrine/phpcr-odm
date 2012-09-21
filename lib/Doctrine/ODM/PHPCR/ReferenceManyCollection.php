@@ -76,7 +76,11 @@ class ReferenceManyCollection extends MultivaluePropertyCollection
 
     public function count()
     {
-        return count($this->referencedNodes);
+        if (!$this->initialized) {
+            return count($this->referencedNodes);
+        }
+
+        return parent::count();
     }
 
     public function isEmpty()
