@@ -335,11 +335,9 @@ class UnitOfWork
                     $referencedNodes[] = $reference;
                 }
 
-                if (count($referencedNodes) > 0) {
-                    $targetDocument = isset($assocOptions['targetDocument']) ? $assocOptions['targetDocument'] : null;
-                    $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument);
-                    $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
-                }
+                $targetDocument = isset($assocOptions['targetDocument']) ? $assocOptions['targetDocument'] : null;
+                $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument);
+                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
             }
         }
 
