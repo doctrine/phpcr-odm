@@ -427,6 +427,37 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($max, $i);
     }
 
+    public function testRemoveReference()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObj = new RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refRefTestObj->name = "referenced";
+
+        $refManyTestObj->references[] = $refRefTestObj;
+
+        $this->assertEquals(1, count($refManyTestObj->references));
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        unset($refManyTestObj->references[0]);
+        $this->assertEquals(0, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(0, count($refManyTestObj->references));
+    }
+
     public function testRemoveReferrer()
     {
         $refTestObj = new RefTestObj();
