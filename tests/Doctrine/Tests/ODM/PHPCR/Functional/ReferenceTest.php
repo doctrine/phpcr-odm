@@ -500,6 +500,42 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(0, count($refManyTestObj->references));
     }
 
+    public function testAddMultipleReferences()
+    {
+        $refManyTestObj = new RefManyTestObj();
+        $refRefTestObjA = new RefRefTestObj();
+        $refRefTestObjB = new RefRefTestObj();
+
+        $refManyTestObj->id = "/functional/refTestObj";
+        $refRefTestObjA->id = "/functional/refRefTestObjA";
+        $refRefTestObjA->name = "referencedA";
+        $refRefTestObjB->id = "/functional/refRefTestObjB";
+        $refRefTestObjB->name = "referencedB";
+
+        $this->assertEquals(0, count($refManyTestObj->references));
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(0, count($refManyTestObj->references));
+        $refManyTestObj->references[] = $refRefTestObjA;
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(1, count($refManyTestObj->references));
+        $refManyTestObj->references[] = $refRefTestObjB;
+        $this->assertEquals(2, count($refManyTestObj->references));
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $refManyTestObj = $this->dm->find(null, "/functional/refTestObj");
+        $this->assertEquals(2, count($refManyTestObj->references));
+    }
+
     public function testRemoveReferrer()
     {
         $refTestObj = new RefTestObj();
