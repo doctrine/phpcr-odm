@@ -36,6 +36,11 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  */
 class RegisterSystemNodeTypesCommand extends RegisterNodeTypesCommand
 {
+    private $phpcrNamespace = 'phpcr';
+    private $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
+    private $localeNamespace = Translation::LOCALE_NAMESPACE;
+    private $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
+
     /**
      * @see Command
      */
@@ -57,11 +62,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $phpcrNamespace = 'phpcr';
-        $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
-        $localeNamespace = Translation::LOCALE_NAMESPACE;
-        $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
-
         /** @var $session \PHPCR\SessionInterface */
         $session = $this->getHelper('phpcr')->getSession();
         if ($session instanceof \Jackalope\Session
@@ -69,9 +69,9 @@ EOT
         ) {
             $cnd = <<<CND
 // register phpcr_locale namespace
-<$localeNamespace='$localeNamespaceUri'>
+<$this->localeNamespace='$this->localeNamespaceUri'>
 // register phpcr namespace
-<$phpcrNamespace='$phpcrNamespaceUri'>
+<$this->phpcrNamespace='$this->phpcrNamespaceUri'>
 [phpcr:managed]
   mixin
   - phpcr:class (STRING)
@@ -80,20 +80,25 @@ CND
             // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
             $this->updateFromCnd($input, $output, $session, $cnd, true);
         } else {
-            $ns = $session->getWorkspace()->getNamespaceRegistry();
-            $ns->registerNamespace($phpcrNamespace, $phpcrNamespaceUri);
-            $ns->registerNamespace($localeNamespace, $localeNamespaceUri);
-            $nt = $session->getWorkspace()->getNodeTypeManager();
-            $proptpl = $nt->createPropertyDefinitionTemplate();
-            $proptpl->setName('phpcr:class');
-            $proptpl->setRequiredType(\PHPCR\PropertyType::STRING);
-            $tpl = $nt->createNodeTypeTemplate();
-            $tpl->setName('phpcr:managed');
-            $tpl->setMixin(true);
-            $props = $tpl->getPropertyDefinitionTemplates();
-            $props->offsetSet(null, $proptpl);
-            $nt->registerNodeType($tpl, true);
+            $this->registerSystemNodeTypes($session);
         }
         $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
+    }
+
+    public function registerSystemNodeTypes($session)
+    {
+        $ns = $session->getWorkspace()->getNamespaceRegistry();
+        $ns->registerNamespace($this->phpcrNamespace, $this->phpcrNamespaceUri);
+        $ns->registerNamespace($this->localeNamespace, $this->localeNamespaceUri);
+        $nt = $session->getWorkspace()->getNodeTypeManager();
+        $proptpl = $nt->createPropertyDefinitionTemplate();
+        $proptpl->setName('phpcr:class');
+        $proptpl->setRequiredType(\PHPCR\PropertyType::STRING);
+        $tpl = $nt->createNodeTypeTemplate();
+        $tpl->setName('phpcr:managed');
+        $tpl->setMixin(true);
+        $props = $tpl->getPropertyDefinitionTemplates();
+        $props->offsetSet(null, $proptpl);
+        $nt->registerNodeType($tpl, true);
     }
 }
