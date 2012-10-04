@@ -584,6 +584,10 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['name'] = $mapping['fieldName'];
         }
 
+        if ($isField && isset($mapping['assoc']) && (empty($mapping['multivalue']) || empty($mapping['assoc']))) {
+            throw MappingException::assocDefinitionMissingMultivalue($this->name, $mapping['fieldName']);
+        }
+
         if (isset($this->fieldMappings[$mapping['fieldName']])
             || ($this->node == $mapping['fieldName'])
             || ($this->nodename == $mapping['fieldName'])
@@ -627,6 +631,32 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
         return $mapping;
+    }
+
+    public function validateClassMapping()
+    {
+        $assocFields = array();
+        foreach ($this->fieldMappings as $fieldName => $mapping) {
+            if (empty($mapping['multivalue']) || empty($mapping['assoc'])) {
+                continue;
+            }
+
+            if (!empty($this->fieldMappings[$mapping['assoc']])) {
+                throw MappingException::assocOverlappingFieldDefinition($this->name, $fieldName, $mapping['assoc']);
+            }
+
+            if (!empty($assocFields[$mapping['assoc']])) {
+                throw MappingException::assocOverlappingAssocDefinition($this->name, $fieldName, $assocFields[$mapping['assoc']]);
+            }
+
+            $assocFields[$mapping['assoc']] = $fieldName;
+        }
+
+        if (count($this->translatableFields)) {
+            if (!isset($this->localeMapping)) {
+                throw new MappingException("You must define a locale mapping for translatable document '".$this->name."'");
+            }
+        }
     }
 
     public function mapManyToOne($mapping)

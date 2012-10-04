@@ -32,17 +32,17 @@ class MappingException extends \Exception
 {
     public static function classNotFound($className)
     {
-        return new self('The class: ' . $className . ' could not be found');
+        return new self("The class: '$className'. could not be found");
     }
 
     public static function classIsNotAValidDocument($className)
     {
-        return new self('Class '.$className.' is not a valid document or mapped super class.');
+        return new self("Class '$className' is not a valid document or mapped super class.");
     }
 
     public static function reflectionFailure($document, \ReflectionException $previousException)
     {
-        return new self('An error occurred in ' . $document, 0, $previousException);
+        return new self("An error occurred in '$document'", 0, $previousException);
     }
 
     /**
@@ -51,7 +51,7 @@ class MappingException extends \Exception
      */
     public static function duplicateFieldMapping($document, $fieldName)
     {
-        return new self('Property "'.$fieldName.'" in "'.$document.'" was already declared, but it must be declared only once');
+        return new self("Property '$fieldName'. in .'$document'. was already declared, but it must be declared only once");
     }
 
     /**
@@ -60,7 +60,7 @@ class MappingException extends \Exception
      */
     public static function missingTypeDefinition($document, $fieldName)
     {
-        return new self('Property "'.$fieldName.'" in "'.$document.'" must have a type attribute defined');
+        return new self("Property '$fieldName' in '$document' must have a type attribute defined");
     }
 
     public static function fileMappingDriversRequireConfiguredDirectoryPath($path)
@@ -70,17 +70,32 @@ class MappingException extends \Exception
 
     public static function classNotMapped($className)
     {
-        return new self('Class ' . $className . ' is not mapped to a document');
+        return new self("Class '$className' is not mapped to a document");
     }
 
     public static function pathRequired()
     {
-        return new self('Path is requiredt');
+        return new self('Path is required');
     }
 
     public static function noTypeSpecified()
     {
         return new self('No type specified');
+    }
+
+    public static function assocDefinitionMissingMultivalue($document, $fieldName)
+    {
+        return new self("The 'assoc' attributes requires 'multivalue' is enabled for property '$fieldName' in '$document'.");
+    }
+
+    public static function assocOverlappingFieldDefinition($document, $fieldName, $overlappingFieldName)
+    {
+        return new self("The 'assoc' attributes may not overlap with field '$overlappingFieldName' for property '$fieldName' in '$document'.");
+    }
+
+    public static function assocOverlappingAssocDefinition($document, $fieldName, $overlappingAssoc)
+    {
+        return new self("The 'assoc' attributes may not overlap with assoc property '$overlappingAssoc' for property '$fieldName' in '$document'.");
     }
 
     public static function mappingNotFound($className, $fieldName)

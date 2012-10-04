@@ -41,7 +41,6 @@ use Doctrine\Common\Annotations\AnnotationReader,
  */
 class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
 {
-
     /**
      * {@inheritdoc}
      *
@@ -180,12 +179,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             }
         }
 
-        // Check there is a @Locale annotation for translatable documents
-        if (count($metadata->translatableFields)) {
-            if (!isset($metadata->localeMapping)) {
-                throw new MappingException("You must define a @Locale field for translatable document '$className'");
-            }
-        }
+        $metadata->validateClassMapping();
     }
-
 }

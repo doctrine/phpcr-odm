@@ -89,6 +89,8 @@ class Property
     public $type = 'undefined';
     /** @var boolean */
     public $multivalue = false;
+    /** @var string */
+    public $assoc;
 }
 /**
  * Base class for all the translatable properties (i.e. every property but Uuid and Version)
