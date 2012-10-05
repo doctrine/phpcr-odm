@@ -177,6 +177,7 @@ class XmlDriver extends FileDriver
             }
         }
 
+        $class->validateClassMapping();
     }
 
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)
