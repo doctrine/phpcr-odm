@@ -463,7 +463,7 @@ class User
     public $username;
     /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
-    /** @PHPCRODM\String(name="parameters", multivalue=true, assoc="parameterKeys") */
+    /** @PHPCRODM\String(name="parameters", assoc="") */
     public $parameters;
 }
 

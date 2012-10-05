@@ -83,11 +83,6 @@ class MappingException extends \Exception
         return new self('No type specified');
     }
 
-    public static function assocDefinitionMissingMultivalue($document, $fieldName)
-    {
-        return new self("The 'assoc' attributes requires 'multivalue' is enabled for property '$fieldName' in '$document'.");
-    }
-
     public static function assocOverlappingFieldDefinition($document, $fieldName, $overlappingFieldName)
     {
         return new self("The 'assoc' attributes may not overlap with field '$overlappingFieldName' for property '$fieldName' in '$document'.");
