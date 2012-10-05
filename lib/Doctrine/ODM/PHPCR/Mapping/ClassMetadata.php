@@ -584,8 +584,13 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['name'] = $mapping['fieldName'];
         }
 
-        if ($isField && isset($mapping['assoc']) && (empty($mapping['multivalue']) || empty($mapping['assoc']))) {
-            throw MappingException::assocDefinitionMissingMultivalue($this->name, $mapping['fieldName']);
+        if ($isField && isset($mapping['assoc'])) {
+            if (empty($mapping['multivalue'])) {
+                throw MappingException::assocDefinitionMissingMultivalue($this->name, $mapping['fieldName']);
+            }
+            if (empty($mapping['assoc'])) {
+                $mapping['assoc'] = $mapping['name'].'Keys';
+            }
         }
 
         if (isset($this->fieldMappings[$mapping['fieldName']])
