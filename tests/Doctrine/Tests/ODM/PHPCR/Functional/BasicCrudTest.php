@@ -38,6 +38,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('numbers', array(3, 1, 2));
+        $user->setProperty('parameters', array('bar', 'dong'));
+        $user->setProperty('parameterKey', array('foo', 'ding'));
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
@@ -402,6 +404,50 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('test2', $userNew->username);
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
+
+    public function testAssocProperty()
+    {
+        $user = new User();
+        $user->username = "test";
+        $assocArray = array('foo' => 'bar', 'ding' => 'dong');
+        $user->parameters = $assocArray;
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->parameters->toArray(), $assocArray);
+
+        $assocArray = array('foo' => 'bar', 'hello' => 'world', 'check' => 'out');
+        $user->parameters = $assocArray;
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->parameters->toArray(), $assocArray);
+
+        $user->parameters->remove('foo');
+        unset($assocArray['foo']);
+        $user->parameters->set('boo', 'yah');
+        $assocArray['boo'] = 'yah';
+        $user->parameters->set('hello', 'welt');
+        $assocArray['hello'] = 'welt';
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->parameters->toArray(), $assocArray);
+    }
 }
 
 /**
@@ -417,6 +463,8 @@ class User
     public $username;
     /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
+    /** @PHPCRODM\String(name="parameters", assoc="") */
+    public $parameters;
 }
 
 /**

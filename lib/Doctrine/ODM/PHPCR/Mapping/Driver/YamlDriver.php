@@ -195,6 +195,7 @@ class YamlDriver extends FileDriver
             }
         }
 
+        $class->validateClassMapping();
     }
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)

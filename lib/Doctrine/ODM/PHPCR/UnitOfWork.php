@@ -261,10 +261,13 @@ class UnitOfWork
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
                 if ($mapping['multivalue']) {
-                    $collection = $properties[$mapping['name']] instanceof Collection
-                        ? $properties[$mapping['name']]
-                        : new ArrayCollection((array)$properties[$mapping['name']])
-                    ;
+                    if ($properties[$mapping['name']] instanceof Collection) {
+                        $collection = $properties[$mapping['name']];
+                    } elseif (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
+                        $collection = new ArrayCollection(array_combine((array)$properties[$mapping['assoc']], (array)$properties[$mapping['name']]));
+                    } else {
+                        $collection = new ArrayCollection((array)$properties[$mapping['name']]);
+                    }
                     $documentState[$fieldName] = new MultivaluePropertyCollection($collection);
                     $this->multivaluePropertyCollections[] = $documentState[$fieldName];
                 } else {
@@ -1431,6 +1434,10 @@ class UnitOfWork
 
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
                         $value = $fieldValue === null ? null : $fieldValue->toArray();
+                        if ($value && isset($class->fieldMappings[$fieldName]['assoc'])) {
+                            $node->setProperty($class->fieldMappings[$fieldName]['assoc'], array_keys($value), $type);
+                            $value = array_values($value);
+                        }
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
@@ -1502,6 +1509,10 @@ class UnitOfWork
                     $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
                         $value = $fieldValue === null ? null : $fieldValue->toArray();
+                        if ($value && isset($class->fieldMappings[$fieldName]['assoc'])) {
+                            $node->setProperty($class->fieldMappings[$fieldName]['assoc'], array_keys($value), $type);
+                            $value = array_values($value);
+                        }
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
                     } else {
                         $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
