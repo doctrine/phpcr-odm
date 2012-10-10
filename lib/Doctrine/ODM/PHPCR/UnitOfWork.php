@@ -803,6 +803,9 @@ class UnitOfWork
                 && !($value instanceof PersistentCollection)
             ) {
                 if (!$value instanceof Collection) {
+                    if (! is_array($value)) {
+                        throw new PHPCRException("Field '$fieldName' in ".$class->getName()." is a multivalue field but the value is neither Collection nor array");
+                    }
                     $value = new MultivaluePropertyCollection(new ArrayCollection($value), true);
                     $this->multivaluePropertyCollections[] = $value;
                 }

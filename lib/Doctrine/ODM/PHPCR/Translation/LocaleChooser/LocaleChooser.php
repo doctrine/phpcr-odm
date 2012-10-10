@@ -61,6 +61,9 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function __construct($localePreference, $defaultLocale)
     {
+        if (! isset($localePreference[$defaultLocale])) {
+            throw new \InvalidArgumentException("The supplied list of locales does not contain '$defaultLocale'");
+        }
         $this->localePreference = $localePreference;
         $this->defaultLocale = $defaultLocale;
     }

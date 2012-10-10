@@ -518,12 +518,7 @@ class DocumentManager implements ObjectManager
     /**
      * {@inheritDoc}
      *
-     * Persist creates the PHPCR node (but does not map the fields to properties
-     * yet) and populates the @Node, @Nodename and @Id annotations too. This
-     * means that if you use the raw phpcr session you will already see the
-     * nodes in case you need to add children to them.
-     * If you need a raw PHPCR session but do not need to see those newly
-     * created nodes, it is advised to use a separate session.
+     * No PHPCR node will be created yet, this only happens on flush.
      *
      * For translatable documents has to determine the locale:
      *
