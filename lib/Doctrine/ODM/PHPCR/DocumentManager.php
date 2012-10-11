@@ -715,17 +715,18 @@ class DocumentManager implements ObjectManager
      * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on childrens names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
+     * @param boolean $ignoreUntranslated if to ignore children that are not translated to the current locale
      *
      * @return \Doctrine\Common\Collections\Collection collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
-        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth);
+        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $ignoreUntranslated);
     }
 
     /**

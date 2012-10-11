@@ -1982,9 +1982,10 @@ class UnitOfWork
      * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on children's names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
+     * @param boolean $ignoreUntranslated if to ignore children that are not translated to the current locale
      * @return Collection a collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
     {
         $oldFetchDepth = $this->setFetchDepth($fetchDepth);
         $node = $this->session->getNode($this->getDocumentId($document));
@@ -1993,7 +1994,13 @@ class UnitOfWork
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
-            $childDocuments[$name] = $this->createDocument(null, $childNode);
+            try {
+                $childDocuments[$name] = $this->createDocument(null, $childNode);
+            } catch (\RuntimeException $e) {
+                if (!$ignoreUntranslated) {
+                    throw $e;
+                }
+            }
         }
 
         return new ArrayCollection($childDocuments);
