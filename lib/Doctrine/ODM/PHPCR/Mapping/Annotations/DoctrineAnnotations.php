@@ -267,6 +267,8 @@ final class Children
     public $filter;
     /** @var integer */
     public $fetchDepth;
+    /** @var boolean */
+    public $ignoreUntranslated = true;
 }
 /**
  * @Annotation

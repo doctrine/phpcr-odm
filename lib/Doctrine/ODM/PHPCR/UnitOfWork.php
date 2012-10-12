@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
@@ -1982,9 +1983,10 @@ class UnitOfWork
      * @param object $document document instance which children should be loaded
      * @param string|array $filter optional filter to filter on children's names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
+     * @param boolean $ignoreUntranslated if to ignore children that are not translated to the current locale
      * @return Collection a collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
     {
         $oldFetchDepth = $this->setFetchDepth($fetchDepth);
         $node = $this->session->getNode($this->getDocumentId($document));
@@ -1993,7 +1995,13 @@ class UnitOfWork
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
-            $childDocuments[$name] = $this->createDocument(null, $childNode);
+            try {
+                $childDocuments[$name] = $this->createDocument(null, $childNode);
+            } catch (MissingTranslationException $e) {
+                if (!$ignoreUntranslated) {
+                    throw $e;
+                }
+            }
         }
 
         return new ArrayCollection($childDocuments);
@@ -2167,7 +2175,7 @@ class UnitOfWork
      *
      * @return void
      */
-    public function doLoadTranslation($document, $metadata = null, $locale = null, $fallback = false)
+    public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -2199,7 +2207,7 @@ class UnitOfWork
 
         if (empty($localeUsed)) {
             // We tried each possible language without finding the translations
-            throw new \RuntimeException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
+            throw new MissingTranslationException($node-, $metadata, $localesToTry);
         }
 
         // Set the locale

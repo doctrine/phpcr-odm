@@ -135,6 +135,7 @@ class XmlDriver extends FileDriver
                 $mapping = array('fieldName' => (string) $attributes->fieldName);
                 $mapping['filter'] = isset($attributes['filter']) ? (string) $attributes->filter : null;
                 $mapping['fetchDepth'] = isset($attributes['fetchDepth']) ? (int) $attributes->fetchDepth : null;
+                $mapping['ignoreUntranslated'] = !empty($attributes['ignoreUntranslated']);
                 $class->mapChildren($mapping);
             }
         }

@@ -61,11 +61,21 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function __construct($localePreference, $defaultLocale)
     {
-        if (! isset($localePreference[$defaultLocale])) {
-            throw new \InvalidArgumentException("The supplied list of locales does not contain '$defaultLocale'");
-        }
-        $this->localePreference = $localePreference;
         $this->defaultLocale = $defaultLocale;
+        $this->setLocalePreference($localePreference);
+    }
+
+    /**
+     * @param array $localePreference array of arrays with a preferred locale order list
+     *      for each locale
+     */
+    public function setLocalePreference($localePreference)
+    {
+        if (! isset($localePreference[$this->defaultLocale])) {
+            throw new \InvalidArgumentException("The supplied list of locales does not contain '$this->defaultLocale'");
+        }
+
+        $this->localePreference = $localePreference;
     }
 
     /**
@@ -83,7 +93,8 @@ class LocaleChooser implements LocaleChooserInterface
     {
         if (is_null($forLocale)) {
             return $this->localePreference[$this->getLocale()];
-        } elseif (array_key_exists($forLocale, $this->localePreference)) {
+        }
+        if (array_key_exists($forLocale, $this->localePreference)) {
             return $this->localePreference[$forLocale];
         }
 
@@ -106,6 +117,7 @@ class LocaleChooser implements LocaleChooserInterface
         if (empty($this->locale)) {
             return $this->defaultLocale;
         }
+
         return $this->locale;
     }
 
@@ -120,13 +132,13 @@ class LocaleChooser implements LocaleChooserInterface
             $localeBase = substr($locale, 0, 2);
 
             // Strip region from locale if not configured
-            if (isset($this->localePreference[$localeBase])) {
-                $locale = $localeBase;
-            } else {
+            if (empty($this->localePreference[$localeBase])) {
                 throw new \InvalidArgumentException(
                     "The locale '$locale' is not present in the list of available locales"
                 );
             }
+
+            $locale = $localeBase;
         }
 
         $this->locale = $locale;

@@ -152,6 +152,9 @@ class YamlDriver extends FileDriver
                 if (!isset($mapping['fetchDepth'])) {
                     $mapping['fetchDepth'] = null;
                 }
+                if (!isset($mapping['ignoreUntranslated'])) {
+                    $mapping['ignoreUntranslated'] = false;
+                }
                 $class->mapChildren($mapping);
             }
         }
