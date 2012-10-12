@@ -2207,7 +2207,7 @@ class UnitOfWork
 
         if (empty($localeUsed)) {
             // We tried each possible language without finding the translations
-            throw new MissingTranslationException($node-, $metadata, $localesToTry);
+            throw new MissingTranslationException($node, $metadata, $localesToTry);
         }
 
         // Set the locale
