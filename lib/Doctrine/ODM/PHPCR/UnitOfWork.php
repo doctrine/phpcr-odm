@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
@@ -1996,7 +1997,7 @@ class UnitOfWork
         foreach ($childNodes as $name => $childNode) {
             try {
                 $childDocuments[$name] = $this->createDocument(null, $childNode);
-            } catch (\RuntimeException $e) {
+            } catch (MissingTranslationException $e) {
                 if (!$ignoreUntranslated) {
                     throw $e;
                 }
@@ -2174,7 +2175,7 @@ class UnitOfWork
      *
      * @return void
      */
-    public function doLoadTranslation($document, $metadata = null, $locale = null, $fallback = false)
+    public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -2206,7 +2207,7 @@ class UnitOfWork
 
         if (empty($localeUsed)) {
             // We tried each possible language without finding the translations
-            throw new \RuntimeException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
+            throw new MissingTranslationException($node-, $metadata, $localesToTry);
         }
 
         // Set the locale
