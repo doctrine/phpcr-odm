@@ -19,8 +19,9 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
 
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface,
-    Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 
 /**
  * Class to get the list of preferred locales.
@@ -41,11 +42,13 @@ class LocaleChooser implements LocaleChooserInterface
      *  )
      */
     protected $localePreference;
+
     /**
      * The current locale to use
      * @var string
      */
     protected $locale;
+
     /**
      * The default locale of the system used for getDefaultLocalesOrder
      * and as fallback if locale is not set.
@@ -68,11 +71,13 @@ class LocaleChooser implements LocaleChooserInterface
     /**
      * @param array $localePreference array of arrays with a preferred locale order list
      *      for each locale
+     *
+     * @throws MissingTranslationException
      */
     public function setLocalePreference($localePreference)
     {
         if (! isset($localePreference[$this->defaultLocale])) {
-            throw new \InvalidArgumentException("The supplied list of locales does not contain '$this->defaultLocale'");
+            throw new MissingTranslationException("The supplied list of locales does not contain '$this->defaultLocale'");
         }
 
         $this->localePreference = $localePreference;
@@ -88,6 +93,8 @@ class LocaleChooser implements LocaleChooserInterface
      * @param string $forLocale for which locale you need the locale order, e.g. the current request locale
      *
      * @return array $preferredLocales
+     *
+     * @throws MissingTranslationException
      */
     public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
     {
@@ -98,7 +105,7 @@ class LocaleChooser implements LocaleChooserInterface
             return $this->localePreference[$forLocale];
         }
 
-        throw new \InvalidArgumentException("There is no language fallback for language '$forLocale'");
+        throw new MissingTranslationException("There is no language fallback for language '$forLocale'");
     }
 
     /**
@@ -124,7 +131,7 @@ class LocaleChooser implements LocaleChooserInterface
     /**
      * Set the locale to use at this moment.
      *
-     * @throws \InvalidArgumentException if the specified locale is not defined in the $localePreference array.
+     * @throws MissingTranslationException if the specified locale is not defined in the $localePreference array.
      */
     public function setLocale($locale)
     {
@@ -133,7 +140,7 @@ class LocaleChooser implements LocaleChooserInterface
 
             // Strip region from locale if not configured
             if (empty($this->localePreference[$localeBase])) {
-                throw new \InvalidArgumentException(
+                throw new MissingTranslationException(
                     "The locale '$locale' is not present in the list of available locales"
                 );
             }

@@ -2115,14 +2115,14 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::onClear, new OnClearEventArgs($this->dm));
         }
 
-        return $this->session->refresh(false);
+        $this->session->refresh(false);
     }
 
     public function getLocalesFor($document)
     {
         $metadata = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($metadata)) {
-            throw new PHPCRException('This document is not translatable: : '.self::objToStr($document, $this->dm));
+            throw new MissingTranslationException('This document is not translatable: : '.self::objToStr($document, $this->dm));
         }
 
         $oid = spl_object_hash($document);
@@ -2186,7 +2186,7 @@ class UnitOfWork
         // Determine which languages we will try to load
         if (!$fallback) {
             if (null === $locale) {
-                throw new \InvalidArgumentException('Error while loading the translations: no locale specified and the language fallback is disabled: '.self::objToStr($document, $this->dm));
+                throw new MissingTranslationException('Error while loading the translations: no locale specified and the language fallback is disabled: '.self::objToStr($document, $this->dm));
             }
 
             $localesToTry = array($locale);
@@ -2207,7 +2207,7 @@ class UnitOfWork
 
         if (empty($localeUsed)) {
             // We tried each possible language without finding the translations
-            throw new MissingTranslationException($node, $metadata, $localesToTry);
+            throw new MissingTranslationException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
         }
 
         // Set the locale
@@ -2270,10 +2270,13 @@ class UnitOfWork
 
     /**
      * Use the LocaleStrategyChooser to return list of fallback locales
+     *
+     * @param object $document The document object
+     * @param ClassMetadata $metadata The metadata of the document class
      * @param $desiredLocale
      * @return array
      */
-    private function getFallbackLocales($document, $metadata, $desiredLocale)
+    private function getFallbackLocales($document, ClassMetadata $metadata, $desiredLocale)
     {
         $strategy = $this->dm->getLocaleChooserStrategy();
         return $strategy->getPreferredLocalesOrder($document, $metadata, $desiredLocale);
@@ -2288,7 +2291,7 @@ class UnitOfWork
      * @param ClassMetadata $metadata the document meta data
      * @return bool
      */
-    private function isDocumentTranslatable($metadata)
+    public function isDocumentTranslatable(ClassMetadata $metadata)
     {
         return !empty($metadata->translator)
             && is_string($metadata->translator)

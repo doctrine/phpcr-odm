@@ -566,19 +566,47 @@ class DocumentManager implements ObjectManager
      * including those not yet flushed, but bound
      *
      * @param object $document the document to get the locales for
+     * @param boolean $includeFallbacks if to include the available language fallbacks
      *
      * @return array of strings with all locales existing for this particular document
      *
      * @throws PHPCRException if the document is not translatable
      */
-    public function getLocalesFor($document)
+    public function getLocalesFor($document, $includeFallbacks = false)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
-        return $this->unitOfWork->getLocalesFor($document);
+
+        $metadata = $this->getClassMetadata(get_class($document));
+        $locales = $this->unitOfWork->getLocalesFor($document);
+        if ($includeFallbacks) {
+            $fallBackLocales = array();
+            foreach ($locales as $locale) {
+                $fallBackLocales = array_merge($fallBackLocales, $this->localeChooserStrategy->getPreferredLocalesOrder($document, $metadata, $locale));
+            }
+
+            $locales = array_unique(array_merge($locales, $fallBackLocales));
+        }
+
+        return $locales;
+    }
+
+    /**
+     * Determine whether this document is translatable.
+     *
+     * To be translatable, it needs a translation strategy and have at least
+     * one translated field.
+     *
+     * @param object $document the document to get the locales for
+     * @return bool
+     */
+    public function isDocumentTranslatable($document)
+    {
+        $metadata = $this->getClassMetadata(get_class($document));
+        return $this->unitOfWork->isDocumentTranslatable($metadata);
     }
 
     /**

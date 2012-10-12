@@ -31,10 +31,6 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
  * @since       1.0
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class MissingTranslationException extends \RuntimeException
+class MissingTranslationException extends \InvalidArgumentException
 {
-    public function __construct(NodeInterface $node, ClassMetadata $metadata, array $localesToTry)
-    {
-        parent::__construct('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
-    }
 }

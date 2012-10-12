@@ -20,9 +20,7 @@ class LocaleChooserTest extends PHPCRTestCase
     public function setUp()
     {
         $this->mockMetadata = $this->getMockBuilder('\Doctrine\ODM\PHPCR\Mapping\ClassMetadata')->disableOriginalConstructor()->getMock();
-        $this->localeChooser = new LocaleChooser(array('en' => $this->orderEn,
-                                                       'de' => $this->orderDe),
-                                                 'en');
+        $this->localeChooser = new LocaleChooser(array('en' => $this->orderEn, 'de' => $this->orderDe), 'en');
     }
 
 
