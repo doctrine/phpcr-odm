@@ -37,6 +37,12 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 interface LocaleChooserInterface
 {
     /**
+     * @param array $localePreference array of arrays with a preferred locale order list
+     *      for each locale
+     */
+    public function setLocalePreference($localePreference);
+
+    /**
      * Gets an ordered list of preferred locales.
      *
      * Example return value with param $forLocale = 'en':
