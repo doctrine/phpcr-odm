@@ -18,10 +18,10 @@
         "phpcr/phpcr-utils": ">=1.0-beta3"
     },
     "require-dev": {
-        "symfony/yaml": ">=2.0.0,<2.2.0-dev"
+        "symfony/yaml": ">=2.0.0,<2.3.0-dev"
     },
     "suggest":{
-        "symfony/yaml":">=2.0.0,<2.2.0-dev",
+        "symfony/yaml":">=2.0.0,<2.3.0-dev",
         "jackalope/jackalope-doctrine-dbal":"dev-master",
         "jackalope/jackalope-jackrabbit":"1.0.*",
         "midgard/phpcr":">=1.3"
