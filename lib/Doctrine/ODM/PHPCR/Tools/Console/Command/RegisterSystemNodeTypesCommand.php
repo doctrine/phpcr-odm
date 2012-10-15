@@ -83,6 +83,8 @@ CND
             $this->registerSystemNodeTypes($session);
         }
         $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
+
+        return 0;
     }
 
     public function registerSystemNodeTypes($session)
