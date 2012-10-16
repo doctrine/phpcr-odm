@@ -19,8 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
