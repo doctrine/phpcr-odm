@@ -116,6 +116,47 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertDocumentStored();
     }
 
+    public function testRemoveTranslation()
+    {
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->dm->flush();
+
+        $this->assertEquals(array('en'), $this->dm->getLocalesFor($this->doc));
+
+        $this->doc->topic = 'Un sujet intéressant';
+        $this->dm->bindTranslation($this->doc, 'fr');
+        $this->dm->flush();
+
+        $this->dm->clear();
+        $this->doc = $this->dm->findTranslation(null, $this->doc->id, 'fr');
+
+        $this->assertEquals(array('en', 'fr'), $this->dm->getLocalesFor($this->doc));
+
+        $this->dm->removeTranslation($this->doc, 'en');
+        $this->assertEquals(array('fr'), $this->dm->getLocalesFor($this->doc));
+        $this->dm->clear();
+
+        $this->doc = $this->dm->findTranslation(null, $this->doc->id, 'fr');
+        $this->assertEquals(array('en', 'fr'), $this->dm->getLocalesFor($this->doc));
+        $this->dm->removeTranslation($this->doc, 'en');
+
+        $this->dm->flush();
+        $this->assertEquals(array('fr'), $this->dm->getLocalesFor($this->doc));
+
+        $this->dm->clear();
+        $this->doc = $this->dm->find(null, $this->doc->id);
+
+        $this->assertEquals(array('fr'), $this->dm->getLocalesFor($this->doc));
+
+        try {
+            $this->dm->removeTranslation($this->doc, 'fr');
+            $this->fail('Last translation should not be removable');
+        } catch (\RuntimeException $e) {
+
+        }
+    }
+
     /**
      * find translation in non-default language and then save it back has to keep language
      */

@@ -2134,7 +2134,18 @@ class UnitOfWork
         }
 
         if (isset($this->documentTranslations[$oid])) {
-            $locales = array_unique(array_merge($locales, array_keys($this->documentTranslations[$oid])));
+            foreach ($this->documentTranslations[$oid] as $locale => $value) {
+                if (!in_array($locale, $locales)) {
+                    if ($value) {
+                        $locales[] = $locale;
+                    }
+                } elseif (!$value) {
+                    $key = array_search($locale, $locales);
+                    unset($locales[$key]);
+                }
+            }
+
+            $locales = array_values($locales);
         }
 
         return $locales;
@@ -2155,7 +2166,11 @@ class UnitOfWork
         if (!empty($this->documentTranslations[$oid])) {
             $strategy = $this->dm->getTranslationStrategy($metadata->translator);
             foreach ($this->documentTranslations[$oid] as $locale => $data) {
-                $strategy->saveTranslation($data, $node, $metadata, $locale);
+                if ($data) {
+                    $strategy->saveTranslation($data, $node, $metadata, $locale);
+                } else {
+                    $strategy->removeTranslation($document, $node, $metadata, $locale);
+                }
             }
         }
     }
@@ -2218,25 +2233,33 @@ class UnitOfWork
         $this->documentLocales[$oid] = array('original' => $locale, 'current' => $locale);
     }
 
-    private function doRemoveTranslation($document, $metadata, $locale)
+    public function removeTranslation($document, $locale)
     {
+        $metadata = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
         }
 
-        $node = $this->session->getNode($this->getDocumentId($document));
-        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-        $strategy->removeTranslation($document, $node, $metadata, $locale);
+        if (1 === count($this->getLocalesFor($document))) {
+            throw new \RuntimeException('The last translation of a translatable document may not be removed');
+        }
 
-        // Empty the locale field if what we removed was the current language
-        if ($localeField = $metadata->localeMapping) {
-            if ($metadata->reflFields[$localeField]->getValue($document) === $locale) {
+        $oid = spl_object_hash($document);
+        $this->documentTranslations[$oid][$locale] = null;
+
+        $localeField = $metadata->localeMapping;
+        if ($metadata->reflFields[$localeField]->getValue($document) === $locale) {
+            $this->documentLocales[$oid] = array('original' => $locale, 'current' => null);
+
+            // Empty the locale field if what we removed was the current language
+            $localeField = $metadata->localeMapping;
+            if ($localeField) {
                 $metadata->reflFields[$localeField]->setValue($document, null);
             }
         }
     }
 
-    private function doRemoveAllTranslations($document, $metadata)
+    private function doRemoveAllTranslations($document, ClassMetadata $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
