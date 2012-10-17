@@ -562,6 +562,22 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Remove the translatable fields of the document in the specified locale
+     *
+     * @param object $document the document to persist a translation of
+     * @param string $locale the locale this document currently has
+     */
+    public function removeTranslation($document, $locale)
+    {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+        }
+
+        $this->errorIfClosed();
+        $this->unitOfWork->removeTranslation($document, $locale);
+    }
+
+    /**
      * Get the list of locales that exist for the specified document,
      * including those not yet flushed, but bound
      *
