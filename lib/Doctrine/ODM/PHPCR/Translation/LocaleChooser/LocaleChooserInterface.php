@@ -64,6 +64,13 @@ interface LocaleChooserInterface
     function getLocale();
 
     /**
+     * Set the locale of the current session.
+     *
+     * @param string $locale
+     */
+    function setLocale($locale);
+
+    /**
      * Get the ordered list of locales for the default locale without any
      * context
      *

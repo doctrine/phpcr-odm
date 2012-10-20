@@ -129,7 +129,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * Set the locale to use at this moment.
+     * {@inheritDoc}
      *
      * @throws MissingTranslationException if the specified locale is not defined in the $localePreference array.
      */
