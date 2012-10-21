@@ -77,8 +77,14 @@ EOT
   - phpcr:class (STRING)
 CND
             ;
-            // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
-            $this->updateFromCnd($input, $output, $session, $cnd, true);
+
+            try {
+                // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
+                $this->updateFromCnd($input, $output, $session, $cnd, true);
+            } catch (\Exception $e) {
+                $output->writeln('<error>'.$e->getMessage().'</error>');
+                return 1;
+            }
         } else {
             $this->registerSystemNodeTypes($session);
         }
