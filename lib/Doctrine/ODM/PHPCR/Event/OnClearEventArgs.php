@@ -19,15 +19,17 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-class OnClearEventArgs extends \Doctrine\Common\EventArgs
+use Doctrine\Common\EventArgs;
+
+class OnClearEventArgs extends EventArgs
 {
     /**
-     * @var \Doctrine\ORM\DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
-    private $em;
+    private $dm;
 
     /**
-     * @param \Doctrine\ORM\DocumentManager $dm
+     * @param \Doctrine\ODM\PHPCR\DocumentManager $dm
      */
     public function __construct($dm)
     {
@@ -35,7 +37,7 @@ class OnClearEventArgs extends \Doctrine\Common\EventArgs
     }
 
     /**
-     * @return \Doctrine\ORM\DocumentManager
+     * @return \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {

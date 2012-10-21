@@ -23,12 +23,15 @@ class LifecycleEventArgs extends \Doctrine\Common\EventArgs
 {
     private $document;
 
-    private $documentManager;
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
 
-    function __construct($document, $documentManager)
+    function __construct($document, $dm)
     {
         $this->document = $document;
-        $this->documentManager = $documentManager;
+        $this->dm = $dm;
     }
 
     /**
@@ -44,6 +47,6 @@ class LifecycleEventArgs extends \Doctrine\Common\EventArgs
      */
     public function getDocumentManager()
     {
-        return $this->documentManager;
+        return $this->dm;
     }
 }

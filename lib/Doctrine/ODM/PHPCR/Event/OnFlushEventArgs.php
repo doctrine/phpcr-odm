@@ -19,13 +19,21 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-class OnFlushEventArgs extends \Doctrine\Common\EventArgs
-{
-    private $documentManager;
+use Doctrine\Common\EventArgs;
 
-    public function __construct($documentManager)
+class OnFlushEventArgs extends EventArgs
+{
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @param \Doctrine\ODM\PHPCR\DocumentManager $dm
+     */
+    public function __construct($dm)
     {
-        $this->documentManager = $documentManager;
+        $this->dm = $dm;
     }
 
     /**
@@ -33,6 +41,6 @@ class OnFlushEventArgs extends \Doctrine\Common\EventArgs
      */
     public function getDocumentManager()
     {
-        return $this->documentManager;
+        return $this->dm;
     }
 }

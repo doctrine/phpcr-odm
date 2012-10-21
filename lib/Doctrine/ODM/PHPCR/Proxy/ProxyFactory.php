@@ -31,9 +31,6 @@ use Doctrine\ODM\PHPCR\DocumentManager,
  * @author Nils Adermann <naderman@naderman.de>
  * @author Johannes Stark <starkj@gmx.de>
  * @author David Buchmann <david@liip.ch>
- *
- * This whole thing is copy & pasted from ORM - should really be slightly
- * refactored to generate
  */
 class ProxyFactory
 {
