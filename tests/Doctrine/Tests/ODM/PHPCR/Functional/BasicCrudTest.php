@@ -79,6 +79,28 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     *
+     * This should probably lead to a merge when http://www.doctrine-project.org/jira/browse/PHPCR-13 is implemented
+     */
+    public function testInsertTwice()
+    {
+        $user = new User();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = new User();
+        $user->username = "toast";
+        $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
+        $this->dm->persist($user);
+    }
+
     public function testFindByClass()
     {
         $user = $this->node->addNode('userWithAlias');
@@ -92,7 +114,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('dbu', $userWithAlias->username);
     }
 
-    public function testFindNonPersisted()
+    public function testFindNonFlushed()
     {
         $user = new User();
         $user->username = "test";
