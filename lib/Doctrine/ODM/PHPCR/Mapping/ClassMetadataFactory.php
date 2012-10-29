@@ -205,6 +205,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if ($parentClass->referenceable === true && $subClass->referenceable === false) {
             throw MappingException::cannotOverrideReferenceableAsFalse($subClass->name);
         }
+
         $subClass->setReferenceable($parentClass->referenceable);
     }
 
