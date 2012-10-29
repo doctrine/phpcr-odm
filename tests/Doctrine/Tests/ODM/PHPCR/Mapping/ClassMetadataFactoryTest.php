@@ -56,4 +56,22 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->markTestIncomplete('Test cache driver setting and handling.');
     }
+MappingException
+    /**
+     * @expectedException 
+    public function testAddInheritedFields()
+    {
+        $parentClass = 'Doctrine\Tests\Models\Inheritance\NonReferenceableChildDocument';
+        $childClass = 'Doctrine\Tests\Models\Inheritance\NonReferenceableChildDocument';
+
+        $driver = new \Doctrine\Common\Persistence\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
+        $this->dm->getConfiguration()->setMetadataDriverImpl($driver);
+
+        $parent = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($parentClass);
+        $child = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($childClass);
+        $cmf = new ClassMetadataFactory($this->dm);
+        $cmf->setMetadataFor($parent->name, $parent);
+        $cmf->setMetadataFor($child->name, $child);
+        $meta = $cmf->loadMetadata($child->name);
+    }
 }
