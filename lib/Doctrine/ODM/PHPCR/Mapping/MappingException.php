@@ -102,4 +102,9 @@ class MappingException extends \Exception
     {
         return new self("No mapping file '$filedName' found for class '$className'.");
     }
+
+    public static function cannotOverrideReferenceableAsFalse($className)
+    {
+        return new self("Child document "$className" cannot override the referenceable property to false");
+    }
 }
