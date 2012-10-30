@@ -56,12 +56,13 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->markTestIncomplete('Test cache driver setting and handling.');
     }
-MappingException
+
     /**
-     * @expectedException 
+     * @expectedException Doctrine\Common\Persistence\Mapping\MappingException
+     */
     public function testAddInheritedFields()
     {
-        $parentClass = 'Doctrine\Tests\Models\Inheritance\NonReferenceableChildDocument';
+        $parentClass = 'Doctrine\Tests\Models\Inheritance\ReferenceableParentDocument';
         $childClass = 'Doctrine\Tests\Models\Inheritance\NonReferenceableChildDocument';
 
         $driver = new \Doctrine\Common\Persistence\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
