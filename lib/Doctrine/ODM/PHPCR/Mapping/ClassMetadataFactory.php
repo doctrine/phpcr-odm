@@ -201,6 +201,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if ($parentClass->lifecycleCallbacks) {
             $subClass->mapLifecycleCallbacks($parentClass->lifecycleCallbacks);
         }
+
+        $subClass->setReferenceable($parentClass->referenceable);
     }
 
     private function registerParentOnField(ClassMetadata $subClass, ClassMetadata $parentClass, $fieldName)
