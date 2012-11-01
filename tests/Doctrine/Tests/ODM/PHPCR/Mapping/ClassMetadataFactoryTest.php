@@ -57,22 +57,35 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->markTestIncomplete('Test cache driver setting and handling.');
     }
 
-    /**
-     * @expectedException Doctrine\Common\Persistence\Mapping\MappingException
-     */
-    public function testAddInheritedFields()
+    public function testLoadMetadata_referenceableChildOverriddenAsFalse()
     {
-        $parentClass = 'Doctrine\Tests\Models\Inheritance\ReferenceableParentDocument';
-        $childClass = 'Doctrine\Tests\Models\Inheritance\NonReferenceableChildDocument';
+        // if the child class overrides referenceable as false it is not taken into account
+        // as we only ever set the referenceable property to TRUE. This prevents us from
+        // knowing if the user has explicitly set referenceable to FALSE on a child entity.
+        
+        $cache = new \Doctrine\Common\Cache\ArrayCache();
+        $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
+        $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
+        $annotationDriver->addPaths(array(__DIR__ . '/Model'));
+        $this->dm->getConfiguration()->setMetadataDriverImpl($annotationDriver);
 
-        $driver = new \Doctrine\Common\Persistence\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
-        $this->dm->getConfiguration()->setMetadataDriverImpl($driver);
-
-        $parent = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($parentClass);
-        $child = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata($childClass);
         $cmf = new ClassMetadataFactory($this->dm);
-        $cmf->setMetadataFor($parent->name, $parent);
-        $cmf->setMetadataFor($child->name, $child);
-        $meta = $cmf->loadMetadata($child->name);
+        $meta = $cmf->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableChildReferenceableFalseMappingObject');
+
+        $this->assertTrue($meta->referenceable);
+    }
+
+    public function testLoadMetadata_referenceableChild()
+    {
+        $cache = new \Doctrine\Common\Cache\ArrayCache();
+        $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
+        $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
+        $annotationDriver->addPaths(array(__DIR__ . '/Model'));
+        $this->dm->getConfiguration()->setMetadataDriverImpl($annotationDriver);
+
+        $cmf = new ClassMetadataFactory($this->dm);
+        $meta = $cmf->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableChildMappingObject');
+
+        $this->assertTrue($meta->referenceable);
     }
 }
