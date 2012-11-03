@@ -34,6 +34,14 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->setProperty('numbers', array(3, 1, 2));
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
+
+        // remove node for root tests
+        $session = $this->dm->getPhpcrSession();
+        $root = $session->getNode('/');
+        if ($root->hasNode('lsmith')) {
+            $root->getNode('lsmith')->remove();
+            $session->save();
+        }
     }
 
     public function testMove()
@@ -213,5 +221,16 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertEquals('user', $user3->nodename);
         $this->assertSame($user1, $user3->parent);
+    }
+
+    public function testMoveToRootByParent()
+    {
+        $this->dm->clear();
+        $user = $this->dm->find('Doctrine\ODM\PHPCR\Document\Generic', '/functional/lsmith');
+        $this->assertNotNull($user, 'User must exist');
+        $root = $this->dm->find(null, '/');
+        $user->setParent($root);
+        $this->dm->persist($user);
+        $this->dm->flush();
     }
 }
