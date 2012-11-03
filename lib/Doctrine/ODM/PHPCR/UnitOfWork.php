@@ -965,7 +965,11 @@ class UnitOfWork
                 if (false === $destName) {
                     $destName = $actualData[$class->nodename];
                 }
-                $this->scheduleMove($document, "$destPath/$destName");
+
+                // prevent path from becoming "//foobar" when moving to root node.
+                $targetPath = ('/' == $destPath) ? "/$destName" : "$destPath/$destName";
+
+                $this->scheduleMove($document, $targetPath);
             }
 
             if (isset($this->originalData[$oid][$class->identifier])
