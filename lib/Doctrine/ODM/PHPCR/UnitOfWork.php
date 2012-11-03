@@ -965,7 +965,15 @@ class UnitOfWork
                 if (false === $destName) {
                     $destName = $actualData[$class->nodename];
                 }
-                $this->scheduleMove($document, "$destPath/$destName");
+
+                $targetPath = "$destPath/$destName";
+                // If child has been moved to root node then the path
+                // becomes invalid /foobar => //foobar
+                if (substr($targetPath, 0, 2) == '//') {
+                    $targetPath = substr($targetPath, 1);
+                }
+
+                $this->scheduleMove($document, $targetPath);
             }
 
             if (isset($this->originalData[$oid][$class->identifier])
@@ -1143,7 +1151,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 $this->persistNew($targetClass, $referrer);
-                $this->computeChangeSet($targetClass, $referrer);
+                $this->computeChangeSet($cheargetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation.');
