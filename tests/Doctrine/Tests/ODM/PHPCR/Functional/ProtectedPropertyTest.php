@@ -50,8 +50,12 @@ CND;
 CND;
 
         $ntm = $session->getWorkspace()->getNodeTypeManager();
-        $ntm->registerNodeTypesCnd($cnd, true);
-        $ntm->registerNodeTypesCnd($cnd2, true);
+        try {
+            $ntm->registerNodeTypesCnd($cnd, true);
+            $ntm->registerNodeTypesCnd($cnd2, true);
+        } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+            $this->markTestSkipped('CND parsing not supported');
+        }
     }
 
     public function testPersistDocumentWithReferenceAndProtectedProperty()
