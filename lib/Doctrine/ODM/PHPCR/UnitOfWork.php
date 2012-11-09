@@ -525,7 +525,13 @@ class UnitOfWork
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('Detached document passed to persist(): '.self::objToStr($document, $this->dm));
+                $class = $this->dm->getClassMetadata(get_class($document));
+                $id = $class->getIdentifierValue($document);
+                // ids might be objects too
+                if (is_object($id) && ! method_exists($id, '__toString')) {
+                    $id = 'Class: ' . get_class($id);
+                }
+                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm)." ($id)");
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
