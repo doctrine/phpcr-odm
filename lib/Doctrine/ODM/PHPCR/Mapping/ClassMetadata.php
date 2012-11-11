@@ -836,7 +836,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getIdentifier()
     {
-        return $this->identifier;
+        return array($this->identifier);
     }
 
     /**
@@ -865,7 +865,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isIdentifier($fieldName)
     {
-        return $this->identifier === $fieldName ? true : false;
+        return $this->identifier === $fieldName;
     }
 
     /**
@@ -878,9 +878,47 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @todo verify that the checked ones are actually mappings/unit testing
      */
     public function hasAssociation($fieldName)
     {
+        foreach ($this->associationsMappings as $field) {
+            if ($fieldName === $field['fieldName']) {
+                return true;
+            }
+        }
+
+        foreach ($this->referrersMappings as $field) {
+            if ($fieldName === $field['fieldName']) {
+                return true;
+            }
+        }
+
+        foreach ($this->childrenMappings as $field) {
+            if ($fieldName === $field['fieldName']) {
+                return true;
+            }
+        }
+
+        foreach ($this->childMappings as $field) {
+            if ($fieldName === $field['fieldName']) {
+                return true;
+            }
+        }
+
+        if ($fieldName === $this->parentMapping) {
+            return true;
+        }
+
+        if ($fieldName === $this->node) {
+            return true;
+        }
+
+        if ($fieldName === $this->nodename) {
+            return true;
+        }
+
         return false;
     }
 
