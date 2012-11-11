@@ -22,26 +22,62 @@ namespace Doctrine\ODM\PHPCR\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\Common\Proxy\ProxyGenerator;
+use Doctrine\Common\Proxy\Proxy;
+use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
+use ReflectionProperty;
 
 /**
  * This factory is used to create proxy objects for entities at runtime.
  *
  * @author Roman Borschel <roman@code-factory.org>
  * @author Giorgio Sironi <piccoloprincipeazzurro@gmail.com>
- * @author Nils Adermann <naderman@naderman.de>
+ * @author Nils Adermann  <naderman@naderman.de>
  * @author Johannes Stark <starkj@gmx.de>
  * @author David Buchmann <david@liip.ch>
+ * @author Marco Pivetta  <ocramius@gmail.com>
  */
 class ProxyFactory
 {
-    /** The DocumentManager this factory is bound to. */
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager The DocumentManager this factory is bound to.
+     */
     private $dm;
-    /** Whether to automatically (re)generate proxy classes. */
+
+    /**
+     * @var \Doctrine\ODM\PHPCR\UnitOfWork The UnitOfWork this factory is bound to.
+     */
+    private $uow;
+
+    /**
+     * @var \Doctrine\Common\Proxy\ProxyGenerator
+     */
+    private $proxyGenerator;
+
+    /**
+     * @var bool Whether to automatically (re)generate proxy classes.
+     */
     private $autoGenerate;
-    /** The namespace that contains all proxy classes. */
+
+    /**
+     * @var string The namespace that contains all proxy classes.
+     */
     private $proxyNamespace;
-    /** The directory that contains all proxy classes. */
+
+    /**
+     * @var string The directory that contains all proxy classes.
+     */
     private $proxyDir;
+
+    /**
+     * @var array definitions (indexed by requested class name) for the proxy classes.
+     *            Each element is an array containing following items:
+     *            "fqcn"         - FQCN of the proxy class
+     *            "initializer"  - Closure to be used as proxy __initializer__
+     *            "cloner"       - Closure to be used as proxy __cloner__
+     *            "reflectionId" - ReflectionProperty for the ID field
+     */
+    private $definitions = array();
 
     /**
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
@@ -54,15 +90,10 @@ class ProxyFactory
      */
     public function __construct(DocumentManager $dm, $proxyDir, $proxyNs, $autoGenerate = false)
     {
-        if (!$proxyDir) {
-            throw ProxyException::proxyDirectoryRequired();
-        }
-        if (!$proxyNs) {
-            throw ProxyException::proxyNamespaceRequired();
-        }
-        $this->dm = $dm;
-        $this->proxyDir = $proxyDir;
-        $this->autoGenerate = $autoGenerate;
+        $this->dm             = $dm;
+        $this->uow            = $dm->getUnitOfWork();
+        $this->proxyDir       = $proxyDir;
+        $this->autoGenerate   = $autoGenerate;
         $this->proxyNamespace = $proxyNs;
     }
 
@@ -70,282 +101,205 @@ class ProxyFactory
      * Gets a reference proxy instance for the entity of the given type and identified by
      * the given identifier.
      *
-     * @param string $className
-     * @param mixed $identifier
+     * @param  string $className
+     * @param  mixed  $identifier
      * @return object
      */
     public function getProxy($className, $identifier)
     {
-        $fqn = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
-
-        if (!class_exists($fqn, false)) {
-            $fileName = $this->getProxyFileName($className);
-            if ($this->autoGenerate) {
-                $this->generateProxyClass($this->dm->getClassMetadata($className), $fileName, self::$proxyClassTemplate);
-            }
-            require $fileName;
+        if ( ! isset($this->definitions[$className])) {
+            $this->initProxyDefinitions($className);
         }
 
-        if (!$this->dm->getMetadataFactory()->hasMetadataFor($fqn)) {
-            $this->dm->getMetadataFactory()->setMetadataFor($fqn, $this->dm->getClassMetadata($className));
-        }
+        $definition   = $this->definitions[$className];
+        $fqcn         = $definition['fqcn'];
+        $reflectionId = $definition['reflectionId'];
+        $proxy        = new $fqcn($definition['initializer'], $definition['cloner']);
 
-        return new $fqn($this->dm, $identifier);
-    }
+        $reflectionId->setValue($proxy, $identifier);
 
-    /**
-     * Generate the Proxy file name
-     *
-     * @param string $className
-     * @return string
-     */
-    private function getProxyFileName($className, $toDir = null)
-    {
-        $proxyDir = $toDir ?: $this->proxyDir;
-        $proxyDir = rtrim($proxyDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        return $proxyDir . DIRECTORY_SEPARATOR . '__CG__' . str_replace('\\', '', $className) . '.php';
+        return $proxy;
     }
 
     /**
      * Generates proxy classes for all given classes.
      *
-     * @param array $classes The classes (ClassMetadata instances) for which to generate proxies.
+     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata[] $classes The classes for which to generate proxies.
      * @param string $toDir The target directory of the proxy classes. If not specified, the
      *                      directory configured on the Configuration of the DocumentManager used
      *                      by this factory is used.
+     * @return int Number of generated proxies.
      */
     public function generateProxyClasses(array $classes, $toDir = null)
     {
+        $generated = 0;
+
         foreach ($classes as $class) {
-            /* @var $class ClassMetadata */
-            if ($class->isMappedSuperclass || $class->reflClass->isAbstract()) {
+            if ($class->isMappedSuperclass || $class->getReflectionClass()->isAbstract()) {
                 continue;
             }
 
-            $proxyFileName = $this->getProxyFileName($class->name, $toDir);
-            $this->generateProxyClass($class, $proxyFileName, self::$proxyClassTemplate);
-        }
-    }
+            $generator     = $this->getProxyGenerator();
+            $proxyFileName = $generator->getProxyFileName($class->getName(), $toDir);
 
-    /**
-     * Generates a proxy class file.
-     *
-     * @param $class the class metadata
-     * @param $proxyFileName path to the proxy file to generate
-     * @param $template The path of the template template.
-     */
-    private function generateProxyClass($class, $proxyFileName, $template)
-    {
-        $methods = $this->generateMethods($class);
-        $attributes = $this->getUnsetAttributes($class);
-        if (empty($attributes)) {
-            $unsetAttributes = $unsetAttributesList = '';
-        } else {
-            $unsetAttributes = 'unset($this->'.implode(', $this->', $attributes).');';
-            $unsetAttributesList = var_export($attributes, true);
+            $generator->generateProxyClass($class, $proxyFileName);
+
+            $generated += 1;
         }
 
-        $sleepImpl = $this->generateSleep($class);
-
-        $placeholders = array(
-            '<namespace>',
-            '<proxyClassName>', '<className>',
-            '<unsetattributes>',
-            '<unsetattributesList>',
-            '<methods>', '<sleepImpl>'
-        );
-
-        $className = rtrim($class->name, '\\');
-        $proxyClassName = ClassUtils::generateProxyClassName($class->name, $this->proxyNamespace);
-        $parts = explode('\\', strrev($proxyClassName), 2);
-        $proxyClassNamespace = strrev($parts[1]);
-        $proxyClassName = strrev($parts[0]);
-
-        $replacements = array(
-            $proxyClassNamespace,
-            $proxyClassName,
-            $className,
-            $unsetAttributes,
-            $unsetAttributesList,
-            $methods,
-            $sleepImpl
-        );
-
-        $compiled = str_replace($placeholders, $replacements, $template);
-
-        file_put_contents($proxyFileName, $compiled, LOCK_EX);
+        return $generated;
     }
 
     /**
-     * Get the attributes of the document class
-     *
-     * @param ClassMetadata $class
-     * @return array List of attributes to unset
+     * @param \Doctrine\Common\Proxy\ProxyGenerator $proxyGenerator
      */
-    private function getUnsetAttributes(ClassMetadata $class)
+    public function setProxyGenerator(ProxyGenerator $proxyGenerator)
     {
-        return array_keys($class->mappings);
+        $this->proxyGenerator = $proxyGenerator;
     }
 
     /**
-     * Generates the methods of a proxy class.
-     *
-     * @param ClassMetadata $class
-     * @return string The code of the generated methods.
+     * @return \Doctrine\Common\Proxy\ProxyGenerator
      */
-    private function generateMethods(ClassMetadata $class)
+    public function getProxyGenerator()
     {
-        $methods = '';
+        if (null === $this->proxyGenerator) {
+            $this->proxyGenerator = new ProxyGenerator($this->proxyDir, $this->proxyNamespace);
 
-        foreach ($class->reflClass->getMethods() as $method) {
-            /* @var $method \ReflectionMethod */
-            if ($method->isConstructor() || strtolower($method->getName()) == '__sleep') {
-                continue;
+            $this->proxyGenerator->setPlaceholder('<baseProxyInterface>', 'Doctrine\ODM\PHPCR\Proxy\Proxy');
+        }
+
+        return $this->proxyGenerator;
+    }
+
+    /**
+     * @param string $className
+     */
+    private function initProxyDefinitions($className)
+    {
+        $fqcn          = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
+        $classMetadata = $this->dm->getClassMetadata($className);
+
+        if ( ! class_exists($fqcn, false)) {
+            $generator = $this->getProxyGenerator();
+            $fileName  = $generator->getProxyFileName($className);
+
+            if ($this->autoGenerate) {
+                $generator->generateProxyClass($classMetadata);
             }
 
-            if ($method->isPublic() && !$method->isFinal() && !$method->isStatic()) {
-                $methods .= PHP_EOL . '    public function ';
-                if ($method->returnsReference()) {
-                    $methods .= '&';
+            require $fileName;
+        }
+
+        $reflectionId = $classMetadata->reflFields[$classMetadata->identifier];
+
+        $this->definitions[$className] = array(
+            'fqcn'         => $fqcn,
+            'initializer'  => $this->createInitializer($classMetadata, $this->dm),
+            'cloner'       => $this->createCloner($classMetadata, $this->dm, $reflectionId),
+            'reflectionId' => $reflectionId,
+        );
+    }
+
+    /**
+     * Generates a closure capable of initializing a proxy
+     *
+     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
+     * @param \Doctrine\ODM\PHPCR\DocumentManager       $documentManager
+     *
+     * @return \Closure
+     */
+    private function createInitializer(ClassMetadata $classMetadata, DocumentManager $documentManager)
+    {
+        $className = $classMetadata->getName();
+
+        if ($classMetadata->getReflectionClass()->hasMethod('__wakeup')) {
+            return function (Proxy $proxy) use ($className, $documentManager) {
+                $proxy->__setInitializer(function () {});
+                $proxy->__setCloner(function () {});
+
+                if ($proxy->__isInitialized()) {
+                    return;
                 }
-                $methods .= $method->getName() . '(';
-                $firstParam = true;
-                $parameterString = $argumentString = '';
 
-                foreach ($method->getParameters() as $param) {
-                    /** @var $param \ReflectionParameter */
-                    if ($firstParam) {
-                        $firstParam = false;
-                    } else {
-                        $parameterString .= ', ';
-                        $argumentString  .= ', ';
-                    }
+                $properties = $proxy->__getLazyProperties();
 
-                    // We need to pick the type hint class too
-                    if (($paramClass = $param->getClass()) !== null) {
-                        $parameterString .= '\\' . $paramClass->getName() . ' ';
-                    } elseif ($param->isArray()) {
-                        $parameterString .= 'array ';
-                    }
-
-                    if ($param->isPassedByReference()) {
-                        $parameterString .= '&';
-                    }
-
-                    $parameterString .= '$' . $param->getName();
-                    $argumentString  .= '$' . $param->getName();
-
-                    if ($param->isDefaultValueAvailable()) {
-                        $parameterString .= ' = ' . var_export($param->getDefaultValue(), true);
+                foreach ($properties as $propertyName => $property) {
+                    if (!isset($proxy->$propertyName)) {
+                        $proxy->$propertyName = $properties[$propertyName];
                     }
                 }
 
-                $methods .= $parameterString . ')';
-                $methods .= PHP_EOL . '    {' . PHP_EOL;
-                $methods .= '        $this->__load();' . PHP_EOL;
-                $methods .= '        return parent::' . $method->getName() . '(' . $argumentString . ');';
-                $methods .= PHP_EOL . '    }' . PHP_EOL;
-            }
+                $proxy->__setInitialized(true);
+                $proxy->__wakeup();
+                $documentManager->getRepository($className)->refreshDocumentForProxy($proxy);
+            };
         }
 
-        return $methods;
+        return function (Proxy $proxy) use ($className, $documentManager) {
+            $proxy->__setInitializer(function () {});
+            $proxy->__setCloner(function () {});
+
+            if ($proxy->__isInitialized()) {
+                return;
+            }
+
+            $properties = $proxy->__getLazyProperties();
+
+            foreach ($properties as $propertyName => $property) {
+                if (!isset($proxy->$propertyName)) {
+                    $proxy->$propertyName = $properties[$propertyName];
+                }
+            }
+
+            $proxy->__setInitialized(true);
+            $documentManager->getRepository($className)->refreshDocumentForProxy($proxy);
+        };
     }
 
     /**
-     * Generates the code for the __sleep method for a proxy class.
+     * Generates a closure capable of finalizing a cloned proxy
      *
-     * @param $class
-     * @return string
+     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
+     * @param \Doctrine\ODM\PHPCR\DocumentManager       $documentManager
+     * @param \ReflectionProperty                       $reflectionId
+     *
+     * @return \Closure
+     *
+     * @throws \Doctrine\Common\Proxy\Exception\UnexpectedValueException
      */
-    private function generateSleep(ClassMetadata $class)
-    {
-        $sleepImpl = '';
+    private function createCloner(
+        ClassMetadata $classMetadata,
+        DocumentManager $documentManager,
+        ReflectionProperty $reflectionId
+    ) {
+        $className = $classMetadata->getName();
 
-        if ($class->reflClass->hasMethod('__sleep')) {
-            $sleepImpl .= "return array_merge(array('__isInitialized__'), parent::__sleep());";
-        } else {
-            $sleepImpl .= "return array('__isInitialized__', ";
-
-            $properties = array();
-            foreach ($class->fieldMappings as $fieldName) {
-                $properties[] = "'$fieldName'";
+        return function (Proxy $cloned) use ($className, $classMetadata, $documentManager, $reflectionId) {
+            if ($cloned->__isInitialized()) {
+                return;
             }
 
-            $sleepImpl .= implode(',', $properties) . ');';
-        }
+            $cloned->__setInitialized(true);
+            $cloned->__setInitializer(function () {});
 
-        return $sleepImpl;
+            $original = $documentManager->find($className, $reflectionId->getValue($cloned));
+
+            if (null === $original) {
+                throw new UnexpectedValueException(sprintf(
+                    'Proxy could with ID "%s"not be loaded',
+                    $reflectionId->getValue($cloned)
+                ));
+            }
+
+            foreach ($classMetadata->getReflectionClass()->getProperties() as $reflectionProperty) {
+                $propertyName = $reflectionProperty->getName();
+
+                if ($classMetadata->hasField($propertyName) || $classMetadata->hasAssociation($propertyName)) {
+                    $reflectionProperty->setAccessible(true);
+                    $reflectionProperty->setValue($cloned, $reflectionProperty->getValue($original));
+                }
+            }
+        };
     }
-
-    /** Proxy class code template */
-    private static $proxyClassTemplate = <<<'PHP'
-<?php
-
-namespace <namespace>;
-
-/**
- * THIS CLASS WAS GENERATED BY THE DOCTRINE PHPCR-ODM. DO NOT EDIT THIS FILE.
- */
-class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy\Proxy
-{
-    private $__doctrineDocumentManager__;
-    private $__isInitialized__ = false;
-    private $__identifier__;
-    private $__unsetAttributes__;
-
-    public function __construct($documentManager, $identifier)
-    {
-        <unsetattributes>
-        $this->__unsetAttributes__ = <unsetattributesList>;
-        $this->__doctrineDocumentManager__ = $documentManager;
-        $this->__identifier__ = $identifier;
-    }
-
-    public function __load()
-    {
-        if (!$this->__isInitialized__ && $this->__doctrineDocumentManager__) {
-            $this->__isInitialized__ = true;
-            $this->__doctrineDocumentManager__->getRepository(get_class($this))->refreshDocumentForProxy($this);
-            unset($this->__doctrineDocumentManager__);
-        }
-    }
-    <methods>
-    public function __sleep()
-    {
-        <sleepImpl>
-    }
-
-    public function __getIdentifier()
-    {
-        return $this->__identifier__;
-    }
-
-    public function __setIdentifier($identifier)
-    {
-        $this->__identifier__ = $identifier;
-    }
-
-    public function __isset($name)
-    {
-        return in_array($name, $this->__unsetAttributes__);
-    }
-
-    public function __set($name, $value)
-    {
-        $this->__load();
-        $this->$name = $value;
-    }
-
-    public function &__get($name)
-    {
-        $this->__load();
-        return $this->$name;
-    }
-
-    public function __isInitialized()
-    {
-        return $this->__isInitialized__;
-    }
-}
-PHP;
 }

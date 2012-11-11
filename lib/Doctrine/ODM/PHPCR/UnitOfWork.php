@@ -442,7 +442,8 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $node = $this->session->getNode($document->__getIdentifier());
+        $class = $this->dm->getClassMetadata($className);
+        $node = $this->session->getNode($class->getIdentifierValue($document));
         $hints = array('refresh' => true);
         $this->createDocument($className, $node, $hints);
     }
