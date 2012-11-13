@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\RepositoryInterface;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -2360,16 +2361,21 @@ class UnitOfWork
 
     private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)
     {
+        $repository = $this->session->getRepository();
         if ($metadata->versionable === 'full') {
-            $node->addMixin('mix:versionable');
-        } else {
-            if ($metadata->versionable === 'simple') {
+            if ($repository->getDescriptor(RepositoryInterface::OPTION_VERSIONING_SUPPORTED)) {
+                $node->addMixin('mix:versionable');
+            } elseif($repository->getDescriptor(RepositoryInterface::OPTION_SIMPLE_VERSIONING_SUPPORTED)) {
                 $node->addMixin('mix:simpleVersionable');
             }
+        } elseif ($metadata->versionable === 'simple'
+            && $repository->getDescriptor(RepositoryInterface::OPTION_SIMPLE_VERSIONING_SUPPORTED)
+        ) {
+            $node->addMixin('mix:simpleVersionable');
+        }
 
-            if ($metadata->referenceable) {
-                $node->addMixin('mix:referenceable');
-            }
+        if (!$node->isNodeType('mix:referenceable') && $metadata->referenceable) {
+            $node->addMixin('mix:referenceable');
         }
 
         // we manually set the uuid to allow creating referenced and referencing document without flush in between.
