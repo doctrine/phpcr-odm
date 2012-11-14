@@ -6,7 +6,7 @@ php:
 
 env:
   - TRANSPORT=jackrabbit
-#  - TRANSPORT=doctrine-dbal
+  - TRANSPORT=doctrine_dbal
   - TRANSPORT=midgard_sqlite
   - TRANSPORT=midgard_mysql
 
