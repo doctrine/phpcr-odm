@@ -470,6 +470,24 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($user);
         $this->assertEquals($user->parameters->toArray(), $assocArray);
     }
+
+    public function testVersionedDocument()
+    {
+        $user = new VersionTestObj();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find($this->type, '/functional/test');
+
+        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertEquals($user->username, $userNew->username);
+        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+    }
 }
 
 /**
@@ -558,3 +576,25 @@ class TeamUser extends User
     public $parent;
 }
 
+/**
+ * @PHPCRODM\Document(versionable="full")
+ */
+class VersionTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Node */
+    public $node;
+
+    /** @PHPCRODM\VersionName */
+    public $versionName;
+
+    /** @PHPCRODM\VersionCreated */
+    public $versionCreated;
+
+    /** @PHPCRODM\String(name="username") */
+    public $username;
+
+    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    public $numbers;
+}
