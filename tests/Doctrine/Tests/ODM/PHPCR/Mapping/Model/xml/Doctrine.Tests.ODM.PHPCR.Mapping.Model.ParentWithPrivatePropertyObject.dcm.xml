@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping>
+    <mapped-superclass name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject">
+        <field fieldName="foo" type="string" />
+    </mapped-superclass>
+</doctrine-mapping>

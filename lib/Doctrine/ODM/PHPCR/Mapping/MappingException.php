@@ -102,4 +102,30 @@ class MappingException extends \Exception
     {
         return new self("No mapping file '$filedName' found for class '$className'.");
     }
+
+    public static function identifierRequired($entityName)
+    {
+        if (false !== ($parent = get_parent_class($entityName))) {
+            return new self(sprintf(
+                'No identifier/path specified for Document "%s" sub class of "%s". Every Document must have an identifier/path.',
+                $entityName, $parent
+            ));
+        }
+
+        return new self(sprintf(
+            'No identifier/path specified for Document "%s". Every Document must have an identifier/path.',
+            $entityName
+        ));
+
+    }
+
+    public static function invalidTargetDocumentClass($targetDocument, $sourceDocument, $associationName)
+    {
+        return new self("The target-document " . $targetDocument . " cannot be found in '" . $sourceDocument."#".$associationName."'.");
+    }
+
+    public static function lifecycleCallbackMethodNotFound($className, $methodName)
+    {
+        return new self("Document '" . $className . "' has no method '" . $methodName . "' to be registered as lifecycle callback.");
+    }
 }

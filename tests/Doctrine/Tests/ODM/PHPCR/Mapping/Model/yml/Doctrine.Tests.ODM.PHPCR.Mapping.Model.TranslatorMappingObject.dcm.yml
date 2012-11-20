@@ -1,12 +1,12 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject:
-    translator: attribute
-    locale: doclocale
-    fields:
-      publishDate:
-          type: date
-      topic:
-          type: string
-          translated: true
-      image:
-          type: binary
-          translated: true
+  translator: attribute
+  locale: doclocale
+  fields:
+    publishDate:
+      type: date
+    topic:
+      type: string
+      translated: true
+    image:
+      type: binary
+      translated: true

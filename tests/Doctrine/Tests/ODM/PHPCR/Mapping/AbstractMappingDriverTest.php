@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
@@ -311,7 +313,30 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->parentMapping));
         $this->assertEquals('parent', $class->parentMapping);
     }
-    
+
+    public function testParentWithPrivatePropertyMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject';
+        $class = $this->loadMetadataForClassname($className);
+        $this->assertEquals('foo', $class->fieldMappings['foo']['name']);
+        $this->assertEquals('string', $class->fieldMappings['foo']['type']);
+
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentPrivatePropertyMappingObject';
+        $class = $this->loadMetadataForClassname($className);
+
+        $this->assertTrue(isset($class->identifier));
+        $this->assertEmpty($class->fieldMappings);
+
+        $session = $this->getMock('PHPCR\SessionInterface');
+        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
+        $cmf = new ClassMetadataFactory($dm);
+        $class = $cmf->getMetadataFor($className);
+
+        $this->assertEquals('foo', $class->fieldMappings['foo']['name']);
+        $this->assertEquals('string', $class->fieldMappings['foo']['type']);
+    }
+
     public function testLoadChildMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject';
@@ -483,8 +508,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hard', $referenceOneHard['strategy']);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneHard['sourceDocument']);
         $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneHard['type']);
-        
-        
     }
 
     public function testLoadReferenceManyMapping()
@@ -516,8 +539,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hard', $referenceManyHard['strategy']);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject', $referenceManyHard['sourceDocument']);
         $this->assertEquals(ClassMetadata::MANY_TO_MANY, $referenceManyHard['type']);
-        
-        
     }
 
     public function testLoadReferrersMapping()
