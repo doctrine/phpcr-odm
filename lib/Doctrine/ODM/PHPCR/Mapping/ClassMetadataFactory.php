@@ -89,7 +89,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      *
      * @throws MappingException
      */
-    function loadMetadata($className)
+    public function loadMetadata($className)
     {
         if (class_exists($className)) {
             return parent::loadMetadata($className);
@@ -126,6 +126,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if ($this->getDriver()) {
             $this->getDriver()->loadMetadataForClass($class->getName(), $class);
         }
+
+        $this->validateRuntimeMetadata($class, $parent);
     }
 
     /**
@@ -137,66 +139,45 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
-        $inheritedFields = $parentClass->getInheritedFields();
-        foreach ($inheritedFields as $fieldName => $className) {
-            $subClass->setFieldInherited($fieldName, $className);
+        foreach ($parentClass->fieldMappings as $mapping) {
+            $subClass->mapField($mapping, $parentClass);
         }
-        $delcaredFields = $parentClass->getDeclaredFields();
-        foreach ($delcaredFields as $fieldName => $className) {
-            $subClass->setFieldDeclared($fieldName, $className);
-        }
-
-        foreach ($parentClass->fieldMappings as $fieldName => $mapping) {
-            $this->registerParentOnField($subClass, $parentClass, $fieldName);
-            $subClass->mapField($mapping);
-        }
-        foreach ($parentClass->associationsMappings as $fieldName => $mapping) {
-            $this->registerParentOnField($subClass, $parentClass, $fieldName);
+        foreach ($parentClass->associationsMappings as $mapping) {
             if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
-                $subClass->mapManyToOne($mapping);
+                $subClass->mapManyToOne($mapping, $parentClass);
             } else {
-                $subClass->mapManyToMany($mapping);
+                $subClass->mapManyToMany($mapping, $parentClass);
             }
         }
-        foreach ($parentClass->childMappings as $fieldName => $mapping) {
-            $this->registerParentOnField($subClass, $parentClass, $fieldName);
-            $subClass->mapChild($mapping);
+        foreach ($parentClass->childMappings as $mapping) {
+            $subClass->mapChild($mapping, $parentClass);
         }
-        foreach ($parentClass->childrenMappings as $fieldName => $mapping) {
-            $this->registerParentOnField($subClass, $parentClass, $fieldName);
-            $subClass->mapChildren($mapping);
+        foreach ($parentClass->childrenMappings as $mapping) {
+            $subClass->mapChildren($mapping, $parentClass);
         }
-        foreach ($parentClass->referrersMappings as $fieldName => $mapping) {
-            $this->registerParentOnField($subClass, $parentClass, $fieldName);
-            $subClass->mapReferrers($mapping);
+        foreach ($parentClass->referrersMappings as $mapping) {
+            $subClass->mapReferrers($mapping, $parentClass);
         }
         if ($parentClass->identifier) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->identifier);
-            $subClass->mapId(array('fieldName' => $parentClass->identifier, 'id' => true, 'strategy' => $parentClass->idGenerator));
+            $subClass->mapId(array('fieldName' => $parentClass->identifier, 'id' => true, 'strategy' => $parentClass->idGenerator), $parentClass);
         }
         if ($parentClass->node) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->node);
-            $subClass->mapNode(array('fieldName' => $parentClass->node));
+            $subClass->mapNode(array('fieldName' => $parentClass->node), $parentClass);
         }
         if ($parentClass->nodename) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->nodename);
-            $subClass->mapNodename(array('fieldName' => $parentClass->nodename));
+            $subClass->mapNodename(array('fieldName' => $parentClass->nodename), $parentClass);
         }
         if ($parentClass->parentMapping) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->parentMapping);
-            $subClass->mapParentDocument(array('fieldName' => $parentClass->parentMapping));
+            $subClass->mapParentDocument(array('fieldName' => $parentClass->parentMapping), $parentClass);
         }
         if ($parentClass->localeMapping) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->localeMapping);
-            $subClass->mapLocale(array('fieldName' => $parentClass->localeMapping));
+            $subClass->mapLocale(array('fieldName' => $parentClass->localeMapping), $parentClass);
         }
         if ($parentClass->versionNameField) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->versionNameField);
-            $subClass->mapVersionName(array('fieldName' => $parentClass->versionNameField));
+            $subClass->mapVersionName(array('fieldName' => $parentClass->versionNameField), $parentClass);
         }
         if ($parentClass->versionCreatedField) {
-            $this->registerParentOnField($subClass, $parentClass, $parentClass->versionCreatedField);
-            $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField));
+            $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField), $parentClass);
         }
         if ($parentClass->lifecycleCallbacks) {
             $subClass->mapLifecycleCallbacks($parentClass->lifecycleCallbacks);
@@ -205,14 +186,26 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $subClass->setReferenceable($parentClass->referenceable);
     }
 
-    private function registerParentOnField(ClassMetadata $subClass, ClassMetadata $parentClass, $fieldName)
+    /**
+     * Validate runtime metadata is correctly defined.
+     *
+     * @param ClassMetadata $class
+     * @param $parent
+     * @throws MappingException
+     */
+    protected function validateRuntimeMetadata($class, $parent)
     {
-        if (!$parentClass->isInheritedField($fieldName) && !$parentClass->isMappedSuperclass) {
-            $subClass->setFieldInherited($fieldName, $parentClass->name);
+        if ( ! $class->reflClass ) {
+            // only validate if there is a reflection class instance
+            return;
         }
-        if (!$parentClass->isDeclaredField($fieldName)) {
-            $subClass->setFieldDeclared($fieldName, $parentClass->name);
-        }
+
+        $class->validateIdentifier();
+        $class->validateAssocations();
+        $class->validateLifecycleCallbacks($this->getReflectionService());
+
+        // verify inheritance
+        // TODO
     }
     /**
      * {@inheritdoc}
