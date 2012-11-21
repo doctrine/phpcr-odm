@@ -23,4 +23,12 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $annotationDriver->addPaths(array(__DIR__ . '/Model'));
         return $annotationDriver;
     }
+
+    /**
+     * Overwriting private parent properties isn't support with annotaitons
+     */
+    public function testParentWithPrivatePropertyMapping()
+    {
+        return;
+    }
 }
