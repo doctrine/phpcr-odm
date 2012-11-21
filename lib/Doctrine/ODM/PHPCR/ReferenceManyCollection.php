@@ -27,7 +27,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  *
  * This class stores all documents or their proxies referenced by a reference many property
  */
-class ReferenceManyCollection extends MultivaluePropertyCollection
+class ReferenceManyCollection extends PersistentCollection
 {
     private $referencedNodes;
     private $targetDocument = null;
