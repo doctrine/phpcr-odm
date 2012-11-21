@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\Tests\Models\Translation\Article,
     Doctrine\Tests\Models\Translation\InvalidMapping,
+    Doctrine\Tests\Models\Translation\DerivedArticle,
     Doctrine\Tests\Models\CMS\CmsArticle,
     Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
@@ -386,5 +387,17 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $doc->id = '/functional/' . $this->testNodeName;
         $this->dm->persist($doc);
         $this->dm->bindTranslation($doc, 'en');
+    }
+
+    /**
+     * bindTranslation with a document inheriting from a translatable document
+     * should not fail
+     */
+    public function testBindTranslationInherited() {
+        $doc = new DerivedArticle();
+        $doc->id = '/functional/' . $this->testNodeName;
+        $this->dm->persist($doc);
+        $this->dm->bindTranslation($doc, 'en');
+        $this->assertEquals('en', $doc->locale);
     }
 }

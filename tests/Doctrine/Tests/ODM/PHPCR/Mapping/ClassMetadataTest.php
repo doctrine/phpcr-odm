@@ -4,6 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
@@ -88,6 +91,30 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Mapping should return translated fields.
+     * @depends testMapFieldWithId
+     */
+    public function testMapFieldWithInheritance($cmp) {
+        // Load parent document metadata.
+        $ar = new AnnotationReader();
+        $ad = new AnnotationDriver($ar);
+        $ad->loadMetadataForClass($cmp->getName(), $cmp);
+
+        // Initialize subclass metadata.
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Customer');
+        $cm->initializeReflection(new RuntimeReflectionService());
+
+        // Test that the translated field is being inherited.
+        $mapping = array(
+            'name' => 'translatedField',
+            'fieldName' => 'translatedField',
+            'translated' => true
+        );
+        $cm->mapField($mapping, $cmp);
+        $this->assertEquals(array('translatedField'), $cm->translatableFields);
+    }
+
+    /**
      * @depends testMapField
      */
     public function testMapFieldWithoutNameThrowsException($cm)
@@ -123,7 +150,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerialize($cm)
     {
-        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":9:{s:13:"fieldMappings";a:3:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:4:"name";s:2:"id";s:10:"multivalue";b:0;}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}}s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:16:"generatorOptions";a:0:{}s:11:"idGenerator";i:1;s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
+        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":9:{s:13:"fieldMappings";a:4:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:4:"name";s:2:"id";s:10:"multivalue";b:0;}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}s:15:"translatedField";a:6:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;}}s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:16:"generatorOptions";a:0:{}s:11:"idGenerator";i:1;s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
         $cm->setCustomRepositoryClassName('customRepositoryClassName');
         $cm->setVersioned(true);
         $cm->addLifecycleCallback('callback', 'event');
@@ -166,6 +193,11 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     }
 }
 
+class Customer extends Person {}
+
+/**
+ * @PHPCRODM\Document(translator="attribute")
+ */
 class Person
 {
     public $id;
@@ -179,6 +211,16 @@ class Person
     public $version;
 
     public $attachments;
+
+    /**
+     * @PHPCRODM\Locale
+     */
+    public $locale;
+
+    /**
+     * @PHPCRODM\String(translated=true)
+     */
+    public $translatedField;
 }
 
 class Address
