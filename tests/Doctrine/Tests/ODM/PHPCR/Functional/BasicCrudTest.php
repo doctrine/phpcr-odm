@@ -52,7 +52,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('/functional/user', $user->id);
 
         $this->assertEquals('lsmith', $user->username);
-        $this->assertEquals(array(3, 1, 2), $user->numbers->toArray());
+        $this->assertEquals(array(3, 1, 2), $user->numbers);
 
         $user = $this->dm->find($this->type, 'functional/user');
         $this->assertInstanceOf($this->type, $user);
@@ -76,7 +76,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
-        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
     /**
@@ -158,14 +158,14 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $userNew = $this->dm->find($this->type, '/functional/test');
-        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->numbers, $userNew->numbers);
 
         $userNew->numbers = array(1, 2);
         $this->dm->flush();
         $this->dm->clear();
 
         $userNew2 = $this->dm->find($this->type, '/functional/test');
-        $this->assertEquals($userNew->numbers->toArray(), $userNew2->numbers->toArray());
+        $this->assertEquals($userNew->numbers, $userNew2->numbers);
     }
 
     public function testRemove()
@@ -309,6 +309,23 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotSame($userNew, $userNew2);
         $this->assertEquals($userNew->username, $userNew2->username);
         $this->assertEquals($userNew->numbers, $userNew2->numbers);
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $user->numbers = null;
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertEquals($user->numbers, array());
+
+        $user->numbers = array();
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find($this->type, '/functional/user');
+        $this->assertEquals($user->numbers, array());
     }
 
     public function testUpdate2()
@@ -397,7 +414,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
-        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->numbers, $userNew->numbers);
         $this->assertEquals($user->name, $userNew->name);
     }
 
@@ -424,7 +441,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals('test2', $userNew->username);
-        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
     public function testAssocProperty()
@@ -442,7 +459,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find(null, '/functional/test');
 
         $this->assertNotNull($user);
-        $this->assertEquals($user->parameters->toArray(), $assocArray);
+        $this->assertEquals($user->parameters, $assocArray);
 
         $assocArray = array('foo' => 'bar', 'hello' => 'world', 'check' => 'out');
         $user->parameters = $assocArray;
@@ -453,13 +470,13 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find(null, '/functional/test');
 
         $this->assertNotNull($user);
-        $this->assertEquals($user->parameters->toArray(), $assocArray);
+        $this->assertEquals($user->parameters, $assocArray);
 
-        $user->parameters->remove('foo');
+        unset($user->parameters['foo']);
         unset($assocArray['foo']);
-        $user->parameters->set('boo', 'yah');
+        $user->parameters['boo'] = 'yah';
         $assocArray['boo'] = 'yah';
-        $user->parameters->set('hello', 'welt');
+        $user->parameters['hello'] = 'welt';
         $assocArray['hello'] = 'welt';
 
         $this->dm->flush();
@@ -468,7 +485,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find(null, '/functional/test');
 
         $this->assertNotNull($user);
-        $this->assertEquals($user->parameters->toArray(), $assocArray);
+        $this->assertEquals($user->parameters, $assocArray);
     }
 
     public function testVersionedDocument()
@@ -486,7 +503,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
-        $this->assertEquals($user->numbers->toArray(), $userNew->numbers->toArray());
+        $this->assertEquals($user->numbers, $userNew->numbers);
     }
 }
 

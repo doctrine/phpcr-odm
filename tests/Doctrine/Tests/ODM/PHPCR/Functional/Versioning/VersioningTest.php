@@ -149,7 +149,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $frozenDocument = $this->dm->findVersionByName($this->type, '/functional/versionTestObj', $lastVersionName);
 
         $this->assertEquals('lsmith', $frozenDocument->username);
-        $this->assertEquals(array(3,1,2), iterator_to_array($frozenDocument->numbers));
+        $this->assertEquals(array(3,1,2), $frozenDocument->numbers);
 
         $this->assertEquals($lastVersionName, $frozenDocument->versionName);
         $this->assertInstanceOf('DateTime', $frozenDocument->versionCreated);

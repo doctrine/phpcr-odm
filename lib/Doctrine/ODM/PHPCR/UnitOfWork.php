@@ -159,11 +159,6 @@ class UnitOfWork
     /**
      * @var array
      */
-    private $multivaluePropertyCollections = array();
-
-    /**
-     * @var array
-     */
     private $changesetComputed = array();
 
     /**
@@ -262,19 +257,17 @@ class UnitOfWork
 
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
-                if ($mapping['multivalue']) {
-                    if ($properties[$mapping['name']] instanceof Collection) {
-                        $collection = $properties[$mapping['name']];
-                    } elseif (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
-                        $collection = new ArrayCollection(array_combine((array)$properties[$mapping['assoc']], (array)$properties[$mapping['name']]));
+                if ($class->isCollectionValuedAssociation($fieldName)) {
+                    if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
+                        $documentState[$fieldName] = array_combine((array)$properties[$mapping['assoc']], (array)$properties[$mapping['name']]);
                     } else {
-                        $collection = new ArrayCollection((array)$properties[$mapping['name']]);
+                        $documentState[$fieldName] = (array)$properties[$mapping['name']];
                     }
-                    $documentState[$fieldName] = new MultivaluePropertyCollection($collection);
-                    $this->multivaluePropertyCollections[] = $documentState[$fieldName];
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
+            } elseif ($class->isCollectionValuedAssociation($fieldName)) {
+                $documentState[$fieldName] = array();
             }
         }
 
@@ -806,26 +799,7 @@ class UnitOfWork
                 continue;
             }
             $value = $reflProperty->getValue($document);
-            if ($class->isCollectionValuedAssociation($fieldName)
-                && $value !== null
-                && !($value instanceof PersistentCollection)
-            ) {
-                if (!$value instanceof Collection) {
-                    if (! is_array($value)) {
-                        throw new PHPCRException("Field '$fieldName' in ".$class->getName()." is a multivalue field but the value is neither Collection nor array");
-                    }
-                    $value = new MultivaluePropertyCollection(new ArrayCollection($value), true);
-                    $this->multivaluePropertyCollections[] = $value;
-                }
-
-                $collection = $value;
-
-                $class->reflFields[$fieldName]->setValue($document, $collection);
-
-                $actualData[$fieldName] = $collection;
-            } else {
-                $actualData[$fieldName] = $value;
-            }
+            $actualData[$fieldName] = $value;
         }
 
         return $actualData;
@@ -1066,15 +1040,7 @@ class UnitOfWork
                         || isset($class->parentMapping[$fieldName])
                         || isset($class->nodename)
                     ) {
-                        if ($class->isCollectionValuedAssociation($fieldName)) {
-                            if (!$fieldValue instanceof PersistentCollection) {
-                                // if its not a persistent collection, otherwise it would just be null
-                                continue;
-                            } elseif ($fieldValue->changed()) {
-                                $this->visitedCollections[] = $fieldValue;
-                                continue;
-                            }
-                        } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                        if ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                             continue;
                         } elseif ($fieldValue instanceof ReferenceManyCollection && $fieldValue->changed()) {
                             continue;
@@ -1337,10 +1303,6 @@ class UnitOfWork
             $col->takeSnapshot();
         }
 
-        foreach ($this->multivaluePropertyCollections as $col) {
-            $col->takeSnapshot();
-        }
-
         $this->documentTranslations =
         $this->scheduledUpdates =
         $this->scheduledAssociationUpdates =
@@ -1448,7 +1410,7 @@ class UnitOfWork
                     }
 
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
-                        $value = $fieldValue === null ? null : $fieldValue->toArray();
+                        $value = empty($fieldValue) ? null : $fieldValue;
                         if ($value && isset($class->fieldMappings[$fieldName]['assoc'])) {
                             $node->setProperty($class->fieldMappings[$fieldName]['assoc'], array_keys($value), $type);
                             $value = array_values($value);
@@ -1523,7 +1485,7 @@ class UnitOfWork
                 if (isset($class->fieldMappings[$fieldName])) {
                     $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
                     if ($class->fieldMappings[$fieldName]['multivalue']) {
-                        $value = $fieldValue === null ? null : $fieldValue->toArray();
+                        $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
                         if ($value && isset($class->fieldMappings[$fieldName]['assoc'])) {
                             $node->setProperty($class->fieldMappings[$fieldName]['assoc'], array_keys($value), $type);
                             $value = array_values($value);
