@@ -613,7 +613,7 @@ class ClassMetadata implements ClassMetadataInterface
         if (empty($mapping['fieldName'])) {
             throw new MappingException("Mapping a property requires to specify the fieldName.");
         }
-        
+
         if (!is_string($mapping['fieldName'])) {
             throw new MappingException("fieldName must be of type string.");
         }
@@ -962,12 +962,12 @@ class ClassMetadata implements ClassMetadataInterface
             } elseif ($mapping['type'] === 'float') {
                 $mapping['type'] = 'double';
             }
+        }
 
-            // Add the field to the list of translatable fields
-            if (isset($mapping['translated']) && $mapping['translated']) {
-                if (! array_key_exists($mapping['name'], $this->translatableFields)) {
-                    $this->translatableFields[] = $mapping['name'];
-                }
+        // Add the field to the list of translatable fields
+        if (isset($mapping['translated']) && $mapping['translated']) {
+            if (! array_key_exists($mapping['name'], $this->translatableFields)) {
+                $this->translatableFields[] = $mapping['name'];
             }
         }
 
