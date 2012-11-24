@@ -11,7 +11,9 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * @PHPCRODM\Document(
  *   referenceable=true, 
  *   nodeType="nt:test", 
- *   translator="foo"
+ *   translator="foo",
+ *   repositoryClass="Foobar",
+ *   versionable="simple"
  * )
  */
 class ClassInheritanceParentMappingObject

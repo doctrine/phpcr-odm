@@ -79,15 +79,17 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->isMappedSuperclass = true;
         }
 
-        if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
+        if ($documentAnnot->versionable) {
             $metadata->setVersioned($documentAnnot->versionable);
         }
 
+        // annotation defaults to nt:unstructured. Only override if
+        // nodeType not already set from parent.
         if (!$metadata->nodeType) {
             $metadata->setNodeType($documentAnnot->nodeType);
         }
 
-        if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
+        if ($documentAnnot->referenceable) {
             $metadata->setReferenceable(true);
         }
 

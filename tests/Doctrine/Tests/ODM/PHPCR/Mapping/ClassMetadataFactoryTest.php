@@ -86,5 +86,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($meta->referenceable);
         $this->assertEquals('foo', $meta->translator);
         $this->assertEquals('nt:test', $meta->nodeType);
+        $this->assertEquals('simple', $meta->versionable);
+        $this->assertEquals('Foobar', $meta->customRepositoryClassName);
     }
 }
