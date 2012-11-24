@@ -184,8 +184,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
 
         $subClass->setReferenceable($parentClass->referenceable);
-
         $subClass->setTranslator($parentClass->translator);
+        $subClass->setNodeType($parentClass->nodeType);
     }
 
     /**

@@ -83,7 +83,9 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setVersioned($documentAnnot->versionable);
         }
 
-        $metadata->setNodeType($documentAnnot->nodeType);
+        if (!$metadata->nodeType) {
+            $metadata->setNodeType($documentAnnot->nodeType);
+        }
 
         if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
             $metadata->setReferenceable(true);
