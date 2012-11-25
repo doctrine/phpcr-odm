@@ -80,7 +80,17 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($meta->referenceable);
     }
 
-    public function testLoadMetadata_classInheritance()
+    public function testLoadMetadata_defaults()
+    {
+        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DefaultMappingObject');
+        $this->assertFalse($meta->referenceable);
+        $this->assertNull($meta->translator);
+        $this->assertEquals('nt:unstructured', $meta->nodeType);
+        $this->assertFalse($meta->versionable);
+        $this->assertNull($meta->customRepositoryClassName);
+    }
+
+    public function testLoadMetadata_classInheritanceChild()
     {
         $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildMappingObject');
         $this->assertTrue($meta->referenceable);
@@ -88,5 +98,15 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('nt:test', $meta->nodeType);
         $this->assertEquals('simple', $meta->versionable);
         $this->assertEquals('Foobar', $meta->customRepositoryClassName);
+    }
+
+    public function testLoadMetadata_classInheritanceChildCanOverride()
+    {
+        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildOverridesMappingObject');
+        $this->assertTrue($meta->referenceable);
+        $this->assertEquals('bar', $meta->translator);
+        $this->assertEquals('nt:test-override', $meta->nodeType);
+        $this->assertEquals('full', $meta->versionable);
+        $this->assertEquals('Barfoo', $meta->customRepositoryClassName);
     }
 }

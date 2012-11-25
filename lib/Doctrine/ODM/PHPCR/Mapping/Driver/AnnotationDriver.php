@@ -89,9 +89,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             }
         }
 
-        // annotation defaults to nt:unstructured. Only override if
-        // nodeType not already set from parent.
-        if (!$metadata->nodeType) {
+        if ($documentAnnot->nodeType) {
             $metadata->setNodeType($documentAnnot->nodeType);
         }
 
