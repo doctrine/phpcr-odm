@@ -1,7 +1,6 @@
 nbproject
 *~
 tests/phpunit.xml
-*.swp
 
 /cli-config.php
 jackrabbit/
