@@ -28,7 +28,7 @@ use Doctrine\Common\Annotations\Annotation;
 final class Document
 {
     /** @var string */
-    public $nodeType = 'nt:unstructured';
+    public $nodeType;
     /** @var string */
     public $repositoryClass;
     /** @var string */
