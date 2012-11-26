@@ -93,6 +93,10 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setNodeType($documentAnnot->nodeType);
         }
 
+        if (!$metadata->nodeType) {
+            $metadata->setNodeType('nt:unstructured');
+        }
+
         if ($documentAnnot->repositoryClass) {
             $metadata->setCustomRepositoryClassName($documentAnnot->repositoryClass);
         }

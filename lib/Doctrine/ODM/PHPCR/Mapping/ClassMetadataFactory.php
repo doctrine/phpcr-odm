@@ -127,15 +127,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $this->getDriver()->loadMetadataForClass($class->getName(), $class);
         }
 
-        // @todo: This probably should not be here, but in order to know
-        //        if nodeType has been inherited from its parent class mapping
-        //        the default value for the nodeType property must be NULL.
-        //        We set the default here after all the class inheritance stuff has
-        //        finished
-        if (null === $class->nodeType) {
-            $class->nodeType = 'nt:unstructured';
-        }
-
         $this->validateRuntimeMetadata($class, $parent);
     }
 
