@@ -74,7 +74,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         ksort($documentAnnots);
 
         $documentAnnot = reset($documentAnnots);
-        
+
         if ($documentAnnot instanceof ODM\MappedSuperclass) {
             $metadata->isMappedSuperclass = true;
         }
@@ -89,13 +89,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             }
         }
 
-        if ($documentAnnot->nodeType) {
-            $metadata->setNodeType($documentAnnot->nodeType);
-        }
-
-        if (!$metadata->nodeType) {
-            $metadata->setNodeType('nt:unstructured');
-        }
+        $metadata->setNodeType($documentAnnot->nodeType ? $documentAnnot->nodeType : 'nt:unstructured');
 
         if ($documentAnnot->repositoryClass) {
             $metadata->setCustomRepositoryClassName($documentAnnot->repositoryClass);
