@@ -185,7 +185,15 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
         $subClass->setReferenceable($parentClass->referenceable);
 
+        // Versionable defaults to false - only set on child class if
+        // it is non-falsy
+        if ($parentClass->versionable) {
+            $subClass->setVersioned($parentClass->versionable);
+        }
+
         $subClass->setTranslator($parentClass->translator);
+        $subClass->setNodeType($parentClass->nodeType);
+        $subClass->setCustomRepositoryClassName($parentClass->customRepositoryClassName);
     }
 
     /**

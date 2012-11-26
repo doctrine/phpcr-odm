@@ -79,14 +79,22 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->isMappedSuperclass = true;
         }
 
-        if (isset($documentAnnot->versionable) && $documentAnnot->versionable) {
-            $metadata->setVersioned($documentAnnot->versionable);
+        if ($documentAnnot instanceof ODM\Document) {
+            if ($documentAnnot->referenceable) {
+                $metadata->setReferenceable(true);
+            }
+
+            if ($documentAnnot->versionable) {
+                $metadata->setVersioned($documentAnnot->versionable);
+            }
         }
 
-        $metadata->setNodeType($documentAnnot->nodeType);
+        if ($documentAnnot->nodeType) {
+            $metadata->setNodeType($documentAnnot->nodeType);
+        }
 
-        if (isset($documentAnnot->referenceable) && $documentAnnot->referenceable) {
-            $metadata->setReferenceable(true);
+        if (!$metadata->nodeType) {
+            $metadata->setNodeType('nt:unstructured');
         }
 
         if ($documentAnnot->repositoryClass) {
