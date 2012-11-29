@@ -503,6 +503,9 @@ class UnitOfWork
         $visited[$oid] = true;
 
         $class = $this->dm->getClassMetadata(get_class($document));
+        if ($class->isMappedSuperclass) {
+            throw new \InvalidArgumentException('Cannot persist a mapped super class instance: '.$class->name);
+        }
 
         $this->cascadeScheduleParentInsert($class, $document, $visited);
 

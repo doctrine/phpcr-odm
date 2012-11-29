@@ -118,7 +118,7 @@ class ProxyFactory
     {
         foreach ($classes as $class) {
             /* @var $class ClassMetadata */
-            if ($class->isMappedSuperclass) {
+            if ($class->isMappedSuperclass || $class->reflClass->isAbstract()) {
                 continue;
             }
 
