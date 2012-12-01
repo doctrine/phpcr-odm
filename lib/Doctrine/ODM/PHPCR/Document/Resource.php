@@ -56,7 +56,7 @@ class Resource
     /**
      * The parent File document of this Resource document.
      *
-     * @param object $parent File document that is the parent of this node.
+     * @return object File document that is the parent of this node.
      */
     public function getParent()
     {

@@ -482,10 +482,9 @@ class UnitOfWork
     }
 
     /**
-     * Schedule insertion of this document and cascade if neccessary.
+     * Schedule insertion of this document and cascade if necessary.
      *
      * @param object $document
-     * @param string $id
      */
     public function scheduleInsert($document)
     {
@@ -1988,7 +1987,7 @@ class UnitOfWork
      * and an optional reference type.
      *
      * This methods gets all nodes as a collection of documents that refer (weak
-     * and hard) the given document. The property of the referrer node that referes
+     * and hard) the given document. The property of the referrer node that refers
      * the document needs to match the given name and must store a reference of the
      * given type.
      * @param object $document document instance which referrers should be loaded

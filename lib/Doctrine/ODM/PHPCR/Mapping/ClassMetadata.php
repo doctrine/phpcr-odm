@@ -919,7 +919,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Checks whether a mapped field is inherited from an entity superclass.
      *
-     * @return boolean string clas naem if the field is inherited, FALSE otherwise.
+     * @return boolean string class name if the field is inherited, FALSE otherwise.
      */
     public function isInheritedField($fieldName)
     {
@@ -1105,8 +1105,8 @@ class ClassMetadata implements ClassMetadataInterface
      * Dispatches the lifecycle event of the given document to the registered
      * lifecycle callbacks and lifecycle listeners.
      *
-     * @param string $event The lifecycle event.
-     * @param object $document The Document on which the event occured.
+     * @param string $lifecycleEvent The lifecycle event.
+     * @param object $document The Document on which the event occurred.
      * @param array $arguments the arguments to pass to the callback
      */
     public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
