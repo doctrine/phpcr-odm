@@ -496,7 +496,7 @@ class DocumentManager implements ObjectManager
      *
      * @param  \PHPCR\Query\QueryInterface $query the query instance as
      *      acquired through createQuery()
-     * @param  string $documentName document class
+     * @param  string $className document class
      *
      * @return array of document instances
      */
@@ -757,7 +757,7 @@ class DocumentManager implements ObjectManager
      * a given filter (same as PHPCR Node::getNodes)
      *
      * @param object $document document instance which children should be loaded
-     * @param string|array $filter optional filter to filter on childrens names
+     * @param string|array $filter optional filter to filter on children names
      * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
      * @param boolean $ignoreUntranslated if to ignore children that are not translated to the current locale
      *
@@ -906,7 +906,7 @@ class DocumentManager implements ObjectManager
      *
      * @see findVersionByName
      *
-     * @param string $DocumentVersion the version to be restored
+     * @param string $documentVersion the version to be restored
      * @param bool $removeExisting how to handle conflicts with unique
      *      identifiers. If true, existing documents with the identical
      *      identifier will be replaced, otherwise an exception is thrown.
