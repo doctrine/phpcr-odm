@@ -87,7 +87,7 @@ abstract class AbstractFile
     /**
      * The parent Folder document of this document.
      *
-     * @param object $parent Folder document that is the parent of this node.
+     * @return object Folder document that is the parent of this node.
      */
     public function getParent()
     {

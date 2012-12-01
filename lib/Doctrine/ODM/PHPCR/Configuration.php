@@ -121,7 +121,7 @@ class Configuration
     /**
      * Set the document alias map
      *
-     * @param array $documentAliasMap
+     * @param array $documentNamespaces
      * @return void
      */
     public function setDocumentNamespaces(array $documentNamespaces)
