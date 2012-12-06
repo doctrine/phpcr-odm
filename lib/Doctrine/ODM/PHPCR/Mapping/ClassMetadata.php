@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use ReflectionProperty;
+use InvalidArgumentException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
@@ -880,7 +881,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationNames()
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        return array_keys($this->associationsMappings);
     }
 
     /**
@@ -897,7 +898,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationTargetClass($assocName)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        if ( ! isset($this->associationsMappings[$assocName])) {
+            throw new InvalidArgumentException("Association name expected, '" . $assocName ."' is not an association.");
+        }
+
+        return $this->associationsMappings[$assocName]['targetDocument'];
     }
 
     /**
