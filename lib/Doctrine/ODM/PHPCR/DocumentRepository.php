@@ -278,7 +278,14 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Return a pre-configured query builder instance
+     * Create a QueryBuilder that is prepopulated for this repositories document
+     *
+     * The returned query builder will be prepopulated with the criteria
+     * required to search for this repositories document class.
+     *
+     * NOTE: When adding criteria to the query builder you should
+     *       use ->andWhere(...) as ->where(...) will overwrite
+     *       the class criteria.
      *
      * @return QueryBuilder
      */
