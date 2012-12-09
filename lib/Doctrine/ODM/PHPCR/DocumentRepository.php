@@ -276,4 +276,23 @@ class DocumentRepository implements ObjectRepository
     {
         return $this->dm->getDocumentsByQuery($query, $this->className);
     }
+
+    /**
+     * Return a pre-configured query builder instance
+     *
+     * @return QueryBuilder
+     */
+    public function createQueryBuilder()
+    {
+        $qb = $this->dm->createQueryBuilder();
+        $qf = $qb->getQOMFactory();
+        $qb->from($qf->selector($this->class->nodeType));
+        $qb->andWhere(
+            $qf->comparison($qf->propertyValue('phpcr:class'), 
+            Constants::JCR_OPERATOR_EQUAL_TO, 
+            $qf->literal($this->className))
+        );
+
+        return $qb;
+    }
 }
