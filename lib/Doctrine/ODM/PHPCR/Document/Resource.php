@@ -34,6 +34,9 @@ class Resource
 
     /** @PHPCRODM\Node */
     protected $node;
+    
+    /** @PHPCRODM\Nodename */
+    protected $nodename;
 
     /** @PHPCRODM\ParentDocument */
     protected $parent;
@@ -52,7 +55,27 @@ class Resource
 
     /** @PHPCRODM\String(name="jcr:lastModifiedBy") */
     protected $lastModifiedBy;
+    
+    /**
+     * The node name of the file.
+     *
+     * @return string
+     */
+    public function getNodename()
+    {
+        return $this->nodename;
+    }
 
+    /**
+     * Set the node name of the file. (only mutable on new document before the persist)
+     *
+     * @param string $name the name of the file
+     */
+    public function setNodename($name)
+    {
+        $this->nodename = $name;
+    }
+    
     /**
      * The parent File document of this Resource document.
      *
@@ -192,6 +215,16 @@ class Resource
      */
     public function getMime() 
     {
-      return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
+        return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
+    }
+    
+    /**
+     * String representation
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->nodename;
     }
 }
