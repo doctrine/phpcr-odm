@@ -122,4 +122,5 @@ class File extends AbstractFile
 
         return $this->content;
     }
+    
 }
