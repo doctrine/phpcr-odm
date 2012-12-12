@@ -128,4 +128,14 @@ abstract class AbstractFile
     {
         return $this->createdBy;
     }
+    
+    /**
+     * String representation
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+      return $this->nodename;
+    }
 }

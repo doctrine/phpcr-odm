@@ -123,13 +123,4 @@ class File extends AbstractFile
         return $this->content;
     }
     
-    /**
-     * String representation
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-      return $this->nodename;
-    }
 }

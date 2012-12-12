@@ -194,4 +194,14 @@ class Resource
     {
       return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
     }
+    
+    /**
+     * String representation
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+      return $this->getMime();
+    }
 }
