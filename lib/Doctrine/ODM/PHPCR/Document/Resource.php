@@ -192,7 +192,7 @@ class Resource
      */
     public function getMime() 
     {
-      return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
+        return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
     }
     
     /**
@@ -202,6 +202,6 @@ class Resource
      */
     public function __toString()
     {
-      return $this->getMime();
+        return $this->getMime();
     }
 }
