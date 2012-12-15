@@ -215,8 +215,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $class->validateLifecycleCallbacks($this->getReflectionService());
         $class->validateTranslatables();
 
-        // verify inheritance
-        // TODO
     }
     /**
      * {@inheritdoc}
