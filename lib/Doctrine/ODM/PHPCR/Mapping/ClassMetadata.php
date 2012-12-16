@@ -351,6 +351,22 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
+     * Validate translatable fields - ensure that the document has a
+     * translator strategy in place.
+     *
+     * @throws MappingException
+     * @return void
+     */
+    public function validateTranslatables()
+    {
+        if (count($this->translatableFields) > 0) {
+            if (null === $this->translator) {
+                throw MappingException::noTranslatorStrategy($this->name, $this->translatableFields);
+            }
+        }
+    }
+
+    /**
      * Validate lifecycle callbacks
      *
      * @param \Doctrine\Common\Persistence\Mapping\ReflectionService $reflService

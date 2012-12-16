@@ -109,4 +109,17 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('full', $meta->versionable);
         $this->assertEquals('Barfoo', $meta->customRepositoryClassName);
     }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testValidateTranslatableNoStrategy()
+    {
+        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObjectNoStrategy');
+    }
+
+    public function testValidateTranslatable()
+    {
+        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject');
+    }
 }
