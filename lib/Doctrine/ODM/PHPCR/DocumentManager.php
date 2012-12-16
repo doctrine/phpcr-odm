@@ -307,6 +307,21 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Convenience method not part of the common interface to get a document.
+     *
+     * PHPCR-ODM does not need the document class in order to be able to load a
+     * document. This method is equivalent to calling find(null, $id);
+     *
+     * @param string $id
+     *
+     * @return object
+     */
+    public function findOne($id)
+    {
+        return $this->find(null, $id);
+    }
+
+    /**
      * Finds many documents by id.
      *
      * @param null|string $className
