@@ -16,7 +16,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $this->dm = $this->createDocumentManager();
         $this->metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
-        $this->metadata->setNodeType('test:node');
+        $this->metadata->setNodeType('nt:unstructured');
     }
 
     public function testCreateQueryBuilder()
@@ -31,6 +31,13 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         
         $this->assertEquals('phpcr:class', $op1->getPropertyName());
         $this->assertEquals('stdClass', $op2->getLiteralValue());
-        $this->assertEquals('test:node', $source->getNodeTypeName());
+        $this->assertEquals('nt:unstructured', $source->getNodeTypeName());
+    }
+
+    public function testFindBy()
+    {
+        $rep = new DocumentRepository($this->dm, $this->metadata);
+        $res = $rep->findBy(array());
+        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $res);
     }
 }

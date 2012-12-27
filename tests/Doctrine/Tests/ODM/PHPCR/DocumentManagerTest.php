@@ -134,7 +134,6 @@ class DocumentManagerTest extends PHPCRTestCase
         // @todo: Move this to QueryTest
         $q = $qb->getQuery();
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $q);
-        // $q->execute();
     }
 }
 
