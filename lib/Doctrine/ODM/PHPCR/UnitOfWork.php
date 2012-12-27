@@ -665,7 +665,11 @@ class UnitOfWork
 
     private function doRemove($document, &$visited)
     {
+<<<<<<< HEAD
         $oid = spl_object_hash($document);
+=======
+        $oid = \spl_object_hash($document);
+>>>>>>> added support for CASCADE as per CouchDB/ORM etc
         if (isset($visited[$oid])) {
             return;
         }
@@ -1214,7 +1218,11 @@ class UnitOfWork
 
     private function doRefresh($document, &$visited)
     {
+<<<<<<< HEAD
         $oid = spl_object_hash($document);
+=======
+        $oid = \spl_object_hash($document);
+>>>>>>> added support for CASCADE as per CouchDB/ORM etc
         if (isset($visited[$oid])) {
             return;
         }
