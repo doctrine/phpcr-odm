@@ -5,6 +5,13 @@ namespace Doctrine\ODM\PHPCR\Query;
 use PHPCR\Query\QueryInterface;
 use Doctrine\ODM\PHPCR\DocumentManager;
 
+/**
+ * Query
+ *
+ * Wraps the given PHPCR query object in the ODM
+ *
+ * @author Daniel Leech <daniel@dantleech.comqq
+ */
 class Query implements QueryInterface
 {
     protected $query;
@@ -17,73 +24,84 @@ class Query implements QueryInterface
     }
     
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function bindValue($varName, $value)
+    public function bindValue($varName, $value)
     {
         return $this->query->bindValue($varName, $value);
     }
 
     /**
-     * @inherit
+     * Return the results of the query as an
+     * ArrayCollection of PHPCR ODM Documents. 
+     *
+     * @return ArrayCollection
      */
-    function execute()
+    public function getResults()
     {
         return $this->dm->getDocumentsByQuery($this->query);
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function getBindVariableNames()
+    public function execute()
+    {
+        return $this->query->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getBindVariableNames()
     {
         return $this->query->getBindVariableNames();
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function setLimit($limit)
+    public function setLimit($limit)
     {
         return $this->query->setLimit($limit);
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function setOffset($offset)
+    public function setOffset($offset)
     {
         return $this->query->setOffset($offset);
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function getStatement()
+    public function getStatement()
     {
         return $this->query->getStatement();
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function getLanguage()
+    public function getLanguage()
     {
         return $this->query->getLanguage();
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function getStoredQueryPath()
+    public function getStoredQueryPath()
     {
         return $this->query->getStoredQueryPath();
     }
 
     /**
-     * @inherit
+     * {@inheritDoc}
      */
-    function storeAsNode($absPath)
+    public function storeAsNode($absPath)
     {
         return $this->query->storeAsNode($absPath);
     }
