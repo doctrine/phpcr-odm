@@ -120,7 +120,12 @@ class YamlDriver extends FileDriver
             $class->mapNodename(array('fieldName' => $element['nodename']));
         }
         if (isset($element['parentdocument'])) {
-            $class->mapParentDocument(array('fieldName' => $element['parentdocument']));
+            $mapping = array(
+                'fieldName' => $element['parentdocument'],
+                'cascade' => (isset($element['cascade'])) ? $this->getCascadeMode($element['cascade']) : 0,
+            );
+
+            $class->mapParentDocument($mapping);
         }
         if (isset($element['child'])) {
             foreach ($element['child'] as $fieldName => $mapping) {
@@ -132,6 +137,7 @@ class YamlDriver extends FileDriver
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;
                 }
+                $mapping['cascade'] = (isset($mapping['cascade'])) ? $this->getCascadeMode($mapping['cascade']) : 0;
                 $class->mapChild($mapping);
             }
         }
@@ -155,16 +161,19 @@ class YamlDriver extends FileDriver
                 if (!isset($mapping['ignoreUntranslated'])) {
                     $mapping['ignoreUntranslated'] = false;
                 }
+                $mapping['cascade'] = (isset($mapping['cascade'])) ? $this->getCascadeMode($mapping['cascade']) : 0;
                 $class->mapChildren($mapping);
             }
         }
         if (isset($element['referenceOne'])) {
             foreach ($element['referenceOne'] as $fieldName => $reference) {
+                $reference['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
                 $this->addMappingFromReference($class, $fieldName, $reference, 'one');
             }
         }
         if (isset($element['referenceMany'])) {
             foreach ($element['referenceMany'] as $fieldName => $reference) {
+                $reference['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
                 $this->addMappingFromReference($class, $fieldName, $reference, 'many');
             }
         }
@@ -174,12 +183,13 @@ class YamlDriver extends FileDriver
         }
 
         if (isset($element['referrers'])) {
-            foreach ($element['referrers'] as $name=>$attributes) {
-                $mapping = array('fieldName' => $name);
-                $mapping['filter'] = isset($attributes['filter'])
-                    ? $attributes['filter'] : null;
-                $mapping['referenceType'] = isset($attributes['referenceType'])
-                    ? $attributes['referenceType'] : null;
+            foreach ($element['referrers'] as $name => $attributes) {
+                $mapping = array(
+                    'fieldName' => $name,
+                    'filter' => isset($attributes['filter']) ? $attributes['filter'] : null,
+                    'referenceType' => isset($attributes['referenceType']) ? $attributes['referenceType'] : null,
+                    'cascade' => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
+                );
                 $class->mapReferrers($mapping);
             }
         }
@@ -218,5 +228,26 @@ class YamlDriver extends FileDriver
     protected function loadMappingFile($file)
     {
         return Yaml::parse($file);
+    }
+
+    /**
+     * Gathers a list of cascade options found in the given cascade element.
+     *
+     * @param $cascadeElement The cascade element.
+     * @return array The list of cascade options.
+     */
+    private function getCascadeMode($cascadeElement)
+    {
+        $cascade = 0;
+        foreach ($cascadeElement as $action) {
+            // According to the JPA specifications, XML uses "cascade-persist"
+            // instead of "persist". Here, both variations
+            // are supported because both YAML and Annotation use "persist"
+            // and we want to make sure that this driver doesn't need to know
+            // anything about the supported cascading actions
+            $cascadeMode = str_replace('cascade-', '', $action);
+            $cascade = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+        }
+        return $cascade;
     }
 }

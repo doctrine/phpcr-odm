@@ -31,7 +31,7 @@ class File extends AbstractFile
 {
     /**
      * @var Resource
-     * @PHPCRODM\Child(name="jcr:content")
+     * @PHPCRODM\Child(name="jcr:content", cascade="all")
      */
     protected $content;
 

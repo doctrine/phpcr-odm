@@ -76,6 +76,8 @@ final class Nodename
  */
 final class ParentDocument
 {
+    /** @var array */
+    public $cascade = array();
 }
 
 /**
@@ -232,6 +234,8 @@ class Reference
     public $targetDocument;
     /** @var string */
     public $strategy = 'weak';
+    /** @var array */
+    public $cascade = array();
 }
 /**
  * @Annotation
@@ -256,6 +260,8 @@ final class Child
 {
     /** @var string */
     public $name;
+    /** @var array */
+    public $cascade = array();
 }
 /**
  * @Annotation
@@ -269,6 +275,8 @@ final class Children
     public $fetchDepth;
     /** @var boolean */
     public $ignoreUntranslated = true;
+    /** @var array */
+    public $cascade = array();
 }
 /**
  * @Annotation
@@ -280,6 +288,8 @@ final class Referrers
     public $filter;
     /** @var string */
     public $referenceType;
+    /** @var array */
+    public $cascade = array();
 }
 
 /**

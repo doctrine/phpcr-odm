@@ -331,10 +331,10 @@ class ChildrenTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\Children(filter="*a", fetchDepth=1) */
+  /** @PHPCRODM\Children(filter="*a", fetchDepth=1, cascade="persist") */
   public $aChildren;
 
-  /** @PHPCRODM\Children(fetchDepth=2) */
+  /** @PHPCRODM\Children(fetchDepth=2, cascade="persist") */
   public $allChildren;
 }
 
@@ -368,7 +368,7 @@ class ChildrenReferrerTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\ReferenceOne(targetDocument="ChildrenReferenceableTestObj") */
+  /** @PHPCRODM\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
   public $reference;
 }
 
@@ -383,6 +383,6 @@ class ChildrenReferenceableTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\Children */
+  /** @PHPCRODM\Children(cascade="persist") */
   public $allChildren;
 }

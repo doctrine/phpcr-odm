@@ -187,6 +187,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
             'sourceDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Person',
             'type' => ClassMetadata::MANY_TO_ONE,
             'strategy' => 'weak',
+            'cascade' => null,
         ), $cm->associationsMappings['address']);
 
         return $cm;

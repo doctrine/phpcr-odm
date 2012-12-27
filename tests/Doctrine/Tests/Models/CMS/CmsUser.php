@@ -22,8 +22,10 @@ class CmsUser
     public $username;
     /** @PHPCRODM\String(name="name") */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;
+    /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticle", cascade="persist") */
+    public $articles;
 
     public function getId()
     {

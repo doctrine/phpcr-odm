@@ -20,7 +20,7 @@ class CmsPage
     public $content;
     /** @PHPCRODM\String(name="title") */
     public $title;
-    /** @PHPCRODM\Referrers(referenceType="hard") */
+    /** @PHPCRODM\Referrers(referenceType="hard", cascade="persist") */
     public $items = array();
 
     public function getId()

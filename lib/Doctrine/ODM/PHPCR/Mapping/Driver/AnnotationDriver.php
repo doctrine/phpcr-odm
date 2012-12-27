@@ -131,21 +131,57 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapNodename($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ParentDocument) {
+                    $cascade = 0;
+                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+                    }
+                    $fieldAnnot->cascade = $cascade;
+
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapParentDocument($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Child) {
+                    $cascade = 0;
+                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+                    }
+                    $fieldAnnot->cascade = $cascade;
+
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapChild($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Children) {
+                    $cascade = 0;
+                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+                    }
+                    $fieldAnnot->cascade = $cascade;
+
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapChildren($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ReferenceOne) {
+                    $cascade = 0;
+                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+                    }
+                    $fieldAnnot->cascade = $cascade;
+
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapManyToOne($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ReferenceMany) {
+                    $cascade = 0;
+                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+                    }
+                    $fieldAnnot->cascade = $cascade;
+
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapManyToMany($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Referrers) {
+                    $cascade = 0;
+                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
+                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+                    }
+                    $fieldAnnot->cascade = $cascade;
+
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapReferrers($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Locale) {

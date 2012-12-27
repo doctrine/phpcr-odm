@@ -542,23 +542,25 @@ class UnitOfWork
     private function cascadeScheduleInsert($class, $document, &$visited)
     {
         foreach ($class->associationsMappings as $assocName => $assoc) {
-            $related = $class->reflFields[$assocName]->getValue($document);
-            if ($related !== null) {
-                if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
-                    if (is_array($related) || $related instanceof Collection) {
-                        throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
-                    }
+            if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                $related = $class->reflFields[$assocName]->getValue($document);
+                if ($related !== null) {
+                    if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
+                        if (is_array($related) || $related instanceof Collection) {
+                            throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
+                        }
 
-                    if ($this->getDocumentState($related) === self::STATE_NEW) {
-                        $this->doScheduleInsert($related, $visited);
-                    }
-                } else {
-                    if (!is_array($related) && !$related instanceof Collection) {
-                        throw new PHPCRException('Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
-                    }
-                    foreach ($related as $relatedDocument) {
-                        if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
-                            $this->doScheduleInsert($relatedDocument, $visited);
+                        if ($this->getDocumentState($related) === self::STATE_NEW) {
+                            $this->doScheduleInsert($related, $visited);
+                        }
+                    } else {
+                        if (!is_array($related) && !$related instanceof Collection) {
+                            throw new PHPCRException('Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
+                        }
+                        foreach ($related as $relatedDocument) {
+                            if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
+                                $this->doScheduleInsert($relatedDocument, $visited);
+                            }
                         }
                     }
                 }
@@ -656,7 +658,17 @@ class UnitOfWork
 
     public function scheduleRemove($document)
     {
+        $visited = array();
+        $this->doRemove($document, $visited);
+    }
+
+    private function doRemove($document, &$visited)
+    {
         $oid = spl_object_hash($document);
+        if (isset($visited[$oid])) {
+            return;
+        }
+        $visited[$oid] = true;
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -680,6 +692,26 @@ class UnitOfWork
         }
         if ($this->evm->hasListeners(Event::preRemove)) {
             $this->evm->dispatchEvent(Event::preRemove, new LifecycleEventArgs($document, $this->dm));
+        }
+
+        $this->cascadeRemove($document, $visited);
+    }
+
+    private function cascadeRemove($document, &$visited)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        foreach ($class->associationsMappings as $assoc) {
+            if ($assoc['cascade'] & ClassMetadata::CASCADE_REMOVE) {
+                $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+                if ($related instanceof Collection || is_array($related)) {
+                    // If its a PersistentCollection initialization is intended! No unwrap!
+                    foreach ($related as $relatedDocument) {
+                        $this->doRemove($relatedDocument, $visited);
+                    }
+                } else if ($related !== null) {
+                    $this->doRemove($related, $visited);
+                }
+            }
         }
     }
 
@@ -899,11 +931,11 @@ class UnitOfWork
 
                     foreach ($actualData[$assocName] as $ref) {
                         if ($ref !== null) {
-                            $this->computeReferenceChanges($ref);
+                            $this->computeReferenceChanges($assoc, $ref);
                         }
                     }
                 } else {
-                    $this->computeReferenceChanges($actualData[$assocName]);
+                    $this->computeReferenceChanges($assoc, $actualData[$assocName]);
                 }
             }
         }
@@ -915,7 +947,7 @@ class UnitOfWork
                 }
 
                 foreach ($actualData[$name] as $referrer) {
-                    $this->computeReferrerChanges($referrer);
+                    $this->computeReferrerChanges($referrerMapping, $referrer);
                 }
             }
         }
@@ -1068,7 +1100,11 @@ class UnitOfWork
     /**
      * Computes the changes of a child.
      *
+     * @param array $mapping the mapping data
      * @param mixed $child the child document.
+     * @param string $parentId
+     * @param string $nodename
+     * @param mixed $parent
      */
     private function computeChildChanges($mapping, $child, $parentId, $nodename = null, $parent = null)
     {
@@ -1077,6 +1113,12 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
+                if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                    throw new \InvalidArgumentException("A new document was found through a relationship that was not"
+                        . " configured to cascade persist operations: " . self::objToStr($child) . "."
+                        . " Explicitly persist the new document or configure cascading persist operations"
+                        . " on the relationship.");
+                }
                 $nodename = $nodename ? : $mapping['name'];
                 if ($nodename) {
                     $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
@@ -1092,15 +1134,22 @@ class UnitOfWork
     /**
      * Computes the changes of a reference.
      *
+     * @param array $mapping the mapping data
      * @param mixed $reference the referenced document.
      */
-    private function computeReferenceChanges($reference)
+    private function computeReferenceChanges($mapping, $reference)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($reference));
         $state = $this->getDocumentState($reference);
 
         switch ($state) {
             case self::STATE_NEW:
+                if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                    throw new \InvalidArgumentException("A new document was found through a relationship that was not"
+                        . " configured to cascade persist operations: " . self::objToStr($reference) . "."
+                        . " Explicitly persist the new document or configure cascading persist operations"
+                        . " on the relationship.");
+                }
                 $this->persistNew($targetClass, $reference);
                 $this->computeChangeSet($targetClass, $reference);
                 break;
@@ -1112,15 +1161,22 @@ class UnitOfWork
     /**
      * Computes the changes of a referrer.
      *
+     * @param array $mapping the mapping data
      * @param mixed $referrer the referenced document.
      */
-    private function computeReferrerChanges($referrer)
+    private function computeReferrerChanges($mapping, $referrer)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($referrer));
         $state = $this->getDocumentState($referrer);
 
         switch ($state) {
             case self::STATE_NEW:
+                if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                    throw new \InvalidArgumentException("A new document was found through a relationship that was not"
+                        . " configured to cascade persist operations: " . self::objToStr($referrer) . "."
+                        . " Explicitly persist the new document or configure cascading persist operations"
+                        . " on the relationship.");
+                }
                 $this->persistNew($targetClass, $referrer);
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
@@ -1158,6 +1214,31 @@ class UnitOfWork
         }
     }
 
+    public function refresh($document)
+    {
+        $visited = array();
+        $this->doRefresh($document, $visited);
+    }
+
+    private function doRefresh($document, &$visited)
+    {
+        $oid = spl_object_hash($document);
+        if (isset($visited[$oid])) {
+            return;
+        }
+        $visited[$oid] = true;
+
+        $this->session->refresh(true);
+        $node = $this->session->getNode($this->getDocumentId($document));
+
+        $hints = array('refresh' => true);
+        $document = $this->createDocument(get_class($document), $node, $hints);
+
+        $this->cascadeRefresh($document, $visited);
+
+        return $document;
+    }
+
     /**
      * Detaches a document from the persistence management. It's persistence will
      * no longer be managed by Doctrine.
@@ -1171,7 +1252,7 @@ class UnitOfWork
     }
 
     /**
-     * Executes a detach operation on the given entity.
+     * Executes a detach operation on the given document.
      *
      * @param object $document
      * @param array $visited
@@ -1198,6 +1279,27 @@ class UnitOfWork
         }
     }
 
+    private function cascadeRefresh($document, &$visited)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        foreach ($class->associationsMappings as $assoc) {
+            if ($assoc['cascade'] & ClassMetadata::CASCADE_REFRESH) {
+                $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+                if ($related instanceof Collection) {
+                    if ($related instanceof PersistentCollection) {
+                        // Unwrap so that foreach() does not initialize
+                        $related = $related->unwrap();
+                    }
+                    foreach ($related as $relatedDocument) {
+                        $this->doRefresh($relatedDocument, $visited);
+                    }
+                } else if ($related !== null) {
+                    $this->doRefresh($related, $visited);
+                }
+            }
+        }
+    }
+
     /**
      * Cascades a detach operation to associated documents.
      *
@@ -1209,6 +1311,9 @@ class UnitOfWork
         $class = $this->dm->getClassMetadata(get_class($document));
 
         foreach ($class->childrenMappings as $assoc) {
+            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+                continue;
+            }
             $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
             if ($relatedDocuments instanceof Collection) {
                 foreach ($relatedDocuments as $relatedDocument) {
@@ -1220,6 +1325,9 @@ class UnitOfWork
         }
 
         foreach ($class->referrersMappings as $assoc) {
+            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+                continue;
+            }
             $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
             if ($relatedDocuments instanceof Collection) {
                 foreach ($relatedDocuments as $relatedDocument) {

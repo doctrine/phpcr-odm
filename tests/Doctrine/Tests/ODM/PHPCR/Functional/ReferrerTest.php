@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
+
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
@@ -592,12 +593,12 @@ class WeakReferrerTestObj
     public $id;
     /**
      * Should implicitly default to strategy="weak"
-     * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj")
+     * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", cascade="persist")
      */
     public $referenceToWeak;
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="weak") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="weak", cascade="persist") */
     public $referenceToHard;
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="weak") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="weak", cascade="persist") */
     public $referenceToAll;
     /** @PHPCRODM\String */
     public $name;
@@ -664,7 +665,7 @@ class ReferrerTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
 }
 
@@ -677,7 +678,7 @@ class ReferrerNamedPropTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $namedReference;
 }
 
