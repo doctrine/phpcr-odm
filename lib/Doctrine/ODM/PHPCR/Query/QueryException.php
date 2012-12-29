@@ -27,4 +27,14 @@ class QueryException extends \Exception
     {
         return new self(sprintf('Expected result from query, didn\'t get one.'));
     }
+
+    public static function notImplemented($method)
+    {
+        return new self(sprintf('Query Method "%s" is not implemented (yet)', $method));
+    }
+
+    public static function hydrationModeDocumentRequiresDocumentClass()
+    {
+        return new self(sprintf('Hydration mode HYDRATE_DOCUMENT requires an object class to be set. See Query::hydrateDocument() and Query::setHydrationDocumentClass()'));
+    }
 }

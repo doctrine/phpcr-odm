@@ -474,7 +474,7 @@ class DocumentManager implements ObjectManager
     public function createQuery($statement, $language)
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
-        return $qm->createQuery($statement, $language);
+        return new Query($qm->createQuery($statement, $language));
     }
 
     /**
