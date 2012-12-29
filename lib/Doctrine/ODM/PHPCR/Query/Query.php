@@ -8,18 +8,22 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 /**
  * Query
  *
- * Wraps the given PHPCR query object in the ODM
+ * Wraps the given PHPCR query object in the ODM, emulating
+ * the Query object from the ORM.
  *
  * @author Daniel Leech <daniel@dantleech.comqq
  */
 class Query
 {
-    const HYDRATE_OBJECT = 'object';
+    const HYDRATE_DOCUMENT = 'object';
     const HYDRATE_NONE = 'phpcr_node';
     const HYDRATE_PHPCR_NODE = 'phpcr_node';
 
-    protected $hydrationMode = self::HYDRATE_OBJECT;
+    protected $hydrationMode = self::HYDRATE_DOCUMENT;
     protected $parameters = array();
+    protected $documentClass;
+    protected $firstResult;
+    protected $maxResults;
     protected $query;
     protected $dm;
 
@@ -36,7 +40,7 @@ class Query
      *                                    One of the Query::HYDRATE_* constants.
      * @return \Doctrine\ODM\PHPCR\Query  This query instance.
      */
-    public function setHydrationMode($hydartionMode) 
+    public function setHydrationMode($hydrationMode) 
     {
         $this->hydrationMode = $hydrationMode;
         return $this;
@@ -55,7 +59,7 @@ class Query
     /**
      * Get all defined parameters.
      *
-     * @return \Doctrine\Common\Collections\ArrayCollection The defined query parameters.
+     * @return array The defined query parameters.
      */
     public function getParameters()
     {
@@ -71,9 +75,7 @@ class Query
      */
     public function setParameters($parameters)
     {
-        foreach ($parameters as $key => $value) {
-            $this->setParameter($key, $value);
-        }
+        $this->parameters = $parameters;
 
         return $this;
     }
@@ -110,10 +112,36 @@ class Query
     }
 
     /**
+     * Specify target document class to hydrate when using
+     * HYDRATE_DOCUMENT.
+     *
+     * @param string $object  FQN of document class to hydrate.
+     *
+     * @return \Doctrine\ODM\PHPCR\Query This query instance.
+     */
+    public function setDocumentClass($documentClass)
+    {
+        $this->documentClass = $documentClass;
+
+        return $this;
+    }
+
+    /**
+     * Return the document class
+     *
+     * @return string
+     */
+    public function getDocumentClass()
+    {
+        return $this->documentClass;
+    }
+
+    /**
      * Executes the query.
      *
      * @param array $parameters
-     * @param integer $hydrationMode Processing mode to be used during the hydration process.
+     * @param integer $hydrationMode        Processing mode to be used during the hydration process.
+     * @param string $documentClass  FQN to target hydration object, if hydration mode is HYDRATE_DOCUMENT
      * @return mixed
      */
     public function execute($parameters = null, $hydrationMode = null)
@@ -126,14 +154,25 @@ class Query
             $this->setHydrationMode($hydrationMode);
         }
 
+        if (null !== $this->maxResults) {
+            $this->query->setLimit($this->maxResults);
+        }
+
+        if (null !== $this->firstResult) {
+            $this->query->setOffset($this->firstResult);
+        }
+
         foreach ($this->parameters as $key => $value) {
             $this->query->bindValue($key, $value);
         }
 
         if ($this->hydrationMode === self::HYDRATE_NONE) {
             $data = $this->query->execute();
-        } elseif ($this->hydrationMode === self::HYDRATE_OBJECT) {
-            $data = $this->dm->getDocumentsByQuery($this->query);
+        } elseif ($this->hydrationMode === self::HYDRATE_DOCUMENT) {
+            if (null === $this->documentClass) {
+                throw QueryException::hydrationModeDocumentRequiresDocumentClass();
+            }
+            $data = $this->dm->getDocumentsByQuery($this->query, $this->documentClass);
         } else {
             throw QueryException::hydrationModeNotKnown($this->hydrationMode);
         }
@@ -144,11 +183,11 @@ class Query
     /**
      * Gets the list of results for the query.
      *
-     * Alias for execute(null, $hydrationMode = HYDRATE_OBJECT).
+     * Alias for execute(null, $hydrationMode = HYDRATE_DOCUMENT).
      *
      * @return array
      */
-    public function getResult($hydrationMode = self::HYDRATE_OBJECT)
+    public function getResult($hydrationMode = self::HYDRATE_DOCUMENT)
     {
         return $this->execute(null, $hydrationMode);
     }
@@ -163,6 +202,19 @@ class Query
     public function getPhpcrNodeResult()
     {
         return $this->execute(null, self::HYDRATE_PHPCR_NODE);
+    }
+
+    /**
+     * Gets object results for the query, specifying the document class.
+     *
+     * @param string $documentClass  Target document class
+     * @return array
+     */
+    public function getDocumentResult($documentClass)
+    {
+        $this->setDocumentClass($documentClass);
+
+        return $this->execute(null, self::HYDRATE_DOCUMENT);
     }
 
     /**
@@ -204,12 +256,8 @@ class Query
     {
         $result = $this->execute(null, $hydrationMode);
 
-        if ($result) {
+        if (!$result) {
             throw QueryException::noResult();
-        }
-
-        if ( ! is_array($result)) {
-            return $result;
         }
 
         if (count($result) > 1) {
@@ -229,27 +277,61 @@ class Query
      */
     public function iterate($parameters = null, $hydrationMode = null)
     {
-        throw new \Exception('Not implemented yet!');
+        throw QueryException::notImplemented(__METHOD__);
     }
 
     /**
-     * {@inheritDoc}
+     * Sets the maximum number of results to retrieve (the "limit").
+     *
+     * @param integer $maxResults
+     * @return Query This query object.
      */
     public function setMaxResults($maxResults)
     {
         $this->maxResults = $maxResults;
+
+        return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the maximum number of results the query object was set to retrieve (the "limit").
+     * Returns NULL if {@link setMaxResults} was not applied to this query.
+     *
+     * @return integer Maximum number of results.
+     */
+    public function getMaxResults()
+    {
+        return $this->maxResults;
+    }
+
+    /**
+     * Sets the position of the first result to retrieve (the "offset").
+     *
+     * @param integer $firstResult The first result to return.
+     * @return Query This query object.
      */
     public function setFirstResult($firstResult)
     {
         $this->firstResult = $firstResult;
+
+        return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the position of the first result the query object was set to retrieve (the "offset").
+     * Returns NULL if {@link setFirstResult} was not applied to this query.
+     *
+     * @return integer The position of the first result.
+     */
+    public function getFirstResult()
+    {
+        return $this->firstResult;
+    }
+
+    /**
+     * Proxy method to return statemenet of the wrapped PHPCR Query
+     *
+     * @return string The query statement.
      */
     public function getStatement()
     {
@@ -257,26 +339,12 @@ class Query
     }
 
     /**
-     * {@inheritDoc}
+     * Proxy method to return language of the wrapped PHPCR Query
+     *
+     * @return string The language used
      */
     public function getLanguage()
     {
         return $this->query->getLanguage();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getStoredQueryPath()
-    {
-        return $this->query->getStoredQueryPath();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function storeAsNode($absPath)
-    {
-        return $this->query->storeAsNode($absPath);
     }
 }
