@@ -230,4 +230,10 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->query->setDocumentClass('Foo/Bar');
         $this->assertEquals('Foo/Bar', $this->query->getDocumentClass());
     }
+
+    public function testGetPhpcrQuery()
+    {
+        $query = $this->query->getPhpcrQuery();
+        $this->assertSame($this->phpcrQuery, $query);
+    }
 }

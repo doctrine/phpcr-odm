@@ -347,4 +347,14 @@ class Query
     {
         return $this->query->getLanguage();
     }
+
+    /**
+     * Return wrapped PHPCR query object
+     *
+     * @return \PHPCR\Query\QueryInterface
+     */
+    public function getPhpcrQuery()
+    {
+        return $this->query;
+    }
 }
