@@ -21,7 +21,6 @@ class Query
 
     protected $hydrationMode = self::HYDRATE_DOCUMENT;
     protected $parameters = array();
-    protected $documentClass;
     protected $firstResult;
     protected $maxResults;
     protected $query;
@@ -112,36 +111,11 @@ class Query
     }
 
     /**
-     * Specify target document class to hydrate when using
-     * HYDRATE_DOCUMENT.
-     *
-     * @param string $object  FQN of document class to hydrate.
-     *
-     * @return \Doctrine\ODM\PHPCR\Query This query instance.
-     */
-    public function setDocumentClass($documentClass)
-    {
-        $this->documentClass = $documentClass;
-
-        return $this;
-    }
-
-    /**
-     * Return the document class
-     *
-     * @return string
-     */
-    public function getDocumentClass()
-    {
-        return $this->documentClass;
-    }
-
-    /**
      * Executes the query.
      *
      * @param array $parameters
      * @param integer $hydrationMode        Processing mode to be used during the hydration process.
-     * @param string $documentClass  FQN to target hydration object, if hydration mode is HYDRATE_DOCUMENT
+     *
      * @return mixed
      */
     public function execute($parameters = null, $hydrationMode = null)
@@ -169,10 +143,7 @@ class Query
         if ($this->hydrationMode === self::HYDRATE_NONE) {
             $data = $this->query->execute();
         } elseif ($this->hydrationMode === self::HYDRATE_DOCUMENT) {
-            if (null === $this->documentClass) {
-                throw QueryException::hydrationModeDocumentRequiresDocumentClass();
-            }
-            $data = $this->dm->getDocumentsByQuery($this->query, $this->documentClass);
+            $data = $this->dm->getDocumentsByQuery($this->query);
         } else {
             throw QueryException::hydrationModeNotKnown($this->hydrationMode);
         }
@@ -202,19 +173,6 @@ class Query
     public function getPhpcrNodeResult()
     {
         return $this->execute(null, self::HYDRATE_PHPCR_NODE);
-    }
-
-    /**
-     * Gets object results for the query, specifying the document class.
-     *
-     * @param string $documentClass  Target document class
-     * @return array
-     */
-    public function getDocumentResult($documentClass)
-    {
-        $this->setDocumentClass($documentClass);
-
-        return $this->execute(null, self::HYDRATE_DOCUMENT);
     }
 
     /**

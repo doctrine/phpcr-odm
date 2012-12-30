@@ -92,9 +92,9 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->setExpectedException('PHPCR\Query\InvalidQueryException');
         }
         $query = $this->dm->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
 
-        $result = $this->dm->getDocumentsByQuery($query, $this->type);
+        $result = $query->execute();
         $this->assertCount($rowCount, $result);
     }
 
@@ -110,9 +110,9 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $repository = $this->dm->getRepository($this->type);
         $query = $repository->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
 
-        $result = $this->dm->getDocumentsByQuery($query, $this->type);
+        $result = $query->execute();
         $this->assertCount($rowCount, $result);
     }
 
@@ -120,9 +120,10 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $query = $this->dm->createQuery('SELECT * FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username',
                                         \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
-        $query->setLimit(2);
-        $result = $this->dm->getDocumentsByQuery($query, $this->type);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
+
+        $query->setMaxResults(2);
+        $result = $query->execute();
         $this->assertCount(2, $result);
         $ids = array();
         $vals = array();

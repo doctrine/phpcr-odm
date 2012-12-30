@@ -17,15 +17,9 @@ class QueryBuilder extends BaseQueryBuilder
         parent::__construct($qomFactory);
     }
 
-    public function setDocumentClass($documentClass)
-    {
-        $this->documentClass = $documentClass;
-    }
-
     public function getQuery()
     {
         $query = new Query(parent::getQuery(), $this->dm);
-        $query->setDocumentClass($this->documentClass);
 
         return $query;
     }
