@@ -62,7 +62,6 @@ class QueryTest extends \PHPUnit_Framework_Testcase
             ->with($this->phpcrQuery)
             ->will($this->returnValue('ok'));
 
-        $this->query->setDocumentClass('Foo/Bar');
         $res = $this->query->execute();
         $this->assertEquals('ok', $res);
 
@@ -86,7 +85,6 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->at(1))
             ->method('bindValue')
             ->with('bar', 'foo');
-        $this->query->setDocumentClass('Foo/Bar');
         $this->query->execute(array('foo' => 'bar', 'bar' => 'foo'));
     }
 
@@ -96,7 +94,6 @@ class QueryTest extends \PHPUnit_Framework_Testcase
             ->method('setLimit')
             ->with(5);
         $this->query->setMaxResults(5);
-        $this->query->setDocumentClass('Foo/Bar');
         $this->query->execute();
     }
 
@@ -106,7 +103,6 @@ class QueryTest extends \PHPUnit_Framework_Testcase
             ->method('setOffset')
             ->with(5);
         $this->query->setFirstResult(5);
-        $this->query->setDocumentClass('Foo/Bar');
         $this->query->execute();
     }
 
@@ -114,13 +110,6 @@ class QueryTest extends \PHPUnit_Framework_Testcase
     {
         $res = $this->query->getResult(Query::HYDRATE_PHPCR_NODE);
         $this->assertEquals(Query::HYDRATE_PHPCR_NODE, $this->query->getHydrationMode());
-    }
-
-    public function testGetDocumentResult()
-    {
-        $res = $this->query->getDocumentResult('Foo/Bar');
-        $this->assertEquals(Query::HYDRATE_DOCUMENT, $this->query->getHydrationMode());
-        $this->assertEquals('Foo/Bar', $this->query->getDocumentClass());
     }
 
     public function testGetPhpcrNodeResult()
@@ -223,12 +212,6 @@ class QueryTest extends \PHPUnit_Framework_Testcase
             ->method('getLanguage')
             ->will($this->returnValue('foo'));
         $this->assertEquals('foo', $this->query->getLanguage());
-    }
-
-    public function testGetSetDocumentClass()
-    {
-        $this->query->setDocumentClass('Foo/Bar');
-        $this->assertEquals('Foo/Bar', $this->query->getDocumentClass());
     }
 
     public function testGetPhpcrQuery()
