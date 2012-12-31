@@ -16,13 +16,13 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 class Query
 {
     const HYDRATE_DOCUMENT = 'object';
-    const HYDRATE_NONE = 'phpcr_node';
-    const HYDRATE_PHPCR_NODE = 'phpcr_node';
+    const HYDRATE_PHPCR = 'phpcr';
 
     protected $hydrationMode = self::HYDRATE_DOCUMENT;
     protected $parameters = array();
     protected $firstResult;
     protected $maxResults;
+    protected $documentClass;
     protected $query;
     protected $dm;
 
@@ -111,10 +111,31 @@ class Query
     }
 
     /**
+     * Set the document class to use when using HYDRATION_DOCUMENT
+     *
+     * Note: This is usefull in the following two cases:
+     *
+     *  1. You want to be sure that the ODM returns the correct document type
+     *     (A query can return multiple document types, the ODM will ignore
+     *     Documents not matching the type given here)
+     *
+     *  2. The PHPCR Node does not contain the phpcr:class metadata property.
+     *
+     * @param $documentClass string  FQN of document class
+     *
+     * @return \Doctrine\ODM\PHPCR\Query This query instance.
+     */
+    public function setDocumentClass($documentClass)
+    {
+        $this->documentClass = $documentClass;
+    }
+
+    /**
      * Executes the query.
      *
-     * @param array $parameters
-     * @param integer $hydrationMode        Processing mode to be used during the hydration process.
+     * @param array $parameters       Parameters, alternative to calling "setParameters"
+     * @param integer $hydrationMode  Processing mode to be used during the hydration process,
+     *                                alternative to calling "setHydrationMode"
      *
      * @return mixed
      */
@@ -140,10 +161,10 @@ class Query
             $this->query->bindValue($key, $value);
         }
 
-        if ($this->hydrationMode === self::HYDRATE_NONE) {
+        if ($this->hydrationMode === self::HYDRATE_PHPCR) {
             $data = $this->query->execute();
         } elseif ($this->hydrationMode === self::HYDRATE_DOCUMENT) {
-            $data = $this->dm->getDocumentsByQuery($this->query);
+            $data = $this->dm->getDocumentsByQuery($this->query, $this->documentClass);
         } else {
             throw QueryException::hydrationModeNotKnown($this->hydrationMode);
         }
@@ -166,13 +187,13 @@ class Query
     /**
      * Gets the phpcr node results for the query.
      *
-     * Alias for execute(null, HYDRATE_PHPCR_NODE).
+     * Alias for execute(null, HYDRATE_PHPCR).
      *
      * @return array
      */
     public function getPhpcrNodeResult()
     {
-        return $this->execute(null, self::HYDRATE_PHPCR_NODE);
+        return $this->execute(null, self::HYDRATE_PHPCR);
     }
 
     /**
