@@ -20,8 +20,8 @@ class QueryTest extends \PHPUnit_Framework_Testcase
 
     public function testGetSetHydrationMode()
     {
-        $this->query->setHydrationMode(Query::HYDRATE_PHPCR_NODE);
-        $this->assertEquals(Query::HYDRATE_PHPCR_NODE, $this->query->getHydrationMode());
+        $this->query->setHydrationMode(Query::HYDRATE_PHPCR);
+        $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
     public function testGetSetParameters()
@@ -51,7 +51,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue('ok'));
-        $res = $this->query->execute(null, Query::HYDRATE_NONE);
+        $res = $this->query->execute(null, Query::HYDRATE_PHPCR);
         $this->assertEquals('ok', $res);
     }
 
@@ -108,14 +108,14 @@ class QueryTest extends \PHPUnit_Framework_Testcase
 
     public function testGetResult()
     {
-        $res = $this->query->getResult(Query::HYDRATE_PHPCR_NODE);
-        $this->assertEquals(Query::HYDRATE_PHPCR_NODE, $this->query->getHydrationMode());
+        $res = $this->query->getResult(Query::HYDRATE_PHPCR);
+        $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
     public function testGetPhpcrNodeResult()
     {
         $res = $this->query->getPhpcrNodeResult();
-        $this->assertEquals(Query::HYDRATE_PHPCR_NODE, $this->query->getHydrationMode());
+        $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
     public function testGetOneOrNullResult_noResults()
@@ -123,7 +123,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array()));
-        $res = $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR_NODE);
+        $res = $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
         $this->assertNull($res);
     }
 
@@ -132,7 +132,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1')));
-        $res = $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR_NODE);
+        $res = $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
         $this->assertEquals('ok1', $res);
     }
 
@@ -144,7 +144,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1', 'ok2')));
-        $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR_NODE);
+        $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
     }
 
     /**
@@ -155,7 +155,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array()));
-        $this->query->getSingleResult(Query::HYDRATE_PHPCR_NODE);
+        $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
     public function testGetSingleResult_withOneResult()
@@ -163,7 +163,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1')));
-        $res = $this->query->getSingleResult(Query::HYDRATE_PHPCR_NODE);
+        $res = $this->query->getSingleResult(Query::HYDRATE_PHPCR);
         $this->assertEquals('ok1', $res);
     }
 
@@ -175,7 +175,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1', 'ok2')));
-        $this->query->getSingleResult(Query::HYDRATE_PHPCR_NODE);
+        $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
     /**
@@ -218,5 +218,14 @@ class QueryTest extends \PHPUnit_Framework_Testcase
     {
         $query = $this->query->getPhpcrQuery();
         $this->assertSame($this->phpcrQuery, $query);
+    }
+
+    public function testSetDocumentClass()
+    {
+        $this->dm->expects($this->once())
+            ->method('getDocumentsByQuery')
+            ->with($this->phpcrQuery, 'Foo/Bar');
+        $this->query->setDocumentClass('Foo/Bar');
+        $this->query->execute();
     }
 }
