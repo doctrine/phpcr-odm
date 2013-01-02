@@ -36,20 +36,31 @@ class ParentIdGenerator extends IdGenerator
         $name = $cm->getFieldValue($document, $cm->nodename);
         $id = $cm->getFieldValue($document, $cm->identifier);
 
-        if ((empty($parent) || empty($name)) && empty($id)) {
-            throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\ParentDocument and Doctrine\ODM\PHPCR\Mapping\Annotations\Nodename annotation and that the property is set to the path where the document is to be stored.');
+        if (empty($id)) {
+            if (empty($name) && empty($parent)) {
+                throw IdException::noIdentificationParameters($document);
+            }
+
+            if ($name && empty($parent)) {
+                throw IdException::noIdNoParent($document, $name);
+            }
+
+            if (empty($name) && $parent) {
+                throw IdException::noIdNoName($document, $parent);
+            }
         }
 
         // use assigned ID by default
-        if (!$parent || empty($name)) {
+        if (empty($parent) || empty($name)) {
             return $id;
         }
 
         // determine ID based on the path and the node name
         $id = $dm->getUnitOfWork()->getDocumentId($parent);
         if (!$id) {
-            throw new \RuntimeException('Parent ID could not be determined. Make sure to persist the parent document before persisting this document.');
+            throw IdException::parentIdCouldNotBeDetermined($document, $name);
         }
+
         // edge case parent is root
         if ('/' === $id) {
             $id = '';
