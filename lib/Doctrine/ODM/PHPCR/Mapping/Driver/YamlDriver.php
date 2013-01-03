@@ -233,21 +233,20 @@ class YamlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param $cascadeElement The cascade element.
-     * @return array The list of cascade options.
+     * @param array $cascadeElement The cascade element.
+     * @return integer a bitmask of cascade options.
      */
-    private function getCascadeMode($cascadeElement)
+    private function getCascadeMode(array $cascadeElement)
     {
         $cascade = 0;
-        foreach ($cascadeElement as $action) {
-            // According to the JPA specifications, XML uses "cascade-persist"
-            // instead of "persist". Here, both variations
-            // are supported because both YAML and Annotation use "persist"
-            // and we want to make sure that this driver doesn't need to know
-            // anything about the supported cascading actions
-            $cascadeMode = str_replace('cascade-', '', $action);
-            $cascade = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+        foreach ($cascadeElement as $cascadeMode) {
+            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode);
+            if (!defined($constantName)) {
+                throw new MappingException("Cascade mode '$cascadeMode' not supported.");
+            }
+            $cascade |= constant($constantName);
         }
+
         return $cascade;
     }
 }

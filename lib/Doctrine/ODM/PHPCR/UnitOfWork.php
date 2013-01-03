@@ -20,7 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use PHPCR\RepositoryInterface;
+use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -31,6 +31,7 @@ use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use Jackalope\Session as JackalopeSession;
 
+use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\NodeType\NoSuchNodeTypeException;
@@ -1114,10 +1115,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw new \InvalidArgumentException("A new document was found through a relationship that was not"
-                        . " configured to cascade persist operations: " . self::objToStr($child) . "."
-                        . " Explicitly persist the new document or configure cascading persist operations"
-                        . " on the relationship.");
+                    throw CascadeException::newDocumentFound(self::objToStr($child));
                 }
                 $nodename = $nodename ? : $mapping['name'];
                 if ($nodename) {
@@ -1145,10 +1143,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw new \InvalidArgumentException("A new document was found through a relationship that was not"
-                        . " configured to cascade persist operations: " . self::objToStr($reference) . "."
-                        . " Explicitly persist the new document or configure cascading persist operations"
-                        . " on the relationship.");
+                    throw CascadeException::newDocumentFound(self::objToStr($reference));
                 }
                 $this->persistNew($targetClass, $reference);
                 $this->computeChangeSet($targetClass, $reference);
@@ -1172,10 +1167,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw new \InvalidArgumentException("A new document was found through a relationship that was not"
-                        . " configured to cascade persist operations: " . self::objToStr($referrer) . "."
-                        . " Explicitly persist the new document or configure cascading persist operations"
-                        . " on the relationship.");
+                    throw CascadeException::newDocumentFound(self::objToStr($referrer));
                 }
                 $this->persistNew($targetClass, $referrer);
                 $this->computeChangeSet($targetClass, $referrer);

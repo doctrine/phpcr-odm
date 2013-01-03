@@ -131,56 +131,32 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapNodename($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ParentDocument) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
+                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapParentDocument($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Child) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
+                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapChild($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Children) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
+                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapChildren($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ReferenceOne) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
+                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapManyToOne($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ReferenceMany) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
+                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapManyToMany($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Referrers) {
-                    $cascade = 0;
-                    foreach ($fieldAnnot->cascade AS $cascadeMode) {
-                        $cascade += constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
-                    }
-                    $fieldAnnot->cascade = $cascade;
+                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
 
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapReferrers($mapping);
@@ -224,5 +200,24 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         }
 
         $metadata->validateClassMapping();
+    }
+
+    /**
+     * Gathers a list of cascade options found in the given cascade element.
+     *
+     * @param $cascadeList cascade list
+     * @return integer a bitmask of cascade options.
+     */
+    private function getCascadeMode($cascadeList)
+    {
+        $cascade = 0;
+        foreach ($cascadeList as $cascadeMode) {
+            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode);
+            if (!defined($constantName)) {
+                throw new MappingException("Cascade mode '$cascadeMode' not supported.");
+            }
+            $cascade |= constant($constantName);
+        }
+        return $cascade;
     }
 }

@@ -231,8 +231,8 @@ class XmlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param $cascadeElement The cascade element.
-     * @return array The list of cascade options.
+     * @param $cascadeElement cascade element.
+     * @return integer a bitmask of cascade options.
      */
     private function getCascadeMode($cascadeElement)
     {
@@ -244,8 +244,13 @@ class XmlDriver extends FileDriver
             // and we want to make sure that this driver doesn't need to know
             // anything about the supported cascading actions
             $cascadeMode = str_replace('cascade-', '', $action->getName());
-            $cascade = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode));
+            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode);
+            if (!defined($constantName)) {
+                throw new MappingException("Cascade mode '$cascadeMode' not supported.");
+            }
+            $cascade |= constant($constantName);
         }
+
         return $cascade;
     }
 }
