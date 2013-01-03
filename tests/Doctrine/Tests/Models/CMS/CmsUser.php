@@ -26,6 +26,8 @@ class CmsUser
     public $address;
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticle", cascade="persist") */
     public $articles;
+    /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
+    public $groups;
 
     public function getId()
     {
@@ -56,6 +58,17 @@ class CmsUser
     public function getAddress()
     {
         return $this->address;
+    }
+
+    public function addGroup(CmsGroup $group)
+    {
+        $this->groups[] = $group;
+        $group->addUser($this);
+    }
+
+    public function getGroups()
+    {
+        return $this->groups;
     }
 }
 
