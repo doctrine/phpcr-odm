@@ -76,6 +76,7 @@ abstract class PersistentCollection implements Collection
      */
     public function unwrap()
     {
+        $this->initialize();
         return $this->collection;
     }
 
