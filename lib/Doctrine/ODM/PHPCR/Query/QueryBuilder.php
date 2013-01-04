@@ -25,12 +25,9 @@ use PHPCR\Query\QOM\ComparisonInterface;
 use Doctrine\Common\Collections\Expr\ExpressionBuilder;
 
 /**
- * This class extends the wraps the PHPCR query builder
- * and integrates it with the ODM
- *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class QueryBuilder extends BaseQueryBuilder
+class QueryBuilder
 {
     const STATE_DIRTY = 0;
     const STATE_CLEAN = 1;
@@ -107,7 +104,6 @@ class QueryBuilder extends BaseQueryBuilder
 
         return $this;
     }
-
 
     /**
      * Sets the parameters used in the query being constructed
