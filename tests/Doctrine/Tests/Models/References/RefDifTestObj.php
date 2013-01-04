@@ -11,15 +11,10 @@ class RefDifTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefType1TestObj") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefType1TestObj", cascade="persist") */
     public $referenceType1;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefType2TestObj") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefType2TestObj", cascade="persist") */
     public $referenceType2;
     /** @PHPCRODM\String */
     public $name;
-
-    public function __construct()
-    {
-       $references = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 }

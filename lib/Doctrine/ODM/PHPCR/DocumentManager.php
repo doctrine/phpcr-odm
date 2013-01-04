@@ -743,11 +743,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
-        $this->session->refresh(true);
-        $node = $this->session->getNode($this->unitOfWork->getDocumentId($document));
-
-        $hints = array('refresh' => true);
-        return $this->unitOfWork->createDocument(get_class($document), $node, $hints);
+        return $this->getUnitOfWork()->refresh($document);
     }
 
     /**

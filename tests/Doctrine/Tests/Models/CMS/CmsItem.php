@@ -18,7 +18,7 @@ class CmsItem
     public $node;
     /** @PHPCRODM\String(name="name") */
     public $name;
-    /** @PHPCRODM\ReferenceOne(strategy="hard") */
+    /** @PHPCRODM\ReferenceOne(strategy="hard", cascade="persist") */
     public $documentTarget;
 
 
@@ -48,8 +48,6 @@ class CmsItem
     {
         return $this->name;
     }
-
-
 }
 
 class CmsItemRepository extends DocumentRepository implements RepositoryIdInterface

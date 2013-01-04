@@ -11,7 +11,7 @@ class RefCascadeTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", cascade="persist") */
     public $reference;
     /** @PHPCRODM\String */
     public $name;

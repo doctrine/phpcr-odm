@@ -22,8 +22,12 @@ class CmsUser
     public $username;
     /** @PHPCRODM\String(name="name") */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;
+    /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticle", cascade="persist") */
+    public $articles;
+    /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
+    public $groups;
 
     public function getId()
     {
@@ -54,6 +58,17 @@ class CmsUser
     public function getAddress()
     {
         return $this->address;
+    }
+
+    public function addGroup(CmsGroup $group)
+    {
+        $this->groups[] = $group;
+        $group->addUser($this);
+    }
+
+    public function getGroups()
+    {
+        return $this->groups;
     }
 }
 
