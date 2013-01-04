@@ -704,7 +704,6 @@ class DocumentManager implements ObjectManager
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
         $this->errorIfClosed();
         return $this->getUnitOfWork()->merge($document);
     }
