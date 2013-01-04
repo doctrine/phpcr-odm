@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR\Query;
 use PHPCR\Util\QOM\QueryBuilder as BaseQueryBuilder;
 use PHPCR\Query\QOM\QueryObjectModelInterface;
 use PHPCR\Query\QOM\ComparisonInterface;
+use Doctrine\Common\Collections\Expr\ExpressionBuilder;
 
 /**
  * This class extends the wraps the PHPCR query builder

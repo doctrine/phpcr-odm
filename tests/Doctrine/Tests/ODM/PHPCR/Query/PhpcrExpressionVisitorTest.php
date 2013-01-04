@@ -61,5 +61,44 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
         $expr = $this->expr->in('asd', array('asd'));
         $this->visitor->walkComparison($expr);
     }
+
+    public function testWalkCompositeExpression_two()
+    {
+        $expr = $this->expr->andx(
+            $this->expr->eq('foo', 'bar'),
+            $this->expr->eq('bar', 'foo')
+        );
+
+        $res = $this->visitor->walkCompositeExpression($expr);
+        $this->assertInstanceOf('PHPCR\Query\QOM\AndInterface', $res);
+        $this->assertInstanceOf('PHPCR\Query\QOM\ComparisonInterface', $res->getConstraint1());
+        $this->assertEquals(QOMConstant::JCR_OPERATOR_EQUAL_TO, $res->getConstraint1()->getOperator());
+    }
+
+    public function testWalkCompositeExpression_three()
+    {
+        // Should be equivilent to
+        // ("foo" == "bar" AND bar = "foo") AND "bar" > $foo
+
+        // NOTE: I wonder if we should just now allow composites of more than two
+        $expr = $this->expr->andx(
+            $this->expr->eq('foo', 'bar'),
+            $this->expr->eq('bar', 'foo'),
+            $this->expr->gt('bar', 'foo')
+        );
+
+        $res = $this->visitor->walkCompositeExpression($expr);
+        $this->assertInstanceOf('PHPCR\Query\QOM\AndInterface', $res);
+        $this->assertInstanceOf('PHPCR\Query\QOM\AndInterface', $res->getConstraint1());
+        $this->assertInstanceOf('PHPCR\Query\QOM\ComparisonInterface', $res->getConstraint2());
+    }
+
+    public function testWalkValue()
+    {
+        $val = new \Doctrine\Common\Collections\Expr\Value('test');
+        $res = $this->visitor->walkValue($val);
+        $this->assertInstanceOf('PHPCR\Query\QOM\LiteralInterface', $res);
+        $this->assertEquals('test', $res->getLiteralValue());
+    }
 }
 

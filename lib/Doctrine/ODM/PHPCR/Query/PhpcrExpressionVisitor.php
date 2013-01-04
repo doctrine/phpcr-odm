@@ -71,22 +71,41 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
      */
     public function walkCompositeExpression(CompositeExpression $expr)
     {
-        $expressionList = array();
+        $constraintList = array();
 
         foreach ($expr->getExpressionList() as $child) {
-            $expressionList[] = $this->dispatch($child);
+            $constraintList[] = $this->dispatch($child);
+        }
+
+        if (count($constraintList) < 2) {
+            throw new \RuntimeException(sprintf(
+                'Composite "%s" must have at least two constraints! (%d given)', 
+                $expr->getType(), 
+                count($constraintList)
+            ));
         }
 
         switch($expr->getType()) {
             case CompositeExpression::TYPE_AND:
-                return '(' . implode(' AND ', $expressionList) . ')';
-
+                $method = 'andConstraint';
+                break;
             case CompositeExpression::TYPE_OR:
-                return '(' . implode(' OR ', $expressionList) . ')';
-
+                $method = 'orConstraint';
+                break;
             default:
                 throw new \RuntimeException("Unknown composite " . $expr->getType());
         }
+
+        $firstConstraint = array_shift($constraintList);
+        $firstComposite = null;
+
+        foreach ($constraintList as $constraint) {
+            $composite = $this->qomf->$method($firstConstraint, $constraint);
+
+            $firstConstraint = $composite;
+        }
+
+        return $composite;
     }
 
     /**
@@ -98,6 +117,6 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
      */
     public function walkValue(Value $value)
     {
-        return '?';
+        return $this->qomf->literal($value->getValue());
     }
 }
