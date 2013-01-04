@@ -296,7 +296,7 @@ class ChildTestObj
     public $node;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\Child(name="test") */
+    /** @PHPCRODM\Child(name="test", cascade="persist") */
     public $child;
 }
 
@@ -311,7 +311,7 @@ class ChildReferrerTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj") */
+  /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj", cascade="persist") */
   public $reference;
 }
 
@@ -326,6 +326,6 @@ class ChildReferenceableTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\Child(name="test") */
+  /** @PHPCRODM\Child(name="test", cascade="persist") */
   public $aChild;
 }

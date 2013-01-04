@@ -35,13 +35,13 @@ class Folder extends AbstractFile
 {
     /**
      * @var ArrayCollection
-     * @PHPCRODM\Children()
+     * @PHPCRODM\Children(cascade="all")
      */
     protected $children;
 
     /**
      * @var AbstractFile
-     * @PHPCRODM\Child()
+     * @PHPCRODM\Child(cascade="all")
      */
     protected $child;
 

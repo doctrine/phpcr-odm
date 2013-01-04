@@ -3,7 +3,15 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\Models\References\RefCascadeManyTestObj;
+use Doctrine\Tests\Models\References\RefCascadeTestObj;
 
+use Doctrine\Tests\Models\References\HardRefTestObj;
+use Doctrine\Tests\Models\References\WeakRefTestObj;
+use Doctrine\Tests\Models\References\NonRefTestObj;
+use Doctrine\Tests\Models\References\RefType2TestObj;
+use Doctrine\Tests\Models\References\RefType1TestObj;
+use Doctrine\Tests\Models\References\RefDifTestObj;
 use Doctrine\Tests\Models\References\RefTestObj;
 use Doctrine\Tests\Models\References\RefTestObjByPath;
 use Doctrine\Tests\Models\References\RefRefTestObj;
@@ -167,7 +175,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testReferenceNonReferenceable()
     {
         $refTestObj = new RefTestPrivateObj();
-        $refRefTestObj = new \Doctrine\Tests\Models\References\NonRefTestObj();
+        $refRefTestObj = new NonRefTestObj();
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
@@ -742,7 +750,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testWeakReference()
     {
-        $weakRefTestObj = new \Doctrine\Tests\Models\References\WeakRefTestObj();
+        $weakRefTestObj = new WeakRefTestObj();
         $refRefTestObj = new RefRefTestObj();
 
         $weakRefTestObj->id = "/functional/weakRefTestObj";
@@ -766,7 +774,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testHardReferenceDelete()
     {
-        $hardRefTestObj = new \Doctrine\Tests\Models\References\HardRefTestObj();
+        $hardRefTestObj = new HardRefTestObj();
         $refRefTestObj = new RefRefTestObj();
 
         $hardRefTestObj->id = "/functional/hardRefTestObj";
@@ -789,7 +797,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testHardReferenceDeleteSuccess()
     {
-        $hardRefTestObj = new \Doctrine\Tests\Models\References\HardRefTestObj();
+        $hardRefTestObj = new HardRefTestObj();
         $refRefTestObj = new RefRefTestObj();
 
         $hardRefTestObj->id = "/functional/hardRefTestObj";
@@ -987,7 +995,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrer = new RefTestObj();
         $referrer->id = "/functional/refTestObj";
 
-        $refCascadeTestObj = new \Doctrine\Tests\Models\References\RefCascadeTestObj();
+        $refCascadeTestObj = new RefCascadeTestObj();
         $refCascadeTestObj->id = "/functional/refCascadeTestObj";
         $refCascadeTestObj->name = "refCascadeTestObj";
 
@@ -1026,7 +1034,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefCascadeManyTestObj = new \Doctrine\Tests\Models\References\RefCascadeManyTestObj();
+            $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
             $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
             $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
             $refManyTestObjForCascade->references[] = $newRefCascadeManyTestObj;
@@ -1073,7 +1081,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefCascadeManyTestObj = new \Doctrine\Tests\Models\References\RefCascadeManyTestObj();
+            $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
             $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
             $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
             $refManyTestObjForCascade->references[] = $newRefCascadeManyTestObj;
@@ -1113,7 +1121,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $max = 5;
         for ($i = 0; $i < $max; $i++) {
-            $newRefCascadeManyTestObj = new \Doctrine\Tests\Models\References\RefCascadeManyTestObj();
+            $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
             $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
             $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
             $refManyTestObjForCascade->references[] = $newRefCascadeManyTestObj;
@@ -1150,15 +1158,15 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRefDifTypes()
     {
-        $refDifTestObj = new \Doctrine\Tests\Models\References\RefDifTestObj();
+        $refDifTestObj = new RefDifTestObj();
         $refDifTestObj->id = "/functional/refDifTestObj";
 
-        $referenceType1 = new \Doctrine\Tests\Models\References\RefType1TestObj();
+        $referenceType1 = new RefType1TestObj();
         $referenceType1->id = "/functional/refType1TestObj";
         $referenceType1->name = "type1";
         $refDifTestObj->referenceType1 = $referenceType1;
 
-        $referenceType2 = new \Doctrine\Tests\Models\References\RefType2TestObj();
+        $referenceType2 = new RefType2TestObj();
         $referenceType2->id  = "/functional/refType2TestObj";
         $referenceType2->name = "type2";
         $refDifTestObj->referenceType2 = $referenceType2;
@@ -1169,8 +1177,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find($this->referrerDifType, "/functional/refDifTestObj");
 
-        $this->assertTrue(($referrer->referenceType1 instanceof \Doctrine\Tests\Models\References\RefType1TestObj));
-        $this->assertTrue(($referrer->referenceType2 instanceof \Doctrine\Tests\Models\References\RefType2TestObj));
+        $this->assertTrue(($referrer->referenceType1 instanceof RefType1TestObj));
+        $this->assertTrue(($referrer->referenceType2 instanceof RefType2TestObj));
 
         $this->assertEquals("type1", $referrer->referenceType1->name);
         $this->assertEquals("type2", $referrer->referenceType2->name);
@@ -1178,15 +1186,15 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRefDifTypesChangeBoth()
     {
-        $refDifTestObj = new \Doctrine\Tests\Models\References\RefDifTestObj();
+        $refDifTestObj = new RefDifTestObj();
         $refDifTestObj->id = "/functional/refDifTestObj";
 
-        $referenceType1 = new \Doctrine\Tests\Models\References\RefType1TestObj();
+        $referenceType1 = new RefType1TestObj();
         $referenceType1->id = "/functional/refType1TestObj";
         $referenceType1->name = "type1";
         $refDifTestObj->referenceType1 = $referenceType1;
 
-        $referenceType2 = new \Doctrine\Tests\Models\References\RefType2TestObj();
+        $referenceType2 = new RefType2TestObj();
         $referenceType2->id  = "/functional/refType2TestObj";
         $referenceType2->name = "type2";
         $refDifTestObj->referenceType2 = $referenceType2;

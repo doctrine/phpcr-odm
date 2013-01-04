@@ -117,12 +117,19 @@ class XmlDriver extends FileDriver
             $class->mapNodename(array('fieldName' => (string) $xmlRoot->nodename->attributes()->name));
         }
         if (isset($xmlRoot->parentdocument)) {
-            $class->mapParentDocument(array('fieldName' => (string) $xmlRoot->parentdocument->attributes()->name));
+            $mapping = array(
+                'fieldName' => (string) $xmlRoot->parentdocument->attributes()->name,
+                'cascade' => (isset($xmlRoot->parentdocument->cascade)) ? $this->getCascadeMode($xmlRoot->parentdocument->cascade) : 0,
+            );
+            $class->mapParentDocument($mapping);
         }
         if (isset($xmlRoot->child)) {
             foreach ($xmlRoot->child as $child) {
                 $attributes = $child->attributes();
-                $mapping = array('fieldName' => (string) $attributes->fieldName);
+                $mapping = array(
+                    'fieldName' => (string) $attributes->fieldName,
+                    'cascade' => (isset($child->cascade)) ? $this->getCascadeMode($child->cascade) : 0,
+                );
                 if (isset($attributes['name'])) {
                     $mapping['name'] = (string)$attributes->name;
                 }
@@ -132,20 +139,25 @@ class XmlDriver extends FileDriver
         if (isset($xmlRoot->children)) {
             foreach ($xmlRoot->children as $children) {
                 $attributes = $children->attributes();
-                $mapping = array('fieldName' => (string) $attributes->fieldName);
-                $mapping['filter'] = isset($attributes['filter']) ? (string) $attributes->filter : null;
-                $mapping['fetchDepth'] = isset($attributes['fetchDepth']) ? (int) $attributes->fetchDepth : null;
-                $mapping['ignoreUntranslated'] = !empty($attributes['ignoreUntranslated']);
+                $mapping = array(
+                    'fieldName' => (string) $attributes->fieldName,
+                    'cascade' => (isset($children->cascade)) ? $this->getCascadeMode($children->cascade) : 0,
+                    'filter' => isset($attributes['filter']) ? (string) $attributes->filter : null,
+                    'fetchDepth' => isset($attributes['fetchDepth']) ? (int) $attributes->fetchDepth : null,
+                    'ignoreUntranslated' => !empty($attributes['ignoreUntranslated']),
+            );
                 $class->mapChildren($mapping);
             }
         }
         if (isset($xmlRoot->{'reference-many'})) {
             foreach ($xmlRoot->{'reference-many'} as $reference) {
+                $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
                 $this->addReferenceMapping($class, $reference, 'many');
             }
         }
         if (isset($xmlRoot->{'reference-one'})) {
             foreach ($xmlRoot->{'reference-one'} as $reference) {
+                $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
                 $this->addReferenceMapping($class, $reference, 'one');
             }
         }
@@ -157,11 +169,12 @@ class XmlDriver extends FileDriver
         if (isset($xmlRoot->referrers)) {
             foreach ($xmlRoot->referrers as $referrers) {
                 $attributes = $referrers->attributes();
-                $mapping = array('fieldName' => (string) $attributes->fieldName);
-                $mapping['filter'] = isset($attributes['filter'])
-                    ? (string) $attributes->filter : null;
-                $mapping['referenceType'] = isset($attributes['reference-type'])
-                    ? (string) $attributes->{'reference-type'} : null;
+                $mapping = array(
+                    'fieldName' => (string) $attributes->fieldName,
+                    'cascade' => (isset($referrers->cascade)) ? $this->getCascadeMode($referrers->cascade) : 0,
+                    'filter' => isset($attributes['filter']) ? (string) $attributes->filter : null,
+                    'referenceType' => isset($attributes['reference-type']) ? (string) $attributes->{'reference-type'} : null,
+                );
                 $class->mapReferrers($mapping);
             }
         }
@@ -213,5 +226,31 @@ class XmlDriver extends FileDriver
         }
 
         return $result;
+    }
+
+    /**
+     * Gathers a list of cascade options found in the given cascade element.
+     *
+     * @param $cascadeElement cascade element.
+     * @return integer a bitmask of cascade options.
+     */
+    private function getCascadeMode($cascadeElement)
+    {
+        $cascade = 0;
+        foreach ($cascadeElement->children() as $action) {
+            // According to the JPA specifications, XML uses "cascade-persist"
+            // instead of "persist". Here, both variations
+            // are supported because both YAML and Annotation use "persist"
+            // and we want to make sure that this driver doesn't need to know
+            // anything about the supported cascading actions
+            $cascadeMode = str_replace('cascade-', '', $action->getName());
+            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode);
+            if (!defined($constantName)) {
+                throw new MappingException("Cascade mode '$cascadeMode' not supported.");
+            }
+            $cascade |= constant($constantName);
+        }
+
+        return $cascade;
     }
 }

@@ -2,15 +2,15 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
-    Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
-    Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
  * @group functional
  */
-class HierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class HierarchyTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
@@ -266,9 +266,9 @@ class NameDoc
     public $node;
     /** @PHPCRODM\Nodename */
     public $nodename;
-    /** @PHPCRODM\Children */
+    /** @PHPCRODM\Children(cascade="persist") */
     public $children;
-    /** @PHPCRODM\Child */
+    /** @PHPCRODM\Child(cascade="persist") */
     public $child;
     /** @PHPCRODM\String */
     public $title;
@@ -279,6 +279,6 @@ class NameDoc
  */
 class NameDocWithRef extends NameDoc
 {
-    /** @PHPCRODM\ReferenceOne() */
+    /** @PHPCRODM\ReferenceOne(cascade="persist") */
     public $ref;
 }
