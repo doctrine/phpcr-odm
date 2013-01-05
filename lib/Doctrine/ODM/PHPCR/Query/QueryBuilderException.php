@@ -19,4 +19,11 @@ class QueryBuilderException extends \Exception
 
         return new self($message);
     }
+
+    public static function cannotGetQueryWhenNoSourceSet()
+    {
+        $message = 'Cannot getQuery when no "from" (source) has been specified';
+
+        return new self($message);
+    }
 }

@@ -19,10 +19,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query;
 
-use PHPCR\Util\QOM\QueryBuilder as BaseQueryBuilder;
-use PHPCR\Query\QOM\QueryObjectModelInterface;
-use PHPCR\Query\QOM\ComparisonInterface;
-use Doctrine\Common\Collections\Expr\ExpressionBuilder;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QueryInterface;
+use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
+use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\Common\Collections\ExpressionBuilder;
 
 /**
  * @author Daniel Leech <daniel@dantleech.com>
@@ -40,14 +42,17 @@ class QueryBuilder
         'select'  => array(),
         'from'    => null,
         'join'    => array(),
-        'where'   => array(),
+        'where'   => null,
         'orderBy' => array(),
     );
+    protected $query;
+    protected $firstResult;
+    protected $maxResults;
 
-    public function __construct(DocumentManager $dm, QueryObjectManagerInterface $qom)
+    public function __construct(DocumentManager $dm, QueryObjectModelFactoryInterface $qomf)
     {
         $this->dm = $dm;
-        parent::__construct($qom);
+        $this->qomf = $qomf;
     }
 
     public function expr()
@@ -72,8 +77,18 @@ class QueryBuilder
         if ($this->query !== null && $this->state === self::STATE_CLEAN) {
             return $this->query;
         }
+
+        if (null === $this->getPart('from')) {
+            throw QueryBuilderException::cannotGetQueryWhenNoSourceSet();
+        }
+
         $this->state = self::STATE_CLEAN;
-        $this->query = $this->qomFactory->createQuery($this->source, $this->constraint, $this->orderings, $this->columns);
+        $this->query = $this->qomf->createQuery(
+            $this->getPart('from'),
+            $this->getPart('where'),
+            $this->getPart('orderBy'),
+            $this->getPart('select')
+        );
 
         if ($this->firstResult) {
             $this->query->setOffset($this->firstResult);
@@ -138,11 +153,15 @@ class QueryBuilder
      *
      * @param string $key - key of parameter to get
      *
-     * @return QueryBuilder - this query builder instance
+     * @return mixed|null
      */
     public function getParameter($key)
     {
-        return $this->parameters[$key];
+        if (isset($this->parameters[$key])) {
+            return $this->parameters[$key];
+        }
+
+        return null;
     }
 
     /**
@@ -166,7 +185,7 @@ class QueryBuilder
      */
     public function getFirstResult()
     {
-        return $this->getFirstResult();
+        return $this->firstResult;
     }
 
     /**
@@ -204,8 +223,8 @@ class QueryBuilder
      */
     public function add($partName, $part, $append = false)
     {
-        if (!isset($this->parts[$part])) {
-            throw QueryBuilderException::unknownPart($part, array_keys($this->parts));
+        if (!array_key_exists($partName, $this->parts)) {
+            throw QueryBuilderException::unknownPart($partName, array_keys($this->parts));
         }
 
         $isMultiple = is_array($this->parts[$partName]);
@@ -239,7 +258,7 @@ class QueryBuilder
      */
     public function select($propertyName, $columnName = null, $selectorName = null)
     {
-        $this->addPart('select', $this->qomf->column($propertyName, $columnName, $selectorName));
+        $this->add('select', $this->qomf->column($propertyName, $columnName, $selectorName));
 
         return $this;
     }
@@ -257,7 +276,7 @@ class QueryBuilder
      */
     public function addSelect($propertyName, $columnName = null, $selectorName = null)
     {
-        $this->addPart('select', $this->qomf->column($propertyName, $columnName, $selectorName), true);
+        $this->add('select', $this->qomf->column($propertyName, $columnName, $selectorName), true);
 
         return $this;
     }
@@ -359,7 +378,7 @@ class QueryBuilder
         $rightSource = $this->qomf->selector($nodeTypeName, $selectorName);
 
         $this->state = self::STATE_DIRTY;
-        $this->add('from', $this->qomFactory->join(
+        $this->add('from', $this->qomf->join(
             $this->getPart('from'), 
             $rightSource, 
             $joinType, 
@@ -372,7 +391,7 @@ class QueryBuilder
     // public function set($key, $value)
 
     /**
-     * Set the constraint/criteria used for this query.
+     * Set the comparison/criteria used for this query.
      * The Contraint can be easily obtained throught the ExpressionBuilder
      *
      * <code>
@@ -381,68 +400,68 @@ class QueryBuilder
      *
      * Overwrites any existing "where's"
      *
-     * @param $constraint ConstraintInterface - Constraint/criteria to apply to query.
+     * @param $comparison Comparison - Comparison to apply to query.
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function where(ConstraintInterface $constraint)
+    public function where(Comparison $comparison)
     {
-        $this->add('where', $constraint);
+        $this->add('where', $comparison);
 
         return $this;
     }
 
     /**
-     * Creates a new constraint formed by applying a logical AND to the
-     * existing constraint and the new one
+     * Creates a new comparison formed by applying a logical AND to the
+     * existing comparison and the new one
      *
      * Order of ands is important:
      *
-     * Given $this->constraint = $constraint1
-     * running andWhere($constraint2)
-     * resulting constraint will be $constraint1 AND $constraint2
+     * Given $this->comparison = $comparison1
+     * running andWhere($comparison2)
+     * resulting comparison will be $comparison1 AND $comparison2
      *
-     * If there is no previous constraint then it will simply store the
+     * If there is no previous comparison then it will simply store the
      * provided one
      *
-     * @param ConstraintInterface $constraint
+     * @param Comparison $comparison
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function andWhere(ConstraintInterface $constraint)
+    public function andWhere(Comparison $comparison)
     {
-        if ($existingConstraint = $this->getPart('where')) {
-            $this->add('where', $this->qomFactory->andConstraint($existingConstraint, $constraint));
+        if ($existingComparison = $this->getPart('where')) {
+            $this->add('where', $this->expr()->andX($existingComparison, $comparison));
         } else {
-            $this->add('where', $constraint);
+            $this->add('where', $comparison);
         }
 
         return $this;
     }
 
     /**
-     * Creates a new constraint formed by applying a logical OR to the
-     * existing constraint and the new one
+     * Creates a new comparison formed by applying a logical OR to the
+     * existing comparison and the new one
      *
      * Order of ands is important:
      *
-     * Given $this->constraint = $constraint1
-     * running orWhere($constraint2)
-     * resulting constraint will be $constraint1 OR $constraint2
+     * Given $this->comparison = $comparison1
+     * running orWhere($comparison2)
+     * resulting comparison will be $comparison1 OR $comparison2
      *
-     * If there is no previous constraint then it will simply store the
+     * If there is no previous comparison then it will simply store the
      * provided one
      *
-     * @param ConstraintInterface $constraint
+     * @param Comparison $comparison
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function orWhere(ConstraintInterface $constraint)
+    public function orWhere(Comparison $comparison)
     {
-        if ($existingConstraint = $this->getPart('where')) {
-            $this->add('where', $this->qomFactory->orConstraint($existingConstraint, $constraint));
+        if ($existingComparison = $this->getPart('where')) {
+            $this->add('where', $this->expr()->orX($existingComparison, $comparison));
         } else {
-            $this->add('where', $constraint);
+            $this->add('where', $comparison);
         }
 
         return $this;
@@ -455,29 +474,40 @@ class QueryBuilder
     // public function orHaving($having)
         
     /**
-     * Adds an ordering to the query results.
+     * Sets the ordering of the query results.
      *
-     * @param DynamicOperandInterface $sort  The ordering expression.
-     * @param string                  $order The ordering direction.
+     * @param array|string $sort  Either an array of or single property name value.
+     * @param string       $order The ordering direction.
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function orderBy(DynamicOperandInterface $sort, $order = 'ASC')
+    public function orderBy($propertyName, $order = 'ASC')
     {
-        return $this->addOrderBy($sort, $order);
+        $this->resetPart('orderBy');
+
+        if (is_array($propertyName)) {
+            foreach ($propertyName as $ordering) {
+                $this->addOrderBy($propertyName, $order);
+            }
+
+            return $this;
+        }
+
+        return $this->addOrderBy($propertyName, $order);
     }
 
-    public function addOrderBy($sort, $order = null)
+    public function addOrderBy($propertyName, $order = null)
     {
+        $sort = $this->qomf->propertyValue($propertyName);
         $order = strtoupper($order);
 
         if ($order == 'DESC') {
-            $ordering = $this->qomFactory->descending($sort);
+            $ordering = $this->qomf->descending($sort);
         } else {
-            $ordering = $this->qomFactory->ascending($sort);
+            $ordering = $this->qomf->ascending($sort);
         }
 
-        $this->addPart('orderBy', $ordering, true);
+        $this->add('orderBy', $ordering, true);
 
         return $this;
     }
@@ -521,6 +551,34 @@ class QueryBuilder
     {
         $this->parts[$part] = is_array($this->parts[$part]) ? array() : null;
         $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Get a query builder instance from an existing query
+     *
+     * @param string $statement the statement in the specified language
+     * @param string $language  the query language
+     *
+     * @return QueryBuilder This QueryBuilder instance.
+     */
+    public function setFromQuery($statement, $language)
+    {
+        if (QueryInterface::JCR_SQL2 === $language) {
+            $converter = new Sql2ToQomQueryConverter($this->qomf);
+            $statement = $converter->parse($statement);
+        }
+
+        if (!$statement instanceof QueryObjectModelInterface) {
+            throw new \InvalidArgumentException("Language '$language' not supported");
+        }
+
+        $this->resetParts();
+        $this->from('from', $statemenet->getSource());
+        $this->where($statement->getConstraint());
+        $this->orderBy($statement->getOrderings());
+        $this->select($statement->getColumns());
 
         return $this;
     }

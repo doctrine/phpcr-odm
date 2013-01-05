@@ -33,7 +33,7 @@ use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
-use PHPCR\Util\QOM\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use PHPCR\PathNotFoundException;
 
 /**

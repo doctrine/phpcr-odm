@@ -8,25 +8,29 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
     public function setUp()
     {
         $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-          ->disableOriginalConstructor()
-          ->getMock();
-        $this->qomf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelInterface');
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->qomf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface');
 
         $this->query = $this->getMock('PHPCR\Query\QueryInterface');
         $this->column = $this->getMock('PHPCR\Query\QOM\ColumnInterface');
         $this->selector = $this->getMock('PHPCR\Query\QOM\SelectorInterface');
-        $this->constraint1 = $this->getMock('PHPCR\Query\QOM\ConstraintInterface');
-        $this->constraint2 = $this->getMock('PHPCR\Query\QOM\ConstraintInterface');
+        $this->comparison1 = $this->getMockBuilder('Doctrine\Common\Collections\Expr\Comparison')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->comparison2 = $this->getMockBuilder('Doctrine\Common\Collections\Expr\Comparison')
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->operand1 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
         $this->operand2 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
 
-        $this->qb = new QueryBuilder($this->dm, $this->qb);
+        $this->qb = new QueryBuilder($this->dm, $this->qomf);
     }
 
     public function testExpr()
     {
         $expr = $this->qb->expr();
-        $this->assertInstanceOf('Doctrine\Common\Collections\ExpressionBuilder');
+        $this->assertInstanceOf('Doctrine\Common\Collections\ExpressionBuilder', $expr);
     }
 
     public function testGetDocumentManager()
@@ -41,11 +45,21 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
 
     public function testGetQuery()
     {
-        // @todo: Test all cases
+        $this->qomf->expects($this->once())
+            ->method('selector')
+            ->will($this->returnValue($this->selector));
+        $this->qb->from('nt:unstructured');
         $this->qomf->expects($this->once())
             ->method('createQuery')
-            //    ->with(xx, xx, xx, xx) @todo
             ->will($this->returnValue($this->query));
+        $this->assertSame($this->qb->getQuery(), $this->query);
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Query\QueryBuilderException
+     */
+    public function testGetQuery_noSource()
+    {
         $this->assertSame($this->qb->getQuery(), $this->query);
     }
 
@@ -63,6 +77,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->assertSame($ret, $this->qb);
         $this->assertEquals('bar', $this->qb->getParameter('foo'));
         $this->assertEquals('foo', $this->qb->getParameter('bar'));
+        $this->assertNull($this->qb->getParameter('unknown'));
     }
 
     public function testGetSetFirstResult()
@@ -80,34 +95,38 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
     }
 
 
-    public function testAddGetPart()
+    public function testAddPart()
     {
         // multiple
-        $this->qb->addPart('where', 'test');
-        $this->assertEquals(array('test'), $this->qb->getPart('where'));
+        $this->qb->add('where', 'test');
+        $this->assertEquals('test', $this->qb->getPart('where'));
         $this->assertEquals(array(
-            'test' => array('test')
+            'select' => array(),
+            'from' => null,
+            'join' => array(),
+            'where' => 'test',
+            'orderBy' => array(),
         ), $this->qb->getParts());
 
-        $this->qb->addPart('join', 'test');
+        $this->qb->add('join', 'test');
         $this->assertEquals(array('test'), $this->qb->getPart('join'));
 
-        $this->qb->addPart('orderBy', 'test');
+        $this->qb->add('orderBy', 'test');
         $this->assertEquals(array('test'), $this->qb->getPart('orderBy'));
 
         // no append
-        $this->qb->addPart('orderBy', 'bar');
-        $this->assertEquals(array('bar'), $this->qb->getPart('orderBy'));
+        $this->qb->add('orderBy', 'test');
+        $this->assertEquals(array('test'), $this->qb->getPart('orderBy'));
 
         // append
-        $this->qb->addPart('orderBy', 'bar', true);
+        $this->qb->add('orderBy', 'bar', true);
         $this->assertEquals(array('test', 'bar'), $this->qb->getPart('orderBy'));
 
         // single
-        $this->qb->addPart('from', 'test');
+        $this->qb->add('from', 'test');
         $this->assertEquals('test', $this->qb->getPart('from'));
 
-        $ret = $this->qb->addPart('where', 'test');
+        $ret = $this->qb->add('where', 'test');
         $this->assertEquals('test', $this->qb->getPart('where'));
 
         // test state
@@ -121,7 +140,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
      */
     public function testAddPart_unknown()
     {
-        $this->qb->addPart('unknown');
+        $this->qb->add('unknown', 'asd');
     }
 
     public function testSelect()
@@ -143,7 +162,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             ->method('column')
             ->will($this->returnValue($this->column));
         $this->qb->select('foo', 'bar', 'baz');
-        $ret = $this->qb->select('foo', 'bar', 'baz'); // should append
+        $ret = $this->qb->addSelect('foo', 'bar', 'baz'); // should append
         $this->assertSame(array($this->column, $this->column), $this->qb->getPart('select'));
         $this->assertSame($ret, $this->qb);
     }
@@ -154,7 +173,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             ->method('selector')
             ->with('nt:foobar', 'selector-name')
             ->will($this->returnValue($this->selector));
-        $this->qb->select('nt:foobar', 'selector-name');
+        $ret = $this->qb->from('nt:foobar', 'selector-name');
 
         $this->assertSame($this->selector, $this->qb->getPart('from'));
         $this->assertSame($ret, $this->qb);
@@ -165,72 +184,72 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
      */
     public function testJoinWithType_noSource()
     {
-        $this->markIncomplete('@todo');
+        $this->markTestIncomplete('@todo');
     }
 
     public function testJoinWithType()
     {
-        $this->markIncomplete('@todo');
+        $this->markTestIncomplete('@todo');
     }
 
     public function testJoin()
     {
-        $this->markIncomplete('@todo');
+        $this->markTestIncomplete('@todo');
     }
 
     public function testInnerJoin()
     {
-        $this->markIncomplete('@todo');
+        $this->markTestIncomplete('@todo');
     }
 
     public function testLeftJoin()
     {
-        $this->markIncomplete('@todo');
+        $this->markTestIncomplete('@todo');
     }
 
     public function testWhere()
     {
-        $this->qb->where($this->constraint1);
-        $this->assertSame($this->constraint1, $this->qb->getPart('where'));
+        $this->qb->where($this->comparison1);
+        $this->assertSame($this->comparison1, $this->qb->getPart('where'));
     }
 
     public function testAndWhere()
     {
         // no existing
-        $this->qb->andWhere($this->constraint1);
-        $this->assertSame($this->constraint1, $this->qb->getPart('where'));
+        $this->qb->andWhere($this->comparison1);
+        $this->assertSame($this->comparison1, $this->qb->getPart('where'));
 
         // existing
-        $this->qomf->expects($this->once())
-            ->method('andConstraint')
-            ->with($this->constraint1, $this->constraint2);
-        $this->qb->andWhere($this->constraint1);
-        $this->qb->andWhere($this->constraint2);
+        $this->qb->andWhere($this->comparison1);
+        $this->qb->andWhere($this->comparison2);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Expr\CompositeExpression', $this->qb->getPart('where'));
     }
 
     public function testOrWhere()
     {
         // no existing
-        $this->qb->orWhere($this->constraint1);
-        $this->assertSame($this->constraint1, $this->qb->getPart('where'));
+        $this->qb->orWhere($this->comparison1);
+        $this->assertSame($this->comparison1, $this->qb->getPart('where'));
 
         // existing
-        $this->qomf->expects($this->once())
-            ->method('orConstraint')
-            ->with($this->constraint1, $this->constraint2);
-        $this->qb->orWhere($this->constraint1);
-        $this->qb->orWhere($this->constraint2);
+        $this->qb->orWhere($this->comparison1);
+        $this->qb->orWhere($this->comparison2);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Expr\CompositeExpression', $this->qb->getPart('where'));
     }
 
     public function testOrderBy()
     {
-        $this->qomf->expects($this->exactly(2))
+        $this->qomf->expects($this->any())
+            ->method('propertyValue')
+            ->will($this->returnValue($this->operand1));
+
+        $this->qomf->expects($this->any())
             ->method('ascending')
             ->with($this->operand1)
             ->will($this->returnValue('ok'));
 
-        $this->qb->orderBy($this->operand1, 'asc');
-        $this->qb->orderBy($this->operand1, 'asc'); // should overwrite
+        $this->qb->orderBy('prop1', 'asc');
+        $this->qb->orderBy('prop2', 'asc'); // should overwrite
         $this->assertEquals(array('ok'), $this->qb->getPart('orderBy'));
 
         $this->qomf->expects($this->once())
@@ -238,24 +257,34 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             ->with($this->operand1)
             ->will($this->returnValue('ok'));
 
-        $this->qb->orderBy($this->operand1, 'desc');
+        $this->qb->orderBy('prop1', 'desc');
         $this->assertEquals(array('ok'), $this->qb->getPart('orderBy'));
+
+        $this->qb->orderBy(array('foo', 'bar'));
     }
 
     public function testAddOrderBy()
     {
         $this->qomf->expects($this->at(0))
-            ->method('ascending')
-            ->with($this->operand1)
-            ->will($this->returnValue('ok1'));
+            ->method('propertyValue')
+            ->will($this->returnValue($this->operand1));
 
         $this->qomf->expects($this->at(1))
             ->method('ascending')
             ->with($this->operand1)
+            ->will($this->returnValue('ok1'));
+
+        $this->qomf->expects($this->at(2))
+            ->method('propertyValue')
+            ->will($this->returnValue($this->operand2));
+
+        $this->qomf->expects($this->at(3))
+            ->method('ascending')
+            ->with($this->operand2)
             ->will($this->returnValue('ok2'));
 
-        $this->qb->addOrderBy($this->operand1, 'asc');
-        $this->qb->addOrderBy($this->operand2, 'asc'); // should append
+        $this->qb->addOrderBy('prop1', 'asc');
+        $this->qb->addOrderBy('prop2', 'asc'); // should append
         $this->assertEquals(array('ok1', 'ok2'), $this->qb->getPart('orderBy'));
     }
 
@@ -264,9 +293,9 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
      */
     public function testResetPart()
     {
-        $this->qb->addPart('where', 'foobar');
-        $this->resetPart('where');
-        $this->assertEquals(array(), $this->qb->getPart('where'));
+        $this->qb->add('where', 'foobar');
+        $this->qb->resetPart('where');
+        $this->assertEquals(null, $this->qb->getPart('where'));
         $this->assertEquals(QueryBuilder::STATE_DIRTY, $this->qb->getState());
     }
 
@@ -275,20 +304,20 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
      */
     public function testResetParts()
     {
-        $this->qb->addPart('where', 'foobar');
-        $this->qb->addPart('from', 'foobar');
+        $this->qb->add('where', 'foobar');
+        $this->qb->add('from', 'foobar');
 
         // test selective reset
-        $this->resetParts(array('from'));
-        $this->assertEquals(array('foobar'), $this->qb->getPart('where'));
+        $this->qb->resetParts(array('from'));
+        $this->assertEquals('foobar', $this->qb->getPart('where'));
         $this->assertEquals(null, $this->qb->getPart('from'));
 
         // test reset all
-        $this->qb->addPart('where', 'foobar');
-        $this->qb->addPart('from', 'foobar');
+        $this->qb->add('where', 'foobar');
+        $this->qb->add('from', 'foobar');
 
-        $this->resetParts();
-        $this->assertEquals(array(), $this->qb->getPart('from'));
+        $this->qb->resetParts();
+        $this->assertEquals(null, $this->qb->getPart('from'));
         $this->assertEquals(null, $this->qb->getPart('from'));
 
         $this->assertEquals(QueryBuilder::STATE_DIRTY, $this->qb->getState());

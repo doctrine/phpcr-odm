@@ -130,10 +130,12 @@ class DocumentRepository implements ObjectRepository
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qf = $qb->getQOMFactory();
 
-        $qb->from($qf->selector($this->class->nodeType));
-        $qb->andWhere($qf->comparison($qf->propertyValue('phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($this->className)));
+        $qb->from($this->class->nodeType);
+        $qb->andWhere(
+            $qb->expr()->eq('phpcr:class', $this->className)
+        );
+
         if ($limit) {
             $qb->setMaxResults($limit);
         }
@@ -142,14 +144,16 @@ class DocumentRepository implements ObjectRepository
         }
         if ($orderBy) {
             foreach ($orderBy as $ordering) {
-                $qb->addOrderBy($qf->propertyValue($ordering));
+                $qb->addOrderBy($ordering);
             }
         }
         foreach ($criteria as $field => $value) {
-            $qb->andWhere($qf->comparison($qf->propertyValue($field), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($value)));
+            $qb->andWhere(
+                $qb->expr()->eq($field, $value)
+            );
         }
 
-        return $this->getDocumentsByQuery($qb->getQuery());
+        return $qb->execute();
     }
 
     /**
@@ -292,12 +296,9 @@ class DocumentRepository implements ObjectRepository
     public function createQueryBuilder()
     {
         $qb = $this->dm->createQueryBuilder();
-        $qf = $qb->getQOMFactory();
-        $qb->from($qf->selector($this->class->nodeType));
+        $qb->from($this->class->nodeType);
         $qb->andWhere(
-            $qf->comparison($qf->propertyValue('phpcr:class'), 
-            Constants::JCR_OPERATOR_EQUAL_TO, 
-            $qf->literal($this->className))
+            $qb->expr()->eq('phpcr:class', $this->className)
         );
 
         return $qb;
