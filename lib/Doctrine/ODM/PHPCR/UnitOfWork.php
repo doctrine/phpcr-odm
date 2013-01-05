@@ -1223,10 +1223,10 @@ class UnitOfWork
         $this->session->refresh(true);
         $node = $this->session->getNode($this->getDocumentId($document));
 
+        $this->cascadeRefresh($document, $visited);
+
         $hints = array('refresh' => true);
         $document = $this->createDocument(get_class($document), $node, $hints);
-
-        $this->cascadeRefresh($document, $visited);
 
         return $document;
     }
@@ -1277,7 +1277,7 @@ class UnitOfWork
         foreach ($class->associationsMappings as $assoc) {
             if ($assoc['cascade'] & ClassMetadata::CASCADE_REFRESH) {
                 $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
-                if ($related instanceof Collection) {
+                if ($related instanceof Collection || is_array($related)) {
                     if ($related instanceof PersistentCollection) {
                         // Unwrap so that foreach() does not initialize
                         $related = $related->unwrap();
@@ -1306,13 +1306,13 @@ class UnitOfWork
             if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
                 continue;
             }
-            $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
-            if ($relatedDocuments instanceof Collection) {
-                foreach ($relatedDocuments as $relatedDocument) {
+            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
-            } else if ($relatedDocuments !== null) {
-                $this->doDetach($relatedDocuments, $visited);
+            } else if ($related !== null) {
+                $this->doDetach($related, $visited);
             }
         }
 
@@ -1320,13 +1320,13 @@ class UnitOfWork
             if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
                 continue;
             }
-            $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
-            if ($relatedDocuments instanceof Collection) {
-                foreach ($relatedDocuments as $relatedDocument) {
+            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
-            } else if ($relatedDocuments !== null) {
-                $this->doDetach($relatedDocuments, $visited);
+            } else if ($related !== null) {
+                $this->doDetach($related, $visited);
             }
         }
     }
