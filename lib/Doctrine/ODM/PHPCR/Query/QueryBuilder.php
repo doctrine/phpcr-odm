@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\QueryObjectModelInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
 use Doctrine\Common\Collections\Expr\Comparison;
@@ -82,10 +83,14 @@ class QueryBuilder
             throw QueryBuilderException::cannotGetQueryWhenNoSourceSet();
         }
 
+        $exprVisitor = new PhpcrExpressionVisitor($this->qomf);
+        $where = $this->getPart('where');
+        $where = $where ? $exprVisitor->dispatch($where) : null;
+
         $this->state = self::STATE_CLEAN;
         $this->query = $this->qomf->createQuery(
             $this->getPart('from'),
-            $this->getPart('where'),
+            $where,
             $this->getPart('orderBy'),
             $this->getPart('select')
         );
@@ -574,8 +579,10 @@ class QueryBuilder
             throw new \InvalidArgumentException("Language '$language' not supported");
         }
 
+        throw new \Exception('@todo: Not yet sure how best to handle this.');;
+
         $this->resetParts();
-        $this->from('from', $statemenet->getSource());
+        $this->from('from', $statement->getSource());
         $this->where($statement->getConstraint());
         $this->orderBy($statement->getOrderings());
         $this->select($statement->getColumns());

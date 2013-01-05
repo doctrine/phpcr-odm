@@ -24,13 +24,13 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $rep = new DocumentRepository($this->dm, $this->metadata);
         $qb = $rep->createQueryBuilder();
 
-        $constraint = $qb->getConstraint();
-        $op1 = $constraint->getOperand1();
-        $op2 = $constraint->getOperand2();
-        $source = $qb->getSource();
+        $comparison = $qb->getPart('where');
+        $op1 = $comparison->getField();
+        $op2 = $comparison->getValue();
+        $source = $qb->getPart('from');
         
-        $this->assertEquals('phpcr:class', $op1->getPropertyName());
-        $this->assertEquals('stdClass', $op2->getLiteralValue());
+        $this->assertEquals('phpcr:class', $op1);
+        $this->assertEquals('stdClass', $op2->getValue());
         $this->assertEquals('test:node', $source->getNodeTypeName());
     }
 }

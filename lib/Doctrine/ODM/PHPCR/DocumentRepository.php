@@ -153,7 +153,7 @@ class DocumentRepository implements ObjectRepository
             );
         }
 
-        return $qb->execute();
+        return $this->dm->getDocumentsByQuery($qb->getQuery());
     }
 
     /**
