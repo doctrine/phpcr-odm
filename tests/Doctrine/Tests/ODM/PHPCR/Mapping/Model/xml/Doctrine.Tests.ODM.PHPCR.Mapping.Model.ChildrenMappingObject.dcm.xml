@@ -3,6 +3,8 @@
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject">
         <id name="id" />
         <children fieldName="all" name="all" />
-        <children fieldName="some" name="some" filter="*some*" fetchDepth="2" />
+        <children fieldName="some" name="some" filter="*some*" fetchDepth="2">
+            <cascade><cascade-persist /><remove /></cascade>
+        </children>
     </document>
 </doctrine-mapping>

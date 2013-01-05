@@ -378,6 +378,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->childrenMappings['some']));
         $this->assertEquals('*some*', $class->childrenMappings['some']['filter']);
         $this->assertEquals(2, $class->childrenMappings['some']['fetchDepth']);
+        $this->assertEquals(3, $class->childrenMappings['some']['cascade']);
     }
 
     public function testLoadRepositoryMapping()

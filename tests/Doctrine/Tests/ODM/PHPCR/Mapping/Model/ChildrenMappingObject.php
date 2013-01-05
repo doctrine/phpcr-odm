@@ -13,10 +13,10 @@ class ChildrenMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
+
     /** @PHPCRODM\Children() */
     public $all;
-    
-    /** @PHPCRODM\Children(filter="*some*", fetchDepth=2) */
+
+    /** @PHPCRODM\Children(filter="*some*", fetchDepth=2, cascade={"persist", "remove"}) */
     public $some;
 }

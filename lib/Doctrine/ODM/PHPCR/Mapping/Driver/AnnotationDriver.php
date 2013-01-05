@@ -208,7 +208,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      * @param $cascadeList cascade list
      * @return integer a bitmask of cascade options.
      */
-    private function getCascadeMode($cascadeList)
+    private function getCascadeMode(array $cascadeList)
     {
         $cascade = 0;
         foreach ($cascadeList as $cascadeMode) {
