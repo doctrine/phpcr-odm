@@ -987,7 +987,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if ($mapping['name'] == 'jcr:uuid') {
+        if (isset($mapping['name']) && $mapping['name'] == 'jcr:uuid') {
             if (null !== $this->uuidFieldName) {
                 throw new MappingException('You can only designate a single "Uuid" field!');
             }

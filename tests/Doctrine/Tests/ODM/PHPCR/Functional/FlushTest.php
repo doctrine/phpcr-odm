@@ -246,7 +246,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testUuidIsSet()
     {
         $uuidObj = new UuidTestObj;
-        $uuidObj ->id = '/functional/uuidObj';
+        $uuidObj->id = '/functional/uuidObj';
         $this->dm->persist($uuidObj);
         $this->dm->flush();
         $this->assertNotNull($uuidObj->uuid1);
@@ -258,7 +258,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testUuidFieldOnlySetOnce()
     {
         $uuidObj = new UuidTestTwoUuidFieldsObj;
-        $uuidObj ->id = '/functional/uuidObj';
+        $uuidObj->id = '/functional/uuidObj';
         $this->dm->persist($uuidObj);
         $this->dm->flush();
     }

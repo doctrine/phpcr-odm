@@ -1486,11 +1486,11 @@ class UnitOfWork
 
             $this->setMixins($class, $node);
 
-            if ($uuidFieldName = $class->getUuidFieldName()) {
-                if ($node->hasProperty('jcr:uuid')) {
-                    $uuidValue = $node->getProperty('jcr:uuid')->getValue();
-                    $class->setFieldValue($document, $uuidFieldName, $uuidValue);
-                }
+            // set the uuid value if it needs to be set
+            $uuidFieldName = $class->getUuidFieldName();
+            if ($uuidFieldName && $node->hasProperty('jcr:uuid')) {
+                $uuidValue = $node->getProperty('jcr:uuid')->getValue();
+                $class->setFieldValue($document, $uuidFieldName, $uuidValue);
             }
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
