@@ -111,6 +111,11 @@ class ClassMetadata implements ClassMetadataInterface
     public $identifier;
 
     /**
+     * READ-ONLY: The field name of the UUID field
+     */
+    public $uuidFieldName;
+
+    /**
      * READ-ONLY: The name of the document class that is stored in the phpcr:class property
      */
     public $name;
@@ -982,6 +987,14 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
+        if (isset($mapping['name']) && $mapping['name'] == 'jcr:uuid') {
+            if (null !== $this->uuidFieldName) {
+                throw new MappingException('You can only designate a single "Uuid" field!');
+            }
+
+            $this->uuidFieldName = $mapping['fieldName'];
+        }
+
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         if (!$inherited) {
@@ -1149,5 +1162,10 @@ class ClassMetadata implements ClassMetadataInterface
                 $document->$callback();
             }
         }
+    }
+
+    public function getUuidFieldName()
+    {
+        return $this->uuidFieldName;
     }
 }
