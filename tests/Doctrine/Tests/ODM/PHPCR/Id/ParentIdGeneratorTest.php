@@ -63,8 +63,6 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
 
     public function testGenerateNoIdNoParent()
     {
-        $id = '';
-
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(null, 'name', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
@@ -78,8 +76,6 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
     }
     public function testGenerateNoIdNoName()
     {
-        $id = '';
-
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
@@ -98,16 +94,16 @@ class ParentDummy
 }
 class ParentClassMetadataProxy extends ClassMetadata
 {
-    public $parentMapping = 'parent';
+    public $parentMapping = array('fieldName' => 'parent');
     public $nodename = 'nodename';
     public $identifier = 'id';
     public $reflFields;
 
     protected $_parent, $_nodename, $_id;
 
-    public function __construct($parentMapping, $nodename, $identifier, $mockField = null)
+    public function __construct($parent, $nodename, $identifier, $mockField = null)
     {
-        $this->_parent = $parentMapping;
+        $this->_parent = $parent;
         $this->_nodename = $nodename;
         $this->_identifier = $identifier;
 
@@ -116,8 +112,8 @@ class ParentClassMetadataProxy extends ClassMetadata
 
     public function getFieldValue($document, $field)
     {
-        switch($field) {
-            case $this->parentMapping:
+        switch ($field) {
+            case $this->parentMapping['fieldName']:
                 return $this->_parent;
             case $this->nodename:
                 return $this->_nodename;
@@ -128,14 +124,17 @@ class ParentClassMetadataProxy extends ClassMetadata
         return null;
     }
 }
+
 class MockField
 {
     private $p, $id;
+
     public function __construct($parent, $id)
     {
         $this->p = $parent;
         $this->id = $id;
     }
+
     public function getValue($parent)
     {
         if (! $this->p == $parent) throw new \Exception('Wrong parent passed in getValue');

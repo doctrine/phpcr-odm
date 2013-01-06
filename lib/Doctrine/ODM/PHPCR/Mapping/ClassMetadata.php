@@ -556,8 +556,11 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapParentDocument(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
-        $this->parentMapping = $mapping['fieldName'];
+        $this->parentMapping = $mapping;
         if (null !== $this->nodename && !$this->idStrategySet) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
         }
@@ -565,6 +568,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapChild(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         if (!isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
@@ -574,6 +580,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapChildren(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $mapping['name'] = $mapping['fieldName'];
         $this->childrenMappings[$mapping['fieldName']] = $mapping;
@@ -581,6 +590,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $mapping = $this->validateAndCompleteReferrersMapping($mapping, $inherited, false);
         $mapping['name'] = $mapping['fieldName'];
         $this->referrersMappings[$mapping['fieldName']] = $mapping;
