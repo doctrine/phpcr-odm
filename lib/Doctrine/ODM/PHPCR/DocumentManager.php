@@ -19,11 +19,13 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Util\ClassUtils;
+
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
@@ -384,7 +386,7 @@ class DocumentManager implements ObjectManager
             $document = $this->unitOfWork->getDocumentById($id);
             if ($document) {
                 $this->unitOfWork->validateClassName($document, $className);
-                $class = $this->getClassMetadata(get_class($document));
+                $class = $this->getClassMetadata(ClassUtils::getClass($document));
                 $this->unitOfWork->doLoadTranslation($document, $class, $locale, $fallback);
                 return $document;
             }
@@ -596,7 +598,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        $metadata = $this->getClassMetadata(get_class($document));
+        $metadata = $this->getClassMetadata(ClassUtils::getClass($document));
         $locales = $this->unitOfWork->getLocalesFor($document);
         if ($includeFallbacks) {
             $fallBackLocales = array();
@@ -621,7 +623,7 @@ class DocumentManager implements ObjectManager
      */
     public function isDocumentTranslatable($document)
     {
-        $metadata = $this->getClassMetadata(get_class($document));
+        $metadata = $this->getClassMetadata(ClassUtils::getClass($document));
         return $this->unitOfWork->isDocumentTranslatable($metadata);
     }
 
