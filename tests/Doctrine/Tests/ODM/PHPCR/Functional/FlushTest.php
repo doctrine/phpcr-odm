@@ -7,6 +7,8 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
+use Doctrine\Tests\Models\References\UuidTestObj;
+use Doctrine\Tests\Models\References\UuidTestTwoUuidFieldsObj;
 
 /**
  * @group functional
@@ -239,5 +241,25 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->dm->contains($otherUser), "Other user is contained in DocumentManager");
         $this->assertTrue($otherUser->id != null, "other user has no id");
+    }
+
+    public function testUuidIsSet()
+    {
+        $uuidObj = new UuidTestObj;
+        $uuidObj ->id = '/functional/uuidObj';
+        $this->dm->persist($uuidObj);
+        $this->dm->flush();
+        $this->assertNotNull($uuidObj->uuid1);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testUuidFieldOnlySetOnce()
+    {
+        $uuidObj = new UuidTestTwoUuidFieldsObj;
+        $uuidObj ->id = '/functional/uuidObj';
+        $this->dm->persist($uuidObj);
+        $this->dm->flush();
     }
 }

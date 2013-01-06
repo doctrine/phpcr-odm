@@ -1486,6 +1486,13 @@ class UnitOfWork
 
             $this->setMixins($class, $node);
 
+            if ($uuidFieldName = $class->getUuidFieldName()) {
+                if ($node->hasProperty('jcr:uuid')) {
+                    $uuidValue = $node->getProperty('jcr:uuid')->getValue();
+                    $class->setFieldValue($document, $uuidFieldName, $uuidValue);
+                }
+            }
+
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
