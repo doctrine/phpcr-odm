@@ -19,11 +19,13 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Util\ClassUtils;
+
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
@@ -456,7 +458,7 @@ class UnitOfWork
             throw new \InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
         }
 
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         if (!$this->isDocumentTranslatable($class)) {
             throw new PHPCRException('This document is not translatable, do not use bindTranslation: '.self::objToStr($document, $this->dm));
         }
@@ -502,7 +504,7 @@ class UnitOfWork
         }
         $visited[$oid] = true;
 
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         if ($class->isMappedSuperclass) {
             throw new \InvalidArgumentException('Cannot persist a mapped super class instance: '.$class->name);
         }
@@ -522,13 +524,7 @@ class UnitOfWork
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
-                $class = $this->dm->getClassMetadata(get_class($document));
-                $id = $class->getIdentifierValue($document);
-                // ids might be objects too
-                if (is_object($id) && ! method_exists($id, '__toString')) {
-                    $id = 'Class: ' . get_class($id);
-                }
-                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm)." ($id)");
+                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -572,7 +568,7 @@ class UnitOfWork
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
-                $childClass = $this->dm->getClassMetadata(get_class($child));
+                $childClass = $this->dm->getClassMetadata(ClassUtils::getClass($child));
                 $childId = $id.'/'.$mapping['name'];
                 $childClass->setIdentifierValue($child, $childId);
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
@@ -587,7 +583,7 @@ class UnitOfWork
 
             foreach ($children as $child) {
                 if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
-                    $childClass = $this->dm->getClassMetadata(get_class($child));
+                    $childClass = $this->dm->getClassMetadata(ClassUtils::getClass($child));
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
                         : basename($childClass->getIdentifierValue($child));
@@ -687,7 +683,7 @@ class UnitOfWork
         $this->scheduledRemovals[$oid] = $document;
         $this->setDocumentState($oid, self::STATE_REMOVED);
 
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         if (isset($class->lifecycleCallbacks[Event::preRemove])) {
             $class->invokeLifecycleCallbacks(Event::preRemove, $document);
         }
@@ -700,7 +696,7 @@ class UnitOfWork
 
     private function cascadeRemove($document, &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         foreach ($class->associationsMappings as $assoc) {
             if ($assoc['cascade'] & ClassMetadata::CASCADE_REMOVE) {
                 $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
@@ -725,7 +721,7 @@ class UnitOfWork
      */
     private function purgeChildren($document)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         foreach ($class->childMappings as $childName => $mapping) {
             $child = $class->reflFields[$childName]->getValue($document);
             if ($child !== null) {
@@ -753,7 +749,7 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         if (!isset($this->documentState[$oid])) {
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
             $id = $class->getIdentifierValue($document);
             if (!$id) {
                 return self::STATE_NEW;
@@ -784,7 +780,7 @@ class UnitOfWork
         }
 
         foreach ($this->scheduledInserts as $insertedDocument) {
-            $class = $this->dm->getClassMetadata(get_class($insertedDocument));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($insertedDocument));
             $this->computeChangeSet($class, $insertedDocument);
         }
 
@@ -795,7 +791,7 @@ class UnitOfWork
 
         $oid = spl_object_hash($document);
         if (!isset($this->scheduledInserts[$oid])) {
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
             $this->computeChangeSet($class, $document);
         }
     }
@@ -810,7 +806,7 @@ class UnitOfWork
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
             if ($state === self::STATE_MANAGED) {
-                $class = $this->dm->getClassMetadata(get_class($document));
+                $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
                 $this->computeChangeSet($class, $document);
             }
         }
@@ -842,7 +838,7 @@ class UnitOfWork
 
     private function getChildNodename($id, $nodename, $child)
     {
-        $childClass = $this->dm->getClassMetadata(get_class($child));
+        $childClass = $this->dm->getClassMetadata(ClassUtils::getClass($child));
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
         } else {
@@ -900,7 +896,7 @@ class UnitOfWork
 
         if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
             $parent = $actualData[$class->parentMapping];
-            $parentClass = $this->dm->getClassMetadata(get_class($parent));
+            $parentClass = $this->dm->getClassMetadata(ClassUtils::getClass($parent));
             $state = $this->getDocumentState($parent);
 
             if ($state === self::STATE_MANAGED) {
@@ -1109,7 +1105,7 @@ class UnitOfWork
      */
     private function computeChildChanges($mapping, $child, $parentId, $nodename = null, $parent = null)
     {
-        $targetClass = $this->dm->getClassMetadata(get_class($child));
+        $targetClass = $this->dm->getClassMetadata(ClassUtils::getClass($child));
         $state = $this->getDocumentState($child);
 
         switch ($state) {
@@ -1137,7 +1133,7 @@ class UnitOfWork
      */
     private function computeReferenceChanges($mapping, $reference)
     {
-        $targetClass = $this->dm->getClassMetadata(get_class($reference));
+        $targetClass = $this->dm->getClassMetadata(ClassUtils::getClass($reference));
         $state = $this->getDocumentState($reference);
 
         switch ($state) {
@@ -1161,7 +1157,7 @@ class UnitOfWork
      */
     private function computeReferrerChanges($mapping, $referrer)
     {
-        $targetClass = $this->dm->getClassMetadata(get_class($referrer));
+        $targetClass = $this->dm->getClassMetadata(ClassUtils::getClass($referrer));
         $state = $this->getDocumentState($referrer);
 
         switch ($state) {
@@ -1226,7 +1222,7 @@ class UnitOfWork
         $this->cascadeRefresh($document, $visited);
 
         $hints = array('refresh' => true);
-        $document = $this->createDocument(get_class($document), $node, $hints);
+        $document = $this->createDocument(ClassUtils::getClass($document), $node, $hints);
 
         return $document;
     }
@@ -1273,7 +1269,7 @@ class UnitOfWork
 
     private function cascadeRefresh($document, &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         foreach ($class->associationsMappings as $assoc) {
             if ($assoc['cascade'] & ClassMetadata::CASCADE_REFRESH) {
                 $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
@@ -1300,7 +1296,7 @@ class UnitOfWork
      */
     private function cascadeDetach($document, array &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
 
         foreach ($class->childrenMappings as $assoc) {
             if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
@@ -1454,7 +1450,7 @@ class UnitOfWork
 
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
             $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
 
             $node = $parentNode->addNode(basename($id), $class->nodeType);
@@ -1565,7 +1561,7 @@ class UnitOfWork
                 continue;
             }
 
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
             $node = $this->session->getNode($this->getDocumentId($document));
 
             if ($this->writeMetadata) {
@@ -1634,7 +1630,7 @@ class UnitOfWork
                                 if ($strategy === PropertyType::PATH) {
                                     $refNodesIds[] = $associatedNode->getPath();
                                 } else {
-                                    $refClass = $this->dm->getClassMetadata(get_class($fv));
+                                    $refClass = $this->dm->getClassMetadata(ClassUtils::getClass($fv));
                                     $this->setMixins($refClass, $associatedNode);
                                     if (!$associatedNode->isNodeType('mix:referenceable')) {
                                         throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
@@ -1653,7 +1649,7 @@ class UnitOfWork
                             if ($strategy === PropertyType::PATH) {
                                 $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getPath(), $strategy);
                             } else {
-                                $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
+                                $refClass = $this->dm->getClassMetadata(ClassUtils::getClass($fieldValue));
                                 $this->setMixins($refClass, $associatedNode);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
@@ -1717,7 +1713,7 @@ class UnitOfWork
             $this->session->move($path, $targetPath);
 
             // update fields nodename and parentMapping if they exist in this type
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
             $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
             if ($class->nodename) {
                 $class->setFieldValue($document, $class->nodename, $node->getName());
@@ -1746,7 +1742,7 @@ class UnitOfWork
                 if ($document instanceof Proxy && !$document->__isInitialized()) {
                     $document->__setIdentifier($newId);
                 } else {
-                    $class = $this->dm->getClassMetadata(get_class($document));
+                    $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
                     if ($class->identifier) {
                         $class->setIdentifierValue($document, $newId);
                         $this->originalData[$oid][$class->identifier] = $newId;
@@ -1790,7 +1786,7 @@ class UnitOfWork
                 }
                 $parentNode->orderBefore($src, $dest);
                 // set all children collection to initialized = false to force reload after reordering
-                $class = $this->dm->getClassMetadata(get_class($parent));
+                $class = $this->dm->getClassMetadata(ClassUtils::getClass($parent));
                 foreach ($class->childrenMappings as $childrenMapping) {
                     $children = $class->reflFields[$childrenMapping['fieldName']]->getValue($parent);
                     $children->setInitialized(false);
@@ -1814,7 +1810,7 @@ class UnitOfWork
             $id = $this->getDocumentId($document);
             $node = $this->session->getNode($id);
 
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $class = $this->dm->getClassMetadata(ClassUtils::getClass($document));
             $this->doRemoveAllTranslations($document, $class);
 
             $node->remove();
@@ -1864,7 +1860,7 @@ class UnitOfWork
         $this->documentVersion[$oid] = $version;
 
         // Set the annotations
-        $metadata = $this->dm->getClassMetadata(get_class($frozenDocument));
+        $metadata = $this->dm->getClassMetadata(ClassUtils::getClass($frozenDocument));
         if ($metadata->versionNameField) {
             $metadata->reflFields[$metadata->versionNameField]->setValue($frozenDocument, $versionName);
         }
@@ -1926,7 +1922,7 @@ class UnitOfWork
     public function getAllLinearVersions($document, $limit = -1)
     {
         $path = $this->getDocumentId($document);
-        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $metadata = $this->dm->getClassMetadata(ClassUtils::getClass($document));
 
         if (!$metadata->versionable) {
             throw new \InvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
@@ -2202,7 +2198,7 @@ class UnitOfWork
 
     public function getLocalesFor($document)
     {
-        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $metadata = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         if (!$this->isDocumentTranslatable($metadata)) {
             throw new MissingTranslationException('This document is not translatable: : '.self::objToStr($document, $this->dm));
         }
@@ -2317,7 +2313,7 @@ class UnitOfWork
 
     public function removeTranslation($document, $locale)
     {
-        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $metadata = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
         }
@@ -2425,7 +2421,7 @@ class UnitOfWork
     private function getFullVersionedNodePath($document)
     {
         $path = $this->getDocumentId($document);
-        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $metadata = $this->dm->getClassMetadata(ClassUtils::getClass($document));
         if ($metadata->versionable !== 'full') {
             throw new \InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $path));
         }
@@ -2436,7 +2432,7 @@ class UnitOfWork
         return $path;
     }
 
-    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node)
+    private function setMixins(ClassMetadata $metadata, NodeInterface $node)
     {
         $repository = $this->session->getRepository();
         if ($metadata->versionable === 'full') {
