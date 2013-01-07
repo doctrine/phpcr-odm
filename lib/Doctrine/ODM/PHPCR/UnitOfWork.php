@@ -340,7 +340,7 @@ class UnitOfWork
 
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
-            $documentState[$class->parentMapping] = $this->createProxyFromNode($node->getParent());
+            $documentState[$class->parentMapping['fieldName']] = $this->createProxyFromNode($node->getParent());
         }
 
         foreach ($class->childMappings as $childName => $mapping) {
@@ -602,7 +602,7 @@ class UnitOfWork
     private function cascadeScheduleParentInsert($class, $document, &$visited)
     {
         if ($class->parentMapping) {
-            $parent = $class->reflFields[$class->parentMapping]->getValue($document);
+            $parent = $class->reflFields[$class->parentMapping['fieldName']]->getValue($document);
             if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
                 $this->doScheduleInsert($parent, $visited);
             }
@@ -898,8 +898,8 @@ class UnitOfWork
             }
         }
 
-        if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
-            $parent = $actualData[$class->parentMapping];
+        if ($class->parentMapping && isset($actualData[$class->parentMapping['fieldName']])) {
+            $parent = $actualData[$class->parentMapping['fieldName']];
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
@@ -958,11 +958,11 @@ class UnitOfWork
             // collect assignment move operations
             $destPath = $destName = false;
 
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($actualData[$class->parentMapping])
-                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
+            if (isset($this->originalData[$oid][$class->parentMapping['fieldName']])
+                && isset($actualData[$class->parentMapping['fieldName']])
+                && $this->originalData[$oid][$class->parentMapping['fieldName']] !== $actualData[$class->parentMapping['fieldName']]
             ) {
-                $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                $destPath = $this->getDocumentId($actualData[$class->parentMapping['fieldName']]);
             }
 
             if (isset($this->originalData[$oid][$class->nodename])
@@ -976,7 +976,7 @@ class UnitOfWork
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                    $destPath = $this->getDocumentId($actualData[$class->parentMapping['fieldName']]);
                 }
                 if (false === $destName) {
                     $destName = $actualData[$class->nodename];
@@ -1476,8 +1476,8 @@ class UnitOfWork
                 $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
             // make sure this reflects the id generator strategy generated id
-            if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
+            if ($class->parentMapping && !$class->reflFields[$class->parentMapping['fieldName']]->getValue($document)) {
+                $class->reflFields[$class->parentMapping['fieldName']]->setValue($document, $this->createDocument(null, $parentNode));
             }
 
             if ($this->writeMetadata) {
@@ -1723,7 +1723,7 @@ class UnitOfWork
                 $class->setFieldValue($document, $class->nodename, $node->getName());
             }
             if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping, $this->createProxyFromNode($node->getParent()));
+                $class->setFieldValue($document, $class->parentMapping['fieldName'], $this->createProxyFromNode($node->getParent()));
             }
 
             // update all cached children of the document to reflect the move (path id changes)

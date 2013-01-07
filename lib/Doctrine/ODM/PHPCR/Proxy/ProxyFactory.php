@@ -186,27 +186,27 @@ class ProxyFactory
     {
         $attributes = array();
         foreach ($class->fieldMappings as $field) {
-            $attributes[] = $field["fieldName"];
+            $attributes[] = $field['fieldName'];
         }
 
         foreach ($class->associationsMappings as $field) {
-            $attributes[] = $field["fieldName"];
+            $attributes[] = $field['fieldName'];
         }
 
         foreach ($class->referrersMappings as $field) {
-            $attributes[] = $field["fieldName"];
+            $attributes[] = $field['fieldName'];
         }
 
         foreach ($class->childrenMappings as $field) {
-            $attributes[] = $field["fieldName"];
+            $attributes[] = $field['fieldName'];
         }
 
         foreach ($class->childMappings as $field) {
-            $attributes[] = $field["fieldName"];
+            $attributes[] = $field['fieldName'];
         }
 
         if ($class->parentMapping) {
-            $attributes[] = $class->parentMapping;
+            $attributes[] = $class->parentMapping['fieldName'];
         }
 
         if ($class->node) {
@@ -234,7 +234,7 @@ class ProxyFactory
 
         foreach ($class->reflClass->getMethods() as $method) {
             /* @var $method \ReflectionMethod */
-            if ($method->isConstructor() || strtolower($method->getName()) == "__sleep") {
+            if ($method->isConstructor() || strtolower($method->getName()) == '__sleep') {
                 continue;
             }
 

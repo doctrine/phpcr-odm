@@ -311,7 +311,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testParentDocumentMapping($class)
     {
         $this->assertTrue(isset($class->parentMapping));
-        $this->assertEquals('parent', $class->parentMapping);
+        $this->assertEquals('parent', $class->parentMapping['fieldName']);
     }
 
     public function testParentWithPrivatePropertyMapping()
