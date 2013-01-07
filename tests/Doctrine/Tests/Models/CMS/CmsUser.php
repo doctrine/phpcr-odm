@@ -28,6 +28,10 @@ class CmsUser
     public $articles;
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
     public $groups;
+    /** @PHPCRODM\Children() */
+    public $children;
+    /** @PHPCRODM\Child(name="assistant", cascade="persist") */
+    public $child;
 
     public function getId()
     {

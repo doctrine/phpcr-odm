@@ -1050,8 +1050,6 @@ class ClassMetadata implements ClassMetadataInterface
             'fieldMappings',
             'identifier',
             'name',
-//            'collection',
-//            'generatorType',
             'generatorOptions',
             'idGenerator'
         );
