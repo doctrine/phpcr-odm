@@ -2617,11 +2617,9 @@ class UnitOfWork
 
     private static function objToStr($obj, DocumentManager $dm = null)
     {
-        if (method_exists($obj, '__toString')) {
-            return (string)$obj;
-        }
-
-        $string = get_class($obj).'@'.spl_object_hash($obj);
+        $string = method_exists($obj, '__toString')
+            ? (string)$obj
+            : get_class($obj).'@'.spl_object_hash($obj);
 
         if ($dm) {
             try {
