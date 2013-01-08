@@ -20,9 +20,6 @@
 namespace Doctrine\ODM\PHPCR\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\QueryObjectModelInterface;
-use PHPCR\Query\QueryInterface;
-use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Common\Collections\ExpressionBuilder;
