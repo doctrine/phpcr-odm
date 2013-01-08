@@ -2490,27 +2490,26 @@ class UnitOfWork
             return;
         }
 
-        // TODO: if locale is null, just get default locale, regardless of fallback or not
+        $oid = spl_object_hash($document);
 
-        // Determine which languages we will try to load
-        if (!$fallback) {
-            if (null === $locale) {
-                throw new MissingTranslationException('Error while loading the translations: no locale specified and the language fallback is disabled: '.self::objToStr($document, $this->dm));
+        if (null === $locale) {
+            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+        } else {
+            // Determine which languages we will try to load
+            if (!$fallback) {
+                $localesToTry = array($locale);
+            } else {
+                $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
             }
 
-            $localesToTry = array($locale);
-        } else {
-            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
-        }
+            $node = $this->session->getNode($this->getDocumentId($oid));
+            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
-        $oid = spl_object_hash($document);
-        $node = $this->session->getNode($this->getDocumentId($oid));
-        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-
-        foreach ($localesToTry as $desiredLocale) {
-            if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
-                $localeUsed = $desiredLocale;
-                break;
+            foreach ($localesToTry as $desiredLocale) {
+                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
+                    $localeUsed = $desiredLocale;
+                    break;
+                }
             }
         }
 
