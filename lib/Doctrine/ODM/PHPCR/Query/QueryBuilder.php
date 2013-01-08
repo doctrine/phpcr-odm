@@ -23,7 +23,7 @@ use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\QueryObjectModelInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
-use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Common\Collections\ExpressionBuilder;
 
@@ -34,6 +34,8 @@ class QueryBuilder
 {
     const STATE_DIRTY = 0;
     const STATE_CLEAN = 1;
+
+    const TYPE_SELECT = 0;
 
     protected $dm;
     protected $qomf;
@@ -56,23 +58,57 @@ class QueryBuilder
         $this->qomf = $qomf;
     }
 
+    /**
+     * Return an ExpressionBuilder instance.
+     *
+     * @return ExpressionBuilder
+     */
     public function expr()
     {
         return new ExpressionBuilder;
     }
 
-    // public function getType()
-    
+    /**
+     * Return the query type.
+     *
+     * @return integer
+     */
+    public function getType()
+    {
+        return self::TYPE_SELECT;
+    }
+
+    /**
+     * Return the document manager
+     *
+     * @return DocumentManager
+     */
     public function getDocumentManager()
     {
         return $this->dm;
     }
 
+    /**
+     * Return the dirty state of this query builder, 
+     * e.g. QueryBuilder::STATE_DIRTY or QueryBuilder:STATE_DIRTY
+     *
+     * @return integer
+     */
     public function getState()
     {
         return $this->state;
     }
 
+
+    /**
+     * Constructs a query instance from the current specification of
+     * the query builder.
+     *
+     * @todo: This should finally return an instance of PHPCR\ODM query
+     *        with an embedded DocumentManager and not the PHPCR query
+     *
+     * @return Query
+     */
     public function getQuery()
     {
         if ($this->query !== null && $this->state === self::STATE_CLEAN) {
@@ -120,6 +156,8 @@ class QueryBuilder
      */
     public function setParameter($key, $value)
     {
+        throw QueryBuilderException::notYetSupported(__METHOD__, '@todo: Parameter binding not supported by jackalope ...');
+
         $this->parameters[$key] = $value;
 
         return $this;
@@ -129,15 +167,14 @@ class QueryBuilder
      * Sets the parameters used in the query being constructed
      * Note: Will overwrite any existing parameters.
      *
-     * @todo: ORM uses Common\ArrayCollection and ORM\Query\Parameter
-     *        Should probably do the same here (move ORM\Query\Parameter to Common ?)
-     *
      * @param array $parameters - The parameters to set.
      *
      * @return QueryBuilder - this query builder instance
      */
     public function setParameters($parameters)
     {
+        throw QueryBuilderException::notYetSupported(__METHOD__, '@todo: Parameter binding not supported by jackalope ...');
+
         $this->parameters = $parameters;
 
         return $this;
@@ -150,6 +187,8 @@ class QueryBuilder
      */
     public function getParameters()
     {
+        throw QueryBuilderException::notYetSupported(__METHOD__, '@todo: Parameter binding not supported by jackalope ...');
+
         return $this->parameters;
     }
         
@@ -162,6 +201,8 @@ class QueryBuilder
      */
     public function getParameter($key)
     {
+        throw QueryBuilderException::notYetSupported(__METHOD__, '@todo: Parameter binding not supported by jackalope ...');
+
         if (isset($this->parameters[$key])) {
             return $this->parameters[$key];
         }
@@ -292,13 +333,9 @@ class QueryBuilder
     /**
      * Set the node type to select "from".
      *
-     * @note: This makes me wonder if we should have more support for
-     *        Node Types in the ODM, e.g. a standard way to define the node type
-     *        schema.
-     *
      * <code>
      *     $qb = $dm->createQueryBuilder()
-     *         ->from('nt:unstructured', 'unstructured')
+     *         ->from('nt:unstructured')
      * </code>
      *
      * @param string $nodeTypeName - Node type to select from
@@ -376,6 +413,8 @@ class QueryBuilder
      */
     public function joinWithType($nodeTypename, $selectorName, $joinType, JoinConditionInterface $joinCondition)
     {
+        throw QueryBuilderException::notYetSupported(__METHOD__, 'Joins not supported in QueryBuilder yet. Need some good test cases.');
+
         if (!$this->source) {
             throw QueryBuilderException::cannotJoinWithNoFrom();
         }
@@ -396,7 +435,7 @@ class QueryBuilder
     // public function set($key, $value)
 
     /**
-     * Set the comparison/criteria used for this query.
+     * Set the expression/criteria used for this query.
      * The Contraint can be easily obtained throught the ExpressionBuilder
      *
      * <code>
@@ -405,68 +444,68 @@ class QueryBuilder
      *
      * Overwrites any existing "where's"
      *
-     * @param $comparison Comparison - Comparison to apply to query.
+     * @param $expression Expression - Expression to apply to query.
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function where(Comparison $comparison)
+    public function where(Expression $expression)
     {
-        $this->add('where', $comparison);
+        $this->add('where', $expression);
 
         return $this;
     }
 
     /**
-     * Creates a new comparison formed by applying a logical AND to the
-     * existing comparison and the new one
+     * Creates a new expression formed by applying a logical AND to the
+     * existing expression and the new one
      *
      * Order of ands is important:
      *
-     * Given $this->comparison = $comparison1
-     * running andWhere($comparison2)
-     * resulting comparison will be $comparison1 AND $comparison2
+     * Given $this->expression = $expression1
+     * running andWhere($expression2)
+     * resulting expression will be $expression1 AND $expression2
      *
-     * If there is no previous comparison then it will simply store the
+     * If there is no previous expression then it will simply store the
      * provided one
      *
-     * @param Comparison $comparison
+     * @param Expression $expression
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function andWhere(Comparison $comparison)
+    public function andWhere(Expression $expression)
     {
-        if ($existingComparison = $this->getPart('where')) {
-            $this->add('where', $this->expr()->andX($existingComparison, $comparison));
+        if ($existingExpression = $this->getPart('where')) {
+            $this->add('where', $this->expr()->andX($existingExpression, $expression));
         } else {
-            $this->add('where', $comparison);
+            $this->add('where', $expression);
         }
 
         return $this;
     }
 
     /**
-     * Creates a new comparison formed by applying a logical OR to the
-     * existing comparison and the new one
+     * Creates a new expression formed by applying a logical OR to the
+     * existing expression and the new one
      *
      * Order of ands is important:
      *
-     * Given $this->comparison = $comparison1
-     * running orWhere($comparison2)
-     * resulting comparison will be $comparison1 OR $comparison2
+     * Given $this->expression = $expression1
+     * running orWhere($expression2)
+     * resulting expression will be $expression1 OR $expression2
      *
-     * If there is no previous comparison then it will simply store the
+     * If there is no previous expression then it will simply store the
      * provided one
      *
-     * @param Comparison $comparison
+     * @param Expression $expression
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function orWhere(Comparison $comparison)
+    public function orWhere(Expression $expression)
     {
-        if ($existingComparison = $this->getPart('where')) {
-            $this->add('where', $this->expr()->orX($existingComparison, $comparison));
+        if ($existingExpression = $this->getPart('where')) {
+            $this->add('where', $this->expr()->orX($existingExpression, $expression));
         } else {
-            $this->add('where', $comparison);
+            $this->add('where', $expression);
         }
 
         return $this;
@@ -481,8 +520,8 @@ class QueryBuilder
     /**
      * Sets the ordering of the query results.
      *
-     * @param array|string $sort  Either an array of or single property name value.
-     * @param string       $order The ordering direction.
+     * @param array|string $propertyName  Either an array of or single property name value.
+     * @param string       $order         The ordering direction - [ASC|DESC]
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
@@ -501,6 +540,12 @@ class QueryBuilder
         return $this->addOrderBy($propertyName, $order);
     }
 
+    /**
+     * Adds an ordering to the query results 
+     *
+     * @param string $propertyName Property name
+     * @param string $order        The ordering direction - [ASC|DESC]
+     */
     public function addOrderBy($propertyName, $order = null)
     {
         $sort = $this->qomf->propertyValue($propertyName);
@@ -517,11 +562,23 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Return a query part
+     *
+     * @param string $partName
+     *
+     * return mixed The query part
+     */
     public function getPart($partName)
     {
         return $this->parts[$partName];
     }
 
+    /**
+     * Return all the query parts
+     *
+     * return array All the query parts
+     */
     public function getParts()
     {
         return $this->parts;
@@ -560,36 +617,6 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * Get a query builder instance from an existing query
-     *
-     * @param string $statement the statement in the specified language
-     * @param string $language  the query language
-     *
-     * @return QueryBuilder This QueryBuilder instance.
-     */
-    public function setFromQuery($statement, $language)
-    {
-        if (QueryInterface::JCR_SQL2 === $language) {
-            $converter = new Sql2ToQomQueryConverter($this->qomf);
-            $statement = $converter->parse($statement);
-        }
-
-        if (!$statement instanceof QueryObjectModelInterface) {
-            throw new \InvalidArgumentException("Language '$language' not supported");
-        }
-
-        throw new \Exception('@todo: Not yet sure how best to handle this.');;
-
-        $this->resetParts();
-        $this->from('from', $statement->getSource());
-        $this->where($statement->getConstraint());
-        $this->orderBy($statement->getOrderings());
-        $this->select($statement->getColumns());
-
-        return $this;
-    }
-
     public function __toString()
     {
         return $this->getQuery()->getStatement();
@@ -597,5 +624,6 @@ class QueryBuilder
 
     public function __clone()
     {
+        throw QueryBuilderException::notYetSupported(__METHOD__, 'Cloning not yet supported');
     }
 }

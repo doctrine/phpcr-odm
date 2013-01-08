@@ -26,4 +26,14 @@ class QueryBuilderException extends \Exception
 
         return new self($message);
     }
+
+    public static function notYetSupported($method, $message = null)
+    {
+        $message = sprintf('QueryBuilder method "%s" has not yet been implemented%s',
+            $method,
+            $message ? ': '.$message : ''
+        );
+
+        return new self($message);
+    }
 }
