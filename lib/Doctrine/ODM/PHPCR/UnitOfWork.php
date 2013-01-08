@@ -1290,7 +1290,7 @@ class UnitOfWork
                 if ($managedCopy) {
                     // We have the document in-memory already, just make sure its not removed.
                     if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
-                        throw new \InvalidArgumentException('Removed document detected during merge. Cannot merge with a removed document.');
+                        throw new \InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
                     }
                 } else {
                     // We need to fetch the managed copy in order to merge.
@@ -1301,7 +1301,7 @@ class UnitOfWork
                     // If the identifier is ASSIGNED, it is NEW, otherwise an error
                     // since the managed document was not found.
                     if ($class->idGenerator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
-                        throw new \InvalidArgumentException('Document not found.');
+                        throw new \InvalidArgumentException("Document not found in merge operation: $id");
                     }
 
                     $managedCopy = $class->newInstance();
