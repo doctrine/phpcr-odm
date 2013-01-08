@@ -522,13 +522,7 @@ class UnitOfWork
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
-                $class = $this->dm->getClassMetadata(get_class($document));
-                $id = $class->getIdentifierValue($document);
-                // ids might be objects too
-                if (is_object($id) && ! method_exists($id, '__toString')) {
-                    $id = 'Class: ' . get_class($id);
-                }
-                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm)." ($id)");
+                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -1125,7 +1119,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $child);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
+                throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
         }
     }
 
@@ -1149,7 +1143,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $reference);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('A detached document was found through a reference during cascading a persist operation.');
+                throw new \InvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
         }
     }
 
@@ -1173,7 +1167,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation.');
+                throw new \InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
         }
     }
 
@@ -2634,6 +2628,9 @@ class UnitOfWork
                 $id = $dm->getUnitOfWork()->getDocumentId($obj);
                 $string .= " ($id)";
             } catch (\Exception $e) {
+                $class = $dm->getClassMetadata(get_class($obj));
+                $id = $class->getIdentifierValue($obj);
+                $string .= " ($id)";
             }
         }
 
