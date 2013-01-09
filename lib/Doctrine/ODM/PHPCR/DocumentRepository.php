@@ -131,10 +131,7 @@ class DocumentRepository implements ObjectRepository
     {
         $qb = $this->dm->createQueryBuilder();
 
-        $qb->from($this->class->nodeType);
-        $qb->andWhere(
-            $qb->expr()->eq('phpcr:class', $this->className)
-        );
+        $qb->from($this->className);
 
         if ($limit) {
             $qb->setMaxResults($limit);
@@ -296,10 +293,7 @@ class DocumentRepository implements ObjectRepository
     public function createQueryBuilder()
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->from($this->class->nodeType);
-        $qb->andWhere(
-            $qb->expr()->eq('phpcr:class', $this->className)
-        );
+        $qb->from($this->className);
 
         return $qb;
     }
