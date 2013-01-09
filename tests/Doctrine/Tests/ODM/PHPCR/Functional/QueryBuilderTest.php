@@ -40,7 +40,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     protected function getDocs($q)
     {
-        $res = $this->dm->getDocumentsByQuery($q);
+        $res = $this->dm->getDocumentsByPhpcrQuery($q);
         return $res;
     }
 
@@ -73,20 +73,20 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
             "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js'", 
             $qb->__toString()
         );
-        $this->assertCount(2, $res); // why does this return only one??
+        $this->assertCount(2, $res);
 
-        $qb->andWhere($qb->expr()->eq('name', 'asd'));
+        $qb->andWhere($qb->expr()->eq('name', 'foobar'));
         $res = $this->getDocs($qb->getQuery());
         $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'asd'", 
+            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'foobar'", 
             $qb->__toString()
         );
         $this->assertCount(1, $res);
 
-        $qb->orWhere($qb->expr()->eq('name', 'asd'));
+        $qb->orWhere($qb->expr()->eq('name', 'foobar'));
         $res = $this->getDocs($qb->getQuery());
         $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'asd' OR name = 'asd'", 
+            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'foobar' OR name = 'foobar'", 
             $qb->__toString()
         );
         $this->assertCount(1, $res);
@@ -107,5 +107,37 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $res = $this->getDocs($qb->getQuery());
         $this->assertCount(2, $res);
         $this->assertEquals('js', $res->first()->username);
+    }
+
+    public function testSelect()
+    {
+        // select one property
+        $qb = $this->createQb();
+        $qb->from('nt:unstructured');
+        $qb->select('username');
+        $qb->where($qb->expr()->eq('username', 'dtl'));
+        $rows = $qb->getQuery()->execute()->getRows();
+        $this->assertEquals(1, $rows->count());
+        $values = $rows->current()->getValues();
+        $this->assertEquals(array('s.username' => 'dtl'), $values);
+
+        // select two properties
+        $qb->addSelect('name');
+        $rows = $qb->getQuery()->execute()->getRows();
+        $values = $rows->current()->getValues();
+
+        $this->assertEquals(array(
+            's.username' => 'dtl',
+            's.name' => 'daniel'
+        ), $values);
+
+        // select overwrite
+        $qb->select('status');
+        $rows = $qb->getQuery()->execute()->getRows();
+        $values = $rows->current()->getValues();
+
+        $this->assertEquals(array(
+            's.status' => 'query_builder',
+        ), $values);
     }
 }

@@ -34,6 +34,7 @@ use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder;
+use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\PathNotFoundException;
 
 /**
@@ -471,7 +472,7 @@ class DocumentManager implements ObjectManager
      *
      * @return QueryInterface
      */
-    public function createQuery($statement, $language)
+    public function createPhpcrQuery($statement, $language)
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
         return $qm->createQuery($statement, $language);
@@ -492,6 +493,17 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Create lower level PHPCR query builder.
+     *
+     * @return QueryBuilder
+     */
+    public function createPhpcrQueryBuilder()
+    {
+        $qm = $this->session->getWorkspace()->getQueryManager();
+        return new PhpcrQueryBuilder($qm->getQOMFactory());
+    }
+
+    /**
      * Get document results from a PHPCR query instance
      *
      * @param  \PHPCR\Query\QueryInterface $query the query instance as
@@ -500,7 +512,7 @@ class DocumentManager implements ObjectManager
      *
      * @return array of document instances
      */
-    public function getDocumentsByQuery(QueryInterface $query, $className = null)
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null)
     {
         $this->errorIfClosed();
 

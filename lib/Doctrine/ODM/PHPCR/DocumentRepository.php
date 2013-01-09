@@ -153,7 +153,7 @@ class DocumentRepository implements ObjectRepository
             );
         }
 
-        return $this->dm->getDocumentsByQuery($qb->getQuery());
+        return $this->dm->getDocumentsByPhpcrQuery($qb->getQuery());
     }
 
     /**
@@ -245,7 +245,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function createQuery($statement, $language, $options = 0)
     {
-        $cb = $this->dm->createQueryBuilder()->setFromQuery($statement, $language);
+        $cb = $this->dm->createPhpcrQueryBuilder()->setFromQuery($statement, $language);
         if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES) {
             $columns = $cb->getColumns();
             if (1 === count($columns)) {
