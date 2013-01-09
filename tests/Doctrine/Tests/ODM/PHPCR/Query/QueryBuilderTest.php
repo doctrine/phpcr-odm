@@ -65,11 +65,12 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->assertSame($this->qb->getQuery(), $this->query);
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Query\QueryBuilderException
-     */
     public function testGetQuery_noSource()
     {
+        $this->qomf->expects($this->once())
+            ->method('selector')
+            ->with('nt:base')
+            ->will($this->returnValue($this->selector));
         $this->qb->getQuery();
     }
 

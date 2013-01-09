@@ -117,7 +117,7 @@ class QueryBuilder
         $nodeType = $this->getPart('nodeType');
 
         if (null === $from && null === $nodeType) {
-            throw QueryBuilderException::cannotGetQueryWhenNoSourceSet();
+            $nodeType = $this->qomf->selector('nt:base');
         }
 
         if ($from && $nodeType) {

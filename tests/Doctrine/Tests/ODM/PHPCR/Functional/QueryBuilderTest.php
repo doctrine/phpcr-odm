@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Proxy\Proxy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsItem;
 
 /**
  * @group functional
@@ -29,6 +30,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $user->name = 'johnsmith';
         $user->status = 'query_builder';
         $this->dm->persist($user);
+
+        $item = new CmsItem;
+        $item->name = 'johnsmith';
+        $item->id = '/functional/item1';
+        $this->dm->persist($item);
         $this->dm->flush();
     }
 
@@ -150,5 +156,23 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->where($qb->expr()->eq('status', 'query_builder'));
         $res = $this->getDocs($qb->getQuery());
         $this->assertCount(2, $res);
+    }
+
+    public function testFrom_all()
+    {
+        $qb = $this->createQb();
+
+        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
+        $qb->where($qb->expr()->eq('name', 'johnsmith'));
+        $res = $this->getDocs($qb->getQuery());
+        $this->assertCount(2, $res);
+
+        $fqns = array(
+            get_class($res->current()),
+            get_class($res->next()),
+        );
+
+        $this->assertContains('Doctrine\Tests\Models\CMS\CmsUser', $fqns);
+        $this->assertContains('Doctrine\Tests\Models\CMS\CmsItem', $fqns);
     }
 }
