@@ -47,12 +47,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComparison()
     {
         $qb = $this->createQb();
-        $qb->from('nt:unstructured')->where($qb->expr()->eq('phpcr:class', 'Not Exist'));
+        $qb->nodeType('nt:unstructured')->where($qb->expr()->eq('phpcr:class', 'Not Exist'));
         $res = $this->getDocs($qb->getQuery());
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
-        $qb->from('nt:unstructured')->where(
+        $qb->nodeType('nt:unstructured')->where(
             $qb->expr()->eq('username', 'dtl')
         );
         $res = $this->getDocs($qb->getQuery());
@@ -62,7 +62,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComposite()
     {
         $qb = $this->createQb();
-        $qb->from('nt:unstructured')->where(
+        $qb->nodeType('nt:unstructured')->where(
             $qb->expr()->orX(
                 $qb->expr()->eq('username', 'dtl'),
                 $qb->expr()->eq('username', 'js')
@@ -95,7 +95,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testOrderBy()
     {
         $qb = $this->createQb();
-        $qb->from('nt:unstructured');
+        $qb->nodeType('nt:unstructured');
         $qb->where($qb->expr()->eq('phpcr:class', 'nt:unstructured'));
         $qb->where($qb->expr()->eq('status', 'query_builder'));
         $qb->orderBy('username');
@@ -113,7 +113,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         // select one property
         $qb = $this->createQb();
-        $qb->from('nt:unstructured');
+        $qb->nodeType('nt:unstructured');
         $qb->select('username');
         $qb->where($qb->expr()->eq('username', 'dtl'));
         $rows = $qb->getQuery()->execute()->getRows();
@@ -139,5 +139,16 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertEquals(array(
             's.status' => 'query_builder',
         ), $values);
+    }
+
+    public function testFrom()
+    {
+        $qb = $this->createQb();
+        $qb->from('Doctrine\Tests\Models\CMS\CmsUser');
+
+        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
+        $qb->where($qb->expr()->eq('status', 'query_builder'));
+        $res = $this->getDocs($qb->getQuery());
+        $this->assertCount(2, $res);
     }
 }

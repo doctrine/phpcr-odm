@@ -10,6 +10,9 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
             ->disableOriginalConstructor()
             ->getMock();
+        $this->metadata = $this->getMockBuilder('Doctrine\ODM\PHPCR\Mapping\ClassMetadata')
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->qomf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface');
 
         $this->query = $this->getMock('PHPCR\Query\QueryInterface');
@@ -23,6 +26,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             ->getMock();
         $this->operand1 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
         $this->operand2 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
+        $this->static1 = $this->getMock('PHPCR\Query\QOM\StaticOperandInterface');
 
         $this->qb = new QueryBuilder($this->dm, $this->qomf);
     }
@@ -54,7 +58,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->qomf->expects($this->once())
             ->method('selector')
             ->will($this->returnValue($this->selector));
-        $this->qb->from('nt:unstructured');
+        $this->qb->nodeType('nt:unstructured');
         $this->qomf->expects($this->once())
             ->method('createQuery')
             ->will($this->returnValue($this->query));
@@ -66,7 +70,46 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
      */
     public function testGetQuery_noSource()
     {
-        $this->assertSame($this->qb->getQuery(), $this->query);
+        $this->qb->getQuery();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Query\QueryBuilderException
+     */
+    public function testGetQuery_bothNodeTypeAndFrom()
+    {
+        $this->qomf->expects($this->once())
+            ->method('selector')
+            ->will($this->returnValue($this->selector));
+        $this->qb->nodeType('nt:foobar');
+        $this->qb->from('MyDocumentClass');
+        $this->qb->getQuery();
+    }
+
+    public function testGetQuery_from()
+    {
+        $this->dm->expects($this->once())
+            ->method('getClassMetadata')
+            ->with('Document/FQN')
+            ->will($this->returnValue($this->metadata));
+        $this->metadata->expects($this->once())
+            ->method('getNodeType')
+            ->will($this->returnValue('nt:document_fqn'));
+        $this->qomf->expects($this->once())
+            ->method('selector')
+            ->with('nt:document_fqn')
+            ->will($this->returnValue($this->selector));
+        $this->qomf->expects($this->once())
+            ->method('propertyValue')
+            ->with('phpcr:class')
+            ->will($this->returnValue($this->operand1));
+        $this->qomf->expects($this->once())
+            ->method('literal')
+            ->with('Document/FQN')
+            ->will($this->returnValue($this->static1));
+
+        $this->qb->from('Document/FQN');
+        $this->qb->getQuery();
     }
 
     public function testGetSetParameters()
@@ -116,6 +159,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             'join' => array(),
             'where' => 'test',
             'orderBy' => array(),
+            'nodeType' => null
         ), $this->qb->getParts());
 
         $this->qb->add('join', 'test');
@@ -177,16 +221,23 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->assertSame($ret, $this->qb);
     }
 
-    public function testFrom()
+    public function testNodeType()
     {
         $this->qomf->expects($this->once())
             ->method('selector')
             ->with('nt:foobar', 'selector-name')
             ->will($this->returnValue($this->selector));
-        $ret = $this->qb->from('nt:foobar', 'selector-name');
 
-        $this->assertSame($this->selector, $this->qb->getPart('from'));
+        $ret = $this->qb->nodeType('nt:foobar', 'selector-name');
+
+        $this->assertSame($this->selector, $this->qb->getPart('nodeType'));
         $this->assertSame($ret, $this->qb);
+    }
+
+    public function testFrom()
+    {
+        $this->qb->from('My/Namespace/Document');
+        $this->assertEquals('My/Namespace/Document', $this->qb->getPart('from'));
     }
 
     /**
@@ -194,27 +245,27 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
      */
     public function testJoinWithType_noSource()
     {
-        $this->markTestIncomplete('@todo');
+        $this->markTestSkipped('@todo');
     }
 
     public function testJoinWithType()
     {
-        $this->markTestIncomplete('@todo');
+        $this->markTestSkipped('@todo');
     }
 
     public function testJoin()
     {
-        $this->markTestIncomplete('@todo');
+        $this->markTestSkipped('@todo');
     }
 
     public function testInnerJoin()
     {
-        $this->markTestIncomplete('@todo');
+        $this->markTestSkipped('@todo');
     }
 
     public function testLeftJoin()
     {
-        $this->markTestIncomplete('@todo');
+        $this->markTestSkipped('@todo');
     }
 
     public function testWhere()

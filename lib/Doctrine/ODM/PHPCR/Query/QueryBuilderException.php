@@ -36,4 +36,14 @@ class QueryBuilderException extends \Exception
 
         return new self($message);
     }
+
+    public static function cannotSpecifyBothNodeTypeAndFrom($nodeTypeName, $from)
+    {
+        $message = sprintf('You cannot specify both the node type ("%s") and the document class ("%s")',
+            $nodeTypeName,
+            $from
+        );
+
+        return new self($message);
+    }
 }

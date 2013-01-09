@@ -39,11 +39,12 @@ class QueryBuilder
     protected $state = self::STATE_CLEAN;
     protected $parameters = array();
     protected $parts = array(
-        'select'  => array(),
-        'from'    => null,
-        'join'    => array(),
-        'where'   => null,
-        'orderBy' => array(),
+        'select'   => array(),
+        'nodeType' => null,
+        'join'     => array(),
+        'where'    => null,
+        'orderBy'  => array(),
+        'from'     => null, 
     );
     protected $query;
     protected $firstResult;
@@ -112,8 +113,25 @@ class QueryBuilder
             return $this->query;
         }
 
-        if (null === $this->getPart('from')) {
+        $from = $this->getPart('from');
+        $nodeType = $this->getPart('nodeType');
+
+        if (null === $from && null === $nodeType) {
             throw QueryBuilderException::cannotGetQueryWhenNoSourceSet();
+        }
+
+        if ($from && $nodeType) {
+            throw QueryBuilderException::cannotSpecifyBothNodeTypeAndFrom($nodeType->getNodeTypeName(), $from);
+        }
+
+        if (null === $nodeType && $from) {
+            $metadata = $this->dm->getClassMetadata($from);
+            $nodeTypeName = $metadata->getNodeType();
+            $nodeType = $this->qomf->selector($nodeTypeName);
+        }
+
+        if ($from) {
+            $this->andWhere($this->expr()->eq('phpcr:class', $from));
         }
 
         $exprVisitor = new PhpcrExpressionVisitor($this->qomf);
@@ -122,7 +140,7 @@ class QueryBuilder
 
         $this->state = self::STATE_CLEAN;
         $this->query = $this->qomf->createQuery(
-            $this->getPart('from'),
+            $nodeType,
             $where,
             $this->getPart('orderBy'),
             $this->getPart('select')
@@ -328,21 +346,36 @@ class QueryBuilder
     // public function update($update = null, $alias = null)
 
     /**
-     * Set the node type to select "from".
+     * Set the node type to select.
      *
-     * <code>
-     *     $qb = $dm->createQueryBuilder()
-     *         ->from('nt:unstructured')
-     * </code>
+     * NOTE: This mutually exlusive to {@link from}, i.e. you must either specify
+     *       nodeType or specify {@link from}, you cannot specify both.
      *
      * @param string $nodeTypeName - Node type to select from
      * @param string $selectorName - Alias which can be used elsewhere in query (@notsure)
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-    public function from($nodeTypeName, $selectorName = null)
+    public function nodeType($nodeTypeName, $selectorName = null)
     {
-        $this->add('from', $this->qomf->selector($nodeTypeName, $selectorName));
+        $this->add('nodeType', $this->qomf->selector($nodeTypeName, $selectorName));
+
+        return $this;
+    }
+
+    /**
+     * Set the document class to select from.
+     *
+     * NOTE: This mutually exlusive to {@link nodeType}, i.e. you must either specify
+     *       from() or specify {@link nodeType}, you cannot specify both.
+     *
+     * @param string $documentFqn - Full qualified document class name
+     *
+     * @return QueryBuilder Thie QueryBuilder instance
+     */
+    public function from($documentFqn)
+    {
+        $this->add('from', $documentFqn);
 
         return $this;
     }

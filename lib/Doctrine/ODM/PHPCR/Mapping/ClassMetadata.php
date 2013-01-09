@@ -487,6 +487,16 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
+     * Return the JCR node type to be used for this node.
+     *
+     * @return string
+     */
+    public function getNodeType()
+    {
+        return $this->nodeType;
+    }
+
+    /**
      * Gets the ReflectionProperties of the mapped class.
      *
      * @return array An array of \ReflectionProperty instances.
