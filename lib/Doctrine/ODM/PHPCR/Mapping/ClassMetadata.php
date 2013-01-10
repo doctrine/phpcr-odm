@@ -898,7 +898,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function isSingleValuedAssociation($fieldName)
+    public function isSingleValuedAssociation($name)
     {
         return false;
     }
@@ -906,9 +906,9 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function isCollectionValuedAssociation($fieldName)
+    public function isCollectionValuedAssociation($name)
     {
-        return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
+        return isset($this->associationsMappings[$name]);
     }
 
     /**

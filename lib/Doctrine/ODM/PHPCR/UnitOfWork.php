@@ -258,7 +258,7 @@ class UnitOfWork
 
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
-                if ($class->isCollectionValuedAssociation($fieldName)) {
+                if (true === $mapping['multivalue']) {
                     if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
                         $documentState[$fieldName] = array_combine((array)$properties[$mapping['assoc']], (array)$properties[$mapping['name']]);
                     } else {
@@ -267,7 +267,7 @@ class UnitOfWork
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
-            } elseif ($class->isCollectionValuedAssociation($fieldName)) {
+            } elseif (true === $mapping['multivalue']) {
                 $documentState[$fieldName] = array();
             }
         }
