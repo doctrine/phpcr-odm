@@ -2492,8 +2492,11 @@ class UnitOfWork
 
         $oid = spl_object_hash($document);
 
+        $localesToTry = array();
+
         if (null === $locale) {
-            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+            $defaultLocale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+            $localesToTry = array($defaultLocale);
         } else {
             // Determine which languages we will try to load
             if (!$fallback) {
@@ -2501,15 +2504,16 @@ class UnitOfWork
             } else {
                 $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
             }
+        }
 
-            $node = $this->session->getNode($this->getDocumentId($oid));
-            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+        // Load translated fields for current locale
+        $node = $this->session->getNode($this->getDocumentId($oid));
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
-            foreach ($localesToTry as $desiredLocale) {
-                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
-                    $localeUsed = $desiredLocale;
-                    break;
-                }
+        foreach ($localesToTry as $desiredLocale) {
+            if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
+                $localeUsed = $desiredLocale;
+                break;
             }
         }
 
