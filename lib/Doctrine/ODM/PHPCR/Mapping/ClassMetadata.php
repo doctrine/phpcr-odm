@@ -40,10 +40,6 @@ use Doctrine\Common\ClassLoader;
  */
 class ClassMetadata implements ClassMetadataInterface
 {
-    const TO_ONE = 5;
-    const TO_MANY = 10;
-    const ONE_TO_ONE = 1;
-    const ONE_TO_MANY = 2;
     const MANY_TO_ONE = 4;
     const MANY_TO_MANY = 8;
 
@@ -180,13 +176,6 @@ class ClassMetadata implements ClassMetadataInterface
      * @var array
      */
     public $fieldMappings = array();
-
-    /**
-     * READ-ONLY: Array of fields to also load with a given method.
-     *
-     * @var array
-     */
-    public $alsoLoadMethods = array();
 
     /**
      * READ-ONLY: The registered lifecycle callbacks for documents of this class.

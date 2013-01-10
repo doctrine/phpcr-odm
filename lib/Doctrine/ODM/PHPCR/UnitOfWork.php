@@ -540,7 +540,7 @@ class UnitOfWork
             if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                 $related = $class->reflFields[$assocName]->getValue($document);
                 if ($related !== null) {
-                    if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
+                    if ($class->associationsMappings[$assocName]['type'] == ClassMetadata::MANY_TO_ONE) {
                         if (is_array($related) || $related instanceof Collection) {
                             throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
                         }
@@ -1325,7 +1325,7 @@ class UnitOfWork
 
                 if (isset($class->associationsMappings[$name])) {
                     $mapping = $class->associationsMappings[$name];
-                    if ($mapping['type'] & ClassMetadata::TO_ONE) {
+                    if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
                         $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
                     } else {
                         $managedCol = $prop->getValue($managedCopy);
@@ -1391,23 +1391,19 @@ class UnitOfWork
             if ($persist) {
                 $this->persistNew($class, $managedCopy);
             }
+
+            // Mark the managed copy visited as well
+            $visited[$managedOid] = true;
         }
 
         if ($prevManagedCopy !== null) {
-            $assocField = $assoc['fieldName'];
             $prevClass = $this->dm->getClassMetadata(get_class($prevManagedCopy));
-            if ($assoc['type'] & ClassMetadata::TO_ONE) {
-                $prevClass->reflFields[$assocField]->setValue($prevManagedCopy, $managedCopy);
+            if ($assoc['type'] == ClassMetadata::MANY_TO_ONE) {
+                $prevClass->reflFields[$assoc['fieldName']]->setValue($prevManagedCopy, $managedCopy);
             } else {
-                $prevClass->reflFields[$assocField]->getValue($prevManagedCopy)->add($managedCopy);
-                if ($assoc['type'] == ClassMetadata::ONE_TO_MANY) {
-                    $class->reflFields[$assoc['mappedBy']]->setValue($managedCopy, $prevManagedCopy);
-                }
+                $prevClass->reflFields[$assoc['fieldName']]->getValue($prevManagedCopy)->add($managedCopy);
             }
         }
-
-        // Mark the managed copy visited as well
-        $visited[spl_object_hash($managedCopy)] = true;
 
         $this->cascadeMerge($document, $managedCopy, $visited);
 
