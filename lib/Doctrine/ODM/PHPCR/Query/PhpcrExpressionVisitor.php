@@ -11,6 +11,12 @@ use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\StaticOperandInterface; 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstant;
 
+/**
+ * Class used by the QueryBuilder to convert Expression classes
+ * to their PHPCR counterparts.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class PhpcrExpressionVisitor extends ExpressionVisitor
 {
     protected $qomf;
