@@ -1045,4 +1045,25 @@ class DocumentManager implements ObjectManager
 
         $this->unitOfWork->initializeObject($document);
     }
+    
+    /**
+     * Return the node of the given object
+     * 
+     * @param object $document
+     * 
+     * @return \PHPCR\NodeInterface
+     * 
+     * @throws \InvalidArgumentException if the document is not an object
+     * @throws \PHPCR\PHPCRException if the document is not managed
+     */
+    public function getNodeForDocument($document)
+    {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+        }
+        
+        $path = $this->unitOfWork->getDocumentId($document);
+        
+        return $this->session->getNode($path);
+    }
 }
