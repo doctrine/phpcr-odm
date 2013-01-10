@@ -27,7 +27,7 @@ use Doctrine\Common\Collections\ExpressionBuilder;
 /**
  * Class to pragmatically construct query objects for the PHPCR ODM.
  *
- * @todo: Joins, Cloning, UPDATE and DELETE (?), Parameter binding
+ * @todo: Joins, Cloning, Parameter binding
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -361,9 +361,6 @@ class QueryBuilder
 
         return $this;
     }
-    
-    // public function delete($delete = null, $alias = null)
-    // public function update($update = null, $alias = null)
 
     /**
      * Set the node type to select.
