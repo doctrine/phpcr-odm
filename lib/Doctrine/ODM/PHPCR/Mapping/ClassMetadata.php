@@ -873,13 +873,23 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function hasField($fieldName)
     {
-        return isset($this->fieldMappings[$fieldName]);
+        if (isset($this->fieldMappings[$fieldName])) {
+            return true;
+        }
+
+        if ($fieldName === $this->node) {
+            return true;
+        }
+
+        if ($fieldName === $this->nodename) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @todo verify that the checked ones are actually mappings/unit testing
      */
     public function hasAssociation($fieldName)
     {
@@ -908,14 +918,6 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if ($fieldName === $this->parentMapping['fieldName']) {
-            return true;
-        }
-
-        if ($fieldName === $this->node) {
-            return true;
-        }
-
-        if ($fieldName === $this->nodename) {
             return true;
         }
 
