@@ -149,7 +149,7 @@ class DocumentRepository implements ObjectRepository
             $qb->andWhere($qf->comparison($qf->propertyValue($field), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($value)));
         }
 
-        return $this->getDocumentsByQuery($qb->getQuery());
+        return $qb->getQuery()->execute();
     }
 
     /**

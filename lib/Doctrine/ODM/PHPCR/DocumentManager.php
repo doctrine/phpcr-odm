@@ -28,12 +28,13 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterf
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
-use PHPCR\Util\QOM\QueryBuilder;
 use PHPCR\PathNotFoundException;
 
 /**
@@ -459,8 +460,7 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Create a Query from a query string in the specified query language to be
-     * used with getDocumentsByQuery()
+     * Create a Query from a query string in the specified query.
      *
      * See \PHPCR\Query\QueryInterface for list of generally supported types
      * and check your implementation documentation if you want to use a
@@ -474,7 +474,7 @@ class DocumentManager implements ObjectManager
     public function createQuery($statement, $language)
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
-        return $qm->createQuery($statement, $language);
+        return new Query($qm->createQuery($statement, $language), $this);
     }
 
     /**
@@ -488,7 +488,7 @@ class DocumentManager implements ObjectManager
     public function createQueryBuilder()
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
-        return new QueryBuilder($qm->getQOMFactory());
+        return new QueryBuilder($qm->getQOMFactory(), $this);
     }
 
     /**
