@@ -907,7 +907,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if ($fieldName === $this->parentMapping) {
+        if ($fieldName === $this->parentMapping['fieldName']) {
             return true;
         }
 
