@@ -1,4 +1,5 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject:
+  type: mappedSuperclass
   fields:
     foo:
       type: string

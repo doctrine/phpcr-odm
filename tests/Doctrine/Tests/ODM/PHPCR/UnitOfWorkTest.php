@@ -5,7 +5,6 @@ namespace Doctrine\Tests\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Id\idGenerator;
 
 use Jackalope\Factory;
 use Jackalope\Node;
@@ -35,10 +34,10 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->uow = new UnitOfWork($this->dm);
 
         $cmf = $this->dm->getMetadataFactory();
-        $metadata = $cmf->getMetadataFor($this->type);
-        $metadata->mapField(array('fieldName' => 'id', 'id' => true));
+        $metadata = new ClassMetadata($this->type);
+        $metadata->initializeReflection($cmf->getReflectionService());
+        $metadata->mapId(array('fieldName' => 'id', 'id' => true));
         $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
-
         $cmf->setMetadataFor($this->type, $metadata);
     }
 

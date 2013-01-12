@@ -12,6 +12,12 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class TranslatorMappingObjectNoStrategy
 {
     /**
+     * The path
+     * @PHPCRODM\Id
+     */
+    private $id;
+
+    /**
      * The language this document currently is in
      * @PHPCRODM\Locale
      */
