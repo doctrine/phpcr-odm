@@ -131,34 +131,28 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapNodename($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ParentDocument) {
-                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapParentDocument($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Child) {
-                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapChild($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Children) {
-                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapChildren($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ReferenceOne) {
-                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapManyToOne($mapping);
                 } elseif ($fieldAnnot instanceof ODM\ReferenceMany) {
-                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapManyToMany($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Referrers) {
-                    $fieldAnnot->cascade = $this->getCascadeMode($fieldAnnot->cascade);
-
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapReferrers($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Locale) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
@@ -208,7 +202,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      * @param $cascadeList cascade list
      * @return integer a bitmask of cascade options.
      */
-    private function getCascadeMode($cascadeList)
+    private function getCascadeMode(array $cascadeList)
     {
         $cascade = 0;
         foreach ($cascadeList as $cascadeMode) {

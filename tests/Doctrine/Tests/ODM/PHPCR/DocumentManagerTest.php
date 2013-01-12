@@ -99,6 +99,35 @@ class DocumentManagerTest extends PHPCRTestCase
         $string = $dm->escapeFullText('Some{String}Wit"h[]Illegal^^^Chara\cte?rs:!');
         $this->assertEquals($string, 'Some\{String\}Wit"h\[\]Illegal\^\^\^Chara\cte\?rs\:\!');
     }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::createQueryBuilder
+     */
+    public function testCreateQueryBuilder()
+    {
+        $session = $this->getMock('PHPCR\SessionInterface');
+        $workspace = $this->getMock('PHPCR\WorkspaceInterface');
+        $queryManager = $this->getMock('PHPCR\Query\QueryManagerInterface');
+        $qomf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface');
+        $baseQuery = $this->getMock('PHPCR\Query\QueryInterface');
+        
+        $session->expects($this->once())
+            ->method('getWorkspace')
+            ->will($this->returnValue($workspace));
+        $workspace->expects($this->once())
+            ->method('getQueryManager')
+            ->will($this->returnValue($queryManager));
+        $queryManager->expects($this->once())
+            ->method('getQOMFactory')
+            ->will($this->returnValue($qomf));
+
+
+        $dm = DocumentManager::create($session);
+        $qb = $dm->createQueryBuilder();
+        $qb->from($this->getMock('PHPCR\Query\QOM\SourceInterface'));
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\QueryBuilder', $qb);
+    }
 }
 
 class DocumentManagerGetClassMetadata extends DocumentManager

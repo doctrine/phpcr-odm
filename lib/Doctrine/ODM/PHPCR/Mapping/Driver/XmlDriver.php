@@ -234,7 +234,7 @@ class XmlDriver extends FileDriver
      * @param $cascadeElement cascade element.
      * @return integer a bitmask of cascade options.
      */
-    private function getCascadeMode($cascadeElement)
+    private function getCascadeMode(SimpleXMLElement $cascadeElement)
     {
         $cascade = 0;
         foreach ($cascadeElement->children() as $action) {

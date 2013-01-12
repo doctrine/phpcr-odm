@@ -40,10 +40,6 @@ use Doctrine\Common\ClassLoader;
  */
 class ClassMetadata implements ClassMetadataInterface
 {
-    const TO_ONE = 5;
-    const TO_MANY = 10;
-    const ONE_TO_ONE = 1;
-    const ONE_TO_MANY = 2;
     const MANY_TO_ONE = 4;
     const MANY_TO_MANY = 8;
 
@@ -111,6 +107,11 @@ class ClassMetadata implements ClassMetadataInterface
     public $identifier;
 
     /**
+     * READ-ONLY: The field name of the UUID field
+     */
+    public $uuidFieldName;
+
+    /**
      * READ-ONLY: The name of the document class that is stored in the phpcr:class property
      */
     public $name;
@@ -175,13 +176,6 @@ class ClassMetadata implements ClassMetadataInterface
      * @var array
      */
     public $fieldMappings = array();
-
-    /**
-     * READ-ONLY: Array of fields to also load with a given method.
-     *
-     * @var array
-     */
-    public $alsoLoadMethods = array();
 
     /**
      * READ-ONLY: The registered lifecycle callbacks for documents of this class.
@@ -561,8 +555,11 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapParentDocument(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
-        $this->parentMapping = $mapping['fieldName'];
+        $this->parentMapping = $mapping;
         if (null !== $this->nodename && !$this->idStrategySet) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
         }
@@ -570,6 +567,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapChild(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         if (!isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
@@ -579,6 +579,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapChildren(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $mapping['name'] = $mapping['fieldName'];
         $this->childrenMappings[$mapping['fieldName']] = $mapping;
@@ -586,6 +589,9 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
     {
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
         $mapping = $this->validateAndCompleteReferrersMapping($mapping, $inherited, false);
         $mapping['name'] = $mapping['fieldName'];
         $this->referrersMappings[$mapping['fieldName']] = $mapping;
@@ -891,7 +897,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function isSingleValuedAssociation($fieldName)
+    public function isSingleValuedAssociation($name)
     {
         return false;
     }
@@ -899,9 +905,9 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function isCollectionValuedAssociation($fieldName)
+    public function isCollectionValuedAssociation($name)
     {
-        return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
+        return isset($this->associationsMappings[$name]);
     }
 
     /**
@@ -992,6 +998,14 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
+        if (isset($mapping['name']) && $mapping['name'] == 'jcr:uuid') {
+            if (null !== $this->uuidFieldName) {
+                throw new MappingException('You can only designate a single "Uuid" field!');
+            }
+
+            $this->uuidFieldName = $mapping['fieldName'];
+        }
+
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         if (!$inherited) {
@@ -1035,8 +1049,6 @@ class ClassMetadata implements ClassMetadataInterface
             'fieldMappings',
             'identifier',
             'name',
-//            'collection',
-//            'generatorType',
             'generatorOptions',
             'idGenerator'
         );
@@ -1159,5 +1171,10 @@ class ClassMetadata implements ClassMetadataInterface
                 $document->$callback();
             }
         }
+    }
+
+    public function getUuidFieldName()
+    {
+        return $this->uuidFieldName;
     }
 }

@@ -91,10 +91,10 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             // magic to tell this is an invalid query
             $this->setExpectedException('PHPCR\Query\InvalidQueryException');
         }
-        $query = $this->dm->createPhpcrQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
+        $query = $this->dm->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
 
-        $result = $this->dm->getDocumentsByPhpcrQuery($query, $this->type);
+        $result = $query->execute();
         $this->assertCount($rowCount, $result);
     }
 
@@ -110,9 +110,9 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $repository = $this->dm->getRepository($this->type);
         $query = $repository->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
 
-        $result = $this->dm->getDocumentsByPhpcrQuery($query, $this->type);
+        $result = $query->execute();
         $this->assertCount($rowCount, $result);
     }
 

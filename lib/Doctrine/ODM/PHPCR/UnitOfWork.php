@@ -258,7 +258,7 @@ class UnitOfWork
 
         foreach ($class->fieldMappings as $fieldName => $mapping) {
             if (isset($properties[$mapping['name']])) {
-                if ($class->isCollectionValuedAssociation($fieldName)) {
+                if (true === $mapping['multivalue']) {
                     if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
                         $documentState[$fieldName] = array_combine((array)$properties[$mapping['assoc']], (array)$properties[$mapping['name']]);
                     } else {
@@ -267,7 +267,7 @@ class UnitOfWork
                 } else {
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
-            } elseif ($class->isCollectionValuedAssociation($fieldName)) {
+            } elseif (true === $mapping['multivalue']) {
                 $documentState[$fieldName] = array();
             }
         }
@@ -340,7 +340,7 @@ class UnitOfWork
 
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
-            $documentState[$class->parentMapping] = $this->createProxyFromNode($node->getParent());
+            $documentState[$class->parentMapping['fieldName']] = $this->createProxyFromNode($node->getParent());
         }
 
         foreach ($class->childMappings as $childName => $mapping) {
@@ -522,13 +522,7 @@ class UnitOfWork
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
-                $class = $this->dm->getClassMetadata(get_class($document));
-                $id = $class->getIdentifierValue($document);
-                // ids might be objects too
-                if (is_object($id) && ! method_exists($id, '__toString')) {
-                    $id = 'Class: ' . get_class($id);
-                }
-                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm)." ($id)");
+                throw new \InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -546,7 +540,7 @@ class UnitOfWork
             if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                 $related = $class->reflFields[$assocName]->getValue($document);
                 if ($related !== null) {
-                    if ($class->associationsMappings[$assocName]['type'] & ClassMetadata::TO_ONE) {
+                    if ($class->associationsMappings[$assocName]['type'] == ClassMetadata::MANY_TO_ONE) {
                         if (is_array($related) || $related instanceof Collection) {
                             throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
                         }
@@ -602,7 +596,7 @@ class UnitOfWork
     private function cascadeScheduleParentInsert($class, $document, &$visited)
     {
         if ($class->parentMapping) {
-            $parent = $class->reflFields[$class->parentMapping]->getValue($document);
+            $parent = $class->reflFields[$class->parentMapping['fieldName']]->getValue($document);
             if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
                 $this->doScheduleInsert($parent, $visited);
             }
@@ -898,8 +892,8 @@ class UnitOfWork
             }
         }
 
-        if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
-            $parent = $actualData[$class->parentMapping];
+        if ($class->parentMapping && isset($actualData[$class->parentMapping['fieldName']])) {
+            $parent = $actualData[$class->parentMapping['fieldName']];
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
@@ -958,11 +952,11 @@ class UnitOfWork
             // collect assignment move operations
             $destPath = $destName = false;
 
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($actualData[$class->parentMapping])
-                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
+            if (isset($this->originalData[$oid][$class->parentMapping['fieldName']])
+                && isset($actualData[$class->parentMapping['fieldName']])
+                && $this->originalData[$oid][$class->parentMapping['fieldName']] !== $actualData[$class->parentMapping['fieldName']]
             ) {
-                $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                $destPath = $this->getDocumentId($actualData[$class->parentMapping['fieldName']]);
             }
 
             if (isset($this->originalData[$oid][$class->nodename])
@@ -976,7 +970,7 @@ class UnitOfWork
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                    $destPath = $this->getDocumentId($actualData[$class->parentMapping['fieldName']]);
                 }
                 if (false === $destName) {
                     $destName = $actualData[$class->nodename];
@@ -1114,7 +1108,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($child));
                 }
                 $nodename = $nodename ? : $mapping['name'];
@@ -1125,7 +1119,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $child);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation.');
+                throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
         }
     }
 
@@ -1142,14 +1136,14 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($reference));
                 }
                 $this->persistNew($targetClass, $reference);
                 $this->computeChangeSet($targetClass, $reference);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('A detached document was found through a reference during cascading a persist operation.');
+                throw new \InvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
         }
     }
 
@@ -1166,14 +1160,14 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                if ( !($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($referrer));
                 }
                 $this->persistNew($targetClass, $referrer);
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
-                throw new \InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation.');
+                throw new \InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
         }
     }
 
@@ -1223,12 +1217,226 @@ class UnitOfWork
         $this->session->refresh(true);
         $node = $this->session->getNode($this->getDocumentId($document));
 
+        $this->cascadeRefresh($document, $visited);
+
         $hints = array('refresh' => true);
         $document = $this->createDocument(get_class($document), $node, $hints);
 
-        $this->cascadeRefresh($document, $visited);
-
         return $document;
+    }
+
+    public function merge($document)
+    {
+        $visited = array();
+        return $this->doMerge($document, $visited);
+    }
+
+    private function doMergeSingleDocumentProperty($managedCopy, $document, \ReflectionProperty $prop, array $mapping)
+    {
+        if (null === $document) {
+            $prop->setValue($managedCopy, null);
+        } elseif ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
+            if ($this->getDocumentState($document) == self::STATE_MANAGED) {
+                $prop->setValue($managedCopy, $document);
+            } else {
+                $targetClass = $this->dm->getClassMetadata(get_class($document));
+                $id = $targetClass->getIdentifierValues($document);
+                $proxy = $this->createProxy($id, $targetClass->name);
+                $prop->setValue($managedCopy, $proxy);
+                $this->registerDocument($proxy, $id);
+            }
+        }
+    }
+
+    private function cascadeMergeCollection($managedCol, array $mapping)
+    {
+        if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE > 0) {
+            $managedCol->initialize();
+            if (!$managedCol->isEmpty()) {
+                // clear managed collection, in casacadeMerge() the collection is filled again.
+                $managedCol->unwrap()->clear();
+                $managedCol->setDirty(true);
+            }
+        }
+    }
+
+    private function doMerge($document, array &$visited, $prevManagedCopy = null, $assoc = null)
+    {
+        $oid = spl_object_hash($document);
+        if (isset($visited[$oid])) {
+            return; // Prevent infinite recursion
+        }
+
+        $visited[$oid] = $document; // mark visited
+
+        $class = $this->dm->getClassMetadata(get_class($document));
+
+        // First we assume DETACHED, although it can still be NEW but we can avoid
+        // an extra db-roundtrip this way. If it is not MANAGED but has an identity,
+        // we need to fetch it from the db anyway in order to merge.
+        // MANAGED entities are ignored by the merge operation.
+        if ($this->getDocumentState($document) == self::STATE_MANAGED) {
+            $managedCopy = $document;
+        } else {
+            $id = $class->getIdentifierValue($document);
+            $persist = false;
+
+            if (!$id) {
+                // document is new
+                $managedCopy = $class->newInstance();
+                $persist = true;
+            } else {
+                $managedCopy = $this->getDocumentById($id);
+                if ($managedCopy) {
+                    // We have the document in-memory already, just make sure its not removed.
+                    if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
+                        throw new \InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
+                    }
+                } else {
+                    // We need to fetch the managed copy in order to merge.
+                    $managedCopy = $this->dm->find($class->name, $id);
+                }
+
+                if ($managedCopy === null) {
+                    // If the identifier is ASSIGNED, it is NEW, otherwise an error
+                    // since the managed document was not found.
+                    if ($class->idGenerator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
+                        throw new \InvalidArgumentException("Document not found in merge operation: $id");
+                    }
+
+                    $managedCopy = $class->newInstance();
+                    $class->setIdentifierValue($managedCopy, $id);
+                    $persist = true;
+                }
+            }
+
+            $managedOid = spl_object_hash($managedCopy);
+
+            // Merge state of $document into existing (managed) document
+            foreach ($class->reflFields as $name => $prop) {
+                $other = $prop->getValue($document);
+                if (($other instanceof PersistentCollection && !$other->isInitialized())
+                    || ($other instanceof Proxy && !$other->__isInitialized())
+                ) {
+                    // do not merge fields marked lazy that have not been fetched.
+                    // keep the lazy persistent collection of the managed copy.
+                    continue;
+                }
+
+                if (isset($class->associationsMappings[$name])) {
+                    $mapping = $class->associationsMappings[$name];
+                    if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
+                        $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
+                    } else {
+                        $managedCol = $prop->getValue($managedCopy);
+                        if (!$managedCol) {
+                            $managedCol = new ReferenceManyCollection(
+                                $this->dm,
+                                array(),
+                                isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null
+                            );
+                            $prop->setValue($managedCopy, $managedCol);
+                            $this->originalData[$managedOid][$name] = $managedCol;
+                        }
+                        $this->cascadeMergeCollection($managedCol, $mapping);
+                    }
+                } elseif (isset($class->childMappings[$name])) {
+                    if (null !== $other) {
+                        $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $class->childMappings[$name]);
+                    }
+                } elseif (isset($class->childrenMappings[$name])) {
+                    $mapping = $class->childrenMappings[$name];
+                    $managedCol = $prop->getValue($managedCopy);
+                    if (!$managedCol) {
+                        $managedCol = new ChildrenCollection(
+                            $this->dm,
+                            $managedCopy,
+                            $mapping['filter'],
+                            $mapping['fetchDepth']
+                        );
+                        $prop->setValue($managedCopy, $managedCol);
+                        $this->originalData[$managedOid][$name] = $managedCol;
+                    }
+                    $this->cascadeMergeCollection($managedCol, $mapping);
+                } elseif (isset($class->referrersMappings[$name])) {
+                    $mapping = $class->referrersMappings[$name];
+                    $managedCol = $prop->getValue($managedCopy);
+                    if (!$managedCol) {
+                        $managedCol = new ReferrersCollection(
+                            $this->dm,
+                            $managedCopy,
+                            $mapping['referenceType'],
+                            $mapping['filter']
+                        );
+                        $prop->setValue($managedCopy, $managedCol);
+                        $this->originalData[$managedOid][$name] = $managedCol;
+                    }
+                    $this->cascadeMergeCollection($managedCol, $mapping);
+                } elseif ($class->parentMapping === $name) {
+                    $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $class->parentMappingData);
+                } elseif (isset($class->localeMapping[$name])
+                    || isset($class->versionNameField[$name])
+                    || isset($class->versionCreatedField[$name])
+                    || $class->node !== $name
+                    || $class->nodename !== $name
+                ) {
+                    if (null !== $other) {
+                        $prop->setValue($managedCopy, $other);
+                    }
+                } elseif (!$class->isIdentifier($name)) {
+                    $prop->setValue($managedCopy, $other);
+                }
+            }
+
+            if ($persist) {
+                $this->persistNew($class, $managedCopy);
+            }
+
+            // Mark the managed copy visited as well
+            $visited[$managedOid] = true;
+        }
+
+        if ($prevManagedCopy !== null) {
+            $prevClass = $this->dm->getClassMetadata(get_class($prevManagedCopy));
+            if ($assoc['type'] == ClassMetadata::MANY_TO_ONE) {
+                $prevClass->reflFields[$assoc['fieldName']]->setValue($prevManagedCopy, $managedCopy);
+            } else {
+                $prevClass->reflFields[$assoc['fieldName']]->getValue($prevManagedCopy)->add($managedCopy);
+            }
+        }
+
+        $this->cascadeMerge($document, $managedCopy, $visited);
+
+        return $managedCopy;
+    }
+
+    /**
+     * Cascades a merge operation to associated entities.
+     *
+     * @param object $document
+     * @param object $managedCopy
+     * @param array $visited
+     */
+    private function cascadeMerge($document, $managedCopy, array &$visited)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        foreach ($class->associationsMappings as $assoc) {
+            if ( $assoc['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
+                continue;
+            }
+            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                if ($related instanceof PersistentCollection) {
+                    // Unwrap so that foreach() does not initialize
+                    $related = $related->unwrap();
+                }
+                foreach ($related as $relatedDocument) {
+                    $this->doMerge($relatedDocument, $visited, $managedCopy, $assoc);
+                }
+            } else if ($related !== null) {
+                $this->doMerge($related, $visited, $managedCopy, $assoc);
+            }
+        }
     }
 
     /**
@@ -1277,7 +1485,7 @@ class UnitOfWork
         foreach ($class->associationsMappings as $assoc) {
             if ($assoc['cascade'] & ClassMetadata::CASCADE_REFRESH) {
                 $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
-                if ($related instanceof Collection) {
+                if ($related instanceof Collection || is_array($related)) {
                     if ($related instanceof PersistentCollection) {
                         // Unwrap so that foreach() does not initialize
                         $related = $related->unwrap();
@@ -1306,13 +1514,13 @@ class UnitOfWork
             if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
                 continue;
             }
-            $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
-            if ($relatedDocuments instanceof Collection) {
-                foreach ($relatedDocuments as $relatedDocument) {
+            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
-            } else if ($relatedDocuments !== null) {
-                $this->doDetach($relatedDocuments, $visited);
+            } else if ($related !== null) {
+                $this->doDetach($related, $visited);
             }
         }
 
@@ -1320,13 +1528,13 @@ class UnitOfWork
             if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
                 continue;
             }
-            $relatedDocuments = $class->reflFields[$assoc['fieldName']]->getValue($document);
-            if ($relatedDocuments instanceof Collection) {
-                foreach ($relatedDocuments as $relatedDocument) {
+            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
-            } else if ($relatedDocuments !== null) {
-                $this->doDetach($relatedDocuments, $visited);
+            } else if ($related !== null) {
+                $this->doDetach($related, $visited);
             }
         }
     }
@@ -1476,8 +1684,8 @@ class UnitOfWork
                 $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
             // make sure this reflects the id generator strategy generated id
-            if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
+            if ($class->parentMapping && !$class->reflFields[$class->parentMapping['fieldName']]->getValue($document)) {
+                $class->reflFields[$class->parentMapping['fieldName']]->setValue($document, $this->createDocument(null, $parentNode));
             }
 
             if ($this->writeMetadata) {
@@ -1485,6 +1693,13 @@ class UnitOfWork
             }
 
             $this->setMixins($class, $node);
+
+            // set the uuid value if it needs to be set
+            $uuidFieldName = $class->getUuidFieldName();
+            if ($uuidFieldName && $node->hasProperty('jcr:uuid')) {
+                $uuidValue = $node->getProperty('jcr:uuid')->getValue();
+                $class->setFieldValue($document, $uuidFieldName, $uuidValue);
+            }
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
@@ -1716,7 +1931,7 @@ class UnitOfWork
                 $class->setFieldValue($document, $class->nodename, $node->getName());
             }
             if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping, $this->createProxyFromNode($node->getParent()));
+                $class->setFieldValue($document, $class->parentMapping['fieldName'], $this->createProxyFromNode($node->getParent()));
             }
 
             // update all cached children of the document to reflect the move (path id changes)
@@ -2271,27 +2486,26 @@ class UnitOfWork
             return;
         }
 
-        // TODO: if locale is null, just get default locale, regardless of fallback or not
+        $oid = spl_object_hash($document);
 
-        // Determine which languages we will try to load
-        if (!$fallback) {
-            if (null === $locale) {
-                throw new MissingTranslationException('Error while loading the translations: no locale specified and the language fallback is disabled: '.self::objToStr($document, $this->dm));
+        if (null === $locale) {
+            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+        } else {
+            // Determine which languages we will try to load
+            if (!$fallback) {
+                $localesToTry = array($locale);
+            } else {
+                $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
             }
 
-            $localesToTry = array($locale);
-        } else {
-            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
-        }
+            $node = $this->session->getNode($this->getDocumentId($oid));
+            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
-        $oid = spl_object_hash($document);
-        $node = $this->session->getNode($this->getDocumentId($oid));
-        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-
-        foreach ($localesToTry as $desiredLocale) {
-            if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
-                $localeUsed = $desiredLocale;
-                break;
+            foreach ($localesToTry as $desiredLocale) {
+                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
+                    $localeUsed = $desiredLocale;
+                    break;
+                }
             }
         }
 
@@ -2398,17 +2612,18 @@ class UnitOfWork
 
     private static function objToStr($obj, DocumentManager $dm = null)
     {
-        if (method_exists($obj, '__toString')) {
-            return (string)$obj;
-        }
-
-        $string = get_class($obj).'@'.spl_object_hash($obj);
+        $string = method_exists($obj, '__toString')
+            ? (string)$obj
+            : get_class($obj).'@'.spl_object_hash($obj);
 
         if ($dm) {
             try {
                 $id = $dm->getUnitOfWork()->getDocumentId($obj);
                 $string .= " ($id)";
             } catch (\Exception $e) {
+                $class = $dm->getClassMetadata(get_class($obj));
+                $id = $class->getIdentifierValue($obj);
+                $string .= " ($id)";
             }
         }
 

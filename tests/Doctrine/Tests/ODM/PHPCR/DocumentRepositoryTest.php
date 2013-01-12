@@ -15,7 +15,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $session = $this->getMock('PHPCR\SessionInterface');
         $config = new \Doctrine\ODM\PHPCR\Configuration();
         $this->dm = $this->createDocumentManager();
-        $this->metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        $this->metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
     }
 
     public function testCreateQueryBuilder()
@@ -25,6 +25,13 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
 
         $from = $qb->getPart('from');
         
-        $this->assertEquals('stdClass', $from);
+        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $from);
+    }
+
+    public function testFindBy()
+    {
+        $rep = new DocumentRepository($this->dm, $this->metadata);
+        $res = $rep->findBy(array());
+        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $res);
     }
 }

@@ -28,12 +28,13 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterf
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
-use Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\PathNotFoundException;
 
@@ -463,6 +464,9 @@ class DocumentManager implements ObjectManager
      * Create a PHPCR Query from a query string in the specified query language to be
      * used with getDocumentsByPhpcrQuery()
      *
+     * Note that it is better to use {@link createQuery}, which returns a native ODM 
+     * query object, when working with the ODM.
+     *
      * See \PHPCR\Query\QueryInterface for list of generally supported types
      * and check your implementation documentation if you want to use a
      * different language.
@@ -476,6 +480,26 @@ class DocumentManager implements ObjectManager
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
         return $qm->createQuery($statement, $language);
+    }
+
+
+    /**
+     * Create a ODM Query from a query string in the specified query language to be
+     * used with getDocumentsByPhpcrQuery()
+     *
+     * See \PHPCR\Query\QueryInterface for list of generally supported types
+     * and check your implementation documentation if you want to use a
+     * different language.
+     *
+     * @param  string $statement the statement in the specified language
+     * @param  string $language the query language
+     *
+     * @return \Doctrine\ODM\PHPCR\Query
+     */
+    public function createQuery($statement, $language)
+    {
+        $phpcrQuery = $this->createPhpcrQuery($statement, $language);
+        return new Query($phpcrQuery, $this);
     }
 
     /**
@@ -495,9 +519,8 @@ class DocumentManager implements ObjectManager
     /**
      * Create lower level PHPCR query builder.
      *
-     * NOTE: The ODM QueryBuilder (@link createQueryBuilder) in preference to
-     *       the PHPCR QueryBuilder at this level. This method comes with a 
-     *       deprecation risk.
+     * NOTE: The ODM QueryBuilder (@link createQueryBuilder) is prefered over
+     *       the PHPCR QueryBuilder when working with the ODM.
      *
      * @return PHPCR\Util\QOM\QueryBuilder
      */
@@ -720,7 +743,6 @@ class DocumentManager implements ObjectManager
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
         $this->errorIfClosed();
         return $this->getUnitOfWork()->merge($document);
     }
@@ -1061,5 +1083,26 @@ class DocumentManager implements ObjectManager
         }
 
         $this->unitOfWork->initializeObject($document);
+    }
+    
+    /**
+     * Return the node of the given object
+     * 
+     * @param object $document
+     * 
+     * @return \PHPCR\NodeInterface
+     * 
+     * @throws \InvalidArgumentException if the document is not an object
+     * @throws \PHPCR\PHPCRException if the document is not managed
+     */
+    public function getNodeForDocument($document)
+    {
+        if (!is_object($document)) {
+            throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+        }
+        
+        $path = $this->unitOfWork->getDocumentId($document);
+        
+        return $this->session->getNode($path);
     }
 }

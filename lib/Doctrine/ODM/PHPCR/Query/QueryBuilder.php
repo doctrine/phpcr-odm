@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR\Query;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\Common\Collections\ExpressionBuilder;
 
 /**
@@ -149,19 +150,20 @@ class QueryBuilder
         $where = $where ? $exprVisitor->dispatch($where) : null;
 
         $this->state = self::STATE_CLEAN;
-        $this->query = $this->qomf->createQuery(
+        $phpcrQuery = $this->qomf->createQuery(
             $nodeType,
             $where,
             $this->getPart('orderBy'),
             $this->getPart('select')
         );
+        $this->query = new Query($phpcrQuery, $this->dm);
 
         if ($this->firstResult) {
-            $this->query->setOffset($this->firstResult);
+            $this->query->setFirstResult($this->firstResult);
         }
 
         if ($this->maxResults) {
-            $this->query->setLimit($this->maxResults);
+            $this->query->setMaxResults($this->maxResults);
         }
 
         return $this->query;

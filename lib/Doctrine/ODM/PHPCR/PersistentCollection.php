@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Closure;
 
 /**
@@ -32,7 +33,7 @@ use Closure;
  */
 abstract class PersistentCollection implements Collection
 {
-    /** @var \Doctrine\Common\Collections\ArrayCollection */
+    /** @var ArrayCollection */
     protected $collection;
 
     /**
@@ -72,12 +73,15 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection  The collection
+     * @return ArrayCollection  The collection
      */
     public function unwrap()
     {
-        $this->initialize();
-        return $this->collection;
+        if ($this->collection instanceof Collection) {
+            return $this->collection;
+        }
+
+        return new ArrayCollection();
     }
 
     /** {@inheritDoc} */

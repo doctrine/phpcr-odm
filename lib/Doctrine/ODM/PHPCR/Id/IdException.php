@@ -45,5 +45,7 @@ class IdException extends \RuntimeException
             get_class($document),
             $name
         );
+
+        return new self($message);
     }
 }

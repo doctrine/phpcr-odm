@@ -3,6 +3,9 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
+/**
+ * @group unit
+ */
 class QueryBuilderTest extends \PHPUnit_Framework_Testcase
 {
     public function setUp()
@@ -62,11 +65,20 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->qomf->expects($this->once())
             ->method('createQuery')
             ->will($this->returnValue($this->query));
-        $this->assertSame($this->qb->getQuery(), $this->query);
+        $odmQuery = $this->qb->getQuery();
+
+        $refl = new \ReflectionClass($odmQuery);
+        $prop = $refl->getProperty('query');
+        $prop->setAccessible(true);
+
+        $this->assertSame($prop->getValue($odmQuery), $this->query);
     }
 
     public function testGetQuery_noSource()
     {
+        $this->qomf->expects($this->once())
+            ->method('createQuery')
+            ->will($this->returnValue($this->query));
         $this->qomf->expects($this->once())
             ->method('selector')
             ->with('nt:base')
@@ -89,6 +101,9 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
 
     public function testGetQuery_from()
     {
+        $this->qomf->expects($this->once())
+            ->method('createQuery')
+            ->will($this->returnValue($this->query));
         $this->dm->expects($this->once())
             ->method('getClassMetadata')
             ->with('Document/FQN')

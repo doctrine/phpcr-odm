@@ -54,14 +54,14 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         $qb = $this->createQb();
         $qb->nodeType('nt:unstructured')->where($qb->expr()->eq('phpcr:class', 'Not Exist'));
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
         $qb->nodeType('nt:unstructured')->where(
             $qb->expr()->eq('username', 'dtl')
         );
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
     }
 
@@ -74,7 +74,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
                 $qb->expr()->eq('username', 'js')
             )
         );
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertEquals(
             "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js'", 
             $qb->__toString()
@@ -82,7 +82,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $res);
 
         $qb->andWhere($qb->expr()->eq('name', 'foobar'));
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertEquals(
             "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'foobar'", 
             $qb->__toString()
@@ -90,7 +90,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $res);
 
         $qb->orWhere($qb->expr()->eq('name', 'foobar'));
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertEquals(
             "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'foobar' OR name = 'foobar'", 
             $qb->__toString()
@@ -105,12 +105,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->where($qb->expr()->eq('phpcr:class', 'nt:unstructured'));
         $qb->where($qb->expr()->eq('status', 'query_builder'));
         $qb->orderBy('username');
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('dtl', $res->first()->username);
 
         $qb->orderBy('username', 'desc');
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('js', $res->first()->username);
     }
@@ -122,14 +122,14 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->nodeType('nt:unstructured');
         $qb->select('username');
         $qb->where($qb->expr()->eq('username', 'dtl'));
-        $rows = $qb->getQuery()->execute()->getRows();
+        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $this->assertEquals(1, $rows->count());
         $values = $rows->current()->getValues();
         $this->assertEquals(array('s.username' => 'dtl'), $values);
 
         // select two properties
         $qb->addSelect('name');
-        $rows = $qb->getQuery()->execute()->getRows();
+        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
 
         $this->assertEquals(array(
@@ -139,7 +139,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         // select overwrite
         $qb->select('status');
-        $rows = $qb->getQuery()->execute()->getRows();
+        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
 
         $this->assertEquals(array(
@@ -154,7 +154,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
         $qb->where($qb->expr()->eq('status', 'query_builder'));
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
     }
 
@@ -164,7 +164,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
         $qb->where($qb->expr()->eq('name', 'johnsmith'));
-        $res = $this->getDocs($qb->getQuery());
+        $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
 
         $fqns = array(

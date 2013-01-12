@@ -168,7 +168,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $subClass->mapNodename(array('fieldName' => $parentClass->nodename), $parentClass);
         }
         if ($parentClass->parentMapping) {
-            $subClass->mapParentDocument(array('fieldName' => $parentClass->parentMapping), $parentClass);
+            $subClass->mapParentDocument($parentClass->parentMapping, $parentClass);
         }
         if ($parentClass->localeMapping) {
             $subClass->mapLocale(array('fieldName' => $parentClass->localeMapping), $parentClass);
