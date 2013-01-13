@@ -15,8 +15,8 @@ use Doctrine\ODM\PHPCR\DocumentManager;
  */
 class Query
 {
-    const HYDRATE_DOCUMENT = 'object';
-    const HYDRATE_PHPCR = 'phpcr';
+    const HYDRATE_DOCUMENT = 1;
+    const HYDRATE_PHPCR = 2;
 
     protected $hydrationMode = self::HYDRATE_DOCUMENT;
     protected $parameters = array();

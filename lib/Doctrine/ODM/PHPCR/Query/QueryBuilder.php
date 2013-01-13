@@ -26,7 +26,7 @@ use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\Common\Collections\ExpressionBuilder;
 
 /**
- * Class to pragmatically construct query objects for the PHPCR ODM.
+ * Class to programatically construct query objects for the PHPCR ODM.
  *
  * @todo: Joins, Cloning, Parameter binding
  *

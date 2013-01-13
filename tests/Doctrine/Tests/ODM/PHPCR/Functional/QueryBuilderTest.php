@@ -76,26 +76,26 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         );
         $res = $qb->getQuery()->execute();
         $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js'", 
+            "SELECT s FROM nt:unstructured WHERE (username = 'dtl' OR username = 'js')", 
             $qb->__toString()
         );
         $this->assertCount(2, $res);
 
         $qb->andWhere($qb->expr()->eq('name', 'foobar'));
-        $res = $qb->getQuery()->execute();
         $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'foobar'", 
+            "SELECT s FROM nt:unstructured WHERE ((username = 'dtl' OR username = 'js') AND name = 'foobar')", 
             $qb->__toString()
         );
-        $this->assertCount(1, $res);
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
 
-        $qb->orWhere($qb->expr()->eq('name', 'foobar'));
+        $qb->orWhere($qb->expr()->eq('name', 'johnsmith'));
         $res = $qb->getQuery()->execute();
         $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE username = 'dtl' OR username = 'js' AND name = 'foobar' OR name = 'foobar'", 
+            "SELECT s FROM nt:unstructured WHERE (((username = 'dtl' OR username = 'js') AND name = 'foobar') OR name = 'johnsmith')", 
             $qb->__toString()
         );
-        $this->assertCount(1, $res);
+        $this->assertCount(2, $res);
     }
 
     public function testOrderBy()
