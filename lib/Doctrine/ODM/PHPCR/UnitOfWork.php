@@ -2471,7 +2471,7 @@ class UnitOfWork
      * If locale is not set then it is guessed using the
      * LanguageChooserStrategy class.
      *
-     * If the document is not translatable, this method returns immediatly.
+     * If the document is not translatable, this method returns immediately.
      *
      * @param object $document
      * @param ClassMetadata $metadata
@@ -2487,19 +2487,15 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-
-        $localesToTry = array();
-
-        if (null === $locale) {
-            $defaultLocale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
-            $localesToTry = array($defaultLocale);
-        } else {
-            // Determine which languages we will try to load
-            if (!$fallback) {
-                $localesToTry = array($locale);
+        // Determine which languages we will try to load
+        if (!$fallback) {
+            if (null === $locale) {
+                $localesToTry = array($this->dm->getLocaleChooserStrategy()->getDefaultLocale());
             } else {
-                $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
+                $localesToTry = array($locale);
             }
+        } else {
+            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
         }
 
         // Load translated fields for current locale
