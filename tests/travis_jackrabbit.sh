@@ -1,6 +1,6 @@
 #!/bin/bash
 
-composer require jackalope/jackalope-jackrabbit:1.*
+composer require jackalope/jackalope-jackrabbit:1.* --no-update
 
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"
