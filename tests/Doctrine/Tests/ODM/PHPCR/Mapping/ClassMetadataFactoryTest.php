@@ -115,11 +115,11 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidateTranslatableNoStrategy()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObjectNoStrategy');
+        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObjectNoStrategy');
     }
 
     public function testValidateTranslatable()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject');
+        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject');
     }
 }

@@ -330,9 +330,10 @@ class ClassMetadata implements ClassMetadataInterface
         // Verify & complete identifier mapping
         if (! $this->isMappedSuperclass) {
             if (! $this->identifier
-                && (! $this->parentMapping && $this->nodename)
-            )
-            throw MappingException::identifierRequired($this->name);
+                && !($this->parentMapping && $this->nodename)
+            ) {
+                throw MappingException::identifierRequired($this->name);
+            }
         }
     }
 
@@ -342,7 +343,7 @@ class ClassMetadata implements ClassMetadataInterface
      * @throws MappingException
      * @return void
      */
-    public function validateAssocations()
+    public function validateAssociations()
     {
         foreach ($this->associationsMappings as $mapping) {
             if ( !empty($mapping['targetDocument']) && ! ClassLoader::classExists($mapping['targetDocument']) ) {
@@ -846,7 +847,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getIdentifier()
     {
-        return $this->identifier;
+        return array($this->identifier);
     }
 
     /**
@@ -875,7 +876,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isIdentifier($fieldName)
     {
-        return $this->identifier === $fieldName ? true : false;
+        return $this->identifier === $fieldName;
     }
 
     /**
@@ -883,7 +884,10 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function hasField($fieldName)
     {
-        return isset($this->fieldMappings[$fieldName]);
+        return isset($this->fieldMappings[$fieldName])
+            || $fieldName === $this->node
+            || $fieldName === $this->nodename
+            ;
     }
 
     /**
@@ -891,7 +895,12 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function hasAssociation($fieldName)
     {
-        return false;
+        return isset($this->associationsMappings[$fieldName])
+            || isset($this->referrersMappings[$fieldName])
+            || isset($this->childrenMappings[$fieldName])
+            || isset($this->childMappings[$fieldName])
+            || $fieldName === $this->parentMapping['fieldName']
+            ;
     }
 
     /**

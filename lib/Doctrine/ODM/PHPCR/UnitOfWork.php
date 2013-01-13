@@ -2471,7 +2471,7 @@ class UnitOfWork
      * If locale is not set then it is guessed using the
      * LanguageChooserStrategy class.
      *
-     * If the document is not translatable, this method returns immediatly.
+     * If the document is not translatable, this method returns immediately.
      *
      * @param object $document
      * @param ClassMetadata $metadata
@@ -2487,25 +2487,25 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-
-        if (null === $locale) {
-            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
-        } else {
-            // Determine which languages we will try to load
-            if (!$fallback) {
-                $localesToTry = array($locale);
+        // Determine which languages we will try to load
+        if (!$fallback) {
+            if (null === $locale) {
+                $localesToTry = array($this->dm->getLocaleChooserStrategy()->getDefaultLocale());
             } else {
-                $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
+                $localesToTry = array($locale);
             }
+        } else {
+            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
+        }
 
-            $node = $this->session->getNode($this->getDocumentId($oid));
-            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+        // Load translated fields for current locale
+        $node = $this->session->getNode($this->getDocumentId($oid));
+        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
-            foreach ($localesToTry as $desiredLocale) {
-                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
-                    $localeUsed = $desiredLocale;
-                    break;
-                }
+        foreach ($localesToTry as $desiredLocale) {
+            if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
+                $localeUsed = $desiredLocale;
+                break;
             }
         }
 

@@ -211,7 +211,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
 
         $class->validateIdentifier();
-        $class->validateAssocations();
+        $class->validateAssociations();
         $class->validateLifecycleCallbacks($this->getReflectionService());
         $class->validateTranslatables();
 
