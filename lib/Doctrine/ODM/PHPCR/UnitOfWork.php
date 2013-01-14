@@ -256,7 +256,8 @@ class UnitOfWork
         // second param is false to get uuid rather than dereference reference properties to node instances
         $properties = $node->getPropertiesValues(null, false);
 
-        foreach ($class->fieldMappings as $fieldName => $mapping) {
+        foreach ($class->fieldMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
             if (isset($properties[$mapping['name']])) {
                 if (true === $mapping['multivalue']) {
                     if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
@@ -275,24 +276,27 @@ class UnitOfWork
         if ($class->node) {
             $documentState[$class->node] = $node;
         }
+
         if ($class->nodename) {
             $documentState[$class->nodename] = $node->getName();
         }
+
         if ($class->identifier) {
             $documentState[$class->identifier] = $node->getPath();
         }
 
         // pre-fetch all nodes for MANY_TO_ONE references
         $refNodeUUIDs = array();
-        foreach ($class->associationsMappings as $assocOptions) {
-            if (!$node->hasProperty($assocOptions['fieldName'])) {
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if (!$node->hasProperty($fieldName)) {
                 continue;
             }
 
-            if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE
-                && $assocOptions['strategy'] !== 'path'
+            if ($mapping['type'] & ClassMetadata::MANY_TO_ONE
+                && $mapping['strategy'] !== 'path'
             ) {
-                $refNodeUUIDs[] = $node->getProperty($assocOptions['fieldName'])->getString();
+                $refNodeUUIDs[] = $node->getProperty($fieldName)->getString();
             }
         }
 
@@ -301,50 +305,52 @@ class UnitOfWork
         }
 
         // initialize inverse side collections
-        foreach ($class->associationsMappings as $assocName => $assocOptions) {
-            if ($assocOptions['type'] & ClassMetadata::MANY_TO_ONE) {
-                if (!$node->hasProperty($assocOptions['fieldName'])) {
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['type'] === ClassMetadata::MANY_TO_ONE) {
+                if (!$node->hasProperty($fieldName)) {
                     continue;
                 }
 
-                if (isset($assocOptions['targetDocument'])) {
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($assocOptions['targetDocument'], '\\'))->name;
+                if (isset($mapping['targetDocument'])) {
+                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($mapping['targetDocument'], '\\'))->name;
 
-                    if ($assocOptions['strategy'] === 'path') {
-                        $path = $node->getProperty($assocOptions['fieldName'])->getString();
+                    if ($mapping['strategy'] === 'path') {
+                        $path = $node->getProperty($fieldName)->getString();
                     } else {
-                        $referencedNode = $node->getProperty($assocOptions['fieldName'])->getNode();
+                        $referencedNode = $node->getProperty($fieldName)->getNode();
                         $path = $referencedNode->getPath();
                     }
 
                     $proxy = $this->createProxy($path, $referencedClass);
                 } else {
-                    $referencedNode = $node->getProperty($assocOptions['fieldName'])->getNode();
+                    $referencedNode = $node->getProperty($fieldName)->getNode();
                     $proxy = $this->createProxyFromNode($referencedNode);
                 }
 
-                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $proxy;
-            } elseif ($assocOptions['type'] & ClassMetadata::MANY_TO_MANY) {
+                $documentState[$fieldName] = $proxy;
+            } elseif ($mapping['type'] === ClassMetadata::MANY_TO_MANY) {
                 $referencedNodes = array();
-                if ($node->hasProperty($assocOptions['fieldName'])) {
-                    foreach ($node->getProperty($assocOptions['fieldName'])->getString() as $reference) {
+                if ($node->hasProperty($fieldName)) {
+                    foreach ($node->getProperty($fieldName)->getString() as $reference) {
                         $referencedNodes[] = $reference;
                     }
                 }
 
-                $targetDocument = isset($assocOptions['targetDocument']) ? $assocOptions['targetDocument'] : null;
+                $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
                 $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument);
-                $documentState[$class->associationsMappings[$assocName]['fieldName']] = $coll;
+                $documentState[$fieldName] = $coll;
             }
         }
 
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
-            $documentState[$class->parentMapping['fieldName']] = $this->createProxyFromNode($node->getParent());
+            $documentState[$class->parentMapping] = $this->createProxyFromNode($node->getParent());
         }
 
-        foreach ($class->childMappings as $childName => $mapping) {
-            $documentState[$class->childMappings[$childName]['fieldName']] = $node->hasNode($mapping['name'])
+        foreach ($class->childMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            $documentState[$fieldName] = $node->hasNode($mapping['name'])
                 ? $this->createProxyFromNode($node->getNode($mapping['name']))
                 : null;
         }
@@ -359,12 +365,14 @@ class UnitOfWork
 
         $this->validateClassName($document, $requestedClassName);
 
-        foreach ($class->childrenMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth']);
+        foreach ($class->childrenMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth']);
         }
 
-        foreach ($class->referrersMappings as $mapping) {
-            $documentState[$mapping['fieldName']] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
+        foreach ($class->referrersMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
         }
 
         if ($overrideLocalValuesOid) {
@@ -462,9 +470,8 @@ class UnitOfWork
         }
 
         // Set the @Locale field
-        $localeField = $class->localeMapping;
-        if ($localeField) {
-            $class->reflFields[$localeField]->setValue($document, $locale);
+        if ($class->localeMapping) {
+            $class->reflFields[$class->localeMapping]->setValue($document, $locale);
         }
 
         $oid = spl_object_hash($document);
@@ -536,11 +543,12 @@ class UnitOfWork
      */
     private function cascadeScheduleInsert($class, $document, &$visited)
     {
-        foreach ($class->associationsMappings as $assocName => $assoc) {
-            if ( ($assoc['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                $related = $class->reflFields[$assocName]->getValue($document);
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) {
+                $related = $class->reflFields[$fieldName]->getValue($document);
                 if ($related !== null) {
-                    if ($class->associationsMappings[$assocName]['type'] == ClassMetadata::MANY_TO_ONE) {
+                    if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                         if (is_array($related) || $related instanceof Collection) {
                             throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
                         }
@@ -563,8 +571,9 @@ class UnitOfWork
         }
 
         $id = $this->getDocumentId($document);
-        foreach ($class->childMappings as $childName => $mapping) {
-            $child = $class->reflFields[$childName]->getValue($document);
+        foreach ($class->childMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            $child = $class->reflFields[$fieldName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $childId = $id.'/'.$mapping['name'];
@@ -573,8 +582,8 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->childrenMappings as $childName => $mapping) {
-            $children = $class->reflFields[$childName]->getValue($document);
+        foreach ($class->childrenMappings as $fieldName) {
+            $children = $class->reflFields[$fieldName]->getValue($document);
             if (empty($children)) {
                 continue;
             }
@@ -596,7 +605,7 @@ class UnitOfWork
     private function cascadeScheduleParentInsert($class, $document, &$visited)
     {
         if ($class->parentMapping) {
-            $parent = $class->reflFields[$class->parentMapping['fieldName']]->getValue($document);
+            $parent = $class->reflFields[$class->parentMapping]->getValue($document);
             if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
                 $this->doScheduleInsert($parent, $visited);
             }
@@ -695,9 +704,10 @@ class UnitOfWork
     private function cascadeRemove($document, &$visited)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
-        foreach ($class->associationsMappings as $assoc) {
-            if ($assoc['cascade'] & ClassMetadata::CASCADE_REMOVE) {
-                $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE) {
+                $related = $class->reflFields[$fieldName]->getValue($document);
                 if ($related instanceof Collection || is_array($related)) {
                     // If its a PersistentCollection initialization is intended! No unwrap!
                     foreach ($related as $relatedDocument) {
@@ -720,8 +730,8 @@ class UnitOfWork
     private function purgeChildren($document)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
-        foreach ($class->childMappings as $childName => $mapping) {
-            $child = $class->reflFields[$childName]->getValue($document);
+        foreach ($class->childMappings as $fieldName) {
+            $child = $class->reflFields[$fieldName]->getValue($document);
             if ($child !== null) {
                 $this->purgeChildren($child);
                 $this->unregisterDocument($child);
@@ -881,19 +891,20 @@ class UnitOfWork
             $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
             $this->scheduledInserts[$oid] = $document;
 
-            foreach ($class->childrenMappings as $name => $childMapping) {
-                if ($actualData[$name]) {
-                    foreach ($actualData[$name] as $nodename => $child) {
+            foreach ($class->childrenMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                if ($actualData[$fieldName]) {
+                    foreach ($actualData[$fieldName] as $nodename => $child) {
                         $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($childMapping, $child, $id, $nodename, $document);
+                        $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
             }
         }
 
-        if ($class->parentMapping && isset($actualData[$class->parentMapping['fieldName']])) {
-            $parent = $actualData[$class->parentMapping['fieldName']];
+        if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
+            $parent = $actualData[$class->parentMapping];
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
@@ -902,47 +913,50 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->childMappings as $name => $childMapping) {
-            if ($actualData[$name]) {
-                if ($this->originalData[$oid][$name] && $this->originalData[$oid][$name] !== $actualData[$name]) {
-                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($actualData[$name], $this->dm));
+        foreach ($class->childMappings as $fieldName) {
+            if ($actualData[$fieldName]) {
+                if ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $actualData[$fieldName]) {
+                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($actualData[$fieldName], $this->dm));
                 }
-                $this->computeChildChanges($childMapping, $actualData[$name], $id);
+                $mapping = $class->mappings[$fieldName];
+                $this->computeChildChanges($mapping, $actualData[$fieldName], $id);
             }
         }
 
-        foreach ($class->associationsMappings as $assocName => $assoc) {
-            if ($actualData[$assocName]) {
-                if ($actualData[$assocName] instanceof PersistentCollection
-                    && !$actualData[$assocName]->isInitialized()
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($actualData[$fieldName]) {
+                if ($actualData[$fieldName] instanceof PersistentCollection
+                    && !$actualData[$fieldName]->isInitialized()
                 ) {
                     continue;
                 }
 
-                if (is_array($actualData[$assocName]) || $actualData[$assocName] instanceof Collection) {
-                    if ($actualData[$assocName] instanceof PersistentCollection && !$actualData[$assocName]->isInitialized()) {
+                if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
+                    if ($actualData[$fieldName] instanceof PersistentCollection && !$actualData[$fieldName]->isInitialized()) {
                         continue;
                     }
 
-                    foreach ($actualData[$assocName] as $ref) {
+                    foreach ($actualData[$fieldName] as $ref) {
                         if ($ref !== null) {
-                            $this->computeReferenceChanges($assoc, $ref);
+                            $this->computeReferenceChanges($mapping, $ref);
                         }
                     }
                 } else {
-                    $this->computeReferenceChanges($assoc, $actualData[$assocName]);
+                    $this->computeReferenceChanges($mapping, $actualData[$fieldName]);
                 }
             }
         }
 
-        foreach ($class->referrersMappings as $name => $referrerMapping) {
-            if ($actualData[$name]) {
-                if ($actualData[$name] instanceof PersistentCollection && !$actualData[$name]->isInitialized()) {
+        foreach ($class->referrersMappings as $fieldName) {
+            if ($actualData[$fieldName]) {
+                if ($actualData[$fieldName] instanceof PersistentCollection && !$actualData[$fieldName]->isInitialized()) {
                     continue;
                 }
 
-                foreach ($actualData[$name] as $referrer) {
-                    $this->computeReferrerChanges($referrerMapping, $referrer);
+                $mapping = $class->mappings[$fieldName];
+                foreach ($actualData[$fieldName] as $referrer) {
+                    $this->computeReferrerChanges($mapping, $referrer);
                 }
             }
         }
@@ -952,11 +966,11 @@ class UnitOfWork
             // collect assignment move operations
             $destPath = $destName = false;
 
-            if (isset($this->originalData[$oid][$class->parentMapping['fieldName']])
-                && isset($actualData[$class->parentMapping['fieldName']])
-                && $this->originalData[$oid][$class->parentMapping['fieldName']] !== $actualData[$class->parentMapping['fieldName']]
+            if (isset($this->originalData[$oid][$class->parentMapping])
+                && isset($actualData[$class->parentMapping])
+                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
             ) {
-                $destPath = $this->getDocumentId($actualData[$class->parentMapping['fieldName']]);
+                $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
             }
 
             if (isset($this->originalData[$oid][$class->nodename])
@@ -970,7 +984,7 @@ class UnitOfWork
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = $this->getDocumentId($actualData[$class->parentMapping['fieldName']]);
+                    $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
                 }
                 if (false === $destName) {
                     $destName = $actualData[$class->nodename];
@@ -989,24 +1003,25 @@ class UnitOfWork
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
             }
 
-            foreach ($class->childrenMappings as $name => $childMapping) {
-                if ($actualData[$name] instanceof PersistentCollection
-                    && !$actualData[$name]->isInitialized()
+            foreach ($class->childrenMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                if ($actualData[$fieldName] instanceof PersistentCollection
+                    && !$actualData[$fieldName]->isInitialized()
                 ) {
                     continue;
                 }
 
                 $childNames = array();
-                if ($actualData[$name]) {
-                    foreach ($actualData[$name] as $nodename => $child) {
+                if ($actualData[$fieldName]) {
+                    foreach ($actualData[$fieldName] as $nodename => $child) {
                         $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($childMapping, $child, $id, $nodename, $document);
+                        $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
 
-                if ($this->originalData[$oid][$name] instanceof ChildrenCollection) {
-                    $originalNames = $this->originalData[$oid][$name]->getOriginalNodenames();
+                if ($this->originalData[$oid][$fieldName] instanceof ChildrenCollection) {
+                    $originalNames = $this->originalData[$oid][$fieldName]->getOriginalNodenames();
                     foreach ($originalNames as $key => $childName) {
                         if (!in_array($childName, $childNames)) {
                             $child = $this->getDocumentById($id.'/'.$childName);
@@ -1062,13 +1077,7 @@ class UnitOfWork
             ) {
                 // remove anything from $actualData that did not change
                 foreach ($actualData as $fieldName => $fieldValue) {
-                    if (isset($class->fieldMappings[$fieldName])
-                        || isset($class->childMappings[$fieldName])
-                        || isset($class->associationsMappings[$fieldName])
-                        || isset($class->referrersMappings[$fieldName])
-                        || isset($class->parentMapping[$fieldName])
-                        || isset($class->nodename)
-                    ) {
+                    if (isset($class->mappings[$fieldName])) {
                         if ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                             continue;
                         } elseif ($fieldValue instanceof ReferenceManyCollection && $fieldValue->changed()) {
@@ -1313,7 +1322,7 @@ class UnitOfWork
             $managedOid = spl_object_hash($managedCopy);
 
             // Merge state of $document into existing (managed) document
-            foreach ($class->reflFields as $name => $prop) {
+            foreach ($class->reflFields as $fieldName => $prop) {
                 $other = $prop->getValue($document);
                 if (($other instanceof PersistentCollection && !$other->isInitialized())
                     || ($other instanceof Proxy && !$other->__isInitialized())
@@ -1322,30 +1331,26 @@ class UnitOfWork
                     // keep the lazy persistent collection of the managed copy.
                     continue;
                 }
-
-                if (isset($class->associationsMappings[$name])) {
-                    $mapping = $class->associationsMappings[$name];
-                    if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
-                        $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
-                    } else {
-                        $managedCol = $prop->getValue($managedCopy);
-                        if (!$managedCol) {
-                            $managedCol = new ReferenceManyCollection(
-                                $this->dm,
-                                array(),
-                                isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null
-                            );
-                            $prop->setValue($managedCopy, $managedCol);
-                            $this->originalData[$managedOid][$name] = $managedCol;
-                        }
-                        $this->cascadeMergeCollection($managedCol, $mapping);
+                $mapping = $class->mappings[$fieldName];
+                if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
+                    $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
+                } elseif (ClassMetadata::MANY_TO_MANY === $mapping['type']) {
+                    $managedCol = $prop->getValue($managedCopy);
+                    if (!$managedCol) {
+                        $managedCol = new ReferenceManyCollection(
+                            $this->dm,
+                            array(),
+                            isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null
+                        );
+                        $prop->setValue($managedCopy, $managedCol);
+                        $this->originalData[$managedOid][$fieldName] = $managedCol;
                     }
-                } elseif (isset($class->childMappings[$name])) {
+                    $this->cascadeMergeCollection($managedCol, $mapping);
+                } elseif ('child' === $mapping['type']) {
                     if (null !== $other) {
-                        $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $class->childMappings[$name]);
+                        $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
                     }
-                } elseif (isset($class->childrenMappings[$name])) {
-                    $mapping = $class->childrenMappings[$name];
+                } elseif ('children' === $mapping['type']) {
                     $managedCol = $prop->getValue($managedCopy);
                     if (!$managedCol) {
                         $managedCol = new ChildrenCollection(
@@ -1355,11 +1360,10 @@ class UnitOfWork
                             $mapping['fetchDepth']
                         );
                         $prop->setValue($managedCopy, $managedCol);
-                        $this->originalData[$managedOid][$name] = $managedCol;
+                        $this->originalData[$managedOid][$fieldName] = $managedCol;
                     }
                     $this->cascadeMergeCollection($managedCol, $mapping);
-                } elseif (isset($class->referrersMappings[$name])) {
-                    $mapping = $class->referrersMappings[$name];
+                } elseif ('referrers' === $mapping['type']) {
                     $managedCol = $prop->getValue($managedCopy);
                     if (!$managedCol) {
                         $managedCol = new ReferrersCollection(
@@ -1369,21 +1373,16 @@ class UnitOfWork
                             $mapping['filter']
                         );
                         $prop->setValue($managedCopy, $managedCol);
-                        $this->originalData[$managedOid][$name] = $managedCol;
+                        $this->originalData[$managedOid][$fieldName] = $managedCol;
                     }
                     $this->cascadeMergeCollection($managedCol, $mapping);
-                } elseif ($class->parentMapping === $name) {
-                    $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $class->parentMapping);
-                } elseif (isset($class->localeMapping[$name])
-                    || isset($class->versionNameField[$name])
-                    || isset($class->versionCreatedField[$name])
-                    || $class->node !== $name
-                    || $class->nodename !== $name
-                ) {
+                } elseif ('parent' === $mapping['type']) {
+                    $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
+                } elseif (in_array($mapping['type'], array('locale', 'versionane', 'versioncreated', 'node', 'nodename'))) {
                     if (null !== $other) {
                         $prop->setValue($managedCopy, $other);
                     }
-                } elseif (!$class->isIdentifier($name)) {
+                } elseif (!$class->isIdentifier($fieldName)) {
                     $prop->setValue($managedCopy, $other);
                 }
             }
@@ -1420,21 +1419,22 @@ class UnitOfWork
     private function cascadeMerge($document, $managedCopy, array &$visited)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
-        foreach ($class->associationsMappings as $assoc) {
-            if ( $assoc['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
                 continue;
             }
-            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
                     // Unwrap so that foreach() does not initialize
                     $related = $related->unwrap();
                 }
                 foreach ($related as $relatedDocument) {
-                    $this->doMerge($relatedDocument, $visited, $managedCopy, $assoc);
+                    $this->doMerge($relatedDocument, $visited, $managedCopy, $mapping);
                 }
             } else if ($related !== null) {
-                $this->doMerge($related, $visited, $managedCopy, $assoc);
+                $this->doMerge($related, $visited, $managedCopy, $mapping);
             }
         }
     }
@@ -1482,9 +1482,10 @@ class UnitOfWork
     private function cascadeRefresh($document, &$visited)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
-        foreach ($class->associationsMappings as $assoc) {
-            if ($assoc['cascade'] & ClassMetadata::CASCADE_REFRESH) {
-                $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+        foreach ($class->referenceMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH) {
+                $related = $class->reflFields[$fieldName]->getValue($document);
                 if ($related instanceof Collection || is_array($related)) {
                     if ($related instanceof PersistentCollection) {
                         // Unwrap so that foreach() does not initialize
@@ -1510,11 +1511,12 @@ class UnitOfWork
     {
         $class = $this->dm->getClassMetadata(get_class($document));
 
-        foreach ($class->childrenMappings as $assoc) {
-            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+        foreach ($class->childrenMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
                 continue;
             }
-            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
@@ -1524,11 +1526,12 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->referrersMappings as $assoc) {
-            if ( $assoc['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+        foreach ($class->referrersMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            if ($mapping['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
                 continue;
             }
-            $related = $class->reflFields[$assoc['fieldName']]->getValue($document);
+            $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
@@ -1684,8 +1687,8 @@ class UnitOfWork
                 $class->reflFields[$class->nodename]->setValue($document, $node->getName());
             }
             // make sure this reflects the id generator strategy generated id
-            if ($class->parentMapping && !$class->reflFields[$class->parentMapping['fieldName']]->getValue($document)) {
-                $class->reflFields[$class->parentMapping['fieldName']]->setValue($document, $this->createDocument(null, $parentNode));
+            if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
             }
 
             if ($this->writeMetadata) {
@@ -1707,15 +1710,16 @@ class UnitOfWork
                     continue;
                 }
 
-                if (isset($class->fieldMappings[$fieldName])) {
-                    $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
+                if (in_array($fieldName, $class->fieldMappings)) {
+                    $mapping = $class->mappings[$fieldName];
+                    $type = PropertyType::valueFromName($mapping['type']);
                     if (null === $fieldValue) {
                         $types = $node->getMixinNodeTypes();
                         array_push($types, $node->getPrimaryNodeType());
                         $protected = false;
                         foreach ($types as $nt) {
                             /** @var $nt \PHPCR\NodeType\NodeTypeInterface */
-                            if (! $nt->canRemoveProperty($class->fieldMappings[$fieldName]['name'])) {
+                            if (! $nt->canRemoveProperty($mapping['name'])) {
                                 $protected = true;
                                 break;
                             }
@@ -1726,23 +1730,23 @@ class UnitOfWork
                         }
                     }
 
-                    if ($class->fieldMappings[$fieldName]['multivalue']) {
+                    if ($mapping['multivalue']) {
                         $value = empty($fieldValue) ? null : $fieldValue;
-                        if ($value && isset($class->fieldMappings[$fieldName]['assoc'])) {
-                            $node->setProperty($class->fieldMappings[$fieldName]['assoc'], array_keys($value), $type);
+                        if ($value && isset($mapping['assoc'])) {
+                            $node->setProperty($mapping['assoc'], array_keys($value), $type);
                             $value = array_values($value);
                         }
-                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
+                        $node->setProperty($mapping['name'], $value, $type);
                     } else {
-                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
+                        $node->setProperty($mapping['name'], $fieldValue, $type);
                     }
-                } elseif (isset($class->associationsMappings[$fieldName])) {
+                } elseif (in_array($fieldName, $class->referenceMappings)) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
 
                     //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates)
                     //to only update association fields
                     $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
-                    $data[$class->associationsMappings[$fieldName]['fieldName']] = $fieldValue;
+                    $data[$fieldName] = $fieldValue;
                     $associationChangesets[$oid] = array('fields' => $data, 'reorderings' => array());
                 }
             }
@@ -1799,26 +1803,31 @@ class UnitOfWork
                     continue;
                 }
 
-                if (isset($class->fieldMappings[$fieldName])) {
-                    $type = PropertyType::valueFromName($class->fieldMappings[$fieldName]['type']);
-                    if ($class->fieldMappings[$fieldName]['multivalue']) {
+                $mapping = $class->mappings[$fieldName];
+                if (in_array($fieldName, $class->fieldMappings)) {
+                    $type = PropertyType::valueFromName($mapping['type']);
+                    if ($mapping['multivalue']) {
                         $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
-                        if ($value && isset($class->fieldMappings[$fieldName]['assoc'])) {
-                            $node->setProperty($class->fieldMappings[$fieldName]['assoc'], array_keys($value), $type);
+                        if ($value && isset($mapping['assoc'])) {
+                            $node->setProperty($mapping['assoc'], array_keys($value), $type);
                             $value = array_values($value);
                         }
-                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $value, $type);
+                        $node->setProperty($mapping['name'], $value, $type);
                     } else {
-                        $node->setProperty($class->fieldMappings[$fieldName]['name'], $fieldValue, $type);
+                        $node->setProperty($mapping['name'], $fieldValue, $type);
                     }
-                } elseif (isset($class->associationsMappings[$fieldName]) && $this->writeMetadata) {
-
-                    if ($node->hasProperty($class->associationsMappings[$fieldName]['fieldName']) && is_null($fieldValue)) {
-                        $node->getProperty($class->associationsMappings[$fieldName]['fieldName'])->remove();
+                } elseif ($mapping['type'] === $class::MANY_TO_ONE
+                    || $mapping['type'] === $class::MANY_TO_MANY
+                ) {
+                    if (!$this->writeMetadata) {
+                        continue;
+                    }
+                    if ($node->hasProperty($fieldName) && is_null($fieldValue)) {
+                        $node->getProperty($fieldName)->remove();
                         continue;
                     }
 
-                    switch ($class->associationsMappings[$fieldName]['strategy']) {
+                    switch ($mapping['strategy']) {
                         case 'hard':
                             $strategy = PropertyType::REFERENCE;
                             break;
@@ -1830,7 +1839,7 @@ class UnitOfWork
                             break;
                     }
 
-                    if ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_MANY) {
+                    if ($mapping['type'] === $class::MANY_TO_MANY) {
                         if (isset($fieldValue)) {
                             $refNodesIds = array();
                             foreach ($fieldValue as $fv) {
@@ -1852,28 +1861,28 @@ class UnitOfWork
                             }
 
                             $refNodesIds = empty($refNodesIds) ? null : $refNodesIds;
-                            $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $refNodesIds, $strategy);
+                            $node->setProperty($fieldName, $refNodesIds, $strategy);
                         }
-                    } elseif ($class->associationsMappings[$fieldName]['type'] === $class::MANY_TO_ONE) {
+                    } elseif ($mapping['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
                             $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
 
                             if ($strategy === PropertyType::PATH) {
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getPath(), $strategy);
+                                $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
                             } else {
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
                                 $this->setMixins($refClass, $associatedNode);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
                                 }
-                                $node->setProperty($class->associationsMappings[$fieldName]['fieldName'], $associatedNode->getIdentifier(), $strategy);
+                                $node->setProperty($fieldName, $associatedNode->getIdentifier(), $strategy);
                             }
                         }
                     }
-                } elseif (isset($class->childMappings[$fieldName])) {
+                } elseif ('child' === $mapping['type']) {
                     if ($fieldValue === null) {
-                        if ($node->hasNode($class->childMappings[$fieldName]['name'])) {
-                            $child = $node->getNode($class->childMappings[$fieldName]['name']);
+                        if ($node->hasNode($mapping['name'])) {
+                            $child = $node->getNode($mapping['name']);
                             $childDocument = $this->createDocument(null, $child);
                             $this->purgeChildren($childDocument);
                             $child->remove();
@@ -1931,7 +1940,7 @@ class UnitOfWork
                 $class->setFieldValue($document, $class->nodename, $node->getName());
             }
             if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping['fieldName'], $this->createProxyFromNode($node->getParent()));
+                $class->setFieldValue($document, $class->parentMapping, $this->createProxyFromNode($node->getParent()));
             }
 
             // update all cached children of the document to reflect the move (path id changes)
@@ -1999,8 +2008,8 @@ class UnitOfWork
                 $parentNode->orderBefore($src, $dest);
                 // set all children collection to initialized = false to force reload after reordering
                 $class = $this->dm->getClassMetadata(get_class($parent));
-                foreach ($class->childrenMappings as $childrenMapping) {
-                    $children = $class->reflFields[$childrenMapping['fieldName']]->getValue($parent);
+                foreach ($class->childrenMappings as $fieldName) {
+                    $children = $class->reflFields[$fieldName]->getValue($parent);
                     $children->setInitialized(false);
                 }
             }

@@ -66,14 +66,14 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * Assertion shortcut:
      * Check the given $metadata contain a field mapping for $field that contains the $key and having the value $expectedValue.
-     * @param $expectedValue The expected value
+     * @param string $expectedValue The expected value
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $metadata The class metadata to test
-     * @param $field The name of the field's mapping to test
-     * @param $key The key expected to be in the field mapping
+     * @param string $field The name of the field's mapping to test
+     * @param string $key The key expected to be in the field mapping
      */
     protected function assertFieldMetadataEquals($expectedValue, ClassMetadata $metadata, $field, $key)
     {
-        $mapping = $metadata->getFieldMapping($field);
+        $mapping = $metadata->mappings[$field];
         $this->assertInternalType('array', $mapping);
         $this->assertTrue(array_key_exists($key, $mapping));
         $this->assertEquals($expectedValue, $mapping[$key]);

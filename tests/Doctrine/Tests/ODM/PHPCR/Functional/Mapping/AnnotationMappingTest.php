@@ -2,8 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Mapping;
 
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
-    Doctrine\ODM\PHPCR\DocumentRepository,
+use Doctrine\ODM\PHPCR\DocumentRepository,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
     Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
@@ -11,7 +10,7 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
 /**
  * @group functional
  */
-class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
@@ -56,7 +55,7 @@ class MappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($second);
     }
 
-    public function testSecoundLevelOverwrite()
+    public function testSecondLevelOverwrite()
     {
         $localePrefs = array(
             'en' => array('en', 'de'),

@@ -70,7 +70,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->markTestIncomplete('Test cache driver setting and handling.');
     }
 
-    public function testLoadMetadata_referenceableChildOverriddenAsFalse()
+    public function testLoadMetadataReferenceableChildOverriddenAsFalse()
     {
         // if the child class overrides referenceable as false it is not taken into account
         // as we only ever set the referenceable property to TRUE. This prevents us from
@@ -80,7 +80,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($meta->referenceable);
     }
 
-    public function testLoadMetadata_defaults()
+    public function testLoadMetadataDefaults()
     {
         $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DefaultMappingObject');
         $this->assertFalse($meta->referenceable);
@@ -90,7 +90,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($meta->customRepositoryClassName);
     }
 
-    public function testLoadMetadata_classInheritanceChild()
+    public function testLoadMetadataClassInheritanceChild()
     {
         $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildMappingObject');
         $this->assertTrue($meta->referenceable);
@@ -100,7 +100,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Foobar', $meta->customRepositoryClassName);
     }
 
-    public function testLoadMetadata_classInheritanceChildCanOverride()
+    public function testLoadMetadataClassInheritanceChildCanOverride()
     {
         $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildOverridesMappingObject');
         $this->assertTrue($meta->referenceable);

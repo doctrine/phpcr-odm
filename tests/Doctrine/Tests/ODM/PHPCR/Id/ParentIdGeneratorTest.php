@@ -113,7 +113,7 @@ class ParentClassMetadataProxy extends ClassMetadata
     public function getFieldValue($document, $field)
     {
         switch ($field) {
-            case $this->parentMapping['fieldName']:
+            case $this->parentMapping:
                 return $this->_parent;
             case $this->nodename:
                 return $this->_nodename;

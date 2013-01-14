@@ -32,7 +32,7 @@ class ParentIdGenerator extends IdGenerator
      */
     public function generate($document, ClassMetadata $cm, DocumentManager $dm)
     {
-        $parent = $cm->getFieldValue($document, $cm->parentMapping['fieldName']);
+        $parent = $cm->getFieldValue($document, $cm->parentMapping);
         $name = $cm->getFieldValue($document, $cm->nodename);
         $id = $cm->getFieldValue($document, $cm->identifier);
 

@@ -65,6 +65,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     public function __construct(DocumentManager $dm)
     {
         $this->dm = $dm;
+
         $conf = $this->dm->getConfiguration();
         $this->setCacheDriver($conf->getMetadataCacheImpl());
         $this->driver = $conf->getMetadataDriverImpl();
@@ -139,45 +140,47 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
-        foreach ($parentClass->fieldMappings as $mapping) {
-            $subClass->mapField($mapping, $parentClass);
+        foreach ($parentClass->fieldMappings as $fieldName) {
+            $subClass->mapField($parentClass->mappings[$fieldName], $parentClass);
         }
-        foreach ($parentClass->associationsMappings as $mapping) {
+        foreach ($parentClass->referenceMappings as $fieldName) {
+            $mapping = $parentClass->mappings[$fieldName];
             if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
                 $subClass->mapManyToOne($mapping, $parentClass);
             } else {
                 $subClass->mapManyToMany($mapping, $parentClass);
             }
         }
-        foreach ($parentClass->childMappings as $mapping) {
+        foreach ($parentClass->childMappings as $fieldName) {
+            $mapping = $parentClass->mappings[$fieldName];
             $subClass->mapChild($mapping, $parentClass);
         }
-        foreach ($parentClass->childrenMappings as $mapping) {
-            $subClass->mapChildren($mapping, $parentClass);
+        foreach ($parentClass->childrenMappings as $fieldName) {
+            $subClass->mapChildren($parentClass->mappings[$fieldName], $parentClass);
         }
-        foreach ($parentClass->referrersMappings as $mapping) {
-            $subClass->mapReferrers($mapping, $parentClass);
+        foreach ($parentClass->referrersMappings as $fieldName) {
+            $subClass->mapReferrers($parentClass->mappings[$fieldName], $parentClass);
         }
         if ($parentClass->identifier) {
-            $subClass->mapId(array('fieldName' => $parentClass->identifier, 'id' => true, 'strategy' => $parentClass->idGenerator), $parentClass);
+            $subClass->mapId($parentClass->mappings[$parentClass->identifier], $parentClass);
         }
         if ($parentClass->node) {
-            $subClass->mapNode(array('fieldName' => $parentClass->node), $parentClass);
+            $subClass->mapNode($parentClass->mappings[$parentClass->node], $parentClass);
         }
         if ($parentClass->nodename) {
-            $subClass->mapNodename(array('fieldName' => $parentClass->nodename), $parentClass);
+            $subClass->mapNodename($parentClass->mappings[$parentClass->nodename], $parentClass);
         }
         if ($parentClass->parentMapping) {
-            $subClass->mapParentDocument($parentClass->parentMapping, $parentClass);
+            $subClass->mapParentDocument($parentClass->mappings[$parentClass->parentMapping], $parentClass);
         }
         if ($parentClass->localeMapping) {
-            $subClass->mapLocale(array('fieldName' => $parentClass->localeMapping), $parentClass);
+            $subClass->mapLocale($parentClass->mappings[$parentClass->localeMapping], $parentClass);
         }
         if ($parentClass->versionNameField) {
-            $subClass->mapVersionName(array('fieldName' => $parentClass->versionNameField), $parentClass);
+            $subClass->mapVersionName($parentClass->mappings[$parentClass->versionNameField], $parentClass);
         }
         if ($parentClass->versionCreatedField) {
-            $subClass->mapVersionCreated(array('fieldName' => $parentClass->versionCreatedField), $parentClass);
+            $subClass->mapVersionCreated($parentClass->mappings[$parentClass->versionCreatedField], $parentClass);
         }
         if ($parentClass->lifecycleCallbacks) {
             $subClass->mapLifecycleCallbacks($parentClass->lifecycleCallbacks);
@@ -185,8 +188,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
         $subClass->setReferenceable($parentClass->referenceable);
 
-        // Versionable defaults to false - only set on child class if
-        // it is non-falsy
+        // Versionable defaults to false - only set on child class if it is non-false
         if ($parentClass->versionable) {
             $subClass->setVersioned($parentClass->versionable);
         }
@@ -205,13 +207,13 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function validateRuntimeMetadata($class, $parent)
     {
-        if ( ! $class->reflClass ) {
+        if (!$class->reflClass) {
             // only validate if there is a reflection class instance
             return;
         }
 
         $class->validateIdentifier();
-        $class->validateAssociations();
+        $class->validateReferences();
         $class->validateLifecycleCallbacks($this->getReflectionService());
         $class->validateTranslatables();
 

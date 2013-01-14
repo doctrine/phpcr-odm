@@ -74,7 +74,7 @@ class ClassMetadata implements ClassMetadataInterface
     protected static $validVersionableAnnotations = array('simple', 'full');
 
     /**
-     * The ReflectionProperty instances of the mapped class.
+     * READ-ONLY: The ReflectionProperty instances of the mapped class.
      *
      * @var array
      */
@@ -153,7 +153,7 @@ class ClassMetadata implements ClassMetadataInterface
     public $parentMapping;
 
     /**
-     * The name of the custom repository class used for the document class.
+     * READ-ONLY: The name of the custom repository class used for the document class.
      * (Optional).
      *
      * @var string
@@ -162,6 +162,13 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * READ-ONLY: The field mappings of the class.
+     *
+     * @var array
+     */
+    public $fieldMappings = array();
+
+    /**
+     * READ-ONLY: The all mappings of the class.
      * Keys are field names and values are mapping definitions.
      *
      * The mapping definition array has the following values:
@@ -175,7 +182,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $fieldMappings = array();
+    public $mappings = array();
 
     /**
      * READ-ONLY: The registered lifecycle callbacks for documents of this class.
@@ -200,50 +207,63 @@ class ClassMetadata implements ClassMetadataInterface
     public $isMappedSuperclass = false;
 
     /**
+     * READ-ONLY: The reference mappings of the class.
+     *
      * @var array
      */
-    public $associationsMappings = array();
+    public $referenceMappings = array();
 
     /**
-     * Mapping of child documents that are child nodes in the repository
+     * READ-ONLY: The child mappings of the class.
+     *
+     * @var array
      */
     public $childMappings = array();
 
     /**
-     * Mapping of children: access child nodes through a collection
+     * READ-ONLY: The children mappings of the class.
+     *
+     * @var array
      */
     public $childrenMappings = array();
 
     /**
-     * Mapping of referrers: access referrer nodes through a collection
+     * READ-ONLY: The referrers mappings of the class.
+     *
+     * @var array
      */
     public $referrersMappings = array();
 
     /**
-     * Mapping of locale (actual locale)
+     * READ-ONLY: Name of the locale property
+     *
+     * @var string
      */
     public $localeMapping;
 
     /**
-     * Name of the version name property of this document
+     * READ-ONLY: Name of the version name property of this document
+     *
      * @var string
      */
     public $versionNameField;
 
     /**
-     * Name of the version created property of this document
+     * READ-ONLY: Name of the version created property of this document
+     *
      * @var string
      */
     public $versionCreatedField;
 
     /**
-     * List of translatable fields
+     * READ-ONLY: List of translatable fields
+     *
      * @var array
      */
     public $translatableFields = array();
 
     /**
-     * Whether this document should be versioned. If this is not false, it will
+     * READ-ONLY: Whether this document should be versioned. If this is not false, it will
      * be one of the values from self::validVersionableAnnotations
      *
      * @var bool|string
@@ -251,27 +271,23 @@ class ClassMetadata implements ClassMetadataInterface
     public $versionable = false;
 
     /**
-     * determines if the document is referenceable or not
+     * READ-ONLY: determines if the document is referenceable or not
      *
      * @var bool
      */
     public $referenceable = false;
 
     /**
-     * Strategy key to find field translations.
+     * READ-ONLY: Strategy key to find field translations.
      * This is the key used for DocumentManager::getTranslationStrategy
+     *
      * @var string
      */
     public $translator;
 
     /**
-     * READ-ONLY: The Id generator options.
+     * The inherited fields of this class
      *
-     * @var array
-     */
-    public $generatorOptions = array();
-
-    /**
      * @var array
      */
     private $inheritedFields = array();
@@ -308,14 +324,13 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->reflClass = $reflService->getClass($this->name);
         $this->namespace = $reflService->getClassNamespace($this->name);
-        foreach ($this->fieldMappings as $field => $mapping) {
-            if (isset($mapping['declared'])) {
-                $reflField = new ReflectionProperty($mapping['declared'], $field);
-            } else {
-                $reflField = $this->reflClass->getProperty($field);
-            }
+        foreach ($this->getFieldNames() as $fieldName) {
+            $reflField = isset($this->mappings[$fieldName]['declared'])
+                ? new ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
+                : $this->reflClass->getProperty($fieldName)
+            ;
             $reflField->setAccessible(true);
-            $this->reflFields[$field] = $reflField;
+            $this->reflFields[$fieldName] = $reflField;
         }
     }
 
@@ -343,10 +358,11 @@ class ClassMetadata implements ClassMetadataInterface
      * @throws MappingException
      * @return void
      */
-    public function validateAssociations()
+    public function validateReferences()
     {
-        foreach ($this->associationsMappings as $mapping) {
-            if ( !empty($mapping['targetDocument']) && ! ClassLoader::classExists($mapping['targetDocument']) ) {
+        foreach ($this->referenceMappings as $fieldName) {
+            $mapping = $this->mappings[$fieldName];
+            if (!empty($mapping['targetDocument']) && !ClassLoader::classExists($mapping['targetDocument']) ) {
                 throw MappingException::invalidTargetDocumentClass($mapping['targetDocument'], $this->name, $mapping['fieldName']);
             }
         }
@@ -379,7 +395,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         foreach ($this->lifecycleCallbacks as $callbacks) {
             foreach ($callbacks as $callbackFuncName) {
-                if ( ! $reflService->hasPublicMethod($this->name, $callbackFuncName)) {
+                if (!$reflService->hasPublicMethod($this->name, $callbackFuncName)) {
                     throw MappingException::lifecycleCallbackMethodNotFound($this->name, $callbackFuncName);
                 }
             }
@@ -541,12 +557,14 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapNode(array $mapping, ClassMetadata $inherited = null)
     {
+        $mapping['type'] = 'node';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->node = $mapping['fieldName'];
     }
 
     public function mapNodename(array $mapping, ClassMetadata $inherited = null)
     {
+        $mapping['type'] = 'nodename';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->nodename = $mapping['fieldName'];
         if (null !== $this->parentMapping && !$this->idStrategySet) {
@@ -559,8 +577,9 @@ class ClassMetadata implements ClassMetadataInterface
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
         }
+        $mapping['type'] = 'parent';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
-        $this->parentMapping = $mapping;
+        $this->parentMapping = $mapping['fieldName'];
         if (null !== $this->nodename && !$this->idStrategySet) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
         }
@@ -571,11 +590,9 @@ class ClassMetadata implements ClassMetadataInterface
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
         }
+        $mapping['type'] = 'child';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
-        if (!isset($mapping['name'])) {
-            $mapping['name'] = $mapping['fieldName'];
-        }
-        $this->childMappings[$mapping['fieldName']] = $mapping;
+        $this->childMappings[] = $mapping['fieldName'];
     }
 
     public function mapChildren(array $mapping, ClassMetadata $inherited = null)
@@ -583,23 +600,28 @@ class ClassMetadata implements ClassMetadataInterface
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
         }
+        $mapping['type'] = 'children';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
-        $mapping['name'] = $mapping['fieldName'];
-        $this->childrenMappings[$mapping['fieldName']] = $mapping;
+        $this->childrenMappings[] = $mapping['fieldName'];
     }
 
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
     {
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+        }
+
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
         }
-        $mapping = $this->validateAndCompleteReferrersMapping($mapping, $inherited, false);
-        $mapping['name'] = $mapping['fieldName'];
-        $this->referrersMappings[$mapping['fieldName']] = $mapping;
+        $mapping['type'] = 'referrers';
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $this->referrersMappings[] = $mapping['fieldName'];
     }
 
     public function mapLocale(array $mapping, ClassMetadata $inherited = null)
     {
+        $mapping['type'] = 'locale';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->localeMapping = $mapping['fieldName'];
     }
@@ -610,6 +632,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
         }
 
+        $mapping['type'] = 'versionname';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->versionNameField = $mapping['fieldName'];
     }
@@ -620,6 +643,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
         }
 
+        $mapping['type'] = 'versioncreated';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->versionCreatedField = $mapping['fieldName'];
     }
@@ -629,25 +653,17 @@ class ClassMetadata implements ClassMetadataInterface
         $this->setLifecycleCallbacks($mapping);
     }
 
-    protected function validateAndCompleteReferrersMapping($mapping, ClassMetadata $inherited = null)
-    {
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
-        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
-        }
-        return $mapping;
-    }
-
     protected function validateAndCompleteFieldMapping($mapping, ClassMetadata $inherited = null, $isField = true)
     {
         if ($inherited) {
-            if ( ! isset($mapping['inherited']) && ! $inherited->isMappedSuperclass) {
+            if (!isset($mapping['inherited']) && !$inherited->isMappedSuperclass) {
                 $this->inheritedFields[$mapping['fieldName']] = $inherited->name;
             }
-            if ( ! isset($mapping['declared'])) {
+            if (!isset($mapping['declared'])) {
                 $mapping['declared'] = $inherited->name;
             }
             $this->reflFields[$mapping['fieldName']] = $inherited->getReflectionProperty($mapping['fieldName']);
+            $this->mappings[$mapping['fieldName']] = $mapping;
             return $mapping;
         }
 
@@ -659,7 +675,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("fieldName must be of type string.");
         }
 
-        if ($isField && !isset($mapping['name'])) {
+        if (!isset($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
         }
 
@@ -670,33 +686,30 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if (isset($this->fieldMappings[$mapping['fieldName']])
-            || ($this->node == $mapping['fieldName'])
-            || ($this->nodename == $mapping['fieldName'])
-            || ($this->parentMapping == $mapping['fieldName'])
-            || ($this->versionNameField == $mapping['fieldName'])
-            || ($this->versionCreatedField == $mapping['fieldName'])
-            || isset($this->associationsMappings[$mapping['fieldName']])
-            || isset($this->childMappings[$mapping['fieldName']])
-            || isset($this->childrenMappings[$mapping['fieldName']])
-            || isset($this->referrersMappings[$mapping['fieldName']])
-        ) {
+        if (isset($this->mappings[$mapping['fieldName']])) {
             if (!$isField
                 || empty($mapping['type'])
-                || empty($this->fieldMappings[$mapping['fieldName']])
-                || $this->fieldMappings[$mapping['fieldName']]['type'] !== $mapping['type']
+                || empty($this->mappings[$mapping['fieldName']])
+                || $this->mappings[$mapping['fieldName']]['type'] !== $mapping['type']
             ) {
                 throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
             }
         }
 
-        if ($isField && !isset($mapping['type'])) {
+        if (!isset($mapping['type'])) {
             throw MappingException::missingTypeDefinition($this->name, $mapping['fieldName']);
+        }
+
+        if ($mapping['type'] === 'int') {
+            $mapping['type'] = 'long';
+        } elseif ($mapping['type'] === 'float') {
+            $mapping['type'] = 'double';
         }
 
         $reflProp = $this->reflClass->getProperty($mapping['fieldName']);
         $reflProp->setAccessible(true);
         $this->reflFields[$mapping['fieldName']] = $reflProp;
+        $this->mappings[$mapping['fieldName']] = $mapping;
 
         return $mapping;
     }
@@ -712,21 +725,28 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }
-        if (isset($mapping['strategy']) && !in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
+        if (empty($mapping['strategy'])) {
+            $mapping['strategy'] = 'weak';
+        } elseif (!in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
             throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
+        $this->mappings[$mapping['fieldName']] = $mapping;
         return $mapping;
     }
 
     public function validateClassMapping()
     {
         $assocFields = array();
-        foreach ($this->fieldMappings as $fieldName => $mapping) {
+        foreach ($this->fieldMappings as $fieldName) {
+            $mapping = $this->mappings[$fieldName];
             if (empty($mapping['assoc'])) {
                 continue;
             }
 
-            if (!empty($this->fieldMappings[$mapping['assoc']])) {
+            if (isset($this->mappings[$mapping['assoc']])) {
                 throw MappingException::assocOverlappingFieldDefinition($this->name, $fieldName, $mapping['assoc']);
             }
 
@@ -746,43 +766,16 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapManyToOne($mapping, ClassMetadata $inherited = null)
     {
-        $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
         $mapping['type'] = self::MANY_TO_ONE;
-
-        $this->storeAssociationMapping($mapping);
+        $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
+        $this->referenceMappings[] = $mapping['fieldName'];
     }
 
     public function mapManyToMany($mapping, ClassMetadata $inherited = null)
     {
-        $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
         $mapping['type'] = self::MANY_TO_MANY;
-
-        $this->storeAssociationMapping($mapping);
-    }
-
-    public function storeAssociationMapping($mapping)
-    {
-        if (empty($mapping['strategy'])) {
-            $mapping['strategy'] = 'weak';
-        }
-        if (empty($mapping['cascade'])) {
-            $mapping['cascade'] = null;
-        }
-        $this->associationsMappings[$mapping['fieldName']] = $mapping;
-    }
-
-    /**
-     * Gets the mapping of a field.
-     *
-     * @param string $fieldName  The field name.
-     * @return array  The field mapping.
-     */
-    public function getFieldMapping($fieldName)
-    {
-        if (!isset($this->fieldMappings[$fieldName])) {
-            throw MappingException::mappingNotFound($this->name, $fieldName);
-        }
-        return $this->fieldMappings[$fieldName];
+        $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
+        $this->referenceMappings[] = $mapping['fieldName'];
     }
 
     /**
@@ -790,20 +783,12 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $generator
      */
-    public function setIdGenerator($generator)
+    protected function setIdGenerator($generator)
     {
         if (is_string($generator)) {
             $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($generator));
         }
         $this->idGenerator = $generator;
-    }
-
-    /**
-     * Sets the Id generator options.
-     */
-    public function setIdGeneratorOptions($generatorOptions)
-    {
-        $this->generatorOptions = $generatorOptions;
     }
 
     /**
@@ -884,10 +869,25 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function hasField($fieldName)
     {
-        return isset($this->fieldMappings[$fieldName])
-            || $fieldName === $this->node
-            || $fieldName === $this->nodename
-            ;
+        return in_array($fieldName, $this->fieldMappings)
+            || $this->localeMapping === $fieldName
+            || $this->node === $fieldName
+            || $this->nodename === $fieldName
+            || $this->versionNameField === $fieldName
+            || $this->versionCreatedField === $fieldName
+        ;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getField($fieldName)
+    {
+        if ($this->hasField($fieldName)) {
+            throw MappingException::fieldNotFound($this->name, $fieldName);
+        }
+
+        return $this->mappings[$fieldName];
     }
 
     /**
@@ -895,28 +895,42 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function hasAssociation($fieldName)
     {
-        return isset($this->associationsMappings[$fieldName])
+        return isset($this->mappings[$fieldName])
+            && in_array($this->mappings[$fieldName]['type'], array(self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'children', 'child', 'parent'))
+        ;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAssociation($fieldName)
+    {
+        if ($this->hasAssociation($fieldName)) {
+            throw MappingException::associationNotFound($this->name, $fieldName);
+        }
+
+        return $this->mappings[$fieldName];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isSingleValuedAssociation($fieldName)
+    {
+        return isset($this->childMappings[$fieldName])
+            || $fieldName === $this->parentMapping
+        ;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isCollectionValuedAssociation($fieldName)
+    {
+        return isset($this->referenceMappings[$fieldName])
             || isset($this->referrersMappings[$fieldName])
             || isset($this->childrenMappings[$fieldName])
-            || isset($this->childMappings[$fieldName])
-            || $fieldName === $this->parentMapping['fieldName']
-            ;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function isSingleValuedAssociation($name)
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function isCollectionValuedAssociation($name)
-    {
-        return isset($this->associationsMappings[$name]);
+        ;
     }
 
     /**
@@ -924,7 +938,23 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getFieldNames()
     {
-        return array_keys($this->fieldMappings);
+        $fields = $this->fieldMappings;
+        if ($this->localeMapping) {
+            $fields[] = $this->localeMapping;
+        }
+        if ($this->node) {
+            $fields[] = $this->node;
+        }
+        if ($this->nodename) {
+            $fields[] = $this->nodename;
+        }
+        if ($this->versionNameField) {
+            $fields[] = $this->versionNameField;
+        }
+        if ($this->versionCreatedField) {
+            $fields[] = $this->versionCreatedField;
+        }
+        return $fields;
     }
 
     /**
@@ -932,7 +962,16 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationNames()
     {
-        return array_keys($this->associationsMappings);
+        $associations = array_merge(
+            $this->referenceMappings,
+            $this->referrersMappings,
+            $this->childrenMappings,
+            $this->childMappings
+        );
+        if ($this->parentMapping) {
+            $associations[] = $this->parentMapping;
+        }
+        return $associations;
     }
 
     /**
@@ -940,20 +979,20 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getTypeOfField($fieldName)
     {
-        return isset($this->fieldMappings[$fieldName]) ?
-            $this->fieldMappings[$fieldName]['type'] : null;
+        return isset($this->mappings[$fieldName]) ?
+            $this->mappings[$fieldName]['type'] : null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getAssociationTargetClass($assocName)
+    public function getAssociationTargetClass($fieldName)
     {
-        if ( ! isset($this->associationsMappings[$assocName])) {
-            throw new InvalidArgumentException("Association name expected, '" . $assocName ."' is not an association.");
+        if (!in_array($fieldName, $this->referenceMappings)) {
+            throw new InvalidArgumentException("Association name expected, '$fieldName' is not an association.");
         }
 
-        return $this->associationsMappings[$assocName]['targetDocument'];
+        return $this->mappings[$fieldName]['targetDocument'];
     }
 
     /**
@@ -1015,27 +1054,22 @@ class ClassMetadata implements ClassMetadataInterface
             $this->uuidFieldName = $mapping['fieldName'];
         }
 
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
-
         if (!$inherited) {
             if (!isset($mapping['multivalue'])) {
                 $mapping['multivalue'] = false;
             }
-            if ($mapping['type'] === 'int') {
-                $mapping['type'] = 'long';
-            } elseif ($mapping['type'] === 'float') {
-                $mapping['type'] = 'double';
-            }
         }
+
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         // Add the field to the list of translatable fields
         if (isset($mapping['translated']) && $mapping['translated']) {
-            if (! array_key_exists($mapping['name'], $this->translatableFields)) {
+            if (!array_key_exists($mapping['name'], $this->translatableFields)) {
                 $this->translatableFields[] = $mapping['name'];
             }
         }
 
-        $this->fieldMappings[$mapping['fieldName']] = $mapping;
+        $this->fieldMappings[] = $mapping['fieldName'];
     }
 
     /**
@@ -1055,11 +1089,15 @@ class ClassMetadata implements ClassMetadataInterface
     {
         // This metadata is always serialized/cached.
         $serialized = array(
-            'fieldMappings',
             'identifier',
             'name',
-            'generatorOptions',
-            'idGenerator'
+            'idGenerator',
+            'mappings',
+            'fieldMappings',
+            'referenceMappings',
+            'referrersMappings',
+            'childrenMappings',
+            'childMappings',
         );
 
         if ($this->customRepositoryClassName) {
@@ -1076,6 +1114,22 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->lifecycleCallbacks) {
             $serialized[] = 'lifecycleCallbacks';
+        }
+
+        if ($this->node) {
+            $serialized[] = 'node';
+        }
+
+        if ($this->nodename) {
+            $serialized[] = 'nodename';
+        }
+
+        if ($this->parentMapping) {
+            $serialized[] = 'parentMapping';
+        }
+
+        if ($this->uuidFieldName) {
+            $serialized[] = 'uuidFieldName';
         }
 
         return $serialized;

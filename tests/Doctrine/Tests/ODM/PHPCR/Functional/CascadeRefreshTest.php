@@ -17,13 +17,13 @@ class CascadeRefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
-        $class->associationsMappings['groups']['cascade'] = ClassMetadata::CASCADE_REFRESH;
+        $class->mappings['groups']['cascade'] = ClassMetadata::CASCADE_REFRESH;
 
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsGroup');
-        $class->associationsMappings['users']['cascade'] = ClassMetadata::CASCADE_REFRESH;
+        $class->mappings['users']['cascade'] = ClassMetadata::CASCADE_REFRESH;
 
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsArticle');
-        $class->associationsMappings['user']['cascade'] = ClassMetadata::CASCADE_REFRESH;
+        $class->mappings['user']['cascade'] = ClassMetadata::CASCADE_REFRESH;
     }
 
     public function testCascadeRefresh()
