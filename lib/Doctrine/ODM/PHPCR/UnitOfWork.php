@@ -268,7 +268,7 @@ class UnitOfWork
                     $documentState[$fieldName] = $properties[$mapping['name']];
                 }
             } elseif (true === $mapping['multivalue']) {
-                $documentState[$fieldName] = array();
+                $documentState[$mapping['name']] = array();
             }
         }
 
@@ -1373,7 +1373,7 @@ class UnitOfWork
                     }
                     $this->cascadeMergeCollection($managedCol, $mapping);
                 } elseif ($class->parentMapping === $name) {
-                    $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $class->parentMappingData);
+                    $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $class->parentMapping);
                 } elseif (isset($class->localeMapping[$name])
                     || isset($class->versionNameField[$name])
                     || isset($class->versionCreatedField[$name])
