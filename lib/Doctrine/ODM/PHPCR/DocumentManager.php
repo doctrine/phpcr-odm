@@ -28,12 +28,14 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterf
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
-use PHPCR\Util\QOM\QueryBuilder;
+use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\PathNotFoundException;
 
 /**
@@ -459,8 +461,11 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Create a Query from a query string in the specified query language to be
-     * used with getDocumentsByQuery()
+     * Create a PHPCR Query from a query string in the specified query language to be
+     * used with getDocumentsByPhpcrQuery()
+     *
+     * Note that it is better to use {@link createQuery}, which returns a native ODM 
+     * query object, when working with the ODM.
      *
      * See \PHPCR\Query\QueryInterface for list of generally supported types
      * and check your implementation documentation if you want to use a
@@ -469,12 +474,32 @@ class DocumentManager implements ObjectManager
      * @param  string $statement the statement in the specified language
      * @param  string $language the query language
      *
-     * @return QueryInterface
+     * @return PHPCR\Query\QueryInterface
      */
-    public function createQuery($statement, $language)
+    public function createPhpcrQuery($statement, $language)
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
         return $qm->createQuery($statement, $language);
+    }
+
+
+    /**
+     * Create a ODM Query from a query string in the specified query language to be
+     * used with getDocumentsByPhpcrQuery()
+     *
+     * See \PHPCR\Query\QueryInterface for list of generally supported types
+     * and check your implementation documentation if you want to use a
+     * different language.
+     *
+     * @param  string $statement the statement in the specified language
+     * @param  string $language the query language
+     *
+     * @return \Doctrine\ODM\PHPCR\Query
+     */
+    public function createQuery($statement, $language)
+    {
+        $phpcrQuery = $this->createPhpcrQuery($statement, $language);
+        return new Query($phpcrQuery, $this);
     }
 
     /**
@@ -488,19 +513,33 @@ class DocumentManager implements ObjectManager
     public function createQueryBuilder()
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
-        return new QueryBuilder($qm->getQOMFactory());
+        return new QueryBuilder($this, $qm->getQOMFactory());
+    }
+
+    /**
+     * Create lower level PHPCR query builder.
+     *
+     * NOTE: The ODM QueryBuilder (@link createQueryBuilder) is prefered over
+     *       the PHPCR QueryBuilder when working with the ODM.
+     *
+     * @return PHPCR\Util\QOM\QueryBuilder
+     */
+    public function createPhpcrQueryBuilder()
+    {
+        $qm = $this->session->getWorkspace()->getQueryManager();
+        return new PhpcrQueryBuilder($qm->getQOMFactory());
     }
 
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param  \PHPCR\Query\QueryInterface $query the query instance as
-     *      acquired through createQuery()
+     * @param  PHPCR\Query\QueryInterface $query the query instance as
+     *      acquired through createPhpcrQuery()
      * @param  string $className document class
      *
      * @return array of document instances
      */
-    public function getDocumentsByQuery(QueryInterface $query, $className = null)
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null)
     {
         $this->errorIfClosed();
 
