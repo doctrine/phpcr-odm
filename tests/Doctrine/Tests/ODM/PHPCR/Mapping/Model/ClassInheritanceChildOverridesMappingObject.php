@@ -18,7 +18,5 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class ClassInheritanceChildOverridesMappingObject extends ClassInheritanceParentMappingObject
 {
-    /** @PHPCRODM\Id */
-    public $id;
 }
 
