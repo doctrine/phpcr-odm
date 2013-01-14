@@ -21,9 +21,11 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 use PHPCR\Query\QueryInterface;
+
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -130,10 +132,9 @@ class DocumentRepository implements ObjectRepository
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qf = $qb->getQOMFactory();
 
-        $qb->from($qf->selector($this->class->nodeType));
-        $qb->andWhere($qf->comparison($qf->propertyValue('phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($this->className)));
+        $qb->from($this->className);
+
         if ($limit) {
             $qb->setMaxResults($limit);
         }
@@ -142,14 +143,16 @@ class DocumentRepository implements ObjectRepository
         }
         if ($orderBy) {
             foreach ($orderBy as $ordering) {
-                $qb->addOrderBy($qf->propertyValue($ordering));
+                $qb->addOrderBy($ordering);
             }
         }
         foreach ($criteria as $field => $value) {
-            $qb->andWhere($qf->comparison($qf->propertyValue($field), Constants::JCR_OPERATOR_EQUAL_TO, $qf->literal($value)));
+            $qb->andWhere(
+                $qb->expr()->eq($field, $value)
+            );
         }
 
-        return $this->getDocumentsByQuery($qb->getQuery());
+        return $qb->getQuery()->execute();
     }
 
     /**
@@ -241,29 +244,29 @@ class DocumentRepository implements ObjectRepository
      */
     public function createQuery($statement, $language, $options = 0)
     {
-        $cb = $this->dm->createQueryBuilder()->setFromQuery($statement, $language);
+        $qb = $this->dm->createPhpcrQueryBuilder()->setFromQuery($statement, $language);
         if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES) {
-            $columns = $cb->getColumns();
+            $columns = $qb->getColumns();
             if (1 === count($columns)) {
                 $column = reset($columns);
                 if ('*' === $column->getColumnName() && null == $column->getPropertyName()) {
-                    $cb->setColumns(array());
+                    $qb->setColumns(array());
                     foreach ($this->class->getFieldNames() as $name) {
-                        $cb->addSelect($name);
+                        $qb->addSelect($name);
                     }
                 }
             }
         }
 
-        $factory = $cb->getQOMFactory();
+        $factory = $qb->getQOMFactory();
 
         $comparison = $factory->comparison(
             $factory->propertyValue('phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $factory->literal($this->className)
         );
 
-        $cb->andWhere($comparison);
+        $qb->andWhere($comparison);
 
-        return $cb->getQuery();
+        return new Query($qb->getQuery(), $this->getDocumentManager());
     }
 
     /**
@@ -292,13 +295,7 @@ class DocumentRepository implements ObjectRepository
     public function createQueryBuilder()
     {
         $qb = $this->dm->createQueryBuilder();
-        $qf = $qb->getQOMFactory();
-        $qb->from($qf->selector($this->class->nodeType));
-        $qb->andWhere(
-            $qf->comparison($qf->propertyValue('phpcr:class'), 
-            Constants::JCR_OPERATOR_EQUAL_TO, 
-            $qf->literal($this->className))
-        );
+        $qb->from($this->className);
 
         return $qb;
     }
