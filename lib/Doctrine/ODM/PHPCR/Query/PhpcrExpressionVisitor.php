@@ -91,7 +91,7 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
             ));
         }
 
-        switch($expr->getType()) {
+        switch ($expr->getType()) {
             case CompositeExpression::TYPE_AND:
                 $method = 'andConstraint';
                 break;

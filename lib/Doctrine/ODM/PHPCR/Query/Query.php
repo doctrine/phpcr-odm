@@ -161,12 +161,15 @@ class Query
             $this->query->bindValue($key, $value);
         }
 
-        if ($this->hydrationMode === self::HYDRATE_PHPCR) {
-            $data = $this->query->execute();
-        } elseif ($this->hydrationMode === self::HYDRATE_DOCUMENT) {
-            $data = $this->dm->getDocumentsByPhpcrQuery($this->query, $this->documentClass);
-        } else {
-            throw QueryException::hydrationModeNotKnown($this->hydrationMode);
+        switch ($this->hydrationMode) {
+            case self::HYDRATE_PHPCR:
+                $data = $this->query->execute();
+                break;
+            case self::HYDRATE_DOCUMENT:
+                $data = $this->dm->getDocumentsByPhpcrQuery($this->query, $this->documentClass);
+                break;
+            default:
+                throw QueryException::hydrationModeNotKnown($this->hydrationMode);
         }
 
         return $data;
