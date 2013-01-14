@@ -32,7 +32,17 @@ class MappingException extends \Exception
 {
     public static function classNotFound($className)
     {
-        return new self("The class: '$className'. could not be found");
+        return new self("The class '$className' could not be found");
+    }
+
+    public static function fieldNotFound($className, $fieldName)
+    {
+        return new self("The class '$className' does not have a field mapping for '$fieldName'");
+    }
+
+    public static function associationNotFound($className, $fieldName)
+    {
+        return new self("The class '$className' does not have a association mapping for '$fieldName'");
     }
 
     public static function classIsNotAValidDocument($className)

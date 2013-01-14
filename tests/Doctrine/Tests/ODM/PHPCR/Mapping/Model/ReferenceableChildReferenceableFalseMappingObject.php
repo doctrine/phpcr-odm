@@ -12,7 +12,5 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class ReferenceableChildReferenceableFalseMappingObject extends ReferenceableMappingObject
 {
-    /** @PHPCRODM\Id */
-    public $id;
 }
 

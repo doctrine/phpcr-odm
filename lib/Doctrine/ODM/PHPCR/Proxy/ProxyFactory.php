@@ -19,9 +19,9 @@
 
 namespace Doctrine\ODM\PHPCR\Proxy;
 
-use Doctrine\ODM\PHPCR\DocumentManager,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\Common\Util\ClassUtils;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Util\ClassUtils;
 
 /**
  * This factory is used to create proxy objects for entities at runtime.
@@ -78,7 +78,7 @@ class ProxyFactory
     {
         $fqn = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
 
-        if (! class_exists($fqn, false)) {
+        if (!class_exists($fqn, false)) {
             $fileName = $this->getProxyFileName($className);
             if ($this->autoGenerate) {
                 $this->generateProxyClass($this->dm->getClassMetadata($className), $fileName, self::$proxyClassTemplate);
@@ -184,42 +184,7 @@ class ProxyFactory
      */
     private function getUnsetAttributes(ClassMetadata $class)
     {
-        $attributes = array();
-        foreach ($class->fieldMappings as $field) {
-            $attributes[] = $field['fieldName'];
-        }
-
-        foreach ($class->associationsMappings as $field) {
-            $attributes[] = $field['fieldName'];
-        }
-
-        foreach ($class->referrersMappings as $field) {
-            $attributes[] = $field['fieldName'];
-        }
-
-        foreach ($class->childrenMappings as $field) {
-            $attributes[] = $field['fieldName'];
-        }
-
-        foreach ($class->childMappings as $field) {
-            $attributes[] = $field['fieldName'];
-        }
-
-        if ($class->parentMapping) {
-            $attributes[] = $class->parentMapping['fieldName'];
-        }
-
-        if ($class->node) {
-            $attributes[] = $class->node;
-        }
-
-        if ($class->nodename) {
-            $attributes[] = $class->nodename;
-        }
-
-        $attributes[] = $class->identifier;
-
-        return $attributes;
+        return array_keys($class->mappings);
     }
 
     /**
@@ -302,8 +267,8 @@ class ProxyFactory
             $sleepImpl .= "return array('__isInitialized__', ";
 
             $properties = array();
-            foreach ($class->fieldMappings as $name => $prop) {
-                $properties[] = "'$name'";
+            foreach ($class->fieldMappings as $fieldName) {
+                $properties[] = "'$fieldName'";
             }
 
             $sleepImpl .= implode(',', $properties) . ');';
