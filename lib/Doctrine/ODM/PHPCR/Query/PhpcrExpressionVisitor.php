@@ -5,6 +5,7 @@ use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
+use Doctrine\ODM\PHPCR\Query\Expression\DescendantExpression;
 
 use PHPCR\Query\QOM\DynamicOperandInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
@@ -124,5 +125,10 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
     public function walkValue(Value $value)
     {
         return $this->qomf->literal($value->getValue());
+    }
+
+    public function walkDescendant(DescendantExpression $expr)
+    {
+        return $this->qomf->descendantNode($expr->getPath());
     }
 }

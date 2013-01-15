@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Common\Collections\ExpressionBuilder;
+use Doctrine\ODM\PHPCR\Query\ExpressionBuilder;
 use Doctrine\ODM\PHPCR\Query\PhpcrExpressionVisitor;
 use PHPCR\Query\QOM\ComparisonConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstant;
@@ -100,5 +100,10 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf('PHPCR\Query\QOM\LiteralInterface', $res);
         $this->assertEquals('test', $res->getLiteralValue());
     }
-}
 
+    public function testDescendant()
+    {
+        $expr = $this->expr->descendant('/foo/bar');
+        $res = $this->visitor->walkDescendant($expr);
+    }
+}

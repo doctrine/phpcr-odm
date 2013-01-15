@@ -23,7 +23,6 @@ use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\Common\Collections\ExpressionBuilder;
 
 /**
  * Class to programatically construct query objects for the PHPCR ODM.
