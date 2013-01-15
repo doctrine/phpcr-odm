@@ -2,10 +2,13 @@
 
 namespace Doctrine\ODM\PHPCR\Query;
 use Doctrine\Common\Collections\Expr\ExpressionVisitor;
-use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
-use Doctrine\ODM\PHPCR\Query\Expression\DescendantExpression;
+use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\Common\Collections\Expr\Expression;
+use Doctrine\ODM\PHPCR\Query\Expression\Descendant;
+use Doctrine\ODM\PHPCR\Query\Expression\TextSearch;
+use Doctrine\ODM\PHPCR\Query\Expression\Comparison as ODMComparison;
 
 use PHPCR\Query\QOM\DynamicOperandInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
@@ -58,6 +61,9 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
                 break;
             case Comparison::GT:
                 $qomOperator = QOMConstant::JCR_OPERATOR_GREATER_THAN;
+                break;
+            case ODMComparison::LIKE:
+                $qomOperator = QOMConstant::JCR_OPERATOR_LIKE;
                 break;
             default:
                 throw new \InvalidArgumentException("Unsupported operator $operator");
@@ -127,8 +133,58 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
         return $this->qomf->literal($value->getValue());
     }
 
-    public function walkDescendant(DescendantExpression $expr)
+    /**
+     * Convert a descendant expression to its PHPCR counterpart.
+     *
+     * @param \Doctrine\ODM\PHPCR\Query\Expression\Descendant
+     *
+     * @return \PHPCR\Query\QOM\DescendantNodeInterface
+     */
+    public function walkDescendant(Descendant $expr)
     {
         return $this->qomf->descendantNode($expr->getPath());
+    }
+
+
+    /**
+     * Convert a testSearch expression to its PHPCR counterpart.
+     *
+     * @param \Doctrine\ODM\PHPCR\Query\Expression\TextSearch
+     *
+     * @return \PHPCR\Query\QOM\FullTextSearchInterface
+     */
+    public function walkTextSearch(TextSearch $expr)
+    {
+        return $this->qomf->fullTextSearch($expr->getField(), $expr->getSearch());
+    }
+
+    /**
+     * Dispatch walking an expression to the appropriate handler.
+     *
+     * @param Expression
+     *
+     * @return mixed
+     */
+    public function dispatch(Expression $expr)
+    {
+        switch (true) {
+            case ($expr instanceof Comparison):
+                return $this->walkComparison($expr);
+
+            case ($expr instanceof Value):
+                return $this->walkValue($expr);
+
+            case ($expr instanceof CompositeExpression):
+                return $this->walkCompositeExpression($expr);
+
+            case ($expr instanceof Descendant):
+                return $this->walkDescendant($expr);
+
+            case ($expr instanceof TextSearch):
+                return $this->walkTextSearch($expr);
+
+            default:
+                throw new \RuntimeException("Unknown Expression " . get_class($expr));
+        }
     }
 }

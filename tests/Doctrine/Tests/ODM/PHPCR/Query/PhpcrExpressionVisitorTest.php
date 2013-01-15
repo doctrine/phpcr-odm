@@ -19,7 +19,7 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
         $this->visitor = new PhpcrExpressionVisitor($this->qomf);
     }
 
-    public function getExpressions()
+    public function getComparisonExpressions()
     {
         return array(
             array('foobar', 'eq', 123, QOMConstant::JCR_OPERATOR_EQUAL_TO),
@@ -28,11 +28,12 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
             array('foobar', 'lte', 123, QOMConstant::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO),
             array('foobar', 'gte', 123, QOMConstant::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO),
             array('foobar', 'gt', 123, QOMConstant::JCR_OPERATOR_GREATER_THAN),
+            array('foobar', 'like', 123, QOMConstant::JCR_OPERATOR_LIKE),
         );
     }
 
     /**
-     * @dataProvider getExpressions
+     * @dataProvider getComparisonExpressions
      */
     public function testWalkComparison($field, $exprMethod, $value, $expectedJcrOperator)
     {
@@ -78,9 +79,8 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
     public function testWalkCompositeExpression_three()
     {
         // Should be equivilent to
-        // ("foo" == "bar" AND bar = "foo") AND "bar" > $foo
+        // ("foo" == "bar" AND bar == "foo") AND "bar" > $foo
 
-        // NOTE: I wonder if we should just now allow composites of more than two
         $expr = $this->expr->andx(
             $this->expr->eq('foo', 'bar'),
             $this->expr->eq('bar', 'foo'),
@@ -101,9 +101,36 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
         $this->assertEquals('test', $res->getLiteralValue());
     }
 
-    public function testDescendant()
+    public function getDispatchExpressions()
     {
-        $expr = $this->expr->descendant('/foo/bar');
-        $res = $this->visitor->walkDescendant($expr);
+        $eb = new ExpressionBuilder;
+        return array(
+            array(
+                $eb->descendant('/foo/bar'),
+                'PHPCR\Query\QOM\DescendantNodeInterface', array(
+                    'getAncestorPath' => '/foo/bar',
+                )
+            ),
+            array(
+                $eb->textSearch('foobar', 'barfoo'), 
+                'PHPCR\Query\QOM\FullTextSearchInterface', array(
+                    'getPropertyName' => 'foobar',
+                    'getFullTextSearchExpression' => 'barfoo',
+                )
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getDispatchExpressions
+     */
+    public function testDispatch($expression, $expectedQOMFClass, $methodAssertions)
+    {
+        $res = $this->visitor->dispatch($expression);
+        $this->assertInstanceOf($expectedQOMFClass, $res);
+
+        foreach ($methodAssertions as $method => $expected) {
+            $this->assertEquals($expected, $res->$method());
+        }
     }
 }

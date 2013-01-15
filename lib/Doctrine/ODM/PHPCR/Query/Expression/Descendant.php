@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Expression;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 
-class DescendantExpression implements Expression
+class Descendant implements Expression
 {
     protected $path;
 
@@ -21,6 +21,6 @@ class DescendantExpression implements Expression
 
     public function visit(ExpressionVisitor $visitor)
     {
-        return $visitor->walkCompositeExpression($this);
+        return $visitor->walkDescendantExpression($this);
     }
 }
