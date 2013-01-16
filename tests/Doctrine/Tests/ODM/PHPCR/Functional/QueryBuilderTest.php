@@ -175,4 +175,49 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertContains('Doctrine\Tests\Models\CMS\CmsUser', $fqns);
         $this->assertContains('Doctrine\Tests\Models\CMS\CmsItem', $fqns);
     }
+
+    /**
+     * I don't think this test has much value, but will commit it at
+     * least once as it took a few minutes to write...
+     */
+    public function getTextSearches()
+    {
+        return array(
+            array('name', 'johnsmith', 
+                null, null,
+                "SELECT s FROM nt:base WHERE CONTAINS(name, 'johnsmith')",
+            ),
+            array('name', 'johnsmith', 
+                'from', 'Doctrine\Tests\Models\CMS\CmsUser',
+                "SELECT s FROM nt:unstructured WHERE (CONTAINS(name, 'johnsmith') AND phpcr:class = 'Doctrine\Tests\Models\CMS\CmsUser')",
+            ),
+            array('name', 'johnsmith', 
+                'nodeType', 'nt:unstructured',
+                "SELECT s FROM nt:unstructured WHERE CONTAINS(name, 'johnsmith')",
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider getTextSearches
+     */
+    public function testTextSearch($field, $search, $sourceMethod = null, $source = null, $expectedStatement)
+    {
+        $qb = $this->createQb();
+        if ($sourceMethod) {
+            $qb->$sourceMethod($source);
+        }
+        $qb->where($qb->expr()->textSearch($field, $search));
+        $res = $qb->getQuery()->execute();
+        $statement = $qb->getQuery()->getStatement();
+        $this->assertEquals($expectedStatement, $statement);
+    }
+
+    public function testDescendant()
+    {
+        $qb = $this->createQb();
+        $qb->where($qb->expr()->descendant('/functional'));
+        $statement = $qb->getQuery()->getStatement();
+        $this->assertEquals("SELECT s FROM nt:base WHERE jcr:path LIKE '/functional[%]/%'", $statement);
+    }
 }
