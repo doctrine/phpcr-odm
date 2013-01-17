@@ -154,7 +154,10 @@ class QueryBuilder
         }
 
         if ($from) {
-            $this->andWhere($this->expr()->eq('phpcr:class', $from));
+            $this->andWhere($this->expr()->orX(
+                $this->expr()->eq('phpcr:class', $from),
+                $this->expr()->eq('phpcr:classparents', $from)
+            ));
         }
 
         $where = $this->getPart('where');

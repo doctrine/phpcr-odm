@@ -72,6 +72,20 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     {
         if ('Doctrine\\ODM\\PHPCR\\Document\\Generic' !== $className) {
             $node->setProperty('phpcr:class', $className, PropertyType::STRING);
+
+            // map any parent classes
+            $class = $dm->getClassMetadata($className);
+            $refl = $class->getReflectionClass();
+
+            $parentClasses = array();
+
+            while ($parent = $refl->getParentClass()) {
+                $parentRefl = $refl->getParentClass();
+                $parentClasses[] = $parentRefl->name;
+                $refl = $parentRefl;
+            }
+
+            $node->setProperty('phpcr:classparents', $parentClasses);
         }
     }
 

@@ -75,6 +75,7 @@ EOT
 [phpcr:managed]
   mixin
   - phpcr:class (STRING)
+  - phpcr:classparents (STRING) multiple
 CND
             ;
 
@@ -99,14 +100,25 @@ CND
         $ns->registerNamespace($this->phpcrNamespace, $this->phpcrNamespaceUri);
         $ns->registerNamespace($this->localeNamespace, $this->localeNamespaceUri);
         $nt = $session->getWorkspace()->getNodeTypeManager();
-        $proptpl = $nt->createPropertyDefinitionTemplate();
-        $proptpl->setName('phpcr:class');
-        $proptpl->setRequiredType(\PHPCR\PropertyType::STRING);
+
+        $phpcrClassTpl = $nt->createPropertyDefinitionTemplate();
+        $phpcrClassTpl->setName('phpcr:class');
+        $phpcrClassTpl->setRequiredType(\PHPCR\PropertyType::STRING);
+
+        $phpcrClassParentsTpl = $nt->createPropertyDefinitionTemplate();
+        $phpcrClassParentsTpl->setName('phpcr:classparents');
+        $phpcrClassParentsTpl->setRequiredType(\PHPCR\PropertyType::STRING);
+        $phpcrClassParentsTpl->setMultiple(true);
+
         $tpl = $nt->createNodeTypeTemplate();
         $tpl->setName('phpcr:managed');
         $tpl->setMixin(true);
+
         $props = $tpl->getPropertyDefinitionTemplates();
-        $props->offsetSet(null, $proptpl);
+        $props->offsetSet(1, $phpcrClassTpl);
+        $props->offsetSet(2, $phpcrClassParentsTpl);
+
+
         $nt->registerNodeType($tpl, true);
     }
 }
