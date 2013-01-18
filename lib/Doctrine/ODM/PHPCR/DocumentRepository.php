@@ -277,7 +277,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
     {
-        return $this->dm->getDocumentsByQuery($query, $this->className);
+        return $this->dm->getDocumentsByPhpcrQuery($query, $this->className);
     }
 
     /**
