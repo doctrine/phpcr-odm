@@ -704,7 +704,7 @@ class UnitOfWork
     private function cascadeRemove($document, &$visited)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
-        foreach ($class->referenceMappings as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->childMappings, $class->childrenMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE) {
                 $related = $class->reflFields[$fieldName]->getValue($document);
