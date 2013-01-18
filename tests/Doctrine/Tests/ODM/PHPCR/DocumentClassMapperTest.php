@@ -70,7 +70,6 @@ class DocumentClassMapperTest extends \PHPUnit_Framework_Testcase
                 array(self::CLASS_TEST_2 => false, self::CLASS_TEST_3 => true),
             ),
         );
-
     }
 
     /**
@@ -89,7 +88,7 @@ class DocumentClassMapperTest extends \PHPUnit_Framework_Testcase
             }
         }
 
-        // Finally this shold have the parent classes 2 AND 3
+        // Assert that we set the correct parent classes
         $this->node->expects($this->at(1))
             ->method('setProperty')
             ->with('phpcr:classparents', $expectedClasses, PropertyType::STRING);
