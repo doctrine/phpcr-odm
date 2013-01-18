@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2013-01-18
+----------
+
+ * Removed DocumentRepository->getDocumentsByQuery as it is no longer needed.
+   createQuery returns you an ODM query that can find documents directly.
+   To get documents from a PHPCR query there is DocumentManager->getDocumentsByPhpcrQuery()
+
 2013-01-13
 ----------
 
