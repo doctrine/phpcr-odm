@@ -53,17 +53,28 @@ class QueryBuilder
     protected $query;
     protected $firstResult;
     protected $maxResults;
+    protected $expr;
+    protected $exprVisitor;
 
     /**
      * Initializes a new QueryBuilder
      *
      * @param Doctrine\ODM\PHPCR\DocumentManager
      * @param PHPCR\Query\QOM\QueryObjectModelFactoryInterface
+     * @param Doctrine\ODM\PHPCR\Query\ExpressionBuilder - inject for test cases
+     * @param Doctrine\ODM\PHPCR\Query\PhpcrExpressionVisitor - inject for test cases
      */
-    public function __construct(DocumentManager $dm, QueryObjectModelFactoryInterface $qomf)
+    public function __construct(
+        DocumentManager $dm, 
+        QueryObjectModelFactoryInterface $qomf, 
+        ExpressionBuilder $expr = null,
+        PhpcrExpressionVisitor $exprVisitor = null
+    )
     {
         $this->dm = $dm;
         $this->qomf = $qomf;
+        $this->expr = $expr ? $expr : new ExpressionBuilder;
+        $this->exprVisitor = $exprVisitor ? $exprVisitor : new PhpcrExpressionVisitor($this->qomf);
     }
 
     /**
@@ -73,7 +84,7 @@ class QueryBuilder
      */
     public function expr()
     {
-        return new ExpressionBuilder;
+        return $this->expr;
     }
 
     /**
@@ -144,9 +155,8 @@ class QueryBuilder
             $this->andWhere($this->expr()->eq('phpcr:class', $from));
         }
 
-        $exprVisitor = new PhpcrExpressionVisitor($this->qomf);
         $where = $this->getPart('where');
-        $where = $where ? $exprVisitor->dispatch($where) : null;
+        $where = $where ? $this->exprVisitor->dispatch($where) : null;
 
         $this->state = self::STATE_CLEAN;
         $phpcrQuery = $this->qomf->createQuery(
