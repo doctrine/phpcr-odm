@@ -29,6 +29,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             ->getMock();
         $this->operand1 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
         $this->operand2 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
+        $this->orConstraint = $this->getMock('PHPCR\Query\QOM\OrConstraintInterface');
         $this->static1 = $this->getMock('PHPCR\Query\QOM\StaticOperandInterface');
 
         $this->qb = new QueryBuilder($this->dm, $this->qomf);
@@ -111,15 +112,18 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->metadata->expects($this->once())
             ->method('getNodeType')
             ->will($this->returnValue('nt:document_fqn'));
+
         $this->qomf->expects($this->once())
             ->method('selector')
             ->with('nt:document_fqn')
             ->will($this->returnValue($this->selector));
         $this->qomf->expects($this->once())
+            ->method('orConstraint')
+            ->will($this->returnValue($this->orConstraint));
+        $this->qomf->expects($this->any())
             ->method('propertyValue')
-            ->with('phpcr:class')
             ->will($this->returnValue($this->operand1));
-        $this->qomf->expects($this->once())
+        $this->qomf->expects($this->any())
             ->method('literal')
             ->with('Document/FQN')
             ->will($this->returnValue($this->static1));
