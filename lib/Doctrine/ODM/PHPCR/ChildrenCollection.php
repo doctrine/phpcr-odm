@@ -74,6 +74,7 @@ class ChildrenCollection extends PersistentCollection
      */
     public function getOriginalNodeNames()
     {
+        $this->initialize();
         return $this->originalNodenames;
     }
 
