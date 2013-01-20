@@ -419,7 +419,7 @@ class QueryBuilder
      */
     public function join($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
-        return $this->innerJoin($nodeTypeName, $selectorName);
+        return $this->innerJoin($nodeTypeName, $selectorName, $joinCondition);
     }
 
     /**
@@ -447,7 +447,7 @@ class QueryBuilder
      */
     public function leftJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
-        return $this->joinWithType($nodeTypename, $selectorName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_LEFT_OUTER, $joinCondition);
+        return $this->joinWithType($nodeTypeName, $selectorName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_LEFT_OUTER, $joinCondition);
     }
 
     /**
@@ -683,7 +683,7 @@ class QueryBuilder
 
     public function __toString()
     {
-        return $this->getQuery()->getStatement();
+        return (string) $this->getQuery()->getStatement();
     }
 
     /**
