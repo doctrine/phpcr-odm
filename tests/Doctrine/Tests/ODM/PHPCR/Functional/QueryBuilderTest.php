@@ -176,48 +176,47 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertContains('Doctrine\Tests\Models\CMS\CmsItem', $fqns);
     }
 
-    /**
-     * I don't think this test has much value, but will commit it at
-     * least once as it took a few minutes to write...
-     */
     public function getTextSearches()
     {
         return array(
-            array('name', 'johnsmith', 
-                null, null,
-                "SELECT s FROM nt:base WHERE CONTAINS(name, 'johnsmith')",
-            ),
-            array('name', 'johnsmith', 
-                'from', 'Doctrine\Tests\Models\CMS\CmsUser',
-                "SELECT s FROM nt:unstructured WHERE (CONTAINS(name, 'johnsmith') AND phpcr:class = 'Doctrine\Tests\Models\CMS\CmsUser')",
-            ),
-            array('name', 'johnsmith', 
-                'nodeType', 'nt:unstructured',
-                "SELECT s FROM nt:unstructured WHERE CONTAINS(name, 'johnsmith')",
-            ),
+            array('name', 'johnsmith', 2), 
+            array(null, 'johnsmith', 2),
+            array('username', 'dtl', 1), 
         );
     }
 
     /**
      * @dataProvider getTextSearches
      */
-    public function testTextSearch($field, $search, $sourceMethod = null, $source = null, $expectedStatement)
+    public function testTextSearch($field, $search, $resCount)
     {
         $qb = $this->createQb();
-        if ($sourceMethod) {
-            $qb->$sourceMethod($source);
-        }
         $qb->where($qb->expr()->textSearch($field, $search));
-        $res = $qb->getQuery()->execute();
-        $statement = $qb->getQuery()->getStatement();
-        $this->assertEquals($expectedStatement, $statement);
+        $q = $qb->getQuery();
+
+        $where = $qb->getPart('where');
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\TextSearch', $where);
+        $this->assertEquals($field, $where->getField());
+        $this->assertEquals($search, $where->getSearch());
+
+        $res = $q->execute();
+
+        $this->assertCount($resCount, $res);
     }
 
     public function testDescendant()
     {
         $qb = $this->createQb();
         $qb->where($qb->expr()->descendant('/functional'));
-        $statement = $qb->getQuery()->getStatement();
-        $this->assertEquals("SELECT s FROM nt:base WHERE jcr:path LIKE '/functional[%]/%'", $statement);
+        $q = $qb->getQuery();
+
+        $where = $qb->getPart('where');
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\Descendant', $where);
+        $this->assertEquals('/functional', $where->getPath());
+
+        $res = $q->execute();
+        $this->assertCount(3, $res);
     }
 }
