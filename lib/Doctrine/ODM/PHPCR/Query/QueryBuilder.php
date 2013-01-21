@@ -20,6 +20,8 @@
 namespace Doctrine\ODM\PHPCR\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface;
+use PHPCR\Query\QOM\JoinConditionInterface;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Query;
@@ -415,7 +417,7 @@ class QueryBuilder
      *
      * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function join($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
@@ -429,7 +431,7 @@ class QueryBuilder
      *
      * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function innerJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
@@ -443,7 +445,7 @@ class QueryBuilder
      *
      * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function leftJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
@@ -475,7 +477,7 @@ class QueryBuilder
      *
      * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function joinWithType($nodeTypename, $selectorName, $joinType, JoinConditionInterface $joinCondition)
     {
