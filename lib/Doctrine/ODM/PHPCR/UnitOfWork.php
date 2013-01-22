@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
@@ -698,12 +699,11 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::preRemove, new LifecycleEventArgs($document, $this->dm));
         }
 
-        $this->cascadeRemove($document, $visited);
+        $this->cascadeRemove($class, $document, $visited);
     }
 
-    private function cascadeRemove($document, &$visited)
+    private function cascadeRemove(ClassMetadata $class, $document, &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE) {
@@ -1226,7 +1226,8 @@ class UnitOfWork
         $this->session->refresh(true);
         $node = $this->session->getNode($this->getDocumentId($document));
 
-        $this->cascadeRefresh($document, $visited);
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $this->cascadeRefresh($class, $document, $visited);
 
         $hints = array('refresh' => true);
         $document = $this->createDocument(get_class($document), $node, $hints);
@@ -1404,7 +1405,7 @@ class UnitOfWork
             }
         }
 
-        $this->cascadeMerge($document, $managedCopy, $visited);
+        $this->cascadeMerge($class, $document, $managedCopy, $visited);
 
         return $managedCopy;
     }
@@ -1412,13 +1413,13 @@ class UnitOfWork
     /**
      * Cascades a merge operation to associated entities.
      *
+     * @param ClassMetadata $class
      * @param object $document
      * @param object $managedCopy
      * @param array $visited
      */
-    private function cascadeMerge($document, $managedCopy, array &$visited)
+    private function cascadeMerge(ClassMetadata $class, $document, $managedCopy, array &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
@@ -1466,7 +1467,8 @@ class UnitOfWork
 
         $visited[$oid] = $document; // mark visited
 
-        $this->cascadeDetach($document, $visited);
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $this->cascadeDetach($class, $document, $visited);
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -1479,9 +1481,8 @@ class UnitOfWork
         }
     }
 
-    private function cascadeRefresh($document, &$visited)
+    private function cascadeRefresh(ClassMetadata $class, $document, &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH) {
@@ -1507,10 +1508,8 @@ class UnitOfWork
      * @param object $document
      * @param array $visited
      */
-    private function cascadeDetach($document, array &$visited)
+    private function cascadeDetach(ClassMetadata $class, $document, array &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
-
         foreach ($class->childrenMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
