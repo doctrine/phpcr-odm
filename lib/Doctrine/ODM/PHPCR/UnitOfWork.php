@@ -2031,13 +2031,16 @@ class UnitOfWork
                 continue;
             }
 
-            $id = $this->getDocumentId($document);
-            $node = $this->session->getNode($id);
-
             $class = $this->dm->getClassMetadata(get_class($document));
-            $this->doRemoveAllTranslations($document, $class);
+            $id = $this->getDocumentId($document);
 
-            $node->remove();
+            try {
+                $node = $this->session->getNode($id);
+                $this->doRemoveAllTranslations($document, $class);
+                $node->remove();
+            } catch (PathNotFoundException $e) {
+            }
+
             $this->unregisterDocument($document);
             $this->purgeChildren($document);
 
