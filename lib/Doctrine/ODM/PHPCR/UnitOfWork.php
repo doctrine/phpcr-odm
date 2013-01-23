@@ -2291,8 +2291,9 @@ class UnitOfWork
         $node = $this->session->getNode($this->getDocumentId($document));
         $this->setFetchDepth($oldFetchDepth);
 
-        if (method_exists($document, 'getLocale')) {
-            $childrenHints = array('locale' => $document->getLocale());
+        $oid = spl_object_hash($document);
+        if (isset($this->documentLocales[$oid]['current'])) {
+            $childrenHints = array('locale' => $this->documentLocales[$oid]['current']);
         } else {
             $childrenHints = array();
         }
