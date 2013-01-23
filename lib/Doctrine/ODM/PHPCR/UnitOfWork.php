@@ -729,6 +729,10 @@ class UnitOfWork
      */
     private function purgeChildren($document)
     {
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
+            return;
+        }
+
         $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->childMappings as $fieldName) {
             $child = $class->reflFields[$fieldName]->getValue($document);
