@@ -169,6 +169,39 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
     }
 
+    /**
+     * Remove the parent node of multiple child level
+     */
+    public function testRemove3()
+    {
+        $parent = new ChildTestObj();
+        $parent->name = 'Parent';
+        $parent->id = '/functional/childtest';
+        // Lv1
+        $childLv1 = new ChildReferenceableTestObj();
+        $childLv1->name = 'Child-Lv1';
+        $parent->child = $childLv1;
+        // Lv2
+        $childLv2 = new ChildChildTestObj();
+        $childLv2->name = 'Child-Lv2';
+        $childLv1->aChild = $childLv2;
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertTrue($this->node->hasNode('childtest'));
+        $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
+        $this->assertTrue($this->node->getNode('childtest')->getNode('test')->hasNode('test'));
+
+        $this->dm->remove($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertNull($parent);
+    }
+
     public function testChildSetNull()
     {
         $parent = new ChildTestObj();

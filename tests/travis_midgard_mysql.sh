@@ -25,4 +25,4 @@ ${SCRIPT_DIR}/../tests/travis_midgard_install.sh
 
 # Set up CLI and install namespaces
 cp ${SCRIPT_DIR}/../cli-config.midgard_mysql.php.dist ${SCRIPT_DIR}/../cli-config.php
-php ${SCRIPT_DIR}/../bin/phpcr doctrine:phpcr:register-system-node-types
+php ${SCRIPT_DIR}/../bin/phpcrodm doctrine:phpcr:register-system-node-types
