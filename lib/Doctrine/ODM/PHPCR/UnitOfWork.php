@@ -966,7 +966,6 @@ class UnitOfWork
         }
 
         if (!$isNew) {
-
             // collect assignment move operations
             $destPath = $destName = false;
 
@@ -1124,7 +1123,7 @@ class UnitOfWork
                 if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($child));
                 }
-                $nodename = $nodename ? : $mapping['name'];
+                $nodename = $nodename ?: $mapping['name'];
                 if ($nodename) {
                     $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
                 }
@@ -1234,7 +1233,7 @@ class UnitOfWork
         $this->cascadeRefresh($class, $document, $visited);
 
         $hints = array('refresh' => true);
-        $document = $this->createDocument(get_class($document), $node, $hints);
+        $this->createDocument(get_class($document), $node, $hints);
     }
 
     public function merge($document)
