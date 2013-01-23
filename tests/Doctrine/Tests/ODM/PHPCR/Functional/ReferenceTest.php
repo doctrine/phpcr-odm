@@ -18,6 +18,8 @@ use Doctrine\Tests\Models\References\RefRefTestObj;
 use Doctrine\Tests\Models\References\RefTestPrivateObj;
 use Doctrine\Tests\Models\References\RefManyTestObj;
 use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
+use Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade;
+use Doctrine\Tests\Models\References\ParentTestObj;
 
 use Doctrine\ODM\PHPCR\PHPCRException;
 
@@ -62,6 +64,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->weakReferrerType = 'Doctrine\Tests\Models\References\WeakRefTestObj';
         $this->hardReferrerType = 'Doctrine\Tests\Models\References\HardRefTestObj';
         $this->referrerDifType = 'Doctrine\Tests\Models\References\RefDifTestObj';
+        $this->referrerManyWithParentForCascadeType = 'Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade';
 
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
@@ -1292,5 +1295,37 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $i++;
         }
         $this->assertEquals(5, $i);
+    }
+
+    public function testManyCascadeWithParentDelete()
+    {
+        $refManyTestObjForCascade = new RefManyWithParentTestObjForCascade();
+        $refManyTestObjForCascade->id = "/functional/refManyWithParentTestObjForCascade";
+
+        $references = array();
+        for ($i = 0; $i < 3; $i++) {
+            $newRefCascadeManyTestObj = new ParentTestObj();
+            $newRefCascadeManyTestObj->nodename = "ref$i";
+            $newRefCascadeManyTestObj->name = "refCascadeWithParentManyTestObj$i";
+            $references[] = $newRefCascadeManyTestObj;
+        }
+        $refManyTestObjForCascade->setReferences($references);
+
+        $this->dm->persist($refManyTestObjForCascade);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->session->getNode("/functional")->hasNode("refManyWithParentTestObjForCascade"));
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->assertTrue($this->session->getNode("/functional/refManyWithParentTestObjForCascade")->hasNode("ref$i"));
+        }
+
+        $referrer = $this->dm->find($this->referrerManyWithParentForCascadeType, '/functional/refManyWithParentTestObjForCascade');
+
+        $this->dm->remove($referrer);
+        $this->dm->flush();
+
+        $this->assertFalse($this->session->getNode("/functional")->hasNode("refManyWithParentTestObjForCascade"));
     }
 }
