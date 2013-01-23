@@ -54,7 +54,7 @@ class DocumentClassMapperTest extends \PHPUnit_Framework_Testcase
             ->will($this->returnValue($this->cmd));
 
         $this->cmd->expects($this->once())
-            ->method('getTransientParentClasses')
+            ->method('getMappedParentClasses')
             ->will($this->returnValue($parentClasses));
 
         // Assert that we set the correct parent classes

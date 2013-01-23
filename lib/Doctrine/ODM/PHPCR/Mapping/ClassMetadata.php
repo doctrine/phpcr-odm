@@ -286,11 +286,11 @@ class ClassMetadata implements ClassMetadataInterface
     public $translator;
 
     /**
-     * READ-ONLY: Transient parent classes (i.e. mapped parent classes).
+     * READ-ONLY: Mapped parent classes.
      *
      * @var array
      */
-    public $transientParentClasses;
+    public $mappedParentClasses = array();
 
     /**
      * The inherited fields of this class
@@ -807,18 +807,23 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Set the transient (mapped) parent classes
+     * Set the mapped parent classes
      *
-     * @param array $transientParentClasses
+     * @param array $mappedParentClasses
      */
-    public function setTransientParentClasses($transientParentClasses)
+    public function setMappedParentClasses($mappedParentClasses)
     {
-        $this->transientParentClasses = $transientParentClasses;
+        $this->mappedParentClasses = $mappedParentClasses;
     }
 
-    public function getTransientParentClasses()
+    /**
+     * Return the mapped parent classes
+     *
+     * @return array of mapped class FQNs
+     */
+    public function getMappedParentClasses()
     {
-        return $this->transientParentClasses;
+        return $this->mappedParentClasses;
     }
 
     /**
