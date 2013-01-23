@@ -2291,11 +2291,17 @@ class UnitOfWork
         $node = $this->session->getNode($this->getDocumentId($document));
         $this->setFetchDepth($oldFetchDepth);
 
+        if (method_exists($document, 'getLocale')) {
+            $childrenHints = array('locale' => $document->getLocale());
+        } else {
+            $childrenHints = array();
+        }
+
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
             try {
-                $childDocuments[$name] = $this->createDocument(null, $childNode);
+                $childDocuments[$name] = $this->createDocument(null, $childNode, $childrenHints);
             } catch (MissingTranslationException $e) {
                 if (!$ignoreUntranslated) {
                     throw $e;
