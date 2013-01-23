@@ -1264,6 +1264,10 @@ class UnitOfWork
 
     private function cascadeMergeCollection($managedCol, array $mapping)
     {
+        if (!$managedCol instanceof PersistentCollection ) {
+            return;
+        }
+
         if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE > 0) {
             $managedCol->initialize();
             if (!$managedCol->isEmpty()) {
