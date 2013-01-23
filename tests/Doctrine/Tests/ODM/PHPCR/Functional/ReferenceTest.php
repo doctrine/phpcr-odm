@@ -47,25 +47,16 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     private $node;
 
-    private $referrerType;
-    private $referencedType;
-    private $referrerManyType;
-    private $referrerManyForCascadeType;
-    private $weakReferrerType;
-    private $hardReferrerType;
-    private $referrerDifType;
+    private $referrerType = 'Doctrine\Tests\Models\References\RefTestObj';
+    private $referencedType = 'Doctrine\Tests\Models\References\RefRefTestObj';
+    private $referrerManyType = 'Doctrine\Tests\Models\References\RefManyTestObj';
+    private $referrerManyForCascadeType = 'Doctrine\Tests\Models\References\RefManyTestObjForCascade';
+    private $hardReferrerType = 'Doctrine\Tests\Models\References\HardRefTestObj';
+    private $referrerDifType = 'Doctrine\Tests\Models\References\RefDifTestObj';
+    private $referrerManyWithParentForCascadeType = 'Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade';
 
     public function setUp()
     {
-        $this->referrerType = 'Doctrine\Tests\Models\References\RefTestObj';
-        $this->referencedType = 'Doctrine\Tests\Models\References\RefRefTestObj';
-        $this->referrerManyType = 'Doctrine\Tests\Models\References\RefManyTestObj';
-        $this->referrerManyForCascadeType = 'Doctrine\Tests\Models\References\RefManyTestObjForCascade';
-        $this->weakReferrerType = 'Doctrine\Tests\Models\References\WeakRefTestObj';
-        $this->hardReferrerType = 'Doctrine\Tests\Models\References\HardRefTestObj';
-        $this->referrerDifType = 'Doctrine\Tests\Models\References\RefDifTestObj';
-        $this->referrerManyWithParentForCascadeType = 'Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade';
-
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
         $this->node = $this->resetFunctionalNode($this->dm);
