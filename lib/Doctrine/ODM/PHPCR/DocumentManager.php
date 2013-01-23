@@ -772,7 +772,6 @@ class DocumentManager implements ObjectManager
      * Refresh the given document by querying the PHPCR to get the current state.
      *
      * @param object $document
-     * @return object Document instance
      */
     public function refresh($document)
     {
@@ -781,7 +780,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
-        return $this->getUnitOfWork()->refresh($document);
+        $this->getUnitOfWork()->refresh($document);
     }
 
     /**

@@ -1235,8 +1235,6 @@ class UnitOfWork
 
         $hints = array('refresh' => true);
         $document = $this->createDocument(get_class($document), $node, $hints);
-
-        return $document;
     }
 
     public function merge($document)
