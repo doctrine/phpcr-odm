@@ -74,33 +74,12 @@ class DocumentClassMapper implements DocumentClassMapperInterface
         if ('Doctrine\\ODM\\PHPCR\\Document\\Generic' !== $className) {
             $node->setProperty('phpcr:class', $className, PropertyType::STRING);
 
-            $this->writeClassParentsMetadata($dm, $node, $className);
+            $class = $dm->getClassMetadata($className);
+            $node->setProperty('phpcr:classparents', 
+                $class->getTransientParentClasses(),
+                PropertyType::STRING
+            );
         }
-    }
-
-    protected function writeClassParentsMetadata(DocumentManager $dm, $node, $className)
-    {
-        $class = $dm->getClassMetadata($className);
-        $refl = $class->getReflectionClass();
-        $factory = $dm->getMetadataFactory();
-
-        $parentClasses = array();
-
-        while ($parent = $refl->getParentClass()) {
-
-            // only store mapped documents
-            try {
-                $factory->getMetadataFor($parent->name);
-            } catch (MappingException $e) {
-                // if class in heirarchy is not mapped, continue to next in heirarchy
-                continue;
-            }
-
-            $parentClasses[] = $parent->getName();
-            $refl = $parent;
-        }
-
-        $node->setProperty('phpcr:classparents', $parentClasses, PropertyType::STRING);
     }
 
     /**

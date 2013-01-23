@@ -129,11 +129,12 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
 
         $this->validateRuntimeMetadata($class, $parent);
+        $class->setTransientParentClasses($this->getParentClasses($class->name));
     }
 
     /**
-    * Adds inherited fields to the subclass mapping.
-    *
+     * Adds inherited fields to the subclass mapping.
+     *
      * @param ClassMetadata $subClass
      * @param ClassMetadata $parentClass
      * @return void
