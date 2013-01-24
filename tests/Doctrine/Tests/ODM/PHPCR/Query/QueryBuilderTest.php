@@ -126,9 +126,18 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
             ->with('nt:document_fqn')
             ->will($this->returnValue($this->selector));
 
-        $this->expr->expects($this->once())
+        $this->expr->expects($this->at(2))
+            ->method('orx')
+            ->will($this->returnValue($this->comparison1));
+
+        $this->expr->expects($this->at(0))
             ->method('eq')
             ->with('phpcr:class', 'Document/FQN')
+            ->will($this->returnValue($this->comparison1));
+
+        $this->expr->expects($this->at(1))
+            ->method('eq')
+            ->with('phpcr:classparents', 'Document/FQN')
             ->will($this->returnValue($this->comparison1));
 
         $this->exprVisitor->expects($this->once())
