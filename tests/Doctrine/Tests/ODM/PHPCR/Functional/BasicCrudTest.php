@@ -81,8 +81,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     *
-     * This should probably lead to a merge when http://www.doctrine-project.org/jira/browse/PHPCR-13 is implemented
      */
     public function testInsertTwice()
     {

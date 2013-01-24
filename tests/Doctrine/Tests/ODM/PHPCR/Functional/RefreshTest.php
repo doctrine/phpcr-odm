@@ -38,13 +38,13 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
 
-        // Add a phonenumber
+        // Add a group
         $group1 = new CmsGroup;
         $group1->name = "12345";
         $group1->id = '/functional/group1';
         $user->addGroup($group1);
 
-        // Add a phonenumber
+        // Add a group
         $group2 = new CmsGroup;
         $group2->name = "54321";
         $group2->id = '/functional/group2';
@@ -60,5 +60,16 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->refresh($user);
 
         $this->assertEquals(1, count($user->groups));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRefreshDetached()
+    {
+        $user = new CmsUser;
+        $user->id = '/functional/Guilherme';
+        $user->username = 'gblanco';
+        $this->dm->refresh($user);
     }
 }

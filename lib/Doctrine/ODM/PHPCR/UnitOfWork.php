@@ -788,7 +788,7 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
+            throw new \InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
         foreach ($this->scheduledInserts as $insertedDocument) {
@@ -1225,6 +1225,10 @@ class UnitOfWork
             return;
         }
         $visited[$oid] = true;
+
+        if ($this->getDocumentState($document) !== self::STATE_MANAGED) {
+            throw new \InvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
+        }
 
         $this->session->refresh(true);
         $node = $this->session->getNode($this->getDocumentId($document));
