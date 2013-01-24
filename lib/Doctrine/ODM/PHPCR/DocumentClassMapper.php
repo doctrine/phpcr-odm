@@ -76,7 +76,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
 
             $class = $dm->getClassMetadata($className);
             $node->setProperty('phpcr:classparents', 
-                $class->getMappedParentClasses(),
+                $class->getParentClasses(),
                 PropertyType::STRING
             );
         }

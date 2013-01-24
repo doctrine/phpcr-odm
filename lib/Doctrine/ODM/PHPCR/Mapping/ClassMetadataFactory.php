@@ -129,7 +129,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
 
         $this->validateRuntimeMetadata($class, $parent);
-        $class->setMappedParentClasses($this->getParentClasses($class->name));
+        $class->setParentClasses($this->getParentClasses($class->name));
     }
 
     /**

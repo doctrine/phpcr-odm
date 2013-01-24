@@ -290,7 +290,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $mappedParentClasses = array();
+    public $parentClasses = array();
 
     /**
      * The inherited fields of this class
@@ -809,11 +809,11 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Set the mapped parent classes
      *
-     * @param array $mappedParentClasses
+     * @param array $parentClasses
      */
-    public function setMappedParentClasses($mappedParentClasses)
+    public function setParentClasses($parentClasses)
     {
-        $this->mappedParentClasses = $mappedParentClasses;
+        $this->parentClasses = $parentClasses;
     }
 
     /**
@@ -821,9 +821,9 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @return array of mapped class FQNs
      */
-    public function getMappedParentClasses()
+    public function getParentClasses()
     {
-        return $this->mappedParentClasses;
+        return $this->parentClasses;
     }
 
     /**
