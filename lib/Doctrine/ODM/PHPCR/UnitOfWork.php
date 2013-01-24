@@ -2291,11 +2291,11 @@ class UnitOfWork
         $node = $this->session->getNode($this->getDocumentId($document));
         $this->setFetchDepth($oldFetchDepth);
 
-        $oid = spl_object_hash($document);
-        if (isset($this->documentLocales[$oid]['current'])) {
-            $childrenHints = array('locale' => $this->documentLocales[$oid]['current']);
-        } else {
-            $childrenHints = array();
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $locale = $this->getLocale($document, $metadata);
+        $childrenHints = array();
+        if (!is_null($locale)) {
+            $childrenHints['locale'] = $locale;
         }
 
         $childNodes = $node->getNodes($filter);
