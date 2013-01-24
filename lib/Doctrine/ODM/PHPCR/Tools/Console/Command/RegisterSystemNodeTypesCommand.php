@@ -118,7 +118,6 @@ CND
         $props->offsetSet(1, $phpcrClassTpl);
         $props->offsetSet(2, $phpcrClassParentsTpl);
 
-
         $nt->registerNodeType($tpl, true);
     }
 }

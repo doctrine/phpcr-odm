@@ -25,7 +25,6 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
-use Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 /**
  * Stores the class mapping in the phpcr:class attribute.
