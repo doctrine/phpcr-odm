@@ -37,6 +37,11 @@ class Article
     /** @PHPCRODM\Children() */
     protected  $children;
 
+    /**
+     * @PHPCRODM\String(assoc="", translated=true)
+     */
+    protected $settings;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();
@@ -67,5 +72,25 @@ class Article
     public function setChildren(ArrayCollection $children)
     {
         $this->children = $children;
+    }
+
+    /**
+     * Set settings
+     *
+     * @param array $settings
+     */
+    public function setSettings(array $settings = array())
+    {
+        $this->settings = $settings;
+    }
+
+    /**
+     * Get settings
+     *
+     * @return array $settings
+     */
+    public function getSettings()
+    {
+        return $this->settings;
     }
 }
