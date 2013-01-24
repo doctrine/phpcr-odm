@@ -286,6 +286,13 @@ class ClassMetadata implements ClassMetadataInterface
     public $translator;
 
     /**
+     * READ-ONLY: Mapped parent classes.
+     *
+     * @var array
+     */
+    public $parentClasses = array();
+
+    /**
      * The inherited fields of this class
      *
      * @var array
@@ -797,6 +804,26 @@ class ClassMetadata implements ClassMetadataInterface
     public function setTranslator($translator)
     {
         $this->translator = $translator;
+    }
+
+    /**
+     * Set the mapped parent classes
+     *
+     * @param array $parentClasses
+     */
+    public function setParentClasses($parentClasses)
+    {
+        $this->parentClasses = $parentClasses;
+    }
+
+    /**
+     * Return the mapped parent classes
+     *
+     * @return array of mapped class FQNs
+     */
+    public function getParentClasses()
+    {
+        return $this->parentClasses;
     }
 
     /**
