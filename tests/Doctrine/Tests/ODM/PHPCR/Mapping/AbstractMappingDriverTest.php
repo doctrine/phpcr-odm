@@ -629,4 +629,24 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('postUpdateFunc', $class->lifecycleCallbacks['postUpdate'][0]);
         $this->assertEquals('postLoadFunc', $class->lifecycleCallbacks['postLoad'][0]);
     }
+
+    public function testLoadStringExtendedMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadStringExtendedMapping
+     * @param ClassMetadata $class
+     */
+    public function testStringExtendedMapping($class)
+    {
+        $this->assertEquals('stringAssoc', $class->mappings['stringAssoc']['fieldName']);
+        $this->assertEquals('string', $class->mappings['stringAssoc']['type']);
+        $this->assertEquals(true, $class->mappings['stringAssoc']['translated']);
+        $this->assertEquals(true, $class->mappings['stringAssoc']['multivalue']);
+        $this->assertEquals('stringAssocKeys', $class->mappings['stringAssoc']['assoc']);
+    }
 }

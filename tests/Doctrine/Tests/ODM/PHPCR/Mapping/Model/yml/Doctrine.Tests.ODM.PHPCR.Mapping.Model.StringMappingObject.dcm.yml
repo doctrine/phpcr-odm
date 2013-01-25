@@ -1,0 +1,5 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject:
+  fields:
+    id: id
+    stringAssoc:
+      assoc: ""
