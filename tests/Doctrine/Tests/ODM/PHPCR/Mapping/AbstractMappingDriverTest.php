@@ -4,7 +4,6 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
@@ -18,7 +17,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Returns a ClassMetadata objet for the given class, loaded using the driver associated with a concrete child
+     * Returns a ClassMetadata object for the given class, loaded using the driver associated with a concrete child
      * of this class.
      *
      * @param string $className
@@ -630,23 +629,22 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('postLoadFunc', $class->lifecycleCallbacks['postLoad'][0]);
     }
 
-    public function testLoadStringExtendedMapping()
+    public function testStringExtendedMapping()
     {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject';
+        $this->loadMetadataForClassname($className);
+
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject';
+        $session = $this->getMock('PHPCR\SessionInterface');
+        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
+        $cmf = new ClassMetadataFactory($dm);
+        $class = $cmf->getMetadataFor($className);
 
-        return $this->loadMetadataForClassname($className);
-    }
-
-    /**
-     * @depends testLoadStringExtendedMapping
-     * @param ClassMetadata $class
-     */
-    public function testStringExtendedMapping($class)
-    {
         $this->assertEquals('stringAssoc', $class->mappings['stringAssoc']['fieldName']);
         $this->assertEquals('string', $class->mappings['stringAssoc']['type']);
-        $this->assertEquals(true, $class->mappings['stringAssoc']['translated']);
-        $this->assertEquals(true, $class->mappings['stringAssoc']['multivalue']);
+        $this->assertTrue($class->mappings['stringAssoc']['translated']);
+        $this->assertTrue($class->mappings['stringAssoc']['multivalue']);
         $this->assertEquals('stringAssocKeys', $class->mappings['stringAssoc']['assoc']);
     }
 }

@@ -1,5 +1,6 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject:
+  id: id
   fields:
-    id: id
     stringAssoc:
       assoc: ""
+      type: string
