@@ -68,6 +68,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
+        $doc->setSettings(array());
         $this->doc = $doc;
     }
 
