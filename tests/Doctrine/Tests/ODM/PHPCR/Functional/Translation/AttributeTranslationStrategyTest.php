@@ -2,8 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Translation\Translation,
     Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 
