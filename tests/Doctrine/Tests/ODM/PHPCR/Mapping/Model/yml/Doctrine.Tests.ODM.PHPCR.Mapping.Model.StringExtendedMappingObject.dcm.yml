@@ -1,4 +1,4 @@
-Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject:
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject:
   translator: attribute
   locale: doclocale
   fields:
