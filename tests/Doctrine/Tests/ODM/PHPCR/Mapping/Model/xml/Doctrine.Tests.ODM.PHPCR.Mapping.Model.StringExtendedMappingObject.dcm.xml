@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doctrine-mapping>
-    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject" translator="attribute">
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject" translator="attribute">
         <locale fieldName="doclocale" />
         <field fieldName="stringAssoc" translated="true" />
     </document>
