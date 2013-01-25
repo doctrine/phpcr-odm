@@ -1739,7 +1739,7 @@ class UnitOfWork
                     }
 
                     if ($mapping['multivalue']) {
-                        $value = empty($fieldValue) ? null : $fieldValue;
+                        $value = empty($fieldValue) ? null : (array)$fieldValue;
                         if ($value && isset($mapping['assoc'])) {
                             $node->setProperty($mapping['assoc'], array_keys($value), $type);
                             $value = array_values($value);
