@@ -744,7 +744,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
-        return $this->getUnitOfWork()->merge($document);
+        return $this->unitOfWork->merge($document);
     }
 
     /**
@@ -765,14 +765,13 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
-        $this->getUnitOfWork()->detach($document);
+        $this->unitOfWork->detach($document);
     }
 
     /**
      * Refresh the given document by querying the PHPCR to get the current state.
      *
      * @param object $document
-     * @return object Document instance
      */
     public function refresh($document)
     {
@@ -781,7 +780,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
-        return $this->getUnitOfWork()->refresh($document);
+        $this->unitOfWork->refresh($document);
     }
 
     /**

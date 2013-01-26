@@ -332,6 +332,27 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
+     * Gets a boolean flag indicating whether this collection is dirty which means
+     * its state needs to be synchronized with the database.
+     *
+     * @return boolean TRUE if the collection is dirty, FALSE otherwise.
+     */
+    public function isDirty()
+    {
+        return $this->isDirty;
+    }
+
+    /**
+     * Sets a boolean flag, indicating whether this collection is dirty.
+     *
+     * @param boolean $dirty Whether the collection should be marked dirty or not.
+     */
+    public function setDirty($dirty)
+    {
+        $this->isDirty = $dirty;
+    }
+
+    /**
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */

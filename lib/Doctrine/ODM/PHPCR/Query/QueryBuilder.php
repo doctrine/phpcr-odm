@@ -20,10 +20,11 @@
 namespace Doctrine\ODM\PHPCR\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface;
+use PHPCR\Query\QOM\JoinConditionInterface;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\Common\Collections\ExpressionBuilder;
 
 /**
  * Class to programatically construct query objects for the PHPCR ODM.
@@ -49,32 +50,43 @@ class QueryBuilder
         'join'     => array(),
         'where'    => null,
         'orderBy'  => array(),
-        'from'     => null, 
+        'from'     => null,
     );
     protected $query;
     protected $firstResult;
     protected $maxResults;
+    protected $expr;
+    protected $exprVisitor;
 
     /**
      * Initializes a new QueryBuilder
      *
      * @param Doctrine\ODM\PHPCR\DocumentManager
      * @param PHPCR\Query\QOM\QueryObjectModelFactoryInterface
+     * @param Doctrine\ODM\PHPCR\Query\ExpressionBuilder - inject for test cases
+     * @param Doctrine\ODM\PHPCR\Query\PhpcrExpressionVisitor - inject for test cases
      */
-    public function __construct(DocumentManager $dm, QueryObjectModelFactoryInterface $qomf)
+    public function __construct(
+        DocumentManager $dm, 
+        QueryObjectModelFactoryInterface $qomf, 
+        ExpressionBuilder $expr = null,
+        PhpcrExpressionVisitor $exprVisitor = null
+    )
     {
         $this->dm = $dm;
         $this->qomf = $qomf;
+        $this->expr = $expr ? $expr : new ExpressionBuilder;
+        $this->exprVisitor = $exprVisitor ? $exprVisitor : new PhpcrExpressionVisitor($this->qomf);
     }
 
     /**
      * Return an ExpressionBuilder instance.
      *
-     * @return Doctrine\Common\Collections\Expr\ExpressionBuilder
+     * @return ExpressionBuilder
      */
     public function expr()
     {
-        return new ExpressionBuilder;
+        return $this->expr;
     }
 
     /**
@@ -90,7 +102,7 @@ class QueryBuilder
     /**
      * Return the document manager
      *
-     * @return Doctrine\ODM\PHPCR\DocumentManager
+     * @return DocumentManager
      */
     public function getDocumentManager()
     {
@@ -98,7 +110,7 @@ class QueryBuilder
     }
 
     /**
-     * Return the dirty state of this query builder, 
+     * Return the dirty state of this query builder,
      * e.g. QueryBuilder::STATE_DIRTY or QueryBuilder:STATE_DIRTY
      *
      * @return integer
@@ -142,12 +154,14 @@ class QueryBuilder
         }
 
         if ($from) {
-            $this->andWhere($this->expr()->eq('phpcr:class', $from));
+            $this->andWhere($this->expr()->orX(
+                $this->expr()->eq('phpcr:class', $from),
+                $this->expr()->eq('phpcr:classparents', $from)
+            ));
         }
 
-        $exprVisitor = new PhpcrExpressionVisitor($this->qomf);
         $where = $this->getPart('where');
-        $where = $where ? $exprVisitor->dispatch($where) : null;
+        $where = $where ? $this->exprVisitor->dispatch($where) : null;
 
         $this->state = self::STATE_CLEAN;
         $phpcrQuery = $this->qomf->createQuery(
@@ -181,7 +195,7 @@ class QueryBuilder
      * @param string $key
      * @param string|integer $value
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this query builder instance
+     * @return QueryBuilder - this query builder instance
      */
     public function setParameter($key, $value)
     {
@@ -200,7 +214,7 @@ class QueryBuilder
      *
      * @param array $parameters - The parameters to set.
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this query builder instance
+     * @return QueryBuilder - this query builder instance
      */
     public function setParameters($parameters)
     {
@@ -224,7 +238,7 @@ class QueryBuilder
 
         return $this->parameters;
     }
-        
+
     /**
      * NOT IMPLEMENTED
      *
@@ -250,7 +264,7 @@ class QueryBuilder
      *
      * @param integer $firstResult The first result to return.
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function setFirstResult($firstResult)
     {
@@ -275,7 +289,7 @@ class QueryBuilder
      *
      * @param integer $maxResults The maximum number of results to retrieve.
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function setMaxResults($maxResults)
     {
@@ -302,7 +316,7 @@ class QueryBuilder
      * @param string $part
      * @param string $append
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function add($partName, $part, $append = false)
     {
@@ -328,7 +342,7 @@ class QueryBuilder
 
         return $this;
     }
-    
+
     /**
      * Identifies a property in the specified or default selector to include in the tabular view of query results.
      * Replaces any previously specified columns to be selected if any.
@@ -337,7 +351,7 @@ class QueryBuilder
      * @param string $columnName
      * @param string $selectorName
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function select($propertyName, $columnName = null, $selectorName = null)
     {
@@ -347,7 +361,7 @@ class QueryBuilder
     }
 
     // public function distinct($flag = true)
-    
+
     /**
      * Adds a property in the specified or default selector to include in the tabular view of query results.
      *
@@ -355,7 +369,7 @@ class QueryBuilder
      * @param string $columnName
      * @param string $selectorName
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function addSelect($propertyName, $columnName = null, $selectorName = null)
     {
@@ -373,7 +387,7 @@ class QueryBuilder
      * @param string $nodeTypeName - Node type to select from
      * @param string $selectorName - Alias which can be used elsewhere in query (@notsure)
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function nodeType($nodeTypeName, $selectorName = null)
     {
@@ -390,7 +404,7 @@ class QueryBuilder
      *
      * @param string $documentFqn - Full qualified document class name
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance
+     * @return QueryBuilder - this QueryBuilder instance
      */
     public function from($documentFqn)
     {
@@ -404,13 +418,13 @@ class QueryBuilder
      *
      * @see joinWithtype
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function join($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
-        return $this->innerJoin($nodeTypeName, $selectorName);
+        return $this->innerJoin($nodeTypeName, $selectorName, $joinCondition);
     }
 
     /**
@@ -418,9 +432,9 @@ class QueryBuilder
      *
      * @see joinWithtype
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function innerJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
@@ -432,13 +446,13 @@ class QueryBuilder
      *
      * @see joinWithtype
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function leftJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
     {
-        return $this->joinWithType($nodeTypename, $selectorName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_LEFT_OUTER, $joinCondition);
+        return $this->joinWithType($nodeTypeName, $selectorName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_LEFT_OUTER, $joinCondition);
     }
 
     /**
@@ -464,9 +478,9 @@ class QueryBuilder
      * @param string $selectorName - Alias for node type
      * @param string $joinType - Join type
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      *
-     * @throws Doctrine\ODM\Query\QueryBuilderException - if there is not an existing source.
+     * @throws Doctrine\ODM\PHPCR\Query\QueryBuilderException - if there is not an existing source.
      */
     public function joinWithType($nodeTypename, $selectorName, $joinType, JoinConditionInterface $joinCondition)
     {
@@ -480,9 +494,9 @@ class QueryBuilder
 
         $this->state = self::STATE_DIRTY;
         $this->add('from', $this->qomf->join(
-            $this->getPart('from'), 
-            $rightSource, 
-            $joinType, 
+            $this->getPart('from'),
+            $rightSource,
+            $joinType,
             $joinCondition
         ));
 
@@ -503,7 +517,7 @@ class QueryBuilder
      *
      * @param Doctrine\Common\Collections\Expr\Expression $expression - Expression to apply to query.
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function where(Expression $expression)
     {
@@ -527,7 +541,7 @@ class QueryBuilder
      *
      * @param Doctrine\Common\Collections\Expr\Expression $expression
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function andWhere(Expression $expression)
     {
@@ -555,7 +569,7 @@ class QueryBuilder
      *
      * @param Doctrine\Common\Collections\Expr\Expression $expression
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function orWhere(Expression $expression)
     {
@@ -574,7 +588,7 @@ class QueryBuilder
      * @param array|string $propertyName  Either an array of or single property name value.
      * @param string       $order         The ordering direction - [ASC|DESC]
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function orderBy($propertyName, $order = 'ASC')
     {
@@ -592,12 +606,12 @@ class QueryBuilder
     }
 
     /**
-     * Adds an ordering to the query results 
+     * Adds an ordering to the query results
      *
      * @param string $propertyName Property name
      * @param string $order        The ordering direction - [ASC|DESC]
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder - this QueryBuilder instance.
+     * @return QueryBuilder - this QueryBuilder instance.
      */
     public function addOrderBy($propertyName, $order = null)
     {
@@ -642,7 +656,7 @@ class QueryBuilder
      *
      * @param array $parts
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder
+     * @return QueryBuilder
      */
     public function resetParts($parts = null)
     {
@@ -662,7 +676,7 @@ class QueryBuilder
      *
      * @param string $part
      *
-     * @return Doctrine\ODM\PHPCR\Query\QueryBuilder
+     * @return QueryBuilder
      */
     public function resetPart($part)
     {
@@ -674,7 +688,7 @@ class QueryBuilder
 
     public function __toString()
     {
-        return $this->getQuery()->getStatement();
+        return (string) $this->getQuery()->getStatement();
     }
 
     /**

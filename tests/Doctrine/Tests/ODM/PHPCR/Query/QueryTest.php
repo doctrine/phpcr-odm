@@ -15,6 +15,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
             ->disableOriginalConstructor()
             ->getMock();
+        $this->arrayCollection = $this->getMock('Doctrine\Common\Collections\ArrayCollection');
         $this->query = new Query($this->phpcrQuery, $this->dm);
     }
 
@@ -50,9 +51,10 @@ class QueryTest extends \PHPUnit_Framework_Testcase
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue('ok'));
+            ->will($this->returnValue(array('ok')));
         $res = $this->query->execute(null, Query::HYDRATE_PHPCR);
-        $this->assertEquals('ok', $res);
+        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $res);
+        $this->assertEquals('ok', $res->first());
     }
 
     public function testExecute_hydrateDocument()
@@ -60,13 +62,13 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery)
-            ->will($this->returnValue('ok'));
+            ->will($this->returnValue(array('ok')));
 
         $res = $this->query->execute();
-        $this->assertEquals('ok', $res);
+        $this->assertEquals('ok', $res->first());
 
         $res = $this->query->execute(null, Query::HYDRATE_DOCUMENT);
-        $this->assertEquals('ok', $res);
+        $this->assertEquals('ok', $res->first());
     }
 
     /**

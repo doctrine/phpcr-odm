@@ -33,7 +33,7 @@ class ChildrenCollection extends PersistentCollection
     private $document;
     private $filter;
     private $fetchDepth;
-    private $originalNodenames = array();
+    private $originalNodeNames = array();
     private $ignoreUntranslated = true;
 
     /**
@@ -63,7 +63,7 @@ class ChildrenCollection extends PersistentCollection
         if (!$this->initialized) {
             $this->initialized = true;
             $this->collection = $this->dm->getChildren($this->document, $this->filter, $this->fetchDepth, $this->ignoreUntranslated);
-            $this->originalNodenames = $this->collection->getKeys();
+            $this->originalNodeNames = $this->collection->getKeys();
         }
     }
 
@@ -74,7 +74,8 @@ class ChildrenCollection extends PersistentCollection
      */
     public function getOriginalNodeNames()
     {
-        return $this->originalNodenames;
+        $this->initialize();
+        return $this->originalNodeNames;
     }
 
     /**

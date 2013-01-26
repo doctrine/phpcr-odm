@@ -286,6 +286,13 @@ class ClassMetadata implements ClassMetadataInterface
     public $translator;
 
     /**
+     * READ-ONLY: Mapped parent classes.
+     *
+     * @var array
+     */
+    public $parentClasses = array();
+
+    /**
      * The inherited fields of this class
      *
      * @var array
@@ -668,11 +675,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (empty($mapping['fieldName'])) {
-            throw new MappingException("Mapping a property requires to specify the fieldName.");
+            throw new MappingException("Mapping a property requires to specify the fieldName in '{$this->name}'.");
         }
 
         if (!is_string($mapping['fieldName'])) {
-            throw new MappingException("fieldName must be of type string.");
+            throw new MappingException("fieldName must be of type string in '{$this->name}'.");
         }
 
         if (!isset($mapping['name'])) {
@@ -797,6 +804,26 @@ class ClassMetadata implements ClassMetadataInterface
     public function setTranslator($translator)
     {
         $this->translator = $translator;
+    }
+
+    /**
+     * Set the mapped parent classes
+     *
+     * @param array $parentClasses
+     */
+    public function setParentClasses($parentClasses)
+    {
+        $this->parentClasses = $parentClasses;
+    }
+
+    /**
+     * Return the mapped parent classes
+     *
+     * @return array of mapped class FQNs
+     */
+    public function getParentClasses()
+    {
+        return $this->parentClasses;
     }
 
     /**
@@ -989,7 +1016,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function getAssociationTargetClass($fieldName)
     {
         if (!in_array($fieldName, $this->referenceMappings)) {
-            throw new InvalidArgumentException("Association name expected, '$fieldName' is not an association.");
+            throw new InvalidArgumentException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
         }
 
         return $this->mappings[$fieldName]['targetDocument'];
@@ -1000,7 +1027,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationMappedByTargetField($assocName)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        throw new \BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
     }
 
     /**
@@ -1008,7 +1035,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isAssociationInverseSide($assocName)
     {
-        throw new \BadMethodCallException(__METHOD__.'  not yet implemented');
+        throw new \BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
     }
 
     /**
@@ -1048,7 +1075,7 @@ class ClassMetadata implements ClassMetadataInterface
 
         if (isset($mapping['name']) && $mapping['name'] == 'jcr:uuid') {
             if (null !== $this->uuidFieldName) {
-                throw new MappingException('You can only designate a single "Uuid" field!');
+                throw new MappingException("You can only designate a single 'Uuid' field in '{$this->name}'");
             }
 
             $this->uuidFieldName = $mapping['fieldName'];

@@ -40,11 +40,13 @@ $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(
     new \PHPCR\Util\Console\Command\CreateWorkspaceCommand(),
-    new \PHPCR\Util\Console\Command\ImportXmlCommand(),
     new \PHPCR\Util\Console\Command\DumpCommand(),
+    new \PHPCR\Util\Console\Command\ExportXmlCommand(),
+    new \PHPCR\Util\Console\Command\ImportXmlCommand(),
+    new \PHPCR\Util\Console\Command\ListWorkspacesCommand(),
     new \PHPCR\Util\Console\Command\PurgeCommand(),
-    new \PHPCR\Util\Console\Command\RegisterNodeTypesCommand(),
     new \PHPCR\Util\Console\Command\QueryCommand(),
+    new \PHPCR\Util\Console\Command\RegisterNodeTypesCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
 ));
 if (isset($extraCommands) && ! empty($extraCommands)) {

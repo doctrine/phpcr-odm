@@ -21,17 +21,26 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->query = $this->getMock('PHPCR\Query\QueryInterface');
         $this->column = $this->getMock('PHPCR\Query\QOM\ColumnInterface');
         $this->selector = $this->getMock('PHPCR\Query\QOM\SelectorInterface');
+
         $this->comparison1 = $this->getMockBuilder('Doctrine\Common\Collections\Expr\Comparison')
             ->disableOriginalConstructor()
             ->getMock();
         $this->comparison2 = $this->getMockBuilder('Doctrine\Common\Collections\Expr\Comparison')
             ->disableOriginalConstructor()
             ->getMock();
+        $this->composite1= $this->getMockBuilder('Doctrine\Common\Collections\Expr\CompositeExpression')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->expr = $this->getMock('Doctrine\ODM\PHPCR\Query\ExpressionBuilder');
+        $this->exprVisitor = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\PhpcrExpressionVisitor')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->operand1 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
         $this->operand2 = $this->getMock('PHPCR\Query\QOM\DynamicOperandInterface');
-        $this->static1 = $this->getMock('PHPCR\Query\QOM\StaticOperandInterface');
 
-        $this->qb = new QueryBuilder($this->dm, $this->qomf);
+        $this->qb = new QueryBuilder($this->dm, $this->qomf, $this->expr, $this->exprVisitor);
     }
 
     public function testGetType()
@@ -111,18 +120,29 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         $this->metadata->expects($this->once())
             ->method('getNodeType')
             ->will($this->returnValue('nt:document_fqn'));
+
         $this->qomf->expects($this->once())
             ->method('selector')
             ->with('nt:document_fqn')
             ->will($this->returnValue($this->selector));
-        $this->qomf->expects($this->once())
-            ->method('propertyValue')
-            ->with('phpcr:class')
-            ->will($this->returnValue($this->operand1));
-        $this->qomf->expects($this->once())
-            ->method('literal')
-            ->with('Document/FQN')
-            ->will($this->returnValue($this->static1));
+
+        $this->expr->expects($this->at(2))
+            ->method('orx')
+            ->will($this->returnValue($this->comparison1));
+
+        $this->expr->expects($this->at(0))
+            ->method('eq')
+            ->with('phpcr:class', 'Document/FQN')
+            ->will($this->returnValue($this->comparison1));
+
+        $this->expr->expects($this->at(1))
+            ->method('eq')
+            ->with('phpcr:classparents', 'Document/FQN')
+            ->will($this->returnValue($this->comparison1));
+
+        $this->exprVisitor->expects($this->once())
+            ->method('dispatch')
+            ->with($this->comparison1);
 
         $this->qb->from('Document/FQN');
         $this->qb->getQuery();
@@ -295,8 +315,13 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         // no existing
         $this->qb->andWhere($this->comparison1);
         $this->assertSame($this->comparison1, $this->qb->getPart('where'));
+        $this->qb->resetParts();
 
         // existing
+        $this->expr->expects($this->once())
+            ->method('andX')
+            ->with($this->comparison1, $this->comparison2)
+            ->will($this->returnValue($this->composite1));
         $this->qb->andWhere($this->comparison1);
         $this->qb->andWhere($this->comparison2);
         $this->assertInstanceOf('Doctrine\Common\Collections\Expr\CompositeExpression', $this->qb->getPart('where'));
@@ -307,8 +332,13 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
         // no existing
         $this->qb->orWhere($this->comparison1);
         $this->assertSame($this->comparison1, $this->qb->getPart('where'));
+        $this->qb->resetParts();
 
         // existing
+        $this->expr->expects($this->once())
+            ->method('orX')
+            ->with($this->comparison1, $this->comparison2)
+            ->will($this->returnValue($this->composite1));
         $this->qb->orWhere($this->comparison1);
         $this->qb->orWhere($this->comparison2);
         $this->assertInstanceOf('Doctrine\Common\Collections\Expr\CompositeExpression', $this->qb->getPart('where'));

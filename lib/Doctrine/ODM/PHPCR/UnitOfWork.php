@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
@@ -699,12 +700,11 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::preRemove, new LifecycleEventArgs($document, $this->dm));
         }
 
-        $this->cascadeRemove($document, $visited);
+        $this->cascadeRemove($class, $document, $visited);
     }
 
-    private function cascadeRemove($document, &$visited)
+    private function cascadeRemove(ClassMetadata $class, $document, &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE) {
@@ -730,6 +730,10 @@ class UnitOfWork
      */
     private function purgeChildren($document)
     {
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
+            return;
+        }
+
         $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->childMappings as $fieldName) {
             $child = $class->reflFields[$fieldName]->getValue($document);
@@ -785,7 +789,7 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new \InvalidArgumentException('Document has to be managed or moved for single computation '.self::objToStr($document, $this->dm));
+            throw new \InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
         foreach ($this->scheduledInserts as $insertedDocument) {
@@ -963,7 +967,6 @@ class UnitOfWork
         }
 
         if (!$isNew) {
-
             // collect assignment move operations
             $destPath = $destName = false;
 
@@ -1121,7 +1124,7 @@ class UnitOfWork
                 if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($child));
                 }
-                $nodename = $nodename ? : $mapping['name'];
+                $nodename = $nodename ?: $mapping['name'];
                 if ($nodename) {
                     $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
                 }
@@ -1224,15 +1227,18 @@ class UnitOfWork
         }
         $visited[$oid] = true;
 
+        if ($this->getDocumentState($document) !== self::STATE_MANAGED) {
+            throw new \InvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
+        }
+
         $this->session->refresh(true);
         $node = $this->session->getNode($this->getDocumentId($document));
 
-        $this->cascadeRefresh($document, $visited);
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $this->cascadeRefresh($class, $document, $visited);
 
         $hints = array('refresh' => true);
-        $document = $this->createDocument(get_class($document), $node, $hints);
-
-        return $document;
+        $this->createDocument(get_class($document), $node, $hints);
     }
 
     public function merge($document)
@@ -1260,6 +1266,10 @@ class UnitOfWork
 
     private function cascadeMergeCollection($managedCol, array $mapping)
     {
+        if (!$managedCol instanceof PersistentCollection ) {
+            return;
+        }
+
         if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE > 0) {
             $managedCol->initialize();
             if (!$managedCol->isEmpty()) {
@@ -1405,7 +1415,7 @@ class UnitOfWork
             }
         }
 
-        $this->cascadeMerge($document, $managedCopy, $visited);
+        $this->cascadeMerge($class, $document, $managedCopy, $visited);
 
         return $managedCopy;
     }
@@ -1413,13 +1423,13 @@ class UnitOfWork
     /**
      * Cascades a merge operation to associated entities.
      *
+     * @param ClassMetadata $class
      * @param object $document
      * @param object $managedCopy
      * @param array $visited
      */
-    private function cascadeMerge($document, $managedCopy, array &$visited)
+    private function cascadeMerge(ClassMetadata $class, $document, $managedCopy, array &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
@@ -1467,7 +1477,8 @@ class UnitOfWork
 
         $visited[$oid] = $document; // mark visited
 
-        $this->cascadeDetach($document, $visited);
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $this->cascadeDetach($class, $document, $visited);
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -1480,9 +1491,8 @@ class UnitOfWork
         }
     }
 
-    private function cascadeRefresh($document, &$visited)
+    private function cascadeRefresh(ClassMetadata $class, $document, &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH) {
@@ -1508,10 +1518,8 @@ class UnitOfWork
      * @param object $document
      * @param array $visited
      */
-    private function cascadeDetach($document, array &$visited)
+    private function cascadeDetach(ClassMetadata $class, $document, array &$visited)
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
-
         foreach ($class->childrenMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
@@ -1732,7 +1740,7 @@ class UnitOfWork
                     }
 
                     if ($mapping['multivalue']) {
-                        $value = empty($fieldValue) ? null : $fieldValue;
+                        $value = empty($fieldValue) ? null : (array)$fieldValue;
                         if ($value && isset($mapping['assoc'])) {
                             $node->setProperty($mapping['assoc'], array_keys($value), $type);
                             $value = array_values($value);
@@ -2029,13 +2037,16 @@ class UnitOfWork
                 continue;
             }
 
-            $id = $this->getDocumentId($document);
-            $node = $this->session->getNode($id);
-
             $class = $this->dm->getClassMetadata(get_class($document));
-            $this->doRemoveAllTranslations($document, $class);
+            $id = $this->getDocumentId($document);
 
-            $node->remove();
+            try {
+                $node = $this->session->getNode($id);
+                $this->doRemoveAllTranslations($document, $class);
+                $node->remove();
+            } catch (PathNotFoundException $e) {
+            }
+
             $this->unregisterDocument($document);
             $this->purgeChildren($document);
 
@@ -2292,11 +2303,18 @@ class UnitOfWork
         $node = $this->session->getNode($this->getDocumentId($document));
         $this->setFetchDepth($oldFetchDepth);
 
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $locale = $this->getLocale($document, $metadata);
+        $childrenHints = array();
+        if (!is_null($locale)) {
+            $childrenHints['locale'] = $locale;
+        }
+
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
             try {
-                $childDocuments[$name] = $this->createDocument(null, $childNode);
+                $childDocuments[$name] = $this->createDocument(null, $childNode, $childrenHints);
             } catch (MissingTranslationException $e) {
                 if (!$ignoreUntranslated) {
                     throw $e;

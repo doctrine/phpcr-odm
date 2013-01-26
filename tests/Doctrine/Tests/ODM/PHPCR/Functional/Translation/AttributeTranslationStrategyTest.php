@@ -2,8 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Translation\Translation,
     Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 
@@ -156,6 +155,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
+        $data['settings'] = array('setting-1' => 'one-setting');
 
         $node = $this->getTestNode();
 
@@ -227,4 +227,56 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         return Translation::LOCALE_NAMESPACE . ':' . $locale . '-' . $property;
     }
 
+    /**
+     * Caution : Jackalope\Property guess the property type on the first element
+     * So if it's an boolean, all your array will be set to true
+     * The Array has to be an array of string
+     */
+    public function testTranslationArrayProperties()
+    {
+        // First save some translations
+        $data = array();
+        $data['author'] = 'John Doe';
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
+        $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'great-article-in-english.html'
+        );
+
+        $node = $this->getTestNode();
+
+        $strategy = new AttributeTranslationStrategy();
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
+
+        // Save translation in another language
+
+        $data['topic'] = 'Un sujet intéressant';
+        $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'super-article-en-francais.html'
+        );
+
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
+        $this->dm->flush();
+
+        $doc = new Article;
+        $doc->author = $data['author'];
+        $doc->topic = $data['topic'];
+        $doc->setText($data['text']);
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
+
+        $this->assertEquals(array('is-active', 'url'), array_keys($doc->getSettings()));
+        $this->assertEquals(array(
+            'is-active' => 'true',
+            'url'       => 'great-article-in-english.html'
+        ), $doc->getSettings());
+
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
+        $this->assertEquals(array('is-active', 'url'), array_keys($doc->getSettings()));
+        $this->assertEquals(array(
+            'is-active' => 'true',
+            'url'       => 'super-article-en-francais.html'
+        ), $doc->getSettings());
+    }
 }

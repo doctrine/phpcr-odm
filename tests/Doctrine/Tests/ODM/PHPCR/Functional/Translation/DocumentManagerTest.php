@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\Tests\Models\Translation\Article,
+    Doctrine\Tests\Models\Translation\Comment,
     Doctrine\Tests\Models\Translation\InvalidMapping,
     Doctrine\Tests\Models\Translation\DerivedArticle,
     Doctrine\Tests\Models\CMS\CmsArticle,
@@ -41,6 +42,11 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     protected $class = 'Doctrine\Tests\Models\Translation\Article';
 
+    /**
+     * @var string
+     */
+    protected $childrenClass = 'Doctrine\Tests\Models\Translation\Comment';
+
     public function setUp()
     {
         $localePrefs = array(
@@ -62,6 +68,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $doc->author = 'John Doe';
         $doc->topic = 'Some interesting subject';
         $doc->setText('Lorem ipsum...');
+        $doc->setSettings(array());
         $this->doc = $doc;
     }
 
@@ -244,6 +251,54 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($doc);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('Un autre sujet', $doc->topic);
+    }
+
+    /**
+     * Test that children are retrieved in the parent locale
+     */
+    public function testFindTranslationWithChildren()
+    {
+        $this->dm->persist($this->doc);
+        $this->dm->bindTranslation($this->doc, 'en');
+        $this->doc->topic = 'Un autre sujet';
+        $this->dm->bindTranslation($this->doc, 'fr');
+
+        $comment = new Comment();
+        $comment->name = 'new-comment';
+        $comment->parent = $this->doc;
+        $this->dm->persist($comment);
+
+        $comment->setText('This is a great article');
+        $this->dm->bindTranslation($comment, 'en');
+        $comment->setText('Très bon article');
+        $this->dm->bindTranslation($comment, 'fr');
+        $this->dm->flush();
+
+        $doc = $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'fr');
+        $this->assertEquals('fr', $doc->locale);
+        $children = $doc->getChildren();
+        foreach ($children as $comment) {
+            $this->assertEquals('fr', $comment->locale);
+            $this->assertEquals('Très bon article', $comment->getText());
+        }
+        $children = $this->dm->getChildren($doc);
+        foreach ($children as $comment) {
+            $this->assertEquals('fr', $comment->locale);
+            $this->assertEquals('Très bon article', $comment->getText());
+        }
+
+        $doc = $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'en');
+        $this->assertEquals('en', $doc->locale);
+        $children = $doc->getChildren();
+        foreach ($children as $comment) {
+            $this->assertEquals('en', $comment->locale);
+            $this->assertEquals('This is a great article', $comment->getText());
+        }
+        $children = $this->dm->getChildren($doc);
+        foreach ($children as $comment) {
+            $this->assertEquals('en', $comment->locale);
+            $this->assertEquals('This is a great article', $comment->getText());
+        }
     }
 
     public function testFindByUUID()

@@ -175,4 +175,48 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertContains('Doctrine\Tests\Models\CMS\CmsUser', $fqns);
         $this->assertContains('Doctrine\Tests\Models\CMS\CmsItem', $fqns);
     }
+
+    public function getTextSearches()
+    {
+        return array(
+            array('name', 'johnsmith', 2), 
+            array(null, 'johnsmith', 2),
+            array('username', 'dtl', 1), 
+        );
+    }
+
+    /**
+     * @dataProvider getTextSearches
+     */
+    public function testTextSearch($field, $search, $resCount)
+    {
+        $qb = $this->createQb();
+        $qb->where($qb->expr()->textSearch($field, $search));
+        $q = $qb->getQuery();
+
+        $where = $qb->getPart('where');
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\TextSearch', $where);
+        $this->assertEquals($field, $where->getField());
+        $this->assertEquals($search, $where->getSearch());
+
+        $res = $q->execute();
+
+        $this->assertCount($resCount, $res);
+    }
+
+    public function testDescendant()
+    {
+        $qb = $this->createQb();
+        $qb->where($qb->expr()->descendant('/functional'));
+        $q = $qb->getQuery();
+
+        $where = $qb->getPart('where');
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\Descendant', $where);
+        $this->assertEquals('/functional', $where->getPath());
+
+        $res = $q->execute();
+        $this->assertCount(3, $res);
+    }
 }

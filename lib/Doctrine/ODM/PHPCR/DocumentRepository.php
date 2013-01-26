@@ -240,10 +240,12 @@ class DocumentRepository implements ObjectRepository
      * @param  string $statement the SQL2 statement
      * @param  string $language (see QueryInterface for list of supported types)
      * @param  bool $replaceWithFieldnames if * should be replaced with Fieldnames automatically
-     * @return PHPCR\Query\QueryResultInterface
+     *
+     * @return Query
      */
     public function createQuery($statement, $language, $options = 0)
     {
+        // TODO: refactor this to use the odm query builder
         $qb = $this->dm->createPhpcrQueryBuilder()->setFromQuery($statement, $language);
         if ($options & self::QUERY_REPLACE_WITH_FIELDNAMES) {
             $columns = $qb->getColumns();
@@ -267,17 +269,6 @@ class DocumentRepository implements ObjectRepository
         $qb->andWhere($comparison);
 
         return new Query($qb->getQuery(), $this->getDocumentManager());
-    }
-
-    /**
-     * Get documents from a PHPCR query instance
-     *
-     * @param  \PHPCR\Query\QueryResultInterface $result
-     * @return array of document instances
-     */
-    public function getDocumentsByQuery(\PHPCR\Query\QueryInterface $query)
-    {
-        return $this->dm->getDocumentsByQuery($query, $this->className);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query;
 
 use PHPCR\Query\QueryInterface;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Query
@@ -172,6 +173,10 @@ class Query
                 throw QueryException::hydrationModeNotKnown($this->hydrationMode);
         }
 
+        if (is_array($data)) {
+            $data = new ArrayCollection($data);
+        }
+
         return $data;
     }
 
@@ -210,15 +215,13 @@ class Query
     {
         $result = $this->execute(null, $hydrationMode);
 
-        if (!is_array($result)) {
-            return $result;
-        }
-
         if (count($result) > 1) {
             throw QueryException::nonUniqueResult();
+        } elseif (count($result) <= 0) {
+            return null;
         }
 
-        return array_shift($result);
+        return $result->first();
     }
 
     /**
@@ -236,17 +239,13 @@ class Query
      */
     public function getSingleResult($hydrationMode = null)
     {
-        $result = $this->execute(null, $hydrationMode);
+        $result = $this->getOneOrNullResult($hydrationMode);
 
-        if (!$result) {
+        if (null === $result) {
             throw QueryException::noResult();
         }
 
-        if (count($result) > 1) {
-            throw QueryException::nonUniqueResult();
-        }
-
-        return array_shift($result);
+        return $result;
     }
 
     /**
