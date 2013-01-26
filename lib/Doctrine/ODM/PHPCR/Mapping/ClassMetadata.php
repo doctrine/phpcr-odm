@@ -1060,6 +1060,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function mapField(array $mapping, ClassMetadata $inherited = null)
     {
+        $parentMapping = isset($mapping['fieldName']) && isset($this->mappings[$mapping['fieldName']])
+            ? $this->mappings[$mapping['fieldName']] : null;
+
         if (!$inherited) {
             if (isset($mapping['id']) && $mapping['id'] === true) {
                 $mapping['type'] = 'string';
@@ -1070,6 +1073,13 @@ class ClassMetadata implements ClassMetadataInterface
             } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
                 $mapping['type'] = 'string';
                 $mapping['name'] = 'jcr:uuid';
+            }
+
+            if (isset($parentMapping['type'])) {
+                if (isset($mapping['type']) && $parentMapping['type'] !== $mapping['type']) {
+                    throw new MappingException("You cannot change the type of a field via inheritance in '{$this->name}'");
+                }
+                $mapping['type'] = $parentMapping['type'];
             }
         }
 
@@ -1082,21 +1092,31 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (!$inherited) {
-            if (!isset($mapping['multivalue'])) {
+            if (isset($parentMapping['multivalue'])) {
+                $mapping['multivalue'] = $parentMapping['multivalue'];
+                if (isset($parentMapping['assoc'])) {
+                    $mapping['assoc'] = $parentMapping['assoc'];
+                }
+            } elseif (!isset($mapping['multivalue'])) {
                 $mapping['multivalue'] = false;
             }
+        }
+
+        // Add the field to the list of translatable fields
+        if (!empty($parentMapping['translated']) || !empty($mapping['translated'])) {
+            $mapping['translated'] = true;
         }
 
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         // Add the field to the list of translatable fields
-        if (isset($mapping['translated']) && $mapping['translated']) {
-            if (!array_key_exists($mapping['name'], $this->translatableFields)) {
-                $this->translatableFields[] = $mapping['name'];
-            }
+        if (!empty($mapping['translated']) && !in_array($mapping['name'], $this->translatableFields)) {
+            $this->translatableFields[] = $mapping['name'];
         }
 
-        $this->fieldMappings[] = $mapping['fieldName'];
+        if (!$parentMapping) {
+            $this->fieldMappings[] = $mapping['fieldName'];
+        }
     }
 
     /**

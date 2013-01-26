@@ -1,0 +1,6 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject:
+  translator: attribute
+  locale: doclocale
+  fields:
+    stringAssoc:
+      translated: true
