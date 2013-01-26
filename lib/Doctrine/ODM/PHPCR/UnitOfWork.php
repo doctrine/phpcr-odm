@@ -1738,16 +1738,15 @@ class UnitOfWork
                         }
                     }
 
-                    if ($mapping['multivalue']) {
-                        $value = empty($fieldValue) ? null : (array)$fieldValue;
-                        if ($value && isset($mapping['assoc'])) {
-                            $node->setProperty($mapping['assoc'], array_keys($value), $type);
-                            $value = array_values($value);
+                    if ($mapping['multivalue'] && $fieldValue) {
+                        $fieldValue = (array)$fieldValue;
+                        if (isset($mapping['assoc'])) {
+                            $node->setProperty($mapping['assoc'], array_keys($fieldValue), $type);
+                            $fieldValue = array_values($fieldValue);
                         }
-                        $node->setProperty($mapping['name'], $value, $type);
-                    } else {
-                        $node->setProperty($mapping['name'], $fieldValue, $type);
                     }
+
+                    $node->setProperty($mapping['name'], $fieldValue, $type);
                 } elseif (in_array($fieldName, $class->referenceMappings)) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
 

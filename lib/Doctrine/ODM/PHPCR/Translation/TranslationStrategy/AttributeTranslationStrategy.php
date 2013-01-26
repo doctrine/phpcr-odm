@@ -45,14 +45,16 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         foreach ($data as $field => $propValue) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             $mapping = $metadata->mappings[$field];
-            if ($mapping['multivalue']) {
-                $propValue = empty($propValue) ? null : (array)$propValue;
-                if ($propValue && isset($mapping['assoc'])) {
+            if ($mapping['multivalue'] && $propValue) {
+                $propValue = (array)$propValue;
+                if (isset($mapping['assoc'])) {
                     $node->setProperty($this->getTranslatedPropertyName($locale, $mapping['assoc']), array_keys($propValue));
                     $propValue = array_values($propValue);
                 }
             }
+
             $node->setProperty($propName, $propValue);
+
             if (null === $propValue) {
                 $nullFields[] = $field;
             }
@@ -104,9 +106,10 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             if ($node->hasProperty($propName)) {
-                $mapping = $metadata->mappings[$field];
                 $prop = $node->getProperty($propName);
                 $prop->remove();
+
+                $mapping = $metadata->mappings[$field];
                 if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
                     $keysPropName = $this->getTranslatedPropertyName($locale, $mapping['assoc']);
                     if ($node->hasProperty($keysPropName)) {
