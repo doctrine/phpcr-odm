@@ -21,9 +21,13 @@ namespace Doctrine\ODM\PHPCR\Proxy;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\Common\Proxy\ProxyGenerator;
+use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\Proxy;
+use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
 use ReflectionProperty;
 
@@ -37,27 +41,12 @@ use ReflectionProperty;
  * @author David Buchmann <david@liip.ch>
  * @author Marco Pivetta  <ocramius@gmail.com>
  */
-class ProxyFactory
+class ProxyFactory extends AbstractProxyFactory
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager The DocumentManager this factory is bound to.
+     * @var DocumentManager The DocumentManager this factory is bound to.
      */
     private $dm;
-
-    /**
-     * @var \Doctrine\ODM\PHPCR\UnitOfWork The UnitOfWork this factory is bound to.
-     */
-    private $uow;
-
-    /**
-     * @var \Doctrine\Common\Proxy\ProxyGenerator
-     */
-    private $proxyGenerator;
-
-    /**
-     * @var bool Whether to automatically (re)generate proxy classes.
-     */
-    private $autoGenerate;
 
     /**
      * @var string The namespace that contains all proxy classes.
@@ -65,139 +54,54 @@ class ProxyFactory
     private $proxyNamespace;
 
     /**
-     * @var string The directory that contains all proxy classes.
-     */
-    private $proxyDir;
-
-    /**
-     * @var array definitions (indexed by requested class name) for the proxy classes.
-     *            Each element is an array containing following items:
-     *            "fqcn"         - FQCN of the proxy class
-     *            "initializer"  - Closure to be used as proxy __initializer__
-     *            "cloner"       - Closure to be used as proxy __cloner__
-     *            "reflectionId" - ReflectionProperty for the ID field
-     */
-    private $definitions = array();
-
-    /**
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>DocumentManager</tt>.
      *
      * @param DocumentManager $dm The DocumentManager the new factory works for.
      * @param string $proxyDir The directory to use for the proxy classes. It must exist.
-     * @param string $proxyNs The namespace to use for the proxy classes.
+     * @param string $proxyNamespace The namespace to use for the proxy classes.s
      * @param boolean $autoGenerate Whether to automatically generate proxy classes.
      */
-    public function __construct(DocumentManager $dm, $proxyDir, $proxyNs, $autoGenerate = false)
-    {
+    public function __construct(DocumentManager $dm, $proxyDir, $proxyNamespace, $autoGenerate = false) {
+        // can/should we push that further up and inject? we do need the proxy namespace again however
+        $proxyGenerator = new ProxyGenerator($proxyDir, $proxyNamespace);
+        $proxyGenerator->setPlaceholder('<baseProxyInterface>', 'Doctrine\ODM\PHPCR\Proxy\Proxy');
+
+        parent::__construct($proxyGenerator, $dm->getMetadataFactory(), $autoGenerate);
+
         $this->dm             = $dm;
-        $this->uow            = $dm->getUnitOfWork();
-        $this->proxyDir       = $proxyDir;
-        $this->autoGenerate   = $autoGenerate;
-        $this->proxyNamespace = $proxyNs;
+        $this->proxyNamespace = $proxyNamespace;
     }
 
     /**
-     * Gets a reference proxy instance for the entity of the given type and identified by
-     * the given identifier.
-     *
-     * @param  string $className
-     * @param  mixed  $identifier
-     * @return object
+     * {@inheritDoc}
      */
-    public function getProxy($className, $identifier)
+    protected function skipClass(BaseClassMetadata $metadata)
     {
-        if ( ! isset($this->definitions[$className])) {
-            $this->initProxyDefinitions($className);
+        if (! $metadata instanceof ClassMetadata) {
+            throw new \Exception('Did not get the expected type of metadata but ' . get_class($metadata));
         }
 
-        $definition   = $this->definitions[$className];
-        $fqcn         = $definition['fqcn'];
-        $reflectionId = $definition['reflectionId'];
-        $proxy        = new $fqcn($definition['initializer'], $definition['cloner']);
-
-        $reflectionId->setValue($proxy, $identifier);
-
-        return $proxy;
+        return $metadata->isMappedSuperclass || $metadata->getReflectionClass()->isAbstract();
     }
 
     /**
-     * Generates proxy classes for all given classes.
-     *
-     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata[] $classes The classes for which to generate proxies.
-     * @param string $toDir The target directory of the proxy classes. If not specified, the
-     *                      directory configured on the Configuration of the DocumentManager used
-     *                      by this factory is used.
-     * @return int Number of generated proxies.
+     * {@inheritDoc}
      */
-    public function generateProxyClasses(array $classes, $toDir = null)
+    protected function createProxyDefinition($className)
     {
-        $generated = 0;
+        $proxyClassName = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
 
-        foreach ($classes as $class) {
-            if ($class->isMappedSuperclass || $class->getReflectionClass()->isAbstract()) {
-                continue;
-            }
-
-            $generator     = $this->getProxyGenerator();
-            $proxyFileName = $generator->getProxyFileName($class->getName(), $toDir);
-
-            $generator->generateProxyClass($class, $proxyFileName);
-
-            $generated += 1;
-        }
-
-        return $generated;
-    }
-
-    /**
-     * @param \Doctrine\Common\Proxy\ProxyGenerator $proxyGenerator
-     */
-    public function setProxyGenerator(ProxyGenerator $proxyGenerator)
-    {
-        $this->proxyGenerator = $proxyGenerator;
-    }
-
-    /**
-     * @return \Doctrine\Common\Proxy\ProxyGenerator
-     */
-    public function getProxyGenerator()
-    {
-        if (null === $this->proxyGenerator) {
-            $this->proxyGenerator = new ProxyGenerator($this->proxyDir, $this->proxyNamespace);
-
-            $this->proxyGenerator->setPlaceholder('<baseProxyInterface>', 'Doctrine\ODM\PHPCR\Proxy\Proxy');
-        }
-
-        return $this->proxyGenerator;
-    }
-
-    /**
-     * @param string $className
-     */
-    private function initProxyDefinitions($className)
-    {
-        $fqcn          = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
         $classMetadata = $this->dm->getClassMetadata($className);
+        $identifierField = $classMetadata->reflFields[$classMetadata->identifier];
+        $reflectionFields = $classMetadata->reflFields; // is that correct?
 
-        if ( ! class_exists($fqcn, false)) {
-            $generator = $this->getProxyGenerator();
-            $fileName  = $generator->getProxyFileName($className);
-
-            if ($this->autoGenerate) {
-                $generator->generateProxyClass($classMetadata);
-            }
-
-            require $fileName;
-        }
-
-        $reflectionId = $classMetadata->reflFields[$classMetadata->identifier];
-
-        $this->definitions[$className] = array(
-            'fqcn'         => $fqcn,
-            'initializer'  => $this->createInitializer($classMetadata, $this->dm),
-            'cloner'       => $this->createCloner($classMetadata, $this->dm, $reflectionId),
-            'reflectionId' => $reflectionId,
+        return new ProxyDefinition(
+            $proxyClassName,
+            array($classMetadata->identifier),
+            $reflectionFields,
+            $this->createInitializer($classMetadata, $this->dm),
+            $this->createCloner($classMetadata, $this->dm, $identifierField)
         );
     }
 
@@ -287,7 +191,7 @@ class ProxyFactory
 
             if (null === $original) {
                 throw new UnexpectedValueException(sprintf(
-                    'Proxy could with ID "%s"not be loaded',
+                    'Proxy with ID "%s" could not be loaded',
                     $reflectionId->getValue($cloned)
                 ));
             }

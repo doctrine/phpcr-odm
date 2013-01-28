@@ -28,7 +28,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
-use Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\Common\Proxy\Proxy;
 
 use Jackalope\Session as JackalopeSession;
 
@@ -426,7 +426,8 @@ class UnitOfWork
             return $document;
         }
 
-        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
+        $metadata = $this->dm->getClassMetadata($className);
+        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, array($metadata->identifier => $targetId));
 
         // register the document under its own id
         $this->registerDocument($proxyDocument, $targetId);

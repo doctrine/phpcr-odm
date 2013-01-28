@@ -464,7 +464,7 @@ class DocumentManager implements ObjectManager
      * Create a PHPCR Query from a query string in the specified query language to be
      * used with getDocumentsByPhpcrQuery()
      *
-     * Note that it is better to use {@link createQuery}, which returns a native ODM 
+     * Note that it is better to use {@link createQuery}, which returns a native ODM
      * query object, when working with the ODM.
      *
      * See \PHPCR\Query\QueryInterface for list of generally supported types
@@ -858,18 +858,7 @@ class DocumentManager implements ObjectManager
      */
     public function getReference($documentName, $id)
     {
-        $class = $this->metadataFactory->getMetadataFor($documentName);
-
-        // Check identity map first, if its already in there just return it.
-        $document = $this->unitOfWork->getDocumentById($id);
-        if ($document) {
-            return $document;
-        }
-
-        $document = $this->proxyFactory->getProxy($class->name, $id);
-        $this->unitOfWork->registerDocument($document, $id);
-
-        return $document;
+        return $this->unitOfWork->createProxy($id, $documentName);
     }
 
     /**
@@ -1083,14 +1072,14 @@ class DocumentManager implements ObjectManager
 
         $this->unitOfWork->initializeObject($document);
     }
-    
+
     /**
      * Return the node of the given object
-     * 
+     *
      * @param object $document
-     * 
+     *
      * @return \PHPCR\NodeInterface
-     * 
+     *
      * @throws \InvalidArgumentException if the document is not an object
      * @throws \PHPCR\PHPCRException if the document is not managed
      */
@@ -1099,9 +1088,9 @@ class DocumentManager implements ObjectManager
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
-        
+
         $path = $this->unitOfWork->getDocumentId($document);
-        
+
         return $this->session->getNode($path);
     }
 }
