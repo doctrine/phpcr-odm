@@ -932,7 +932,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociation($fieldName)
     {
-        if ($this->hasAssociation($fieldName)) {
+        if (! $this->hasAssociation($fieldName)) {
             throw MappingException::associationNotFound($this->name, $fieldName);
         }
 
