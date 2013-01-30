@@ -2306,6 +2306,7 @@ class UnitOfWork
         $childrenHints = array();
         if (!is_null($locale)) {
             $childrenHints['locale'] = $locale;
+            $childrenHints['fallback'] = true; // if we set locale explicitly this is no longer automatically done
         }
 
         $childNodes = $node->getNodes($filter);
