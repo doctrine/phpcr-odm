@@ -1595,14 +1595,9 @@ class UnitOfWork
 
             $this->executeReorders($this->scheduledReorders);
 
+            $this->executeMoves($this->scheduledMoves);
+
             $this->session->save();
-
-            if (!empty($this->scheduledMoves)) {
-                // TODO: this is a hack to work around https://github.com/jackalope/jackalope/issues/99
-                $this->executeMoves($this->scheduledMoves);
-
-                $this->session->save();
-            }
 
             if ($utx) {
                 $utx->commit();
