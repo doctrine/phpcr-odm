@@ -62,7 +62,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckin()
     {
-        $user = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $user = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkin($user);
 
         $this->assertInstanceOf('PHPCR\NodeInterface', $user->node);
@@ -74,7 +74,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testCheckout()
     {
-        $user = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $user = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkin($user);
         $this->dm->checkout($user);
         $user->username = 'nicam';
@@ -83,7 +83,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testRestoreVersion()
     {
-        $user = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $user = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($user);
         $user->username = 'nicam';
         $this->dm->flush();
@@ -92,19 +92,19 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         each($versions);
         list($dummy, $versionInfo) = each($versions);
         $versionName = $versionInfo['name'];
-        $versionDocument = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $versionName);
+        $versionDocument = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $versionName);
         $this->dm->restoreVersion($versionDocument);
 
         $this->assertEquals('lsmith', $user->username);
 
         $this->dm->clear();
-        $user = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $user = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->assertEquals('lsmith', $user->username);
     }
 
     public function testGetAllLinearVersions()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
 
         $this->dm->checkpoint($doc);
         $this->dm->checkpoint($doc);
@@ -137,7 +137,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $node = $session->getNode('/functional')->addNode('noVersionTestObj');
         $session->save();
         $id = $node->getPath();
-        $this->dm->findVersionByName($this->type['versionTestObj'],, $id, 'whatever');
+        $this->dm->findVersionByName($this->type['versionTestObj'], $id, 'whatever');
     }
 
     /**
@@ -146,19 +146,19 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testFindVersionByNameVersionDoesNotExist()
     {
-        $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', 'whatever');
+        $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', 'whatever');
     }
 
     public function testFindVersionByName()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
 
         $linearVersionHistory = $this->dm->getAllLinearVersions($doc);
         $lastVersion = end($linearVersionHistory);
         $lastVersionName = $lastVersion['name'];
 
-        $frozenDocument = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $lastVersionName);
+        $frozenDocument = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $lastVersionName);
 
         $this->assertEquals('lsmith', $frozenDocument->username);
         $this->assertEquals(array(3,1,2), $frozenDocument->numbers);
@@ -194,14 +194,14 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testPersistVersionError()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
 
         $linearVersionHistory = $this->dm->getAllLinearVersions($doc);
         $lastVersion = end($linearVersionHistory);
         $lastVersionName = $lastVersion['name'];
 
-        $frozenDocument = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $lastVersionName);
+        $frozenDocument = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $lastVersionName);
 
         $this->dm->persist($frozenDocument);
     }
@@ -211,20 +211,20 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testModifyVersion()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
 
         $linearVersionHistory = $this->dm->getAllLinearVersions($doc);
         $lastVersion = end($linearVersionHistory);
         $lastVersionName = $lastVersion['name'];
 
-        $frozenDocument = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $lastVersionName);
+        $frozenDocument = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $lastVersionName);
 
         $doc->username = 'original';
         $frozenDocument->username = 'changed';
         $this->dm->flush();
         $this->dm->clear();
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->assertEquals('original', $doc->username);
     }
 
@@ -234,14 +234,14 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testRemoveLastVersion()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
 
         $linearVersionHistory = $this->dm->getAllLinearVersions($doc);
         $lastVersion = end($linearVersionHistory);
         $lastVersionName = $lastVersion['name'];
 
-        $version = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $lastVersionName);
+        $version = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $lastVersionName);
         $this->assertNotNull($version);
         $this->dm->removeVersion($version);
     }
@@ -252,21 +252,21 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testRemoveRootVersion()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
 
         $linearVersionHistory = $this->dm->getAllLinearVersions($doc);
         $firstVersion = reset($linearVersionHistory);
         $firstVersionName = $firstVersion['name'];
 
-        $version = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $firstVersionName);
+        $version = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $firstVersionName);
         $this->assertNotNull($version);
         $this->dm->removeVersion($version);
     }
 
     public function testRemoveVersion()
     {
-        $doc = $this->dm->find($this->type['versionTestObj'],, '/functional/versionTestObj');
+        $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
 
         $linearVersionHistory = $this->dm->getAllLinearVersions($doc);
@@ -277,7 +277,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->checkpoint($doc);
 
         // Remove the version
-        $version = $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $lastVersionName);
+        $version = $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $lastVersionName);
         $removedVersionPath = $version->id;
 
         $this->dm->removeVersion($version);
@@ -295,7 +295,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
     {
-        $this->dm->findVersionByName($this->type['versionTestObj'],, '/functional/versionTestObj', $lastVersionName);
+        $this->dm->findVersionByName($this->type['versionTestObj'], '/functional/versionTestObj', $lastVersionName);
     }
 }
 
