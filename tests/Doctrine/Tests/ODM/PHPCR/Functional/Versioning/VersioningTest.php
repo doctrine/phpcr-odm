@@ -42,7 +42,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $versionNode = $this->node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', array(3, 1, 2));
-        $versionNode->setProperty('phpcr:class', $this->type['versionTestObj'],);
+        $versionNode->setProperty('phpcr:class', $this->type['versionTestObj']);
         $versionNode->addMixin("mix:versionable");
 
         $referenceNode = $this->node->addNode('referenceTestObj');
@@ -171,13 +171,13 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testFindVersionByNameWithReference()
     {
         $doc = $this->dm->find($this->type['versionTestObj'], '/functional/versionTestObjWithReference');
-        $this->dm->checkpoint($doc);
+        $this->dm->checkpoint($doc); // Create a new version 1.0
 
         // Delete the reference in the doc, persist and checkpoint the doc
         $doc->reference = null;
         $this->dm->persist($doc);
         $this->dm->flush();
-        $this->dm->checkpoint($doc);
+        $this->dm->checkpoint($doc); // Create a new version 1.1
 
         // Remove the reference obj
         $referenceDoc = $this->dm->find($this->type['referenceTestObj'], '/functional/referenceTestObj');
