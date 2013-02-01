@@ -327,7 +327,7 @@ class VersionTestObj
 /**
  * @PHPCRODM\Document(referenceable=true)
  */
-class VersionTestObj
+class ReferenceTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
