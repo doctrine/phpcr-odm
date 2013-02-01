@@ -47,7 +47,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referenceNode = $this->node->addNode('referenceTestObj');
         $referenceNode->setProperty('content', 'reference test');
-        $referenceNode->setProperty('phpcr:class', $this->type['referenceTestObj'])
+        $referenceNode->setProperty('phpcr:class', $this->type['referenceTestObj']);
         $referenceNode->addMixin("mix:referenceable");
 
         $versionNodeWithReference = $this->node->addNode('versionTestObjWithReference');
