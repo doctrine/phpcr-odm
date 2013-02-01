@@ -323,7 +323,7 @@ class VersionTestObj
     /** @PHPCRODM\Int(name="numbers", multivalue=true) */
     public $numbers;
 
-    /** @PHPCRODM\ReferenecOne(strategy="weak") */
+    /** @PHPCRODM\ReferenceOne(strategy="weak") */
     public $reference;
 }
 
