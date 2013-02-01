@@ -51,7 +51,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referenceNode->addMixin("mix:referenceable");
 
         $this->dm->getPhpcrSession()->save();
-        $this->dm = $this->createDocumentManager();
+/*         $this->dm = $this->createDocumentManager(); */
 
         $versionNodeWithReference = $this->node->addNode('versionTestObjWithReference');
         $versionNodeWithReference->setProperty('username', 'laupifrpar');
