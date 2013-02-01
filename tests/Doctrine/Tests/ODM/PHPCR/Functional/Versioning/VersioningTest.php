@@ -28,7 +28,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type['versionTestObj'] = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\VersionTestObj';
-        $this->type['referenceTestObj'] = 'Doctrine\Tests\ODM\PHPCR\Functional\Versionning\ReferenceTestObj';
+        $this->type['referenceTestObj'] = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\ReferenceTestObj';
         $this->dm = $this->createDocumentManager();
 
         // Check that the repository supports versioning
