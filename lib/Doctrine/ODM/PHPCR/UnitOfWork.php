@@ -331,6 +331,8 @@ class UnitOfWork
                     }
                 } catch (ItemNotFoundException $e) {
                     $proxy = null;
+                } catch (RepositoryException $e) {
+                    $proxy = null;
                 }
 
                 $documentState[$fieldName] = $proxy;
