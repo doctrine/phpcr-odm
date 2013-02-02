@@ -12,7 +12,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGenerate()
     {
-        $id = 'moo';
+        $id = '/moo';
 
         $generator = new ParentIdGenerator;
         $parent = new ParentDummy;
@@ -38,7 +38,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGenerateNoParent()
     {
-        $id = 'moo';
+        $id = '/moo';
 
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(null, 'name', $id);
@@ -52,7 +52,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGenerateNoName()
     {
-        $id = 'moo';
+        $id = '/moo';
 
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', $id);
@@ -61,31 +61,63 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($id, $generator->generate(null, $cm,  $dm));
     }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testGenerateNoIdNoParentNoName()
+    {
+        $generator = new ParentIdGenerator;
+        $cm = new ParentClassMetadataProxy(null, '', '');
+        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+
+        $generator->generate(null, $cm,  $dm);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
     public function testGenerateNoIdNoParent()
     {
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(null, 'name', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        try {
-            $generator->generate(null, $cm,  $dm);
-        } catch (\Exception $expected) {
-            return;
-        }
-        $this->fail('Expected \Exception not thrown');
+        $generator->generate(null, $cm,  $dm);
     }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
     public function testGenerateNoIdNoName()
     {
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        try {
-            $generator->generate(null, $cm,  $dm);
-        } catch (\Exception $expected) {
-            return;
-        }
-        $this->fail('Expected \Exception not thrown');
+        $generator->generate(null, $cm,  $dm);
+    }
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testGenerateNoParentId()
+    {
+        $generator = new ParentIdGenerator;
+        $parent = new ParentDummy;
+        $cm = new ParentClassMetadataProxy($parent, 'name', '', new MockField($parent, '/miau'));
+        $uow = $this->getMockBuilder('Doctrine\ODM\PHPCR\UnitOfWork')->disableOriginalConstructor()->getMock();
+        $uow
+            ->expects($this->once())
+            ->method('getDocumentId')
+            ->with($this->equalTo($parent))
+            ->will($this->returnValue(''))
+        ;
+        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm
+            ->expects($this->once())
+            ->method('getUnitOfWork')
+            ->will($this->returnValue($uow))
+        ;
+        $generator->generate(null, $cm,  $dm);
     }
 }
 
