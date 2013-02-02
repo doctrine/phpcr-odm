@@ -12,10 +12,18 @@ class Article
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /**
      * @PHPCRODM\Locale
      */
     public $locale = 'en';
+
+    /** @PHPCRODM\Node */
+    public $node;
+
+    /** @PHPCRODM\Nodename */
+    public $nodename;
+
     /**
      * @PHPCRODM\ParentDocument */
     public $parent;
@@ -35,7 +43,13 @@ class Article
     public $text;
 
     /** @PHPCRODM\Children() */
-    protected  $children;
+    public $children;
+
+    /** @PHPCRODM\Child */
+    public $child;
+
+    /** @PHPCRODM\ReferenceMany() */
+    public $relatedArticles = array();
 
     /**
      * @PHPCRODM\String(assoc="", translated=true)

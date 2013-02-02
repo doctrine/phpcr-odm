@@ -34,7 +34,6 @@ class ChildrenCollection extends PersistentCollection
     private $filter;
     private $fetchDepth;
     private $originalNodeNames = array();
-    private $ignoreUntranslated = true;
 
     /**
      * Creates a new persistent collection.
@@ -43,15 +42,15 @@ class ChildrenCollection extends PersistentCollection
      * @param object          $document           Document instance
      * @param string          $filter             filter string
      * @param integer         $fetchDepth         optional fetch depth if supported by the PHPCR session
-     * @param boolean         $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param string          $locale             the locale to use during the loading of this collection
      */
-    public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
+    public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = null, $locale = null)
     {
         $this->dm = $dm;
         $this->document = $document;
         $this->filter = $filter;
         $this->fetchDepth = $fetchDepth;
-        $this->ignoreUntranslated = $ignoreUntranslated;
+        $this->locale = $locale;
     }
 
     /**
@@ -62,7 +61,7 @@ class ChildrenCollection extends PersistentCollection
     {
         if (!$this->initialized) {
             $this->initialized = true;
-            $this->collection = $this->dm->getChildren($this->document, $this->filter, $this->fetchDepth, $this->ignoreUntranslated);
+            $this->collection = $this->dm->getChildren($this->document, $this->filter, $this->fetchDepth, $this->locale);
             $this->originalNodeNames = $this->collection->getKeys();
         }
     }

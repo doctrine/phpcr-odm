@@ -57,6 +57,11 @@ abstract class PersistentCollection implements Collection
     protected $dm;
 
     /**
+     * @var string
+     */
+    protected $locale;
+
+    /**
      * @return bool Whether the collection was modified
      */
     public function changed()
@@ -378,6 +383,15 @@ abstract class PersistentCollection implements Collection
     public function setDirty($dirty)
     {
         $this->isDirty = $dirty;
+    }
+
+    public function setLocale($locale)
+    {
+        if (null === $this->locale) {
+            return;
+        }
+
+        $this->locale = $locale;
     }
 
     /**
