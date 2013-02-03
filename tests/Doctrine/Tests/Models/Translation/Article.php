@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @PHPCRODM\Document(translator="attribute")
+ * @PHPCRODM\Document(translator="attribute", referenceable=true)
  */
 class Article
 {
