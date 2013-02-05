@@ -126,7 +126,7 @@ class ParentDummy
 }
 class ParentClassMetadataProxy extends ClassMetadata
 {
-    public $parentMapping = array('fieldName' => 'parent');
+    public $parentMapping = 'parent';
     public $nodename = 'nodename';
     public $identifier = 'id';
     public $reflFields;
