@@ -8,6 +8,7 @@ use Doctrine\Tests\Models\Translation\Article,
     Doctrine\Tests\Models\Translation\DerivedArticle,
     Doctrine\Tests\Models\CMS\CmsArticle,
     Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\Tests\Models\References\RefCascadeTestObj;
 
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy,
     Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
@@ -112,6 +113,34 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('en', $this->doc->locale);
     }
 
+    /**
+     * persist a new document twice in 2 languages
+     */
+    public function testPersistLocale()
+    {
+        $this->dm->persist($this->doc);
+        $this->doc->topic = 'Ein interessantes Thema';
+        $this->doc->locale = 'de';
+        $this->dm->persist($this->doc);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->dm->getPhpcrSession()->nodeExists($this->doc->id));
+        $this->assertTrue($this->dm->getPhpcrSession()->propertyExists($this->doc->id . '/phpcr_locale:de-topic'));
+        $this->assertTrue($this->dm->getPhpcrSession()->propertyExists($this->doc->id . '/phpcr_locale:en-topic'));
+
+        $article = $this->dm->find(null, $this->doc->id);
+        $this->assertEquals('en', $article->locale);
+        $this->assertEquals('Some interesting subject', $article->topic);
+
+        $this->dm->clear();
+
+        $article = $this->dm->findTranslation(null, $this->doc->id, 'de');
+        $this->assertEquals('de', $article->locale);
+        $this->assertEquals('Ein interessantes Thema', $article->topic);
+    }
+
     public function testBindTranslation()
     {
         $this->dm->persist($this->doc);
@@ -164,6 +193,41 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         } catch (\RuntimeException $e) {
 
         }
+    }
+
+    /**
+     * Existing document with only 'de' translation. Default language is 'en'
+     *
+     * Create a new nontranslated document, assign existing document as
+     * reference and persist and flush new document.
+     */
+    public function testCascadeAndLocale()
+    {
+        $this->doc->topic = 'Ein interessantes Thema';
+        $this->doc->locale = 'de';
+        $this->dm->persist($this->doc);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->dm->getPhpcrSession()->nodeExists($this->doc->id));
+        $this->assertTrue($this->dm->getPhpcrSession()->propertyExists($this->doc->id . '/phpcr_locale:de-topic'));
+        $this->assertFalse($this->dm->getPhpcrSession()->propertyExists($this->doc->id . '/phpcr_locale:en-topic'));
+
+        $article = $this->dm->find(null, $this->doc->id);
+        $this->assertEquals('de', $article->locale);
+        $this->assertEquals('Ein interessantes Thema', $article->topic);
+
+        $ref = new RefCascadeTestObj();
+        $ref->id = '/functional/testCascadeAndLocale';
+        $ref->reference = $article;
+        $this->dm->persist($ref);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($this->dm->getPhpcrSession()->nodeExists($this->doc->id));
+        $this->assertTrue($this->dm->getPhpcrSession()->propertyExists($this->doc->id . '/phpcr_locale:de-topic'));
+        $this->assertFalse($this->dm->getPhpcrSession()->propertyExists($this->doc->id . '/phpcr_locale:en-topic'));
     }
 
     /**
