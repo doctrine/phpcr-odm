@@ -417,6 +417,10 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setIdentifier($identifier)
     {
+        if ($this->identifier &&  $this->identifier !== $identifier) {
+            throw new MappingException('Cannot map the identifier to more than one property');
+        }
+
         $this->identifier = $identifier;
     }
 
