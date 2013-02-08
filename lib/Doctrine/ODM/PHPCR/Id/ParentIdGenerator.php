@@ -38,15 +38,15 @@ class ParentIdGenerator extends IdGenerator
 
         if (empty($id)) {
             if (empty($name) && empty($parent)) {
-                throw IdException::noIdentificationParameters($document);
+                throw IdException::noIdentificationParameters($document, $cm->parentMapping, $cm->nodename);
             }
 
             if ($name && empty($parent)) {
-                throw IdException::noIdNoParent($document, $name);
+                throw IdException::noIdNoParent($document, $cm->parentMapping);
             }
 
             if (empty($name) && $parent) {
-                throw IdException::noIdNoName($document, $parent);
+                throw IdException::noIdNoName($document, $cm->nodename);
             }
         }
 
@@ -56,9 +56,11 @@ class ParentIdGenerator extends IdGenerator
         }
 
         // determine ID based on the path and the node name
+
+        // get the id of the parent document
         $id = $dm->getUnitOfWork()->getDocumentId($parent);
         if (!$id) {
-            throw IdException::parentIdCouldNotBeDetermined($document, $name);
+            throw IdException::parentIdCouldNotBeDetermined($document, $cm->parentMapping, $parent);
         }
 
         // edge case parent is root

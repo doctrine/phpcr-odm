@@ -32,7 +32,7 @@ class Article
     public $topic;
 
     /** @PHPCRODM\String(translated=true) */
-    private $text;
+    public $text;
 
     /** @PHPCRODM\Children() */
     protected  $children;

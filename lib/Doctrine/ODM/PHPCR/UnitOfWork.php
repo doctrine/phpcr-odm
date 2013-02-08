@@ -2592,7 +2592,7 @@ class UnitOfWork
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
 
-    private function getLocale($document, $metadata)
+    private function getLocale($document, ClassMetadata $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;

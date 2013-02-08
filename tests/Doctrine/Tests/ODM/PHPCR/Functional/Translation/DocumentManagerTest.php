@@ -47,16 +47,17 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     protected $childrenClass = 'Doctrine\Tests\Models\Translation\Comment';
 
+    protected $localePrefs = array(
+        'en' => array('de', 'fr'),
+        'fr' => array('de', 'en'),
+        'de' => array('en'),
+        'it' => array('fr', 'de', 'en'),
+    );
+
     public function setUp()
     {
-        $localePrefs = array(
-            'en' => array('en', 'de', 'fr'),
-            'fr' => array('fr', 'de', 'en'),
-            'it' => array('fr', 'de', 'en'),
-        );
-
         $this->dm = $this->createDocumentManager();
-        $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
         $this->resetFunctionalNode($this->dm);
         $this->dm->clear();
 
@@ -317,7 +318,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Italian translation does not exist so as defined in $localePrefs we
+     * Italian translation does not exist so as defined in $this->localePrefs we
      * will get french as it has higher priority than english
      */
     public function testFindTranslationWithLanguageFallback()
