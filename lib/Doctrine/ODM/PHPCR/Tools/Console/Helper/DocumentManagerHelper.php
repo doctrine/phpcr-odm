@@ -39,7 +39,7 @@ class DocumentManagerHelper extends Helper
      * Constructor
      *
      * @param SessionInterface $session
-     * @param DocumentManager $dm
+     * @param DocumentManager  $dm
      */
     public function __construct(SessionInterface $session = null, DocumentManager $dm = null)
     {
@@ -66,4 +66,3 @@ class DocumentManagerHelper extends Helper
         return 'phpcr';
     }
 }
-

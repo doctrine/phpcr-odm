@@ -19,8 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -84,6 +82,7 @@ CND
                 $this->updateFromCnd($input, $output, $session, $cnd, true);
             } catch (\Exception $e) {
                 $output->writeln('<error>'.$e->getMessage().'</error>');
+
                 return 1;
             }
         } else {

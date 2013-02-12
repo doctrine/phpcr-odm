@@ -22,13 +22,16 @@ namespace Doctrine\ODM\PHPCR\Id;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
+/**
+ * Generate the id from the nodename and the parent mapping fields. Simply uses
+ * the parent id and appends the nodename field.
+ */
 class ParentIdGenerator extends IdGenerator
 {
     /**
-     * @param object $document
-     * @param ClassMetadata $cm
-     * @param DocumentManager $dm
-     * @return string
+     * Use the name and parent fields to generate the id
+     *
+     * {@inheritDoc}
      */
     public function generate($document, ClassMetadata $cm, DocumentManager $dm)
     {

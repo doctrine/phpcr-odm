@@ -39,11 +39,11 @@ class ChildrenCollection extends PersistentCollection
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManager $dm The DocumentManager the collection will be associated with.
-     * @param object $document Document instance
-     * @param string $filter filter string
-     * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
-     * @param boolean $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param DocumentManager $dm                 The DocumentManager the collection will be associated with.
+     * @param object          $document           Document instance
+     * @param string          $filter             filter string
+     * @param integer         $fetchDepth         optional fetch depth if supported by the PHPCR session
+     * @param boolean         $ignoreUntranslated if to ignore children that are not translated to the current locale
      */
     public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
     {
@@ -75,11 +75,12 @@ class ChildrenCollection extends PersistentCollection
     public function getOriginalNodeNames()
     {
         $this->initialize();
+
         return $this->originalNodeNames;
     }
 
     /**
-     * @return ArrayCollection  The collection
+     * @return ArrayCollection The collection
      */
     public function unwrap()
     {

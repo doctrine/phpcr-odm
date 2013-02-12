@@ -22,13 +22,15 @@ namespace Doctrine\ODM\PHPCR\Id;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
+/**
+ * Generator to handle explicitly assigned repository paths.
+ */
 class AssignedIdGenerator extends IdGenerator
 {
     /**
-     * @param object $document
-     * @param ClassMetadata $cm
-     * @param DocumentManager $dm
-     * @return string
+     * Use the identifier field as id and throw exception if not set.
+     *
+     * {@inheritDoc}
      */
     public function generate($document, ClassMetadata $cm, DocumentManager $dm)
     {
@@ -36,6 +38,7 @@ class AssignedIdGenerator extends IdGenerator
         if (!$id) {
             throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the document is to be stored.');
         }
+
         return $id;
     }
 }

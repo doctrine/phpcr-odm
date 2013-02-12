@@ -48,6 +48,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         $translationNode = $this->getTranslationNode($node, $locale);
+
         return parent::loadTranslation($document, $translationNode, $metadata, $locale);
     }
 
@@ -83,6 +84,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
                 $locales[] = substr($name, $p+1);
             }
         }
+
         return $locales;
     }
 

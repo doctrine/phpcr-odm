@@ -13,7 +13,7 @@ class QueryException extends \Exception
     {
         return new self(sprintf(
             'Hydration mode "%s" not recognized, must be the value of one of '.
-            'the Doctrine\ODM\PHPCR\Query::HYDRATE_ constants', 
+            'the Doctrine\ODM\PHPCR\Query::HYDRATE_ constants',
             $hydrationMode
         ));
     }

@@ -56,7 +56,7 @@ class ReferrersCollection extends PersistentCollection
     }
 
     /**
-     * @return ArrayCollection  The collection
+     * @return ArrayCollection The collection
      */
     public function unwrap()
     {
