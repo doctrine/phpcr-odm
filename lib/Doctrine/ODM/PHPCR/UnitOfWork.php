@@ -315,20 +315,26 @@ class UnitOfWork
                     continue;
                 }
 
-                if (isset($mapping['targetDocument'])) {
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($mapping['targetDocument'], '\\'))->name;
+                try {
+                    if (isset($mapping['targetDocument'])) {
+                        $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($mapping['targetDocument'], '\\'))->name;
 
-                    if ($mapping['strategy'] === 'path') {
-                        $path = $node->getProperty($fieldName)->getString();
+                        if ($mapping['strategy'] === 'path') {
+                            $path = $node->getProperty($fieldName)->getString();
+                        } else {
+                            $referencedNode = $node->getProperty($fieldName)->getNode();
+                            $path = $referencedNode->getPath();
+                        }
+
+                        $proxy = $this->createProxy($path, $referencedClass);
                     } else {
                         $referencedNode = $node->getProperty($fieldName)->getNode();
-                        $path = $referencedNode->getPath();
+                        $proxy = $this->createProxyFromNode($referencedNode);
                     }
-
-                    $proxy = $this->createProxy($path, $referencedClass);
-                } else {
-                    $referencedNode = $node->getProperty($fieldName)->getNode();
-                    $proxy = $this->createProxyFromNode($referencedNode);
+                } catch (ItemNotFoundException $e) {
+                    $proxy = null;
+                } catch (RepositoryException $e) {
+                    $proxy = null;
                 }
 
                 $documentState[$fieldName] = $proxy;
