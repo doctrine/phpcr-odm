@@ -146,7 +146,7 @@ class DocumentManager implements ObjectManager
      */
     public function getTranslationStrategy($key)
     {
-        if (! isset($this->translationStrategy[$key])) {
+        if (!isset($this->translationStrategy[$key])) {
             throw new \InvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
         }
         return $this->translationStrategy[$key];
@@ -160,7 +160,7 @@ class DocumentManager implements ObjectManager
      */
     public function getLocaleChooserStrategy()
     {
-        if (is_null($this->localeChooserStrategy)) {
+        if (!isset($this->localeChooserStrategy)) {
             throw new \InvalidArgumentException("You must configure a language chooser strategy when having documents with the translatable annotation");
         }
         return $this->localeChooserStrategy;

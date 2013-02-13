@@ -2301,6 +2301,7 @@ class UnitOfWork
         $childrenHints = array();
         if (!is_null($locale)) {
             $childrenHints['locale'] = $locale;
+            $childrenHints['fallback'] = true; // if we set locale explicitly this is no longer automatically done
         }
 
         $childNodes = $node->getNodes($filter);
@@ -2580,7 +2581,7 @@ class UnitOfWork
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
 
-    private function getLocale($document, $metadata)
+    private function getLocale($document, ClassMetadata $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
