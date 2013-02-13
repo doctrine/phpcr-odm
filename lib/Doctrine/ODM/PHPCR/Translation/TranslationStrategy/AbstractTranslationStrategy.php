@@ -19,8 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
 /**
@@ -50,7 +48,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     /**
      * Get the name of the property where to store the translations of a given property in a given language
      *
-     * @param string $locale The language to store
+     * @param string $locale    The language to store
      * @param string $fieldName The name of the field to translate
      *
      * @return string The name of the property where to store the translation

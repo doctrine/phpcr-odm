@@ -36,13 +36,15 @@ class Query
     /**
      * Defines the processing mode to be used during hydration / result set transformation.
      *
-     * @param string $hydrationMode       Processing mode to be used during hydration process.
-     *                                    One of the Query::HYDRATE_* constants.
-     * @return \Doctrine\ODM\PHPCR\Query  This query instance.
+     * @param string $hydrationMode Processing mode to be used during hydration process.
+     *     One of the Query::HYDRATE_* constants.
+     *
+     * @return Query This query instance.
      */
-    public function setHydrationMode($hydrationMode) 
+    public function setHydrationMode($hydrationMode)
     {
         $this->hydrationMode = $hydrationMode;
+
         return $this;
     }
 
@@ -71,7 +73,7 @@ class Query
      *
      * @param array $parameters
      *
-     * @return \Doctrine\ODM\PHPCR\Query This query instance.
+     * @return Query This query instance.
      */
     public function setParameters($parameters)
     {
@@ -79,14 +81,14 @@ class Query
 
         return $this;
     }
-    
+
     /**
      * Sets a query parameter.
      *
      * @param string $key   The parameter name.
-     * @param mixed $value  The parameter value.
+     * @param mixed  $value The parameter value.
      *
-     * @return \Doctrine\ODM\PHPCR\Query This query instance.
+     * @return Query This query instance.
      */
     public function setParameter($key, $value)
     {
@@ -122,9 +124,9 @@ class Query
      *
      *  2. The PHPCR Node does not contain the phpcr:class metadata property.
      *
-     * @param $documentClass string  FQN of document class
+     * @param string $documentClass FQN of document class
      *
-     * @return \Doctrine\ODM\PHPCR\Query This query instance.
+     * @return Query This query instance.
      */
     public function setDocumentClass($documentClass)
     {
@@ -134,9 +136,10 @@ class Query
     /**
      * Executes the query.
      *
-     * @param array $parameters       Parameters, alternative to calling "setParameters"
-     * @param integer $hydrationMode  Processing mode to be used during the hydration process,
-     *                                alternative to calling "setHydrationMode"
+     * @param array   $parameters    Parameters, alternative to calling
+     *      "setParameters"
+     * @param integer $hydrationMode Processing mode to be used during the
+     *      hydration process, alternative to calling "setHydrationMode"
      *
      * @return mixed
      */
@@ -207,9 +210,11 @@ class Query
     /**
      * Get exactly one result or null.
      *
-     * @throws NonUniqueResultException
      * @param int $hydrationMode
+     *
      * @return mixed
+     *
+     * @throws QueryException if more than one result found
      */
     public function getOneOrNullResult($hydrationMode = null)
     {
@@ -233,9 +238,10 @@ class Query
      * If there is no result, a NoResultException is thrown.
      *
      * @param integer $hydrationMode
+     *
      * @return mixed
-     * @throws NonUniqueResultException If the query result is not unique.
-     * @throws NoResultException If the query returned no result.
+     *
+     * @throws QueryException if no result or more than one result found
      */
     public function getSingleResult($hydrationMode = null)
     {
@@ -252,9 +258,10 @@ class Query
      * Executes the query and returns an IterableResult that can be used to incrementally
      * iterate over the result.
      *
-     * @param \Doctrine\Common\Collections\ArrayCollection|array $parameters The query parameters.
-     * @param integer $hydrationMode The hydration mode to use.
-     * @return \Doctrine\ORM\Internal\Hydration\IterableResult
+     * @param  array   $parameters    The query parameters.
+     * @param  integer $hydrationMode The hydration mode to use.
+     *
+     * @return TODO \Doctrine\ORM\Internal\Hydration\IterableResult
      */
     public function iterate($parameters = null, $hydrationMode = null)
     {
@@ -265,6 +272,7 @@ class Query
      * Sets the maximum number of results to retrieve (the "limit").
      *
      * @param integer $maxResults
+     *
      * @return Query This query object.
      */
     public function setMaxResults($maxResults)
@@ -275,8 +283,9 @@ class Query
     }
 
     /**
-     * Gets the maximum number of results the query object was set to retrieve (the "limit").
-     * Returns NULL if {@link setMaxResults} was not applied to this query.
+     * Gets the maximum number of results the query object was set to retrieve
+     * (the "limit"). Returns NULL if {@link setMaxResults} was not applied to
+     * this query.
      *
      * @return integer Maximum number of results.
      */
@@ -289,6 +298,7 @@ class Query
      * Sets the position of the first result to retrieve (the "offset").
      *
      * @param integer $firstResult The first result to return.
+     *
      * @return Query This query object.
      */
     public function setFirstResult($firstResult)
@@ -299,8 +309,9 @@ class Query
     }
 
     /**
-     * Gets the position of the first result the query object was set to retrieve (the "offset").
-     * Returns NULL if {@link setFirstResult} was not applied to this query.
+     * Gets the position of the first result the query object was set to
+     * retrieve (the "offset"). Returns NULL if {@link setFirstResult} was not
+     * applied to this query.
      *
      * @return integer The position of the first result.
      */
@@ -310,7 +321,7 @@ class Query
     }
 
     /**
-     * Proxy method to return statemenet of the wrapped PHPCR Query
+     * Proxy method to return statement of the wrapped PHPCR Query
      *
      * @return string The query statement.
      */
@@ -332,7 +343,7 @@ class Query
     /**
      * Return wrapped PHPCR query object
      *
-     * @return \PHPCR\Query\QueryInterface
+     * @return QueryInterface
      */
     public function getPhpcrQuery()
     {

@@ -128,7 +128,6 @@ class DocumentManager implements ObjectManager
      * @param string $key The name of the translation strategy.
      * @param TranslationStrategyInterface $strategy the strategy that
      *      is used with this key
-     *
      */
     public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
     {
@@ -149,6 +148,7 @@ class DocumentManager implements ObjectManager
         if (!isset($this->translationStrategy[$key])) {
             throw new \InvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
         }
+
         return $this->translationStrategy[$key];
     }
 
@@ -163,6 +163,7 @@ class DocumentManager implements ObjectManager
         if (!isset($this->localeChooserStrategy)) {
             throw new \InvalidArgumentException("You must configure a language chooser strategy when having documents with the translatable annotation");
         }
+
         return $this->localeChooserStrategy;
     }
 
@@ -211,8 +212,8 @@ class DocumentManager implements ObjectManager
      * Factory method for a Document Manager.
      *
      * @param SessionInterface $session
-     * @param Configuration $config
-     * @param EventManager $evm
+     * @param Configuration    $config
+     * @param EventManager     $evm
      *
      * @return DocumentManager
      */
@@ -262,7 +263,7 @@ class DocumentManager implements ObjectManager
     /**
      * Get the ClassMetadata object for a class
      *
-     * @param  string $className document class name to get metadata for
+     * @param string $className document class name to get metadata for
      *
      * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
      */
@@ -280,7 +281,7 @@ class DocumentManager implements ObjectManager
      * used to load the best * suited language for the translatable fields.
      *
      * @param null|string $className optional object class name to use
-     * @param string $id the path or uuid of the document to find
+     * @param string      $id        the path or uuid of the document to find
      *
      * @return object|null the document if found, otherwise null
      */
@@ -296,6 +297,7 @@ class DocumentManager implements ObjectManager
             $document = $this->unitOfWork->getDocumentById($id);
             if ($document) {
                 $this->unitOfWork->validateClassName($document, $className);
+
                 return $document;
             }
 
@@ -305,6 +307,7 @@ class DocumentManager implements ObjectManager
         }
 
         $hints = array('fallback' => true);
+
         return $this->unitOfWork->createDocument($className, $node, $hints);
     }
 
@@ -312,7 +315,7 @@ class DocumentManager implements ObjectManager
      * Finds many documents by id.
      *
      * @param null|string $className
-     * @param array $ids
+     * @param array       $ids
      *
      * @return object
      */
@@ -368,9 +371,9 @@ class DocumentManager implements ObjectManager
      * allow copies of objects to exist
      *
      * @param null|string $className the class name to find the translation for
-     * @param string $id the identifier of the class (path or uuid)
-     * @param string $locale The language to try to load
-     * @param boolean $fallback Set to true if the language fallback mechanism should be used
+     * @param string      $id        the identifier of the class (path or uuid)
+     * @param string      $locale    The language to try to load
+     * @param boolean     $fallback  Set to true if the language fallback mechanism should be used
      *
      * @return object the translated document
      */
@@ -388,6 +391,7 @@ class DocumentManager implements ObjectManager
                 $this->unitOfWork->validateClassName($document, $className);
                 $class = $this->getClassMetadata(get_class($document));
                 $this->unitOfWork->doLoadTranslation($document, $class, $locale, $fallback);
+
                 return $document;
             }
 
@@ -397,13 +401,14 @@ class DocumentManager implements ObjectManager
         }
 
         $hints = array('locale' => $locale, 'fallback' => $fallback);
+
         return $this->unitOfWork->createDocument($className, $node, $hints);
     }
 
     /**
      * Get the repository for the specified class
      *
-     * @param  string $className The document class name to get the repository for
+     * @param string $className The document class name to get the repository for
      *
      * @return DocumentRepository
      */
@@ -419,14 +424,15 @@ class DocumentManager implements ObjectManager
             }
             $this->repositories[$className] = new $repositoryClass($this, $class);
         }
+
         return $this->repositories[$className];
     }
 
     /**
      * Quote a string for inclusion in an SQL2 query
      *
-     * @param  string $val
-     * @param  int $type
+     * @param string $val
+     * @param int    $type
      *
      * @return string
      *
@@ -444,7 +450,7 @@ class DocumentManager implements ObjectManager
     /**
      * Escape the illegal characters for inclusion in a fulltext statement. Escape Character is \\.
      *
-     * @param  string $string
+     * @param string $string
      *
      * @return string Escaped String
      *
@@ -457,6 +463,7 @@ class DocumentManager implements ObjectManager
             '[' => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
             '\"' => '\\\"', '?' => '\\?',
         );
+
         return strtr($string, $illegalCharacters);
     }
 
@@ -464,24 +471,24 @@ class DocumentManager implements ObjectManager
      * Create a PHPCR Query from a query string in the specified query language to be
      * used with getDocumentsByPhpcrQuery()
      *
-     * Note that it is better to use {@link createQuery}, which returns a native ODM 
+     * Note that it is better to use {@link createQuery}, which returns a native ODM
      * query object, when working with the ODM.
      *
      * See \PHPCR\Query\QueryInterface for list of generally supported types
      * and check your implementation documentation if you want to use a
      * different language.
      *
-     * @param  string $statement the statement in the specified language
-     * @param  string $language the query language
+     * @param string $statement the statement in the specified language
+     * @param string $language  the query language
      *
      * @return PHPCR\Query\QueryInterface
      */
     public function createPhpcrQuery($statement, $language)
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
+
         return $qm->createQuery($statement, $language);
     }
-
 
     /**
      * Create a ODM Query from a query string in the specified query language to be
@@ -491,14 +498,15 @@ class DocumentManager implements ObjectManager
      * and check your implementation documentation if you want to use a
      * different language.
      *
-     * @param  string $statement the statement in the specified language
-     * @param  string $language the query language
+     * @param string $statement the statement in the specified language
+     * @param string $language  the query language
      *
      * @return \Doctrine\ODM\PHPCR\Query
      */
     public function createQuery($statement, $language)
     {
         $phpcrQuery = $this->createPhpcrQuery($statement, $language);
+
         return new Query($phpcrQuery, $this);
     }
 
@@ -513,6 +521,7 @@ class DocumentManager implements ObjectManager
     public function createQueryBuilder()
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
+
         return new QueryBuilder($this, $qm->getQOMFactory());
     }
 
@@ -527,15 +536,16 @@ class DocumentManager implements ObjectManager
     public function createPhpcrQueryBuilder()
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
+
         return new PhpcrQueryBuilder($qm->getQOMFactory());
     }
 
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param  PHPCR\Query\QueryInterface $query the query instance as
+     * @param PHPCR\Query\QueryInterface $query the query instance as
      *      acquired through createPhpcrQuery()
-     * @param  string $className document class
+     * @param string $className document class
      *
      * @return array of document instances
      */
@@ -586,7 +596,7 @@ class DocumentManager implements ObjectManager
      * This method will update the @Locale field if it does not match the $locale argument.
      *
      * @param object $document the document to persist a translation of
-     * @param string $locale the locale this document currently has
+     * @param string $locale   the locale this document currently has
      *
      * @throws PHPCRException if the document is not translatable
      */
@@ -604,7 +614,7 @@ class DocumentManager implements ObjectManager
      * Remove the translatable fields of the document in the specified locale
      *
      * @param object $document the document to persist a translation of
-     * @param string $locale the locale this document currently has
+     * @param string $locale   the locale this document currently has
      */
     public function removeTranslation($document, $locale)
     {
@@ -620,7 +630,7 @@ class DocumentManager implements ObjectManager
      * Get the list of locales that exist for the specified document,
      * including those not yet flushed, but bound
      *
-     * @param object $document the document to get the locales for
+     * @param object  $document         the document to get the locales for
      * @param boolean $includeFallbacks if to include the available language fallbacks
      *
      * @return array of strings with all locales existing for this particular document
@@ -656,11 +666,13 @@ class DocumentManager implements ObjectManager
      * one translated field.
      *
      * @param object $document the document to get the locales for
+     *
      * @return bool
      */
     public function isDocumentTranslatable($document)
     {
         $metadata = $this->getClassMetadata(get_class($document));
+
         return $this->unitOfWork->isDocumentTranslatable($metadata);
     }
 
@@ -672,7 +684,7 @@ class DocumentManager implements ObjectManager
      * working with the manager after a move, you are probably safest calling
      * DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object $document an already registered document
+     * @param object $document   an already registered document
      * @param string $targetPath the target path including the nodename
      */
     public function move($document, $targetPath)
@@ -696,10 +708,10 @@ class DocumentManager implements ObjectManager
      * If you want to continue working with the manager after a reorder, you are probably
      * safest calling DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object $document an already registered document
-     * @param string $srcName the nodename of the child to be reordered
-     * @param string $targetName the nodename of the target of the reordering
-     * @param boolean $before insert before or after the target
+     * @param object  $document   an already registered document
+     * @param string  $srcName    the nodename of the child to be reordered
+     * @param string  $targetName the nodename of the target of the reordering
+     * @param boolean $before     insert before or after the target
      */
     public function reorder($document, $srcName, $targetName, $before)
     {
@@ -744,6 +756,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
+
         return $this->unitOfWork->merge($document);
     }
 
@@ -755,8 +768,6 @@ class DocumentManager implements ObjectManager
      * reference it.
      *
      * @param object $document The object to detach.
-     *
-     * @return void
      */
     public function detach($document)
     {
@@ -789,10 +800,10 @@ class DocumentManager implements ObjectManager
      * This methods gets all child nodes as a collection of documents that matches
      * a given filter (same as PHPCR Node::getNodes)
      *
-     * @param object $document document instance which children should be loaded
-     * @param string|array $filter optional filter to filter on children names
-     * @param integer $fetchDepth optional fetch depth if supported by the PHPCR session
-     * @param boolean $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param object       $document           document instance which children should be loaded
+     * @param string|array $filter             optional filter to filter on children names
+     * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
+     * @param boolean      $ignoreUntranslated if to ignore children that are not translated to the current locale
      *
      * @return \Doctrine\Common\Collections\Collection collection of child documents
      */
@@ -803,6 +814,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
+
         return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $ignoreUntranslated);
     }
 
@@ -812,8 +824,8 @@ class DocumentManager implements ObjectManager
      * This methods gets all nodes as a collection of documents that refer the
      * given document and matches a given name.
      *
-     * @param object $document document instance which referrers should be loaded
-     * @param string|array $name optional name to match on referrers names
+     * @param object       $document document instance which referrers should be loaded
+     * @param string|array $name     optional name to match on referrers names
      *
      * @return \Doctrine\Common\Collections\Collection collection of referrer documents
      */
@@ -824,6 +836,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
+
         return $this->unitOfWork->getReferrers($document, $type, $name);
     }
 
@@ -851,7 +864,7 @@ class DocumentManager implements ObjectManager
      * has its identifier populated. Otherwise a proxy is returned that automatically
      * loads itself on first access.
      *
-     * @param string $documentName
+     * @param string        $documentName
      * @param string|object $id
      *
      * @return mixed|object The document reference.
@@ -916,8 +929,6 @@ class DocumentManager implements ObjectManager
      * A new version is created and the writable document stays in checked out state
      *
      * @param object $document The document
-     *
-     * @return void
      */
     public function checkpoint($document)
     {
@@ -940,7 +951,7 @@ class DocumentManager implements ObjectManager
      * @see findVersionByName
      *
      * @param string $documentVersion the version to be restored
-     * @param bool $removeExisting how to handle conflicts with unique
+     * @param bool   $removeExisting  how to handle conflicts with unique
      *      identifiers. If true, existing documents with the identical
      *      identifier will be replaced, otherwise an exception is thrown.
      */
@@ -958,8 +969,6 @@ class DocumentManager implements ObjectManager
      *
      * @param object $documentVersion The version document as returned by findVersionByName
      *
-     * @return void
-     *
      * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
      */
     public function removeVersion($documentVersion)
@@ -974,7 +983,7 @@ class DocumentManager implements ObjectManager
      * labels will be an empty array.
      *
      * @param object $document the document of which to get the version history
-     * @param int $limit an optional limit to only get the latest $limit information
+     * @param int    $limit    an optional limit to only get the latest $limit information
      *
      * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
      *         oldest version first
@@ -986,6 +995,7 @@ class DocumentManager implements ObjectManager
         }
 
         $this->errorIfClosed();
+
         return $this->unitOfWork->getAllLinearVersions($document, $limit);
     }
 
@@ -997,8 +1007,8 @@ class DocumentManager implements ObjectManager
      * of the original document.
      *
      * @param null|string $className
-     * @param string $id id of the document
-     * @param string $versionName the version name as given by getLinearPredecessors
+     * @param string      $id          id of the document
+     * @param string      $versionName the version name as given by getLinearPredecessors
      *
      * @return object the detached document or null if the document is not found
      *
@@ -1010,13 +1020,14 @@ class DocumentManager implements ObjectManager
     public function findVersionByName($className, $id, $versionName)
     {
         $this->errorIfClosed();
+
         return $this->unitOfWork->findVersionByName($className, $id, $versionName);
     }
 
     /**
      * Check if this repository contains the object
      *
-     * @param  object $document
+     * @param object $document
      *
      * @return boolean true if the repository contains the object, false otherwise
      */
@@ -1083,25 +1094,25 @@ class DocumentManager implements ObjectManager
 
         $this->unitOfWork->initializeObject($document);
     }
-    
+
     /**
      * Return the node of the given object
-     * 
+     *
      * @param object $document
-     * 
+     *
      * @return \PHPCR\NodeInterface
-     * 
+     *
      * @throws \InvalidArgumentException if the document is not an object
-     * @throws \PHPCR\PHPCRException if the document is not managed
+     * @throws \PHPCR\PHPCRException     if the document is not managed
      */
     public function getNodeForDocument($document)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
-        
+
         $path = $this->unitOfWork->getDocumentId($document);
-        
+
         return $this->session->getNode($path);
     }
 }

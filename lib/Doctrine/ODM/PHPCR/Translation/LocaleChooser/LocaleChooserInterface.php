@@ -48,27 +48,27 @@ interface LocaleChooserInterface
      * Example return value with param $forLocale = 'en':
      *  array('en', 'fr', 'de')
      *
-     * @param object $document The document object
-     * @param ClassMetadata $metadata The metadata of the document class
-     * @param string $forLocale for which locale you need the locale order, e.g. the current request locale
+     * @param object        $document  The document object
+     * @param ClassMetadata $metadata  The metadata of the document class
+     * @param string        $forLocale for which locale you need the locale order, e.g. the current request locale
      *
      * @return array $preferredLocales
      */
-    function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null);
+    public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null);
 
     /**
      * Get the locale of the current session.
      *
      * @return string locale
      */
-    function getLocale();
+    public function getLocale();
 
     /**
      * Set the locale of the current session.
      *
      * @param string $locale
      */
-    function setLocale($locale);
+    public function setLocale($locale);
 
     /**
      * Get the ordered list of locales for the default locale without any
@@ -76,7 +76,7 @@ interface LocaleChooserInterface
      *
      * @return array preferred locale order for the default locale
      */
-    function getDefaultLocalesOrder();
+    public function getDefaultLocalesOrder();
 
     /**
      * Get the default locale of this application. This should never change,
@@ -84,5 +84,5 @@ interface LocaleChooserInterface
      *
      * @return string defaultLocale
      */
-    function getDefaultLocale();
+    public function getDefaultLocale();
 }

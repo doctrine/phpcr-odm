@@ -43,4 +43,3 @@ class PHPCRException extends \Exception
         return new self('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.$objInfo);
     }
 }
-

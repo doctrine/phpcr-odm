@@ -34,10 +34,13 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 abstract class IdGenerator
 {
     /**
-     * @param  int $generatorType
+     * Factory method for the predefined strategies.
+     *
+     * @param int $generatorType
+     *
      * @return IdGenerator
      */
-    static public function create($generatorType)
+    public static function create($generatorType)
     {
         switch ($generatorType) {
             case ClassMetadata::GENERATOR_TYPE_ASSIGNED:
@@ -53,13 +56,18 @@ abstract class IdGenerator
             default:
                 throw new \InvalidArgumentException("ID Generator does not exist: $generatorType");
         }
+
         return $instance;
     }
 
     /**
-     * @param object $document
-     * @param ClassMetadata $cm
+     * Generate the actual id, to be overwritten by extending classes
+     *
+     * @param object          $document the object to create the id for
+     * @param ClassMetadata   $cm       class metadata of this object
      * @param DocumentManager $dm
+     *
+     * @return string the id for this document
      */
     abstract public function generate($document, ClassMetadata $cm, DocumentManager $dm);
 }

@@ -191,7 +191,6 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public $lifecycleCallbacks = array();
 
-
     /**
      * The ReflectionClass instance of the mapped class.
      *
@@ -344,8 +343,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Validate Identifier
      *
-     * @throws MappingException
-     * @return void
+     * @throws MappingException if no identifiers are mapped
      */
     public function validateIdentifier()
     {
@@ -362,8 +360,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Validate association targets actually exist.
      *
-     * @throws MappingException
-     * @return void
+     * @throws MappingException if there is an invalid reference mapping
      */
     public function validateReferences()
     {
@@ -379,8 +376,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Validate translatable fields - ensure that the document has a
      * translator strategy in place.
      *
-     * @throws MappingException
-     * @return void
+     * @throws MappingException if there is an inconsistency with translation
      */
     public function validateTranslatables()
     {
@@ -394,11 +390,11 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Validate lifecycle callbacks
      *
-     * @param \Doctrine\Common\Persistence\Mapping\ReflectionService $reflService
-     * @throws MappingException
-     * @return void
+     * @param ReflectionService $reflService
+     *
+     * @throws MappingException if a declared callback does not exist
      */
-    public function validateLifecycleCallbacks($reflService)
+    public function validateLifecycleCallbacks(ReflectionService $reflService)
     {
         foreach ($this->lifecycleCallbacks as $callbacks) {
             foreach ($callbacks as $callbackFuncName) {
@@ -427,7 +423,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Registers a custom repository class for the document class.
      *
-     * @param string $repositoryClassName  The class name of the custom repository.
+     * @param string $repositoryClassName The class name of the custom repository.
      */
     public function setCustomRepositoryClassName($repositoryClassName)
     {
@@ -438,6 +434,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Whether the class has any attached lifecycle listeners or callbacks for a lifecycle event.
      *
      * @param string $lifecycleEvent
+     *
      * @return boolean
      */
     public function hasLifecycleCallbacks($lifecycleEvent)
@@ -449,6 +446,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets the registered lifecycle callbacks for an event.
      *
      * @param string $event
+     *
      * @return array
      */
     public function getLifecycleCallbacks($event)
@@ -675,6 +673,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
             $this->reflFields[$mapping['fieldName']] = $inherited->getReflectionProperty($mapping['fieldName']);
             $this->mappings[$mapping['fieldName']] = $mapping;
+
             return $mapping;
         }
 
@@ -745,6 +744,7 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['cascade'] = null;
         }
         $this->mappings[$mapping['fieldName']] = $mapping;
+
         return $mapping;
     }
 
@@ -985,6 +985,7 @@ class ClassMetadata implements ClassMetadataInterface
         if ($this->versionCreatedField) {
             $fields[] = $this->versionCreatedField;
         }
+
         return $fields;
     }
 
@@ -1002,6 +1003,7 @@ class ClassMetadata implements ClassMetadataInterface
         if ($this->parentMapping) {
             $associations[] = $this->parentMapping;
         }
+
         return $associations;
     }
 
@@ -1196,6 +1198,7 @@ class ClassMetadata implements ClassMetadataInterface
         if ($this->prototype === null) {
             $this->prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->name), $this->name));
         }
+
         return clone $this->prototype;
     }
 
@@ -1203,7 +1206,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Sets the document identifier of a document.
      *
      * @param object $document
-     * @param mixed $id
+     * @param mixed  $id
      */
     public function setIdentifierValue($document, $id)
     {
@@ -1216,6 +1219,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets the document identifier.
      *
      * @param object $document
+     *
      * @return string $id
      */
     public function getIdentifierValue($document)
@@ -1231,6 +1235,7 @@ class ClassMetadata implements ClassMetadataInterface
      * field as a key.
      *
      * @param object $document
+     *
      * @return array
      */
     public function getIdentifierValues($document)
@@ -1243,7 +1248,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param object $document
      * @param string $field
-     * @param mixed $value
+     * @param mixed  $value
      */
     public function setFieldValue($document, $field, $value)
     {
@@ -1254,7 +1259,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets the specified field's value off the given document.
      *
      * @param object $document the document to get the field from
-     * @param string $field the name of the field
+     * @param string $field    the name of the field
      *
      * @return mixed|null the value of this field for the document or null if
      *      not found
@@ -1273,8 +1278,8 @@ class ClassMetadata implements ClassMetadataInterface
      * lifecycle callbacks and lifecycle listeners.
      *
      * @param string $lifecycleEvent The lifecycle event.
-     * @param object $document The Document on which the event occurred.
-     * @param array $arguments the arguments to pass to the callback
+     * @param object $document       The Document on which the event occurred.
+     * @param array  $arguments      the arguments to pass to the callback
      */
     public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
     {

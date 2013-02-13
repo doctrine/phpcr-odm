@@ -25,10 +25,10 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 class RepositoryIdGenerator extends IdGenerator
 {
     /**
-     * @param object $document
-     * @param ClassMetadata $cm
-     * @param DocumentManager $dm
-     * @return string
+     * Use a repository that implements RepositoryIdGenerator to generate the
+     * id.
+     *
+     * {@inheritDoc}
      */
     public function generate($document, ClassMetadata $cm, DocumentManager $dm, $parent = null)
     {
@@ -41,6 +41,7 @@ class RepositoryIdGenerator extends IdGenerator
         if (!$id) {
             throw new \RuntimeException("ID could not be determined. Repository was unable to generate an ID");
         }
+
         return $id;
     }
 }
