@@ -106,7 +106,9 @@ class Configuration
      * Resolves a registered namespace alias to the full namespace.
      *
      * @param string $documentNamespaceAlias
-     * @return string
+     *
+     * @return string the namespace URI
+     *
      * @throws PHPCRException
      */
     public function getDocumentNamespace($documentNamespaceAlias)
@@ -122,7 +124,6 @@ class Configuration
      * Set the document alias map
      *
      * @param array $documentNamespaces
-     * @return void
      */
     public function setDocumentNamespaces(array $documentNamespaces)
     {
@@ -184,6 +185,7 @@ class Configuration
         if (empty($this->attributes['documentClassMapper'])) {
             $this->setDocumentClassMapper(new DocumentClassMapper());
         }
+
         return $this->attributes['documentClassMapper'];
     }
 

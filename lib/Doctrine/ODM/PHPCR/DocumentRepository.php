@@ -20,12 +20,10 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 use PHPCR\Query\QueryInterface;
-
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -67,8 +65,8 @@ class DocumentRepository implements ObjectRepository
     /**
      * Initializes a new <tt>DocumentRepository</tt>.
      *
-     * @param DocumentManager $dm The DocumentManager to use.
-     * @param ClassMetadata $classMetadata The class descriptor.
+     * @param DocumentManager $dm            The DocumentManager to use.
+     * @param ClassMetadata   $classMetadata The class descriptor.
      */
     public function __construct($dm, Mapping\ClassMetadata $class)
     {
@@ -85,6 +83,7 @@ class DocumentRepository implements ObjectRepository
      * The id may either be a PHPCR path or UUID
      *
      * @param string $id document id
+     *
      * @return object document or null
      */
     public function find($id)
@@ -98,6 +97,7 @@ class DocumentRepository implements ObjectRepository
      * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
      * @param array $ids document ids
+     *
      * @return array of document objects
      */
     public function findMany(array $ids)
@@ -122,12 +122,12 @@ class DocumentRepository implements ObjectRepository
      * an UnexpectedValueException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @throws UnexpectedValueException
-     * @param array $criteria
-     * @param array|null $orderBy
-     * @param int|null $limit
-     * @param int|null $offset
-     * @return mixed The objects.
+     * @param  array      $criteria
+     * @param  array|null $orderBy
+     * @param  int|null   $limit
+     * @param  int|null   $offset
+     *
+     * @return array The objects matching the criteria.
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
@@ -159,17 +159,23 @@ class DocumentRepository implements ObjectRepository
      * Finds a single document by a set of criteria.
      *
      * @param array $criteria
-     * @return object
+     *
+     * @return object|null The first document matching the criterias or null if
+     *      none found
      */
     public function findOneBy(array $criteria)
     {
         $documents = $this->findBy($criteria, null, 1);
+
         return $documents->isEmpty() ? null : $documents->first();
     }
 
     /**
+     * Refresh a document with the data from PHPCR.
+     *
      * @param  object $document
-     * @return object Document instance
+     *
+     * @return object The document instance
      */
     public function refresh($document)
     {
@@ -178,7 +184,6 @@ class DocumentRepository implements ObjectRepository
 
     /**
      * @param object $document
-     * @return void
      */
     public function refreshDocumentForProxy($document)
     {
@@ -186,6 +191,8 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
+     * Get the document class name this repository is for.
+     *
      * @return string
      */
     public function getClassName()
@@ -202,7 +209,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * @return Mapping\ClassMetadata
+     * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
      */
     public function getClassMetadata()
     {
@@ -212,10 +219,12 @@ class DocumentRepository implements ObjectRepository
     /**
      * Quote a string for inclusion in an SQL2 query
      *
+     * @param string $val
+     * @param int    $type
+     *
+     * @return string the quoted value
+     *
      * @see \PHPCR\PropertyType
-     * @param  string $val
-     * @param  int $type
-     * @return string
      */
     public function quote($val, $type = null)
     {
@@ -225,9 +234,11 @@ class DocumentRepository implements ObjectRepository
     /**
      * Escape the illegal characters for inclusion in an SQL2 query. Escape Character is \\.
      *
-     * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
-     * @param  string $string
+     * @param string $string
+     *
      * @return string Escaped String
+     *
+     * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
      */
     public function escapeFullText($string)
     {
@@ -237,9 +248,9 @@ class DocumentRepository implements ObjectRepository
     /**
      * Create a Query
      *
-     * @param  string $statement the SQL2 statement
-     * @param  string $language (see QueryInterface for list of supported types)
-     * @param  bool $replaceWithFieldnames if * should be replaced with Fieldnames automatically
+     * @param string $statement             the SQL2 statement
+     * @param string $language              (see QueryInterface for list of supported types)
+     * @param bool   $replaceWithFieldnames if * should be replaced with Fieldnames automatically
      *
      * @return Query
      */
@@ -281,7 +292,7 @@ class DocumentRepository implements ObjectRepository
      *       use ->andWhere(...) as ->where(...) will overwrite
      *       the class criteria.
      *
-     * @return QueryBuilder
+     * @return \Doctrine\ODM\PHPCR\Query\QueryBuilderilder
      */
     public function createQueryBuilder()
     {

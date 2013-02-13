@@ -57,7 +57,7 @@ class YamlDriver extends FileDriver
             // Convert Exception type for consistency with other drivers
             throw new MappingException($e->getMessage(), $e->getCode(), $e);
         }
-        
+
         if (!$element) {
             return;
         }
@@ -214,7 +214,7 @@ class YamlDriver extends FileDriver
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
         $mapping = array_merge(array('fieldName' => $fieldName), $reference);
-        
+
         if ($type === 'many') {
             $class->mapManyToMany($mapping);
         } elseif ($type === 'one') {
@@ -234,6 +234,7 @@ class YamlDriver extends FileDriver
      * Gathers a list of cascade options found in the given cascade element.
      *
      * @param array $cascadeElement The cascade element.
+     *
      * @return integer a bitmask of cascade options.
      */
     private function getCascadeMode(array $cascadeElement)

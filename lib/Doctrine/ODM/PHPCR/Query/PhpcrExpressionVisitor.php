@@ -10,9 +10,7 @@ use Doctrine\ODM\PHPCR\Query\Expression\Descendant;
 use Doctrine\ODM\PHPCR\Query\Expression\TextSearch;
 use Doctrine\ODM\PHPCR\Query\Expression\Comparison as ODMComparison;
 
-use PHPCR\Query\QOM\DynamicOperandInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\StaticOperandInterface; 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstant;
 
 /**
@@ -92,8 +90,8 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
 
         if (count($constraintList) < 2) {
             throw new \RuntimeException(sprintf(
-                'Composite "%s" must have at least two constraints! (%d given)', 
-                $expr->getType(), 
+                'Composite "%s" must have at least two constraints! (%d given)',
+                $expr->getType(),
                 count($constraintList)
             ));
         }
@@ -144,7 +142,6 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
     {
         return $this->qomf->descendantNode($expr->getPath());
     }
-
 
     /**
      * Convert a testSearch expression to its PHPCR counterpart.
