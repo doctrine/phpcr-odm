@@ -315,20 +315,29 @@ class UnitOfWork
                     continue;
                 }
 
-                if (isset($mapping['targetDocument'])) {
-                    $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($mapping['targetDocument'], '\\'))->name;
+                try {
+                    if (isset($mapping['targetDocument'])) {
+                        $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($mapping['targetDocument'], '\\'))->name;
 
-                    if ($mapping['strategy'] === 'path') {
-                        $path = $node->getProperty($fieldName)->getString();
+                        if ($mapping['strategy'] === 'path') {
+                            $path = $node->getProperty($fieldName)->getString();
+                        } else {
+                            $referencedNode = $node->getProperty($fieldName)->getNode();
+                            $path = $referencedNode->getPath();
+                        }
+
+                        $proxy = $this->createProxy($path, $referencedClass);
                     } else {
                         $referencedNode = $node->getProperty($fieldName)->getNode();
-                        $path = $referencedNode->getPath();
+                        $proxy = $this->createProxyFromNode($referencedNode);
                     }
-
-                    $proxy = $this->createProxy($path, $referencedClass);
-                } else {
-                    $referencedNode = $node->getProperty($fieldName)->getNode();
-                    $proxy = $this->createProxyFromNode($referencedNode);
+                } catch (RepositoryException $e) {
+                    if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
+                        // a weak reference or an old version can have lost references
+                        $proxy = null;
+                    } else {
+                        throw $e;
+                    }
                 }
 
                 $documentState[$fieldName] = $proxy;
@@ -2075,7 +2084,7 @@ class UnitOfWork
             throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
         }
 
-        $hints = array('versionName' => $versionName);
+        $hints = array('versionName' => $versionName, 'ignoreHardReferenceNotFound' => true);
         $frozenDocument = $this->createDocument($className, $node, $hints);
         $this->dm->detach($frozenDocument);
 
