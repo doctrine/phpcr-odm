@@ -331,10 +331,13 @@ class UnitOfWork
                         $referencedNode = $node->getProperty($fieldName)->getNode();
                         $proxy = $this->createProxyFromNode($referencedNode);
                     }
-                } catch (ItemNotFoundException $e) {
-                    $proxy = null;
                 } catch (RepositoryException $e) {
-                    $proxy = null;
+                    if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
+                        // a weak reference or an old version can have lost references
+                        $proxy = null;
+                    } else {
+                        throw $e;
+                    }
                 }
 
                 $documentState[$fieldName] = $proxy;
@@ -2081,7 +2084,7 @@ class UnitOfWork
             throw new \InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
         }
 
-        $hints = array('versionName' => $versionName);
+        $hints = array('versionName' => $versionName, 'ignoreHardReferenceNotFound' => true);
         $frozenDocument = $this->createDocument($className, $node, $hints);
         $this->dm->detach($frozenDocument);
 

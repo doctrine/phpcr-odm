@@ -42,7 +42,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         // Check that the repository supports versioning
         $repository = $this->dm->getPhpcrSession()->getRepository();
         if (!$repository->getDescriptor('option.versioning.supported')) {
-            $this->markTestSkipped('PHPCR repository doesn\'t support versioning');
+            $this->markTestSkipped('PHPCR repository does not support versioning');
         }
 
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -59,7 +59,6 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referenceNode->addMixin("mix:referenceable");
 
         $this->dm->getPhpcrSession()->save();
-/*         $this->dm = $this->createDocumentManager(); */
 
         $versionNodeWithReference = $this->node->addNode('versionTestObjWithReference');
         $versionNodeWithReference->setProperty('username', 'laupifrpar');
@@ -90,6 +89,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->checkout($user);
         $user->username = 'nicam';
         $this->dm->checkin($user);
+        $this->markTestIncomplete('this test has no assertions');
     }
 
     public function testRestoreVersion()
@@ -201,7 +201,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testPersistVersionError()
     {
