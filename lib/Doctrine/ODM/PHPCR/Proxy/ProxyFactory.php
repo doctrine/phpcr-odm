@@ -47,10 +47,10 @@ class ProxyFactory
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>DocumentManager</tt>.
      *
-     * @param DocumentManager $dm The DocumentManager the new factory works for.
-     * @param string $proxyDir The directory to use for the proxy classes. It must exist.
-     * @param string $proxyNs The namespace to use for the proxy classes.
-     * @param boolean $autoGenerate Whether to automatically generate proxy classes.
+     * @param DocumentManager $dm           The DocumentManager the new factory works for.
+     * @param string          $proxyDir     The directory to use for the proxy classes. It must exist.
+     * @param string          $proxyNs      The namespace to use for the proxy classes.
+     * @param boolean         $autoGenerate Whether to automatically generate proxy classes.
      */
     public function __construct(DocumentManager $dm, $proxyDir, $proxyNs, $autoGenerate = false)
     {
@@ -71,7 +71,8 @@ class ProxyFactory
      * the given identifier.
      *
      * @param string $className
-     * @param mixed $identifier
+     * @param mixed  $identifier
+     *
      * @return object
      */
     public function getProxy($className, $identifier)
@@ -97,20 +98,22 @@ class ProxyFactory
      * Generate the Proxy file name
      *
      * @param string $className
+     *
      * @return string
      */
     private function getProxyFileName($className, $toDir = null)
     {
         $proxyDir = $toDir ?: $this->proxyDir;
         $proxyDir = rtrim($proxyDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
         return $proxyDir . DIRECTORY_SEPARATOR . '__CG__' . str_replace('\\', '', $className) . '.php';
     }
 
     /**
      * Generates proxy classes for all given classes.
      *
-     * @param array $classes The classes (ClassMetadata instances) for which to generate proxies.
-     * @param string $toDir The target directory of the proxy classes. If not specified, the
+     * @param array  $classes The classes (ClassMetadata instances) for which to generate proxies.
+     * @param string $toDir   The target directory of the proxy classes. If not specified, the
      *                      directory configured on the Configuration of the DocumentManager used
      *                      by this factory is used.
      */
@@ -130,11 +133,11 @@ class ProxyFactory
     /**
      * Generates a proxy class file.
      *
-     * @param $class the class metadata
-     * @param $proxyFileName path to the proxy file to generate
-     * @param $template The path of the template template.
+     * @param ClassMetadata $class         The class metadata
+     * @param string        $proxyFileName path to the proxy file to generate
+     * @param string        $template      The path of the template template.
      */
-    private function generateProxyClass($class, $proxyFileName, $template)
+    private function generateProxyClass(ClassMetadata $class, $proxyFileName, $template)
     {
         $methods = $this->generateMethods($class);
         $attributes = $this->getUnsetAttributes($class);
@@ -180,7 +183,8 @@ class ProxyFactory
      * Get the attributes of the document class
      *
      * @param ClassMetadata $class
-     * @return array List of attributes to unset
+     *
+     * @return array         List of attributes to unset
      */
     private function getUnsetAttributes(ClassMetadata $class)
     {
@@ -191,6 +195,7 @@ class ProxyFactory
      * Generates the methods of a proxy class.
      *
      * @param ClassMetadata $class
+     *
      * @return string The code of the generated methods.
      */
     private function generateMethods(ClassMetadata $class)
@@ -254,7 +259,8 @@ class ProxyFactory
     /**
      * Generates the code for the __sleep method for a proxy class.
      *
-     * @param $class
+     * @param ClassMetadata $class
+     *
      * @return string
      */
     private function generateSleep(ClassMetadata $class)
@@ -339,6 +345,7 @@ class <proxyClassName> extends \<className> implements \Doctrine\ODM\PHPCR\Proxy
     public function &__get($name)
     {
         $this->__load();
+
         return $this->$name;
     }
 

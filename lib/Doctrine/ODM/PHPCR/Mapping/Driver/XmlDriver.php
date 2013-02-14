@@ -73,11 +73,11 @@ class XmlDriver extends FileDriver
             }
 
             if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
-                $class->setVersioned((string)$xmlRoot['versionable']);
+                $class->setVersioned((string) $xmlRoot['versionable']);
             }
 
             if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
-                $class->setReferenceable((bool)$xmlRoot['referenceable']);
+                $class->setReferenceable((bool) $xmlRoot['referenceable']);
             }
 
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
@@ -101,7 +101,7 @@ class XmlDriver extends FileDriver
         }
         if (isset($xmlRoot->id)) {
             $mapping = array(
-                'fieldName' => (string)$xmlRoot->id->attributes()->name,
+                'fieldName' => (string) $xmlRoot->id->attributes()->name,
                 'id' => true,
             );
             if (isset($xmlRoot->id->generator) && isset($xmlRoot->id->generator->attributes()->strategy)) {
@@ -131,7 +131,7 @@ class XmlDriver extends FileDriver
                     'cascade' => (isset($child->cascade)) ? $this->getCascadeMode($child->cascade) : 0,
                 );
                 if (isset($attributes['name'])) {
-                    $mapping['name'] = (string)$attributes->name;
+                    $mapping['name'] = (string) $attributes->name;
                 }
                 $class->mapChild($mapping);
             }
@@ -231,7 +231,8 @@ class XmlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param $cascadeElement cascade element.
+     * @param SimpleXMLElement $cascadeElement cascade element.
+     *
      * @return integer a bitmask of cascade options.
      */
     private function getCascadeMode(SimpleXMLElement $cascadeElement)

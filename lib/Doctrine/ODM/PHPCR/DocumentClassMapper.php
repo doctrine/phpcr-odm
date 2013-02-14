@@ -34,15 +34,7 @@ use PHPCR\PropertyType;
 class DocumentClassMapper implements DocumentClassMapperInterface
 {
     /**
-     * Determine the class name from a given node
-     *
-     * @param DocumentManager
-     * @param NodeInterface $node
-     * @param string $className
-     *
-     * @return string
-     *
-     * @throws \RuntimeException if no class name could be determined
+     * {@inheritDoc}
      */
     public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null)
     {
@@ -62,11 +54,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     }
 
     /**
-     * Write any relevant meta data into the node to be able to map back to a class name later
-     *
-     * @param DocumentManager
-     * @param NodeInterface $node
-     * @param string $className
+     * {@inheritDoc}
      */
     public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className)
     {
@@ -74,7 +62,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
             $node->setProperty('phpcr:class', $className, PropertyType::STRING);
 
             $class = $dm->getClassMetadata($className);
-            $node->setProperty('phpcr:classparents', 
+            $node->setProperty('phpcr:classparents',
                 $class->getParentClasses(),
                 PropertyType::STRING
             );
@@ -82,10 +70,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     }
 
     /**
-     * @param DocumentManager
-     * @param object $document
-     * @param string $className
-     * @throws \InvalidArgumentException
+     * {@inheritDoc}
      */
     public function validateClassName(DocumentManager $dm, $document, $className)
     {

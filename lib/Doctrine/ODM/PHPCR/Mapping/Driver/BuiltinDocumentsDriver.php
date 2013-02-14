@@ -5,7 +5,6 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 
 /**
@@ -25,20 +24,19 @@ class BuiltinDocumentsDriver implements MappingDriver
     const NAME_SPACE = 'Doctrine\ODM\PHPCR\Document';
 
     /**
-     * @var Driver
+     * @var MappingDriver
      */
     private $wrappedDriver;
 
     /**
-     * @var Driver
+     * @var AnnotationDriver
      */
     private $builtinDriver;
 
     /**
      * Create with a driver to wrap
      *
-     * @param Driver $nestedDriver
-     * @param string $namespace
+     * @param MappingDriver $nestedDriver
      */
     public function __construct(MappingDriver $wrappedDriver)
     {
@@ -55,17 +53,15 @@ class BuiltinDocumentsDriver implements MappingDriver
     {
         if (strpos($className, self::NAME_SPACE) === 0) {
             $this->builtinDriver->loadMetadataForClass($className, $class);
+
             return;
         }
 
         $this->wrappedDriver->loadMetadataForClass($className, $class);
     }
 
-
     /**
-     * Gets the names of all mapped classes known to this driver.
-     *
-     * @return array The names of all mapped classes known to this driver.
+     * {@inheritDoc}
      */
     public function getAllClassNames()
     {
@@ -76,12 +72,7 @@ class BuiltinDocumentsDriver implements MappingDriver
     }
 
     /**
-     * Whether the class with the specified name should have its metadata loaded.
-     *
-     * This is only the case for non-transient classes either mapped as an Document or MappedSuperclass.
-     *
-     * @param string $className
-     * @return boolean
+     * {@inheritDoc}
      */
     public function isTransient($className)
     {

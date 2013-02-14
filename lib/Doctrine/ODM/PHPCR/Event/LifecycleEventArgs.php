@@ -28,7 +28,7 @@ class LifecycleEventArgs extends \Doctrine\Common\EventArgs
      */
     private $dm;
 
-    function __construct($document, $dm)
+    public function __construct($document, $dm)
     {
         $this->document = $document;
         $this->dm = $dm;

@@ -10,6 +10,15 @@
 $extraCommands = array();
 $extraCommands[] = new \Jackalope\Tools\Console\Command\JackrabbitCommand();
 
+if (! isset($argv[1])
+    || $argv[1] == 'jackalope:run:jackrabbit'
+    || $argv[1] == 'list'
+    || $argv[1] == 'help'
+) {
+    //abort here, do not try to init repository
+    return;
+}
+
 $params = array(
     'jackalope.jackrabbit_uri'  => 'http://localhost:8080/server/',
 );
