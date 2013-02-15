@@ -1698,7 +1698,7 @@ class UnitOfWork
             }
             // make sure this reflects the id generator strategy generated id
             if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->getDocumentByIdOrCreateDocument($parentNode));
             }
 
             if ($this->writeMetadata) {
@@ -1892,7 +1892,7 @@ class UnitOfWork
                     if ($fieldValue === null) {
                         if ($node->hasNode($mapping['name'])) {
                             $child = $node->getNode($mapping['name']);
-                            $childDocument = $this->createDocument(null, $child);
+                            $childDocument = $this->getDocumentByIdOrCreateDocument($child);
                             $this->purgeChildren($childDocument);
                             $child->remove();
                         }
@@ -2295,6 +2295,24 @@ class UnitOfWork
     }
 
     /**
+     * Checks if a document already exists, if not it's created.
+     *
+     * @param $node
+     *
+     * @return mixed|object
+     */
+    public function getDocumentByIdOrCreateDocument($node, $hints = array())
+    {
+        $document = $this->getDocumentById($node->getPath());
+
+        if (!$document) {
+            $document = $this->createDocument(null, $node, $hints);
+        }
+
+        return $document;
+    }
+
+    /**
      * Get the child documents of a given document using an optional filter.
      *
      * This methods gets all child nodes as a collection of documents that matches
@@ -2325,7 +2343,7 @@ class UnitOfWork
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
             try {
-                $childDocuments[$name] = $this->createDocument(null, $childNode, $childrenHints);
+                $childDocuments[$name] = $this->getDocumentByIdOrCreateDocument($childNode, $childrenHints);
             } catch (MissingTranslationException $e) {
                 if (!$ignoreUntranslated) {
                     throw $e;
@@ -2372,12 +2390,12 @@ class UnitOfWork
 
         foreach ($referrerPropertiesW as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->createDocument(null, $referrerNode);
+            $referrerDocuments[] = $this->getDocumentByIdOrCreateDocument($referrerNode);
         }
 
         foreach ($referrerPropertiesH as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->createDocument(null, $referrerNode);
+            $referrerDocuments[] = $this->getDocumentByIdOrCreateDocument($referrerNode);
         }
 
         return new ArrayCollection($referrerDocuments);
