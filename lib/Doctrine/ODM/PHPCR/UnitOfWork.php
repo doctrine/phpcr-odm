@@ -394,13 +394,13 @@ class UnitOfWork
                 $reflFields->setValue($document, $value);
                 $this->originalData[$overrideLocalValuesOid][$prop] = $value;
             }
+
+            // Load translations
+            $locale = isset($hints['locale']) ? $hints['locale'] : null;
+            $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
+
+            $this->doLoadTranslation($document, $class, $locale, $fallback);
         }
-
-        // Load translations
-        $locale = isset($hints['locale']) ? $hints['locale'] : null;
-        $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
-
-        $this->doLoadTranslation($document, $class, $locale, $fallback);
 
         // Invoke the postLoad lifecycle callbacks and listeners
         if (isset($class->lifecycleCallbacks[Event::postLoad])) {
