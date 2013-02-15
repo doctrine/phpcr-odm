@@ -2343,7 +2343,6 @@ class UnitOfWork
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
             try {
-
                 $childDocuments[$name] = $this->getDocumentByIdOrCreateDocument($childNode, $childrenHints);
             } catch (MissingTranslationException $e) {
                 if (!$ignoreUntranslated) {
