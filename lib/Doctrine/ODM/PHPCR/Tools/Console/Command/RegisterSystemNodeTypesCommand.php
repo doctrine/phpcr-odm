@@ -79,7 +79,7 @@ CND
 
             try {
                 // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
-                $this->updateFromCnd($input, $output, $session, $cnd, true);
+                $this->updateFromCnd($output, $session, $cnd, true);
             } catch (\Exception $e) {
                 $output->writeln('<error>'.$e->getMessage().'</error>');
 
