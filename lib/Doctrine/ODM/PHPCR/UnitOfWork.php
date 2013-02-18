@@ -27,6 +27,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
+use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
 use Doctrine\ODM\PHPCR\Proxy\Proxy;
@@ -1568,6 +1569,11 @@ class UnitOfWork
      */
     public function commit($document = null)
     {
+        // Raise preFlush
+        if ($this->evm->hasListeners(Event::preFlush)) {
+            $this->evm->dispatchEvent(Event::preFlush, new PreFlushEventArgs($this->dm));
+        }
+
         if ($document === null) {
             $this->computeChangeSets();
         } elseif (is_object($document)) {
