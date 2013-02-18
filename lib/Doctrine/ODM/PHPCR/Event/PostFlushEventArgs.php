@@ -25,14 +25,14 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 class PostFlushEventArgs extends EventArgs
 {
     /**
-     * @var \Doctrine\ORM\DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
     private $dm;
 
     /**
      * Constructor.
      *
-     * @param \Doctrine\ORM\DocumentManager $em
+     * @param \Doctrine\ODM\PHPCR\DocumentManager $em
      */
     public function __construct(DocumentManager $dm)
     {
@@ -42,7 +42,7 @@ class PostFlushEventArgs extends EventArgs
     /**
      * Retrieve associated DocumentManager.
      *
-     * @return \Doctrine\ORM\DocumentManager
+     * @return \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
