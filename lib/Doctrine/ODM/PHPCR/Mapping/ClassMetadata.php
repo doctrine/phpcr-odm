@@ -637,10 +637,6 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapVersionName(array $mapping, ClassMetadata $inherited = null)
     {
-        if (!$this->versionable) {
-            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
-        }
-
         $mapping['type'] = 'versionname';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->versionNameField = $mapping['fieldName'];
@@ -648,10 +644,6 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapVersionCreated(array $mapping, ClassMetadata $inherited = null)
     {
-        if (!$this->versionable) {
-            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $mapping['fieldName']));
-        }
-
         $mapping['type'] = 'versioncreated';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->versionCreatedField = $mapping['fieldName'];
@@ -766,6 +758,14 @@ class ClassMetadata implements ClassMetadataInterface
             }
 
             $assocFields[$mapping['assoc']] = $fieldName;
+        }
+
+        if(!empty($this->versionNameField) && !$this->versionable){
+            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
+        }
+
+        if(!empty($this->versionCreatedField) && !$this->versionable){
+            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
         }
 
         if (count($this->translatableFields)) {
