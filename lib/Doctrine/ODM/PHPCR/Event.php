@@ -31,6 +31,7 @@ final class Event
     const postUpdate = 'postUpdate';
     const postLoad = 'postLoad';
     const postFlush = 'postFlush';
+    const loadClassMetadata = 'loadClassMetadata';
 
     private function __construct()
     {

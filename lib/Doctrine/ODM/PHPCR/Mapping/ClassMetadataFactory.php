@@ -24,6 +24,8 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Event\LoadClassMetadataEventArgs;
 
 /**
  * The ClassMetadataFactory is used to create ClassMetadata objects that contain all the
@@ -56,6 +58,11 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     private $driver;
 
     /**
+     * @var \Doctrine\Common\EventManager
+     */
+    private $evm;
+
+    /**
      * Creates a new factory instance that uses the given DocumentManager instance.
      *
      * @param DocumentManager $dm The DocumentManager instance
@@ -67,6 +74,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $conf = $this->dm->getConfiguration();
         $this->setCacheDriver($conf->getMetadataCacheImpl());
         $this->driver = $conf->getMetadataDriverImpl();
+        $this->evm = $this->dm->getEventManager();
     }
 
     /**
@@ -123,6 +131,11 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
         if ($this->getDriver()) {
             $this->getDriver()->loadMetadataForClass($class->getName(), $class);
+        }
+
+        if ($this->evm->hasListeners(Event::loadClassMetadata)) {
+            $eventArgs = new LoadClassMetadataEventArgs($class, $this->dm);
+            $this->evm->dispatchEvent(Event::loadClassMetadata, $eventArgs);
         }
 
         $this->validateRuntimeMetadata($class, $parent);
