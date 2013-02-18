@@ -7,10 +7,8 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * @PHPCRODM\Document(versionable="full")
  */
-class FullVersionableArticle
+class ExtendedVersionableArticle extends FullVersionableArticle
 {
-    /** @PHPCRODM\Id */
-    public $id;
 
     /** @PHPCRODM\Date */
     public $publishDate;
@@ -23,13 +21,6 @@ class FullVersionableArticle
 
     /** @PHPCRODM\String */
     private $text;
-
-    /** @PHPCRODM\VersionName */
-    public $versionName;
-
-    /** @PHPCRODM\VersionCreated */
-    public $versionCreated;
-
 
     public function getText()
     {

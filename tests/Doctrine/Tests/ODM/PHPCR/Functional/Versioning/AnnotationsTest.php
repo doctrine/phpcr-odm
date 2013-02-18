@@ -84,6 +84,10 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\NonVersionableArticle');
         $this->assertFalse($node->isNodeType('mix:simpleVersionable'));
         $this->assertFalse($node->isNodeType('mix:versionable'));
+
+        $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\ExtendedVersionableArticle');
+        $this->assertTrue($node->isNodeType('mix:simpleVersionable'));
+        $this->assertTrue($node->isNodeType('mix:versionable'));
     }
 
     /**
