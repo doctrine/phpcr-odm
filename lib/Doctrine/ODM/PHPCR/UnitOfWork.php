@@ -638,6 +638,7 @@ class UnitOfWork
         $oid = spl_object_hash($document);
 
         $state = $this->getDocumentState($document);
+
         switch ($state) {
             case self::STATE_NEW:
                 unset($this->scheduledInserts[$oid]);
@@ -1926,7 +1927,7 @@ class UnitOfWork
      *
      * @param array $documents array of all to be moved documents
      */
-    private function executeMoves($documents)
+    private function executeMoves($documents, $dispatchEvents = true)
     {
         foreach ($documents as $oid => $value) {
             if (!$this->contains($oid)) {
@@ -1934,6 +1935,15 @@ class UnitOfWork
             }
 
             list($document, $targetPath) = $value;
+
+            if ($dispatchEvents) {
+                if (isset($class->lifecycleCallbacks[Event::preMove])) {
+                    $class->invokeLifecycleCallbacks(Event::preMove, $document);
+                }
+                if ($this->evm->hasListeners(Event::preMove)) {
+                    $this->evm->dispatchEvent(Event::preMove, new LifecycleEventArgs($document, $this->dm));
+                }
+            }
 
             $path = $this->getDocumentId($document);
             if ($path === $targetPath) {
@@ -1977,6 +1987,15 @@ class UnitOfWork
                         $class->setIdentifierValue($document, $newId);
                         $this->originalData[$oid][$class->identifier] = $newId;
                     }
+                }
+            }
+
+            if ($dispatchEvents) {
+                if (isset($class->lifecycleCallbacks[Event::postMove])) {
+                    $class->invokeLifecycleCallbacks(Event::postMove, $document);
+                }
+                if ($this->evm->hasListeners(Event::postMove)) {
+                    $this->evm->dispatchEvent(Event::postMove, new LifecycleEventArgs($document, $this->dm));
                 }
             }
         }
