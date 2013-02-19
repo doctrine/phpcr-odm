@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Event;
 
 class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -121,5 +122,31 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     public function testValidateTranslatable()
     {
         $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject');
+    }
+
+    public function testLoadClassMetadataEvent()
+    {
+        $listener = new Listener;
+        $evm = $this->dm->getEventManager();
+        $evm->addEventListener(array(Event::loadClassMetadata), $listener);
+
+        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DefaultMappingObject');
+        $this->assertTrue($listener->called);
+        $this->assertSame($this->dm, $listener->dm);
+        $this->assertSame($meta, $listener->meta);
+    }
+}
+
+class Listener
+{
+    public $dm;
+    public $meta;
+    public $called = false;
+
+    public function loadClassMetadata(\Doctrine\ODM\PHPCR\Event\LoadClassMetadataEventArgs $args)
+    {
+        $this->called = true;
+        $this->dm = $args->getDocumentManager();
+        $this->meta = $args->getClassMetadata();
     }
 }

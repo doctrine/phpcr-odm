@@ -17,24 +17,35 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR;
+namespace Doctrine\ODM\PHPCR\Event;
 
-final class Event
+use Doctrine\Common\EventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
+
+class PostFlushEventArgs extends EventArgs
 {
-    const onFlush = 'onFlush';
-    const onClear = 'onClear';
-    const prePersist = 'prePersist';
-    const preRemove = 'preRemove';
-    const preUpdate = 'preUpdate';
-    const postRemove = 'postRemove';
-    const postPersist = 'postPersist';
-    const postUpdate = 'postUpdate';
-    const postLoad = 'postLoad';
-    const postFlush = 'postFlush';
-    const preFlush = 'preFlush';
-    const loadClassMetadata = 'loadClassMetadata';
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    private $dm;
 
-    private function __construct()
+    /**
+     * Constructor.
+     *
+     * @param \Doctrine\ODM\PHPCR\DocumentManager $em
+     */
+    public function __construct(DocumentManager $dm)
     {
+        $this->dm = $dm;
+    }
+
+    /**
+     * Retrieve associated DocumentManager.
+     *
+     * @return \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    public function getDocumentManager()
+    {
+        return $this->dm;
     }
 }
