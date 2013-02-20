@@ -75,7 +75,7 @@ END_CND;
         $versionNodeWithChild = $this->node->addNode('versionTestObjWithChild');
         $versionNodeWithChild->setProperty('username', 'lsmith');
         $versionNodeWithChild->setProperty('numbers', array(3, 1, 2));
-        $versionNodeWithChild->setProperty('phpcr:class', $this->typeVersion);
+        $versionNodeWithChild->setProperty('phpcr:class', $this->typeVersionCopy);
         $versionNodeWithChild->addMixin("mix:versionable");
 
         $childNode = $versionNodeWithChild->addNode('versionTestChild');
@@ -353,7 +353,7 @@ END_CND;
     }
 
     /**
-     * Check that when restoring a document, changes are reverted in both the document and the child
+     * Check when restoring a document, changes are reverted in both the document and the child
      * (using a node type where version is set to "copy")
      */
     public function testRestoreVersionCopyWithChild()
@@ -411,8 +411,15 @@ class VersionTestObj
 /**
  * @PHPCRODM\Document(versionable="full", nodeType="phpcr:versionCascade")
  */
-class VersionCopyTestObj extends VersionTestObj
+class VersionCopyTestObj
 {
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Node */
+    public $node;
+
+    /** @PHPCRODM\String(name="username") */
+    public $username;
 }
 
 /**
