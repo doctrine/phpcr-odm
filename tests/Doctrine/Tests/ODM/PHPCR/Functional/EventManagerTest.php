@@ -7,6 +7,8 @@ use Doctrine\Common\EventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\Models\CMS\CmsItem;
+use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
+use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
 
 class EventManagerTest extends PHPCRFunctionalTestCase
 {
@@ -25,7 +27,10 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preRemove', 'postRemove', 'onFlush'), $this->listener);
+        $this->dm->getEventManager()->addEventListener(array(
+            'prePersist', 'postPersist', 'preUpdate', 'postUpdate', 
+            'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush'
+        ), $this->listener);
     }
 
     public function testTriggerEvents()
@@ -38,10 +43,14 @@ class EventManagerTest extends PHPCRFunctionalTestCase
 
         $this->assertTrue($this->listener->pagePrePersist);
         $this->assertFalse($this->listener->itemPrePersist);
+        $this->assertFalse($this->listener->postFlush);
+        $this->assertFalse($this->listener->preFlush);
 
         $this->dm->flush();
 
         $this->assertTrue($this->listener->onFlush);
+        $this->assertTrue($this->listener->postFlush);
+        $this->assertTrue($this->listener->preFlush);
         $this->assertFalse($this->listener->preUpdate);
         $this->assertFalse($this->listener->postUpdate);
         $this->assertTrue($this->listener->pagePostPersist);
@@ -97,6 +106,8 @@ class TestPersistenceListener
     public $itemPreRemove = false;
     public $itemPostRemove = false;
     public $onFlush = false;
+    public $postFlush = false;
+    public $preFlush = false;
     
     public function prePersist(EventArgs $e)
     {
@@ -160,5 +171,15 @@ class TestPersistenceListener
     public function onFlush(EventArgs $e)
     {
         $this->onFlush = true;
+    }
+
+    public function postFlush(PostFlushEventArgs $e)
+    {
+        $this->postFlush = true;
+    }
+
+    public function preFlush(PreFlushEventArgs $e)
+    {
+        $this->preFlush = true;
     }
 }
