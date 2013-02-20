@@ -36,6 +36,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->typeVersion = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\VersionTestObj';
+        $this->typeVersionCopy = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\VersionCopyTestObj';
         $this->typeReference = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\ReferenceTestObj';
         $this->dm = $this->createDocumentManager();
 
@@ -43,6 +44,19 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $repository = $this->dm->getPhpcrSession()->getRepository();
         if (!$repository->getDescriptor('option.versioning.supported')) {
             $this->markTestSkipped('PHPCR repository does not support versioning');
+        }
+
+        $session = $this->dm->getPhpcrSession();
+
+        /** @var $ntm \Jackalope\NodeType\NodeTypeManager */
+        $ntm = $session->getWorkspace()->getNodeTypeManager();
+
+        if (! $ntm->hasNodeType('phpcr:versionCascade')) {
+            $cnd = <<<END_CND
+[phpcr:versionCascade] > nt:unstructured
+    + * multiple copy
+END_CND;
+            $ntm->registerNodeTypesCnd($cnd, false);
         }
 
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -57,6 +71,18 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referenceNode->setProperty('content', 'reference test');
         $referenceNode->setProperty('phpcr:class', $this->typeReference);
         $referenceNode->addMixin("mix:referenceable");
+
+        $versionNodeWithChild = $this->node->addNode('versionTestObjWithChild');
+        $versionNodeWithChild->setProperty('username', 'lsmith');
+        $versionNodeWithChild->setProperty('numbers', array(3, 1, 2));
+        $versionNodeWithChild->setProperty('phpcr:class', $this->typeVersion);
+        $versionNodeWithChild->addMixin("mix:versionable");
+
+        $childNode = $versionNodeWithChild->addNode('versionTestChild');
+        $childNode->setProperty('username', 'lsmith');
+        $childNode->setProperty('numbers', array(3, 1, 2));
+        $childNode->setProperty('phpcr:class', $this->typeVersion);
+        $childNode->addMixin("mix:versionable");
 
         $this->dm->getPhpcrSession()->save();
 
@@ -308,6 +334,53 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
     }
+
+    /**
+     * Check when a version is made of a document, a version is also made of the child
+     * (using a node type where version is set to "copy")
+     */
+    public function testVersionCopyWithChild()
+    {
+        $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithChild');
+
+        $this->dm->checkpoint($doc);
+        $versions = $this->dm->getAllLinearVersions($doc);
+        $this->assertCount(2, $versions);
+
+        $child = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithChild/versionTestChild');
+        $versions = $this->dm->getAllLinearVersions($child);
+        $this->assertCount(2, $versions);
+    }
+
+    /**
+     * Check that when restoring a document, changes are reverted in both the document and the child
+     * (using a node type where version is set to "copy")
+     */
+    public function testRestoreVersionCopyWithChild()
+    {
+        $user = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithChild');
+        $child = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithChild/versionTestChild');
+        $this->dm->checkpoint($user);
+        $user->username = 'nicam';
+        $child->username = 'nicam';
+        $this->dm->flush();
+
+        $versions = $this->dm->getAllLinearVersions($user);
+        each($versions);
+        list($dummy, $versionInfo) = each($versions);
+        $versionName = $versionInfo['name'];
+        $versionDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObjWithChild', $versionName);
+        $this->dm->restoreVersion($versionDocument);
+
+        $this->assertEquals('lsmith', $user->username);
+        $this->assertEquals('lsmith', $child->username);
+
+        $this->dm->clear();
+        $user = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithChild');
+        $child = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithChild/versionTestChild');
+        $this->assertEquals('lsmith', $user->username);
+        $this->assertEquals('lsmith', $child->username);
+    }
 }
 
 /**
@@ -333,6 +406,13 @@ class VersionTestObj
 
     /** @PHPCRODM\ReferenceOne(strategy="weak") */
     public $reference;
+}
+
+/**
+ * @PHPCRODM\Document(versionable="full", nodeType="phpcr:versionCascade")
+ */
+class VersionCopyTestObj extends VersionTestObj
+{
 }
 
 /**
