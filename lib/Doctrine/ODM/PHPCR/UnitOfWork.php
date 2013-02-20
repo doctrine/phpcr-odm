@@ -1950,7 +1950,7 @@ class UnitOfWork
             list($document, $targetPath) = $value;
 
             $sourcePath = $this->getDocumentId($document);
-            if ($path === $targetPath) {
+            if ($sourcePath === $targetPath) {
                 continue;
             }
 
