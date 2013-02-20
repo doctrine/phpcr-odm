@@ -30,6 +30,7 @@ use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
+use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use Jackalope\Session as JackalopeSession;
@@ -1939,7 +1940,7 @@ class UnitOfWork
      *
      * @param array $documents array of all to be moved documents
      */
-    private function executeMoves($documents, $dispatchEvents = true)
+    private function executeMoves($documents)
     {
         foreach ($documents as $oid => $value) {
             if (!$this->contains($oid)) {
@@ -1948,21 +1949,20 @@ class UnitOfWork
 
             list($document, $targetPath) = $value;
 
-            if ($dispatchEvents) {
-                if (isset($class->lifecycleCallbacks[Event::preMove])) {
-                    $class->invokeLifecycleCallbacks(Event::preMove, $document);
-                }
-                if ($this->evm->hasListeners(Event::preMove)) {
-                    $this->evm->dispatchEvent(Event::preMove, new LifecycleEventArgs($document, $this->dm));
-                }
-            }
-
-            $path = $this->getDocumentId($document);
+            $sourcePath = $this->getDocumentId($document);
             if ($path === $targetPath) {
                 continue;
             }
 
-            $this->session->move($path, $targetPath);
+            if (isset($class->lifecycleCallbacks[Event::preMove])) {
+                $class->invokeLifecycleCallbacks(Event::preMove, $document);
+            }
+
+            if ($this->evm->hasListeners(Event::preMove)) {
+                $this->evm->dispatchEvent(Event::preMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
+            }
+
+            $this->session->move($sourcePath, $targetPath);
 
             // update fields nodename and parentMapping if they exist in this type
             $class = $this->dm->getClassMetadata(get_class($document));
@@ -1976,11 +1976,11 @@ class UnitOfWork
 
             // update all cached children of the document to reflect the move (path id changes)
             foreach ($this->documentIds as $oid => $id) {
-                if (0 !== strpos($id, $path)) {
+                if (0 !== strpos($id, $sourcePath)) {
                     continue;
                 }
 
-                $newId = $targetPath.substr($id, strlen($path));
+                $newId = $targetPath.substr($id, strlen($sourcePath));
                 $this->documentIds[$oid] = $newId;
 
                 $document = $this->getDocumentById($id);
@@ -2002,13 +2002,12 @@ class UnitOfWork
                 }
             }
 
-            if ($dispatchEvents) {
-                if (isset($class->lifecycleCallbacks[Event::postMove])) {
-                    $class->invokeLifecycleCallbacks(Event::postMove, $document);
-                }
-                if ($this->evm->hasListeners(Event::postMove)) {
-                    $this->evm->dispatchEvent(Event::postMove, new LifecycleEventArgs($document, $this->dm));
-                }
+            if (isset($class->lifecycleCallbacks[Event::postMove])) {
+                $class->invokeLifecycleCallbacks(Event::postMove, $document);
+            }
+
+            if ($this->evm->hasListeners(Event::postMove)) {
+                $this->evm->dispatchEvent(Event::postMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
             }
         }
     }
