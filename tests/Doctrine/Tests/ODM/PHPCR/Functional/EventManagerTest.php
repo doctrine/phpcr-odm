@@ -29,7 +29,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array(
             'prePersist', 'postPersist', 'preUpdate', 'postUpdate',
-            'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush'
+            'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush',
             'preMove', 'postMove'
         ), $this->listener);
     }
