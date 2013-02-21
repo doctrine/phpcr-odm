@@ -28,8 +28,9 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array(
-            'prePersist', 'postPersist', 'preUpdate', 'postUpdate', 
+            'prePersist', 'postPersist', 'preUpdate', 'postUpdate',
             'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush'
+            'preMove', 'postMove'
         ), $this->listener);
     }
 
@@ -59,7 +60,13 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->pagePostRemove);
         $this->assertFalse($this->listener->itemPreRemove);
         $this->assertFalse($this->listener->itemPostRemove);
-        
+
+        $this->dm->move($page, '/');
+        $this->dm->flush();
+
+        $this->assertTrue($this->listener->preMove);
+        $this->assertTrue($this->listener->postMove);
+
         $item = new CmsItem();
         $item->name = "my-item";
         $item->documentTarget = $page;
@@ -108,7 +115,9 @@ class TestPersistenceListener
     public $onFlush = false;
     public $postFlush = false;
     public $preFlush = false;
-    
+    public $preMove = false;
+    public $postMove = false;
+
     public function prePersist(EventArgs $e)
     {
         $document = $e->getDocument();
@@ -166,6 +175,16 @@ class TestPersistenceListener
         } else if ($document instanceof CmsItem){
             $this->itemPostRemove = true;
         }
+    }
+
+    public function preMove(EventArgs $e)
+    {
+        $this->preMove = true;
+    }
+
+    public function postMove(EventArgs $e)
+    {
+        $this->postMove = true;
     }
 
     public function onFlush(EventArgs $e)

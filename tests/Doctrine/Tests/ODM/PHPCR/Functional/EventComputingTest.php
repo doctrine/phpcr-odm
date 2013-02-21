@@ -21,7 +21,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->listener = new TestEventDocumentChanger();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate'), $this->listener);
+        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preMove', 'postMove'), $this->listener);
     }
 
     public function testComputingBetweenEvents()
@@ -59,6 +59,15 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
         $this->assertTrue($user->name=='preupdate');
+
+        $this->dm->move($user, '/');
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($user->username == 'postMove');
+
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $this->assertTrue($user->username == 'preMove');
 
         // Clean up
         $this->dm->remove($user);
@@ -100,4 +109,15 @@ class TestEventDocumentChanger
         $document->username = 'postupdate';
     }
 
+    public function preMove(EventArgs $e)
+    {
+        $document = $e->getDocument();
+        $document->username = 'preMove';
+    }
+
+    public function postMove(EventArgs $e)
+    {
+        $document = $e->getDocument();
+        $document->username = 'postMove';
+    }
 }
