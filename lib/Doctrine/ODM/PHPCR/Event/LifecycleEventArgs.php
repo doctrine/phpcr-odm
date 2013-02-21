@@ -49,4 +49,20 @@ class LifecycleEventArgs extends \Doctrine\Common\EventArgs
     {
         return $this->dm;
     }
+
+    /**
+     * @return object
+     */
+    public function getObject()
+    {
+        return $this->object;
+    }
+
+    /**
+     * @return \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    public function getObjectManager()
+    {
+        return $this->dm;
+    }
 }

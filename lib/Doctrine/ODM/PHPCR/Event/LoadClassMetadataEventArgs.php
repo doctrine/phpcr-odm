@@ -66,4 +66,14 @@ class LoadClassMetadataEventArgs extends EventArgs
     {
         return $this->dm;
     }
+
+    /**
+     * Retrieve associated ObjectManager.
+     *
+     * @return \Doctrine\PHPCR\ODM\ObjectManager
+     */
+    public function getObjectManager()
+    {
+        return $this->dm;
+    }
 }
