@@ -60,14 +60,19 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
         $this->assertTrue($user->name=='preupdate');
 
-        $this->dm->move($user, '/');
+        // Move test
+        $targetPath = '/' . $user->name;
+        $this->dm->move($user, $targetPath);
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertTrue($user->username == 'postMove');
+        $this->assertTrue($user->username == 'postmove');
 
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
-        $this->assertTrue($user->username == 'preMove');
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $targetPath);
+
+        // The document is moved and do not be modified
+        $this->assertTrue($user->name == 'preupdate');
+        $this->assertTrue($this->listener->preMove);
 
         // Clean up
         $this->dm->remove($user);
@@ -83,6 +88,8 @@ class TestEventDocumentChanger
     public $postUpdate = false;
     public $preRemove = false;
     public $postRemove = false;
+    public $preMove = false;
+    public $postMove = false;
     public $onFlush = false;
 
     public function prePersist(EventArgs $e)
@@ -111,13 +118,14 @@ class TestEventDocumentChanger
 
     public function preMove(EventArgs $e)
     {
+        $this->preMove = true;
         $document = $e->getDocument();
-        $document->username = 'preMove';
+        $document->name = 'premove';
     }
 
     public function postMove(EventArgs $e)
     {
         $document = $e->getDocument();
-        $document->username = 'postMove';
+        $document->username = 'postmove';
     }
 }
