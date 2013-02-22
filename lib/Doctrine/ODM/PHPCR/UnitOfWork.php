@@ -260,9 +260,8 @@ class UnitOfWork
                 // document already loaded and no need to refresh. return early
 
                 return $document;
-            } else {
-                $overrideLocalValuesOid = spl_object_hash($document);
             }
+            $overrideLocalValuesOid = spl_object_hash($document);
         } else {
             $document = $class->newInstance();
             // delay registering the new document until children proxy have been created
