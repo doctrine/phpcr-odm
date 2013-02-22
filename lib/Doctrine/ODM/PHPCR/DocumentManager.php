@@ -308,7 +308,7 @@ class DocumentManager implements ObjectManager
 
         $hints = array('fallback' => true);
 
-        return $this->unitOfWork->createDocument($className, $node, $hints);
+        return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
@@ -353,7 +353,7 @@ class DocumentManager implements ObjectManager
                     // ignore on class mismatch
                 }
             } elseif (isset($nodes[$id])) {
-                $documents[$id] = $this->unitOfWork->createDocument($className, $nodes[$id]);
+                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id]);
             }
         }
 
@@ -402,7 +402,7 @@ class DocumentManager implements ObjectManager
 
         $hints = array('locale' => $locale, 'fallback' => $fallback);
 
-        return $this->unitOfWork->createDocument($className, $node, $hints);
+        return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
