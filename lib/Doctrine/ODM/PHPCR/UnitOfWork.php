@@ -251,10 +251,27 @@ class UnitOfWork
         $requestedClassName = $className;
         $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
         $class = $this->dm->getClassMetadata($className);
+        $id = $node->getPath();
+
+        $document = $this->getDocumentById($id);
+
+        if ($document) {
+            if (empty($hints['refresh'])) {
+                // document already loaded and no need to refresh. return early
+
+                return $document;
+            } else {
+                $overrideLocalValuesOid = spl_object_hash($document);
+            }
+        } else {
+            $document = $class->newInstance();
+            // delay registering the new document until children proxy have been created
+            $overrideLocalValuesOid = false;
+        }
+        $this->validateClassName($document, $requestedClassName);
 
         $documentState = array();
         $nonMappedData = array();
-        $id = $node->getPath();
 
         // second param is false to get uuid rather than dereference reference properties to node instances
         $properties = $node->getPropertiesValues(null, false);
@@ -367,16 +384,6 @@ class UnitOfWork
                 : null;
         }
 
-        $document = $this->getDocumentById($id);
-        if ($document) {
-            $overrideLocalValuesOid = empty($hints['refresh']) ? false : spl_object_hash($document);
-        } else {
-            $document = $class->newInstance();
-            $overrideLocalValuesOid = $this->registerDocument($document, $id);
-        }
-
-        $this->validateClassName($document, $requestedClassName);
-
         foreach ($class->childrenMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth']);
@@ -387,20 +394,23 @@ class UnitOfWork
             $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
         }
 
-        if ($overrideLocalValuesOid) {
-            $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
-            foreach ($class->reflFields as $prop => $reflFields) {
-                $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
-                $reflFields->setValue($document, $value);
-                $this->originalData[$overrideLocalValuesOid][$prop] = $value;
-            }
-
-            // Load translations
-            $locale = isset($hints['locale']) ? $hints['locale'] : null;
-            $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
-
-            $this->doLoadTranslation($document, $class, $locale, $fallback);
+        if (! $overrideLocalValuesOid) {
+            // registering the document needs to be delayed until the children proxies where created
+            $overrideLocalValuesOid = $this->registerDocument($document, $id);
         }
+
+        $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
+        foreach ($class->reflFields as $prop => $reflFields) {
+            $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
+            $reflFields->setValue($document, $value);
+            $this->originalData[$overrideLocalValuesOid][$prop] = $value;
+        }
+
+        // Load translations
+        $locale = isset($hints['locale']) ? $hints['locale'] : null;
+        $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
+
+        $this->doLoadTranslation($document, $class, $locale, $fallback);
 
         // Invoke the postLoad lifecycle callbacks and listeners
         if (isset($class->lifecycleCallbacks[Event::postLoad])) {
