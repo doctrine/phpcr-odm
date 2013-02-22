@@ -60,13 +60,13 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
         $this->assertTrue($user->name=='preupdate');
 
-        // Move test
+        // Move test, Before move the path is /functional/preudpate and I move to /preupdate
         $targetPath = '/' . $user->name;
         $this->dm->move($user, $targetPath);
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertTrue($user->username == 'postmove');
+        $this->assertTrue($user->username == 'premove-postmove');
 
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $targetPath);
 
@@ -120,12 +120,13 @@ class TestEventDocumentChanger
     {
         $this->preMove = true;
         $document = $e->getDocument();
-        $document->name = 'premove';
+        $document->name = 'premove'; // I try to update the name of the document but after move, the document should never be modified
+        $document->username = 'premove';
     }
 
     public function postMove(EventArgs $e)
     {
         $document = $e->getDocument();
-        $document->username = 'postmove';
+        $document->username .= '-postmove';
     }
 }
