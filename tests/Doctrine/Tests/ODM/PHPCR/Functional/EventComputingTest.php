@@ -21,7 +21,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->listener = new TestEventDocumentChanger();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate'), $this->listener);
+        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preMove', 'postMove'), $this->listener);
     }
 
     public function testComputingBetweenEvents()
@@ -60,6 +60,20 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
         $this->assertTrue($user->name=='preupdate');
 
+        // Move test, Before move the path is /functional/preudpate and I move to /preupdate
+        $targetPath = '/' . $user->name;
+        $this->dm->move($user, $targetPath);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertTrue($user->username == 'premove-postmove');
+
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $targetPath);
+
+        // The document is moved and do not be modified
+        $this->assertTrue($user->name == 'preupdate');
+        $this->assertTrue($this->listener->preMove);
+
         // Clean up
         $this->dm->remove($user);
         $this->dm->flush();
@@ -74,6 +88,8 @@ class TestEventDocumentChanger
     public $postUpdate = false;
     public $preRemove = false;
     public $postRemove = false;
+    public $preMove = false;
+    public $postMove = false;
     public $onFlush = false;
 
     public function prePersist(EventArgs $e)
@@ -100,4 +116,17 @@ class TestEventDocumentChanger
         $document->username = 'postupdate';
     }
 
+    public function preMove(EventArgs $e)
+    {
+        $this->preMove = true;
+        $document = $e->getDocument();
+        $document->name = 'premove'; // I try to update the name of the document but after move, the document should never be modified
+        $document->username = 'premove';
+    }
+
+    public function postMove(EventArgs $e)
+    {
+        $document = $e->getDocument();
+        $document->username .= '-postmove';
+    }
 }
