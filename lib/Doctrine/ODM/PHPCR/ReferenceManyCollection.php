@@ -65,8 +65,8 @@ class ReferenceManyCollection extends PersistentCollection
 
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $referencedClass
-                    ? $uow->createProxy($referencedNode->getPath(), $referencedClass)
-                    : $uow->createProxyFromNode($referencedNode);
+                    ? $uow->getOrCreateProxy($referencedNode->getPath(), $referencedClass)
+                    : $uow->getOrCreateProxyFromNode($referencedNode);
                 $referencedDocs[] = $proxy;
             }
 
