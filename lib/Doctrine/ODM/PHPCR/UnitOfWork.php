@@ -233,10 +233,11 @@ class UnitOfWork
     }
 
     /**
-     * Create a document given class, data and the doc-id and revision
+     * Get the existing document or proxy of the specified class and node data
+     * or create a new one if not existing.
      *
      * Supported hints are
-     * - refresh: reload the fields from the database
+     * - refresh: reload the fields from the database if set
      * - locale: use this locale instead of the one from the annotation or the default
      * - fallback: whether to try other languages or throw a not found
      *      exception if the desired locale is not found. defaults to true if
@@ -248,15 +249,31 @@ class UnitOfWork
      *
      * @return object
      */
-    public function createDocument($className, NodeInterface $node, array &$hints = array())
+    public function getOrCreateDocument($className, NodeInterface $node, array &$hints = array())
     {
         $requestedClassName = $className;
         $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
         $class = $this->dm->getClassMetadata($className);
+        $id = $node->getPath();
+
+        $document = $this->getDocumentById($id);
+
+        if ($document) {
+            if (empty($hints['refresh'])) {
+                // document already loaded and no need to refresh. return early
+
+                return $document;
+            }
+            $overrideLocalValuesOid = spl_object_hash($document);
+        } else {
+            $document = $class->newInstance();
+            // delay registering the new document until children proxy have been created
+            $overrideLocalValuesOid = false;
+        }
+        $this->validateClassName($document, $requestedClassName);
 
         $documentState = array();
         $nonMappedData = array();
-        $id = $node->getPath();
 
         // second param is false to get uuid rather than dereference reference properties to node instances
         $properties = $node->getPropertiesValues(null, false);
@@ -328,10 +345,10 @@ class UnitOfWork
                             $path = $referencedNode->getPath();
                         }
 
-                        $proxy = $this->createProxy($path, $referencedClass);
+                        $proxy = $this->getOrCreateProxy($path, $referencedClass);
                     } else {
                         $referencedNode = $node->getProperty($fieldName)->getNode();
-                        $proxy = $this->createProxyFromNode($referencedNode);
+                        $proxy = $this->getOrCreateProxyFromNode($referencedNode);
                     }
                 } catch (RepositoryException $e) {
                     if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
@@ -359,25 +376,15 @@ class UnitOfWork
 
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
-            $documentState[$class->parentMapping] = $this->createProxyFromNode($node->getParent());
+            $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent());
         }
 
         foreach ($class->childMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             $documentState[$fieldName] = $node->hasNode($mapping['name'])
-                ? $this->createProxyFromNode($node->getNode($mapping['name']))
+                ? $this->getOrCreateProxyFromNode($node->getNode($mapping['name']))
                 : null;
         }
-
-        $document = $this->getDocumentById($id);
-        if ($document) {
-            $overrideLocalValuesOid = empty($hints['refresh']) ? false : spl_object_hash($document);
-        } else {
-            $document = $class->newInstance();
-            $overrideLocalValuesOid = $this->registerDocument($document, $id);
-        }
-
-        $this->validateClassName($document, $requestedClassName);
 
         foreach ($class->childrenMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
@@ -389,13 +396,16 @@ class UnitOfWork
             $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
         }
 
-        if ($overrideLocalValuesOid) {
-            $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
-            foreach ($class->reflFields as $prop => $reflFields) {
-                $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
-                $reflFields->setValue($document, $value);
-                $this->originalData[$overrideLocalValuesOid][$prop] = $value;
-            }
+        if (! $overrideLocalValuesOid) {
+            // registering the document needs to be delayed until the children proxies where created
+            $overrideLocalValuesOid = $this->registerDocument($document, $id);
+        }
+
+        $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
+        foreach ($class->reflFields as $prop => $reflFields) {
+            $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
+            $reflFields->setValue($document, $value);
+            $this->originalData[$overrideLocalValuesOid][$prop] = $value;
         }
 
         // Load translations
@@ -415,23 +425,31 @@ class UnitOfWork
         return $document;
     }
 
-    public function createProxyFromNode(NodeInterface $node)
+    /**
+     * Get the existing document or proxy or create a new one for this PHPCR Node
+     *
+     * @param NodeInterface $node
+     *
+     * @return object
+     */
+    public function getOrCreateProxyFromNode(NodeInterface $node)
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
 
-        return $this->createProxy($targetId, $className);
+        return $this->getOrCreateProxy($targetId, $className);
     }
 
     /**
-     * Create a proxy instance or return an existing document
+     * Get the existing document or proxy for this id of this class, or create
+     * a new one.
      *
-     * @param $targetId
-     * @param $className
+     * @param string $targetId
+     * @param string $className
      *
      * @return object
      */
-    public function createProxy($targetId, $className)
+    public function getOrCreateProxy($targetId, $className)
     {
         $document = $this->getDocumentById($targetId);
 
@@ -458,7 +476,7 @@ class UnitOfWork
     {
         $node = $this->session->getNode($document->__getIdentifier());
         $hints = array('refresh' => true);
-        $this->createDocument($className, $node, $hints);
+        $this->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
@@ -1248,7 +1266,7 @@ class UnitOfWork
         $this->cascadeRefresh($class, $document, $visited);
 
         $hints = array('refresh' => true);
-        $this->createDocument(get_class($document), $node, $hints);
+        $this->getOrCreateDocument(get_class($document), $node, $hints);
     }
 
     public function merge($document)
@@ -1268,7 +1286,7 @@ class UnitOfWork
             } else {
                 $targetClass = $this->dm->getClassMetadata(get_class($document));
                 $id = $targetClass->getIdentifierValues($document);
-                $proxy = $this->createProxy($id, $targetClass->name);
+                $proxy = $this->getOrCreateProxy($id, $targetClass->name);
                 $prop->setValue($managedCopy, $proxy);
                 $this->registerDocument($proxy, $id);
             }
@@ -1710,7 +1728,7 @@ class UnitOfWork
             }
             // make sure this reflects the id generator strategy generated id
             if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->createDocument(null, $parentNode));
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateDocument(null, $parentNode));
             }
 
             if ($this->writeMetadata) {
@@ -1904,7 +1922,7 @@ class UnitOfWork
                     if ($fieldValue === null) {
                         if ($node->hasNode($mapping['name'])) {
                             $child = $node->getNode($mapping['name']);
-                            $childDocument = $this->createDocument(null, $child);
+                            $childDocument = $this->getOrCreateDocument(null, $child);
                             $this->purgeChildren($childDocument);
                             $child->remove();
                         }
@@ -1961,7 +1979,7 @@ class UnitOfWork
                 $class->setFieldValue($document, $class->nodename, $node->getName());
             }
             if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping, $this->createProxyFromNode($node->getParent()));
+                $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent()));
             }
 
             // update all cached children of the document to reflect the move (path id changes)
@@ -2097,7 +2115,7 @@ class UnitOfWork
         }
 
         $hints = array('versionName' => $versionName, 'ignoreHardReferenceNotFound' => true);
-        $frozenDocument = $this->createDocument($className, $node, $hints);
+        $frozenDocument = $this->getOrCreateDocument($className, $node, $hints);
         $this->dm->detach($frozenDocument);
 
         $oid = spl_object_hash($frozenDocument);
@@ -2337,7 +2355,7 @@ class UnitOfWork
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
             try {
-                $childDocuments[$name] = $this->createDocument(null, $childNode, $childrenHints);
+                $childDocuments[$name] = $this->getOrCreateDocument(null, $childNode, $childrenHints);
             } catch (MissingTranslationException $e) {
                 if (!$ignoreUntranslated) {
                     throw $e;
@@ -2384,12 +2402,12 @@ class UnitOfWork
 
         foreach ($referrerPropertiesW as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->createDocument(null, $referrerNode);
+            $referrerDocuments[] = $this->getOrCreateDocument(null, $referrerNode);
         }
 
         foreach ($referrerPropertiesH as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->createDocument(null, $referrerNode);
+            $referrerDocuments[] = $this->getOrCreateDocument(null, $referrerNode);
         }
 
         return new ArrayCollection($referrerDocuments);
