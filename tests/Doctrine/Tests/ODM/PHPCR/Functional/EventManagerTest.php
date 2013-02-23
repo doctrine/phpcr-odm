@@ -59,13 +59,22 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->pagePreRemove);
         $this->assertFalse($this->listener->pagePostRemove);
         $this->assertFalse($this->listener->itemPreRemove);
-        $this->assertFalse($this->listener->itemPostRemove);
+        $this->assertFalse($this->listener->pagePreMove);
+        $this->assertFalse($this->listener->pagePostMove);
+        $this->assertFalse($this->listener->itemPreMove);
+        $this->assertFalse($this->listener->itemPostMove);
 
         $this->dm->move($page, '/' . $page->title);
+
+        $this->assertFalse($this->listener->pagePreMove);
+        $this->assertFalse($this->listener->pagePostMove);
+
         $this->dm->flush();
 
-        $this->assertTrue($this->listener->preMove);
-        $this->assertTrue($this->listener->postMove);
+        $this->assertTrue($this->listener->pagePreMove);
+        $this->assertTrue($this->listener->pagePostMove);
+        $this->assertFalse($this->listener->itemPreMove);
+        $this->assertFalse($this->listener->itemPostMove);
 
         $item = new CmsItem();
         $item->name = "my-item";
@@ -115,8 +124,10 @@ class TestPersistenceListener
     public $onFlush = false;
     public $postFlush = false;
     public $preFlush = false;
-    public $preMove = false;
-    public $postMove = false;
+    public $itemPreMove = false;
+    public $itemPostMove = false;
+    public $pagePreMove = false;
+    public $pagePostMove = false;
 
     public function prePersist(EventArgs $e)
     {
@@ -179,12 +190,22 @@ class TestPersistenceListener
 
     public function preMove(EventArgs $e)
     {
-        $this->preMove = true;
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePreMove = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPreMove = true;
+        }
     }
 
     public function postMove(EventArgs $e)
     {
-        $this->postMove = true;
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePostMove = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPostMove = true;
+        }
     }
 
     public function onFlush(EventArgs $e)

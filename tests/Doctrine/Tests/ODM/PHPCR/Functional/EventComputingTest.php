@@ -43,7 +43,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
-        $this->assertTrue($user->name=='prepersist');
+        $this->assertEquals('prepersist', $user->name);
 
         // Change document
         // In preupdate the name will be changed
@@ -54,24 +54,28 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->clear();
 
         // Post persist data is not saved to document, so check before reloading document
-        $this->assertTrue($user->username=='postupdate');
+        $this->assertEquals('postupdate', $user->username);
 
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
-        $this->assertTrue($user->name=='preupdate');
+        $this->assertEquals('preupdate', $user->name);
 
-        // Move test, Before move the path is /functional/preudpate and I move to /preupdate
-        $targetPath = '/' . $user->name;
+        // Move from /functional/preudpate to /functional/moved
+        $targetPath = '/functional/moved';
         $this->dm->move($user, $targetPath);
         $this->dm->flush();
+        // we overwrote the name and username fields during the move event, so the object changed
+        $this->assertEquals('premove', $user->name);
+        $this->assertEquals('premove-postmove', $user->username);
+
         $this->dm->clear();
 
-        $this->assertTrue($user->username == 'premove-postmove');
 
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $targetPath);
 
-        // The document is moved and do not be modified
-        $this->assertTrue($user->name == 'preupdate');
+        // the document was moved but the only changes applied in preUpdate are persisted,
+        // pre/postMove changes are not persisted in that flush
+        $this->assertEquals('preupdate', $user->name);
         $this->assertTrue($this->listener->preMove);
 
         // Clean up
