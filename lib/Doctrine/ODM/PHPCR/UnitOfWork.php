@@ -1972,8 +1972,11 @@ class UnitOfWork
                 continue;
             }
 
-            if (isset($class->lifecycleCallbacks[Event::preMove])) {
-                $class->invokeLifecycleCallbacks(Event::preMove, $document);
+            // update fields nodename and parentMapping if they exist in this type
+            $classmetadata = $this->dm->getClassMetadata(get_class($document));
+
+            if (isset($classmetadata->lifecycleCallbacks[Event::preMove])) {
+                $classmetadata->invokeLifecycleCallbacks(Event::preMove, $document);
             }
 
             if ($this->evm->hasListeners(Event::preMove)) {
@@ -1982,14 +1985,12 @@ class UnitOfWork
 
             $this->session->move($sourcePath, $targetPath);
 
-            // update fields nodename and parentMapping if they exist in this type
-            $class = $this->dm->getClassMetadata(get_class($document));
             $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
-            if ($class->nodename) {
-                $class->setFieldValue($document, $class->nodename, $node->getName());
+            if ($classmetadata->nodename) {
+                $classmetadata->setFieldValue($document, $classmetadata->nodename, $node->getName());
             }
-            if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent()));
+            if ($classmetadata->parentMapping) {
+                $classmetadata->setFieldValue($document, $classmetadata->parentMapping, $this->getOrCreateProxyFromNode($node->getParent()));
             }
 
             // update all cached children of the document to reflect the move (path id changes)
@@ -2012,16 +2013,16 @@ class UnitOfWork
                 if ($document instanceof Proxy && !$document->__isInitialized()) {
                     $document->__setIdentifier($newId);
                 } else {
-                    $class = $this->dm->getClassMetadata(get_class($document));
-                    if ($class->identifier) {
-                        $class->setIdentifierValue($document, $newId);
-                        $this->originalData[$oid][$class->identifier] = $newId;
+                    $classmetadata = $this->dm->getClassMetadata(get_class($document));
+                    if ($classmetadata->identifier) {
+                        $classmetadata->setIdentifierValue($document, $newId);
+                        $this->originalData[$oid][$classmetadata->identifier] = $newId;
                     }
                 }
             }
 
-            if (isset($class->lifecycleCallbacks[Event::postMove])) {
-                $class->invokeLifecycleCallbacks(Event::postMove, $document);
+            if (isset($classmetadata->lifecycleCallbacks[Event::postMove])) {
+                $classmetadata->invokeLifecycleCallbacks(Event::postMove, $document);
             }
 
             if ($this->evm->hasListeners(Event::postMove)) {
