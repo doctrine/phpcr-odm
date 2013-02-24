@@ -234,6 +234,13 @@ class ClassMetadata implements ClassMetadataInterface
     public $referrersMappings = array();
 
     /**
+     * READ-ONLY: The mixed referrers (read only) mappings of the class.
+     *
+     * @var array
+     */
+    public $mixedReferrersMappings = array();
+
+    /**
      * READ-ONLY: Name of the locale property
      *
      * @var string
@@ -617,19 +624,37 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
     {
         if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
         }
 
+        if (empty($mapping['mappedBy'])) {
+            throw MappingException::referrerWithoutMappedBy($this->name, $mapping['fieldName']);
+        }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
-        }
-        if ($mapping['cascade'] && empty($mapping['filter'])) {
-            throw MappingException::referrerWithoutMappedBy($this->name, $mapping['fieldName']);
         }
 
         $mapping['type'] = 'referrers';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->referrersMappings[] = $mapping['fieldName'];
+    }
+
+    public function mapMixedReferrers(array $mapping, ClassMetadata $inherited = null)
+    {
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+        }
+
+        if (isset($mapping['mappedBy'])) {
+            throw new MappingException('MixedReferrers has no mappedBy attribute, use Referrers for this: ' . $mapping['fieldName']);
+        }
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
+
+        $mapping['type'] = 'mixedreferrers';
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $this->mixedReferrersMappings[] = $mapping['fieldName'];
     }
 
     public function mapLocale(array $mapping, ClassMetadata $inherited = null)
@@ -775,6 +800,13 @@ class ClassMetadata implements ClassMetadataInterface
         if (count($this->translatableFields)) {
             if (!isset($this->localeMapping)) {
                 throw new MappingException("You must define a locale mapping for translatable document '".$this->name."'");
+            }
+        }
+
+        // we allow mixed referrers on non-referenceable documents. maybe the mix:referenceable is just not mapped
+        if (count($this->referrersMappings)) {
+            if (!$this->referenceable) {
+                throw new MappingException('You can not have referrers mapped on document "'.$this->name.'" as the document is not referenceable');
             }
         }
     }
@@ -931,7 +963,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function hasAssociation($fieldName)
     {
         return isset($this->mappings[$fieldName])
-            && in_array($this->mappings[$fieldName]['type'], array(self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'children', 'child', 'parent'))
+            && in_array($this->mappings[$fieldName]['type'], array(self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'))
         ;
     }
 
@@ -966,6 +998,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return isset($this->referenceMappings[$fieldName])
             || isset($this->referrersMappings[$fieldName])
+            || isset($this->mixedReferrersMappings[$fieldName])
             || isset($this->childrenMappings[$fieldName])
         ;
     }
@@ -1003,6 +1036,7 @@ class ClassMetadata implements ClassMetadataInterface
         $associations = array_merge(
             $this->referenceMappings,
             $this->referrersMappings,
+            $this->mixedReferrersMappings,
             $this->childrenMappings,
             $this->childMappings
         );
@@ -1155,6 +1189,7 @@ class ClassMetadata implements ClassMetadataInterface
             'fieldMappings',
             'referenceMappings',
             'referrersMappings',
+            'mixedReferrersMappings',
             'childrenMappings',
             'childMappings',
         );

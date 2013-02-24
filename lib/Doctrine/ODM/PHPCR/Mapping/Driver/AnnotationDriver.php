@@ -56,6 +56,8 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $metadata)
     {
+        /** @var $metadata \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
+
         $reflClass = $metadata->getReflectionClass();
 
         $documentAnnots = array();
@@ -154,6 +156,9 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $mapping['cascade'] = $this->getCascadeMode($fieldAnnot->cascade);
                     $metadata->mapReferrers($mapping);
+                } elseif ($fieldAnnot instanceof ODM\MixedReferrers) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $metadata->mapMixedReferrers($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Locale) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapLocale($mapping);
@@ -199,7 +204,8 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param $cascadeList cascade list
+     * @param array $cascadeList
+     *
      * @return integer a bitmask of cascade options.
      */
     private function getCascadeMode(array $cascadeList)

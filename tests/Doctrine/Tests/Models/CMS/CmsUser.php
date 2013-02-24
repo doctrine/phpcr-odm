@@ -32,7 +32,7 @@ class CmsUser
     public $children;
     /** @PHPCRODM\Child(name="assistant", cascade="persist") */
     public $child;
-    /** @PHPCRODM\Referrers(filter="user", cascade="persist") */
+    /** @PHPCRODM\Referrers(mappedBy="user", cascade="persist") */
     public $articlesReferrers;
 
     public function __construct()

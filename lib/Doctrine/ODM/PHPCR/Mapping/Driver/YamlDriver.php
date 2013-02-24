@@ -168,12 +168,14 @@ class YamlDriver extends FileDriver
         if (isset($element['referenceOne'])) {
             foreach ($element['referenceOne'] as $fieldName => $reference) {
                 $reference['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
+                $reference['name'] = (isset($reference['name'])) ? $reference['name'] : null;
                 $this->addMappingFromReference($class, $fieldName, $reference, 'one');
             }
         }
         if (isset($element['referenceMany'])) {
             foreach ($element['referenceMany'] as $fieldName => $reference) {
                 $reference['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
+                $reference['name'] = (isset($reference['name'])) ? $reference['name'] : null;
                 $this->addMappingFromReference($class, $fieldName, $reference, 'many');
             }
         }
@@ -182,11 +184,24 @@ class YamlDriver extends FileDriver
             $class->mapLocale(array('fieldName' => $element['locale']));
         }
 
-        if (isset($element['referrers'])) {
-            foreach ($element['referrers'] as $name => $attributes) {
+
+        if (isset($element['mixedReferrers'])) {
+            foreach ($element['mixedReferrers'] as $name => $attributes) {
                 $mapping = array(
                     'fieldName' => $name,
-                    'filter' => isset($attributes['filter']) ? $attributes['filter'] : null,
+                    'referenceType' => isset($attributes['referenceType']) ? $attributes['referenceType'] : null,
+                );
+                $class->mapMixedReferrers($mapping);
+            }
+        }
+        if (isset($element['referrers'])) {
+            foreach ($element['referrers'] as $name => $attributes) {
+                if (! isset($attributes['mappedBy'])) {
+                    throw new MappingException("$className is missing the mappedBy attribute for the referrer field  $name");
+                }
+                $mapping = array(
+                    'fieldName' => $name,
+                    'mappedBy' => $attributes['mappedBy'],
                     'referenceType' => isset($attributes['referenceType']) ? $attributes['referenceType'] : null,
                     'cascade' => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
                 );

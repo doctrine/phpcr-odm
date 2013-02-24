@@ -561,28 +561,36 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testReferrersMapping($class)
     {
-        $all = $class->mappings['allReferrers'];
-        $this->assertEquals('allReferrers', $all['fieldName']);
-        $this->assertEquals('allReferrers', $all['name']);
-        $this->assertEmpty($all['filter']);
-        $this->assertNull($all['referenceType']);
-
         $filtered = $class->mappings['filteredReferrers'];
+        $this->assertEquals('referrers', $filtered['type']);
         $this->assertEquals('filteredReferrers', $filtered['fieldName']);
         $this->assertEquals('filteredReferrers', $filtered['name']);
-        $this->assertEquals('test_filter', $filtered['filter']);
+        $this->assertEquals('test_filter', $filtered['mappedBy']);
         $this->assertEmpty($filtered['referenceType']);
+    }
+
+    /**
+     * @depends testLoadReferrersMapping
+     * @param ClassMetadata $class
+     */
+    public function testMixedReferrersMapping($class)
+    {
+        $all = $class->mappings['allReferrers'];
+        $this->assertEquals('mixedreferrers', $all['type']);
+        $this->assertEquals('allReferrers', $all['fieldName']);
+        $this->assertEquals('allReferrers', $all['name']);
+        $this->assertNull($all['referenceType']);
 
         $hard = $class->mappings['hardReferrers'];
+        $this->assertEquals('mixedreferrers', $hard['type']);
         $this->assertEquals('hardReferrers', $hard['fieldName']);
         $this->assertEquals('hardReferrers', $hard['name']);
-        $this->assertEmpty($hard['filter']);
         $this->assertEquals('hard', $hard['referenceType']);
 
         $weak = $class->mappings['weakReferrers'];
+        $this->assertEquals('mixedreferrers', $weak['type']);
         $this->assertEquals('weakReferrers', $weak['fieldName']);
         $this->assertEquals('weakReferrers', $weak['name']);
-        $this->assertEmpty($weak['filter']);
         $this->assertEquals('weak', $weak['referenceType']);
     }
 

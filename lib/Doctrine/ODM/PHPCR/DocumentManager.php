@@ -825,7 +825,7 @@ class DocumentManager implements ObjectManager
      * given document and matches a given name.
      *
      * @param object       $document document instance which referrers should be loaded
-     * @param string|array $name     optional name to match on referrers names
+     * @param string|array $name     optional PHPCR property name that holds the reference
      *
      * @return \Doctrine\Common\Collections\Collection collection of referrer documents
      */

@@ -651,7 +651,7 @@ class WeakReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Referrers(referenceType="weak") */
+    /** @PHPCRODM\MixedReferrers(referenceType="weak") */
     public $referrers;
     /** @PHPCRODM\String */
     public $name;
@@ -664,7 +664,7 @@ class HardReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Referrers(referenceType="hard") */
+    /** @PHPCRODM\MixedReferrers(referenceType="hard") */
     public $referrers;
     /** @PHPCRODM\String */
     public $name;
@@ -677,7 +677,7 @@ class AllReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Referrers() */
+    /** @PHPCRODM\MixedReferrers() */
     public $referrers;
     /** @PHPCRODM\String */
     public $name;
@@ -690,7 +690,7 @@ class AllReferrerRefNamedPropTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Referrers(filter="namedReference") */
+    /** @PHPCRODM\Referrers(mappedBy="namedReference") */
     public $referrers;
     /** @PHPCRODM\String */
     public $name;
@@ -747,6 +747,6 @@ class ReferrerRefTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\Referrers() */
+    /** @PHPCRODM\MixedReferrers() */
     public $referrers;
 }

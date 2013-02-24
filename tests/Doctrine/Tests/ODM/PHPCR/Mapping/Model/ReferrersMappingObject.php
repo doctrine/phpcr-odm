@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * A class that uses referrers
- * 
+ *
  * @PHPCRODM\Document(referenceable=true)
  */
 class ReferrersMappingObject
@@ -15,22 +15,22 @@ class ReferrersMappingObject
     public $id;
 
     /**
-     * @PHPCRODM\Referrers
+     * @PHPCRODM\MixedReferrers
      */
     public $allReferrers;
 
     /**
-     * @PHPCRODM\Referrers(filter="test_filter")
+     * @PHPCRODM\Referrers(mappedBy="test_filter")
      */
     public $filteredReferrers;
 
     /**
-     * @PHPCRODM\Referrers(referenceType="hard")
+     * @PHPCRODM\MixedReferrers(referenceType="hard")
      */
     public $hardReferrers;
 
     /**
-     * @PHPCRODM\Referrers(referenceType="weak")
+     * @PHPCRODM\MixedReferrers(referenceType="weak")
      */
     public $weakReferrers;
 }

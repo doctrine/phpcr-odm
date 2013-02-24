@@ -52,7 +52,7 @@ class Generic
 
     /**
      * @var ArrayCollection
-     * @PHPCRODM\Referrers
+     * @PHPCRODM\MixedReferrers
      */
     protected $referrers;
 

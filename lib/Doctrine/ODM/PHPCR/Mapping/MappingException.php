@@ -105,7 +105,7 @@ class MappingException extends \Exception
 
     public static function referrerWithoutMappedBy($document, $fieldName)
     {
-        return new self("The referrer field '$fieldName'. in .'$document'. is declared to cascade but no filter for the remote property is specified");
+        return new self("The referrer field '$fieldName' in '$document' is missing the required 'mappedBy' attribute. If you want all referrers, use the immutable MixedReferrers mapping");
     }
 
     public static function mappingNotFound($className, $fieldName)

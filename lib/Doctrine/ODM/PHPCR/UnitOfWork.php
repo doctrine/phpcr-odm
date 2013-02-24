@@ -394,7 +394,12 @@ class UnitOfWork
 
         foreach ($class->referrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['filter']);
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['mappedBy']);
+        }
+        foreach ($class->mixedReferrersMappings as $fieldName) {
+            $mapping = $class->mappings[$fieldName];
+            // this should be an immutable collection. can we do that in a sane way?
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType']);
         }
 
         if (! $overrideLocalValuesOid) {
@@ -1003,6 +1008,14 @@ class UnitOfWork
                 }
             }
         }
+        foreach ($class->mixedReferrersMappings as $fieldName) {
+            if ($actualData[$fieldName]
+                && $actualData[$fieldName] instanceof PersistentCollection
+                && $actualData[$fieldName]->isDirty()
+            ) {
+                throw new PHPCRException("The immutable mixed referrer collection in field $fieldName is dirty");
+            }
+        }
 
         if (!$isNew) {
             // collect assignment move operations
@@ -1419,7 +1432,19 @@ class UnitOfWork
                             $this->dm,
                             $managedCopy,
                             $mapping['referenceType'],
-                            $mapping['filter']
+                            $mapping['mappedBy']
+                        );
+                        $prop->setValue($managedCopy, $managedCol);
+                        $this->originalData[$managedOid][$fieldName] = $managedCol;
+                    }
+                    $this->cascadeMergeCollection($managedCol, $mapping);
+                } elseif ('mixedreferrers' === $mapping['type']) {
+                    $managedCol = $prop->getValue($managedCopy);
+                    if (!$managedCol) {
+                        $managedCol = new ReferrersCollection(
+                            $this->dm,
+                            $managedCopy,
+                            $mapping['referenceType']
                         );
                         $prop->setValue($managedCopy, $managedCol);
                         $this->originalData[$managedOid][$fieldName] = $managedCol;
@@ -1587,6 +1612,8 @@ class UnitOfWork
                 $this->doDetach($related, $visited);
             }
         }
+
+        // no cascade for mixed referrers
     }
 
     /**
@@ -1865,8 +1892,8 @@ class UnitOfWork
                         $node->setProperty($mapping['name'], $fieldValue, $type);
                     }
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE
-                    || $mapping['type'] === $class::MANY_TO_MANY
-) {
+                          || $mapping['type'] === $class::MANY_TO_MANY
+                    ) {
                     if (!$this->writeMetadata) {
                         continue;
                     }
@@ -1929,7 +1956,6 @@ class UnitOfWork
                     }
                 } elseif ('referrers' === $mapping['type']) {
                     if (isset($fieldValue)) {
-                        // TODO: should we look for all phpcr referrers with that property and also remove references to us?
 
                         /*
                          * each document in referrers field is supposed to
@@ -1942,22 +1968,35 @@ class UnitOfWork
                                 continue;
                             }
 
-                            if (! $node->isNodeType('mix:referenceable')) {
-                                throw new PHPCRException(sprintf('Document to be referenced through referrer annotation %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), $mapping['fieldName']));
-                            }
-
                             $referencingNode = $this->session->getNode($this->getDocumentId($fv));
                             $referencingMeta = $this->dm->getClassMetadata(get_class($fv));
-                            if (! $referencingMeta->hasAssociation($mapping['filter'])) {
-                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not defined. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['filter'], get_class($fv)));
+                            $referencingField = null;
+                            foreach ($referencingMeta->referenceMappings as $fieldName) {
+                                $field = $referencingMeta->getAssociation($fieldName);
+
+                                if ($field['name'] === $mapping['mappedBy']) {
+                                    $referencingField = $field;
+                                    break;
+                                }
                             }
-                            $referencingField = $referencingMeta->getAssociation($mapping['filter']);
+                            if (! $referencingField) {
+                                throw new PHPCRException(sprintf('Document %s set as a referrer of %s has no field mapped to the PHPCR property %s', $this->getDocumentId($fv), self::objToStr($document, $this->dm), $mapping['mappedBy']));
+                            }
                             $uuid = $node->getIdentifier();
 
                             $type = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
                             if ($referencingField['type'] === ClassMetadata::MANY_TO_ONE) {
+                                $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                                if ($ref !== null && $ref !== $document) {
+                                    throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
+                                }
+                                // update the referencing document field to point to this document
+                                $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
+                                // and make sure the reference is not deleted in this change because the field could be null
+                                unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                 $referencingNode->setProperty($referencingField['name'], $uuid, $type);
                             } elseif ($referencingField['type'] === ClassMetadata::MANY_TO_MANY) {
+                                // TODO: need to update referencing node too
                                 if ($referencingNode->hasProperty($referencingField['name'])) {
                                     if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
                                         $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
@@ -1966,7 +2005,7 @@ class UnitOfWork
                                     $referencingNode->setProperty($referencingField['name'], array($uuid), $type);
                                 }
                             } else {
-                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['filter'], get_class($fv)));
+                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['mappedBy'], get_class($fv)));
                             }
                         }
                     }
