@@ -481,7 +481,7 @@ class DocumentManager implements ObjectManager
      * @param string $statement the statement in the specified language
      * @param string $language  the query language
      *
-     * @return PHPCR\Query\QueryInterface
+     * @return \PHPCR\Query\QueryInterface
      */
     public function createPhpcrQuery($statement, $language)
     {
@@ -501,7 +501,7 @@ class DocumentManager implements ObjectManager
      * @param string $statement the statement in the specified language
      * @param string $language  the query language
      *
-     * @return \Doctrine\ODM\PHPCR\Query
+     * @return Query
      */
     public function createQuery($statement, $language)
     {
@@ -531,7 +531,7 @@ class DocumentManager implements ObjectManager
      * NOTE: The ODM QueryBuilder (@link createQueryBuilder) is prefered over
      *       the PHPCR QueryBuilder when working with the ODM.
      *
-     * @return PHPCR\Util\QOM\QueryBuilder
+     * @return \PHPCR\Util\QOM\QueryBuilder
      */
     public function createPhpcrQueryBuilder()
     {
@@ -543,9 +543,9 @@ class DocumentManager implements ObjectManager
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param PHPCR\Query\QueryInterface $query the query instance as
-     *      acquired through createPhpcrQuery()
-     * @param string $className document class
+     * @param QueryInterface $query the query instance as acquired through
+     *      createPhpcrQuery()
+     * @param string         $className document class
      *
      * @return array of document instances
      */
@@ -1103,7 +1103,7 @@ class DocumentManager implements ObjectManager
      * @return \PHPCR\NodeInterface
      *
      * @throws \InvalidArgumentException if the document is not an object
-     * @throws \PHPCR\PHPCRException     if the document is not managed
+     * @throws PHPCRException     if the document is not managed
      */
     public function getNodeForDocument($document)
     {
