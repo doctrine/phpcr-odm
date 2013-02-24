@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
@@ -1051,30 +1052,8 @@ class UnitOfWork
                     $originalNames = array_values($originalNames);
                     $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
                     if ($originalNames !== $childNames) {
-                        $reordering = array();
 
-                        $count = count($childNames);
-                        if ($count === 2) {
-                            // special handling for 2 children collections
-                            $reordering[$childNames[0]] = $childNames[1];
-                        } else {
-                            for ($i = $count - 2; $i >= 0; $i--) {
-                                $targetKey = array_search($childNames[$i], $originalNames);
-                                if ($targetKey !== $i) {
-                                    // child needs to be moved
-                                    $reordering[$childNames[$i]] = $childNames[$i + 1];
-                                    // update the original order to check if we have done all necessary steps
-                                    $value = $originalNames[$targetKey];
-                                    unset($originalNames[$targetKey]);
-                                    $part1 = array_slice($originalNames, 0, $i);
-                                    $part2 = array_slice($originalNames, $i);
-                                    $originalNames = array_merge($part1, array($value), $part2);
-                                    if ($originalNames === $childNames) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
 
                         if (empty($this->documentChangesets[$oid])) {
                             $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($reordering));
