@@ -788,11 +788,18 @@ class UnitOfWork
     }
 
     /**
-     * @param object $document
+     * Get the state of this document
      *
-     * @return int
+     * STATE_NEW:      the document is not persisted, but a valid mapped document
+     * STATE_MANAGED:  the document is tracked and will be updated on flush
+     * STATE_REMOVED:  the document is scheduled for removal
+     * STATE_DETACHED: there is a corresponding Node in storage, but this document is not bound to it
+     *
+     * @param object $document the document to get the state of
+     *
+     * @return int one of the STATE_* constants of this class
      */
-    private function getDocumentState($document)
+    public function getDocumentState($document)
     {
         $oid = spl_object_hash($document);
         if (!isset($this->documentState[$oid])) {
