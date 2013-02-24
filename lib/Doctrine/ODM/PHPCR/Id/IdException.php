@@ -4,46 +4,50 @@ namespace Doctrine\ODM\PHPCR\Id;
 
 class IdException extends \RuntimeException
 {
-    public static function noIdentificationParameters($document)
+    public static function noIdentificationParameters($document, $parent, $nodename)
     {
         $message = sprintf(
-            'Document of class "%s" has no identification metadata, you must either '.
-            'designate either  @NodeName and @ParentDocument @Id',
+            'Property "%s" mapped as ParentDocument and property "%s" mapped as NodeName '.
+                'may not be empty in document of class "%s"',
+            $parent,
+            $nodename,
             get_class($document)
         );
 
         return new self($message);
     }
 
-    public static function noIdNoParent($document, $name)
+    public static function noIdNoParent($document, $parent)
     {
         $message = sprintf(
-            'Cannot identify @ParentDocument variable for Document of class "%s"'.
-            'with name "%s"',
-            get_class($document),
-            $name
-        );
-
-        return new self($message);
-    }
-
-    public static function noIdNoName($document)
-    {
-        $message = sprintf(
-            'Cannot identify @NodeName variable for Document of class "%s"',
+            'Property "%s" mapped as ParentDocument may not be empty in document of class "%s"',
+            $parent,
             get_class($document)
         );
 
         return new self($message);
     }
 
-    public static function parentIdCouldNotBeDetermined($document, $name)
+    public static function noIdNoName($document, $nodename)
     {
         $message = sprintf(
-            'Parent ID for document of class "%s" with name "%s" could not be determined. '.
-            'Make sure to persist the parent document before persisting this document.',
+            'NodeName property "%s" may not be empty in document of class "%s"',
+            $nodename,
+            get_class($document)
+        );
+
+        return new self($message);
+    }
+
+    public static function parentIdCouldNotBeDetermined($document, $parent, $parentObject)
+    {
+        $parentType = is_object($parentObject) ? get_class($parentObject) : $parentObject;
+        $message = sprintf(
+            'ParentDocument property "%s" of document of class "%s" contains an ' .
+            'object for which no ID could be found',
+            $parent,
             get_class($document),
-            $name
+            $parentType
         );
 
         return new self($message);

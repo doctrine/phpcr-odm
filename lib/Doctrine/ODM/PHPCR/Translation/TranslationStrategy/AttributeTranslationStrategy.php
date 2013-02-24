@@ -46,7 +46,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             $propName = $this->getTranslatedPropertyName($locale, $field);
             $mapping = $metadata->mappings[$field];
             if ($mapping['multivalue'] && $propValue) {
-                $propValue = (array)$propValue;
+                $propValue = (array) $propValue;
                 if (isset($mapping['assoc'])) {
                     $node->setProperty($this->getTranslatedPropertyName($locale, $mapping['assoc']), array_keys($propValue));
                     $propValue = array_values($propValue);
@@ -86,7 +86,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
                     $keysPropName = $this->getTranslatedPropertyName($locale, $mapping['assoc']);
                     if ($node->hasProperty($keysPropName)) {
-                        $value = array_combine((array)$node->getPropertyValue($keysPropName), (array)$value);
+                        $value = array_combine((array) $node->getPropertyValue($keysPropName), (array) $value);
                     }
                 }
             } else {
@@ -95,6 +95,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             }
             $metadata->reflFields[$field]->setValue($document, $value);
         }
+
         return true;
     }
 
@@ -143,6 +144,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 }
             }
         }
+
         return $locales;
     }
 }

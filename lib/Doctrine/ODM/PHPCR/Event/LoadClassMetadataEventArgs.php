@@ -17,52 +17,53 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR\Tools\Console\Helper;
+namespace Doctrine\ODM\PHPCR\Event;
 
-use Symfony\Component\Console\Helper\Helper;
+use Doctrine\Common\EventArgs;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use PHPCR\SessionInterface;
 
-/**
- * Helper class to make DocumentManager available to console command
- */
-class DocumentManagerHelper extends Helper
+class LoadClassMetadataEventArgs extends EventArgs
 {
-    protected $session;
-
     /**
-     * @var DocumentManager
+     * @var \Doctrine\PHPCR\ODM\Mapping\ClassMetadata
      */
-    protected $dm;
+    private $classMetadata;
 
     /**
-     * Constructor
+     * @var \Doctrine\PHPCR\ODM\DocumentManager
+     */
+    private $dm;
+
+    /**
+     * Constructor.
      *
-     * @param SessionInterface $session
-     * @param DocumentManager  $dm
+     * @param \Doctrine\PHPCR\ODM\Mapping\ClassMetadataInfo $classMetadata
+     * @param \Doctrine\PHPCR\ODM\DocumentManager $dm
      */
-    public function __construct(SessionInterface $session = null, DocumentManager $dm = null)
+    public function __construct(ClassMetadata $classMetadata, DocumentManager $dm)
     {
-        if (!$session && $dm) {
-            $session = $dm->getPhpcrSession();
-        }
-
-        $this->session = $session;
-        $this->dm = $dm;
+        $this->classMetadata = $classMetadata;
+        $this->dm            = $dm;
     }
 
+    /**
+     * Retrieve associated ClassMetadata.
+     *
+     * @return \Doctrine\PHPCR\ODM\Mapping\ClassMetadataInfo
+     */
+    public function getClassMetadata()
+    {
+        return $this->classMetadata;
+    }
+
+    /**
+     * Retrieve associated DocumentManager.
+     *
+     * @return \Doctrine\PHPCR\ODM\DocumentManager
+     */
     public function getDocumentManager()
     {
         return $this->dm;
-    }
-
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    public function getName()
-    {
-        return 'phpcr';
     }
 }

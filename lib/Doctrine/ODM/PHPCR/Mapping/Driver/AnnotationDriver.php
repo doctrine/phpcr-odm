@@ -74,7 +74,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         ksort($documentAnnots);
 
         $documentAnnot = reset($documentAnnots);
-        
+
         if ($documentAnnot instanceof ODM\MappedSuperclass) {
             $metadata->isMappedSuperclass = true;
         }
@@ -212,6 +212,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             }
             $cascade |= constant($constantName);
         }
+
         return $cascade;
     }
 }

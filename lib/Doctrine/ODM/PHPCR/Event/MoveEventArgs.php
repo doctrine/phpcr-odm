@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,8 +20,14 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-class LifecycleEventArgs extends \Doctrine\Common\EventArgs
+/**
+ * MoveEventArgs
+ */
+class MoveEventArgs extends \Doctrine\Common\EventArgs
 {
+    /**
+     * @var object
+     */
     private $document;
 
     /**
@@ -28,13 +35,35 @@ class LifecycleEventArgs extends \Doctrine\Common\EventArgs
      */
     private $dm;
 
-    public function __construct($document, $dm)
+    /**
+     * @var string
+     */
+    private $sourcePath;
+
+    /**
+     * @var string
+     */
+    private $targetPath;
+
+    /**
+     * Constructor
+     *
+     * @param object                              $document   The object
+     * @param \Doctrine\ODM\PHPCR\DocumentManager $dm         The document manager
+     * @param string                              $sourcePath The source path
+     * @param string                              $targetPath The target path
+     */
+    public function __construct($document, $dm, $sourcePath, $targetPath)
     {
         $this->document = $document;
         $this->dm = $dm;
+        $this->sourcePath = $sourcePath;
+        $this->targetPath = $targetPath;
     }
 
     /**
+     * Get the document
+     *
      * @return object
      */
     public function getDocument()
@@ -43,10 +72,32 @@ class LifecycleEventArgs extends \Doctrine\Common\EventArgs
     }
 
     /**
+     * Get the document manager
+     *
      * @return \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
         return $this->dm;
+    }
+
+    /**
+     * Get the source path
+     *
+     * @return string
+     */
+    public function getSourcePath()
+    {
+        return $this->sourcePath;
+    }
+
+    /**
+     * Get the target path
+     *
+     * @return string
+     */
+    public function getTargetPath()
+    {
+        return $this->targetPath;
     }
 }

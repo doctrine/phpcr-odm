@@ -128,7 +128,7 @@ abstract class AbstractFile
     {
         return $this->createdBy;
     }
-    
+
     /**
      * String representation
      *

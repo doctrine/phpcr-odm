@@ -17,52 +17,35 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR\Tools\Console\Helper;
+namespace Doctrine\ODM\PHPCR\Event;
 
-use Symfony\Component\Console\Helper\Helper;
+use Doctrine\Common\EventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use PHPCR\SessionInterface;
 
-/**
- * Helper class to make DocumentManager available to console command
- */
-class DocumentManagerHelper extends Helper
+class PostFlushEventArgs extends EventArgs
 {
-    protected $session;
-
     /**
-     * @var DocumentManager
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
-    protected $dm;
+    private $dm;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param SessionInterface $session
-     * @param DocumentManager  $dm
+     * @param \Doctrine\ODM\PHPCR\DocumentManager $em
      */
-    public function __construct(SessionInterface $session = null, DocumentManager $dm = null)
+    public function __construct(DocumentManager $dm)
     {
-        if (!$session && $dm) {
-            $session = $dm->getPhpcrSession();
-        }
-
-        $this->session = $session;
         $this->dm = $dm;
     }
 
+    /**
+     * Retrieve associated DocumentManager.
+     *
+     * @return \Doctrine\ODM\PHPCR\DocumentManager
+     */
     public function getDocumentManager()
     {
         return $this->dm;
-    }
-
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    public function getName()
-    {
-        return 'phpcr';
     }
 }
