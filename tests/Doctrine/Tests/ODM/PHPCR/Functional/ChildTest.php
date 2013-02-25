@@ -225,7 +225,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent->child);
     }
 
-    /* this fails as the newChild is not persisted */
     public function testChildReplace()
     {
         $parent = new ChildTestObj();
@@ -244,9 +243,21 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $newChild->name = 'new name';
         $parent->child = $newChild;
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertEquals('new name', $parent->child->name);
+
+        $newerChild = new ChildChildTestObj();
+        $newerChild->name = 'newer name';
+        $parent->children['test2'] = $newerChild;
 
         $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertEquals('newer name', $parent->children['test2']->name);
     }
 
     public function testModificationAfterPersist()
@@ -331,6 +342,8 @@ class ChildTestObj
     public $name;
     /** @PHPCRODM\Child(name="test", cascade="persist") */
     public $child;
+    /** @PHPCRODM\Children(cascade="persist") */
+    public $children;
 }
 
 /**
