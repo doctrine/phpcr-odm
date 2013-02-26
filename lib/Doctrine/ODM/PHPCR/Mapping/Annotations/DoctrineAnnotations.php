@@ -292,7 +292,7 @@ final class Children
  * @Annotation
  * @Target("PROPERTY")
  */
-class MixedReferrers
+final class MixedReferrers
 {
     /** @var string */
     public $referenceType;
@@ -302,10 +302,12 @@ class MixedReferrers
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Referrers extends MixedReferrers
+final class Referrers
 {
     /** @var string */
-    public $mappedBy;
+    public $referencedBy;
+    /** @var string */
+    public $referringDocument;
     /** @var array */
     public $cascade = array();
 }

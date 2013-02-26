@@ -103,9 +103,14 @@ class MappingException extends \Exception
         return new self("The 'assoc' attributes may not overlap with assoc property '$overlappingAssoc' for property '$fieldName' in '$document'.");
     }
 
-    public static function referrerWithoutMappedBy($document, $fieldName)
+    public static function referrerWithoutReferencedBy($document, $fieldName)
     {
         return new self("The referrer field '$fieldName' in '$document' is missing the required 'mappedBy' attribute. If you want all referrers, use the immutable MixedReferrers mapping");
+    }
+
+    public static function referrerWithoutReferringDocument($document, $fieldName)
+    {
+        return new self("The referrer field '$fieldName' in '$document' is missing the required 'referringDocument' attribute. If you want all referrers, use the immutable MixedReferrers mapping");
     }
 
     public static function mappingNotFound($className, $fieldName)

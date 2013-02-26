@@ -32,7 +32,7 @@ class CmsUser
     public $children;
     /** @PHPCRODM\Child(name="assistant", cascade="persist") */
     public $child;
-    /** @PHPCRODM\Referrers(mappedBy="user", cascade="persist") */
+    /** @PHPCRODM\Referrers(referencedBy="user", referrerDocument="Doctrine\Tests\Models\CMS\CmsArticle" cascade="persist") */
     public $articlesReferrers;
 
     public function __construct()

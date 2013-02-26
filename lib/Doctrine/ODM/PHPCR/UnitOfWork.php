@@ -1968,23 +1968,16 @@ class UnitOfWork
                                 continue;
                             }
 
+                            if (! $fv instanceof $mapping['referencedBy']) {
+                                throw new PHPCRException(sprintf("%s is not an instance of %s for document %s field %s", self::objToStr($fv, $this->dm), $mapping['referencedBy'], self::objToStr($document, $this->dm), $mapping['fieldName']));
+                            }
+
                             $referencingNode = $this->session->getNode($this->getDocumentId($fv));
-                            $referencingMeta = $this->dm->getClassMetadata(get_class($fv));
-                            $referencingField = null;
-                            foreach ($referencingMeta->referenceMappings as $fieldName) {
-                                $field = $referencingMeta->getAssociation($fieldName);
+                            $referencingMeta = $this->dm->getClassMetadata($mapping['referencedBy']);
+                            $referencingField = $referencingMeta->getAssociation($mapping['referencedByPhpcr']);
 
-                                if ($field['name'] === $mapping['mappedBy']) {
-                                    $referencingField = $field;
-                                    break;
-                                }
-                            }
-                            if (! $referencingField) {
-                                throw new PHPCRException(sprintf('Document %s set as a referrer of %s has no field mapped to the PHPCR property %s', $this->getDocumentId($fv), self::objToStr($document, $this->dm), $mapping['mappedBy']));
-                            }
                             $uuid = $node->getIdentifier();
-
-                            $type = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
+                            $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
                             if ($referencingField['type'] === ClassMetadata::MANY_TO_ONE) {
                                 $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
                                 if ($ref !== null && $ref !== $document) {
@@ -1994,18 +1987,30 @@ class UnitOfWork
                                 $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
                                 // and make sure the reference is not deleted in this change because the field could be null
                                 unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
-                                $referencingNode->setProperty($referencingField['name'], $uuid, $type);
+                                // store the change in PHPCR
+                                $referencingNode->setProperty($referencingField['name'], $uuid, $strategy);
                             } elseif ($referencingField['type'] === ClassMetadata::MANY_TO_MANY) {
-                                // TODO: need to update referencing node too
                                 if ($referencingNode->hasProperty($referencingField['name'])) {
                                     if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
+                                        // update the referencing document
+                                        $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                                        $collection->add($document);
+                                        // and make sure the reference is not deleted in this change because the field could be null
+                                        //? unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                        // store the change in PHPCR
                                         $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
                                     }
                                 } else {
-                                    $referencingNode->setProperty($referencingField['name'], array($uuid), $type);
+                                    // update the referencing document
+                                    $node = $this->session->getNode($this->getDocumentId($document));
+                                    $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], new ReferenceManyCollection($this->dm, array($node), $class->name));
+                                    // and make sure the reference is not deleted in this change because the field could be null
+                                    //? unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                    // store the change in PHPCR
+                                    $referencingNode->setProperty($referencingField['name'], array($uuid), $strategy);
                                 }
                             } else {
-                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['mappedBy'], get_class($fv)));
+                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
                             }
                         }
                     }

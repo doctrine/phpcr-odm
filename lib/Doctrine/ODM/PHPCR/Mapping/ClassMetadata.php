@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use ReflectionProperty;
+use PHPCR\PropertyType;
 use InvalidArgumentException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
@@ -306,14 +307,21 @@ class ClassMetadata implements ClassMetadataInterface
     private $inheritedFields = array();
 
     /**
+     * @var ClassMetadataFactory
+     */
+    private $metadataFactory;
+
+    /**
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
      * @param string $className The name of the document class the new instance is used for.
+     * @param ClassMetadataFactory $metadataFactory to get metadata of other documents when used in referrer mappings
      */
-    public function __construct($className)
+    public function __construct($className, ClassMetadataFactory $metadataFactory)
     {
         $this->name = $className;
+        $this->metadataFactory = $metadataFactory;
     }
 
     /**
@@ -623,12 +631,11 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
     {
-        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+        if (empty($mapping['referencedBy'])) {
+            throw MappingException::referrerWithoutReferencedBy($this->name, $mapping['fieldName']);
         }
-
-        if (empty($mapping['mappedBy'])) {
-            throw MappingException::referrerWithoutMappedBy($this->name, $mapping['fieldName']);
+        if (empty($mapping['referringDocument'])) {
+            throw MappingException::referrerWithoutReferringDocument($this->name, $mapping['fieldName']);
         }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
@@ -808,6 +815,19 @@ class ClassMetadata implements ClassMetadataInterface
             if (!$this->referenceable) {
                 throw new MappingException('You can not have referrers mapped on document "'.$this->name.'" as the document is not referenceable');
             }
+
+            foreach ($this->referrersMappings as $mapping) {
+                /** @var $referringDocument ClassMetadata */
+                $referringDocument = $this->metadataFactory->getMetadataFor($mapping['referringDocument']);
+                if (! $referringDocument->hasAssociation($mapping['referencedBy'])) {
+                    throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no field "%s"', $this->name, $mapping['fieldName'], $mapping['referringDocument'], $mapping['referencedBy']));
+                }
+                $referencingField = $referringDocument->getAssociation($mapping['referencedBy']);
+                if (ClassMetadata::MANY_TO_MANY !== $referencingField['type'] && ClassMetadata::MANY_TO_ONE !== $referencingField['type']) {
+                    throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": Field "%s" of document "%s" is not a reference field', $this->name, $mapping['fieldName'], $mapping['referencedBy'], $mapping['referringDocument']));
+                }
+            }
+
         }
     }
 

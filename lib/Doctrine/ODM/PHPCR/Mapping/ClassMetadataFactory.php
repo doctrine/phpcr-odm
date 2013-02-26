@@ -109,7 +109,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function newClassMetadataInstance($className)
     {
-        return new ClassMetadata($className);
+        return new ClassMetadata($className, $this);
     }
 
     /**

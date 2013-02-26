@@ -181,14 +181,17 @@ class XmlDriver extends FileDriver
         if (isset($xmlRoot->referrers)) {
             foreach ($xmlRoot->referrers as $referrers) {
                 $attributes = $referrers->attributes();
-                if (! isset($attributes['mapped-by'])) {
-                    throw new MappingException("$className is missing the mapped-by attribute for the referrer field " . $attributes->fieldName);
+                if (! isset($attributes['referenced-by'])) {
+                    throw new MappingException("$className is missing the referenced-by attribute for the referrer field " . $attributes->fieldName);
+                }
+                if (! isset($attributes['referring-document'])) {
+                    throw new MappingException("$className is missing the referring-document attribute for the referrer field " . $attributes->fieldName);
                 }
                 $mapping = array(
                     'fieldName' => (string) $attributes->fieldName,
                     'cascade' => (isset($referrers->cascade)) ? $this->getCascadeMode($referrers->cascade) : 0,
-                    'mappedBy' => (string) $attributes->{'mapped-by'},
-                    'referenceType' => isset($attributes['reference-type']) ? (string) $attributes->{'reference-type'} : null,
+                    'referencedBy' => (string) $attributes->{'referenced-by'},
+                    'referringDocument' => (string) $attributes->{'referring-document'},
                 );
                 $class->mapReferrers($mapping);
             }

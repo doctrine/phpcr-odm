@@ -51,6 +51,7 @@ class YamlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
+        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         try {
             $element = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -196,13 +197,16 @@ class YamlDriver extends FileDriver
         }
         if (isset($element['referrers'])) {
             foreach ($element['referrers'] as $name => $attributes) {
-                if (! isset($attributes['mappedBy'])) {
-                    throw new MappingException("$className is missing the mappedBy attribute for the referrer field  $name");
+                if (! isset($attributes['referencedBy'])) {
+                    throw new MappingException("$className is missing the referencedBy attribute for the referrer field $name");
+                }
+                if (! isset($attributes['referringDocument'])) {
+                    throw new MappingException("$className is missing the referringDocument attribute for the referrer field $name");
                 }
                 $mapping = array(
                     'fieldName' => $name,
-                    'mappedBy' => $attributes['mappedBy'],
-                    'referenceType' => isset($attributes['referenceType']) ? $attributes['referenceType'] : null,
+                    'referencedBy' => $attributes['referencedBy'],
+                    'referringDocument' => $attributes['referringDocument'],
                     'cascade' => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
                 );
                 $class->mapReferrers($mapping);
