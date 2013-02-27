@@ -308,7 +308,7 @@ class DocumentManager implements ObjectManager
 
         $hints = array('fallback' => true);
 
-        return $this->unitOfWork->createDocument($className, $node, $hints);
+        return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
@@ -353,7 +353,7 @@ class DocumentManager implements ObjectManager
                     // ignore on class mismatch
                 }
             } elseif (isset($nodes[$id])) {
-                $documents[$id] = $this->unitOfWork->createDocument($className, $nodes[$id]);
+                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id]);
             }
         }
 
@@ -402,7 +402,7 @@ class DocumentManager implements ObjectManager
 
         $hints = array('locale' => $locale, 'fallback' => $fallback);
 
-        return $this->unitOfWork->createDocument($className, $node, $hints);
+        return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
@@ -481,7 +481,7 @@ class DocumentManager implements ObjectManager
      * @param string $statement the statement in the specified language
      * @param string $language  the query language
      *
-     * @return PHPCR\Query\QueryInterface
+     * @return \PHPCR\Query\QueryInterface
      */
     public function createPhpcrQuery($statement, $language)
     {
@@ -501,7 +501,7 @@ class DocumentManager implements ObjectManager
      * @param string $statement the statement in the specified language
      * @param string $language  the query language
      *
-     * @return \Doctrine\ODM\PHPCR\Query
+     * @return Query
      */
     public function createQuery($statement, $language)
     {
@@ -531,7 +531,7 @@ class DocumentManager implements ObjectManager
      * NOTE: The ODM QueryBuilder (@link createQueryBuilder) is prefered over
      *       the PHPCR QueryBuilder when working with the ODM.
      *
-     * @return PHPCR\Util\QOM\QueryBuilder
+     * @return \PHPCR\Util\QOM\QueryBuilder
      */
     public function createPhpcrQueryBuilder()
     {
@@ -543,9 +543,9 @@ class DocumentManager implements ObjectManager
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param PHPCR\Query\QueryInterface $query the query instance as
-     *      acquired through createPhpcrQuery()
-     * @param string $className document class
+     * @param QueryInterface $query the query instance as acquired through
+     *      createPhpcrQuery()
+     * @param string         $className document class
      *
      * @return array of document instances
      */
@@ -803,11 +803,11 @@ class DocumentManager implements ObjectManager
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
      * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
-     * @param boolean      $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -815,7 +815,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $ignoreUntranslated);
+        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $locale);
     }
 
     /**
@@ -826,10 +826,11 @@ class DocumentManager implements ObjectManager
      *
      * @param object       $document document instance which referrers should be loaded
      * @param string|array $name     optional name to match on referrers names
+     * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of referrer documents
      */
-    public function getReferrers($document, $type = null, $name = null)
+    public function getReferrers($document, $type = null, $name = null, $locale = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -837,7 +838,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getReferrers($document, $type, $name);
+        return $this->unitOfWork->getReferrers($document, $type, $name, $locale);
     }
 
     /**
@@ -1103,7 +1104,7 @@ class DocumentManager implements ObjectManager
      * @return \PHPCR\NodeInterface
      *
      * @throws \InvalidArgumentException if the document is not an object
-     * @throws \PHPCR\PHPCRException     if the document is not managed
+     * @throws PHPCRException     if the document is not managed
      */
     public function getNodeForDocument($document)
     {

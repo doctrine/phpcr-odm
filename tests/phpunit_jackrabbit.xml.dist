@@ -1,4 +1,4 @@
-<phpunit bootstrap="bootstrap.php">
+<phpunit bootstrap="bootstrap.php" backupGlobals="false" cacheTokens="true">
     <php>
         <var name="DOCTRINE_PHPCR_FACTORY" value="\Jackalope\RepositoryFactoryJackrabbit" />
         <var name="jackalope.jackrabbit_uri" value="http://localhost:8080/server/" />
