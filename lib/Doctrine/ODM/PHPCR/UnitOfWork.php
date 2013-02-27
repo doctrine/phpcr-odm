@@ -852,7 +852,7 @@ class UnitOfWork
     /**
      * Detects the changes that need to be persisted
      */
-    private function computeChangeSets()
+    public function computeChangeSets()
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
@@ -907,10 +907,12 @@ class UnitOfWork
     }
 
     /**
+     * Computes changeset for a given document.
+     *
      * @param ClassMetadata $class
      * @param object        $document
      */
-    private function computeChangeSet(ClassMetadata $class, $document)
+    public function computeChangeSet(ClassMetadata $class, $document)
     {
         if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
