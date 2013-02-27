@@ -60,7 +60,7 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testLoadMissingLocaleAnnotation()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Translation\NoLocalePropertyArticle');
+        $factory->getMetadataFor('Doctrine\Tests\Models\Translation\NoLocalePropertyArticle');
     }
 
     /**

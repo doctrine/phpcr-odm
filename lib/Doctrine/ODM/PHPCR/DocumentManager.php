@@ -803,11 +803,11 @@ class DocumentManager implements ObjectManager
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
      * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
-     * @param boolean      $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -815,7 +815,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $ignoreUntranslated);
+        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $locale);
     }
 
     /**
@@ -826,10 +826,11 @@ class DocumentManager implements ObjectManager
      *
      * @param object       $document document instance which referrers should be loaded
      * @param string|array $name     optional name to match on referrers names
+     * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of referrer documents
      */
-    public function getReferrers($document, $type = null, $name = null)
+    public function getReferrers($document, $type = null, $name = null, $locale = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -837,7 +838,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getReferrers($document, $type, $name);
+        return $this->unitOfWork->getReferrers($document, $type, $name, $locale);
     }
 
     /**
