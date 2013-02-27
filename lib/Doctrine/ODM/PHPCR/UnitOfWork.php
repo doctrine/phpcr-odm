@@ -1968,13 +1968,13 @@ class UnitOfWork
                                 continue;
                             }
 
-                            if (! $fv instanceof $mapping['referencedBy']) {
+                            if (! $fv instanceof $mapping['referrerDocument']) {
                                 throw new PHPCRException(sprintf("%s is not an instance of %s for document %s field %s", self::objToStr($fv, $this->dm), $mapping['referencedBy'], self::objToStr($document, $this->dm), $mapping['fieldName']));
                             }
 
                             $referencingNode = $this->session->getNode($this->getDocumentId($fv));
-                            $referencingMeta = $this->dm->getClassMetadata($mapping['referencedBy']);
-                            $referencingField = $referencingMeta->getAssociation($mapping['referencedByPhpcr']);
+                            $referencingMeta = $this->dm->getClassMetadata($mapping['referrerDocument']);
+                            $referencingField = $referencingMeta->getAssociation($mapping['referencedBy']);
 
                             $uuid = $node->getIdentifier();
                             $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
@@ -1990,6 +1990,8 @@ class UnitOfWork
                                 // store the change in PHPCR
                                 $referencingNode->setProperty($referencingField['name'], $uuid, $strategy);
                             } elseif ($referencingField['type'] === ClassMetadata::MANY_TO_MANY) {
+
+if reference and referrer collections changed, this is not valid
                                 if ($referencingNode->hasProperty($referencingField['name'])) {
                                     if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
                                         // update the referencing document
