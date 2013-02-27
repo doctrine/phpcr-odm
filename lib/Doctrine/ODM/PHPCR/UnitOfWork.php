@@ -838,7 +838,7 @@ class UnitOfWork
      *
      * @param object $document
      */
-    private function computeSingleDocumentChangeSet($document)
+    public function computeSingleDocumentChangeSet($document)
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
@@ -865,7 +865,7 @@ class UnitOfWork
     /**
      * Detects the changes that need to be persisted
      */
-    private function computeChangeSets()
+    public function computeChangeSets()
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
@@ -920,10 +920,12 @@ class UnitOfWork
     }
 
     /**
+     * Computes changeset for a given document.
+     *
      * @param ClassMetadata $class
      * @param object        $document
      */
-    private function computeChangeSet(ClassMetadata $class, $document)
+    public function computeChangeSet(ClassMetadata $class, $document)
     {
         if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
