@@ -623,6 +623,10 @@ class ClassMetadata implements ClassMetadataInterface
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
         }
+        if ($mapping['cascade'] && empty($mapping['filter'])) {
+            throw MappingException::referrerWithoutMappedBy($this->name, $mapping['fieldName']);
+        }
+
         $mapping['type'] = 'referrers';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->referrersMappings[] = $mapping['fieldName'];
@@ -932,7 +936,9 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @return array the association mapping with the field of this name
+     *
+     * @throws MappingException if the class has no mapping field with this name
      */
     public function getAssociation($fieldName)
     {

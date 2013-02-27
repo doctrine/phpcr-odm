@@ -103,6 +103,11 @@ class MappingException extends \Exception
         return new self("The 'assoc' attributes may not overlap with assoc property '$overlappingAssoc' for property '$fieldName' in '$document'.");
     }
 
+    public static function referrerWithoutMappedBy($document, $fieldName)
+    {
+        return new self("The referrer field '$fieldName'. in .'$document'. is declared to cascade but no filter for the remote property is specified");
+    }
+
     public static function mappingNotFound($className, $fieldName)
     {
         return new self("No mapping found for field '$fieldName' in class '$className'.");

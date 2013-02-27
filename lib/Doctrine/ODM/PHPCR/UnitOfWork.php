@@ -1788,7 +1788,7 @@ class UnitOfWork
                     }
 
                     $node->setProperty($mapping['name'], $fieldValue, $type);
-                } elseif (in_array($fieldName, $class->referenceMappings)) {
+                } elseif (in_array($fieldName, $class->referenceMappings) || in_array($fieldName, $class->referrersMappings)) {
                     $this->scheduledAssociationUpdates[$oid] = $document;
 
                     //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates)
@@ -1924,6 +1924,49 @@ class UnitOfWork
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
                                 }
                                 $node->setProperty($fieldName, $associatedNode->getIdentifier(), $strategy);
+                            }
+                        }
+                    }
+                } elseif ('referrers' === $mapping['type']) {
+                    if (isset($fieldValue)) {
+                        // TODO: should we look for all phpcr referrers with that property and also remove references to us?
+
+                        /*
+                         * each document in referrers field is supposed to
+                         * reference this document, so we have to update its
+                         * referencing property to contain the uuid of this
+                         * document
+                         */
+                        foreach ($fieldValue as $fv) {
+                            if ($fv === null) {
+                                continue;
+                            }
+
+                            if (! $node->isNodeType('mix:referenceable')) {
+                                throw new PHPCRException(sprintf('Document to be referenced through referrer annotation %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), $mapping['fieldName']));
+                            }
+
+                            $referencingNode = $this->session->getNode($this->getDocumentId($fv));
+                            $referencingMeta = $this->dm->getClassMetadata(get_class($fv));
+                            if (! $referencingMeta->hasAssociation($mapping['filter'])) {
+                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not defined. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['filter'], get_class($fv)));
+                            }
+                            $referencingField = $referencingMeta->getAssociation($mapping['filter']);
+                            $uuid = $node->getIdentifier();
+
+                            $type = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
+                            if ($referencingField['type'] === ClassMetadata::MANY_TO_ONE) {
+                                $referencingNode->setProperty($referencingField['name'], $uuid, $type);
+                            } elseif ($referencingField['type'] === ClassMetadata::MANY_TO_MANY) {
+                                if ($referencingNode->hasProperty($referencingField['name'])) {
+                                    if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
+                                        $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
+                                    }
+                                } else {
+                                    $referencingNode->setProperty($referencingField['name'], array($uuid), $type);
+                                }
+                            } else {
+                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['filter'], get_class($fv)));
                             }
                         }
                     }
