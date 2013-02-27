@@ -914,7 +914,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getField($fieldName)
     {
-        if ($this->hasField($fieldName)) {
+        if (!$this->hasField($fieldName)) {
             throw MappingException::fieldNotFound($this->name, $fieldName);
         }
 
