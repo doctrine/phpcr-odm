@@ -825,7 +825,7 @@ class UnitOfWork
      *
      * @param object $document
      */
-    private function computeSingleDocumentChangeSet($document)
+    public function computeSingleDocumentChangeSet($document)
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
