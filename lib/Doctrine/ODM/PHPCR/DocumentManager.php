@@ -342,6 +342,8 @@ class DocumentManager implements ObjectManager
         }
 
         $nodes = $this->session->getNodes($ids);
+        
+        $hints = array('fallback' => true);
 
         foreach ($ids as $id) {
             $document = $this->unitOfWork->getDocumentById($id);
@@ -353,7 +355,7 @@ class DocumentManager implements ObjectManager
                     // ignore on class mismatch
                 }
             } elseif (isset($nodes[$id])) {
-                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id]);
+                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
             }
         }
 
