@@ -5,6 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
     Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\RepositoryInterface;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -223,78 +224,121 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
     }
 
+    /**
+     * @depends testModifyChildren
+     */
     public function testReorderChildren()
     {
-        $this->testModifyChildren();
-
-        try {
-            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-            $this->assertCount(2, $parent->allChildren);
-
-            $data = array(
-                'child-g' => $parent->allChildren->last(),
-                'child-f' => $parent->allChildren->first(),
-            );
-
-            $parent->allChildren = new ArrayCollection($data);
-
-            $this->dm->flush();
-            $this->dm->clear();
-
-            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-            $this->assertCount(count($data), $parent->allChildren);
-            $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
-
-            $child1 = new ChildrenTestObj();
-            $child1->name = 'Child H';
-
-            $child2 = new ChildrenTestObj();
-            $child2->name = 'Child I';
-
-            $child3 = new ChildrenTestObj();
-            $child3->name = 'Child J';
-
-            $data = array(
-                'child-i' => $child2,
-                'child-h' => $child1,
-                'child-f' => $parent->allChildren->last(),
-                'child-g' => $parent->allChildren->first(),
-                'child-j' => $child3
-            );
-
-            $parent->allChildren = new ArrayCollection($data);
-
-            $this->dm->flush();
-            $this->dm->clear();
-
-            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-            $this->assertCount(count($data), $parent->allChildren);
-            $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
-
-            $last = $parent->allChildren->last();
-            $parent->allChildren->remove($parent->allChildren->key());
-            $secondlast = $parent->allChildren->last();
-            $parent->allChildren->remove($parent->allChildren->key());
-            $parent->allChildren->add($last);
-            $parent->allChildren->add($secondlast);
-
-            $this->dm->flush();
-            $this->dm->clear();
-
-            $keys = array(
-                'child-i',
-                'child-h',
-                'child-f',
-                'child-j',
-                'child-g',
-            );
-
-            $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-            $this->assertCount(count($keys), $parent->allChildren);
-            $this->assertEquals($keys, $parent->allChildren->getKeys());
-        } catch (UnsupportedRepositoryOperationException $e) {
+        if (! $this->dm
+            ->getPhpcrSession()
+            ->getRepository()
+            ->getDescriptor(RepositoryInterface::NODE_TYPE_MANAGEMENT_ORDERABLE_CHILD_NODES_SUPPORTED)
+        ) {
             $this->markTestSkipped('Reordering of children not supported');
         }
+
+        $this->testModifyChildren();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(2, $parent->allChildren);
+
+        $data = array(
+            'child-g' => $parent->allChildren->last(),
+            'child-f' => $parent->allChildren->first(),
+        );
+
+        $parent->allChildren = new ArrayCollection($data);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(count($data), $parent->allChildren);
+        $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
+
+        $child1 = new ChildrenTestObj();
+        $child1->name = 'Child H';
+
+        $child2 = new ChildrenTestObj();
+        $child2->name = 'Child I';
+
+        $child3 = new ChildrenTestObj();
+        $child3->name = 'Child J';
+
+        $data = array(
+            'child-i' => $child2,
+            'child-h' => $child1,
+            'child-f' => $parent->allChildren->last(),
+            'child-g' => $parent->allChildren->first(),
+            'child-j' => $child3
+        );
+
+        $parent->allChildren = new ArrayCollection($data);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(count($data), $parent->allChildren);
+        $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
+
+        $last = $parent->allChildren->last();
+        $parent->allChildren->remove($parent->allChildren->key());
+        $secondlast = $parent->allChildren->last();
+        $parent->allChildren->remove($parent->allChildren->key());
+        $parent->allChildren->add($last);
+        $parent->allChildren->add($secondlast);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $keys = array(
+            'child-i',
+            'child-h',
+            'child-f',
+            'child-j',
+            'child-g',
+        );
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(count($keys), $parent->allChildren);
+        $this->assertEquals($keys, $parent->allChildren->getKeys());
+
+    }
+
+    public function testReorderChildrenLast()
+    {
+        if (! $this->dm
+            ->getPhpcrSession()
+            ->getRepository()
+            ->getDescriptor(RepositoryInterface::NODE_TYPE_MANAGEMENT_ORDERABLE_CHILD_NODES_SUPPORTED)
+        ) {
+            $this->markTestSkipped('Reordering of children not supported');
+        }
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(4, $parent->allChildren);
+
+        /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
+        $childrenCollection = $parent->allChildren;
+        $children = $childrenCollection->toArray();
+
+        $childrenCollection->clear();
+
+        $expectedOrder = array('child-a', 'child-d', 'child-c', 'child-b');
+
+        foreach ($expectedOrder as $name) {
+            $childrenCollection->set($name, $children[$name]);
+        }
+
+        $this->assertEquals($expectedOrder, $parent->allChildren->getKeys());
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(4, $parent->allChildren);
+        $this->assertEquals($expectedOrder, $parent->allChildren->getKeys());
     }
 
     public function testInsertWithCustomIdStrategy()
