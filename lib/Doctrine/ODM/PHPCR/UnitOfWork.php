@@ -3007,4 +3007,34 @@ class UnitOfWork
 
         return $oldFetchDepth;
     }
+
+    /**
+     * Gets the currently scheduled document insertions in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledInserts()
+    {
+        return $this->scheduledInserts;
+    }
+
+    /**
+     * Gets the currently scheduled document updates in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledUpdates()
+    {
+        return $this->scheduledUpdates;
+    }
+
+    /**
+     * Gets the currently scheduled document deletions in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledRemovals()
+    {
+        return $this->scheduledRemovals;
+    }
 }
