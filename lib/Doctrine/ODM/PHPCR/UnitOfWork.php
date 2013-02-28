@@ -903,13 +903,13 @@ class UnitOfWork
         return $actualData;
     }
 
-    private function getChildNodename($id, $nodename, $child)
+    private function getChildNodename($id, $nodename, $child, $parent)
     {
         $childClass = $this->dm->getClassMetadata(get_class($child));
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
         } else {
-            $childId = $childClass->getIdentifierValue($child);
+            $childId = $childClass->getIdentifierValue($child) ?: $this->getIdGenerator($childClass->idGenerator)->generate($child, $childClass, $this->dm, $parent);
             if ('' !== $childId) {
                 if ($childId !== $id.'/'.basename($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
@@ -955,7 +955,7 @@ class UnitOfWork
                 $mapping = $class->mappings[$fieldName];
                 if ($actualData[$fieldName]) {
                     foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child);
+                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
@@ -1070,7 +1070,7 @@ class UnitOfWork
                 $childNames = array();
                 if ($actualData[$fieldName]) {
                     foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child);
+                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
