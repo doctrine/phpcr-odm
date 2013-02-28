@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
@@ -902,13 +903,13 @@ class UnitOfWork
         return $actualData;
     }
 
-    private function getChildNodename($id, $nodename, $child)
+    private function getChildNodename($id, $nodename, $child, $parent)
     {
         $childClass = $this->dm->getClassMetadata(get_class($child));
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
         } else {
-            $childId = $childClass->getIdentifierValue($child);
+            $childId = $childClass->getIdentifierValue($child) ?: $this->getIdGenerator($childClass->idGenerator)->generate($child, $childClass, $this->dm, $parent);
             if ('' !== $childId) {
                 if ($childId !== $id.'/'.basename($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
@@ -954,8 +955,8 @@ class UnitOfWork
                 $mapping = $class->mappings[$fieldName];
                 if ($actualData[$fieldName]) {
                     foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
+                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
@@ -974,11 +975,8 @@ class UnitOfWork
 
         foreach ($class->childMappings as $fieldName) {
             if ($actualData[$fieldName]) {
-                if ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $actualData[$fieldName]) {
-                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($actualData[$fieldName], $this->dm));
-                }
                 $mapping = $class->mappings[$fieldName];
-                $this->computeChildChanges($mapping, $actualData[$fieldName], $id);
+                $actualData[$fieldName] = $this->computeChildChanges($mapping, $actualData[$fieldName], $id, $mapping['name']);
             }
         }
 
@@ -1072,8 +1070,8 @@ class UnitOfWork
                 $childNames = array();
                 if ($actualData[$fieldName]) {
                     foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
+                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
@@ -1145,8 +1143,10 @@ class UnitOfWork
      * @param string $parentId
      * @param string $nodename
      * @param mixed  $parent
+     *
+     * @return object the child instance (if we are replacing a child this can be a different instance than was originally provided)
      */
-    private function computeChildChanges($mapping, $child, $parentId, $nodename = null, $parent = null)
+    private function computeChildChanges($mapping, $child, $parentId, $nodename, $parent = null)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
@@ -1156,16 +1156,27 @@ class UnitOfWork
                 if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($child));
                 }
-                $nodename = $nodename ?: $mapping['name'];
-                if ($nodename) {
-                    $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
+
+                $childId = $parentId.'/'.$nodename;
+                $targetClass->setIdentifierValue($child, $childId);
+
+                if ($this->getDocumentById($childId)) {
+                    $child = $this->merge($child);
+                } else {
+                    $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
                 }
-                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
+
                 $this->computeChangeSet($targetClass, $child);
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
+            default:
+                if (PathHelper::getParentPath($this->getDocumentId($child)) !== $parentId) {
+                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
+                }
         }
+
+        return $child;
     }
 
     /**
@@ -1934,15 +1945,11 @@ class UnitOfWork
                         }
                     }
                 } elseif ('child' === $mapping['type']) {
-                    if ($fieldValue === null) {
-                        if ($node->hasNode($mapping['name'])) {
-                            $child = $node->getNode($mapping['name']);
-                            $childDocument = $this->getOrCreateDocument(null, $child);
-                            $this->purgeChildren($childDocument);
-                            $child->remove();
-                        }
-                    } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw PHPCRException::cannotMoveByAssignment(self::objToStr($fieldValue, $this->dm));
+                    if ($fieldValue === null && $node->hasNode($mapping['name'])) {
+                        $child = $node->getNode($mapping['name']);
+                        $childDocument = $this->getOrCreateDocument(null, $child);
+                        $this->purgeChildren($childDocument);
+                        $child->remove();
                     }
                 }
             }
