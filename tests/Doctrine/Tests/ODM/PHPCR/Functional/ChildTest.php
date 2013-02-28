@@ -225,6 +225,36 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent->child);
     }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testMoveByAssignment()
+    {
+        $original = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $original->name = 'Parent';
+        $original->id = '/functional/original';
+        $original->child = $child;
+        $child->name = 'Child';
+
+        $this->dm->persist($original);
+
+        $other = new ChildTestObj();
+        $other->name = 'newparent';
+        $other->id = '/functional/newlocation';
+        $this->dm->persist($other);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $original = $this->dm->find($this->type, '/functional/original');
+        $other = $this->dm->find($this->type, '/functional/newlocation');
+
+        $other->child = $original->child;
+
+        $this->dm->flush();
+    }
+
     public function testChildReplace()
     {
         $parent = new ChildTestObj();
@@ -248,16 +278,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $parent = $this->dm->find($this->type, '/functional/childtest');
         $this->assertEquals('new name', $parent->child->name);
-
-        $newerChild = new ChildChildTestObj();
-        $newerChild->name = 'newer name';
-        $parent->children['test2'] = $newerChild;
-
-        $this->dm->flush();
-        $this->dm->clear();
-
-        $parent = $this->dm->find($this->type, '/functional/childtest');
-        $this->assertEquals('newer name', $parent->children['test2']->name);
     }
 
     public function testModificationAfterPersist()
@@ -342,8 +362,6 @@ class ChildTestObj
     public $name;
     /** @PHPCRODM\Child(name="test", cascade="persist") */
     public $child;
-    /** @PHPCRODM\Children(cascade="persist") */
-    public $children;
 }
 
 /**

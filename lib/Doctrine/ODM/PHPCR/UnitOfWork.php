@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
@@ -1169,6 +1170,10 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
+            default:
+                if (PathHelper::getParentPath($this->getDocumentId($child)) !== $parentId) {
+                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
+                }
         }
 
         return $child;

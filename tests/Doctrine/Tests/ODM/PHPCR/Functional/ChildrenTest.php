@@ -5,6 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
     Doctrine\ODM\PHPCR\DocumentRepository,
     Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\ChildrenCollection;
 use PHPCR\RepositoryInterface;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -224,6 +225,49 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
     }
 
+    public function testReplaceChildren()
+    {
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(4, $parent->allChildren);
+
+        $parent->allChildren->remove('child-a');
+
+        $newChild = new ChildrenTestObj();
+        $newChild->name = 'child-a';
+
+        $parent->allChildren->add($newChild);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertTrue($parent->allChildren->containsKey('child-a'));
+        $this->assertEquals('child-a', $parent->allChildren['child-a']->name);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testMoveByAssignment()
+    {
+        $other = new ChildrenTestObj();
+        $other->id = '/functional/other';
+        $this->dm->persist($other);
+        $this->dm->flush();
+        $this->dm->clear();
+
+
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->assertCount(4, $parent->allChildren);
+
+        $other = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/other');
+        $other->allChildren->add($parent->allChildren['child-a']);
+
+        $this->dm->flush();
+    }
+
     /**
      * @depends testModifyChildren
      */
@@ -378,7 +422,10 @@ class ChildrenTestObj
   /** @PHPCRODM\Children(filter="*a", fetchDepth=1, cascade="persist") */
   public $aChildren;
 
-  /** @PHPCRODM\Children(fetchDepth=2, cascade="persist") */
+  /**
+   * @var \Doctrine\ODM\PHPCR\ChildrenCollection
+   * @PHPCRODM\Children(fetchDepth=2, cascade="persist")
+   */
   public $allChildren;
 }
 
