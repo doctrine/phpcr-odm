@@ -28,8 +28,9 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener(array(
-            'prePersist', 'postPersist', 'preUpdate', 'postUpdate', 
-            'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush'
+            'prePersist', 'postPersist', 'preUpdate', 'postUpdate',
+            'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush',
+            'preMove', 'postMove'
         ), $this->listener);
     }
 
@@ -58,8 +59,23 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->pagePreRemove);
         $this->assertFalse($this->listener->pagePostRemove);
         $this->assertFalse($this->listener->itemPreRemove);
-        $this->assertFalse($this->listener->itemPostRemove);
-        
+        $this->assertFalse($this->listener->pagePreMove);
+        $this->assertFalse($this->listener->pagePostMove);
+        $this->assertFalse($this->listener->itemPreMove);
+        $this->assertFalse($this->listener->itemPostMove);
+
+        $this->dm->move($page, '/functional/moved-' . $page->title);
+
+        $this->assertFalse($this->listener->pagePreMove);
+        $this->assertFalse($this->listener->pagePostMove);
+
+        $this->dm->flush();
+
+        $this->assertTrue($this->listener->pagePreMove);
+        $this->assertTrue($this->listener->pagePostMove);
+        $this->assertFalse($this->listener->itemPreMove);
+        $this->assertFalse($this->listener->itemPostMove);
+
         $item = new CmsItem();
         $item->name = "my-item";
         $item->documentTarget = $page;
@@ -108,7 +124,11 @@ class TestPersistenceListener
     public $onFlush = false;
     public $postFlush = false;
     public $preFlush = false;
-    
+    public $itemPreMove = false;
+    public $itemPostMove = false;
+    public $pagePreMove = false;
+    public $pagePostMove = false;
+
     public function prePersist(EventArgs $e)
     {
         $document = $e->getDocument();
@@ -165,6 +185,26 @@ class TestPersistenceListener
             $this->pagePostRemove = true;
         } else if ($document instanceof CmsItem){
             $this->itemPostRemove = true;
+        }
+    }
+
+    public function preMove(EventArgs $e)
+    {
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePreMove = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPreMove = true;
+        }
+    }
+
+    public function postMove(EventArgs $e)
+    {
+        $document = $e->getDocument();
+        if ($document instanceof CmsPage){
+            $this->pagePostMove = true;
+        } else if ($document instanceof CmsItem){
+            $this->itemPostMove = true;
         }
     }
 

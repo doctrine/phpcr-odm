@@ -3,8 +3,8 @@
 namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\UnitOfWork;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 use Jackalope\Factory;
 use Jackalope\Node;
@@ -16,8 +16,18 @@ use Jackalope\Node;
  */
 class UnitOfWorkTest extends PHPCRTestCase
 {
+    /** @var DocumentManager */
     private $dm;
+    /** @var UnitOfWork */
     private $uow;
+    /** @var Factory */
+    private $factory;
+    /** @var \PHPCR\SessionInterface */
+    private $session;
+    /** @var \Jackalope\ObjectManager */
+    private $objectManager;
+    /** @var string */
+    private $type;
 
     public function setUp()
     {
@@ -50,7 +60,6 @@ class UnitOfWorkTest extends PHPCRTestCase
             ->will($this->returnValue($repository));
 
         $nodeData = array(
-            'jcr:primaryType' => "Name",
             "jcr:primaryType" => "rep:root",
             "jcr:system" => array(),
             'username' => $username,
@@ -58,9 +67,9 @@ class UnitOfWorkTest extends PHPCRTestCase
         return new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
     }
 
-    public function testCreateDocument()
+    public function testGetOrCreateDocument()
     {
-        $user = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
+        $user = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
         $this->assertInstanceOf($this->type, $user);
         $this->assertEquals('foo', $user->username);
 
@@ -73,17 +82,17 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertEquals('/somepath', $this->uow->getDocumentId($user));
     }
 
-    public function testCreateDocumentUsingIdentityMap()
+    public function testGetOrCreateDocumentUsingIdentityMap()
     {
-        $user1 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
-        $user2 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
+        $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
+        $user2 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
 
         $this->assertSame($user1, $user2);
     }
 
     public function testGetDocumentById()
     {
-        $user1 = $this->uow->createDocument($this->type, $this->createNode('/somepath', 'foo'));
+        $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
 
         $user2 = $this->uow->getDocumentById('/somepath', $this->type);
 
