@@ -152,8 +152,8 @@ class UnitOfWork
     private $scheduledMoves = array();
 
     /**
-     * List of documents that need to be reordered
-     * oid => array(parent document, srcName, targetName, before) with
+     * List of parent documents that have children that need to be reordered
+     * parent oid => array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
      * - srcName the Nodename of the document to be moved,
      * - targetName the Nodename of the document to move srcName to
