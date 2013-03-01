@@ -131,26 +131,41 @@ class UnitOfWork
     private $documentChangesets = array();
 
     /**
+     * List of documents that have a field that needs to be updated
+     * oid => document
      * @var array
      */
     private $scheduledUpdates = array();
 
     /**
+     * List of documents that need to be inserted
+     * oid => document
      * @var array
      */
     private $scheduledInserts = array();
 
     /**
+     * List of documents that need to be moved
+     * oid => array(document, target path)
      * @var array
      */
     private $scheduledMoves = array();
 
     /**
+     * List of documents that need to be reordered
+     * oid => array(parent document, srcName, targetName, before) with
+     * - parent document the document of the child to be reordered
+     * - srcName the Nodename of the document to be moved,
+     * - targetName the Nodename of the document to move srcName to
+     * - before a boolean telling whether to move srcName before or after targetName
+     *
      * @var array
      */
     private $scheduledReorders = array();
 
     /**
+     * List of documents that need to be removed
+     * oid => document
      * @var array
      */
     private $scheduledRemovals = array();
