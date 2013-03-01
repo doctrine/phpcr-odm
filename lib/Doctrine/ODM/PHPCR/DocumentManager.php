@@ -342,7 +342,7 @@ class DocumentManager implements ObjectManager
         }
 
         $nodes = $this->session->getNodes($ids);
-        
+
         $hints = array('fallback' => true);
 
         foreach ($ids as $id) {
@@ -710,10 +710,10 @@ class DocumentManager implements ObjectManager
      * If you want to continue working with the manager after a reorder, you are probably
      * safest calling DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object  $document   an already registered document
+     * @param object  $document   the parent document which must be persisted already
      * @param string  $srcName    the nodename of the child to be reordered
      * @param string  $targetName the nodename of the target of the reordering
-     * @param boolean $before     insert before or after the target
+     * @param boolean $before     whether to move before or after the target
      */
     public function reorder($document, $srcName, $targetName, $before)
     {
