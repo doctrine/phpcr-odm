@@ -20,21 +20,10 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-/**
- * MoveEventArgs
- */
-class MoveEventArgs extends \Doctrine\Common\EventArgs
+use Doctrine\Common\Persistence\ObjectManager;
+
+class MoveEventArgs extends LifecycleEventArgs
 {
-    /**
-     * @var object
-     */
-    private $document;
-
-    /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
-     */
-    private $dm;
-
     /**
      * @var string
      */
@@ -53,32 +42,29 @@ class MoveEventArgs extends \Doctrine\Common\EventArgs
      * @param string                              $sourcePath The source path
      * @param string                              $targetPath The target path
      */
-    public function __construct($document, $dm, $sourcePath, $targetPath)
+    public function __construct($document, ObjectManager $om, $sourcePath, $targetPath)
     {
-        $this->document = $document;
-        $this->dm = $dm;
+        parent::__construct($document, $om);
         $this->sourcePath = $sourcePath;
         $this->targetPath = $targetPath;
     }
 
     /**
-     * Get the document
-     *
-     * @return object
+     * @deprecated  Will be dropped in favor of getObject in 1.0
+     * @return      object
      */
     public function getDocument()
     {
-        return $this->document;
+        return $this->getEntity();
     }
 
     /**
-     * Get the document manager
-     *
-     * @return \Doctrine\ODM\PHPCR\DocumentManager
+     * @deprecated  Will be dropped in favor of getObjectManager in 1.0
+     * @return      \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
-        return $this->dm;
+        return $this->getObjectManager();
     }
 
     /**

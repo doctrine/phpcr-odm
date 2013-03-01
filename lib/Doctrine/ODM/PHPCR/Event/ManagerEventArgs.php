@@ -15,23 +15,15 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs as BaseLifecycleEventArgs;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\Event\ManagerEventArgs as BaseManagerEventArgs;
 
-class LifecycleEventArgs extends BaseLifecycleEventArgs
+class ManagerEventArgs extends BaseManagerEventArgs
 {
-    /**
-     * @deprecated  Will be dropped in favor of getObject in 1.0
-     * @return      object
-     */
-    public function getDocument()
-    {
-        return $this->getEntity();
-    }
-
     /**
      * @deprecated  Will be dropped in favor of getObjectManager in 1.0
      * @return      \Doctrine\ODM\PHPCR\DocumentManager

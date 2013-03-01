@@ -32,6 +32,7 @@ use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use Jackalope\Session as JackalopeSession;
@@ -44,7 +45,6 @@ use PHPCR\ItemNotFoundException;
 use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\RepositoryException;
 use PHPCR\Util\UUIDHelper;
-use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 
 /**
  * Unit of work class

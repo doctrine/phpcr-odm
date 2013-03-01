@@ -2,7 +2,6 @@
 
 use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 
-
 class ManagerEventArgsTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
