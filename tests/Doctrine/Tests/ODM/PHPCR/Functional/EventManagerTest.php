@@ -64,7 +64,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->itemPreMove);
         $this->assertFalse($this->listener->itemPostMove);
 
-        $this->dm->move($page, '/' . $page->title);
+        $this->dm->move($page, '/functional/moved-' . $page->title);
 
         $this->assertFalse($this->listener->pagePreMove);
         $this->assertFalse($this->listener->pagePostMove);

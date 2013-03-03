@@ -343,6 +343,8 @@ class DocumentManager implements ObjectManager
 
         $nodes = $this->session->getNodes($ids);
 
+        $hints = array('fallback' => true);
+
         foreach ($ids as $id) {
             $document = $this->unitOfWork->getDocumentById($id);
             if ($document) {
@@ -353,7 +355,7 @@ class DocumentManager implements ObjectManager
                     // ignore on class mismatch
                 }
             } elseif (isset($nodes[$id])) {
-                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id]);
+                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
             }
         }
 
@@ -708,10 +710,10 @@ class DocumentManager implements ObjectManager
      * If you want to continue working with the manager after a reorder, you are probably
      * safest calling DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object  $document   an already registered document
+     * @param object  $document   the parent document which must be persisted already
      * @param string  $srcName    the nodename of the child to be reordered
      * @param string  $targetName the nodename of the target of the reordering
-     * @param boolean $before     insert before or after the target
+     * @param boolean $before     whether to move before or after the target
      */
     public function reorder($document, $srcName, $targetName, $before)
     {
@@ -803,11 +805,11 @@ class DocumentManager implements ObjectManager
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
      * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
-     * @param boolean      $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -815,7 +817,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $ignoreUntranslated);
+        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $locale);
     }
 
     /**
@@ -826,10 +828,11 @@ class DocumentManager implements ObjectManager
      *
      * @param object       $document document instance which referrers should be loaded
      * @param string|array $name     optional PHPCR property name that holds the reference
+     * @param string       $locale   the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of referrer documents
      */
-    public function getReferrers($document, $type = null, $name = null)
+    public function getReferrers($document, $type = null, $name = null, $locale = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -837,7 +840,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getReferrers($document, $type, $name);
+        return $this->unitOfWork->getReferrers($document, $type, $name, $locale);
     }
 
     /**

@@ -45,11 +45,12 @@ class ClassMetadata implements ClassMetadataInterface
     const MANY_TO_MANY = 8;
 
     const CASCADE_PERSIST = 1;
-    const CASCADE_REMOVE  = 2;
-    const CASCADE_MERGE   = 4;
-    const CASCADE_DETACH  = 8;
+    const CASCADE_REMOVE = 2;
+    const CASCADE_MERGE = 4;
+    const CASCADE_DETACH = 8;
     const CASCADE_REFRESH = 16;
-    const CASCADE_ALL     = 31;
+    const CASCADE_TRANSLATION = 32;
+    const CASCADE_ALL = 255;
 
     /**
      * means no strategy has been set so far.
@@ -599,7 +600,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapParentDocument(array $mapping, ClassMetadata $inherited = null)
     {
         if (empty($mapping['cascade'])) {
-            $mapping['cascade'] = null;
+            $mapping['cascade'] = 0;
         }
         $mapping['type'] = 'parent';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
@@ -612,7 +613,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapChild(array $mapping, ClassMetadata $inherited = null)
     {
         if (empty($mapping['cascade'])) {
-            $mapping['cascade'] = null;
+            $mapping['cascade'] = 0;
         }
         $mapping['type'] = 'child';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
@@ -622,7 +623,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapChildren(array $mapping, ClassMetadata $inherited = null)
     {
         if (empty($mapping['cascade'])) {
-            $mapping['cascade'] = null;
+            $mapping['cascade'] = 0;
         }
         $mapping['type'] = 'children';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
@@ -638,7 +639,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw MappingException::referrerWithoutReferringDocument($this->name, $mapping['fieldName']);
         }
         if (empty($mapping['cascade'])) {
-            $mapping['cascade'] = null;
+            $mapping['cascade'] = 0;
         }
 
         $mapping['type'] = 'referrers';
@@ -769,7 +770,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
         if (empty($mapping['cascade'])) {
-            $mapping['cascade'] = null;
+            $mapping['cascade'] = 0;
         }
         $this->mappings[$mapping['fieldName']] = $mapping;
 
@@ -970,7 +971,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getField($fieldName)
     {
-        if ($this->hasField($fieldName)) {
+        if (!$this->hasField($fieldName)) {
             throw MappingException::fieldNotFound($this->name, $fieldName);
         }
 

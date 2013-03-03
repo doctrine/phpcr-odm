@@ -20,6 +20,8 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\Util\PathHelper;
+use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
@@ -262,7 +264,6 @@ class UnitOfWork
         if ($document) {
             if (empty($hints['refresh'])) {
                 // document already loaded and no need to refresh. return early
-
                 return $document;
             }
             $overrideLocalValuesOid = spl_object_hash($document);
@@ -272,6 +273,9 @@ class UnitOfWork
             $overrideLocalValuesOid = false;
         }
         $this->validateClassName($document, $requestedClassName);
+
+        $locale = isset($hints['locale']) ? $hints['locale'] : null;
+        $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
 
         $documentState = array();
         $nonMappedData = array();
@@ -346,10 +350,10 @@ class UnitOfWork
                             $path = $referencedNode->getPath();
                         }
 
-                        $proxy = $this->getOrCreateProxy($path, $referencedClass);
+                        $proxy = $this->getOrCreateProxy($path, $referencedClass, $locale);
                     } else {
                         $referencedNode = $node->getProperty($fieldName)->getNode();
-                        $proxy = $this->getOrCreateProxyFromNode($referencedNode);
+                        $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
                     }
                 } catch (RepositoryException $e) {
                     if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
@@ -370,36 +374,36 @@ class UnitOfWork
                 }
 
                 $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
-                $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument);
+                $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument, $locale);
                 $documentState[$fieldName] = $coll;
             }
         }
 
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
-            $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent());
+            $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent(), $locale);
         }
 
         foreach ($class->childMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             $documentState[$fieldName] = $node->hasNode($mapping['name'])
-                ? $this->getOrCreateProxyFromNode($node->getNode($mapping['name']))
+                ? $this->getOrCreateProxyFromNode($node->getNode($mapping['name']), $locale)
                 : null;
         }
 
         foreach ($class->childrenMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth']);
+            $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth'], $locale);
         }
 
         foreach ($class->referrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['mappedBy']);
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['mappedBy'], $locale);
         }
         foreach ($class->mixedReferrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             // this should be an immutable collection. can we do that in a sane way?
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType']);
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], null, $locale);
         }
 
         if (! $overrideLocalValuesOid) {
@@ -415,9 +419,6 @@ class UnitOfWork
         }
 
         // Load translations
-        $locale = isset($hints['locale']) ? $hints['locale'] : null;
-        $fallback = isset($hints['fallback']) ? $hints['fallback'] : is_null($locale);
-
         $this->doLoadTranslation($document, $class, $locale, $fallback);
 
         // Invoke the postLoad lifecycle callbacks and listeners
@@ -435,15 +436,16 @@ class UnitOfWork
      * Get the existing document or proxy or create a new one for this PHPCR Node
      *
      * @param NodeInterface $node
+     * @param string $locale
      *
      * @return object
      */
-    public function getOrCreateProxyFromNode(NodeInterface $node)
+    public function getOrCreateProxyFromNode(NodeInterface $node, $locale = null)
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
 
-        return $this->getOrCreateProxy($targetId, $className);
+        return $this->getOrCreateProxy($targetId, $className, $locale);
     }
 
     /**
@@ -452,15 +454,21 @@ class UnitOfWork
      *
      * @param string $targetId
      * @param string $className
+     * @param string $locale
      *
      * @return object
      */
-    public function getOrCreateProxy($targetId, $className)
+    public function getOrCreateProxy($targetId, $className, $locale = null)
     {
         $document = $this->getDocumentById($targetId);
 
         // check if referenced document already exists
         if ($document) {
+            $metadata = $this->dm->getClassMetadata($className);
+            if ($locale && $locale !== $this->getLocale($document, $metadata)) {
+                $this->doLoadTranslation($document, $metadata, $locale, true);
+            }
+
             return $document;
         }
 
@@ -468,6 +476,10 @@ class UnitOfWork
 
         // register the document under its own id
         $this->registerDocument($proxyDocument, $targetId);
+
+        if ($locale) {
+            $this->setLocale($proxyDocument, $this->dm->getClassMetadata($className), $locale);
+        }
 
         return $proxyDocument;
     }
@@ -481,7 +493,14 @@ class UnitOfWork
     public function refreshDocumentForProxy($className, Proxy $document)
     {
         $node = $this->session->getNode($document->__getIdentifier());
+
         $hints = array('refresh' => true);
+        $oid = spl_object_hash($document);
+        if (isset($this->documentLocales[$oid]['current'])) {
+            $hints['locale'] = $this->documentLocales[$oid]['current'];
+            $hints['fallback'] = true;
+        }
+
         $this->getOrCreateDocument($className, $node, $hints);
     }
 
@@ -507,10 +526,7 @@ class UnitOfWork
             throw new PHPCRException('This document is not translatable, do not use bindTranslation: '.self::objToStr($document, $this->dm));
         }
 
-        // Set the @Locale field
-        if ($class->localeMapping) {
-            $class->reflFields[$class->localeMapping]->setValue($document, $locale);
-        }
+        $this->setLocale($document, $class, $locale);
 
         $oid = spl_object_hash($document);
         if (empty($this->documentTranslations[$oid])) {
@@ -520,11 +536,6 @@ class UnitOfWork
         foreach ($class->translatableFields as $field) {
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
-
-        if (empty($this->documentLocales[$oid])) {
-            $this->documentLocales[$oid] = array('original' => $locale);
-        }
-        $this->documentLocales[$oid]['current'] = $locale;
     }
 
     /**
@@ -583,25 +594,27 @@ class UnitOfWork
     {
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if ($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) {
-                $related = $class->reflFields[$fieldName]->getValue($document);
-                if ($related !== null) {
-                    if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
-                        if (is_array($related) || $related instanceof Collection) {
-                            throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
-                        }
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST)) {
+                continue;
+            }
 
-                        if ($this->getDocumentState($related) === self::STATE_NEW) {
-                            $this->doScheduleInsert($related, $visited);
-                        }
-                    } else {
-                        if (!is_array($related) && !$related instanceof Collection) {
-                            throw new PHPCRException('Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
-                        }
-                        foreach ($related as $relatedDocument) {
-                            if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
-                                $this->doScheduleInsert($relatedDocument, $visited);
-                            }
+            $related = $class->reflFields[$fieldName]->getValue($document);
+            if ($related !== null) {
+                if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
+                    if (is_array($related) || $related instanceof Collection) {
+                        throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
+                    }
+
+                    if ($this->getDocumentState($related) === self::STATE_NEW) {
+                        $this->doScheduleInsert($related, $visited);
+                    }
+                } else {
+                    if (!is_array($related) && !$related instanceof Collection) {
+                        throw new PHPCRException('Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
+                    }
+                    foreach ($related as $relatedDocument) {
+                        if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
+                            $this->doScheduleInsert($relatedDocument, $visited);
                         }
                     }
                 }
@@ -745,16 +758,18 @@ class UnitOfWork
     {
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if ($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE) {
-                $related = $class->reflFields[$fieldName]->getValue($document);
-                if ($related instanceof Collection || is_array($related)) {
-                    // If its a PersistentCollection initialization is intended! No unwrap!
-                    foreach ($related as $relatedDocument) {
-                        $this->doRemove($relatedDocument, $visited);
-                    }
-                } elseif ($related !== null) {
-                    $this->doRemove($related, $visited);
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE)) {
+                continue;
+            }
+
+            $related = $class->reflFields[$fieldName]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                // If its a PersistentCollection initialization is intended! No unwrap!
+                foreach ($related as $relatedDocument) {
+                    $this->doRemove($relatedDocument, $visited);
                 }
+            } elseif ($related !== null) {
+                $this->doRemove($related, $visited);
             }
         }
     }
@@ -830,7 +845,7 @@ class UnitOfWork
      *
      * @param object $document
      */
-    private function computeSingleDocumentChangeSet($document)
+    public function computeSingleDocumentChangeSet($document)
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
@@ -857,7 +872,7 @@ class UnitOfWork
     /**
      * Detects the changes that need to be persisted
      */
-    private function computeChangeSets()
+    public function computeChangeSets()
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
@@ -893,13 +908,13 @@ class UnitOfWork
         return $actualData;
     }
 
-    private function getChildNodename($id, $nodename, $child)
+    private function getChildNodename($id, $nodename, $child, $parent)
     {
         $childClass = $this->dm->getClassMetadata(get_class($child));
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
         } else {
-            $childId = $childClass->getIdentifierValue($child);
+            $childId = $childClass->getIdentifierValue($child) ?: $this->getIdGenerator($childClass->idGenerator)->generate($child, $childClass, $this->dm, $parent);
             if ('' !== $childId) {
                 if ($childId !== $id.'/'.basename($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
@@ -912,10 +927,12 @@ class UnitOfWork
     }
 
     /**
+     * Computes changeset for a given document.
+     *
      * @param ClassMetadata $class
      * @param object        $document
      */
-    private function computeChangeSet(ClassMetadata $class, $document)
+    public function computeChangeSet(ClassMetadata $class, $document)
     {
         if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
@@ -943,8 +960,8 @@ class UnitOfWork
                 $mapping = $class->mappings[$fieldName];
                 if ($actualData[$fieldName]) {
                     foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
+                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
@@ -963,11 +980,8 @@ class UnitOfWork
 
         foreach ($class->childMappings as $fieldName) {
             if ($actualData[$fieldName]) {
-                if ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $actualData[$fieldName]) {
-                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($actualData[$fieldName], $this->dm));
-                }
                 $mapping = $class->mappings[$fieldName];
-                $this->computeChildChanges($mapping, $actualData[$fieldName], $id);
+                $actualData[$fieldName] = $this->computeChildChanges($mapping, $actualData[$fieldName], $id, $mapping['name']);
             }
         }
 
@@ -1069,8 +1083,8 @@ class UnitOfWork
                 $childNames = array();
                 if ($actualData[$fieldName]) {
                     foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child);
-                        $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
+                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         $childNames[] = $nodename;
                     }
                 }
@@ -1091,30 +1105,8 @@ class UnitOfWork
                     $originalNames = array_values($originalNames);
                     $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
                     if ($originalNames !== $childNames) {
-                        $reordering = array();
 
-                        $count = count($childNames);
-                        if ($count === 2) {
-                            // special handling for 2 children collections
-                            $reordering[$childNames[0]] = $childNames[1];
-                        } else {
-                            for ($i = $count - 2; $i >= 0; $i--) {
-                                $targetKey = array_search($childNames[$i], $originalNames);
-                                if ($targetKey !== $i) {
-                                    // child needs to be moved
-                                    $reordering[$childNames[$i]] = $childNames[$i + 1];
-                                    // update the original order to check if we have done all necessary steps
-                                    $value = $originalNames[$targetKey];
-                                    unset($originalNames[$targetKey]);
-                                    $part1 = array_slice($originalNames, 0, $i);
-                                    $part2 = array_slice($originalNames, $i);
-                                    $originalNames = array_merge($part1, array($value), $part2);
-                                    if ($originalNames === $childNames) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
 
                         if (empty($this->documentChangesets[$oid])) {
                             $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($reordering));
@@ -1164,8 +1156,10 @@ class UnitOfWork
      * @param string $parentId
      * @param string $nodename
      * @param mixed  $parent
+     *
+     * @return object the child instance (if we are replacing a child this can be a different instance than was originally provided)
      */
-    private function computeChildChanges($mapping, $child, $parentId, $nodename = null, $parent = null)
+    private function computeChildChanges($mapping, $child, $parentId, $nodename, $parent = null)
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
@@ -1175,16 +1169,27 @@ class UnitOfWork
                 if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
                     throw CascadeException::newDocumentFound(self::objToStr($child));
                 }
-                $nodename = $nodename ?: $mapping['name'];
-                if ($nodename) {
-                    $targetClass->setIdentifierValue($child, $parentId.'/'.$nodename);
+
+                $childId = $parentId.'/'.$nodename;
+                $targetClass->setIdentifierValue($child, $childId);
+
+                if ($this->getDocumentById($childId)) {
+                    $child = $this->merge($child);
+                } else {
+                    $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
                 }
-                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
+
                 $this->computeChangeSet($targetClass, $child);
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
+            default:
+                if (PathHelper::getParentPath($this->getDocumentId($child)) !== $parentId) {
+                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
+                }
         }
+
+        return $child;
     }
 
     /**
@@ -1244,7 +1249,7 @@ class UnitOfWork
      * @param ClassMetadata $class
      * @param object        $document
      */
-    public function persistNew($class, $document, $overrideIdGenerator = null, $parent = null)
+    public function persistNew(ClassMetadata $class, $document, $overrideIdGenerator = null, $parent = null)
     {
         if (isset($class->lifecycleCallbacks[Event::prePersist])) {
             $class->invokeLifecycleCallbacks(Event::prePersist, $document);
@@ -1302,7 +1307,7 @@ class UnitOfWork
     {
         if (null === $document) {
             $prop->setValue($managedCopy, null);
-        } elseif ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
+        } elseif (!($mapping['cascade'] & ClassMetadata::CASCADE_MERGE)) {
             if ($this->getDocumentState($document) == self::STATE_MANAGED) {
                 $prop->setValue($managedCopy, $document);
             } else {
@@ -1317,17 +1322,17 @@ class UnitOfWork
 
     private function cascadeMergeCollection($managedCol, array $mapping)
     {
-        if (!$managedCol instanceof PersistentCollection) {
+        if (!$managedCol instanceof PersistentCollection
+            || !($mapping['cascade'] & ClassMetadata::CASCADE_MERGE)
+        ) {
             return;
         }
 
-        if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE > 0) {
-            $managedCol->initialize();
-            if (!$managedCol->isEmpty()) {
-                // clear managed collection, in casacadeMerge() the collection is filled again.
-                $managedCol->unwrap()->clear();
-                $managedCol->setDirty(true);
-            }
+        $managedCol->initialize();
+        if (!$managedCol->isEmpty()) {
+            // clear managed collection, in casacadeMerge() the collection is filled again.
+            $managedCol->unwrap()->clear();
+            $managedCol->setDirty(true);
         }
     }
 
@@ -1341,6 +1346,7 @@ class UnitOfWork
         $visited[$oid] = $document; // mark visited
 
         $class = $this->dm->getClassMetadata(get_class($document));
+        $locale = $this->getLocale($document, $class);
 
         // First we assume DETACHED, although it can still be NEW but we can avoid
         // an extra db-roundtrip this way. If it is not MANAGED but has an identity,
@@ -1363,6 +1369,12 @@ class UnitOfWork
                     if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
                         throw new \InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
                     }
+                    if ($this->getLocale($managedCopy, $class) !== $locale) {
+                        $this->doLoadTranslation($document, $class, $locale, true);
+                    }
+                } elseif ($locale) {
+                    // We need to fetch the managed copy in order to merge.
+                    $managedCopy = $this->dm->findTranslation($class->name, $id, $locale);
                 } else {
                     // We need to fetch the managed copy in order to merge.
                     $managedCopy = $this->dm->find($class->name, $id);
@@ -1402,7 +1414,8 @@ class UnitOfWork
                         $managedCol = new ReferenceManyCollection(
                             $this->dm,
                             array(),
-                            isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null
+                            isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null,
+                            $locale
                         );
                         $prop->setValue($managedCopy, $managedCol);
                         $this->originalData[$managedOid][$fieldName] = $managedCol;
@@ -1419,7 +1432,8 @@ class UnitOfWork
                             $this->dm,
                             $managedCopy,
                             $mapping['filter'],
-                            $mapping['fetchDepth']
+                            $mapping['fetchDepth'],
+                            $locale
                         );
                         $prop->setValue($managedCopy, $managedCol);
                         $this->originalData[$managedOid][$fieldName] = $managedCol;
@@ -1432,7 +1446,8 @@ class UnitOfWork
                             $this->dm,
                             $managedCopy,
                             $mapping['referenceType'],
-                            $mapping['mappedBy']
+                            $mapping['mappedBy'],
+                            $locale
                         );
                         $prop->setValue($managedCopy, $managedCol);
                         $this->originalData[$managedOid][$fieldName] = $managedCol;
@@ -1444,7 +1459,8 @@ class UnitOfWork
                         $managedCol = new ReferrersCollection(
                             $this->dm,
                             $managedCopy,
-                            $mapping['referenceType']
+                            $mapping['referenceType'],
+                            $locale
                         );
                         $prop->setValue($managedCopy, $managedCol);
                         $this->originalData[$managedOid][$fieldName] = $managedCol;
@@ -1495,7 +1511,7 @@ class UnitOfWork
     {
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if ($mapping['cascade'] & ClassMetadata::CASCADE_MERGE == 0) {
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_MERGE)) {
                 continue;
             }
             $related = $class->reflFields[$fieldName]->getValue($document);
@@ -1558,19 +1574,21 @@ class UnitOfWork
     {
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if ($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH) {
-                $related = $class->reflFields[$fieldName]->getValue($document);
-                if ($related instanceof Collection || is_array($related)) {
-                    if ($related instanceof PersistentCollection) {
-                        // Unwrap so that foreach() does not initialize
-                        $related = $related->unwrap();
-                    }
-                    foreach ($related as $relatedDocument) {
-                        $this->doRefresh($relatedDocument, $visited);
-                    }
-                } elseif ($related !== null) {
-                    $this->doRefresh($related, $visited);
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH)) {
+                continue;
+            }
+
+            $related = $class->reflFields[$fieldName]->getValue($document);
+            if ($related instanceof Collection || is_array($related)) {
+                if ($related instanceof PersistentCollection) {
+                    // Unwrap so that foreach() does not initialize
+                    $related = $related->unwrap();
                 }
+                foreach ($related as $relatedDocument) {
+                    $this->doRefresh($relatedDocument, $visited);
+                }
+            } elseif ($related !== null) {
+                $this->doRefresh($related, $visited);
             }
         }
     }
@@ -1585,7 +1603,7 @@ class UnitOfWork
     {
         foreach ($class->childrenMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if ($mapping['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_DETACH)) {
                 continue;
             }
             $related = $class->reflFields[$fieldName]->getValue($document);
@@ -1600,7 +1618,7 @@ class UnitOfWork
 
         foreach ($class->referrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if ($mapping['cascade'] & ClassMetadata::CASCADE_DETACH == 0) {
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_DETACH)) {
                 continue;
             }
             $related = $class->reflFields[$fieldName]->getValue($document);
@@ -1764,7 +1782,7 @@ class UnitOfWork
             }
             // make sure this reflects the id generator strategy generated id
             if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateDocument(null, $parentNode));
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateProxyFromNode($parentNode, $this->getLocale($document, $class)));
             }
 
             if ($this->writeMetadata) {
@@ -1892,8 +1910,8 @@ class UnitOfWork
                         $node->setProperty($mapping['name'], $fieldValue, $type);
                     }
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE
-                          || $mapping['type'] === $class::MANY_TO_MANY
-                    ) {
+                    || $mapping['type'] === $class::MANY_TO_MANY
+                ) {
                     if (!$this->writeMetadata) {
                         continue;
                     }
@@ -2017,15 +2035,11 @@ if reference and referrer collections changed, this is not valid
                         }
                     }
                 } elseif ('child' === $mapping['type']) {
-                    if ($fieldValue === null) {
-                        if ($node->hasNode($mapping['name'])) {
-                            $child = $node->getNode($mapping['name']);
-                            $childDocument = $this->getOrCreateDocument(null, $child);
-                            $this->purgeChildren($childDocument);
-                            $child->remove();
-                        }
-                    } elseif ($this->originalData[$oid][$fieldName] && $this->originalData[$oid][$fieldName] !== $fieldValue) {
-                        throw PHPCRException::cannotMoveByAssignment(self::objToStr($fieldValue, $this->dm));
+                    if ($fieldValue === null && $node->hasNode($mapping['name'])) {
+                        $child = $node->getNode($mapping['name']);
+                        $childDocument = $this->getOrCreateDocument(null, $child);
+                        $this->purgeChildren($childDocument);
+                        $child->remove();
                     }
                 }
             }
@@ -2068,11 +2082,9 @@ if reference and referrer collections changed, this is not valid
                 continue;
             }
 
-            // update fields nodename and parentMapping if they exist in this type
-            $classmetadata = $this->dm->getClassMetadata(get_class($document));
-
-            if (isset($classmetadata->lifecycleCallbacks[Event::preMove])) {
-                $classmetadata->invokeLifecycleCallbacks(Event::preMove, $document);
+            $class = $this->dm->getClassMetadata(get_class($document));
+            if (isset($class->lifecycleCallbacks[Event::preMove])) {
+                $class->invokeLifecycleCallbacks(Event::preMove, $document);
             }
 
             if ($this->evm->hasListeners(Event::preMove)) {
@@ -2081,44 +2093,46 @@ if reference and referrer collections changed, this is not valid
 
             $this->session->move($sourcePath, $targetPath);
 
+            // update fields nodename and parentMapping if they exist in this type
             $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
-            if ($classmetadata->nodename) {
-                $classmetadata->setFieldValue($document, $classmetadata->nodename, $node->getName());
+            if ($class->nodename) {
+                $class->setFieldValue($document, $class->nodename, $node->getName());
             }
-            if ($classmetadata->parentMapping) {
-                $classmetadata->setFieldValue($document, $classmetadata->parentMapping, $this->getOrCreateProxyFromNode($node->getParent()));
+
+            if ($class->parentMapping) {
+                $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent(), $this->getLocale($document, $class)));
             }
 
             // update all cached children of the document to reflect the move (path id changes)
-            foreach ($this->documentIds as $oid => $id) {
+            foreach ($this->documentIds as $childOid => $id) {
                 if (0 !== strpos($id, $sourcePath)) {
                     continue;
                 }
 
                 $newId = $targetPath.substr($id, strlen($sourcePath));
-                $this->documentIds[$oid] = $newId;
+                $this->documentIds[$childOid] = $newId;
 
-                $document = $this->getDocumentById($id);
-                if (!$document) {
+                $child = $this->getDocumentById($id);
+                if (!$child) {
                     continue;
                 }
 
                 unset($this->identityMap[$id]);
                 $this->identityMap[$newId] = $document;
 
-                if ($document instanceof Proxy && !$document->__isInitialized()) {
-                    $document->__setIdentifier($newId);
+                if ($child instanceof Proxy && !$child->__isInitialized()) {
+                    $child->__setIdentifier($newId);
                 } else {
-                    $classmetadata = $this->dm->getClassMetadata(get_class($document));
-                    if ($classmetadata->identifier) {
-                        $classmetadata->setIdentifierValue($document, $newId);
-                        $this->originalData[$oid][$classmetadata->identifier] = $newId;
+                    $childClass = $this->dm->getClassMetadata(get_class($child));
+                    if ($childClass->identifier) {
+                        $childClass->setIdentifierValue($child, $newId);
+                        $this->originalData[$oid][$childClass->identifier] = $newId;
                     }
                 }
             }
 
-            if (isset($classmetadata->lifecycleCallbacks[Event::postMove])) {
-                $classmetadata->invokeLifecycleCallbacks(Event::postMove, $document);
+            if (isset($class->lifecycleCallbacks[Event::postMove])) {
+                $class->invokeLifecycleCallbacks(Event::postMove, $document);
             }
 
             if ($this->evm->hasListeners(Event::postMove)) {
@@ -2448,34 +2462,23 @@ if reference and referrer collections changed, this is not valid
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children's names
      * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
-     * @param boolean      $ignoreUntranslated if to ignore children that are not translated to the current locale
+     * @param string       $locale             the locale to use during the loading of this collection
      *
-     * @return Collection a collection of child documents
+     * @return ArrayCollection a collection of child documents
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $ignoreUntranslated = true)
+    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
         $oldFetchDepth = $this->setFetchDepth($fetchDepth);
         $node = $this->session->getNode($this->getDocumentId($document));
         $this->setFetchDepth($oldFetchDepth);
 
         $metadata = $this->dm->getClassMetadata(get_class($document));
-        $locale = $this->getLocale($document, $metadata);
-        $childrenHints = array();
-        if (!is_null($locale)) {
-            $childrenHints['locale'] = $locale;
-            $childrenHints['fallback'] = true; // if we set locale explicitly this is no longer automatically done
-        }
+        $locale = $locale ?: $this->getLocale($document, $metadata);
 
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
         foreach ($childNodes as $name => $childNode) {
-            try {
-                $childDocuments[$name] = $this->getOrCreateDocument(null, $childNode, $childrenHints);
-            } catch (MissingTranslationException $e) {
-                if (!$ignoreUntranslated) {
-                    throw $e;
-                }
-            }
+            $childDocuments[$name] = $this->getOrCreateProxyFromNode($childNode, $locale);
         }
 
         return new ArrayCollection($childDocuments);
@@ -2495,10 +2498,11 @@ if reference and referrer collections changed, this is not valid
      *      have ('weak' or 'hard')
      * @param string $name     optional name to match on referrers reference
      *      property name
+     * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return ArrayCollection a collection of referrer documents
      */
-    public function getReferrers($document, $type = null, $name = null)
+    public function getReferrers($document, $type = null, $name = null, $locale = null)
     {
         $node = $this->session->getNode($this->getDocumentId($document));
 
@@ -2515,14 +2519,17 @@ if reference and referrer collections changed, this is not valid
             $referrerPropertiesH = $node->getReferences($name);
         }
 
+        $metadata = $this->dm->getClassMetadata(get_class($document));
+        $locale = $locale ?: $this->getLocale($document, $metadata);
+
         foreach ($referrerPropertiesW as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->getOrCreateDocument(null, $referrerNode);
+            $referrerDocuments[] = $this->getOrCreateProxyFromNode($referrerNode, $locale);
         }
 
         foreach ($referrerPropertiesH as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->getOrCreateDocument(null, $referrerNode);
+            $referrerDocuments[] = $this->getOrCreateProxyFromNode($referrerNode, $locale);
         }
 
         return new ArrayCollection($referrerDocuments);
@@ -2636,11 +2643,18 @@ if reference and referrer collections changed, this is not valid
         }
 
         $locale = $this->getLocale($document, $metadata);
-        if ($locale) {
+
+        $oid = spl_object_hash($document);
+        // handle case for initial persisting
+        if (empty($this->documentTranslations[$oid])) {
+            $this->bindTranslation($document, $locale);
+        // handle case when locale in the mapped property changed
+        } elseif (isset($this->documentLocales[$oid]['current'])
+            && $locale !== $this->documentLocales[$oid]['current']
+        ) {
             $this->bindTranslation($document, $locale);
         }
 
-        $oid = spl_object_hash($document);
         if (!empty($this->documentTranslations[$oid])) {
             $strategy = $this->dm->getTranslationStrategy($metadata->translator);
             foreach ($this->documentTranslations[$oid] as $locale => $data) {
@@ -2672,40 +2686,118 @@ if reference and referrer collections changed, this is not valid
             return;
         }
 
-        $oid = spl_object_hash($document);
-        // Determine which languages we will try to load
-        if (!$fallback) {
-            if (null === $locale) {
-                $localesToTry = array($this->dm->getLocaleChooserStrategy()->getDefaultLocale());
-            } else {
-                $localesToTry = array($locale);
-            }
-        } else {
-            $localesToTry = $this->getFallbackLocales($document, $metadata, $locale);
-        }
+        $currentLocale = $this->getLocale($document, $metadata);
 
         // Load translated fields for current locale
+        $oid = spl_object_hash($document);
         $node = $this->session->getNode($this->getDocumentId($oid));
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
-        foreach ($localesToTry as $desiredLocale) {
-            if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
-                $localeUsed = $desiredLocale;
-                break;
+        $locale = $locale ?: $currentLocale;
+        if ($locale && $strategy->loadTranslation($document, $node, $metadata, $locale)) {
+            $localeUsed = $locale;
+        } elseif (!$fallback) {
+            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+            if (!$strategy->loadTranslation($document, $node, $metadata, $localeUsed)) {
+                $msg = "No translation at '{$node->getPath()}' found with strategy '{$metadata->translator} using the default locale '$localeUsed'.";
+                throw new MissingTranslationException($msg);
+            }
+        } else {
+            $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
+
+            foreach ($localesToTry as $desiredLocale) {
+                if ($desiredLocale === $locale
+                    || $strategy->loadTranslation($document, $node, $metadata, $desiredLocale)
+                ) {
+                    $localeUsed = $desiredLocale;
+                    break;
+                }
+            }
+
+            if (empty($localeUsed)) {
+                $msg = "No translation for locale '$locale' at '{$node->getPath()}' found with strategy '{$metadata->translator}.";
+                if (!empty($localesToTry)) {
+                    $msg.= " Tried the following additional locales: ".var_export($localesToTry, true);
+                }
+                throw new MissingTranslationException($msg);
             }
         }
 
-        if (empty($localeUsed)) {
-            // We tried each possible language without finding the translations
-            throw new MissingTranslationException('No translation for '.$node->getPath()." found with strategy '".$metadata->translator.'". Tried the following locales: '.var_export($localesToTry, true));
+        $this->setLocale($document, $metadata, $localeUsed);
+
+        if ($metadata->parentMapping) {
+            $parent = $metadata->reflFields[$metadata->parentMapping]->getValue($document);
+            $this->cascadeDoLoadTranslation($parent, $metadata->mappings[$metadata->parentMapping], $locale);
         }
 
-        // Set the locale
-        if ($localeField = $metadata->localeMapping) {
-            $metadata->reflFields[$localeField]->setValue($document, $localeUsed);
+        if ($metadata->childMappings) {
+            foreach ($metadata->childMappings as $fieldName) {
+                $child = $metadata->reflFields[$fieldName]->getValue($document);
+                $this->cascadeDoLoadTranslation($child, $metadata->mappings[$fieldName], $locale);
+            }
         }
 
-        $this->documentLocales[$oid] = array('original' => $locale, 'current' => $locale);
+        if ($metadata->childrenMappings) {
+            foreach ($metadata->childrenMappings as $fieldName) {
+                $children = $metadata->reflFields[$fieldName]->getValue($document);
+                if ($children instanceof ChildrenCollection && !$children->isInitialized()) {
+                    $children->setLocale($locale);
+                } elseif (!empty($children)) {
+                    foreach ($children as $child) {
+                        $this->cascadeDoLoadTranslation($child, $metadata->mappings[$fieldName], $locale);
+                    }
+                }
+            }
+        }
+
+        if ($metadata->referenceMappings) {
+            foreach ($metadata->referenceMappings as $fieldName) {
+                $reference = $metadata->reflFields[$fieldName]->getValue($document);
+                if ($reference instanceof ReferenceManyCollection && !$reference->isInitialized()) {
+                    $reference->setLocale($locale);
+                } else {
+                    if ($reference instanceOf \Traversable || is_array($reference)) {
+                        foreach ($reference as $ref) {
+                            $this->cascadeDoLoadTranslation($ref, $metadata->mappings[$fieldName], $locale);
+                        }
+                    } else {
+                        $this->cascadeDoLoadTranslation($reference, $metadata->mappings[$fieldName], $locale);
+                    }
+                }
+            }
+        }
+
+        if ($metadata->referrersMappings) {
+            foreach ($metadata->referrersMappings as $fieldName) {
+                $referrers = $metadata->reflFields[$fieldName]->getValue($document);
+                if ($referrers instanceof ReferrersCollection && !$referrers->isInitialized()) {
+                    $referrers->setLocale($locale);
+                } elseif (!empty($referrers)) {
+                    foreach ($referrers as $referrer) {
+                        $this->cascadeDoLoadTranslation($referrer, $metadata->mappings[$fieldName], $locale);
+                    }
+                }
+            }
+        }
+    }
+
+    private function cascadeDoLoadTranslation($document, $mapping, $locale)
+    {
+        if (!$document || !($mapping['cascade'] & ClassMetadata::CASCADE_TRANSLATION)) {
+            return;
+        }
+
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if ($document instanceOf Proxy && !$document->__isInitialized()) {
+            $this->setLocale($document, $class, $locale);
+        } elseif ($this->isDocumentTranslatable($class)
+            && $this->getLocale($document, $class) !== $locale
+        ) {
+            try {
+                $this->doLoadTranslation($document, $class, $locale, true);
+            } catch (\Exception $e) {
+            }
+        }
     }
 
     public function removeTranslation($document, $locale)
@@ -2719,19 +2811,13 @@ if reference and referrer collections changed, this is not valid
             throw new \RuntimeException('The last translation of a translatable document may not be removed');
         }
 
+        if ($document instanceof Proxy) {
+            $document->__load();
+        }
+
         $oid = spl_object_hash($document);
         $this->documentTranslations[$oid][$locale] = null;
-
-        $localeField = $metadata->localeMapping;
-        if ($metadata->reflFields[$localeField]->getValue($document) === $locale) {
-            $this->documentLocales[$oid] = array('original' => $locale, 'current' => null);
-
-            // Empty the locale field if what we removed was the current language
-            $localeField = $metadata->localeMapping;
-            if ($localeField) {
-                $metadata->reflFields[$localeField]->setValue($document, null);
-            }
-        }
+        $this->setLocale($document, $metadata, null);
     }
 
     private function doRemoveAllTranslations($document, ClassMetadata $metadata)
@@ -2745,41 +2831,46 @@ if reference and referrer collections changed, this is not valid
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
 
+    private function setLocale($document, ClassMetadata $metadata, $locale)
+    {
+        if (!$this->isDocumentTranslatable($metadata)) {
+            return;
+        }
+
+        $oid = spl_object_hash($document);
+        if (empty($this->documentLocales[$oid])) {
+            $this->documentLocales[$oid] = array('original' => $locale);
+        }
+        $this->documentLocales[$oid]['current'] = $locale;
+
+        if ($metadata->localeMapping
+            && (!$document instanceof Proxy || $document->__isInitialized())
+        ) {
+            $metadata->reflFields[$metadata->localeMapping]->setValue($document, $locale);
+        }
+    }
+
     private function getLocale($document, ClassMetadata $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return null;
         }
 
-        $localeField = $metadata->localeMapping;
-        if ($localeField) {
-            $locale = $metadata->reflFields[$localeField]->getValue($document);
+        if ($metadata->localeMapping
+            && (!$document instanceof Proxy || $document->__isInitialized())
+        ) {
+            $locale = $metadata->reflFields[$metadata->localeMapping]->getValue($document);
+            if ($locale) {
+                return $locale;
+            }
         }
 
-        if (empty($locale)) {
-            $oid = spl_object_hash($document);
-            $locale = isset($this->documentLocales[$oid]['current'])
-                ? $this->documentLocales[$oid]['current']
-                : $this->dm->getLocaleChooserStrategy()->getLocale();
+        $oid = spl_object_hash($document);
+        if (isset($this->documentLocales[$oid]['current'])) {
+            return $this->documentLocales[$oid]['current'];
         }
 
-        return $locale;
-    }
-
-    /**
-     * Use the LocaleStrategyChooser to return list of fallback locales
-     *
-     * @param object        $document The document object
-     * @param ClassMetadata $metadata The metadata of the document class
-     * @param $desiredLocale
-     *
-     * @return array
-     */
-    private function getFallbackLocales($document, ClassMetadata $metadata, $desiredLocale)
-    {
-        $strategy = $this->dm->getLocaleChooserStrategy();
-
-        return $strategy->getPreferredLocalesOrder($document, $metadata, $desiredLocale);
+        return $this->dm->getLocaleChooserStrategy()->getLocale();
     }
 
     /**
