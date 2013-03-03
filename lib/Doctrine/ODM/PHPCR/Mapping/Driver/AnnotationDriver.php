@@ -57,7 +57,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
     public function loadMetadataForClass($className, ClassMetadata $metadata)
     {
         /** @var $metadata \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
-
         $reflClass = $metadata->getReflectionClass();
 
         $documentAnnots = array();

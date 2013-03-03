@@ -653,7 +653,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
         }
 
-        if (isset($mapping['referredBy'])) {
+        if (isset($mapping['referencedBy'])) {
             throw new MappingException('MixedReferrers has no referredBy attribute, use Referrers for this: ' . $mapping['fieldName']);
         }
         if (empty($mapping['cascade'])) {

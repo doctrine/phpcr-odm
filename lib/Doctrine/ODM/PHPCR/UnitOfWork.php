@@ -400,13 +400,26 @@ class UnitOfWork
 
         foreach ($class->referrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
+            // get the reference type strategy (weak or hard) on the fly, as we
+            // can not do it in ClassMetadata
             $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
             $referringField = $referringMeta->mappings[$mapping['referencedBy']];
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $referringField['strategy'], $mapping['referencedBy'], $locale);
+            $documentState[$fieldName] = new ReferrersCollection(
+                $this->dm,
+                $document,
+                $referringField['strategy'],
+                $mapping['referencedBy'],
+                $locale
+            );
         }
         foreach ($class->mixedReferrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ImmutableReferrersCollection($this->dm, $document, $mapping['referenceType'], $locale);
+            $documentState[$fieldName] = new ImmutableReferrersCollection(
+                $this->dm,
+                $document,
+                $mapping['referenceType'],
+                $locale
+            );
         }
 
         if (! $overrideLocalValuesOid) {
@@ -624,7 +637,7 @@ class UnitOfWork
             }
         }
 
-        // children are inserted unconditionally, not cascading is not possible
+        // children are inserted unconditionally, cascading is inherent
 
         $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $fieldName) {
@@ -1456,10 +1469,13 @@ class UnitOfWork
                 } elseif ('referrers' === $mapping['type']) {
                     $managedCol = $prop->getValue($managedCopy);
                     if (!$managedCol) {
+                        $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
+                        $referringField = $referringMeta->mappings[$mapping['referencedBy']];
+
                         $managedCol = new ReferrersCollection(
                             $this->dm,
                             $managedCopy,
-                            null, // reference type, not known
+                            $referringField['strategy'],
                             $mapping['referencedBy'],
                             $locale
                         );
