@@ -400,8 +400,9 @@ class UnitOfWork
 
         foreach ($class->referrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            // TODO: do we care about referenceType at this point? it would be hard to figure out as we delayed reading the referringDocument in ClassMetadata
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, null, $mapping['referencedBy'], $locale);
+            $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
+            $referringField = $referringMeta->mappings[$mapping['referencedBy']];
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $referringField['strategy'], $mapping['referencedBy'], $locale);
         }
         foreach ($class->mixedReferrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
@@ -2517,7 +2518,7 @@ class UnitOfWork
      *
      * @param object $document document instance which referrers should be loaded
      * @param string $type     optional type of the reference the referrer should
-     *      have ('weak' or 'hard')
+     *      have ('weak' or 'hard'). null to get both
      * @param string $name     optional name to match on referrers reference
      *      property name
      * @param string       $locale             the locale to use during the loading of this collection

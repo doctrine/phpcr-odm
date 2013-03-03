@@ -643,6 +643,7 @@ class ClassMetadata implements ClassMetadataInterface
 
         $mapping['type'] = 'referrers';
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited, false);
+        unset($mapping['strategy']); // this would be a lie, we want the strategy of the referring field
         $this->referrersMappings[] = $mapping['fieldName'];
     }
 

@@ -823,11 +823,16 @@ class DocumentManager implements ObjectManager
     /**
      * Get the documents that refer a given document using an optional name.
      *
-     * This methods gets all nodes as a collection of documents that refer the
-     * given document and matches a given name.
+     * This methods gets a collection of documents that have references to the
+     * given document, optionally only hard or weak references, optionally
+     * filtered by the referring PHPCR property name.
      *
-     * @param object       $document document instance which referrers should be loaded
-     * @param string|array $name     optional PHPCR property name that holds the reference
+     * Multilingual documents are loaded in the default locale, unless a locale
+     * preference is explicitly specified.
+     *
+     * @param object       $document the target of the references to be loaded
+     * @param string|null  $type     the reference type, null|'weak'|'hard'
+     * @param string|null  $name     optional PHPCR property name that holds the reference
      * @param string       $locale   the locale to use during the loading of this collection
      *
      * @return \Doctrine\Common\Collections\Collection collection of referrer documents
