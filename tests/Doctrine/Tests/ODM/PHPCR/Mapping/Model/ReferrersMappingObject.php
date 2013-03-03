@@ -20,7 +20,7 @@ class ReferrersMappingObject
     public $allReferrers;
 
     /**
-     * @PHPCRODM\Referrers(referencedBy="test_filter", referringDocument="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject")
+     * @PHPCRODM\Referrers(referencedBy="referenceManyWeak", referringDocument="ReferenceManyMappingObject")
      */
     public $filteredReferrers;
 

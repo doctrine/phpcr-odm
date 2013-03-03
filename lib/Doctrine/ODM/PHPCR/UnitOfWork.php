@@ -2016,12 +2016,12 @@ class UnitOfWork
                                 continue;
                             }
 
-                            if (! $fv instanceof $mapping['referrerDocument']) {
+                            if (! $fv instanceof $mapping['referringDocument']) {
                                 throw new PHPCRException(sprintf("%s is not an instance of %s for document %s field %s", self::objToStr($fv, $this->dm), $mapping['referencedBy'], self::objToStr($document, $this->dm), $mapping['fieldName']));
                             }
 
                             $referencingNode = $this->session->getNode($this->getDocumentId($fv));
-                            $referencingMeta = $this->dm->getClassMetadata($mapping['referrerDocument']);
+                            $referencingMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
                             $referencingField = $referencingMeta->getAssociation($mapping['referencedBy']);
 
                             $uuid = $node->getIdentifier();

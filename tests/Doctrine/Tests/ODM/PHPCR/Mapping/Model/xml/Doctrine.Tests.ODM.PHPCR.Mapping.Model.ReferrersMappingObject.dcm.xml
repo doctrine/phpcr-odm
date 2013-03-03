@@ -3,7 +3,7 @@
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject" referenceable="true">
         <id name="id" />
         <mixed-referrers fieldName="allReferrers"/>
-        <referrers fieldName="filteredReferrers" referenced-by="test_filter" referrer-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
+        <referrers fieldName="filteredReferrers" referenced-by="referenceManyWeak" referring-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
         <mixed-referrers fieldName="weakReferrers" reference-type="weak" />
         <mixed-referrers fieldName="hardReferrers" reference-type="hard" />
     </document>

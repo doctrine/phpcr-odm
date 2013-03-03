@@ -3,7 +3,7 @@ Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject:
   referenceable: true
   referrers:
     filteredReferrers:
-      referencedBy: test_filter
+      referencedBy: referenceManyWeak
       referringDocument: Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject
   mixedReferrers:
     allReferrers:

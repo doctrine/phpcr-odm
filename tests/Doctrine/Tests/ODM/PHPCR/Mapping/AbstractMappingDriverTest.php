@@ -571,8 +571,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('referrers', $filtered['type']);
         $this->assertEquals('filteredReferrers', $filtered['fieldName']);
         $this->assertEquals('filteredReferrers', $filtered['name']);
-        $this->assertEquals('test_filter', $filtered['mappedBy']);
-        $this->assertEmpty($filtered['referenceType']);
+        $this->assertEquals('referenceManyWeak', $filtered['referencedBy']);
     }
 
     /**
