@@ -20,6 +20,8 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
@@ -83,13 +85,13 @@ class UnitOfWork
 
     /**
      * Track version history of the version documents we create, indexed by spl_object_hash
-     * @var array of \PHPCR\Version\VersionHistory
+     * @var \PHPCR\Version\VersionHistoryInterface[]
      */
     private $documentHistory = array();
 
     /**
      * Track version objects of the version documents we create, indexed by spl_object_hash
-     * @var array of PHPCR\Version\Version
+     * @var \PHPCR\Version\VersionInterface[]
      */
     private $documentVersion = array();
 
@@ -169,7 +171,7 @@ class UnitOfWork
     private $changesetComputed = array();
 
     /**
-     * @var array
+     * @var IdGenerator
      */
     private $idGenerators = array();
 
@@ -398,12 +400,12 @@ class UnitOfWork
 
         foreach ($class->referrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], $mapping['mappedBy'], $locale);
+            // TODO: do we care about referenceType at this point? it would be hard to figure out as we delayed reading the referringDocument in ClassMetadata
+            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, null, $mapping['referencedBy'], $locale);
         }
         foreach ($class->mixedReferrersMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            // this should be an immutable collection. can we do that in a sane way?
-            $documentState[$fieldName] = new ReferrersCollection($this->dm, $document, $mapping['referenceType'], null, $locale);
+            $documentState[$fieldName] = new ImmutableReferrersCollection($this->dm, $document, $mapping['referenceType'], $locale);
         }
 
         if (! $overrideLocalValuesOid) {
@@ -592,7 +594,7 @@ class UnitOfWork
      */
     private function cascadeScheduleInsert($class, $document, &$visited)
     {
-        foreach ($class->referenceMappings as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST)) {
                 continue;
@@ -620,6 +622,8 @@ class UnitOfWork
                 }
             }
         }
+
+        // children are inserted unconditionally, not cascading is not possible
 
         $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $fieldName) {
@@ -663,10 +667,15 @@ class UnitOfWork
         }
     }
 
+    /**
+     * @param string $type the id generator type
+     *
+     * @return IdGenerator
+     */
     private function getIdGenerator($type)
     {
         if (!isset($this->idGenerators[$type])) {
-            $this->idGenerators[$type] = Id\IdGenerator::create($type);
+            $this->idGenerators[$type] = IdGenerator::create($type);
         }
 
         return $this->idGenerators[$type];
@@ -756,7 +765,7 @@ class UnitOfWork
 
     private function cascadeRemove(ClassMetadata $class, $document, &$visited)
     {
-        foreach ($class->referenceMappings as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE)) {
                 continue;
@@ -772,6 +781,8 @@ class UnitOfWork
                 $this->doRemove($related, $visited);
             }
         }
+
+        // remove is cascaded to children automatically on PHPCR level
     }
 
     /**
@@ -1012,7 +1023,9 @@ class UnitOfWork
 
         foreach ($class->referrersMappings as $fieldName) {
             if ($actualData[$fieldName]) {
-                if ($actualData[$fieldName] instanceof PersistentCollection && !$actualData[$fieldName]->isInitialized()) {
+                if ($actualData[$fieldName] instanceof PersistentCollection
+                    && !$actualData[$fieldName]->isInitialized()
+                ) {
                     continue;
                 }
 
@@ -1340,7 +1353,7 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         if (isset($visited[$oid])) {
-            return; // Prevent infinite recursion
+            return $document; // Prevent infinite recursion
         }
 
         $visited[$oid] = $document; // mark visited
@@ -1445,8 +1458,8 @@ class UnitOfWork
                         $managedCol = new ReferrersCollection(
                             $this->dm,
                             $managedCopy,
-                            $mapping['referenceType'],
-                            $mapping['mappedBy'],
+                            null, // reference type, not known
+                            $mapping['referencedBy'],
                             $locale
                         );
                         $prop->setValue($managedCopy, $managedCol);
@@ -1456,7 +1469,7 @@ class UnitOfWork
                 } elseif ('mixedreferrers' === $mapping['type']) {
                     $managedCol = $prop->getValue($managedCopy);
                     if (!$managedCol) {
-                        $managedCol = new ReferrersCollection(
+                        $managedCol = new ImmutableReferrersCollection(
                             $this->dm,
                             $managedCopy,
                             $mapping['referenceType'],
@@ -1509,7 +1522,7 @@ class UnitOfWork
      */
     private function cascadeMerge(ClassMetadata $class, $document, $managedCopy, array &$visited)
     {
-        foreach ($class->referenceMappings as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_MERGE)) {
                 continue;
@@ -1572,7 +1585,7 @@ class UnitOfWork
 
     private function cascadeRefresh(ClassMetadata $class, $document, &$visited)
     {
-        foreach ($class->referenceMappings as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH)) {
                 continue;
@@ -1616,7 +1629,7 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->referrersMappings as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_DETACH)) {
                 continue;
@@ -1996,7 +2009,7 @@ class UnitOfWork
 
                             $uuid = $node->getIdentifier();
                             $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
-                            if ($referencingField['type'] === ClassMetadata::MANY_TO_ONE) {
+                            if (ClassMetadata::MANY_TO_ONE === $referencingField['type']) {
                                 $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
                                 if ($ref !== null && $ref !== $document) {
                                     throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
@@ -2007,30 +2020,39 @@ class UnitOfWork
                                 unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                 // store the change in PHPCR
                                 $referencingNode->setProperty($referencingField['name'], $uuid, $strategy);
-                            } elseif ($referencingField['type'] === ClassMetadata::MANY_TO_MANY) {
+                            } elseif (ClassMetadata::MANY_TO_MANY === $referencingField['type']) {
+                                /** @var $collection ReferenceManyCollection */
+                                $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                                if ($collection && $collection->isDirty()) {
+                                    throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambigous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
+                                }
+                                if ($collection) {
+                                    // make sure the reference is not deleted in this change because the field could be null
+                                    unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                } else {
+                                    $collection = new ReferenceManyCollection($this->dm, array($node), $class->name);
+                                    $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
+                                }
 
-if reference and referrer collections changed, this is not valid
                                 if ($referencingNode->hasProperty($referencingField['name'])) {
                                     if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
-                                        // update the referencing document
-                                        $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                        $collection->add($document);
-                                        // and make sure the reference is not deleted in this change because the field could be null
-                                        //? unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                        if (! $collection->isDirty()) {
+                                            // update the reference collection: add us to it
+                                            $collection->add($document);
+                                        }
                                         // store the change in PHPCR
                                         $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
                                     }
                                 } else {
-                                    // update the referencing document
-                                    $node = $this->session->getNode($this->getDocumentId($document));
-                                    $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], new ReferenceManyCollection($this->dm, array($node), $class->name));
-                                    // and make sure the reference is not deleted in this change because the field could be null
-                                    //? unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     // store the change in PHPCR
                                     $referencingNode->setProperty($referencingField['name'], array($uuid), $strategy);
                                 }
+                                // avoid confusion later, this change to the reference collection is already saved
+                                $collection->setDirty(false);
+
                             } else {
-                                throw new PHPCRException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
+                                // in class metadata we only did a santiy check but not look at the actual mapping
+                                throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
                             }
                         }
                     }
@@ -2324,7 +2346,7 @@ if reference and referrer collections changed, this is not valid
 
         $result = array();
         foreach ($versions as $version) {
-
+            /** @var $version \PHPCR\Version\VersionInterface */
             $result[$version->getName()] = array(
                 'name' => $version->getName(),
                 'labels' => array(),

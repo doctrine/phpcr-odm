@@ -8,18 +8,14 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
-    protected $metadataFactoryMock;
-
     /**
      * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
      */
     abstract protected function loadDriver();
+    /**
+     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     */
     abstract protected function loadDriverForTestMappingDocuments();
-
-    public function setUp()
-    {
-        $this->metadataFactoryMock = $this->getMockBuilder('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory')->disableOriginalConstructor()->getMock();
-    }
 
     protected function ensureIsLoaded($entityClassName)
     {
@@ -37,7 +33,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $mappingDriver = $this->loadDriver();
 
-        $class = new ClassMetadata($className, $this->metadataFactoryMock);
+        $class = new ClassMetadata($className);
         $class->initializeReflection(new RuntimeReflectionService());
         $mappingDriver->loadMetadataForClass($className, $class);
 
@@ -46,7 +42,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadMetadataForNonDocumentThrowsException()
     {
-        $cm = new ClassMetadata('stdClass', $this->metadataFactoryMock);
+        $cm = new ClassMetadata('stdClass');
         $cm->initializeReflection(new RuntimeReflectionService());
 
         $driver = $this->loadDriver();
@@ -561,14 +557,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     public function testLoadReferrersMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject';
-
-        $referrerMeta = $this->loadMetadataForClassname('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject');
-
-        $this->metadataFactoryMock->expects($this->once())
-            ->method('getClassMetadata')
-            ->with('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject')
-            ->will($this->returnValue($referrerMeta))
-        ;
 
         return $this->loadMetadataForClassname($className);
     }

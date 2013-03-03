@@ -690,7 +690,7 @@ class AllReferrerRefNamedPropTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Referrers(mappedBy="namedReference") */
+    /** @PHPCRODM\Referrers(referencedBy="namedReference",referringDocument="ReferrerNamedPropTestObj") */
     public $referrers;
     /** @PHPCRODM\String */
     public $name;
