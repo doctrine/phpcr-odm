@@ -27,6 +27,7 @@ use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Exception\NotImplementedException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
@@ -3024,6 +3025,16 @@ class UnitOfWork
     }
 
     /**
+     * Gets the currently scheduled document updates in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledUpdates()
+    {
+        return $this->scheduledUpdates;
+    }
+
+    /**
      * Gets the currently scheduled document insertions in this UnitOfWork.
      *
      * @return array
@@ -3034,13 +3045,23 @@ class UnitOfWork
     }
 
     /**
-     * Gets the currently scheduled document updates in this UnitOfWork.
+     * Gets the currently scheduled document moves in this UnitOfWork.
      *
      * @return array
      */
-    public function getScheduledUpdates()
+    public function getScheduledMoves()
     {
-        return $this->scheduledUpdates;
+        return $this->scheduledMoves;
+    }
+
+    /**
+     * Gets the currently scheduled document reorders in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledReorders()
+    {
+        throw new NotImplementedException('getScheduledReorders is not currently implementd.');
     }
 
     /**
