@@ -131,28 +131,28 @@ class UnitOfWork
     private $documentChangesets = array();
 
     /**
-     * List of documents that have a field that needs to be updated
+     * List of documents that have a changed field to be updated on next flush
      * oid => document
      * @var array
      */
     private $scheduledUpdates = array();
 
     /**
-     * List of documents that need to be inserted
+     * List of documents that will be inserted on next flush
      * oid => document
      * @var array
      */
     private $scheduledInserts = array();
 
     /**
-     * List of documents that need to be moved
+     * List of documents that will be moved on next flush
      * oid => array(document, target path)
      * @var array
      */
     private $scheduledMoves = array();
 
     /**
-     * List of parent documents that have children that need to be reordered
+     * List of parent documents that have children that will be reordered on next flush
      * parent oid => array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
      * - srcName the Nodename of the document to be moved,
@@ -164,7 +164,7 @@ class UnitOfWork
     private $scheduledReorders = array();
 
     /**
-     * List of documents that need to be removed
+     * List of documents that will be removed on next flush
      * oid => document
      * @var array
      */
