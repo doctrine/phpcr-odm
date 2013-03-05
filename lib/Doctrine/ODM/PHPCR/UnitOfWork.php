@@ -2026,50 +2026,53 @@ class UnitOfWork
 
                             $uuid = $node->getIdentifier();
                             $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
-                            if (ClassMetadata::MANY_TO_ONE === $referencingField['type']) {
-                                $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                if ($ref !== null && $ref !== $document) {
-                                    throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
-                                }
-                                // update the referencing document field to point to this document
-                                $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
-                                // and make sure the reference is not deleted in this change because the field could be null
-                                unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
-                                // store the change in PHPCR
-                                $referencingNode->setProperty($referencingField['name'], $uuid, $strategy);
-                            } elseif (ClassMetadata::MANY_TO_MANY === $referencingField['type']) {
-                                /** @var $collection ReferenceManyCollection */
-                                $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                if ($collection && $collection->isDirty()) {
-                                    throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambigous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
-                                }
-                                if ($collection) {
-                                    // make sure the reference is not deleted in this change because the field could be null
-                                    unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
-                                } else {
-                                    $collection = new ReferenceManyCollection($this->dm, array($node), $class->name);
-                                    $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
-                                }
-
-                                if ($referencingNode->hasProperty($referencingField['name'])) {
-                                    if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
-                                        if (! $collection->isDirty()) {
-                                            // update the reference collection: add us to it
-                                            $collection->add($document);
-                                        }
-                                        // store the change in PHPCR
-                                        $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
+                            switch ($referencingField['type']) {
+                                case ClassMetadata::MANY_TO_ONE:
+                                    $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                                    if ($ref !== null && $ref !== $document) {
+                                        throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
                                     }
-                                } else {
+                                    // update the referencing document field to point to this document
+                                    $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
+                                    // and make sure the reference is not deleted in this change because the field could be null
+                                    unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     // store the change in PHPCR
-                                    $referencingNode->setProperty($referencingField['name'], array($uuid), $strategy);
-                                }
-                                // avoid confusion later, this change to the reference collection is already saved
-                                $collection->setDirty(false);
+                                    $referencingNode->setProperty($referencingField['name'], $uuid, $strategy);
+                                    break;
+                                case ClassMetadata::MANY_TO_MANY:
+                                    /** @var $collection ReferenceManyCollection */
+                                    $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                                    if ($collection && $collection->isDirty()) {
+                                        throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambiguous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
+                                    }
+                                    if ($collection) {
+                                        // make sure the reference is not deleted in this change because the field could be null
+                                        unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                    } else {
+                                        $collection = new ReferenceManyCollection($this->dm, array($node), $class->name);
+                                        $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
+                                    }
 
-                            } else {
-                                // in class metadata we only did a santiy check but not look at the actual mapping
-                                throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
+                                    if ($referencingNode->hasProperty($referencingField['name'])) {
+                                        if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
+                                            if (! $collection->isDirty()) {
+                                                // update the reference collection: add us to it
+                                                $collection->add($document);
+                                            }
+                                            // store the change in PHPCR
+                                            $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
+                                        }
+                                    } else {
+                                        // store the change in PHPCR
+                                        $referencingNode->setProperty($referencingField['name'], array($uuid), $strategy);
+                                    }
+
+                                    // avoid confusion later, this change to the reference collection is already saved
+                                    $collection->setDirty(false);
+                                    break;
+                                default:
+                                    // in class metadata we only did a santiy check but not look at the actual mapping
+                                    throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
                             }
                         }
                     }
