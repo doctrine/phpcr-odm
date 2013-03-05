@@ -27,9 +27,9 @@ use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\Proxy;
-use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
 use ReflectionProperty;
+use InvalidArgumentException;
 
 /**
  * This factory is used to create proxy objects for entities at runtime.
@@ -63,11 +63,7 @@ class ProxyFactory extends AbstractProxyFactory
      * @param boolean $autoGenerate Whether to automatically generate proxy classes.
      */
     public function __construct(DocumentManager $dm, $proxyDir, $proxyNamespace, $autoGenerate = false) {
-        // can/should we push that further up and inject? we do need the proxy namespace again however
-        $proxyGenerator = new ProxyGenerator($proxyDir, $proxyNamespace);
-        $proxyGenerator->setPlaceholder('<baseProxyInterface>', 'Doctrine\ODM\PHPCR\Proxy\Proxy');
-
-        parent::__construct($proxyGenerator, $dm->getMetadataFactory(), $autoGenerate);
+        parent::__construct(new ProxyGenerator($proxyDir, $proxyNamespace), $dm->getMetadataFactory(), $autoGenerate);
 
         $this->dm             = $dm;
         $this->proxyNamespace = $proxyNamespace;
@@ -78,8 +74,8 @@ class ProxyFactory extends AbstractProxyFactory
      */
     protected function skipClass(BaseClassMetadata $metadata)
     {
-        if (! $metadata instanceof ClassMetadata) {
-            throw new \Exception('Did not get the expected type of metadata but ' . get_class($metadata));
+        if ( ! $metadata instanceof ClassMetadata) {
+            throw new InvalidArgumentException('Did not get the expected type of metadata but ' . get_class($metadata));
         }
 
         return $metadata->isMappedSuperclass || $metadata->getReflectionClass()->isAbstract();
@@ -90,18 +86,14 @@ class ProxyFactory extends AbstractProxyFactory
      */
     protected function createProxyDefinition($className)
     {
-        $proxyClassName = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
-
         $classMetadata = $this->dm->getClassMetadata($className);
-        $identifierField = $classMetadata->reflFields[$classMetadata->identifier];
-        $reflectionFields = $classMetadata->reflFields; // is that correct?
 
         return new ProxyDefinition(
-            $proxyClassName,
+            ClassUtils::generateProxyClassName($classMetadata->getName(), $this->proxyNamespace),
             array($classMetadata->identifier),
-            $reflectionFields,
+            $classMetadata->reflFields,
             $this->createInitializer($classMetadata, $this->dm),
-            $this->createCloner($classMetadata, $this->dm, $identifierField)
+            $this->createCloner($classMetadata, $this->dm, $classMetadata->reflFields[$classMetadata->identifier])
         );
     }
 
