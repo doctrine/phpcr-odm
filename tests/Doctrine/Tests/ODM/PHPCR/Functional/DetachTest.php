@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\ODM\CouchDB\Functional;
+namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\ODM\PHPCR\UnitOfWork;

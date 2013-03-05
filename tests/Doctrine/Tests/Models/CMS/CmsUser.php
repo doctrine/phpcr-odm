@@ -32,6 +32,13 @@ class CmsUser
     public $children;
     /** @PHPCRODM\Child(name="assistant", cascade="persist") */
     public $child;
+    /** @PHPCRODM\Referrers(referencedBy="user", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
+    public $articlesReferrers;
+
+    public function __construct()
+    {
+        $this->articlesReferrers = new ArrayCollection();
+    }
 
     public function getId()
     {

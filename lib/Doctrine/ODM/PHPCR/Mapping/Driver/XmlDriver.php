@@ -152,12 +152,14 @@ class XmlDriver extends FileDriver
         if (isset($xmlRoot->{'reference-many'})) {
             foreach ($xmlRoot->{'reference-many'} as $reference) {
                 $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
+                $reference['name'] = (isset($reference->name)) ? $reference->name : null;
                 $this->addReferenceMapping($class, $reference, 'many');
             }
         }
         if (isset($xmlRoot->{'reference-one'})) {
             foreach ($xmlRoot->{'reference-one'} as $reference) {
                 $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
+                $reference['name'] = (isset($reference->name)) ? $reference->name : null;
                 $this->addReferenceMapping($class, $reference, 'one');
             }
         }
@@ -166,14 +168,30 @@ class XmlDriver extends FileDriver
             $class->mapLocale(array('fieldName' => (string) $xmlRoot->locale->attributes()->fieldName));
         }
 
+        if (isset($xmlRoot->{'mixed-referrers'})) {
+            foreach ($xmlRoot->{'mixed-referrers'} as $mixedReferrers) {
+                $attributes = $mixedReferrers->attributes();
+                $mapping = array(
+                    'fieldName' => (string) $attributes->fieldName,
+                    'referenceType' => isset($attributes['reference-type']) ? (string) $attributes->{'reference-type'} : null,
+                );
+                $class->mapMixedReferrers($mapping);
+            }
+        }
         if (isset($xmlRoot->referrers)) {
             foreach ($xmlRoot->referrers as $referrers) {
                 $attributes = $referrers->attributes();
+                if (! isset($attributes['referenced-by'])) {
+                    throw new MappingException("$className is missing the referenced-by attribute for the referrer field " . $attributes->fieldName);
+                }
+                if (! isset($attributes['referring-document'])) {
+                    throw new MappingException("$className is missing the referring-document attribute for the referrer field " . $attributes->fieldName);
+                }
                 $mapping = array(
                     'fieldName' => (string) $attributes->fieldName,
                     'cascade' => (isset($referrers->cascade)) ? $this->getCascadeMode($referrers->cascade) : 0,
-                    'filter' => isset($attributes['filter']) ? (string) $attributes->filter : null,
-                    'referenceType' => isset($attributes['reference-type']) ? (string) $attributes->{'reference-type'} : null,
+                    'referencedBy' => (string) $attributes->{'referenced-by'},
+                    'referringDocument' => (string) $attributes->{'referring-document'},
                 );
                 $class->mapReferrers($mapping);
             }
