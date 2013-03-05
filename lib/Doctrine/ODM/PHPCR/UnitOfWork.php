@@ -138,11 +138,6 @@ class UnitOfWork
     /**
      * @var array
      */
-    private $scheduledAssociationUpdates = array();
-
-    /**
-     * @var array
-     */
     private $scheduledInserts = array();
 
     /**
@@ -1706,8 +1701,6 @@ class UnitOfWork
 
             $this->executeUpdates($this->scheduledUpdates);
 
-            $this->executeUpdates($this->scheduledAssociationUpdates, false);
-
             $this->executeRemovals($this->scheduledRemovals);
 
             $this->executeReorders($this->scheduledReorders);
@@ -1743,7 +1736,7 @@ class UnitOfWork
 
         $this->documentTranslations =
         $this->scheduledUpdates =
-        $this->scheduledAssociationUpdates =
+        $associationUpdates =
         $this->scheduledRemovals =
         $this->scheduledMoves =
         $this->scheduledReorders =
@@ -1785,7 +1778,7 @@ class UnitOfWork
             }
         );
 
-        $associationChangesets = array();
+        $associationChangesets = $associationUpdates = array();
 
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
@@ -1864,9 +1857,9 @@ class UnitOfWork
 
                     $node->setProperty($mapping['name'], $fieldValue, $type);
                 } elseif (in_array($fieldName, $class->referenceMappings) || in_array($fieldName, $class->referrersMappings)) {
-                    $this->scheduledAssociationUpdates[$oid] = $document;
+                    $associationUpdates[$oid] = $document;
 
-                    //populate $associationChangesets to force executeUpdates($this->scheduledAssociationUpdates)
+                    //populate $associationChangesets to force executeUpdates($associationUpdates)
                     //to only update association fields
                     $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
                     $data[$fieldName] = $fieldValue;
@@ -1885,6 +1878,8 @@ class UnitOfWork
         }
 
         $this->documentChangesets = array_merge($this->documentChangesets, $associationChangesets);
+
+        $this->executeUpdates($associationUpdates, false);
     }
 
     /**
@@ -2433,7 +2428,6 @@ class UnitOfWork
             $this->scheduledMoves[$oid],
             $this->scheduledReorders[$oid],
             $this->scheduledInserts[$oid],
-            $this->scheduledAssociationUpdates[$oid],
             $this->originalData[$oid],
             $this->documentIds[$oid],
             $this->documentState[$oid],
@@ -2629,7 +2623,6 @@ class UnitOfWork
         $this->documentChangesets =
         $this->changesetComputed =
         $this->scheduledUpdates =
-        $this->scheduledAssociationUpdates =
         $this->scheduledInserts =
         $this->scheduledMoves =
         $this->scheduledReorders =
