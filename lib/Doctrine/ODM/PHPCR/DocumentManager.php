@@ -874,7 +874,7 @@ class DocumentManager implements ObjectManager
      */
     public function getReference($documentName, $id)
     {
-        return $this->unitOfWork->createProxy($id, $documentName);
+        return $this->unitOfWork->getOrCreateProxy($id, $documentName);
     }
 
     /**
