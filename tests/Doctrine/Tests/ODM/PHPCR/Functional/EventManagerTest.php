@@ -81,6 +81,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $item->documentTarget = $page;
 
         $page->content = "short story";
+        $this->dm->persist($item);
         $page->addItem($item);
 
         $this->dm->persist($page);
