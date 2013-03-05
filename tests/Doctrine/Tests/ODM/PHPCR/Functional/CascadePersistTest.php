@@ -161,9 +161,8 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertEquals($user->id, $article->user->getId());
     }
 
-     public function testCascadeManagedDocumentReferrerDuringFlush()
+    public function testCascadeManagedDocumentReferrerDuringFlush()
     {
-
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user->username = "dbu";
         $user->name = "David";
