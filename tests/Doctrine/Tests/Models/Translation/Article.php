@@ -6,16 +6,24 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @PHPCRODM\Document(translator="attribute")
+ * @PHPCRODM\Document(translator="attribute", referenceable=true)
  */
 class Article
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /**
      * @PHPCRODM\Locale
      */
     public $locale = 'en';
+
+    /** @PHPCRODM\Node */
+    public $node;
+
+    /** @PHPCRODM\Nodename */
+    public $nodename;
+
     /**
      * @PHPCRODM\ParentDocument */
     public $parent;
@@ -32,10 +40,16 @@ class Article
     public $topic;
 
     /** @PHPCRODM\String(translated=true) */
-    private $text;
+    public $text;
 
     /** @PHPCRODM\Children() */
-    protected  $children;
+    public $children;
+
+    /** @PHPCRODM\Child */
+    public $child;
+
+    /** @PHPCRODM\ReferenceMany() */
+    public $relatedArticles = array();
 
     /**
      * @PHPCRODM\String(assoc="", translated=true)

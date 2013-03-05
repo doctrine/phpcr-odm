@@ -34,7 +34,7 @@ class Resource
 
     /** @PHPCRODM\Node */
     protected $node;
-    
+
     /** @PHPCRODM\Nodename */
     protected $nodename;
 
@@ -55,7 +55,7 @@ class Resource
 
     /** @PHPCRODM\String(name="jcr:lastModifiedBy") */
     protected $lastModifiedBy;
-    
+
     /**
      * The node name of the file.
      *
@@ -75,7 +75,7 @@ class Resource
     {
         $this->nodename = $name;
     }
-    
+
     /**
      * The parent File document of this Resource document.
      *
@@ -207,17 +207,16 @@ class Resource
     {
         return $this->lastModifiedBy;
     }
-    
-        
+
     /**
      * get mime and encoding (RFC2045)
      * @return string
      */
-    public function getMime() 
+    public function getMime()
     {
         return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
     }
-    
+
     /**
      * String representation
      *
@@ -225,6 +224,6 @@ class Resource
      */
     public function __toString()
     {
-        return (string)$this->nodename;
+        return (string) $this->nodename;
     }
 }

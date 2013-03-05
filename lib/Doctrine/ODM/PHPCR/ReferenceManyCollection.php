@@ -30,20 +30,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ReferenceManyCollection extends PersistentCollection
 {
     private $referencedNodes;
-    private $targetDocument = null;
+    private $targetDocument;
 
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManager $dm The DocumentManager the collection will be associated with.
-     * @param array $referencedNodes An array of referenced nodes (UUID or path)
-     * @param string $targetDocument the objectname of the target documents
+     * @param DocumentManager $dm              The DocumentManager the collection will be associated with.
+     * @param array           $referencedNodes An array of referenced nodes (UUID or path)
+     * @param string          $targetDocument  The class name of the target documents
+     * @param string          $locale          The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManager $dm, array $referencedNodes, $targetDocument)
+    public function __construct(DocumentManager $dm, array $referencedNodes, $targetDocument, $locale = null)
     {
         $this->dm = $dm;
         $this->referencedNodes = $referencedNodes;
         $this->targetDocument = $targetDocument;
+        $this->locale = $locale;
     }
 
     /**
@@ -65,8 +67,8 @@ class ReferenceManyCollection extends PersistentCollection
 
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $referencedClass
-                    ? $uow->createProxy($referencedNode->getPath(), $referencedClass)
-                    : $uow->createProxyFromNode($referencedNode);
+                    ? $uow->getOrCreateProxy($referencedNode->getPath(), $referencedClass, $this->locale)
+                    : $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
                 $referencedDocs[] = $proxy;
             }
 

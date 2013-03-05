@@ -24,6 +24,13 @@ class FullVersionableArticle
     /** @PHPCRODM\String */
     private $text;
 
+    /** @PHPCRODM\VersionName */
+    public $versionName;
+
+    /** @PHPCRODM\VersionCreated */
+    public $versionCreated;
+
+
     public function getText()
     {
         return $this->text;

@@ -24,6 +24,11 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     private $node;
 
+    protected $localePrefs = array(
+        'en' => array('en', 'fr'),
+        'fr' => array('fr', 'en'),
+    );
+
     public function setUp()
     {
         $this->dm = $this->createDocumentManager();
@@ -565,6 +570,41 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount(1, $reference->referrers);
         $this->assertEquals("referrerNamedPropTestObj", $reference->referrers[0]->name);
     }
+
+    /**
+     * There was a bug that documents translated fields where overwritten when they are re-created
+     *
+     * depends testCreate
+     */
+    public function testMultilangReferrers()
+    {
+        $this->dm->setLocaleChooserStrategy(new \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser($this->localePrefs, 'en'));
+        $this->dm->setTranslationStrategy('attribute', new \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy());
+
+        $referrerTestObj = new ReferrerTestObjMultilang();
+        $referrerRefTestObj = new ReferrerRefTestObj();
+
+        $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerTestObj->name = "referrer";
+        $referrerRefTestObj->id = "/functional/referrerRefTestObj";
+        $referrerRefTestObj->name = "referenced";
+
+        $referrerTestObj->reference = $referrerRefTestObj;
+
+        $this->dm->persist($referrerTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referenced = $this->dm->find(null, "/functional/referrerRefTestObj");
+
+        $referrer->name = 'changed';
+        $this->assertEquals('changed', $referrer->name);
+
+        $this->assertCount(1, $referenced->referrers);
+        $this->assertSame($referrer, $referenced->referrers->first());
+        $this->assertEquals('changed', $referrer->name);
+    }
 }
 
 /**
@@ -667,6 +707,22 @@ class ReferrerTestObj
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
+}
+
+/**
+ * @PHPCRODM\Document(translator="attribute")
+ */
+class ReferrerTestObjMultilang
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String(translated=true) */
+    public $name;
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
+    public $reference;
+
+    /** @PHPCRODM\Locale */
+    protected $locale;
 }
 
 /**

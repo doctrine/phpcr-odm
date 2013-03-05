@@ -28,30 +28,36 @@ interface DocumentClassMapperInterface
     /**
      * Determine the class name from a given node
      *
-     * @param DocumentManager
-     * @param NodeInterface $node
-     * @param string $className
+     * @param DocumentManager $dm
+     * @param NodeInterface   $node
+     * @param string          $className explicit class to use. If set, this
+     *      class will be used unless the declared document class is a subclass
+     *      of this class. In that case the document class is used
      *
-     * @return string
-     *
-     * @throws \RuntimeException if no class name could be determined
+     * @return string $className if not null, the class configured for this
+     *      node if defined and the Generic document if no better class can be
+     *      found
      */
-    function getClassName(DocumentManager $dm, NodeInterface $node, $className = null);
+    public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null);
 
     /**
      * Write any relevant meta data into the node to be able to map back to a class name later
      *
-     * @param DocumentManager
-     * @param NodeInterface $node
-     * @param string $className
+     * @param DocumentManager $dm
+     * @param NodeInterface   $node
+     * @param string          $className
      */
-    function writeMetadata(DocumentManager $dm, NodeInterface $node, $className);
+    public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className);
 
     /**
-     * @param DocumentManager
-     * @param object $document
-     * @param string $className
-     * @throws \InvalidArgumentException
+     * Determine if the document is instance of the specified $className and
+     * throw exception if not.
+     *
+     * @param DocumentManager $dm
+     * @param object          $document
+     * @param string          $className
+     *
+     * @throws \InvalidArgumentException if document is not of type $className
      */
-    function validateClassName(DocumentManager $dm, $document, $className);
+    public function validateClassName(DocumentManager $dm, $document, $className);
 }

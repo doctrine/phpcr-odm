@@ -57,15 +57,15 @@ class ProxyFactory extends AbstractProxyFactory
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>DocumentManager</tt>.
      *
-     * @param DocumentManager $dm The DocumentManager the new factory works for.
-     * @param string $proxyDir The directory to use for the proxy classes. It must exist.
-     * @param string $proxyNamespace The namespace to use for the proxy classes.s
-     * @param boolean $autoGenerate Whether to automatically generate proxy classes.
+     * @param DocumentManager $dm             The DocumentManager the new factory works for.
+     * @param string          $proxyDir       The directory to use for the proxy classes. It must exist.
+     * @param string          $proxyNamespace The namespace to use for the proxy classes.
+     * @param boolean         $autoGenerate   Whether to automatically generate proxy classes.
      */
     public function __construct(DocumentManager $dm, $proxyDir, $proxyNamespace, $autoGenerate = false) {
         parent::__construct(new ProxyGenerator($proxyDir, $proxyNamespace), $dm->getMetadataFactory(), $autoGenerate);
 
-        $this->dm             = $dm;
+        $this->dm = $dm;
         $this->proxyNamespace = $proxyNamespace;
     }
 

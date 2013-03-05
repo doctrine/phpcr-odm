@@ -19,10 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Exception;
 
-use PHPCR\NodeInterface;
-
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-
 /**
  * Missing translation exception class
  *

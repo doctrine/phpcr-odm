@@ -164,7 +164,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testReferenceNonReferenceable()
     {
@@ -186,9 +186,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
     }
 
-
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testCreateManyNoArrayError()
     {
@@ -211,7 +210,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testCreateOneArrayError()
     {

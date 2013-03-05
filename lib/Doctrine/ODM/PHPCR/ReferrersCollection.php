@@ -34,12 +34,13 @@ class ReferrersCollection extends PersistentCollection
     private $type;
     private $name;
 
-    public function __construct(DocumentManager $dm, $document, $type = null, $name = null)
+    public function __construct(DocumentManager $dm, $document, $type = null, $name = null, $locale = null)
     {
         $this->dm = $dm;
         $this->document = $document;
         $this->type = $type;
         $this->name = $name;
+        $this->locale = $locale;
     }
 
     /**
@@ -51,12 +52,12 @@ class ReferrersCollection extends PersistentCollection
         if (!$this->initialized) {
             $this->initialized = true;
 
-            $this->collection = $this->dm->getReferrers($this->document, $this->type, $this->name);
+            $this->collection = $this->dm->getReferrers($this->document, $this->type, $this->name, $this->locale);
         }
     }
 
     /**
-     * @return ArrayCollection  The collection
+     * @return ArrayCollection The collection
      */
     public function unwrap()
     {
