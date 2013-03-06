@@ -105,7 +105,7 @@ class MappingException extends \Exception
 
     public static function referrerWithoutReferencedBy($document, $fieldName)
     {
-        return new self("The referrer field '$fieldName' in '$document' is missing the required 'mappedBy' attribute. If you want all referrers, use the immutable MixedReferrers mapping");
+        return new self("The referrer field '$fieldName' in '$document' is missing the required 'referencedBy' attribute. If you want all referrers, use the immutable MixedReferrers mapping");
     }
 
     public static function referrerWithoutReferringDocument($document, $fieldName)
