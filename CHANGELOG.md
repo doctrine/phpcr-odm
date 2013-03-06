@@ -1,6 +1,20 @@
 Changelog
 =========
 
+2013-03-06
+----------
+
+ * #252: Split Referrers mapping into MixedReferrers and Referrers.
+   The MixedReferrers has the semantics of what was until now Referrers, but
+   does not have the `filter` attribute anymore. A read only view of all kinds
+   of documents that reference this document.
+   Referrers now requires the `referringDocument` that identifies the Document
+   class that refers to this Document, and `referencedBy` to name the referring
+   field of the Document. Referrers now supports the cascading options, just
+   like ReferenceMany.
+   For mixed situations, there is still DocumentManager::getReferrers() to get
+   all documents for a certain reference property name.
+
 2013-01-18
 ----------
 
