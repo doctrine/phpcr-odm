@@ -160,4 +160,40 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $article = $this->dm->find('Doctrine\Tests\Models\CMS\CmsArticle', $article->id);
         $this->assertEquals($user->id, $article->user->getId());
     }
+
+    public function testCascadeManagedDocumentReferrerDuringFlush()
+    {
+        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user->username = "dbu";
+        $user->name = "David";
+        $this->dm->persist($user);
+
+        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article->text = "foo";
+        $article->topic = "bar";
+        $article->id = '/functional/article_referrer';
+        $user->articlesReferrers->add($article);
+
+        $this->assertFalse($this->dm->contains($article));
+
+        $this->dm->flush();
+
+        $this->assertEquals($user, $article->user);
+
+        $this->dm->clear();
+
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', '/functional/dbu');
+        $this->assertNotNull($user);
+        $this->assertTrue(1 <= count($user->articlesReferrers));
+        $article = $user->articlesReferrers->first();
+        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsArticle', $article);
+        $this->assertEquals($article->id, $article->id);
+
+        $article->user = null;
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $article = $user->articlesReferrers->first();
+        $this->assertNull($article->user);
+    }
 }

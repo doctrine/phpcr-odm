@@ -20,6 +20,8 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use ReflectionProperty;
+use ReflectionClass;
+use PHPCR\PropertyType;
 use InvalidArgumentException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
@@ -77,7 +79,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * READ-ONLY: The ReflectionProperty instances of the mapped class.
      *
-     * @var array
+     * @var ReflectionProperty[]
      */
     public $reflFields = array();
 
@@ -233,6 +235,13 @@ class ClassMetadata implements ClassMetadataInterface
      * @var array
      */
     public $referrersMappings = array();
+
+    /**
+     * READ-ONLY: The mixed referrers (read only) mappings of the class.
+     *
+     * @var array
+     */
+    public $mixedReferrersMappings = array();
 
     /**
      * READ-ONLY: Name of the locale property
@@ -617,16 +626,43 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
     {
-        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' association which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+        if (empty($mapping['referencedBy'])) {
+            throw MappingException::referrerWithoutReferencedBy($this->name, $mapping['fieldName']);
         }
-
+        if (empty($mapping['referringDocument'])) {
+            throw MappingException::referrerWithoutReferringDocument($this->name, $mapping['fieldName']);
+        }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
         }
+
+        $mapping['sourceDocument'] = $this->name;
+        if (isset($mapping['referringDocument']) && strpos($mapping['referringDocument'], '\\') === false && strlen($this->namespace)) {
+            $mapping['referringDocument'] = $this->namespace . '\\' . $mapping['referringDocument'];
+        }
+
         $mapping['type'] = 'referrers';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited, false);
+        unset($mapping['strategy']); // this would be a lie, we want the strategy of the referring field
         $this->referrersMappings[] = $mapping['fieldName'];
+    }
+
+    public function mapMixedReferrers(array $mapping, ClassMetadata $inherited = null)
+    {
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+        }
+
+        if (isset($mapping['referencedBy'])) {
+            throw new MappingException('MixedReferrers has no referredBy attribute, use Referrers for this: ' . $mapping['fieldName']);
+        }
+        if (empty($mapping['cascade'])) {
+            $mapping['cascade'] = null;
+        }
+
+        $mapping['type'] = 'mixedreferrers';
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $this->mixedReferrersMappings[] = $mapping['fieldName'];
     }
 
     public function mapLocale(array $mapping, ClassMetadata $inherited = null)
@@ -773,6 +809,26 @@ class ClassMetadata implements ClassMetadataInterface
             if (!isset($this->localeMapping)) {
                 throw new MappingException("You must define a locale mapping for translatable document '".$this->name."'");
             }
+        }
+
+        // we allow mixed referrers on non-referenceable documents. maybe the mix:referenceable is just not mapped
+        if (count($this->referrersMappings)) {
+            if (!$this->referenceable) {
+                throw new MappingException('You can not have referrers mapped on document "'.$this->name.'" as the document is not referenceable');
+            }
+
+            foreach ($this->referrersMappings as $referrerName) {
+                $mapping = $this->mappings[$referrerName];
+                // only a santiy check with reflection. otherwise we could run into endless loops
+                if (!ClassLoader::classExists($mapping['referringDocument'])) {
+                    throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument class "%s" does not exist', $this->name, $mapping['fieldName'], $mapping['referringDocument']));
+                }
+                $reflection = new ReflectionClass($mapping['referringDocument']);
+                if (! $reflection->hasProperty($mapping['referencedBy'])) {
+                    throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no property "%s"', $this->name, $mapping['fieldName'], $mapping['referringDocument'], $mapping['referencedBy']));
+                }
+            }
+
         }
     }
 
@@ -928,12 +984,14 @@ class ClassMetadata implements ClassMetadataInterface
     public function hasAssociation($fieldName)
     {
         return isset($this->mappings[$fieldName])
-            && in_array($this->mappings[$fieldName]['type'], array(self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'children', 'child', 'parent'))
+            && in_array($this->mappings[$fieldName]['type'], array(self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'))
         ;
     }
 
     /**
-     * {@inheritDoc}
+     * @return array the association mapping with the field of this name
+     *
+     * @throws MappingException if the class has no mapping field with this name
      */
     public function getAssociation($fieldName)
     {
@@ -961,6 +1019,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return isset($this->referenceMappings[$fieldName])
             || isset($this->referrersMappings[$fieldName])
+            || isset($this->mixedReferrersMappings[$fieldName])
             || isset($this->childrenMappings[$fieldName])
         ;
     }
@@ -998,6 +1057,7 @@ class ClassMetadata implements ClassMetadataInterface
         $associations = array_merge(
             $this->referenceMappings,
             $this->referrersMappings,
+            $this->mixedReferrersMappings,
             $this->childrenMappings,
             $this->childMappings
         );
@@ -1150,6 +1210,7 @@ class ClassMetadata implements ClassMetadataInterface
             'fieldMappings',
             'referenceMappings',
             'referrersMappings',
+            'mixedReferrersMappings',
             'childrenMappings',
             'childMappings',
         );

@@ -23,9 +23,9 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     public function testClassName()
     {
 
-        $cm = new ClassMetadata("Doctrine\Tests\ODM\PHPCR\Mapping\Person");
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
         $cm->initializeReflection(new RuntimeReflectionService());
-        $this->assertEquals("Doctrine\Tests\ODM\PHPCR\Mapping\Person", $cm->name);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $cm->name);
         $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
 
         return $cm;
@@ -34,7 +34,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testClassName
      */
-    public function testMapFieldWithId($cm)
+    public function testMapFieldWithId(ClassMetadata $cm)
     {
         $cm->mapField(array('fieldName' => 'id', 'id' => true, 'strategy' => 'repository'));
 
@@ -60,7 +60,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testMapFieldWithId
      */
-    public function testMapField($cm)
+    public function testMapField(ClassMetadata $cm)
     {
         $cm->mapField(array('fieldName' => 'username', 'name' => 'username', 'type' => 'string'));
         $cm->mapField(array('fieldName' => 'created', 'name' => 'created', 'type' => 'datetime'));
@@ -94,7 +94,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      * Mapping should return translated fields.
      * @depends testMapFieldWithId
      */
-    public function testMapFieldWithInheritance($cmp) {
+    public function testMapFieldWithInheritance(ClassMetadata $cmp) {
         // Load parent document metadata.
         $ar = new AnnotationReader();
         $ad = new AnnotationDriver($ar);
@@ -116,18 +116,17 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testMapField
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
-    public function testMapFieldWithoutNameThrowsException($cm)
+    public function testMapFieldWithoutNameThrowsException(ClassMetadata $cm)
     {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
-
         $cm->mapField(array());
     }
 
     /**
      * @depends testMapField
      */
-    public function testReflectionProperties($cm)
+    public function testReflectionProperties(ClassMetadata $cm)
     {
         $this->assertInstanceOf('ReflectionProperty', $cm->reflFields['username']);
         $this->assertInstanceOf('ReflectionProperty', $cm->reflFields['created']);
@@ -136,7 +135,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testMapField
      */
-    public function testNewInstance($cm)
+    public function testNewInstance(ClassMetadata $cm)
     {
         $instance1 = $cm->newInstance();
         $instance2 = $cm->newInstance();
@@ -148,9 +147,9 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testClassName
      */
-    public function testSerialize($cm)
+    public function testSerialize(ClassMetadata $cm)
     {
-        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":13:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:4:"name";s:2:"id";}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:6:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
+        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":14:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:4:"name";s:2:"id";}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:6:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
         $cm->setCustomRepositoryClassName('customRepositoryClassName');
         $cm->setVersioned(true);
         $cm->addLifecycleCallback('callback', 'event');
@@ -161,7 +160,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     public function testUnserialize()
     {
-        $cm = unserialize('O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":13:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:4:"name";s:2:"id";}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:6:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}');
+        $cm = unserialize('O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":14:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:6:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:4:"name";s:2:"id";}s:8:"username";a:4:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;}s:7:"created";a:4:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:6:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}');
 
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadata', $cm);
 
@@ -169,14 +168,13 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($cm->isMappedSuperclass);
         $this->assertTrue($cm->versionable);
         $this->assertEquals('customRepositoryClassName', $cm->customRepositoryClassName);
-
     }
 
     /**
      * @param ClassMetadata $cm
      * @depends testClassName
      */
-    public function testMapAssociationManyToOne($cm)
+    public function testMapAssociationManyToOne(ClassMetadata $cm)
     {
         $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address'));
 
