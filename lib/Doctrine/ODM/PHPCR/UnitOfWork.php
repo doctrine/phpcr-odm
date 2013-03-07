@@ -131,26 +131,41 @@ class UnitOfWork
     private $documentChangesets = array();
 
     /**
+     * List of documents that have a changed field to be updated on next flush
+     * oid => document
      * @var array
      */
     private $scheduledUpdates = array();
 
     /**
+     * List of documents that will be inserted on next flush
+     * oid => document
      * @var array
      */
     private $scheduledInserts = array();
 
     /**
+     * List of documents that will be moved on next flush
+     * oid => array(document, target path)
      * @var array
      */
     private $scheduledMoves = array();
 
     /**
+     * List of parent documents that have children that will be reordered on next flush
+     * parent oid => array(parent document, srcName, targetName, before) with
+     * - parent document the document of the child to be reordered
+     * - srcName the Nodename of the document to be moved,
+     * - targetName the Nodename of the document to move srcName to
+     * - before a boolean telling whether to move srcName before or after targetName
+     *
      * @var array
      */
     private $scheduledReorders = array();
 
     /**
+     * List of documents that will be removed on next flush
+     * oid => document
      * @var array
      */
     private $scheduledRemovals = array();
@@ -3006,5 +3021,55 @@ class UnitOfWork
         }
 
         return $oldFetchDepth;
+    }
+
+    /**
+     * Gets the currently scheduled document updates in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledUpdates()
+    {
+        return $this->scheduledUpdates;
+    }
+
+    /**
+     * Gets the currently scheduled document insertions in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledInserts()
+    {
+        return $this->scheduledInserts;
+    }
+
+    /**
+     * Gets the currently scheduled document moves in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledMoves()
+    {
+        return $this->scheduledMoves;
+    }
+
+    /**
+     * Gets the currently scheduled document reorders in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledReorders()
+    {
+        throw new \BadMethodCallException('getScheduledReorders is not currently implementd.');
+    }
+
+    /**
+     * Gets the currently scheduled document deletions in this UnitOfWork.
+     *
+     * @return array
+     */
+    public function getScheduledRemovals()
+    {
+        return $this->scheduledRemovals;
     }
 }
