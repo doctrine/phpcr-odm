@@ -27,7 +27,6 @@ use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
-use Doctrine\ODM\PHPCR\Exception\NotImplementedException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
@@ -3061,7 +3060,7 @@ class UnitOfWork
      */
     public function getScheduledReorders()
     {
-        throw new NotImplementedException('getScheduledReorders is not currently implementd.');
+        throw new \BadMethodCallException('getScheduledReorders is not currently implementd.');
     }
 
     /**
