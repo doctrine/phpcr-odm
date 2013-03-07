@@ -68,7 +68,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     /**
      * {@inheritdoc}
      */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale, $ignoreMissing = false)
+    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
             $nullFields = $node->getPropertyValue($this->prefix . ':' . $locale . self::NULLFIELDS);
@@ -91,7 +91,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 }
             } else {
                 // Could not find the translation in the given language
-                if ($ignoreMissing) {
+                if (true === $metadata->mappings[$field]['nullable']) {
                     $value = (true === $metadata->mappings[$field]['multivalue']) ? array() : null;
                 } else {
                     return false;

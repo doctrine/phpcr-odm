@@ -45,11 +45,11 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
     /**
      * {@inheritdoc}
      */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale, $ignoreMissing = true)
+    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         $translationNode = $this->getTranslationNode($node, $locale);
 
-        return parent::loadTranslation($document, $translationNode, $metadata, $locale, $ignoreMissing);
+        return parent::loadTranslation($document, $translationNode, $metadata, $locale);
     }
 
     /**
