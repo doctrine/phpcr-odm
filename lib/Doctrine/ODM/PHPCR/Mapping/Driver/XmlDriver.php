@@ -151,15 +151,17 @@ class XmlDriver extends FileDriver
         }
         if (isset($xmlRoot->{'reference-many'})) {
             foreach ($xmlRoot->{'reference-many'} as $reference) {
+                $attributes = $reference->attributes();
                 $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
-                $reference['name'] = (isset($reference->name)) ? $reference->name : null;
+                $reference['name'] = (string)$attributes->name  ?: null;
                 $this->addReferenceMapping($class, $reference, 'many');
             }
         }
         if (isset($xmlRoot->{'reference-one'})) {
             foreach ($xmlRoot->{'reference-one'} as $reference) {
+                $attributes = $reference->attributes();
                 $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
-                $reference['name'] = (isset($reference->name)) ? $reference->name : null;
+                $reference['name'] = (string)$attributes->name  ?: null;
                 $this->addReferenceMapping($class, $reference, 'one');
             }
         }
