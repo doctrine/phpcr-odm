@@ -66,7 +66,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\NotImplementedException
+     * @expectedException \BadMethodCallException
      */
     public function testGetScheduledReorders()
     {
