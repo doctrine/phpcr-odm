@@ -588,6 +588,10 @@ class DocumentManager implements ObjectManager
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
+        if (UnitOfWork::STATE_MANAGED === $this->unitOfWork->getDocumentState($document)) {
+            return;
+        }
+
         $this->errorIfClosed();
         $this->unitOfWork->scheduleInsert($document);
     }

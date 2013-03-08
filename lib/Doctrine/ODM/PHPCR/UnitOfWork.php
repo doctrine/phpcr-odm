@@ -1340,6 +1340,12 @@ class UnitOfWork
         return $this->doMerge($document, $visited);
     }
 
+    /**
+     * @param object              $managedCopy The document containing this property
+     * @param object              $document    The new child document that is found in this property
+     * @param \ReflectionProperty $prop        The property
+     * @param array               $mapping     Mapping options for the property
+     */
     private function doMergeSingleDocumentProperty($managedCopy, $document, \ReflectionProperty $prop, array $mapping)
     {
         if (null === $document) {
@@ -1349,7 +1355,7 @@ class UnitOfWork
                 $prop->setValue($managedCopy, $document);
             } else {
                 $targetClass = $this->dm->getClassMetadata(get_class($document));
-                $id = $targetClass->getIdentifierValues($document);
+                $id = $targetClass->getIdentifierValue($document);
                 $proxy = $this->getOrCreateProxy($id, $targetClass->name);
                 $prop->setValue($managedCopy, $proxy);
                 $this->registerDocument($proxy, $id);
@@ -1459,7 +1465,16 @@ class UnitOfWork
                     }
                     $this->cascadeMergeCollection($managedCol, $mapping);
                 } elseif ('child' === $mapping['type']) {
+                    $parentId = $class->getIdentifierValue($document);
+                    $nodename = $mapping['fieldName'];
+                    // TODO from looking in other places, i got the impression we should to this
+                    // but this gives an exception as it tries to read the nodename property on the $other document
+                    // $nodename = $this->getChildNodename($parentId, $mapping['fieldName'], $other, $document);
+                    $childId = $parentId . '/' . $nodename;
+
                     if (null !== $other) {
+                        $childMeta = $this->dm->getClassMetadata(get_class($other));
+                        $childMeta->setIdentifierValue($other, $childId);
                         $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
                     }
                 } elseif ('children' === $mapping['type']) {
