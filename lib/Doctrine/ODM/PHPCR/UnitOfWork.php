@@ -533,7 +533,7 @@ class UnitOfWork
     /**
      * Bind the translatable fields of the document in the specified locale.
      *
-     * This method will update the @Locale field if it does not match the $locale argument.
+     * This method will update the field mapped to Locale if it does not match the $locale argument.
      *
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has

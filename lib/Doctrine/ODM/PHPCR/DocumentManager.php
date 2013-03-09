@@ -573,9 +573,9 @@ class DocumentManager implements ObjectManager
      *
      * For translatable documents has to determine the locale:
      *
-     *   - If there is a non-empty @Locale that field value is used
+     *   - If there is a non-empty Locale mapping that field value is used
      *   - If the document was previously loaded from the DocumentManager it
-     *      has a non-empty @Locale
+     *      has a non-empty Locale mapping
      *   - Otherwise its a new document. The language chooser strategy is asked
      *      for the default language and that is used to store. The field is
      *      updated with the locale.
@@ -595,7 +595,7 @@ class DocumentManager implements ObjectManager
     /**
      * Bind the translatable fields of the document in the specified locale.
      *
-     * This method will update the @Locale field if it does not match the $locale argument.
+     * This method will update the field mapped to Locale if it does not match the $locale argument.
      *
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
@@ -681,8 +681,8 @@ class DocumentManager implements ObjectManager
     /**
      * Move the previously persisted document and all its children in the tree
      *
-     * Note that this does not update the @Id fields of child documents and
-     * neither fields with @Child/Children annotations. If you want to continue
+     * Note that this does not update the Id fields of child documents and
+     * neither fields with Child/Children mappings. If you want to continue
      * working with the manager after a move, you are probably safest calling
      * DocumentManager::clear and re-loading the documents you need to use.
      *
@@ -706,7 +706,7 @@ class DocumentManager implements ObjectManager
     /**
      * Reorder a child of the given document
      *
-     * Note that this does not update the fields with @Child/Children annotations.
+     * Note that this does not update the fields with Child/Children mappings.
      * If you want to continue working with the manager after a reorder, you are probably
      * safest calling DocumentManager::clear and re-loading the documents you need to use.
      *
@@ -729,7 +729,7 @@ class DocumentManager implements ObjectManager
      * Remove the previously persisted document and all its children from the tree
      *
      * Be aware of the PHPCR tree structure: this removes all nodes with a path under
-     * the path of this object, even if there are no @Parent / @Child annotations
+     * the path of this object, even if there are no Parent / Child mappings
      * that make the relationship explicit.
      *
      * @param object $document
