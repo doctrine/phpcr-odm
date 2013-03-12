@@ -491,7 +491,7 @@ class UnitOfWork
         // check if referenced document already exists
         if ($document) {
             $metadata = $this->dm->getClassMetadata($className);
-            if ($locale && $locale !== $this->getLocale($document, $metadata)) {
+            if ($locale && $locale !== $this->getCurrentLocale($document, $metadata)) {
                 $this->doLoadTranslation($document, $metadata, $locale, true);
             }
 
@@ -1383,7 +1383,7 @@ class UnitOfWork
         $visited[$oid] = $document; // mark visited
 
         $class = $this->dm->getClassMetadata(get_class($document));
-        $locale = $this->getLocale($document, $class);
+        $locale = $this->getCurrentLocale($document, $class);
 
         // First we assume DETACHED, although it can still be NEW but we can avoid
         // an extra db-roundtrip this way. If it is not MANAGED but has an identity,
@@ -1406,7 +1406,7 @@ class UnitOfWork
                     if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
                         throw new \InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
                     }
-                    if ($this->getLocale($managedCopy, $class) !== $locale) {
+                    if ($this->getCurrentLocale($managedCopy, $class) !== $locale) {
                         $this->doLoadTranslation($document, $class, $locale, true);
                     }
                 } elseif ($locale) {
@@ -1820,7 +1820,7 @@ class UnitOfWork
             }
             // make sure this reflects the id generator strategy generated id
             if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateProxyFromNode($parentNode, $this->getLocale($document, $class)));
+                $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateProxyFromNode($parentNode, $this->getCurrentLocale($document, $class)));
             }
 
             if ($this->writeMetadata) {
@@ -2152,7 +2152,7 @@ class UnitOfWork
             }
 
             if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent(), $this->getLocale($document, $class)));
+                $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent(), $this->getCurrentLocale($document, $class)));
             }
 
             // update all cached children of the document to reflect the move (path id changes)
@@ -2523,8 +2523,7 @@ class UnitOfWork
         $node = $this->session->getNode($this->getDocumentId($document));
         $this->setFetchDepth($oldFetchDepth);
 
-        $metadata = $this->dm->getClassMetadata(get_class($document));
-        $locale = $locale ?: $this->getLocale($document, $metadata);
+        $locale = $locale ?: $this->getCurrentLocale($document);
 
         $childNodes = $node->getNodes($filter);
         $childDocuments = array();
@@ -2570,8 +2569,7 @@ class UnitOfWork
             $referrerPropertiesH = $node->getReferences($name);
         }
 
-        $metadata = $this->dm->getClassMetadata(get_class($document));
-        $locale = $locale ?: $this->getLocale($document, $metadata);
+        $locale = $locale ?: $this->getCurrentLocale($document);
 
         foreach ($referrerPropertiesW as $referrerProperty) {
             $referrerNode = $referrerProperty->getParent();
@@ -2653,6 +2651,15 @@ class UnitOfWork
         $this->session->refresh(false);
     }
 
+    /**
+     * Get all locales in which this document currently exists in storage.
+     *
+     * @param object $document A managed document
+     *
+     * @return array list of locales of this document
+     *
+     * @throws MissingTranslationException if this document is not translatable
+     */
     public function getLocalesFor($document)
     {
         $metadata = $this->dm->getClassMetadata(get_class($document));
@@ -2692,7 +2699,7 @@ class UnitOfWork
             return;
         }
 
-        $locale = $this->getLocale($document, $metadata);
+        $locale = $this->getCurrentLocale($document, $metadata);
 
         $oid = spl_object_hash($document);
         // handle case for initial persisting
@@ -2736,7 +2743,7 @@ class UnitOfWork
             return;
         }
 
-        $currentLocale = $this->getLocale($document, $metadata);
+        $currentLocale = $this->getCurrentLocale($document, $metadata);
 
         // Load translated fields for current locale
         $oid = spl_object_hash($document);
@@ -2841,7 +2848,7 @@ class UnitOfWork
         if ($document instanceOf Proxy && !$document->__isInitialized()) {
             $this->setLocale($document, $class, $locale);
         } elseif ($this->isDocumentTranslatable($class)
-            && $this->getLocale($document, $class) !== $locale
+            && $this->getCurrentLocale($document, $class) !== $locale
         ) {
             try {
                 $this->doLoadTranslation($document, $class, $locale, true);
@@ -2900,8 +2907,29 @@ class UnitOfWork
         }
     }
 
-    private function getLocale($document, ClassMetadata $metadata)
+    /**
+     * Determine the current locale of a managed document.
+     *
+     * If the document is not translatable, null is returned.
+     *
+     * If the document is translatable and the locale is mapped onto a document
+     * field, the value of that field is returned. Otherwise the UnitOfWork
+     * information on locales for documents without a locale mapping is
+     * consulted.
+     *
+     * If nothing matches (for example when this is a detached document), the
+     * default locale of the LocaleChooserStrategy is returned.
+     *
+     * @param object        $document the managed document to get the locale for
+     * @param ClassMetadata $metadata document metadata, optional
+     *
+     * @return string|null the current locale of $document or null if it is not translatable
+     */
+    public function getCurrentLocale($document, ClassMetadata $metadata = null)
     {
+        if (null === $metadata) {
+            $metadata = $this->dm->getClassMetadata(get_class($document));
+        }
         if (!$this->isDocumentTranslatable($metadata)) {
             return null;
         }
