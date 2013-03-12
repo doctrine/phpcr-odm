@@ -67,6 +67,23 @@ class File extends AbstractFile
         $this->content = $content;
     }
 
+    /*
+     * Get the resource representing the data of this file.
+     *
+     * Ensures the content object is created
+     *
+     * @return Resource
+     */
+    public function getContent()
+    {
+        if ($this->content === null) {
+            $this->content = new Resource();
+            $this->content->setLastModified(new \DateTime());
+        }
+
+        return $this->content;
+    }
+
     /**
      * Set the content for this file from the given resource or string.
      *
@@ -108,20 +125,4 @@ class File extends AbstractFile
 
       return $content !== false ? $content : '';
     }
-
-    /*
-     * Ensure content object is created
-     *
-     * @return Resource
-     */
-    private function getContent()
-    {
-        if ($this->content === null) {
-            $this->content = new Resource();
-            $this->content->setLastModified(new \DateTime());
-        }
-
-        return $this->content;
-    }
-
 }
