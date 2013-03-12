@@ -9,19 +9,91 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class Image
 {
+    /**
+     * The PHPCR path
+     *
+     * @PHPCRODM\Id(strategy="parent")
+     */
+    protected $id;
 
     /**
-     * @PHPCRODM\Id
+     * @PHPCRODM\ParentDocument
      */
-    protected $path;
+    protected $parent;
+
+    /**
+     * @PHPCRODM\Nodename
+     */
+    protected $nodename;
 
     /**
      * Image file child
      *
      * @PHPCRODM\Child(name="file", cascade="persist")
+     *
+     * @var File
      */
     protected $file;
 
+    /**
+     * Set the id (PHPCR path) of this image document
+     *
+     * Only makes sense before persisting a new document. Note that the
+     * preferred way to define the id is by setting the parent and the node
+     * name rather than the absolute id.
+     *
+     * @param string $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Get the id (PHPCR path) of this image document
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param object $parent
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * @return object
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Set the node name for this image
+     *
+     * @param string $nodename
+     */
+    public function setNodename($nodename)
+    {
+        $this->nodename = $nodename;
+    }
+
+    /**
+     * Get the node name of this image
+     *
+     * @return string
+     */
+    public function getNodename()
+    {
+        return $this->nodename;
+    }
 
     /**
      * @param $file File
@@ -68,7 +140,7 @@ class Image
      */
     public function __toString()
     {
-        return $this->path;
+        return $this->id ?: '';
     }
 
 }
