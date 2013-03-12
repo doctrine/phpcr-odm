@@ -51,6 +51,9 @@ class Article
     /** @PHPCRODM\ReferenceMany() */
     public $relatedArticles = array();
 
+    /** @PHPCRODM\String(translated=true, nullable=true) */
+    public $nullable;
+
     /**
      * @PHPCRODM\String(assoc="", translated=true)
      */
