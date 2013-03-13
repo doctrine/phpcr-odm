@@ -96,6 +96,8 @@ class Property
     public $multivalue = false;
     /** @var string */
     public $assoc;
+    /** @var boolean */
+    public $nullable = false;
 }
 /**
  * Base class for all the translatable properties (i.e. every property but Uuid and Version)
