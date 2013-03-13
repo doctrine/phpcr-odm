@@ -91,11 +91,10 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 }
             } else {
                 // Could not find the translation in the given language
-                if (true === $metadata->mappings[$field]['nullable']) {
-                    $value = (true === $metadata->mappings[$field]['multivalue']) ? array() : null;
-                } else {
+                if (!$metadata->mappings[$field]['nullable']) {
                     return false;
                 }
+                $value = (true === $metadata->mappings[$field]['multivalue']) ? array() : null;
             }
             $metadata->reflFields[$field]->setValue($document, $value);
         }
