@@ -193,6 +193,43 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->assertContains('de', $locales);
     }
 
+    public function testLoadTranslationWithNullable()
+    {
+        // Create the node in the content repository
+        $node = $this->fillTranslations();
+
+        // Then try to read it's translation
+        $doc = new Article();
+
+        $strategy = new ChildTranslationStrategy();
+        $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should succeed to load EN translation');
+
+        $this->assertEquals('English is not null', $doc->nullable);
+
+        $strategy = new ChildTranslationStrategy();
+        $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'fr'), 'Should succeed to load FR translation');
+
+        $this->assertEquals(null, $doc->nullable);
+
+        $strategy = new ChildTranslationStrategy();
+        $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'de'), 'Should succeed to load DE translation');
+
+        $this->assertEquals(null, $doc->nullable);
+    }
+
+    public function testLoadTranslationWithNonNullable()
+    {
+        $node = $this->fillTranslations();
+
+        $enNode = $node->getNode(Translation::LOCALE_NAMESPACE . ':en');
+        $enNode->setProperty('topic', null); // remove required translatable property
+        $this->session->save();
+
+        $doc = new Article();
+        $strategy = new ChildTranslationStrategy();
+        $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should fail to load english because of missing topic translation');
+    }
+
     protected function fillTranslations()
     {
         $node = $this->getTestNode();
@@ -201,14 +238,18 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $subNode = $this->getTranslationNode($node, 'en');
         $subNode->setProperty('topic', 'English topic');
         $subNode->setProperty('text', 'English text');
+        $subNode->setProperty('settings', array());
+        $subNode->setProperty('nullable', 'English is not null');
 
         $subNode = $this->getTranslationNode($node, 'fr');
         $subNode->setProperty('topic', 'Sujet français');
         $subNode->setProperty('text', 'Texte français');
+        $subNode->setProperty('settings', array());
 
         $subNode = $this->getTranslationNode($node, 'de');
         $subNode->setProperty('topic', 'Deutscher Betreff');
         $subNode->setProperty('text', 'Deutscher Text');
+        $subNode->setProperty('settings', array());
         $this->session->save();
 
         return $node;

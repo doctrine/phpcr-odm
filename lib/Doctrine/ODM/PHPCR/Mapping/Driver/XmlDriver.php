@@ -92,7 +92,7 @@ class XmlDriver extends FileDriver
                 foreach ($attributes as $key => $value) {
                     $mapping[$key] = (string) $value;
                     // convert bool fields
-                    if ($key === 'id' || $key === 'multivalue') {
+                    if ($key === 'id' || $key === 'multivalue' || $key === 'nullable') {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }
