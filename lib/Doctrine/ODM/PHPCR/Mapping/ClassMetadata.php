@@ -1167,6 +1167,10 @@ class ClassMetadata implements ClassMetadataInterface
             } elseif (!isset($mapping['multivalue'])) {
                 $mapping['multivalue'] = false;
             }
+
+            if (!isset($mapping['nullable'])) {
+                $mapping['nullable'] = isset($parentMapping['nullable']) ? : false;
+            }
         }
 
         // Add the field to the list of translatable fields
