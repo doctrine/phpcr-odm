@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 
@@ -95,7 +96,30 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertSame($mergedUser, $user);
         $this->assertEquals("jgalt", $mergedUser->username);
-        $this->assertInstanceOf("\PHPCR\NodeInterface", $mergedUser->node);
+        $this->assertInstanceOf('PHPCR\NodeInterface', $mergedUser->node);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testMergeChangeDocumentClass()
+    {
+        $user = new CmsUser();
+        $user->username = "beberlei";
+        $user->name = "Benjamin";
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $otherUser = new CmsUser();
+        $otherUser->username = "lukas";
+        $otherUser->name = "Lukas";
+
+        $mergableGroup = new CmsGroup();
+        $mergableGroup->id = $user->id;
+        $mergableGroup->name = "doctrine";
+
+        $this->dm->merge($mergableGroup);
     }
 
     public function testMergeUnknownAssignedId()

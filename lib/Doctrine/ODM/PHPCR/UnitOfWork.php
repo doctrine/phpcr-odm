@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use PHPCR\Util\PathHelper;
@@ -656,6 +657,7 @@ class UnitOfWork
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 $childId = $id.'/'.$mapping['name'];
+                // TODO check if $childId is managed, if yes, merge
                 $childClass->setIdentifierValue($child, $childId);
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
@@ -1406,6 +1408,11 @@ class UnitOfWork
                     if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
                         throw new \InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
                     }
+
+                    if (ClassUtils::getClass($managedCopy) != ClassUtils::getClass($document)) {
+                        throw new \InvalidArgumentException('Can not merge documents of different classes.');
+                    }
+
                     if ($this->getCurrentLocale($managedCopy, $class) !== $locale) {
                         $this->doLoadTranslation($document, $class, $locale, true);
                     }
