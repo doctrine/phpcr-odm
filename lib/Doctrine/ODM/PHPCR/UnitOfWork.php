@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
@@ -675,6 +676,9 @@ class UnitOfWork
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
                         : basename($childClass->getIdentifierValue($child));
+                    if (empty($nodename)) {
+                        throw IdException::noIdNoName($child, $childClass->nodename);
+                    }
                     $childId = $id.'/'.$nodename;
                     $childClass->setIdentifierValue($child, $childId);
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
