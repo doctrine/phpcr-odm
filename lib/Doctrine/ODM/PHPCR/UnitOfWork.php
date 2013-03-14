@@ -1172,7 +1172,7 @@ class UnitOfWork
                             continue;
                         }
                         if (($fieldValue instanceof ReferenceManyCollection
-                            || $fieldValue instanceof ReferrersCollection
+                                || $fieldValue instanceof ReferrersCollection
                             )
                             && $fieldValue->changed()
                         ) {
