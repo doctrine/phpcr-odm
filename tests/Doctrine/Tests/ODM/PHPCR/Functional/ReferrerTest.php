@@ -5,6 +5,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
+ * These tests test if referrers are correctly read. For cascading
+ * referrers, see CascadePersistTest
+ *
  * @group functional
  */
 class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
