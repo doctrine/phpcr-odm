@@ -1,12 +1,14 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Query;
+
 use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\Query\Expression\Descendant;
+use Doctrine\ODM\PHPCR\Query\Expression\NodeLocalName;
 use Doctrine\ODM\PHPCR\Query\Expression\TextSearch;
 use Doctrine\ODM\PHPCR\Query\Expression\Comparison as ODMComparison;
 
@@ -67,7 +69,12 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
                 throw new \InvalidArgumentException("Unsupported operator $operator");
         }
 
-        $qomField = $this->qomf->propertyValue($field);
+        if ($comparison instanceof NodeLocalName) {
+            $qomField = $this->qomf->nodeLocalName($field);
+        } else {
+            $qomField = $this->qomf->propertyValue($field);
+        }
+
         $qomValue = $this->qomf->literal($value);
 
         return $this->qomf->comparison($qomField, $qomOperator, $qomValue);
@@ -108,7 +115,7 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
         }
 
         $firstConstraint = array_shift($constraintList);
-        $firstComposite = null;
+        $composite = null;
 
         foreach ($constraintList as $constraint) {
             $composite = $this->qomf->$method($firstConstraint, $constraint);
