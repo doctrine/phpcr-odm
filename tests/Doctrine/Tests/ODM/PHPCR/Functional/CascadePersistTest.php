@@ -185,15 +185,15 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', '/functional/dbu');
         $this->assertNotNull($user);
         $this->assertTrue(1 <= count($user->articlesReferrers));
-        $article = $user->articlesReferrers->first();
-        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsArticle', $article);
-        $this->assertEquals($article->id, $article->id);
+        $savedArticle = $user->articlesReferrers->first();
+        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsArticle', $savedArticle);
+        $this->assertEquals($article->id, $savedArticle->id);
 
-        $article->user = null;
+        $savedArticle->user = null;
         $this->dm->flush();
         $this->dm->clear();
 
-        $article = $user->articlesReferrers->first();
-        $this->assertNull($article->user);
+        $removedArticle = $user->articlesReferrers->first();
+        $this->assertNull($removedArticle->user);
     }
 }

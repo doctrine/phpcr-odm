@@ -714,7 +714,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("fieldName must be of type string in '{$this->name}'.");
         }
 
-        if (!isset($mapping['name'])) {
+        if (!isset($mapping['name']) || empty($mapping['name'])) {
             $mapping['name'] = $mapping['fieldName'];
         }
 
