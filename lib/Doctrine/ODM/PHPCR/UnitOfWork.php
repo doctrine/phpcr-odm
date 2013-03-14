@@ -1170,7 +1170,12 @@ class UnitOfWork
                     if (isset($class->mappings[$fieldName])) {
                         if ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                             continue;
-                        } elseif ($fieldValue instanceof ReferenceManyCollection && $fieldValue->changed()) {
+                        }
+                        if (($fieldValue instanceof ReferenceManyCollection
+                            || $fieldValue instanceof ReferrersCollection
+                            )
+                            && $fieldValue->changed()
+                        ) {
                             continue;
                         }
                     }
