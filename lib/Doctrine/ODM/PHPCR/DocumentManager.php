@@ -515,7 +515,7 @@ class DocumentManager implements ObjectManager
     /**
      * Create the fluent query builder.
      *
-     * After building your query, use DocumentManager::getDocumentsByQuery with the
+     * After building your query, use DocumentManager::getDocumentsByPhpcrQuery with the
      * query returned by QueryBuilder::getQuery()
      *
      * @return QueryBuilder
@@ -804,10 +804,10 @@ class DocumentManager implements ObjectManager
      *
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
-     * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
+     * @param integer      $fetchDepth         optional fetch depth
      * @param string       $locale             the locale to use during the loading of this collection
      *
-     * @return \Doctrine\Common\Collections\Collection collection of child documents
+     * @return ChildrenCollection collection of child documents
      */
     public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
@@ -817,7 +817,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $locale);
+        return new ChildrenCollection($this, $document, $filter, $fetchDepth, $locale);
     }
 
     /**
@@ -835,7 +835,7 @@ class DocumentManager implements ObjectManager
      * @param string|null  $name     optional PHPCR property name that holds the reference
      * @param string       $locale   the locale to use during the loading of this collection
      *
-     * @return \Doctrine\Common\Collections\Collection collection of referrer documents
+     * @return ReferrersCollection collection of referrer documents
      */
     public function getReferrers($document, $type = null, $name = null, $locale = null)
     {
@@ -845,7 +845,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getReferrers($document, $type, $name, $locale);
+        return new ReferrersCollection($this, $document, $type, $name, $locale);
     }
 
     /**
