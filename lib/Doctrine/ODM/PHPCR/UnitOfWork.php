@@ -882,6 +882,18 @@ class UnitOfWork
     }
 
     /**
+     * Checks whether an document is scheduled for insertion.
+     *
+     * @param object $document
+     *
+     * @return boolean
+     */
+    public function isScheduledForInsert($document)
+    {
+        return isset($this->scheduledInserts[spl_object_hash($document)]);
+    }
+
+    /**
      * Detects the changes for a single document
      *
      * @param object $document
@@ -1133,6 +1145,7 @@ class UnitOfWork
                 }
 
                 if ($this->originalData[$oid][$fieldName] instanceof ChildrenCollection) {
+                    $this->originalData[$oid][$fieldName]->initialize();
                     $originalNames = $this->originalData[$oid][$fieldName]->getOriginalNodenames();
                     foreach ($originalNames as $key => $childName) {
                         if (!in_array($childName, $childNames)) {
@@ -2518,86 +2531,6 @@ class UnitOfWork
         }
 
         return false;
-    }
-
-    /**
-     * Get the child documents of a given document using an optional filter.
-     *
-     * This methods gets all child nodes as a collection of documents that matches
-     * a given filter (same as PHPCR Node::getNodes)
-     *
-     * @param object       $document           document instance which children should be loaded
-     * @param string|array $filter             optional filter to filter on children's names
-     * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
-     * @param string       $locale             the locale to use during the loading of this collection
-     *
-     * @return ArrayCollection a collection of child documents
-     */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
-    {
-        $oldFetchDepth = $this->setFetchDepth($fetchDepth);
-        $node = $this->session->getNode($this->getDocumentId($document));
-        $this->setFetchDepth($oldFetchDepth);
-
-        $locale = $locale ?: $this->getCurrentLocale($document);
-
-        $childNodes = $node->getNodes($filter);
-        $childDocuments = array();
-        foreach ($childNodes as $name => $childNode) {
-            $childDocuments[$name] = $this->getOrCreateProxyFromNode($childNode, $locale);
-        }
-
-        return new ArrayCollection($childDocuments);
-    }
-
-    /**
-     * Get all the documents that refer a given document using an optional name
-     * and an optional reference type.
-     *
-     * This methods gets all nodes as a collection of documents that refer (weak
-     * and hard) the given document. The property of the referrer node that refers
-     * the document needs to match the given name and must store a reference of the
-     * given type.
-     *
-     * @param object $document document instance which referrers should be loaded
-     * @param string $type     optional type of the reference the referrer should
-     *      have ('weak' or 'hard'). null to get both
-     * @param string $name     optional name to match on referrers reference
-     *      property name
-     * @param string       $locale             the locale to use during the loading of this collection
-     *
-     * @return ArrayCollection a collection of referrer documents
-     */
-    public function getReferrers($document, $type = null, $name = null, $locale = null)
-    {
-        $node = $this->session->getNode($this->getDocumentId($document));
-
-        $referrerDocuments = array();
-        $referrerPropertiesW = array();
-        $referrerPropertiesH = array();
-
-        if ($type === null) {
-            $referrerPropertiesW = $node->getWeakReferences($name);
-            $referrerPropertiesH = $node->getReferences($name);
-        } elseif ($type === 'weak') {
-            $referrerPropertiesW = $node->getWeakReferences($name);
-        } elseif ($type === 'hard') {
-            $referrerPropertiesH = $node->getReferences($name);
-        }
-
-        $locale = $locale ?: $this->getCurrentLocale($document);
-
-        foreach ($referrerPropertiesW as $referrerProperty) {
-            $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->getOrCreateProxyFromNode($referrerNode, $locale);
-        }
-
-        foreach ($referrerPropertiesH as $referrerProperty) {
-            $referrerNode = $referrerProperty->getParent();
-            $referrerDocuments[] = $this->getOrCreateProxyFromNode($referrerNode, $locale);
-        }
-
-        return new ArrayCollection($referrerDocuments);
     }
 
     /**

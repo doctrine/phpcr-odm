@@ -183,7 +183,7 @@
                     /** @PHPCR\ReferenceOne */
                     public $reference;
 
-                    /** @PHPCR\Referrers */
+                    /** @PHPCR\MixedReferrers */
                     public $referrers;
 
                     ...
@@ -238,7 +238,7 @@
                 $query->setLimit($limit);
                 $query->setOffset($offset);
 
-                $collection = $dm->getDocumentsByQuery($query);
+                $collection = $dm->getDocumentsByPhpcrQuery($query);
             </pre>
         </div>
 
@@ -248,14 +248,16 @@
                 $qb = $dm->createQueryBuilder();
                 $factory = $qb->getQOMFactory();
 
-                // SELECT * FROM nt:unstructured WHERE name NOT IS NULL
-                $qb->from($factory->selector('nt:unstructured'))
-                    ->where($factory->propertyExistence('name'))
-                    ->setFirstResult(10)
-                    ->setMaxResults(10)
+                // SELECT * FROM [nt:unstructured] WHERE text = 'foo' ORDER BY title
+                $qb = $conn->createQueryBuilder()
+                    ->nodeType('nt:unstructured')
+                    ->where($qb->expr()->eq('text', 'foo'))
+                    ->orderBy('title')
+                    ->setMaxResults($limit)
+                    ->setFirstResult($offset)
                     ->execute();
 
-                $collection = $dm->getDocumentsByQuery($qb->getQuery());
+                $collection = $dm->getDocumentsByPhpcrQuery($qb->getQuery());
             </pre>
         </div>
 
@@ -356,7 +358,6 @@
 
                 $locales = $dm->getLocalesFor($article);
                 var_dump($locales); // en, fr
-
             </pre>
         </div>
 

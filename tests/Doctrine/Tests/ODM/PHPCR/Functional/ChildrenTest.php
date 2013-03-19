@@ -103,12 +103,27 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testLazyLoading()
     {
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+
         // lazy loaded
         $this->assertCount(0, $parent->aChildren->unwrap());
         $this->assertCount(0, $parent->allChildren->unwrap());
-        // loaded
         $this->assertCount(1, $parent->aChildren);
         $this->assertCount(4, $parent->allChildren);
+        $this->assertFalse($parent->aChildren->contains(new ChildrenTestObj()));
+        $this->assertTrue($parent->allChildren->containsKey('Child D'));
+        $this->assertEquals('Child B', key($parent->allChildren->slice('Child B', 2)));
+        $this->assertCount(2, $parent->allChildren->slice('Child B', 2));
+        $this->assertFalse($parent->aChildren->isInitialized());
+        $this->assertFalse($parent->allChildren->isInitialized());
+
+        // loaded
+        $parent->aChildren[] = new ChildrenTestObj();
+        $this->assertCount(2, $parent->aChildren);
+        $this->assertTrue($parent->aChildren->isInitialized());
+
+        $parent->allChildren->remove('Child C');
+        $this->assertCount(3, $parent->allChildren);
+        $this->assertTrue($parent->allChildren->isInitialized());
     }
 
     public function testChildrenOfReference()
@@ -161,6 +176,17 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
         $this->assertCount(2, $parent->allChildren);
+    }
+
+    public function testSliceChildrenCollection()
+    {
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $collection = $parent->allChildren->slice('Child B', 2);
+        $this->assertEquals(array('Child B', 'Child C'), array_keys($collection));
+
+        $parent->allChildren->initialize();
+        $collection = $parent->allChildren->slice('Child B', 2);
+        $this->assertEquals(array('Child B', 'Child C'), array_keys($collection));
     }
 
     public function testRemoveChildParent()

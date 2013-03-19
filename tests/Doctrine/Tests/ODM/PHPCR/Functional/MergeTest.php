@@ -209,7 +209,6 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $mergedUser = $this->dm->merge($mergableUser);
 
         $this->assertSame($mergedUser, $user);
-        $this->assertTrue($mergedUser->children->isInitialized());
         $this->assertCount(1, $mergedUser->children);
 
         $this->dm->flush();
