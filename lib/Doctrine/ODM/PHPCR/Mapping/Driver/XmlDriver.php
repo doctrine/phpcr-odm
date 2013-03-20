@@ -80,9 +80,9 @@ class XmlDriver extends FileDriver
                 $class->setReferenceable((bool) $xmlRoot['referenceable']);
             }
 
-            if (isset($xmlRoot->mixins)) {
+            if (isset($xmlRoot->mixin)) {
                 $mixins = array();
-                foreach ($xmlRoot->mixins as $mixin) {
+                foreach ($xmlRoot->mixin as $mixin) {
                     $attributes = $mixin->attributes();
                     if (isset($attributes['name'])) {
                         $mixins[] = (string)$attributes['name'];
@@ -103,7 +103,7 @@ class XmlDriver extends FileDriver
                 foreach ($attributes as $key => $value) {
                     $mapping[$key] = (string) $value;
                     // convert bool fields
-                    if ($key === 'id' || $key === 'multivalue' || $key === 'nullable') {
+                    if (in_array($key, array('id', 'multivalue', 'nullable','readonly'))) {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }

@@ -100,6 +100,8 @@ class Property
     public $assoc;
     /** @var boolean */
     public $nullable = false;
+    /** @var boolean */
+    public $readonly = false;
 }
 /**
  * Base class for all the translatable properties (i.e. every property but Uuid and Version)

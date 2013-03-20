@@ -1971,16 +1971,18 @@ class UnitOfWork
 
                 $mapping = $class->mappings[$fieldName];
                 if (in_array($fieldName, $class->fieldMappings)) {
-                    $type = PropertyType::valueFromName($mapping['type']);
-                    if ($mapping['multivalue']) {
-                        $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
-                        if ($value && isset($mapping['assoc'])) {
-                            $node->setProperty($mapping['assoc'], array_keys($value), PropertyType::STRING);
-                            $value = array_values($value);
+                    if (!$mapping['readonly']) {
+                        $type = PropertyType::valueFromName($mapping['type']);
+                        if ($mapping['multivalue']) {
+                            $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
+                            if ($value && isset($mapping['assoc'])) {
+                                $node->setProperty($mapping['assoc'], array_keys($value), PropertyType::STRING);
+                                $value = array_values($value);
+                            }
+                            $node->setProperty($mapping['name'], $value, $type);
+                        } else {
+                            $node->setProperty($mapping['name'], $fieldValue, $type);
                         }
-                        $node->setProperty($mapping['name'], $value, $type);
-                    } else {
-                        $node->setProperty($mapping['name'], $fieldValue, $type);
                     }
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE
                     || $mapping['type'] === $class::MANY_TO_MANY

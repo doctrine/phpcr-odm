@@ -46,6 +46,5 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->node->getNode('mixin')->hasProperty('jcr:lastModifiedBy'));
         $this->assertNotNull($this->node->getNode('mixin')->getProperty('jcr:lastModified'));
         $this->assertNotNull($this->node->getNode('mixin')->getProperty('jcr:lastModifiedBy'));
-        $this->assertNotNull($this->node->getNode('mixin')->getProperty('jcr:lastModifiedBy')->getString(), 'admin');
     }
 }

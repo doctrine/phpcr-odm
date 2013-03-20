@@ -6,6 +6,8 @@ Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject:
     lastModified:
       name: jcr:lastModified
       type: date
+      readonly: true
     lastModifiedBy:
       name: jcr:lastModifiedBy
       type: string
+      readonly: true

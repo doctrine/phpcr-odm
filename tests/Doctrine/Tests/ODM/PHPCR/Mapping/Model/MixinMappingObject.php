@@ -14,10 +14,10 @@ class MixinMappingObject
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Date(name="jcr:lastModified") */
+    /** @PHPCRODM\Date(name="jcr:lastModified", readonly=true) */
     public $lastModified;
 
-    /** @PHPCRODM\String(name="jcr:lastModifiedBy") */
+    /** @PHPCRODM\String(name="jcr:lastModifiedBy", readonly=true) */
     public $lastModifiedBy;
 
 }
