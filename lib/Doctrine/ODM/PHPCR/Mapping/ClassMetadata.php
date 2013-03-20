@@ -134,6 +134,14 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public $nodeType;
 
+
+    /**
+     * READ-ONLY: The JCR Mixins to be used for this node
+     *
+     * @var array
+     */
+    public $mixins = array();
+
     /**
      * READ-ONLY: The field name of the node
      *
@@ -524,6 +532,26 @@ class ClassMetadata implements ClassMetadataInterface
     public function getNodeType()
     {
         return $this->nodeType;
+    }
+
+    /**
+     * Set the JCR mixins
+     *
+     * @param array $mixins
+     */
+    public function setMixins($mixins)
+    {
+        $this->mixins = $mixins;
+    }
+
+    /**
+     * Return the JCR mixins to be used for this node.
+     *
+     * @return array
+     */
+    public function getMixins()
+    {
+        return $this->mixins;
     }
 
     /**
@@ -1249,6 +1277,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->uuidFieldName) {
             $serialized[] = 'uuidFieldName';
+        }
+
+        if ($this->mixins) {
+            $serialized[] = 'mixins';
         }
 
         return $serialized;

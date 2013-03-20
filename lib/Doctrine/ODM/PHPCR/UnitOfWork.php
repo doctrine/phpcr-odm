@@ -1837,6 +1837,10 @@ class UnitOfWork
                 throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
             }
 
+            foreach ($class->mixins as $mixin) {
+                $node->addMixin($mixin);
+            }
+
             if ($class->identifier) {
                 $class->setIdentifierValue($document, $id);
             }

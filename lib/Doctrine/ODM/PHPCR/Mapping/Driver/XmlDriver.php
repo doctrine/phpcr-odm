@@ -80,6 +80,17 @@ class XmlDriver extends FileDriver
                 $class->setReferenceable((bool) $xmlRoot['referenceable']);
             }
 
+            if (isset($xmlRoot->mixins)) {
+                $mixins = array();
+                foreach ($xmlRoot->mixins as $mixin) {
+                    $attributes = $mixin->attributes();
+                    if (isset($attributes['name'])) {
+                        $mixins[] = (string)$attributes['name'];
+                    }
+                }
+                $class->setMixins($mixins);
+            }
+
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
         } elseif ($xmlRoot->getName() === 'mapped-superclass') {
             $class->isMappedSuperclass = true;

@@ -29,6 +29,8 @@ final class Document
 {
     /** @var string */
     public $nodeType;
+    /** @var array */
+    public $mixins;
     /** @var string */
     public $repositoryClass;
     /** @var string */
