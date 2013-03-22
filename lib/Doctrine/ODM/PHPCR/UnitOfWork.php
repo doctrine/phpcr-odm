@@ -1878,7 +1878,7 @@ class UnitOfWork
                 if (in_array($fieldName, $class->fieldMappings)) {
                     $mapping = $class->mappings[$fieldName];
                     $type = PropertyType::valueFromName($mapping['type']);
-                    if (null === $fieldValue && !$this->canRemoveProperty($node, $mapping['name'])) {
+                    if (null === $fieldValue) {
                         continue;
                     }
 
