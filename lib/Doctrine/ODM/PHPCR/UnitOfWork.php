@@ -24,6 +24,7 @@ use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
+use PHPCR\NodeType\ConstraintViolationException;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
@@ -1967,6 +1968,9 @@ class UnitOfWork
                         }
                     } else {
                         $value = $fieldValue;
+                    }
+                    if ($mapping['readonly']) {
+                        throw new ConstraintViolationException('Trying to change a readonly property: ' . $fieldName);
                     }
                     if (!$mapping['readonly'] && (null !== $value || $this->canRemoveProperty($node, $mapping['name']))) {
                         $node->setProperty($mapping['name'], $value, $type);
