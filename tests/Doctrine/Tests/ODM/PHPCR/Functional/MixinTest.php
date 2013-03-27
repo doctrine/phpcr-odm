@@ -96,7 +96,7 @@ class MixinTest extends PHPCRFunctionalTestCase
     /**
      * @expectedException \PHPCR\NodeType\ConstraintViolationException
      */
-    public function testChangingReadonlyPropertyThrowsException()
+    public function testChangingProtectedPropertyToNullThrowsException()
     {
         $test = new TestObject();
         $test->id = '/functional/protected';
@@ -108,13 +108,12 @@ class MixinTest extends PHPCRFunctionalTestCase
 
         $test = $this->dm->find(null, '/functional/protected');
         $test->changeMe = 'changed';
-        $test->readonly = 'somevalue';
+        $test->created = null;
 
         $this->dm->flush();
 
         $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
-
 }
 
 /**
@@ -129,9 +128,6 @@ class TestObject
 
     /** @PHPCRODM\Date(name="jcr:created") */
     public $created;
-
-    /** @PHPCRODM\String(readonly=true) */
-    public $readonly;
 
     /** @PHPCRODM\String(name="change_me") */
     public $changeMe;

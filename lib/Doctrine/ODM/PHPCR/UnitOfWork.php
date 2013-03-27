@@ -1969,10 +1969,7 @@ class UnitOfWork
                     } else {
                         $value = $fieldValue;
                     }
-                    if ($mapping['readonly']) {
-                        throw new ConstraintViolationException('Trying to change a readonly property: ' . $fieldName);
-                    }
-                    if (!$mapping['readonly'] && (null !== $value || $this->canRemoveProperty($node, $mapping['name']))) {
+                    if (null !== $value || $this->canRemoveProperty($node, $mapping['name'])) {
                         $node->setProperty($mapping['name'], $value, $type);
                     }
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE

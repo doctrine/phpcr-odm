@@ -48,7 +48,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
                 'multivalue' => false,
                 'strategy' => 'repository',
                 'nullable' => false,
-                'readonly' => false,
             )
             , $cm->mappings['id']
         );
@@ -77,7 +76,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
                 'fieldName' => 'username',
                 'multivalue' => false,
                 'nullable' => false,
-                'readonly' => false,
             ),
             $cm->mappings['username']
         );
@@ -88,7 +86,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
                 'fieldName' => 'created',
                 'multivalue' => false,
                 'nullable' => false,
-                'readonly' => false,
             ),
             $cm->mappings['created']
         );
@@ -155,7 +152,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerialize(ClassMetadata $cm)
     {
-        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":14:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:8:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"readonly";b:0;s:4:"name";s:2:"id";}s:8:"username";a:6:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"readonly";b:0;}s:7:"created";a:6:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"readonly";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:8:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;s:8:"readonly";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
+        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":14:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:4:"name";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
 
         $cm->setCustomRepositoryClassName('customRepositoryClassName');
         $cm->setVersioned(true);

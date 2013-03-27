@@ -1206,10 +1206,6 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['translated'] = true;
         }
 
-        if (!isset($mapping['readonly'])) {
-            $mapping['readonly'] = false;
-        }
-
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         // Add the field to the list of translatable fields

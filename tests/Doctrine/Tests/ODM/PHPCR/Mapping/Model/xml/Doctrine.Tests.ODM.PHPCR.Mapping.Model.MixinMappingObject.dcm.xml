@@ -3,7 +3,7 @@
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject">
         <mixin name="mix:lastModified" />
         <id name="id" />
-        <field fieldName="lastModified" name="jcr:lastModified" type="date" readonly="true" />
-        <field fieldName="lastModifiedBy" name="jcr:lastModifiedBy" type="string" readonyl="true"/>
+        <field fieldName="lastModified" name="jcr:lastModified" type="date" />
+        <field fieldName="lastModifiedBy" name="jcr:lastModifiedBy" type="string" />
     </document>
 </doctrine-mapping>
