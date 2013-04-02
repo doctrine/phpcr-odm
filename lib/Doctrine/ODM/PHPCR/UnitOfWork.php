@@ -1894,7 +1894,7 @@ class UnitOfWork
                     if ($mapping['multivalue'] && $fieldValue) {
                         $fieldValue = (array) $fieldValue;
                         if (isset($mapping['assoc'])) {
-                            $node->setProperty($mapping['assoc'], array_keys($fieldValue), $type);
+                            $node->setProperty($mapping['assoc'], array_keys($fieldValue), PropertyType::STRING);
                             $fieldValue = array_values($fieldValue);
                         }
                     }
@@ -1971,7 +1971,7 @@ class UnitOfWork
                     if ($mapping['multivalue']) {
                         $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
                         if ($value && isset($mapping['assoc'])) {
-                            $node->setProperty($mapping['assoc'], array_keys($value), $type);
+                            $node->setProperty($mapping['assoc'], array_keys($value), PropertyType::STRING);
                             $value = array_values($value);
                         }
                         $node->setProperty($mapping['name'], $value, $type);
