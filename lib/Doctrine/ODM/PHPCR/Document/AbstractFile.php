@@ -136,6 +136,6 @@ abstract class AbstractFile
      */
     public function __toString()
     {
-        return $this->nodename;
+        return (string) $this->nodename;
     }
 }

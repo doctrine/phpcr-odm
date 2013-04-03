@@ -194,6 +194,6 @@ class Generic
 
     public function __toString()
     {
-        return $this->nodename;
+        return (string) $this->nodename;
     }
 }
