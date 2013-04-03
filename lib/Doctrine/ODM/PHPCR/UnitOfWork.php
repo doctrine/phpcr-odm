@@ -1780,8 +1780,8 @@ class UnitOfWork
         }
 
         $this->documentTranslations =
+        $this->documentLocales =
         $this->scheduledUpdates =
-        $associationUpdates =
         $this->scheduledRemovals =
         $this->scheduledMoves =
         $this->scheduledReorders =
@@ -1969,9 +1969,7 @@ class UnitOfWork
                     } else {
                         $value = $fieldValue;
                     }
-                    if (null !== $value || $this->canRemoveProperty($node, $mapping['name'])) {
-                        $node->setProperty($mapping['name'], $value, $type);
-                    }
+                    $node->setProperty($mapping['name'], $value, $type);
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE
                     || $mapping['type'] === $class::MANY_TO_MANY
                 ) {

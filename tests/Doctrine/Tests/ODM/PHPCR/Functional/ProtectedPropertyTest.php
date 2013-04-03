@@ -40,6 +40,7 @@ class ProtectedPropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
 <test='http://test.fr'>
 [test:protected_property_test] > nt:hierarchyNode
   - reference (REFERENCE)
+  - changeme (STRING)
 CND;
 
         $cnd2 = <<<CND
