@@ -135,7 +135,13 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
      */
     public function walkValue(Value $value)
     {
-        return $this->qomf->literal($value->getValue());
+        $value = $value->getValue();
+
+        if ($value instanceof \DateTime) {
+            $value = $value->format('c');
+        }
+
+        return $this->qomf->literal($value);
     }
 
     /**
