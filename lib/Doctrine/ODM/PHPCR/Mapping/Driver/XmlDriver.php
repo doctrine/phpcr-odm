@@ -80,6 +80,17 @@ class XmlDriver extends FileDriver
                 $class->setReferenceable((bool) $xmlRoot['referenceable']);
             }
 
+            if (isset($xmlRoot->mixin)) {
+                $mixins = array();
+                foreach ($xmlRoot->mixin as $mixin) {
+                    $attributes = $mixin->attributes();
+                    if (isset($attributes['name'])) {
+                        $mixins[] = (string)$attributes['name'];
+                    }
+                }
+                $class->setMixins($mixins);
+            }
+
             $class->setNodeType(isset($xmlRoot['nodeType']) ? (string) $xmlRoot['nodeType'] : 'nt:unstructured');
         } elseif ($xmlRoot->getName() === 'mapped-superclass') {
             $class->isMappedSuperclass = true;
@@ -92,7 +103,7 @@ class XmlDriver extends FileDriver
                 foreach ($attributes as $key => $value) {
                     $mapping[$key] = (string) $value;
                     // convert bool fields
-                    if ($key === 'id' || $key === 'multivalue' || $key === 'nullable') {
+                    if (in_array($key, array('id', 'multivalue', 'nullable'))) {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }

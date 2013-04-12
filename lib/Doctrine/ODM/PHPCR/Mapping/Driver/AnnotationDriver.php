@@ -88,6 +88,10 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             if ($documentAnnot->versionable) {
                 $metadata->setVersioned($documentAnnot->versionable);
             }
+
+            if ($documentAnnot->mixins) {
+                $metadata->setMixins($documentAnnot->mixins);
+            }
         }
 
         if ($documentAnnot->nodeType) {

@@ -81,6 +81,14 @@ class YamlDriver extends FileDriver
                 $class->setReferenceable($element['referenceable']);
             }
 
+            if (isset($element['mixins'])) {
+                $mixins = array();
+                foreach ($element['mixins'] as $mixin) {
+                    $mixins[] = $mixin;
+                }
+                $class->setMixins($mixins);
+            }
+
             $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
         } elseif ($element['type'] === 'mappedSuperclass') {
             $class->isMappedSuperclass = true;
