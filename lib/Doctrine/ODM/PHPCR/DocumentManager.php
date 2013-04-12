@@ -852,7 +852,11 @@ class DocumentManager implements ObjectManager
      * Flush all current changes, that is save them within the phpcr session
      * and commit that session to permanent storage.
      *
-     * @param object|array|null $document
+     * @param object|array|null $document optionally limit to a specific
+     *      document or an array of documents
+     *
+     * @throws \InvalidArgumentException if $document is neither null nor a
+     *      document or an array of documents
      */
     public function flush($document = null)
     {

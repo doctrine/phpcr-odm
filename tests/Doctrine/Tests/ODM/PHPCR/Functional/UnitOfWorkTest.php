@@ -99,6 +99,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $c1->setText('english');
         $this->dm->bindTranslation($c1, 'en');
         $this->dm->flush();
+
         $c2 = new Comment();
         $c2->name = 'c2';
         $c2->parent = $root;

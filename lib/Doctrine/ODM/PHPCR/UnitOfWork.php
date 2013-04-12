@@ -104,11 +104,19 @@ class UnitOfWork
     private $documentState = array();
 
     /**
+     * Hashmap of spl_object_hash => locale => hashmap of all translated
+     * document fields to store fields until the flush, in case the user is
+     * using bindTranslation to store more than one locale in one flush.
+     *
      * @var array
      */
     private $documentTranslations = array();
 
     /**
+     * Hashmap of spl_object_hash => { original => locale , current => locale }
+     * The original vs current locale is used to detect if the user changed the
+     * mapped locale field of a document after the last call to bindTranslation
+     *
      * @var array
      */
     private $documentLocales = array();
@@ -1707,7 +1715,8 @@ class UnitOfWork
     /**
      * Commits the UnitOfWork
      *
-     * @param object $document
+     * @param object|array|null $document optionally limit to a specific
+     *      document or an array of documents
      */
     public function commit($document = null)
     {
@@ -1779,8 +1788,22 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::postFlush, new PostFlushEventArgs($this->dm));
         }
 
-        $this->documentTranslations =
-        $this->documentLocales =
+        if (null === $document) {
+            $this->documentTranslations = array();
+            foreach ($this->documentLocales as $oid => $locales) {
+                $this->documentLocales[$oid]['original'] = $locales['current'];
+            }
+        } else {
+            $documents = is_array($document) ? $document : array($document);
+            foreach($documents as $doc) {
+                $oid = spl_object_hash($doc);
+                unset($this->documentTranslations[$oid]);
+                if (isset($this->documentLocales[$oid])) {
+                    $this->documentLocales[$oid]['original'] = $this->documentLocales[$oid]['current'];
+                }
+            }
+        }
+
         $this->scheduledUpdates =
         $this->scheduledRemovals =
         $this->scheduledMoves =
