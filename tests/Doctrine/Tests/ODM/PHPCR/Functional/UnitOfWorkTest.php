@@ -2,17 +2,31 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
+
+use Doctrine\Tests\Models\Translation\Comment;
 
 /**
  * @group functional
  */
 class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @var UnitOfWork
+     */
+    private $uow;
+
     public function setUp()
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager();
         $this->uow = $this->dm->getUnitOfWork();
         $this->resetFunctionalNode($this->dm);
     }
@@ -72,5 +86,31 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $this->uow->getScheduledReorders();
     }
-}
 
+    public function testComputeChangeSetForTranslatableDocument()
+    {
+        $root = $this->dm->find(null, 'functional');
+        $c1 = new Comment();
+        $c1->name = 'c1';
+        $c1->parent = $root;
+        $c1->setText('deutsch');
+        $this->dm->persist($c1);
+        $this->dm->bindTranslation($c1, 'de');
+        $c1->setText('english');
+        $this->dm->bindTranslation($c1, 'en');
+        $this->dm->flush();
+
+        $c2 = new Comment();
+        $c2->name = 'c2';
+        $c2->parent = $root;
+        $c2->setText('deutsch');
+        $this->dm->persist($c2);
+        $this->dm->bindTranslation($c2, 'de');
+        $c2->setText('english');
+        $this->dm->bindTranslation($c2, 'en');
+        $this->uow->computeChangeSets();
+
+        $this->assertCount(1, $this->uow->getScheduledInserts());
+        $this->assertCount(0, $this->uow->getScheduledUpdates());
+    }
+}

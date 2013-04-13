@@ -24,6 +24,7 @@ use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
+use PHPCR\NodeType\ConstraintViolationException;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use PHPCR\PathNotFoundException;
@@ -103,11 +104,19 @@ class UnitOfWork
     private $documentState = array();
 
     /**
+     * Hashmap of spl_object_hash => locale => hashmap of all translated
+     * document fields to store fields until the flush, in case the user is
+     * using bindTranslation to store more than one locale in one flush.
+     *
      * @var array
      */
     private $documentTranslations = array();
 
     /**
+     * Hashmap of spl_object_hash => { original => locale , current => locale }
+     * The original vs current locale is used to detect if the user changed the
+     * mapped locale field of a document after the last call to bindTranslation
+     *
      * @var array
      */
     private $documentLocales = array();
@@ -1706,7 +1715,8 @@ class UnitOfWork
     /**
      * Commits the UnitOfWork
      *
-     * @param object $document
+     * @param object|array|null $document optionally limit to a specific
+     *      document or an array of documents
      */
     public function commit($document = null)
     {
@@ -1778,9 +1788,23 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::postFlush, new PostFlushEventArgs($this->dm));
         }
 
-        $this->documentTranslations =
+        if (null === $document) {
+            $this->documentTranslations = array();
+            foreach ($this->documentLocales as $oid => $locales) {
+                $this->documentLocales[$oid]['original'] = $locales['current'];
+            }
+        } else {
+            $documents = is_array($document) ? $document : array($document);
+            foreach($documents as $doc) {
+                $oid = spl_object_hash($doc);
+                unset($this->documentTranslations[$oid]);
+                if (isset($this->documentLocales[$oid])) {
+                    $this->documentLocales[$oid]['original'] = $this->documentLocales[$oid]['current'];
+                }
+            }
+        }
+
         $this->scheduledUpdates =
-        $associationUpdates =
         $this->scheduledRemovals =
         $this->scheduledMoves =
         $this->scheduledReorders =
@@ -1837,6 +1861,10 @@ class UnitOfWork
                 throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
             }
 
+            foreach ($class->mixins as $mixin) {
+                $node->addMixin($mixin);
+            }
+
             if ($class->identifier) {
                 $class->setIdentifierValue($document, $id);
             }
@@ -1875,20 +1903,7 @@ class UnitOfWork
                     $mapping = $class->mappings[$fieldName];
                     $type = PropertyType::valueFromName($mapping['type']);
                     if (null === $fieldValue) {
-                        $types = $node->getMixinNodeTypes();
-                        array_push($types, $node->getPrimaryNodeType());
-                        $protected = false;
-                        foreach ($types as $nt) {
-                            /** @var $nt \PHPCR\NodeType\NodeTypeInterface */
-                            if (! $nt->canRemoveProperty($mapping['name'])) {
-                                $protected = true;
-                                break;
-                            }
-                        }
-
-                        if ($protected) {
-                            continue;
-                        }
+                        continue;
                     }
 
                     if ($mapping['multivalue'] && $fieldValue) {
@@ -1974,10 +1989,10 @@ class UnitOfWork
                             $node->setProperty($mapping['assoc'], array_keys($value), PropertyType::STRING);
                             $value = array_values($value);
                         }
-                        $node->setProperty($mapping['name'], $value, $type);
                     } else {
-                        $node->setProperty($mapping['name'], $fieldValue, $type);
+                        $value = $fieldValue;
                     }
+                    $node->setProperty($mapping['name'], $value, $type);
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE
                     || $mapping['type'] === $class::MANY_TO_MANY
                 ) {
@@ -3048,5 +3063,27 @@ class UnitOfWork
     public function getScheduledRemovals()
     {
         return $this->scheduledRemovals;
+    }
+
+    /**
+     * Check whether the property with the given name can be removed from the node
+     * @param NodeInterface $node
+     * @param string $name
+     *
+     * @return bool true if the property can be removed
+     */
+    private function canRemoveProperty(NodeInterface $node, $name)
+    {
+        $primaryNodeType = $node->getPrimaryNodeType();
+        if (!$primaryNodeType->canRemoveProperty($name)) {
+            return false;
+        }
+        $mixinNodeTypes = $node->getMixinNodeTypes();
+        foreach($mixinNodeTypes as $nt) {
+            if (!$nt->canRemoveProperty($name)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
