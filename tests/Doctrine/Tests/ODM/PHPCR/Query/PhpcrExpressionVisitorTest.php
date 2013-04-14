@@ -101,6 +101,16 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
         $this->assertEquals('test', $res->getLiteralValue());
     }
 
+    public function testWalkValueWithDateTime()
+    {
+        $val = new \Doctrine\Common\Collections\Expr\Value(new \DateTime('2013-05-10'));
+        $res = $this->visitor->walkValue($val);
+        $this->assertInstanceOf('PHPCR\Query\QOM\LiteralInterface', $res);
+
+        // actual result includes tz: 2013-05-10T00:00:00+01:00
+        $this->assertEquals('2013-05-10T00:00:00', substr($res->getLiteralValue(), 0 ,19));
+    }
+
     public function getDispatchExpressions()
     {
         $eb = new ExpressionBuilder;
