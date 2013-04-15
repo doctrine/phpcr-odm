@@ -8,8 +8,7 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 
 use Doctrine\Tests\Models\Translation\Article;
-use Doctrine\Tests\Models\Translation\Comment;
-
+s
 /**
  * @group functional
  */
