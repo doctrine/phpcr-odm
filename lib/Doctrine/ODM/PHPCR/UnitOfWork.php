@@ -535,9 +535,9 @@ class UnitOfWork
         $oid = spl_object_hash($document);
         if (isset($this->documentLocales[$oid]['current'])) {
             $hints['locale'] = $this->documentLocales[$oid]['current'];
+            $hints['fallback'] = true;
         }
 
-        $hints['fallback'] = true;
         $this->getOrCreateDocument($className, $node, $hints);
     }
 
@@ -2703,48 +2703,57 @@ class UnitOfWork
      */
     public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false)
     {
-        if (!$this->isDocumentTranslatable($metadata)) {
-            return;
-        }
-
         $currentLocale = $this->getCurrentLocale($document, $metadata);
-
-        // Load translated fields for current locale
-        $oid = spl_object_hash($document);
-        $node = $this->session->getNode($this->getDocumentId($oid));
-        $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-
         $locale = $locale ?: $currentLocale;
-        if ($locale && $strategy->loadTranslation($document, $node, $metadata, $locale)) {
-            $localeUsed = $locale;
-        } elseif (!$fallback) {
-            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
-            if (!$strategy->loadTranslation($document, $node, $metadata, $localeUsed)) {
-                $msg = "No translation at '{$node->getPath()}' found with strategy '{$metadata->translator} using the default locale '$localeUsed'.";
-                throw new MissingTranslationException($msg);
-            }
-        } else {
-            $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
 
-            foreach ($localesToTry as $desiredLocale) {
-                if ($desiredLocale === $locale
-                    || $strategy->loadTranslation($document, $node, $metadata, $desiredLocale)
-                ) {
-                    $localeUsed = $desiredLocale;
-                    break;
-                }
+        if (null === $locale && $fallback) {
+            try {
+                $locale = $this->dm->getLocaleChooserStrategy()->getLocale();
+            } catch (\InvalidArgumentException $e) {
+                return;
             }
 
-            if (empty($localeUsed)) {
-                $msg = "No translation for locale '$locale' at '{$node->getPath()}' found with strategy '{$metadata->translator}.";
-                if (!empty($localesToTry)) {
-                    $msg.= " Tried the following additional locales: ".var_export($localesToTry, true);
-                }
-                throw new MissingTranslationException($msg);
-            }
         }
 
-        $this->setLocale($document, $metadata, $localeUsed);
+        if ($this->isDocumentTranslatable($metadata)) {
+
+            // Load translated fields for current locale
+            $oid = spl_object_hash($document);
+            $node = $this->session->getNode($this->getDocumentId($oid));
+            $strategy = $this->dm->getTranslationStrategy($metadata->translator);
+
+            if ($locale && $strategy->loadTranslation($document, $node, $metadata, $locale)) {
+                $localeUsed = $locale;
+            } elseif (!$fallback) {
+                $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+                if (!$strategy->loadTranslation($document, $node, $metadata, $localeUsed)) {
+                    $msg = "No translation at '{$node->getPath()}' found with strategy '{$metadata->translator} using the default locale '$localeUsed'.";
+                    throw new MissingTranslationException($msg);
+                }
+            } else {
+                $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
+
+                foreach ($localesToTry as $desiredLocale) {
+                    if ($desiredLocale === $locale
+                        || $strategy->loadTranslation($document, $node, $metadata, $desiredLocale)
+                    ) {
+                        $localeUsed = $desiredLocale;
+                        break;
+                    }
+                }
+
+                if (empty($localeUsed)) {
+                    $msg = "No translation for locale '$locale' at '{$node->getPath()}' found with strategy '{$metadata->translator}.";
+                    if (!empty($localesToTry)) {
+                        $msg.= " Tried the following additional locales: ".var_export($localesToTry, true);
+                    }
+                    throw new MissingTranslationException($msg);
+                }
+            }
+
+            $this->setLocale($document, $metadata, $localeUsed);
+
+        }
 
         if ($metadata->parentMapping) {
             $parent = $metadata->reflFields[$metadata->parentMapping]->getValue($document);
