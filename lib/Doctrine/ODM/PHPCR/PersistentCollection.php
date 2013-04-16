@@ -387,7 +387,7 @@ abstract class PersistentCollection implements Collection
 
     public function setLocale($locale)
     {
-        if (null === $this->locale) {
+        if (null === $locale) {
             return;
         }
 

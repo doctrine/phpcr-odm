@@ -166,4 +166,67 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('Sujet interessant', $doc->child->topic);
     }
+
+    function testRefreshProxyUsesFallback()
+    {
+        $parent = new ParentObj();
+        $parent->id = '/functional/thename/child';
+        $this->dm->persist($parent);
+
+        $child = new ChildObj();
+        $child->parent = $parent;
+        $child->name = 'c1';
+        $child->text = 'french';
+        $this->dm->persist($child);
+        $this->dm->bindTranslation($child, 'fr');
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $doc = $this->dm->find(null, '/functional/thename/child');
+
+        $this->assertEquals('french', $doc->children['c1']->text);
+    }
+}
+
+/**
+ * @PHPCRODM\Document(translator="child", referenceable=true)
+ */
+class ParentObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+
+    /** @PHPCRODM\Locale */
+    public $locale;
+
+    /** @PHPCRODM\Nodename */
+    public $name;
+
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+
+    /** @PHPCRODM\Children(cascade={"all"}) */
+    public $children;
+}
+
+/**
+ * @PHPCRODM\Document(translator="child", referenceable=true)
+ */
+class ChildObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+
+    /** @PHPCRODM\Locale */
+    public $locale;
+
+    /** @PHPCRODM\Nodename */
+    public $name;
+
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+
+    /** @PHPCRODM\String(translated=true) */
+    public $text;
 }
