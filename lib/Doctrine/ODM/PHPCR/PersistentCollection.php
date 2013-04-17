@@ -385,12 +385,13 @@ abstract class PersistentCollection implements Collection
         $this->isDirty = $dirty;
     }
 
+    /**
+     * Set the default locale for this collection
+     *
+     * @param $locale
+     */
     public function setLocale($locale)
     {
-        if (null === $this->locale) {
-            return;
-        }
-
         $this->locale = $locale;
     }
 
