@@ -531,11 +531,11 @@ class UnitOfWork
     {
         $node = $this->session->getNode($document->__getIdentifier());
 
-        $hints = array('refresh' => true);
+        $hints = array('refresh' => true, 'fallback' => true);
+
         $oid = spl_object_hash($document);
         if (isset($this->documentLocales[$oid]['current'])) {
             $hints['locale'] = $this->documentLocales[$oid]['current'];
-            $hints['fallback'] = true;
         }
 
         $this->getOrCreateDocument($className, $node, $hints);
