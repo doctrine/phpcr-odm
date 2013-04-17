@@ -184,6 +184,11 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->dm->flush();
         $this->dm->clear();
 
+        $doc = $this->dm->findTranslation(null, '/functional/thename/child', 'fr');
+        $this->assertEquals('french', $doc->children['c1']->text);
+
+        $this->dm->clear();
+
         $doc = $this->dm->find(null, '/functional/thename');
 
         $this->assertEquals('french', $doc->child->children['c1']->text);
