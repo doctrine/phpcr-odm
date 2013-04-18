@@ -802,6 +802,8 @@ class DocumentManager implements ObjectManager
      * This methods gets all child nodes as a collection of documents that matches
      * a given filter (same as PHPCR Node::getNodes)
      *
+     * Note that this method only returns children that have been flushed.
+     *
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
      * @param integer      $fetchDepth         optional fetch depth
@@ -829,6 +831,8 @@ class DocumentManager implements ObjectManager
      *
      * Multilingual documents are loaded in the default locale, unless a locale
      * preference is explicitly specified.
+     *
+     * Note that this method only returns referrers that have been flushed.
      *
      * @param object       $document the target of the references to be loaded
      * @param string|null  $type     the reference type, null|'weak'|'hard'
