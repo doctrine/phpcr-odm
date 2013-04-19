@@ -2,9 +2,9 @@
 <doctrine-mapping>
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject" referenceable="true">
         <id name="id" />
-        <mixed-referrers fieldName="allReferrers"/>
-        <referrers fieldName="filteredReferrers" referenced-by="referenceManyWeak" referring-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
-        <mixed-referrers fieldName="weakReferrers" reference-type="weak" />
-        <mixed-referrers fieldName="hardReferrers" reference-type="hard" />
+        <mixed-referrers field="allReferrers"/>
+        <referrers field="filteredReferrers" referenced-by="referenceManyWeak" referring-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
+        <mixed-referrers field="weakReferrers" reference-type="weak" />
+        <mixed-referrers field="hardReferrers" reference-type="hard" />
     </document>
 </doctrine-mapping>

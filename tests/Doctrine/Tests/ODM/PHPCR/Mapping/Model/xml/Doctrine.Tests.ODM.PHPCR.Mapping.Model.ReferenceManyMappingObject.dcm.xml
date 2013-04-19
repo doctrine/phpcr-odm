@@ -2,7 +2,7 @@
 <doctrine-mapping>
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject">
         <id name="id" />
-        <reference-many fieldName="referenceManyWeak" targetDocument="myDocument" strategy="weak" />
-        <reference-many fieldName="referenceManyHard" targetDocument="myDocument" strategy="hard" />
+        <reference-many field="referenceManyWeak" target-document="myDocument" strategy="weak" />
+        <reference-many field="referenceManyHard" target-document="myDocument" strategy="hard" />
     </document>
 </doctrine-mapping>

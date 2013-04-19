@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doctrine-mapping>
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject" translator="attribute">
-        <locale fieldName="doclocale" />
-        <field fieldName="publishDate" type="date" />
-        <field fieldName="topic" type="string" translated="true" />
-        <field fieldName="image" type="binary" translated="true" />
+        <locale name="doclocale" />
+        <field name="publishDate" type="date" />
+        <field name="topic" type="string" translated="true" />
+        <field name="image" type="binary" translated="true" />
     </document>
 </doctrine-mapping>

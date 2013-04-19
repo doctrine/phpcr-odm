@@ -2,7 +2,7 @@
 <doctrine-mapping>
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject">
         <id name="id" />
-        <child fieldName="child1" name="first" />
-        <child fieldName="child2" name="second" />
+        <child field="child1" name="first" />
+        <child field="child2" name="second" />
     </document>
 </doctrine-mapping>
