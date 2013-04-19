@@ -2,7 +2,6 @@
 
 use Doctrine\ODM\PHPCR\Event\LoadClassMetadataEventArgs;
 
-
 class LoadClassMetadataEventArgsTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()

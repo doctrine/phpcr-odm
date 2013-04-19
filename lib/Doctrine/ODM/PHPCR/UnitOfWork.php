@@ -32,12 +32,12 @@ use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
+use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
-use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Proxy\Proxy;
 
 use Jackalope\Session as JackalopeSession;
@@ -1722,7 +1722,7 @@ class UnitOfWork
     {
         // Raise preFlush
         if ($this->evm->hasListeners(Event::preFlush)) {
-            $this->evm->dispatchEvent(Event::preFlush, new PreFlushEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::preFlush, new ManagerEventArgs($this->dm));
         }
 
         if ($document === null) {
@@ -1736,7 +1736,7 @@ class UnitOfWork
         }
 
         if ($this->evm->hasListeners(Event::onFlush)) {
-            $this->evm->dispatchEvent(Event::onFlush, new OnFlushEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::onFlush, new ManagerEventArgs($this->dm));
         }
 
         try {
@@ -1785,7 +1785,7 @@ class UnitOfWork
 
         // Raise postFlush
         if ($this->evm->hasListeners(Event::postFlush)) {
-            $this->evm->dispatchEvent(Event::postFlush, new PostFlushEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::postFlush, new ManagerEventArgs($this->dm));
         }
 
         if (null === $document) {
@@ -2609,7 +2609,7 @@ class UnitOfWork
         $this->documentVersion = array();
 
         if ($this->evm->hasListeners(Event::onClear)) {
-            $this->evm->dispatchEvent(Event::onClear, new OnClearEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::onClear, new ManagerEventArgs($this->dm));
         }
 
         $this->session->refresh(false);

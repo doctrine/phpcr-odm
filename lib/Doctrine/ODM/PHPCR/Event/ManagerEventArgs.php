@@ -15,32 +15,21 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\EventArgs;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\Event\ManagerEventArgs as BaseManagerEventArgs;
 
-class OnFlushEventArgs extends EventArgs
+class ManagerEventArgs extends BaseManagerEventArgs
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
-     */
-    private $dm;
-
-    /**
-     * @param \Doctrine\ODM\PHPCR\DocumentManager $dm
-     */
-    public function __construct($dm)
-    {
-        $this->dm = $dm;
-    }
-
-    /**
-     * @return \Doctrine\ODM\PHPCR\DocumentManager
+     * @deprecated  Will be dropped in favor of getObjectManager in 1.0
+     * @return      \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
-        return $this->dm;
+        return $this->getObjectManager();
     }
 }

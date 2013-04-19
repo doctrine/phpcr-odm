@@ -7,8 +7,7 @@ use Doctrine\Common\EventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\Models\CMS\CmsItem;
-use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
-use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
+use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 
 class EventManagerTest extends PHPCRFunctionalTestCase
 {
@@ -214,12 +213,12 @@ class TestPersistenceListener
         $this->onFlush = true;
     }
 
-    public function postFlush(PostFlushEventArgs $e)
+    public function postFlush(ManagerEventArgs $e)
     {
         $this->postFlush = true;
     }
 
-    public function preFlush(PreFlushEventArgs $e)
+    public function preFlush(ManagerEventArgs $e)
     {
         $this->preFlush = true;
     }

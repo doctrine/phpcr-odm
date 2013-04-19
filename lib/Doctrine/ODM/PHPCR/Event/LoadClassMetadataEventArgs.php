@@ -19,51 +19,18 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\EventArgs;
+use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs as BaseLoadClassMetadataEventArgs;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\DocumentManager;
 
-class LoadClassMetadataEventArgs extends EventArgs
+class LoadClassMetadataEventArgs extends BaseLoadClassMetadataEventArgs
 {
     /**
-     * @var \Doctrine\PHPCR\ODM\Mapping\ClassMetadata
-     */
-    private $classMetadata;
-
-    /**
-     * @var \Doctrine\PHPCR\ODM\DocumentManager
-     */
-    private $dm;
-
-    /**
-     * Constructor.
-     *
-     * @param \Doctrine\PHPCR\ODM\Mapping\ClassMetadataInfo $classMetadata
-     * @param \Doctrine\PHPCR\ODM\DocumentManager $dm
-     */
-    public function __construct(ClassMetadata $classMetadata, DocumentManager $dm)
-    {
-        $this->classMetadata = $classMetadata;
-        $this->dm            = $dm;
-    }
-
-    /**
-     * Retrieve associated ClassMetadata.
-     *
-     * @return \Doctrine\PHPCR\ODM\Mapping\ClassMetadataInfo
-     */
-    public function getClassMetadata()
-    {
-        return $this->classMetadata;
-    }
-
-    /**
-     * Retrieve associated DocumentManager.
-     *
-     * @return \Doctrine\PHPCR\ODM\DocumentManager
+     * @deprecated  Will be dropped in favor of getObjectManager in 1.0
+     * @return      \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
-        return $this->dm;
+        return $this->getObjectManager();
     }
 }
