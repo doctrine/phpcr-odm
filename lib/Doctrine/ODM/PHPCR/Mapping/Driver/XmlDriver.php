@@ -109,7 +109,12 @@ class XmlDriver extends FileDriver
                     }
                 }
                 $mapping['fieldName'] = $mapping['name'];
-                unset($mapping['name']);
+                if (isset($mapping['property'])) {
+                    $mapping['name'] = $mapping['property'];
+                    unset($mapping['property']);
+                } else {
+                    unset($mapping['name']);
+                }
                 $class->mapField($mapping);
             }
         }
