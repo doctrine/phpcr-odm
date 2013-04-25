@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Expression;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 
-class Descendant implements Expression
+class SameNode implements Expression
 {
     protected $path;
 
@@ -23,3 +23,4 @@ class Descendant implements Expression
     {
     }
 }
+
