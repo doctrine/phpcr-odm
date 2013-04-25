@@ -28,6 +28,5 @@ class TextSearch implements Expression
 
     public function visit(ExpressionVisitor $visitor)
     {
-        return $visitor->walkTextSearchExpression($this);
     }
 }

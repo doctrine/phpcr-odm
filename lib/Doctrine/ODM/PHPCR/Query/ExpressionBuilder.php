@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\Query\Expression\Descendant;
 use Doctrine\ODM\PHPCR\Query\Expression\Comparison;
 use Doctrine\ODM\PHPCR\Query\Expression\NodeLocalName;
 use Doctrine\ODM\PHPCR\Query\Expression\TextSearch;
+use Doctrine\ODM\PHPCR\Query\Expression\SameNode;
 
 class ExpressionBuilder extends BaseExpressionBuilder
 {
@@ -33,5 +34,10 @@ class ExpressionBuilder extends BaseExpressionBuilder
     public function textSearch($field, $search)
     {
         return new TextSearch($field, $search);
+    }
+
+    public function eqPath($path)
+    {
+        return new SameNode($path);
     }
 }
