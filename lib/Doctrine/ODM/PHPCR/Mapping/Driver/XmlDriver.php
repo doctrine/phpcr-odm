@@ -73,7 +73,7 @@ class XmlDriver extends FileDriver
             }
 
             if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
-                $class->setVersioned((string) $xmlRoot['versionable']);
+                $class->setVersioned(strtolower($xmlRoot['versionable']));
             }
 
             if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
