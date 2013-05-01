@@ -10,7 +10,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
-
     public function testGetTypeOfField()
     {
         $cmi = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
@@ -152,7 +151,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerialize(ClassMetadata $cm)
     {
-        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":14:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:4:"name";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:25:"customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
+        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":14:{s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:4:"name";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:4:"name";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:4:"name";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:4:"name";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:4:"name";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:58:"Doctrine\Tests\ODM\PHPCR\Mapping\customRepositoryClassName";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:18:"lifecycleCallbacks";a:1:{s:5:"event";a:1:{i:0;s:8:"callback";}}}';
 
         $cm->setCustomRepositoryClassName('customRepositoryClassName');
         $cm->setVersioned(true);
@@ -193,6 +192,42 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         ), $cm->mappings['address']);
 
         return $cm;
+    }
+
+    public function testClassMetadataInstanceSerialization()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
+        $cm->initializeReflection(new \Doctrine\Common\Persistence\Mapping\RuntimeReflectionService);
+
+        // Test initial state
+        $this->assertTrue(count($cm->getReflectionProperties()) == 0);
+        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
+        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $cm->name);
+        $this->assertEquals(array(), $cm->parentClasses);
+        $this->assertEquals(0, count($cm->referenceMappings));
+
+        // Customize state
+        $cm->setParentClasses(array("UserParent"));
+        $cm->setCustomRepositoryClassName("UserRepository");
+        $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => 'CmsAddress', 'mappedBy' => 'foo'));
+        $this->assertEquals(1, count($cm->referenceMappings));
+
+        $serialized = serialize($cm);
+        /** @var ClassMetadata $cm */
+        $cm = unserialize($serialized);
+        $cm->wakeupReflection(new \Doctrine\Common\Persistence\Mapping\RuntimeReflectionService);
+
+        // Check state
+        $this->assertTrue(count($cm->getReflectionProperties()) > 0);
+        $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
+        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
+        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $cm->name);
+        $this->assertEquals(array('UserParent'), $cm->parentClasses);
+        $this->assertEquals('Doctrine\Tests\Models\CMS\UserRepository', $cm->customRepositoryClassName);
+        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $cm->getTypeOfField('address'));
+        $this->assertEquals(1, count($cm->referenceMappings));
+        $this->assertTrue($cm->hasAssociation('address'));
+        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsAddress', $cm->getAssociationTargetClass('address'));
     }
 }
 
