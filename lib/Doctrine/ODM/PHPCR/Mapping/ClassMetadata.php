@@ -348,7 +348,8 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->reflClass = $reflService->getClass($this->name);
         $this->namespace = $reflService->getClassNamespace($this->name);
-        foreach ($this->getFieldNames() as $fieldName) {
+        $fieldNames = array_merge($this->getFieldNames(), $this->getAssociationNames());
+        foreach ($fieldNames as $fieldName) {
             $reflField = isset($this->mappings[$fieldName]['declared'])
                 ? new ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
                 : $this->reflClass->getProperty($fieldName)
@@ -445,7 +446,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setCustomRepositoryClassName($repositoryClassName)
     {
-        $this->customRepositoryClassName = $repositoryClassName;
+        $this->customRepositoryClassName = $this->fullyQualifiedClassName($repositoryClassName);
     }
 
     /**
@@ -1058,6 +1059,12 @@ class ClassMetadata implements ClassMetadataInterface
     public function getFieldNames()
     {
         $fields = $this->fieldMappings;
+        if ($this->identifier) {
+            $fields[] = $this->identifier;
+        }
+        if ($this->uuidFieldName) {
+            $fields[] = $this->uuidFieldName;
+        }
         if ($this->localeMapping) {
             $fields[] = $this->localeMapping;
         }
@@ -1255,6 +1262,10 @@ class ClassMetadata implements ClassMetadataInterface
             $serialized[] = 'isMappedSuperclass';
         }
 
+        if ($this->parentClasses) {
+            $serialized[] = 'parentClasses';
+        }
+
         if ($this->versionable) {
             $serialized[] = 'versionable';
         }
@@ -1393,5 +1404,18 @@ class ClassMetadata implements ClassMetadataInterface
     public function getUuidFieldName()
     {
         return $this->uuidFieldName;
+    }
+
+    /**
+     * @param   string $className
+     * @return  string
+     */
+    public function fullyQualifiedClassName($className)
+    {
+        if ($className !== null && strpos($className, '\\') === false && strlen($this->namespace) > 0) {
+            return $this->namespace . '\\' . $className;
+        }
+
+        return $className;
     }
 }
