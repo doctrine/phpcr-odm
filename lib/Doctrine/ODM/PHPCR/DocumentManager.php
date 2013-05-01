@@ -419,11 +419,7 @@ class DocumentManager implements ObjectManager
         $className  = ltrim($className, '\\');
         if (empty($this->repositories[$className])) {
             $class = $this->getClassMetadata($className);
-            if ($class->customRepositoryClassName) {
-                $repositoryClass = $class->customRepositoryClassName;
-            } else {
-                $repositoryClass = 'Doctrine\ODM\PHPCR\DocumentRepository';
-            }
+            $repositoryClass = $class->customRepositoryClassName ?: 'Doctrine\ODM\PHPCR\DocumentRepository';
             $this->repositories[$className] = new $repositoryClass($this, $class);
         }
 
