@@ -30,7 +30,8 @@ if (isset($argv[1])
     && $argv[1] != 'list'
     && $argv[1] != 'help'
 ) {
-    $repository = \Jackalope\RepositoryFactoryDoctrineDBAL::getRepository(array('jackalope.doctrine_dbal_connection' => $dbConn));
+    $factory = new \Jackalope\RepositoryFactoryDoctrineDBAL();
+    $repository = $factory->getRepository(array('jackalope.doctrine_dbal_connection' => $dbConn));
     $credentials = new \PHPCR\SimpleCredentials(null, null);
     $session = $repository->login($credentials, $workspace);
 
