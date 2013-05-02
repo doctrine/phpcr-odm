@@ -209,6 +209,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         // Customize state
         $cm->setParentClasses(array("UserParent"));
         $cm->setCustomRepositoryClassName("UserRepository");
+        $cm->setNodeType('foo:bar');
         $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => 'CmsAddress', 'mappedBy' => 'foo'));
         $this->assertEquals(1, count($cm->referenceMappings));
 
@@ -224,6 +225,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $cm->name);
         $this->assertEquals(array('UserParent'), $cm->parentClasses);
         $this->assertEquals('Doctrine\Tests\Models\CMS\UserRepository', $cm->customRepositoryClassName);
+        $this->assertEquals('foo:bar', $cm->getNodeType());
         $this->assertEquals(ClassMetadata::MANY_TO_ONE, $cm->getTypeOfField('address'));
         $this->assertEquals(1, count($cm->referenceMappings));
         $this->assertTrue($cm->hasAssociation('address'));

@@ -134,7 +134,6 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public $nodeType;
 
-
     /**
      * READ-ONLY: The JCR Mixins to be used for this node
      *
@@ -1242,6 +1241,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         // This metadata is always serialized/cached.
         $serialized = array(
+            'nodeType',
             'identifier',
             'name',
             'idGenerator',
