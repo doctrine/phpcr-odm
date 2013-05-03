@@ -665,8 +665,8 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $mapping['sourceDocument'] = $this->name;
-        if (isset($mapping['referringDocument']) && strpos($mapping['referringDocument'], '\\') === false && strlen($this->namespace)) {
-            $mapping['referringDocument'] = $this->namespace . '\\' . $mapping['referringDocument'];
+        if (isset($mapping['referringDocument'])) {
+            $mapping['referringDocument'] = $this->fullyQualifiedClassName($mapping['referringDocument']);
         }
 
         $mapping['type'] = 'referrers';
@@ -789,8 +789,8 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $mapping['sourceDocument'] = $this->name;
-        if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
-            $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
+        if (isset($mapping['targetDocument'])) {
+            $mapping['targetDocument'] = $this->fullyQualifiedClassName($mapping['targetDocument']);
         }
         if (empty($mapping['strategy'])) {
             $mapping['strategy'] = 'weak';
