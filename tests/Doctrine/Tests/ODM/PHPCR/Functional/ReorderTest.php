@@ -74,6 +74,21 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
+    public function testReorderMultiple()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+
+        $children = $parent->getChildren();
+        $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
+        $this->dm->reorder($parent, 'first', 'second', false);
+        $this->dm->reorder($parent, 'third', 'fourth', false);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->assertSame(array('second', 'first', 'fourth', 'third'), $this->getChildrenNames($parent->getChildren()));
+    }
+
     public function testReorderNoop()
     {
         $parent = $this->dm->find(null, '/functional/source');
@@ -164,15 +179,14 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testReorderAfterRemove()
     {
         $parent = $this->dm->find(null, '/functional/source');
         $this->dm->remove($parent);
         $this->dm->reorder($parent, 'first', 'second', false);
-        $this->dm->flush();
-
-        $parent = $this->dm->find(null, '/functional/source');
-        $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
     }
 
     private function getChildrenNames($children)
