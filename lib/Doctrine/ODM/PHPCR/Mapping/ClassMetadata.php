@@ -789,8 +789,6 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $mapping['sourceDocument'] = $this->name;
-        // TODO: i think its a bug to not have targetDocument here.
-        // we run into exceptions if its not set: undefined index on line 1117
         if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
             $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
         }
@@ -1116,6 +1114,7 @@ class ClassMetadata implements ClassMetadataInterface
             throw new InvalidArgumentException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
         }
 
+        // TODO this may be not set. what happens if we would return null then?
         return $this->mappings[$fieldName]['targetDocument'];
     }
 

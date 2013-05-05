@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject">
         <id name="id" />
         <children field="all" />
         <children field="some" filter="*some*" fetch-depth="2">
-            <cascade><cascade-persist /><remove /></cascade>
+            <cascade><cascade-persist /><cascade-remove /></cascade>
         </children>
     </document>
 </doctrine-mapping>

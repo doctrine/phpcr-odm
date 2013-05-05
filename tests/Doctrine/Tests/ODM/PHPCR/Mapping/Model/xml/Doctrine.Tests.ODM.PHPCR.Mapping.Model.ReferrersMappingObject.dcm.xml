@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject" referenceable="true">
         <id name="id" />
-        <mixed-referrers field="allReferrers"/>
         <referrers field="filteredReferrers" referenced-by="referenceManyWeak" referring-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
-        <mixed-referrers field="weakReferrers" reference-type="weak" />
-        <mixed-referrers field="hardReferrers" reference-type="hard" />
+        <mixed-referrers field="allReferrers"/>
+        <mixed-referrers field="weakReferrers" reference-type="WEAK" />
+        <mixed-referrers field="hardReferrers" reference-type="HARD" />
     </document>
 </doctrine-mapping>

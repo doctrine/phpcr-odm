@@ -80,14 +80,14 @@ class XmlDriver extends FileDriver
                 $class->setReferenceable((bool) $xmlRoot['referenceable']);
             }
 
-            if (isset($xmlRoot->mixin)) {
+            if (isset($xmlRoot->mixins)) {
                 $mixins = array();
-                foreach ($xmlRoot->mixin as $mixin) {
+                foreach ($xmlRoot->mixins->mixin as $mixin) {
                     $attributes = $mixin->attributes();
                     if (! isset($attributes['type'])) {
                         throw new MappingException('<mixin> missing mandatory type attribute');
                     }
-                    $mixins[] = (string)$attributes['type'];
+                    $mixins[] = (string) $attributes['type'];
                 }
                 $class->setMixins($mixins);
             }
@@ -104,7 +104,7 @@ class XmlDriver extends FileDriver
                 foreach ($attributes as $key => $value) {
                     $mapping[$key] = (string) $value;
                     // convert bool fields
-                    if (in_array($key, array('id', 'multivalue', 'nullable'))) {
+                    if (in_array($key, array('id', 'multivalue', 'assoc', 'translated', 'nullable'))) {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
                 }
@@ -135,10 +135,10 @@ class XmlDriver extends FileDriver
         if (isset($xmlRoot->nodename)) {
             $class->mapNodename(array('fieldName' => (string) $xmlRoot->nodename->attributes()->name));
         }
-        if (isset($xmlRoot->parentdocument)) {
+        if (isset($xmlRoot->{'parent-document'})) {
             $mapping = array(
-                'fieldName' => (string) $xmlRoot->parentdocument->attributes()->field,
-                'cascade' => (isset($xmlRoot->parentdocument->cascade)) ? $this->getCascadeMode($xmlRoot->parentdocument->cascade) : 0,
+                'fieldName' => (string) $xmlRoot->{'parent-document'}->attributes()->field,
+                'cascade' => (isset($xmlRoot->{'parent-document'}->cascade)) ? $this->getCascadeMode($xmlRoot->{'parent-document'}->cascade) : 0,
             );
             $class->mapParentDocument($mapping);
         }
@@ -149,8 +149,8 @@ class XmlDriver extends FileDriver
                     'fieldName' => (string) $attributes->field,
                     'cascade' => (isset($child->cascade)) ? $this->getCascadeMode($child->cascade) : 0,
                 );
-                if (isset($attributes['name'])) {
-                    $mapping['name'] = (string) $attributes->name;
+                if (isset($attributes['node-name'])) {
+                    $mapping['name'] = (string) $attributes->{'node-name'};
                 }
                 $class->mapChild($mapping);
             }
@@ -194,7 +194,7 @@ class XmlDriver extends FileDriver
                 $attributes = $mixedReferrers->attributes();
                 $mapping = array(
                     'fieldName' => (string) $attributes->field,
-                    'referenceType' => isset($attributes['reference-type']) ? (string) $attributes->{'reference-type'} : null,
+                    'referenceType' => isset($attributes['reference-type']) ? strtolower((string) $attributes->{'reference-type'}) : null,
                 );
                 $class->mapMixedReferrers($mapping);
             }
@@ -208,6 +208,7 @@ class XmlDriver extends FileDriver
                 if (! isset($attributes['referring-document'])) {
                     throw new MappingException("$className is missing the referring-document attribute for the referrer field " . $attributes->fieldName);
                 }
+                // referenceType is determined from the referencedBy field of referringDocument
                 $mapping = array(
                     'fieldName' => (string) $attributes->field,
                     'cascade' => (isset($referrers->cascade)) ? $this->getCascadeMode($referrers->cascade) : 0,
@@ -235,8 +236,10 @@ class XmlDriver extends FileDriver
 
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)
     {
+        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         $attributes = (array) $reference->attributes();
         $mapping = $attributes["@attributes"];
+        $mapping['strategy'] = isset($mapping['strategy']) ? strtolower($mapping['strategy']) : null;
         $mapping['targetDocument'] = $mapping['target-document'];
         unset($mapping['target-document']);
 
