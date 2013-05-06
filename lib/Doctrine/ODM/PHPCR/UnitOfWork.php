@@ -2727,9 +2727,7 @@ class UnitOfWork
             $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
 
             foreach ($localesToTry as $desiredLocale) {
-                if ($desiredLocale === $locale
-                    || $strategy->loadTranslation($document, $node, $metadata, $desiredLocale)
-                ) {
+                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
                     $localeUsed = $desiredLocale;
                     break;
                 }
