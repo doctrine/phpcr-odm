@@ -5,6 +5,6 @@
                   http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentDocumentMappingObject">
         <id name="id" />
-        <parent-document field="parent" />
+        <parent-document name="parent" />
     </document>
 </doctrine-mapping>

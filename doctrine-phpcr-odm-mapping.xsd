@@ -268,7 +268,7 @@
             <xs:element name="cascade" type="phpcr:cascade-type" minOccurs="0" />
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
         </xs:sequence>
-        <xs:attribute name="field" type="xs:NMTOKEN" use="required" />
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
         <!--
             orm has fetch-type here. we do not need this, as relations can not
             be fetched in joins, so there is no benefit in declaring eager
@@ -327,7 +327,7 @@
     </xs:complexType>
 
     <xs:complexType name="mixed-referrers">
-        <xs:attribute name="field" type="xs:NMTOKEN" use="required" />
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
         <xs:attribute name="reference-type" type="phpcr:reference-strategy" use="optional" />
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>

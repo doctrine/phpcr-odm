@@ -326,9 +326,9 @@ class VersionTestObj
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String() */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
 
     /** @PHPCRODM\ReferenceOne(strategy="weak") */
@@ -345,7 +345,7 @@ class ReferenceTestObj
     /** @PHPCRODM\Node */
     public $node;
 
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String(property="username") */
     public $content;
 }
 

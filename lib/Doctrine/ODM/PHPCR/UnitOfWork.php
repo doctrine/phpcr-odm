@@ -308,18 +308,18 @@ class UnitOfWork
 
         foreach ($class->fieldMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if (isset($properties[$mapping['name']])) {
+            if (isset($properties[$mapping['property']])) {
                 if (true === $mapping['multivalue']) {
                     if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
-                        $documentState[$fieldName] = array_combine((array) $properties[$mapping['assoc']], (array) $properties[$mapping['name']]);
+                        $documentState[$fieldName] = array_combine((array) $properties[$mapping['assoc']], (array) $properties[$mapping['property']]);
                     } else {
-                        $documentState[$fieldName] = (array) $properties[$mapping['name']];
+                        $documentState[$fieldName] = (array) $properties[$mapping['property']];
                     }
                 } else {
-                    $documentState[$fieldName] = $properties[$mapping['name']];
+                    $documentState[$fieldName] = $properties[$mapping['property']];
                 }
             } elseif (true === $mapping['multivalue']) {
-                $documentState[$mapping['name']] = array();
+                $documentState[$mapping['property']] = array();
             }
         }
 
@@ -409,8 +409,8 @@ class UnitOfWork
 
         foreach ($class->childMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = $node->hasNode($mapping['name'])
-                ? $this->getOrCreateProxyFromNode($node->getNode($mapping['name']), $locale)
+            $documentState[$fieldName] = $node->hasNode($mapping['nodeName'])
+                ? $this->getOrCreateProxyFromNode($node->getNode($mapping['nodeName']), $locale)
                 : null;
         }
 
@@ -666,7 +666,7 @@ class UnitOfWork
             $child = $class->reflFields[$fieldName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
-                $childId = $id.'/'.$mapping['name'];
+                $childId = $id.'/'.$mapping['nodeName'];
                 // TODO check if $childId is managed, if yes, merge
                 $childClass->setIdentifierValue($child, $childId);
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
@@ -874,6 +874,7 @@ class UnitOfWork
         if (!isset($this->documentState[$oid])) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $id = $class->getIdentifierValue($document);
+
             if (!$id) {
                 return self::STATE_NEW;
             }
@@ -1042,7 +1043,7 @@ class UnitOfWork
         foreach ($class->childMappings as $fieldName) {
             if ($actualData[$fieldName]) {
                 $mapping = $class->mappings[$fieldName];
-                $actualData[$fieldName] = $this->computeChildChanges($mapping, $actualData[$fieldName], $id, $mapping['name']);
+                $actualData[$fieldName] = $this->computeChildChanges($mapping, $actualData[$fieldName], $id, $mapping['nodeName']);
             }
         }
 
@@ -1913,7 +1914,7 @@ class UnitOfWork
                         }
                     }
 
-                    $node->setProperty($mapping['name'], $fieldValue, $type);
+                    $node->setProperty($mapping['property'], $fieldValue, $type);
                 } elseif (in_array($fieldName, $class->referenceMappings) || in_array($fieldName, $class->referrersMappings)) {
                     $associationUpdates[$oid] = $document;
 
@@ -1991,7 +1992,7 @@ class UnitOfWork
                     } else {
                         $value = $fieldValue;
                     }
-                    $node->setProperty($mapping['name'], $value, $type);
+                    $node->setProperty($mapping['property'], $value, $type);
                 } elseif ($mapping['type'] === $class::MANY_TO_ONE
                     || $mapping['type'] === $class::MANY_TO_MANY
                 ) {
@@ -2090,7 +2091,7 @@ class UnitOfWork
                                     // and make sure the reference is not deleted in this change because the field could be null
                                     unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     // store the change in PHPCR
-                                    $referencingNode->setProperty($referencingField['name'], $uuid, $strategy);
+                                    $referencingNode->setProperty($referencingField['property'], $uuid, $strategy);
                                     break;
                                 case ClassMetadata::MANY_TO_MANY:
                                     /** @var $collection ReferenceManyCollection */
@@ -2106,18 +2107,18 @@ class UnitOfWork
                                         $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
                                     }
 
-                                    if ($referencingNode->hasProperty($referencingField['name'])) {
-                                        if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['name']), PropertyType::STRING)) {
+                                    if ($referencingNode->hasProperty($referencingField['property'])) {
+                                        if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['property']), PropertyType::STRING)) {
                                             if (! $collection->isDirty()) {
                                                 // update the reference collection: add us to it
                                                 $collection->add($document);
                                             }
                                             // store the change in PHPCR
-                                            $referencingNode->getProperty($referencingField['name'])->addValue($uuid); // property should be correct type already
+                                            $referencingNode->getProperty($referencingField['property'])->addValue($uuid); // property should be correct type already
                                         }
                                     } else {
                                         // store the change in PHPCR
-                                        $referencingNode->setProperty($referencingField['name'], array($uuid), $strategy);
+                                        $referencingNode->setProperty($referencingField['property'], array($uuid), $strategy);
                                     }
 
                                     // avoid confusion later, this change to the reference collection is already saved
@@ -2130,8 +2131,8 @@ class UnitOfWork
                         }
                     }
                 } elseif ('child' === $mapping['type']) {
-                    if ($fieldValue === null && $node->hasNode($mapping['name'])) {
-                        $child = $node->getNode($mapping['name']);
+                    if ($fieldValue === null && $node->hasNode($mapping['nodeName'])) {
+                        $child = $node->getNode($mapping['nodeName']);
                         $childDocument = $this->getOrCreateDocument(null, $child);
                         $this->purgeChildren($childDocument);
                         $child->remove();

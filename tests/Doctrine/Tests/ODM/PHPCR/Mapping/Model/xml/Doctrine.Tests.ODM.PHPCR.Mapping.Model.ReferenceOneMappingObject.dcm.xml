@@ -5,7 +5,7 @@
                   http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject">
         <id name="id" />
-        <reference-one field="referenceOneWeak" target-document="myDocument" strategy="WEAK" />
-        <reference-one field="referenceOneHard" target-document="myDocument" strategy="HARD" />
+        <reference-one name="referenceOneWeak" target-document="myDocument" strategy="WEAK" />
+        <reference-one name="referenceOneHard" target-document="myDocument" strategy="HARD" />
     </document>
 </doctrine-mapping>

@@ -599,7 +599,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
     }
 
     public function mapNode(array $mapping, ClassMetadata $inherited = null)
@@ -612,7 +612,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapNodename(array $mapping, ClassMetadata $inherited = null)
     {
         $mapping['type'] = 'nodename';
-        $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->nodename = $mapping['fieldName'];
         if (null !== $this->parentMapping && !$this->idStrategySet) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
@@ -638,7 +638,7 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['cascade'] = 0;
         }
         $mapping['type'] = 'child';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, 'nodeName');
         $this->childMappings[] = $mapping['fieldName'];
     }
 
@@ -648,7 +648,8 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['cascade'] = 0;
         }
         $mapping['type'] = 'children';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
+        unset($mapping['property']);
         $this->childrenMappings[] = $mapping['fieldName'];
     }
 
@@ -689,28 +690,28 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $mapping['type'] = 'mixedreferrers';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->mixedReferrersMappings[] = $mapping['fieldName'];
     }
 
     public function mapLocale(array $mapping, ClassMetadata $inherited = null)
     {
         $mapping['type'] = 'locale';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->localeMapping = $mapping['fieldName'];
     }
 
     public function mapVersionName(array $mapping, ClassMetadata $inherited = null)
     {
         $mapping['type'] = 'versionname';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->versionNameField = $mapping['fieldName'];
     }
 
     public function mapVersionCreated(array $mapping, ClassMetadata $inherited = null)
     {
         $mapping['type'] = 'versioncreated';
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->versionCreatedField = $mapping['fieldName'];
     }
 
@@ -719,7 +720,19 @@ class ClassMetadata implements ClassMetadataInterface
         $this->setLifecycleCallbacks($mapping);
     }
 
-    protected function validateAndCompleteFieldMapping($mapping, ClassMetadata $inherited = null, $isField = true)
+    /**
+     * @param array         $mapping
+     * @param ClassMetadata $inherited  same field of parent document, if any
+     * @param bool          $isField    whether this is a field or an association
+     * @param string        $phpcrLabel the name for the phpcr thing. usually property,
+     *                                  except for child where this is name. referrers
+     *                                  use false to not set anything.
+     *
+     * @return mixed
+     *
+     * @throws MappingException
+     */
+    protected function validateAndCompleteFieldMapping(array $mapping, ClassMetadata $inherited = null, $isField = true, $phpcrLabel = 'property')
     {
         if ($inherited) {
             if (!isset($mapping['inherited']) && !$inherited->isMappedSuperclass) {
@@ -742,14 +755,16 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("fieldName must be of type string in '{$this->name}'.");
         }
 
-        if (!isset($mapping['name']) || empty($mapping['name'])) {
-            $mapping['name'] = $mapping['fieldName'];
+        if ($phpcrLabel &&
+            (!isset($mapping[$phpcrLabel]) || empty($mapping[$phpcrLabel]))
+        ) {
+            $mapping[$phpcrLabel] = $mapping['fieldName'];
         }
 
         if ($isField && isset($mapping['assoc'])) {
             $mapping['multivalue'] = true;
             if (empty($mapping['assoc'])) {
-                $mapping['assoc'] = $mapping['name'].'Keys';
+                $mapping['assoc'] = $mapping['property'].'Keys';
             }
         }
 
@@ -781,9 +796,9 @@ class ClassMetadata implements ClassMetadataInterface
         return $mapping;
     }
 
-    protected function validateAndCompleteAssociationMapping($mapping, ClassMetadata $inherited = null)
+    protected function validateAndCompleteAssociationMapping($mapping, ClassMetadata $inherited = null, $phpcrLabel = 'property')
     {
-        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, $phpcrLabel);
         if ($inherited) {
             return $mapping;
         }
@@ -1165,6 +1180,15 @@ class ClassMetadata implements ClassMetadataInterface
         $parentMapping = isset($mapping['fieldName']) && isset($this->mappings[$mapping['fieldName']])
             ? $this->mappings[$mapping['fieldName']] : null;
 
+        if (isset($mapping['name'])) {
+            $msg = sprintf('use "property" and not "name" to specify the PHPCR property name of field "%s" in "%s"', $mapping['fieldName'], $this->name);
+            trigger_error($msg, E_USER_DEPRECATED);
+            if (!isset($mapping['property'])) {
+                $mapping['property'] = $mapping['name'];
+            }
+            unset($mapping['name']);
+        }
+
         if (!$inherited) {
             if (isset($mapping['id']) && $mapping['id'] === true) {
                 $mapping['type'] = 'string';
@@ -1174,7 +1198,7 @@ class ClassMetadata implements ClassMetadataInterface
                 }
             } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
                 $mapping['type'] = 'string';
-                $mapping['name'] = 'jcr:uuid';
+                $mapping['property'] = 'jcr:uuid';
             }
 
             if (isset($parentMapping['type'])) {
@@ -1185,7 +1209,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if (isset($mapping['name']) && $mapping['name'] == 'jcr:uuid') {
+        if (isset($mapping['property']) && $mapping['property'] == 'jcr:uuid') {
             if (null !== $this->uuidFieldName) {
                 throw new MappingException("You can only designate a single 'Uuid' field in '{$this->name}'");
             }
@@ -1216,8 +1240,8 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         // Add the field to the list of translatable fields
-        if (!empty($mapping['translated']) && !in_array($mapping['name'], $this->translatableFields)) {
-            $this->translatableFields[] = $mapping['name'];
+        if (!empty($mapping['translated']) && !in_array($mapping['property'], $this->translatableFields)) {
+            $this->translatableFields[] = $mapping['property'];
         }
 
         if (!$parentMapping) {

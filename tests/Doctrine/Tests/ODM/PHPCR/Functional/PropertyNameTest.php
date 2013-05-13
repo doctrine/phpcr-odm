@@ -65,6 +65,6 @@ class TestObj
     public $node;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\String(name="myname") */
+    /** @PHPCRODM\String(property="myname") */
     public $othername;
 }

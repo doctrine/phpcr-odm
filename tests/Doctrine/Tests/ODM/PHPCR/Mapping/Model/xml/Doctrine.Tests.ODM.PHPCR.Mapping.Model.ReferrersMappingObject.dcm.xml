@@ -5,9 +5,9 @@
                   http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject" referenceable="true">
         <id name="id" />
-        <referrers field="filteredReferrers" referenced-by="referenceManyWeak" referring-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
-        <mixed-referrers field="allReferrers"/>
-        <mixed-referrers field="weakReferrers" reference-type="WEAK" />
-        <mixed-referrers field="hardReferrers" reference-type="HARD" />
+        <referrers name="filteredReferrers" referenced-by="referenceManyWeak" referring-document="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject" />
+        <mixed-referrers name="allReferrers"/>
+        <mixed-referrers name="weakReferrers" reference-type="WEAK" />
+        <mixed-referrers name="hardReferrers" reference-type="HARD" />
     </document>
 </doctrine-mapping>

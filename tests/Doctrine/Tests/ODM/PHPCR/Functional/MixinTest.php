@@ -126,10 +126,10 @@ class TestObject
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Date(name="jcr:created") */
+    /** @PHPCRODM\Date(property="jcr:created") */
     public $created;
 
-    /** @PHPCRODM\String(name="change_me") */
+    /** @PHPCRODM\String(property="change_me") */
     public $changeMe;
 
 }

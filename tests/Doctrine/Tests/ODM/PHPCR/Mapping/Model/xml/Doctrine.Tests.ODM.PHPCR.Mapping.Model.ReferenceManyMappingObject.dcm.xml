@@ -5,7 +5,7 @@
                   http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject">
         <id name="id" />
-        <reference-many field="referenceManyWeak" target-document="myDocument" strategy="WEAK" />
-        <reference-many field="referenceManyHard" target-document="myDocument" strategy="HARD" />
+        <reference-many name="referenceManyWeak" target-document="myDocument" strategy="WEAK" />
+        <reference-many name="referenceManyHard" target-document="myDocument" strategy="HARD" />
     </document>
 </doctrine-mapping>

@@ -141,7 +141,7 @@ class YamlDriver extends FileDriver
                 if (is_string($mapping)) {
                     $name = $mapping;
                     $mapping = array();
-                    $mapping['name'] = $name;
+                    $mapping['nodeName'] = $name;
                 }
                 if (!isset($mapping['fieldName'])) {
                     $mapping['fieldName'] = $fieldName;

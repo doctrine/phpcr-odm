@@ -116,7 +116,7 @@ class Testclass
     public $node;
     /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(property="numbers", multivalue=true) */
     public $numbers;
     /** @PHPCRODM\String */
     public $text;

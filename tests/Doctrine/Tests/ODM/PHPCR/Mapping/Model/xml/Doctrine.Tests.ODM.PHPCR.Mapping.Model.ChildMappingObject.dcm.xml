@@ -5,7 +5,7 @@
                   http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject">
         <id name="id" />
-        <child field="child1" node-name="first" />
-        <child field="child2" node-name="second" />
+        <child name="child1" node-name="first" />
+        <child name="child2" node-name="second" />
     </document>
 </doctrine-mapping>

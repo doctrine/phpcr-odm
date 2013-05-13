@@ -109,12 +109,7 @@ class XmlDriver extends FileDriver
                     }
                 }
                 $mapping['fieldName'] = $mapping['name'];
-                if (isset($mapping['property'])) {
-                    $mapping['name'] = $mapping['property'];
-                    unset($mapping['property']);
-                } else {
-                    unset($mapping['name']);
-                }
+                unset($mapping['name']);
                 $class->mapField($mapping);
             }
         }
@@ -137,7 +132,7 @@ class XmlDriver extends FileDriver
         }
         if (isset($xmlRoot->{'parent-document'})) {
             $mapping = array(
-                'fieldName' => (string) $xmlRoot->{'parent-document'}->attributes()->field,
+                'fieldName' => (string) $xmlRoot->{'parent-document'}->attributes()->name,
                 'cascade' => (isset($xmlRoot->{'parent-document'}->cascade)) ? $this->getCascadeMode($xmlRoot->{'parent-document'}->cascade) : 0,
             );
             $class->mapParentDocument($mapping);
@@ -146,11 +141,11 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->child as $child) {
                 $attributes = $child->attributes();
                 $mapping = array(
-                    'fieldName' => (string) $attributes->field,
+                    'fieldName' => (string) $attributes->name,
                     'cascade' => (isset($child->cascade)) ? $this->getCascadeMode($child->cascade) : 0,
                 );
                 if (isset($attributes['node-name'])) {
-                    $mapping['name'] = (string) $attributes->{'node-name'};
+                    $mapping['nodeName'] = (string) $attributes->{'node-name'};
                 }
                 $class->mapChild($mapping);
             }
@@ -159,7 +154,7 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->children as $children) {
                 $attributes = $children->attributes();
                 $mapping = array(
-                    'fieldName' => (string) $attributes->field,
+                    'fieldName' => (string) $attributes->name,
                     'cascade' => (isset($children->cascade)) ? $this->getCascadeMode($children->cascade) : 0,
                     'filter' => isset($attributes['filter']) ? (string) $attributes->filter : null,
                     'fetchDepth' => isset($attributes['fetch-depth']) ? (int) $attributes->{'fetch-depth'} : null,
@@ -172,7 +167,7 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->{'reference-many'} as $reference) {
                 $attributes = $reference->attributes();
                 $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
-                $reference['fieldName'] = (string) $attributes->field ?: null;
+                $reference['fieldName'] = (string) $attributes->name ?: null;
                 $this->addReferenceMapping($class, $reference, 'many');
             }
         }
@@ -180,7 +175,7 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->{'reference-one'} as $reference) {
                 $attributes = $reference->attributes();
                 $reference['cascade'] = (isset($reference->cascade)) ? $this->getCascadeMode($reference->cascade) : 0;
-                $reference['fieldName'] = (string) $attributes->field ?: null;
+                $reference['fieldName'] = (string) $attributes->name ?: null;
                 $this->addReferenceMapping($class, $reference, 'one');
             }
         }
@@ -193,7 +188,7 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->{'mixed-referrers'} as $mixedReferrers) {
                 $attributes = $mixedReferrers->attributes();
                 $mapping = array(
-                    'fieldName' => (string) $attributes->field,
+                    'fieldName' => (string) $attributes->name,
                     'referenceType' => isset($attributes['reference-type']) ? strtolower((string) $attributes->{'reference-type'}) : null,
                 );
                 $class->mapMixedReferrers($mapping);
@@ -203,14 +198,14 @@ class XmlDriver extends FileDriver
             foreach ($xmlRoot->referrers as $referrers) {
                 $attributes = $referrers->attributes();
                 if (! isset($attributes['referenced-by'])) {
-                    throw new MappingException("$className is missing the referenced-by attribute for the referrer field " . $attributes->fieldName);
+                    throw new MappingException("$className is missing the referenced-by attribute for the referrer field " . $attributes->name);
                 }
                 if (! isset($attributes['referring-document'])) {
-                    throw new MappingException("$className is missing the referring-document attribute for the referrer field " . $attributes->fieldName);
+                    throw new MappingException("$className is missing the referring-document attribute for the referrer field " . $attributes->name);
                 }
                 // referenceType is determined from the referencedBy field of referringDocument
                 $mapping = array(
-                    'fieldName' => (string) $attributes->field,
+                    'fieldName' => (string) $attributes->name,
                     'cascade' => (isset($referrers->cascade)) ? $this->getCascadeMode($referrers->cascade) : 0,
                     'referencedBy' => (string) $attributes->{'referenced-by'},
                     'referringDocument' => (string) $attributes->{'referring-document'},

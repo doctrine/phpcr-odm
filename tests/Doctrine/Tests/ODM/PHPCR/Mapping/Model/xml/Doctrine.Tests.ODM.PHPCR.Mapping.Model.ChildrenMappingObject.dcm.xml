@@ -5,8 +5,8 @@
                   http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject">
         <id name="id" />
-        <children field="all" />
-        <children field="some" filter="*some*" fetch-depth="2">
+        <children name="all" />
+        <children name="some" filter="*some*" fetch-depth="2">
             <cascade><cascade-persist /><cascade-remove /></cascade>
         </children>
     </document>
