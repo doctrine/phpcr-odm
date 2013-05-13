@@ -114,7 +114,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Proxy\Proxy', $doc->child);
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('fr', $doc->child->relatedArticles[0]->locale);
@@ -124,7 +124,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'en');
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Proxy\Proxy', $doc->child);
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
         $this->assertEquals('en', $doc->locale);
         $this->assertEquals('en', $doc->child->locale);
         $this->assertEquals('Interesting Topic', $doc->child->topic);
@@ -137,7 +137,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
         $child = $this->dm->findTranslation($this->type, '/functional/thename/child', 'en');
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Proxy\Proxy', $child->parent);
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $child->parent);
         $this->assertEquals('en', $child->locale);
         $this->assertEquals('french', $child->parent->topic);
         $this->assertEquals('fr', $child->parent->locale);
@@ -162,7 +162,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
         $this->dm->bindTranslation($doc, 'en');
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Proxy\Proxy', $doc->child);
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
         $this->assertEquals('en', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('Sujet interessant', $doc->child->topic);
