@@ -79,12 +79,10 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(array($user1, '/foobar'), current($scheduledMoves));
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function testGetScheduledReorders()
     {
-        $this->uow->getScheduledReorders();
+        // TODO: do some real test
+        $this->assertCount(0, $this->uow->getScheduledReorders());
     }
 
     public function testComputeChangeSetForTranslatableDocument()

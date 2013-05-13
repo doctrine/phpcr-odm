@@ -23,7 +23,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use PHPCR\Util\Console\Command\RegisterNodeTypesCommand;
+use PHPCR\Util\Console\Command\NodeTypeRegisterCommand;
 
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
@@ -32,7 +32,7 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  *
  * This command registers the necessary node types to get phpcr odm working
  */
-class RegisterSystemNodeTypesCommand extends RegisterNodeTypesCommand
+class RegisterSystemNodeTypesCommand extends NodeTypeRegisterCommand
 {
     private $phpcrNamespace = 'phpcr';
     private $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';

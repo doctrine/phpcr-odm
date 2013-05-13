@@ -39,14 +39,14 @@ $cli = new \Symfony\Component\Console\Application('Doctrine ODM PHPCR Command Li
 $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(
-    new \PHPCR\Util\Console\Command\CreateWorkspaceCommand(),
-    new \PHPCR\Util\Console\Command\DumpCommand(),
-    new \PHPCR\Util\Console\Command\ExportXmlCommand(),
-    new \PHPCR\Util\Console\Command\ImportXmlCommand(),
-    new \PHPCR\Util\Console\Command\ListWorkspacesCommand(),
-    new \PHPCR\Util\Console\Command\PurgeCommand(),
-    new \PHPCR\Util\Console\Command\QueryCommand(),
-    new \PHPCR\Util\Console\Command\RegisterNodeTypesCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceCreateCommand(),
+    new \PHPCR\Util\Console\Command\NodeDumpCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceExportCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceImportCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceListCommand(),
+    new \PHPCR\Util\Console\Command\WorkspacePurgeCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceQueryCommand(),
+    new \PHPCR\Util\Console\Command\NodeTypeRegisterCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
 ));
 if (isset($extraCommands) && ! empty($extraCommands)) {

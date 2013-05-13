@@ -134,7 +134,6 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public $nodeType;
 
-
     /**
      * READ-ONLY: The JCR Mixins to be used for this node
      *
@@ -348,7 +347,8 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->reflClass = $reflService->getClass($this->name);
         $this->namespace = $reflService->getClassNamespace($this->name);
-        foreach ($this->getFieldNames() as $fieldName) {
+        $fieldNames = array_merge($this->getFieldNames(), $this->getAssociationNames());
+        foreach ($fieldNames as $fieldName) {
             $reflField = isset($this->mappings[$fieldName]['declared'])
                 ? new ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
                 : $this->reflClass->getProperty($fieldName)
@@ -445,7 +445,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setCustomRepositoryClassName($repositoryClassName)
     {
-        $this->customRepositoryClassName = $repositoryClassName;
+        $this->customRepositoryClassName = $this->fullyQualifiedClassName($repositoryClassName);
     }
 
     /**
@@ -665,8 +665,8 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $mapping['sourceDocument'] = $this->name;
-        if (isset($mapping['referringDocument']) && strpos($mapping['referringDocument'], '\\') === false && strlen($this->namespace)) {
-            $mapping['referringDocument'] = $this->namespace . '\\' . $mapping['referringDocument'];
+        if (isset($mapping['referringDocument'])) {
+            $mapping['referringDocument'] = $this->fullyQualifiedClassName($mapping['referringDocument']);
         }
 
         $mapping['type'] = 'referrers';
@@ -789,8 +789,8 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $mapping['sourceDocument'] = $this->name;
-        if (isset($mapping['targetDocument']) && strpos($mapping['targetDocument'], '\\') === false && strlen($this->namespace)) {
-            $mapping['targetDocument'] = $this->namespace . '\\' . $mapping['targetDocument'];
+        if (isset($mapping['targetDocument'])) {
+            $mapping['targetDocument'] = $this->fullyQualifiedClassName($mapping['targetDocument']);
         }
         if (empty($mapping['strategy'])) {
             $mapping['strategy'] = 'weak';
@@ -1058,6 +1058,12 @@ class ClassMetadata implements ClassMetadataInterface
     public function getFieldNames()
     {
         $fields = $this->fieldMappings;
+        if ($this->identifier) {
+            $fields[] = $this->identifier;
+        }
+        if ($this->uuidFieldName) {
+            $fields[] = $this->uuidFieldName;
+        }
         if ($this->localeMapping) {
             $fields[] = $this->localeMapping;
         }
@@ -1236,6 +1242,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         // This metadata is always serialized/cached.
         $serialized = array(
+            'nodeType',
             'identifier',
             'name',
             'idGenerator',
@@ -1254,6 +1261,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->isMappedSuperclass) {
             $serialized[] = 'isMappedSuperclass';
+        }
+
+        if ($this->parentClasses) {
+            $serialized[] = 'parentClasses';
         }
 
         if ($this->versionable) {
@@ -1394,5 +1405,18 @@ class ClassMetadata implements ClassMetadataInterface
     public function getUuidFieldName()
     {
         return $this->uuidFieldName;
+    }
+
+    /**
+     * @param   string $className
+     * @return  string
+     */
+    public function fullyQualifiedClassName($className)
+    {
+        if ($className !== null && strpos($className, '\\') === false && strlen($this->namespace) > 0) {
+            return $this->namespace . '\\' . $className;
+        }
+
+        return $className;
     }
 }

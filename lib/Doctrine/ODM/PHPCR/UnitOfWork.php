@@ -164,7 +164,7 @@ class UnitOfWork
 
     /**
      * List of parent documents that have children that will be reordered on next flush
-     * parent oid => array(parent document, srcName, targetName, before) with
+     * parent oid => list of array with records array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
      * - srcName the Nodename of the document to be moved,
      * - targetName the Nodename of the document to move srcName to
@@ -747,18 +747,17 @@ class UnitOfWork
 
         $state = $this->getDocumentState($document);
         switch ($state) {
-            case self::STATE_NEW:
-                unset($this->scheduledInserts[$oid]);
-                break;
             case self::STATE_REMOVED:
-                unset($this->scheduledRemovals[$oid]);
+                throw new \InvalidArgumentException('Removed document passed to reorder(): '.self::objToStr($document, $this->dm));
                 break;
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document passed to reorder(): '.self::objToStr($document, $this->dm));
         }
 
-        $this->scheduledReorders[$oid] = array($document, $srcName, $targetName, $before);
-        $this->setDocumentState($oid, self::STATE_MANAGED);
+        if (! isset($this->scheduledReorders[$oid])) {
+            $this->scheduledReorders[$oid] = array();
+        }
+        $this->scheduledReorders[$oid][] = array($document, $srcName, $targetName, $before);
     }
 
     public function scheduleRemove($document)
@@ -2244,37 +2243,38 @@ class UnitOfWork
      */
     private function executeReorders($documents)
     {
-        foreach ($documents as $oid => $value) {
+        foreach ($documents as $oid => $list) {
             if (!$this->contains($oid)) {
                 continue;
             }
-            list($parent, $src, $target, $before) = $value;
+            foreach ($list as $value) {
+                list($parent, $src, $target, $before) = $value;
+                $parentNode = $this->session->getNode($this->getDocumentId($parent));
 
-            $parentNode = $this->session->getNode($this->getDocumentId($parent));
-            $children = $parentNode->getNodes();
-
-            // check for src and target ...
-            $dest = $target;
-            if (isset($children[$src]) && isset($children[$target])) {
-                // there is no orderAfter, so we need to find the child after target to use it in orderBefore
-                if (!$before) {
-                    $dest = null;
-                    $found = false;
-                    foreach ($children as $name => $child) {
-                        if ($name === $target) {
-                            $found = true;
-                        } elseif ($found) {
-                            $dest = $name;
-                            break;
+                // check for src and target ...
+                $dest = $target;
+                if ($parentNode->hasNode($src) && $parentNode->hasNode($target)) {
+                    // there is no orderAfter, so we need to find the child after target to use it in orderBefore
+                    if (!$before) {
+                        $dest = null;
+                        $found = false;
+                        foreach ($parentNode->getNodes() as $name => $child) {
+                            if ($name === $target) {
+                                $found = true;
+                            } elseif ($found) {
+                                $dest = $name;
+                                break;
+                            }
                         }
                     }
-                }
-                $parentNode->orderBefore($src, $dest);
-                // set all children collection to initialized = false to force reload after reordering
-                $class = $this->dm->getClassMetadata(get_class($parent));
-                foreach ($class->childrenMappings as $fieldName) {
-                    $children = $class->reflFields[$fieldName]->getValue($parent);
-                    $children->setInitialized(false);
+
+                    $parentNode->orderBefore($src, $dest);
+                    // set all children collection to initialized = false to force reload after reordering
+                    $class = $this->dm->getClassMetadata(get_class($parent));
+                    foreach ($class->childrenMappings as $fieldName) {
+                        $children = $class->reflFields[$fieldName]->getValue($parent);
+                        $children->setInitialized(false);
+                    }
                 }
             }
         }
@@ -2727,9 +2727,7 @@ class UnitOfWork
             $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
 
             foreach ($localesToTry as $desiredLocale) {
-                if ($desiredLocale === $locale
-                    || $strategy->loadTranslation($document, $node, $metadata, $desiredLocale)
-                ) {
+                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
                     $localeUsed = $desiredLocale;
                     break;
                 }
@@ -3052,7 +3050,7 @@ class UnitOfWork
      */
     public function getScheduledReorders()
     {
-        throw new \BadMethodCallException('getScheduledReorders is not currently implementd.');
+        return $this->scheduledReorders;
     }
 
     /**

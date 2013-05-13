@@ -219,4 +219,19 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $res = $q->execute();
         $this->assertCount(3, $res);
     }
+
+    public function testSameNode()
+    {
+        $qb = $this->createQb();
+        $qb->where($qb->expr()->eqPath('/functional/dtl'));
+        $q = $qb->getQuery();
+
+        $where = $qb->getPart('where');
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\SameNode', $where);
+        $this->assertEquals('/functional/dtl', $where->getPath());
+
+        $res = $q->execute();
+        $this->assertCount(1, $res);
+    }
 }

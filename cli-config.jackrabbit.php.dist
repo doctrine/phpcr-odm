@@ -28,7 +28,8 @@ $user = 'admin';
 $pass = 'admin';
 
 /* bootstrapping the repository implementation. for jackalope, do this: */
-$repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository($params);
+$factory = new \Jackalope\RepositoryFactoryJackrabbit();
+$repository = $factory->getRepository($params);
 $credentials = new \PHPCR\SimpleCredentials($user, $pass);
 $session = $repository->login($credentials, $workspace);
 

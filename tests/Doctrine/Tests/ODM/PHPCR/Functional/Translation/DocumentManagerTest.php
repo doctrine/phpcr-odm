@@ -348,7 +348,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $children = $this->doc->getChildren();
         $this->assertCount(1, $children);
         foreach ($children as $comment) {
-            $this->assertNull($comment->locale);
+            $this->assertInstanceOf('Doctrine\ODM\PHPCR\Document\Generic', $comment);
+            $this->assertNull($this->dm->getUnitOfWork()->getCurrentLocale($comment));
         }
 
         $this->dm->clear();
@@ -357,7 +358,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $children = $this->dm->getChildren($this->doc);
         $this->assertCount(1, $children);
         foreach ($children as $comment) {
-            $this->assertNull($comment->locale);
+            $this->assertInstanceOf('Doctrine\ODM\PHPCR\Document\Generic', $comment);
+            $this->assertNull($this->dm->getUnitOfWork()->getCurrentLocale($comment));
         }
     }
 

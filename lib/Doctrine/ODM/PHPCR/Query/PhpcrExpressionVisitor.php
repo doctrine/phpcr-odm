@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ODM\PHPCR\Query\Expression\Descendant;
 use Doctrine\ODM\PHPCR\Query\Expression\NodeLocalName;
 use Doctrine\ODM\PHPCR\Query\Expression\TextSearch;
+use Doctrine\ODM\PHPCR\Query\Expression\SameNode;
 use Doctrine\ODM\PHPCR\Query\Expression\Comparison as ODMComparison;
 
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
@@ -162,6 +163,11 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
         return $this->qomf->fullTextSearch($expr->getField(), $expr->getSearch());
     }
 
+    public function walkSameNode(SameNode $expr)
+    {
+        return $this->qomf->sameNode($expr->getPath());
+    }
+
     /**
      * Dispatch walking an expression to the appropriate handler.
      *
@@ -186,6 +192,9 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
 
             case ($expr instanceof TextSearch):
                 return $this->walkTextSearch($expr);
+
+            case ($expr instanceof SameNode):
+                return $this->walkSameNode($expr);
 
             default:
                 throw new \RuntimeException("Unknown Expression " . get_class($expr));
