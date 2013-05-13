@@ -36,10 +36,11 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
             $GLOBALS['jackalope.doctrine_dbal_connection'] = \Doctrine\DBAL\DriverManager::getConnection($params);
         }
 
-        $parameters = array_intersect_key($GLOBALS, $factoryclass::getConfigurationKeys());
+        $factory = new $factoryclass();
+        $parameters = array_intersect_key($GLOBALS, $factory->getConfigurationKeys());
         // factory will return null if it gets unknown parameters
 
-        $repository = $factoryclass::getRepository($parameters);
+        $repository = $factory->getRepository($parameters);
         $this->assertNotNull($repository, 'There is an issue with your parameters: '.var_export(array_keys($parameters), true));
 
         $workspace = isset($GLOBALS['DOCTRINE_PHPCR_WORKSPACE'])

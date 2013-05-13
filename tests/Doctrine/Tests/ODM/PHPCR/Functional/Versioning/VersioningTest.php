@@ -196,7 +196,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $frozenDocument = $this->dm->findVersionByName($this->typeVersion, 'functional/versionTestObjWithReference', '1.0');
+        $frozenDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObjWithReference', '1.0');
         $this->assertNull($frozenDocument->reference);
     }
 

@@ -2,9 +2,11 @@ Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject:
   type: document
   referenceable: true
   referrers:
-    allReferrers:
     filteredReferrers:
-      filter: test_filter
+      referencedBy: referenceManyWeak
+      referringDocument: Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject
+  mixedReferrers:
+    allReferrers:
     weakReferrers:
       referenceType: weak
     hardReferrers:

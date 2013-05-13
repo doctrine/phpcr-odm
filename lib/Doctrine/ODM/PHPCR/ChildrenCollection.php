@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPCR\Util\PathHelper;
 
 /**
  * Children collection class
@@ -33,7 +34,8 @@ class ChildrenCollection extends PersistentCollection
     private $document;
     private $filter;
     private $fetchDepth;
-    private $originalNodeNames = array();
+    private $originalNodeNames;
+    private $node;
 
     /**
      * Creates a new persistent collection.
@@ -41,7 +43,7 @@ class ChildrenCollection extends PersistentCollection
      * @param DocumentManager $dm                 The DocumentManager the collection will be associated with.
      * @param object          $document           Document instance
      * @param string          $filter             filter string
-     * @param integer         $fetchDepth         optional fetch depth if supported by the PHPCR session
+     * @param null|int        $fetchDepth         optional fetch depth
      * @param string          $locale             the locale to use during the loading of this collection
      */
     public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = null, $locale = null)
@@ -53,6 +55,29 @@ class ChildrenCollection extends PersistentCollection
         $this->locale = $locale;
     }
 
+    private function getNode()
+    {
+        if (null === $this->node) {
+            $path = $this->dm->getUnitOfWork()->getDocumentId($this->document);
+            $this->node = $this->dm->getPhpcrSession()->getNode($path, $this->fetchDepth);
+        }
+
+        return $this->node;
+    }
+
+    private function getChildren($childNodes)
+    {
+        $uow = $this->dm->getUnitOfWork();
+        $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
+
+        $childDocuments = array();
+        foreach ($childNodes as $childNode) {
+            $childDocuments[$childNode->getName()] = $uow->getOrCreateProxyFromNode($childNode, $locale);
+        }
+
+        return $childDocuments;
+    }
+
     /**
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
@@ -60,10 +85,104 @@ class ChildrenCollection extends PersistentCollection
     public function initialize()
     {
         if (!$this->initialized) {
+            $this->getOriginalNodeNames();
+            $childNodes = $this->getNode()->getNodes($this->filter, $this->fetchDepth);
+            $this->collection = new ArrayCollection($this->getChildren($childNodes));
             $this->initialized = true;
-            $this->collection = $this->dm->getChildren($this->document, $this->filter, $this->fetchDepth, $this->locale);
-            $this->originalNodeNames = $this->collection->getKeys();
         }
+    }
+
+    /** {@inheritDoc} */
+    public function contains($element)
+    {
+        if (!$this->initialized) {
+            $uow = $this->dm->getUnitOfWork();
+
+            // Shortcut for new documents
+            $documentState = $uow->getDocumentState($element);
+
+            if ($documentState === UnitOfWork::STATE_NEW) {
+                return false;
+            }
+
+            // Document is scheduled for inclusion
+            if ($documentState === UnitOfWork::STATE_MANAGED && $uow->isScheduledForInsert($element)) {
+                return false;
+            }
+
+            $documentId = $uow->getDocumentId($element);
+            if (PathHelper::getParentPath($documentId) !== PathHelper::getParentPath($uow->getDocumentId($this->document))) {
+                return false;
+            }
+
+            $nodeName = PathHelper::getNodeName($documentId);
+            return in_array($nodeName, $this->getOriginalNodeNames());
+        }
+
+        return parent::contains($element);
+    }
+
+    /** {@inheritDoc} */
+    public function containsKey($key)
+    {
+        if (!$this->initialized) {
+            return in_array($key, $this->getOriginalNodeNames());
+        }
+
+        return parent::containsKey($key);
+    }
+
+    /** {@inheritDoc} */
+    public function count()
+    {
+        if (!$this->initialized) {
+            return count($this->getOriginalNodeNames());
+        }
+
+        return parent::count();
+    }
+
+    /** {@inheritDoc} */
+    public function isEmpty()
+    {
+        if (!$this->initialized) {
+            return !$this->count();
+        }
+
+        return parent::isEmpty();
+    }
+
+    /** {@inheritDoc} */
+    public function slice($offset, $length = null)
+    {
+        if (!$this->initialized) {
+            $nodeNames = $this->getOriginalNodeNames();
+            if (!is_numeric($offset)) {
+                $offset = array_search($offset, $nodeNames);
+                if (false === $offset) {
+                    return new ArrayCollection();
+                }
+            }
+
+            $nodeNames = array_slice($nodeNames, $offset, $length);
+            $parentPath = $this->getNode()->getPath();
+            array_walk($nodeNames, function (&$nodeName) use ($parentPath) {
+                $nodeName = "$parentPath/$nodeName";
+            });
+
+            $childNodes = $this->dm->getPhpcrSession()->getNodes($nodeNames);
+            return $this->getChildren($childNodes);
+        }
+
+        if (!is_numeric($offset)) {
+            $nodeNames = $this->collection->getKeys();
+            $offset = array_search($offset, $nodeNames);
+            if (false === $offset) {
+                return new ArrayCollection();
+            }
+        }
+
+        return parent::slice($offset, $length);
     }
 
     /**
@@ -73,20 +192,10 @@ class ChildrenCollection extends PersistentCollection
      */
     public function getOriginalNodeNames()
     {
-        $this->initialize();
-
-        return $this->originalNodeNames;
-    }
-
-    /**
-     * @return ArrayCollection The collection
-     */
-    public function unwrap()
-    {
-        if (!$this->initialized) {
-            return new ArrayCollection();
+        if (null === $this->originalNodeNames) {
+            $this->originalNodeNames = (array) $this->getNode()->getNodeNames($this->filter);
         }
 
-        return parent::unwrap();
+        return $this->originalNodeNames;
     }
 }

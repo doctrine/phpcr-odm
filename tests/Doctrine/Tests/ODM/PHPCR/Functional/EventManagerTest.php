@@ -81,6 +81,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $item->documentTarget = $page;
 
         $page->content = "short story";
+        $this->dm->persist($item);
         $page->addItem($item);
 
         $this->dm->persist($page);
@@ -134,7 +135,7 @@ class TestPersistenceListener
         $document = $e->getDocument();
         if ($document instanceof CmsPage){
             $this->pagePrePersist = true;
-        } else if ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem){
             $this->itemPrePersist = true;
         }
     }
@@ -144,7 +145,7 @@ class TestPersistenceListener
         $document = $e->getDocument();
         if ($document instanceof CmsPage){
             $this->pagePostPersist = true;
-        } else if ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem){
             $this->itemPostPersist = true;
         }
     }
@@ -173,7 +174,7 @@ class TestPersistenceListener
         $document = $e->getDocument();
         if ($document instanceof CmsPage){
             $this->pagePreRemove = true;
-        } else if ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem){
             $this->itemPreRemove = true;
         }
     }
@@ -183,7 +184,7 @@ class TestPersistenceListener
         $document = $e->getDocument();
         if ($document instanceof CmsPage){
             $this->pagePostRemove = true;
-        } else if ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem){
             $this->itemPostRemove = true;
         }
     }
@@ -193,7 +194,7 @@ class TestPersistenceListener
         $document = $e->getDocument();
         if ($document instanceof CmsPage){
             $this->pagePreMove = true;
-        } else if ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem){
             $this->itemPreMove = true;
         }
     }
@@ -203,7 +204,7 @@ class TestPersistenceListener
         $document = $e->getDocument();
         if ($document instanceof CmsPage){
             $this->pagePostMove = true;
-        } else if ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem){
             $this->itemPostMove = true;
         }
     }

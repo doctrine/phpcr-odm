@@ -29,6 +29,8 @@ final class Document
 {
     /** @var string */
     public $nodeType;
+    /** @var array */
+    public $mixins;
     /** @var string */
     public $repositoryClass;
     /** @var string */
@@ -85,7 +87,10 @@ final class ParentDocument
  */
 class Property
 {
-    /** @var string */
+    /**
+     * The PHPCR property name to use
+     * @var string
+     */
     public $name;
     /** @var string */
     public $type = 'undefined';
@@ -93,6 +98,8 @@ class Property
     public $multivalue = false;
     /** @var string */
     public $assoc;
+    /** @var boolean */
+    public $nullable = false;
 }
 /**
  * Base class for all the translatable properties (i.e. every property but Uuid and Version)
@@ -230,6 +237,11 @@ final class Decimal extends TranslatableProperty
  */
 class Reference
 {
+    /**
+     * The PHPCR property name to use
+     * @var string
+     */
+    public $name;
     /** @var string */
     public $targetDocument;
     /** @var string */
@@ -278,6 +290,18 @@ final class Children
     /** @var array */
     public $cascade = array();
 }
+
+
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class MixedReferrers
+{
+    /** @var string */
+    public $referenceType;
+}
+
 /**
  * @Annotation
  * @Target("PROPERTY")
@@ -285,9 +309,9 @@ final class Children
 final class Referrers
 {
     /** @var string */
-    public $filter;
+    public $referencedBy;
     /** @var string */
-    public $referenceType;
+    public $referringDocument;
     /** @var array */
     public $cascade = array();
 }

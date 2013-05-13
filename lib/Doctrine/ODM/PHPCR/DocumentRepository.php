@@ -20,10 +20,10 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
-use PHPCR\Query\QueryInterface;
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -48,12 +48,12 @@ class DocumentRepository implements ObjectRepository
     protected $dm;
 
     /**
-     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * @var ClassMetadata
      */
     protected $class;
 
     /**
-     * @var Doctrine\ODM\PHPCR\UnitOfWork
+     * @var UnitOfWork
      */
     protected $uow;
 
@@ -68,7 +68,7 @@ class DocumentRepository implements ObjectRepository
      * @param DocumentManager $dm            The DocumentManager to use.
      * @param ClassMetadata   $classMetadata The class descriptor.
      */
-    public function __construct($dm, Mapping\ClassMetadata $class)
+    public function __construct($dm, ClassMetadata $class)
     {
         $this->dm = $dm;
         $this->class = $class;
@@ -174,12 +174,10 @@ class DocumentRepository implements ObjectRepository
      * Refresh a document with the data from PHPCR.
      *
      * @param  object $document
-     *
-     * @return object The document instance
      */
     public function refresh($document)
     {
-        return $this->dm->refresh($document);
+        $this->dm->refresh($document);
     }
 
     /**
@@ -292,7 +290,7 @@ class DocumentRepository implements ObjectRepository
      *       use ->andWhere(...) as ->where(...) will overwrite
      *       the class criteria.
      *
-     * @return \Doctrine\ODM\PHPCR\Query\QueryBuilderilder
+     * @return \Doctrine\ODM\PHPCR\Query\QueryBuilder
      */
     public function createQueryBuilder()
     {

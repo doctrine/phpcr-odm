@@ -8,7 +8,13 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     */
     abstract protected function loadDriver();
+    /**
+     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     */
     abstract protected function loadDriverForTestMappingDocuments();
 
     protected function ensureIsLoaded($entityClassName)
@@ -561,28 +567,35 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testReferrersMapping($class)
     {
-        $all = $class->mappings['allReferrers'];
-        $this->assertEquals('allReferrers', $all['fieldName']);
-        $this->assertEquals('allReferrers', $all['name']);
-        $this->assertEmpty($all['filter']);
-        $this->assertNull($all['referenceType']);
-
         $filtered = $class->mappings['filteredReferrers'];
+        $this->assertEquals('referrers', $filtered['type']);
         $this->assertEquals('filteredReferrers', $filtered['fieldName']);
         $this->assertEquals('filteredReferrers', $filtered['name']);
-        $this->assertEquals('test_filter', $filtered['filter']);
-        $this->assertEmpty($filtered['referenceType']);
+        $this->assertEquals('referenceManyWeak', $filtered['referencedBy']);
+    }
+
+    /**
+     * @depends testLoadReferrersMapping
+     * @param ClassMetadata $class
+     */
+    public function testMixedReferrersMapping($class)
+    {
+        $all = $class->mappings['allReferrers'];
+        $this->assertEquals('mixedreferrers', $all['type']);
+        $this->assertEquals('allReferrers', $all['fieldName']);
+        $this->assertEquals('allReferrers', $all['name']);
+        $this->assertNull($all['referenceType']);
 
         $hard = $class->mappings['hardReferrers'];
+        $this->assertEquals('mixedreferrers', $hard['type']);
         $this->assertEquals('hardReferrers', $hard['fieldName']);
         $this->assertEquals('hardReferrers', $hard['name']);
-        $this->assertEmpty($hard['filter']);
         $this->assertEquals('hard', $hard['referenceType']);
 
         $weak = $class->mappings['weakReferrers'];
+        $this->assertEquals('mixedreferrers', $weak['type']);
         $this->assertEquals('weakReferrers', $weak['fieldName']);
         $this->assertEquals('weakReferrers', $weak['name']);
-        $this->assertEmpty($weak['filter']);
         $this->assertEquals('weak', $weak['referenceType']);
     }
 
@@ -604,6 +617,23 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($class->translatableFields));
         $this->assertContains('topic', $class->translatableFields);
         $this->assertContains('image', $class->translatableFields);
+    }
+
+    public function testLoadMixinMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadMixinMapping
+     * @param ClassMetadata $class
+     */
+    public function testMixinMapping($class)
+    {
+        $this->assertEquals(1, count($class->mixins));
+        $this->assertContains('mix:lastModified', $class->mixins);
     }
 
     public function testLoadLifecycleCallbackMapping()

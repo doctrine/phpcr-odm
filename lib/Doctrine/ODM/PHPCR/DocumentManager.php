@@ -419,11 +419,7 @@ class DocumentManager implements ObjectManager
         $className  = ltrim($className, '\\');
         if (empty($this->repositories[$className])) {
             $class = $this->getClassMetadata($className);
-            if ($class->customRepositoryClassName) {
-                $repositoryClass = $class->customRepositoryClassName;
-            } else {
-                $repositoryClass = 'Doctrine\ODM\PHPCR\DocumentRepository';
-            }
+            $repositoryClass = $class->customRepositoryClassName ?: 'Doctrine\ODM\PHPCR\DocumentRepository';
             $this->repositories[$className] = new $repositoryClass($this, $class);
         }
 
@@ -515,7 +511,7 @@ class DocumentManager implements ObjectManager
     /**
      * Create the fluent query builder.
      *
-     * After building your query, use DocumentManager::getDocumentsByQuery with the
+     * After building your query, use DocumentManager::getDocumentsByPhpcrQuery with the
      * query returned by QueryBuilder::getQuery()
      *
      * @return QueryBuilder
@@ -573,9 +569,9 @@ class DocumentManager implements ObjectManager
      *
      * For translatable documents has to determine the locale:
      *
-     *   - If there is a non-empty @Locale that field value is used
+     *   - If there is a non-empty Locale mapping that field value is used
      *   - If the document was previously loaded from the DocumentManager it
-     *      has a non-empty @Locale
+     *      has a non-empty Locale mapping
      *   - Otherwise its a new document. The language chooser strategy is asked
      *      for the default language and that is used to store. The field is
      *      updated with the locale.
@@ -595,7 +591,7 @@ class DocumentManager implements ObjectManager
     /**
      * Bind the translatable fields of the document in the specified locale.
      *
-     * This method will update the @Locale field if it does not match the $locale argument.
+     * This method will update the field mapped to Locale if it does not match the $locale argument.
      *
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
@@ -681,8 +677,8 @@ class DocumentManager implements ObjectManager
     /**
      * Move the previously persisted document and all its children in the tree
      *
-     * Note that this does not update the @Id fields of child documents and
-     * neither fields with @Child/Children annotations. If you want to continue
+     * Note that this does not update the Id fields of child documents and
+     * neither fields with Child/Children mappings. If you want to continue
      * working with the manager after a move, you are probably safest calling
      * DocumentManager::clear and re-loading the documents you need to use.
      *
@@ -706,7 +702,7 @@ class DocumentManager implements ObjectManager
     /**
      * Reorder a child of the given document
      *
-     * Note that this does not update the fields with @Child/Children annotations.
+     * Note that this does not update the fields with Child/Children mappings.
      * If you want to continue working with the manager after a reorder, you are probably
      * safest calling DocumentManager::clear and re-loading the documents you need to use.
      *
@@ -729,7 +725,7 @@ class DocumentManager implements ObjectManager
      * Remove the previously persisted document and all its children from the tree
      *
      * Be aware of the PHPCR tree structure: this removes all nodes with a path under
-     * the path of this object, even if there are no @Parent / @Child annotations
+     * the path of this object, even if there are no Parent / Child mappings
      * that make the relationship explicit.
      *
      * @param object $document
@@ -802,12 +798,14 @@ class DocumentManager implements ObjectManager
      * This methods gets all child nodes as a collection of documents that matches
      * a given filter (same as PHPCR Node::getNodes)
      *
+     * Note that this method only returns children that have been flushed.
+     *
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
-     * @param integer      $fetchDepth         optional fetch depth if supported by the PHPCR session
+     * @param integer      $fetchDepth         optional fetch depth
      * @param string       $locale             the locale to use during the loading of this collection
      *
-     * @return \Doctrine\Common\Collections\Collection collection of child documents
+     * @return ChildrenCollection collection of child documents
      */
     public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
@@ -817,20 +815,27 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getChildren($document, $filter, $fetchDepth, $locale);
+        return new ChildrenCollection($this, $document, $filter, $fetchDepth, $locale);
     }
 
     /**
      * Get the documents that refer a given document using an optional name.
      *
-     * This methods gets all nodes as a collection of documents that refer the
-     * given document and matches a given name.
+     * This methods gets a collection of documents that have references to the
+     * given document, optionally only hard or weak references, optionally
+     * filtered by the referring PHPCR property name.
      *
-     * @param object       $document document instance which referrers should be loaded
-     * @param string|array $name     optional name to match on referrers names
-     * @param string       $locale             the locale to use during the loading of this collection
+     * Multilingual documents are loaded in the default locale, unless a locale
+     * preference is explicitly specified.
      *
-     * @return \Doctrine\Common\Collections\Collection collection of referrer documents
+     * Note that this method only returns referrers that have been flushed.
+     *
+     * @param object       $document the target of the references to be loaded
+     * @param string|null  $type     the reference type, null|'weak'|'hard'
+     * @param string|null  $name     optional PHPCR property name that holds the reference
+     * @param string       $locale   the locale to use during the loading of this collection
+     *
+     * @return ReferrersCollection collection of referrer documents
      */
     public function getReferrers($document, $type = null, $name = null, $locale = null)
     {
@@ -840,14 +845,18 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return $this->unitOfWork->getReferrers($document, $type, $name, $locale);
+        return new ReferrersCollection($this, $document, $type, $name, $locale);
     }
 
     /**
      * Flush all current changes, that is save them within the phpcr session
      * and commit that session to permanent storage.
      *
-     * @param object|array|null $document
+     * @param object|array|null $document optionally limit to a specific
+     *      document or an array of documents
+     *
+     * @throws \InvalidArgumentException if $document is neither null nor a
+     *      document or an array of documents
      */
     public function flush($document = null)
     {

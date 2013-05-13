@@ -486,6 +486,24 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->parameters, $assocArray);
     }
 
+    public function testAssocNumberProperty()
+    {
+        $user = new User();
+        $user->username = "test";
+        $assocArray = array('foo' => 1, 'ding' => 2);
+        $user->assocNumbers = $assocArray;
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->assocNumbers, $assocArray);
+    }
+
     public function testVersionedDocument()
     {
         $user = new VersionTestObj();
@@ -520,6 +538,8 @@ class User
     public $numbers;
     /** @PHPCRODM\String(name="parameters", assoc="") */
     public $parameters;
+    /** @PHPCRODM\Long(name="assocNumbers", assoc="") */
+    public $assocNumbers;
 }
 
 /**

@@ -52,7 +52,7 @@ class Generic
 
     /**
      * @var ArrayCollection
-     * @PHPCRODM\Referrers
+     * @PHPCRODM\MixedReferrers
      */
     protected $referrers;
 
@@ -194,6 +194,6 @@ class Generic
 
     public function __toString()
     {
-        return $this->nodename;
+        return (string) $this->nodename;
     }
 }

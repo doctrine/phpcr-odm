@@ -40,6 +40,7 @@ class ProtectedPropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
 <test='http://test.fr'>
 [test:protected_property_test] > nt:hierarchyNode
   - reference (REFERENCE)
+  - changeme (STRING)
 CND;
 
         $cnd2 = <<<CND
@@ -59,7 +60,7 @@ CND;
     }
 
     public function testPersistDocumentWithReferenceAndProtectedProperty()
-    { 
+    {
         $object = new ProtectedPropertyTestObj();
         $object->id = '/functional/pp';
 
@@ -75,12 +76,30 @@ CND;
     }
 
     public function testPersistDocumentWithSeveralReferencesAndProtectedProperty()
-    { 
+    {
         $object = new ProtectedPropertyTestObj2();
         $object->id = '/functional/pp';
 
         try {
             $this->dm->persist($object);
+            $this->dm->flush();
+            $this->dm->clear();
+        } catch(\PHPCR\NodeType\ConstraintViolationException $e) {
+            $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function testModificationWithProtectedProperty()
+    {
+        $object = new ProtectedPropertyTestObj();
+        $object->id = '/functional/pp';
+
+        try {
+            $this->dm->persist($object);
+            $this->dm->flush();
+            $object->changeme = 'changed';
             $this->dm->flush();
             $this->dm->clear();
         } catch(\PHPCR\NodeType\ConstraintViolationException $e) {
@@ -107,6 +126,9 @@ class ProtectedPropertyTestObj
 
     /** @PHPCRODM\String(name="jcr:createdBy") */
     public $createdBy;
+
+    /** @PHPCRODM\String */
+    public $changeme;
 }
 
 /**

@@ -50,21 +50,39 @@ class ReferrersCollection extends PersistentCollection
     public function initialize()
     {
         if (!$this->initialized) {
+            $uow = $this->dm->getUnitOfWork();
+            $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($this->document));
+
+            $referrerDocuments = array();
+            $referrerPropertiesW = array();
+            $referrerPropertiesH = array();
+
+            switch ($this->type) {
+                case 'weak':
+                    $referrerPropertiesW = $node->getWeakReferences($this->name);
+                    break;
+                case 'hard':
+                    $referrerPropertiesH = $node->getReferences($this->name);
+                    break;
+                default:
+                    $referrerPropertiesW = $node->getWeakReferences($this->name);
+                    $referrerPropertiesH = $node->getReferences($this->name);
+            }
+
+            $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
+
+            foreach ($referrerPropertiesW as $referrerProperty) {
+                $referrerNode = $referrerProperty->getParent();
+                $referrerDocuments[] = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+            }
+
+            foreach ($referrerPropertiesH as $referrerProperty) {
+                $referrerNode = $referrerProperty->getParent();
+                $referrerDocuments[] = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+            }
+
+            $this->collection = new ArrayCollection($referrerDocuments);
             $this->initialized = true;
-
-            $this->collection = $this->dm->getReferrers($this->document, $this->type, $this->name, $this->locale);
         }
-    }
-
-    /**
-     * @return ArrayCollection The collection
-     */
-    public function unwrap()
-    {
-        if (!$this->initialized) {
-            return new ArrayCollection();
-        }
-
-        return parent::unwrap();
     }
 }
