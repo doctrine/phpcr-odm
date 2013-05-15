@@ -4,8 +4,8 @@ Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject:
   id: id
   fields:
     lastModified:
-      name: jcr:lastModified
+      property: jcr:lastModified
       type: date
     lastModifiedBy:
-      name: jcr:lastModifiedBy
+      property: jcr:lastModifiedBy
       type: string

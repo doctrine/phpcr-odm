@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject" translator="attribute">
-        <locale fieldName="doclocale" />
-        <field fieldName="publishDate" type="date" />
-        <field fieldName="topic" type="string" translated="true" />
-        <field fieldName="image" type="binary" translated="true" />
+        <locale name="doclocale" />
+        <field name="publishDate" type="date" />
+        <field name="topic" type="string" translated="true" />
+        <field name="image" type="binary" translated="true" />
     </document>
 </doctrine-mapping>

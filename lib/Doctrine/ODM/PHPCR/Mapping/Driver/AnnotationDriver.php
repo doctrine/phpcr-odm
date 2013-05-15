@@ -172,10 +172,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapVersionCreated($mapping);
                 }
-
-                if (!isset($mapping['name'])) {
-                    $mapping['name'] = $property->getName();
-                }
             }
         }
 

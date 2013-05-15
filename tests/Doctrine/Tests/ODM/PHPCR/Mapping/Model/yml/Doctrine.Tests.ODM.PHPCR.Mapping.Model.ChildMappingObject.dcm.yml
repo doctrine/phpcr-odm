@@ -2,7 +2,7 @@ Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject:
   id: id
   child:
     child1:
-      name: first
+      nodeName: first
     child2: second
 
-    
+
