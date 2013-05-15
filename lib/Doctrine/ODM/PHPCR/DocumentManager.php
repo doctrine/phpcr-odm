@@ -37,6 +37,7 @@ use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\PathNotFoundException;
+use PHPCR\Util\ValueConverter;
 
 /**
  * Document Manager
@@ -106,6 +107,7 @@ class DocumentManager implements ObjectManager
         $this->evm = $evm ?: new EventManager();
         $this->metadataFactory = new ClassMetadataFactory($this);
         $this->unitOfWork = new UnitOfWork($this);
+        $this->valueConverter = new ValueConverter();
         $this->proxyFactory = new ProxyFactory($this,
             $this->config->getProxyDir(),
             $this->config->getProxyNamespace(),
@@ -439,7 +441,7 @@ class DocumentManager implements ObjectManager
     public function quote($val, $type = PropertyType::STRING)
     {
         if (null !== $type) {
-            $val = PropertyType::convertType($val, $type);
+            $val = $this->valueConverter->convertType($val, $type);
         }
 
         return "'".str_replace("'", "''", $val)."'";
