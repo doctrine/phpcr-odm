@@ -532,13 +532,13 @@ class User
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
-    /** @PHPCRODM\String(name="parameters", assoc="") */
+    /** @PHPCRODM\String(assoc="") */
     public $parameters;
-    /** @PHPCRODM\Long(name="assocNumbers", assoc="") */
+    /** @PHPCRODM\Long(assoc="") */
     public $assocNumbers;
 }
 
@@ -549,7 +549,7 @@ class User2
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
 }
 
@@ -560,7 +560,7 @@ class User3
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
 }
 
@@ -569,7 +569,7 @@ class User3
  */
 class User4 extends User
 {
-    /** @PHPCRODM\String(name="name") */
+    /** @PHPCRODM\String */
     public $name;
 }
 
@@ -582,9 +582,9 @@ class User5
     public $nodename;
     /** @PHPCRODM\ParentDocument */
     public $parent;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
 }
 
@@ -627,9 +627,9 @@ class VersionTestObj
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
 
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
 }

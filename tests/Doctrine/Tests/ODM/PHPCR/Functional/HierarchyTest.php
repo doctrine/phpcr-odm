@@ -77,7 +77,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testParentChangeException()
     {
@@ -87,7 +87,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testIdChangeException()
     {

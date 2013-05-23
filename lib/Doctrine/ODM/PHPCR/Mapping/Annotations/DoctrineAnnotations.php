@@ -88,10 +88,15 @@ final class ParentDocument
 class Property
 {
     /**
-     * The PHPCR property name to use
+     * @deprecated use $property instead
      * @var string
      */
     public $name;
+    /**
+     * The PHPCR property name to use
+     * @var string
+     */
+    public $property;
     /** @var string */
     public $type = 'undefined';
     /** @var boolean */
@@ -126,7 +131,7 @@ final class Id
  */
 final class Uuid extends Property
 {
-    public $name = 'jcr:uuid';
+    public $property = 'jcr:uuid';
     public $type = 'string';
 }
 /**
@@ -238,10 +243,15 @@ final class Decimal extends TranslatableProperty
 class Reference
 {
     /**
-     * The PHPCR property name to use
+     * @deprecated use $property instead
      * @var string
      */
     public $name;
+    /**
+     * The PHPCR property name to use
+     * @var string
+     */
+    public $property;
     /** @var string */
     public $targetDocument;
     /** @var string */
@@ -270,8 +280,11 @@ final class ReferenceMany extends Reference
  */
 final class Child
 {
-    /** @var string */
-    public $name;
+    /**
+     * PHPCR node name of the child to map
+     * @var string
+     */
+    public $nodeName;
     /** @var array */
     public $cascade = array();
 }
@@ -308,7 +321,10 @@ final class MixedReferrers
  */
 final class Referrers
 {
-    /** @var string */
+    /**
+     * Name of the field in the other document referencing this document
+     * @var string
+     */
     public $referencedBy;
     /** @var string */
     public $referringDocument;

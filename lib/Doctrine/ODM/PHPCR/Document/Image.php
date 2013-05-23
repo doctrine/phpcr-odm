@@ -29,7 +29,7 @@ class Image
     /**
      * Image file child
      *
-     * @PHPCRODM\Child(name="file", cascade="persist")
+     * @PHPCRODM\Child(nodeName="file", cascade="persist")
      *
      * @var File
      */

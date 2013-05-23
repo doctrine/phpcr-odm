@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject">
-        <id name="id" />
         <lifecycle-callbacks>
             <lifecycle-callback type="preRemove" method="preRemoveFunc"/>
             <lifecycle-callback type="postRemove" method="postRemoveFunc"/>
@@ -11,5 +13,6 @@
             <lifecycle-callback type="postUpdate" method="postUpdateFunc"/>
             <lifecycle-callback type="postLoad" method="postLoadFunc"/>
         </lifecycle-callbacks>
+        <id name="id" />
     </document>
 </doctrine-mapping>

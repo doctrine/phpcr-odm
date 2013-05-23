@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 /**
- * @group mapping 
+ * @group mapping
  */
 class AnnotationDriverTest extends AbstractMappingDriverTest
 {
@@ -16,7 +16,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
         return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
     }
-    
+
     protected function loadDriverForTestMappingDocuments()
     {
         $annotationDriver = $this->loadDriver();
@@ -25,7 +25,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     }
 
     /**
-     * Overwriting private parent properties isn't support with annotaitons
+     * Overwriting private parent properties isn't supported with annotations
      */
     public function testParentWithPrivatePropertyMapping()
     {

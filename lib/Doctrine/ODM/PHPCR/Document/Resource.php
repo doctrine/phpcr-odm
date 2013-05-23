@@ -41,19 +41,19 @@ class Resource
     /** @PHPCRODM\ParentDocument */
     protected $parent;
 
-    /** @PHPCRODM\Binary(name="jcr:data") */
+    /** @PHPCRODM\Binary(property="jcr:data") */
     protected $data;
 
-    /** @PHPCRODM\String(name="jcr:mimeType") */
+    /** @PHPCRODM\String(property="jcr:mimeType") */
     protected $mimeType = 'application/octet-stream';
 
-    /** @PHPCRODM\String(name="jcr:encoding") */
+    /** @PHPCRODM\String(property="jcr:encoding") */
     protected $encoding;
 
-    /** @PHPCRODM\Date(name="jcr:lastModified") */
+    /** @PHPCRODM\Date(property="jcr:lastModified") */
     protected $lastModified;
 
-    /** @PHPCRODM\String(name="jcr:lastModifiedBy") */
+    /** @PHPCRODM\String(property="jcr:lastModifiedBy") */
     protected $lastModifiedBy;
 
     /**

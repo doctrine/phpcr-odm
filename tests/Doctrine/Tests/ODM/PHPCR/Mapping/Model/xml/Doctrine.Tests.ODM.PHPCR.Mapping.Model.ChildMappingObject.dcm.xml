@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject">
         <id name="id" />
-        <child fieldName="child1" name="first" />
-        <child fieldName="child2" name="second" />
+        <child name="child1" node-name="first" />
+        <child name="child2" node-name="second" />
     </document>
 </doctrine-mapping>

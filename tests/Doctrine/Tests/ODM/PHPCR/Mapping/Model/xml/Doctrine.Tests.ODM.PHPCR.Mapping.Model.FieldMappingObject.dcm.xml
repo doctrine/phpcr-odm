@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  http://www.doctrine-project.org/schemas/phpcr-odm/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject">
         <id name="id" />
-        <field fieldName="string" type="string" />
-        <field fieldName="binary" type="binary" />
-        <field fieldName="long" type="long" />
-        <field fieldName="int" type="int" />
-        <field fieldName="decimal" type="decimal" />
-        <field fieldName="double" type="double" />
-        <field fieldName="float" type="float" />
-        <field fieldName="date" type="date" />
-        <field fieldName="boolean" type="boolean" />
-        <field fieldName="name" type="name" />
-        <field fieldName="path" type="path" />
-        <field fieldName="uri" type="uri" />
+        <field name="string" type="string" />
+        <field name="binary" type="binary" />
+        <field name="long" type="long" />
+        <field name="int" type="int" />
+        <field name="decimal" type="decimal" />
+        <field name="double" type="double" />
+        <field name="float" type="float" />
+        <field name="date" type="date" />
+        <field name="boolean" type="boolean" />
+        <field name="name" type="name" />
+        <field name="path" type="path" />
+        <field name="uri" type="uri" />
     </document>
 </doctrine-mapping>

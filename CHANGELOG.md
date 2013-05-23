@@ -1,6 +1,24 @@
 Changelog
 =========
 
+2013-05-13
+----------
+
+ * #279: Cleanup mapping names
+   The option to overwrite what PHPCR property a value is stored in
+   (analogue to the ORM "column") is now called "property" instead of
+   "name" for all mapping drivers. For Child mappings, the annotation
+   and yml fields are now called "nodeName" instead of "name", for XML
+   it is the node-name attribute.
+   The XML and yml mappings now use "name" instead of "fieldName" to
+   identify the property of the model class they are mapping.
+
+   For the XML mappings, mixins are now collected inside a <mixins>
+   element and the attribute specifying the mxin type name is renamed
+   from "name" to "type". The document primary type attribute is fixed
+   from "nodeType" to "node-type" and parentdocument became
+   parent-document.
+
 2013-03-06
 ----------
 
