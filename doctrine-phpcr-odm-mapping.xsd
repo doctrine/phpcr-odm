@@ -36,7 +36,6 @@
             <xs:element name="cascade-persist" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-merge" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-remove" type="phpcr:emptyType" minOccurs="0"/>
-            <!-- TODO: orm has no detach -->
             <xs:element name="cascade-detach" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-refresh" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-translation" type="phpcr:emptyType" minOccurs="0"/>
@@ -82,10 +81,8 @@
             <xs:enumeration value="postRemove"/>
             <xs:enumeration value="postLoad"/>
             <xs:enumeration value="preFlush"/>
-            <!-- move is phpcr specific -->
             <xs:enumeration value="preMove"/>
             <xs:enumeration value="postMove"/>
-            <!-- TODO orm has no onFlush, postFlush, onClear, loadClassMetadata -->
             <xs:enumeration value="onFlush"/>
             <xs:enumeration value="postFlush"/>
             <xs:enumeration value="onClear"/>
@@ -111,11 +108,8 @@
     </xs:complexType>
 
     <!--
-        TODO:
-        implement document-listener like entity-listener http://www.doctrine-project.org/jira/browse/PHPCR-108
-    -->
-    <!--
-    <xs:complexType name="entity-listener">
+    TODO:  http://www.doctrine-project.org/jira/browse/PHPCR-108
+    <xs:complexType name="document-listener">
         <xs:sequence>
             <xs:element name="lifecycle-callback" type="phpcr:lifecycle-callback" minOccurs="0" maxOccurs="unbounded"/>
             <xs:any minOccurs="1" maxOccurs="unbounded" namespace="##other"/>
@@ -123,9 +117,9 @@
         <xs:attribute name="class" type="xs:string"/>
     </xs:complexType>
 
-    <xs:complexType name="entity-listeners">
+    <xs:complexType name="document-listeners">
         <xs:sequence>
-            <xs:element name="entity-listener" type="phpcr:entity-listener" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="document-listener" type="phpcr:document-listener" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
     -->
@@ -143,7 +137,10 @@
             <xs:element name="mixins" type="phpcr:mixins" minOccurs="0" />
             <xs:element name="options" type="phpcr:options" minOccurs="0" />
             <xs:element name="lifecycle-callbacks" type="phpcr:lifecycle-callbacks" minOccurs="0" maxOccurs="1" />
-            <!-- <xs:element name="entity-listeners" type="phpcr:entity-listeners" minOccurs="0" maxOccurs="1" /> -->
+            <!--
+            TODO:  http://www.doctrine-project.org/jira/browse/PHPCR-108
+            <xs:element name="document-listeners" type="phpcr:document-listeners" minOccurs="0" maxOccurs="1" />
+            -->
             <xs:element name="id" type="phpcr:id" minOccurs="0" maxOccurs="1" />
             <xs:element name="locale" type="phpcr:locale" minOccurs="0" maxOccurs="1" />
             <xs:element name="field" type="phpcr:field" minOccurs="0" maxOccurs="unbounded"/>
@@ -191,8 +188,8 @@
             <xs:enumeration value="ASSIGNED"/>
             <xs:enumeration value="PARENT"/>
             <!--
-                custom not yet
-            <xs:enumeration value="PARENT"/>
+            TODO: http://www.doctrine-project.org/jira/browse/PHPCR-73
+            <xs:enumeration value="CUSTOM"/>
              -->
         </xs:restriction>
     </xs:simpleType>
@@ -340,7 +337,5 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-
-
 
 </xs:schema>
