@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\EventArgs;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 
 class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -96,41 +97,41 @@ class TestEventDocumentChanger
     public $postMove = false;
     public $onFlush = false;
 
-    public function prePersist(EventArgs $e)
+    public function prePersist(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         $document->name = 'prepersist';
     }
 
-    public function postPersist(EventArgs $e)
+    public function postPersist(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         $document->username = 'postpersist';
     }
 
-    public function preUpdate(EventArgs $e)
+    public function preUpdate(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         $document->name = 'preupdate';
     }
 
-    public function postUpdate(EventArgs $e)
+    public function postUpdate(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         $document->username = 'postupdate';
     }
 
-    public function preMove(EventArgs $e)
+    public function preMove(LifecycleEventArgs $e)
     {
         $this->preMove = true;
-        $document = $e->getDocument();
+        $document = $e->getObject();
         $document->name = 'premove'; // I try to update the name of the document but after move, the document should never be modified
         $document->username = 'premove';
     }
 
-    public function postMove(EventArgs $e)
+    public function postMove(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         $document->username .= '-postmove';
     }
 }

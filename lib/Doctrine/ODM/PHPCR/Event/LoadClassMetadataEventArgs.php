@@ -19,51 +19,21 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\EventArgs;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs as BaseLoadClassMetadataEventArgs;
 
-class LoadClassMetadataEventArgs extends EventArgs
+/**
+ * @deprecated Will be dropped in favor of Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs
+ */
+class LoadClassMetadataEventArgs extends BaseLoadClassMetadataEventArgs
 {
     /**
-     * @var \Doctrine\PHPCR\ODM\Mapping\ClassMetadata
-     */
-    private $classMetadata;
-
-    /**
-     * @var \Doctrine\PHPCR\ODM\DocumentManager
-     */
-    private $dm;
-
-    /**
-     * Constructor.
+     * @deprecated  Will be dropped in favor of getObjectManager in 1.0
      *
-     * @param \Doctrine\PHPCR\ODM\Mapping\ClassMetadataInfo $classMetadata
-     * @param \Doctrine\PHPCR\ODM\DocumentManager $dm
-     */
-    public function __construct(ClassMetadata $classMetadata, DocumentManager $dm)
-    {
-        $this->classMetadata = $classMetadata;
-        $this->dm            = $dm;
-    }
-
-    /**
-     * Retrieve associated ClassMetadata.
-     *
-     * @return \Doctrine\PHPCR\ODM\Mapping\ClassMetadataInfo
-     */
-    public function getClassMetadata()
-    {
-        return $this->classMetadata;
-    }
-
-    /**
-     * Retrieve associated DocumentManager.
-     *
-     * @return \Doctrine\PHPCR\ODM\DocumentManager
+     * @return      \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
-        return $this->dm;
+        trigger_error('The getDocumentManager method is deprecated, use getObjectManager instead', E_USER_DEPRECATED);
+        return $this->getObjectManager();
     }
 }

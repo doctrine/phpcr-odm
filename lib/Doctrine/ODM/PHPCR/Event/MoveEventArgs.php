@@ -20,21 +20,10 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-/**
- * MoveEventArgs
- */
-class MoveEventArgs extends \Doctrine\Common\EventArgs
+use Doctrine\ODM\PHPCR\DocumentManager;
+
+class MoveEventArgs extends LifecycleEventArgs
 {
-    /**
-     * @var object
-     */
-    private $document;
-
-    /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
-     */
-    private $dm;
-
     /**
      * @var string
      */
@@ -48,41 +37,21 @@ class MoveEventArgs extends \Doctrine\Common\EventArgs
     /**
      * Constructor
      *
-     * @param object                              $document   The object
-     * @param \Doctrine\ODM\PHPCR\DocumentManager $dm         The document manager
-     * @param string                              $sourcePath The source path
-     * @param string                              $targetPath The target path
+     * @param object          $document
+     * @param DocumentManager $dm
+     * @param string          $sourcePath Path the document is moved from
+     * @param string          $targetPath Path the document is moved to, including target name
      */
-    public function __construct($document, $dm, $sourcePath, $targetPath)
+    public function __construct($document, DocumentManager $dm, $sourcePath, $targetPath)
     {
-        $this->document = $document;
-        $this->dm = $dm;
+        parent::__construct($document, $dm);
         $this->sourcePath = $sourcePath;
         $this->targetPath = $targetPath;
     }
 
     /**
-     * Get the document
-     *
-     * @return object
-     */
-    public function getDocument()
-    {
-        return $this->document;
-    }
-
-    /**
-     * Get the document manager
-     *
-     * @return \Doctrine\ODM\PHPCR\DocumentManager
-     */
-    public function getDocumentManager()
-    {
-        return $this->dm;
-    }
-
-    /**
-     * Get the source path
+     * Get the path this document is being moved away from, including the
+     * document name.
      *
      * @return string
      */
@@ -92,7 +61,8 @@ class MoveEventArgs extends \Doctrine\Common\EventArgs
     }
 
     /**
-     * Get the target path
+     * Get the path this document is being moved to, including the new document
+     * name.
      *
      * @return string
      */
