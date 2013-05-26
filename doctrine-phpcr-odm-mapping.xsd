@@ -308,7 +308,7 @@
     <xs:complexType name="reference-many">
         <xs:complexContent>
             <xs:extension base="phpcr:relation-type">
-                <xs:attribute name="target-document" type="xs:string" use="required" />
+                <xs:attribute name="target-document" type="xs:string" use="optional" />
                 <xs:attribute name="strategy" type="phpcr:reference-strategy" use="optional" />
             </xs:extension>
         </xs:complexContent>
@@ -317,7 +317,7 @@
     <xs:complexType name="reference-one">
         <xs:complexContent>
             <xs:extension base="phpcr:relation-type">
-                <xs:attribute name="target-document" type="xs:string" use="required" />
+                <xs:attribute name="target-document" type="xs:string" use="optional" />
                 <xs:attribute name="strategy" type="phpcr:reference-strategy" use="optional" />
             </xs:extension>
         </xs:complexContent>
