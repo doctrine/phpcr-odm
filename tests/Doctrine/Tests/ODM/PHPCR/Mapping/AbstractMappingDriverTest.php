@@ -8,7 +8,13 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     */
     abstract protected function loadDriver();
+    /**
+     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     */
     abstract protected function loadDriverForTestMappingDocuments();
 
     protected function ensureIsLoaded($entityClassName)
@@ -141,7 +147,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testStringFieldMappings($class)
     {
-        $this->assertEquals('string', $class->mappings['string']['name']);
+        $this->assertEquals('string', $class->mappings['string']['property']);
         $this->assertEquals('string', $class->mappings['string']['type']);
 
         return $class;
@@ -153,7 +159,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testBinaryFieldMappings($class)
     {
-        $this->assertEquals('binary', $class->mappings['binary']['name']);
+        $this->assertEquals('binary', $class->mappings['binary']['property']);
         $this->assertEquals('binary', $class->mappings['binary']['type']);
 
         return $class;
@@ -165,7 +171,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testLongFieldMappings($class)
     {
-        $this->assertEquals('long', $class->mappings['long']['name']);
+        $this->assertEquals('long', $class->mappings['long']['property']);
         $this->assertEquals('long', $class->mappings['long']['type']);
 
         return $class;
@@ -177,7 +183,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testIntFieldMappings($class)
     {
-        $this->assertEquals('int', $class->mappings['int']['name']);
+        $this->assertEquals('int', $class->mappings['int']['property']);
         $this->assertEquals('long', $class->mappings['int']['type']);
 
         return $class;
@@ -189,7 +195,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testDecimalFieldMappings($class)
     {
-        $this->assertEquals('decimal', $class->mappings['decimal']['name']);
+        $this->assertEquals('decimal', $class->mappings['decimal']['property']);
         $this->assertEquals('decimal', $class->mappings['decimal']['type']);
 
         return $class;
@@ -201,7 +207,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testDoubleFieldMappings($class)
     {
-        $this->assertEquals('double', $class->mappings['double']['name']);
+        $this->assertEquals('double', $class->mappings['double']['property']);
         $this->assertEquals('double', $class->mappings['double']['type']);
 
         return $class;
@@ -213,7 +219,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testFloatFieldMappings($class)
     {
-        $this->assertEquals('float', $class->mappings['float']['name']);
+        $this->assertEquals('float', $class->mappings['float']['property']);
         $this->assertEquals('double', $class->mappings['float']['type']);
 
         return $class;
@@ -225,7 +231,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testDateFieldMappings($class)
     {
-        $this->assertEquals('date', $class->mappings['date']['name']);
+        $this->assertEquals('date', $class->mappings['date']['property']);
         $this->assertEquals('date', $class->mappings['date']['type']);
 
         return $class;
@@ -237,7 +243,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testBooleanFieldMappings($class)
     {
-        $this->assertEquals('boolean', $class->mappings['boolean']['name']);
+        $this->assertEquals('boolean', $class->mappings['boolean']['property']);
         $this->assertEquals('boolean', $class->mappings['boolean']['type']);
 
         return $class;
@@ -249,7 +255,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testNameFieldMappings($class)
     {
-        $this->assertEquals('name', $class->mappings['name']['name']);
+        $this->assertEquals('name', $class->mappings['name']['property']);
         $this->assertEquals('name', $class->mappings['name']['type']);
 
         return $class;
@@ -261,7 +267,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testPathFieldMappings($class)
     {
-        $this->assertEquals('path', $class->mappings['path']['name']);
+        $this->assertEquals('path', $class->mappings['path']['property']);
         $this->assertEquals('path', $class->mappings['path']['type']);
 
         return $class;
@@ -273,7 +279,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testUriFieldMappings($class)
     {
-        $this->assertEquals('uri', $class->mappings['uri']['name']);
+        $this->assertEquals('uri', $class->mappings['uri']['property']);
         $this->assertEquals('uri', $class->mappings['uri']['type']);
 
         return $class;
@@ -317,7 +323,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject';
         $class = $this->loadMetadataForClassname($className);
-        $this->assertEquals('foo', $class->mappings['foo']['name']);
+        $this->assertEquals('foo', $class->mappings['foo']['property']);
         $this->assertEquals('string', $class->mappings['foo']['type']);
 
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentPrivatePropertyMappingObject';
@@ -332,7 +338,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $cmf = new ClassMetadataFactory($dm);
         $class = $cmf->getMetadataFor($className);
 
-        $this->assertEquals('foo', $class->mappings['foo']['name']);
+        $this->assertEquals('foo', $class->mappings['foo']['property']);
         $this->assertEquals('string', $class->mappings['foo']['type']);
     }
 
@@ -352,9 +358,9 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->childMappings));
         $this->assertCount(2, $class->childMappings);
         $this->assertTrue(isset($class->mappings['child1']));
-        $this->assertEquals('first', $class->mappings['child1']['name']);
+        $this->assertEquals('first', $class->mappings['child1']['nodeName']);
         $this->assertTrue(isset($class->mappings['child2']));
-        $this->assertEquals('second', $class->mappings['child2']['name']);
+        $this->assertEquals('second', $class->mappings['child2']['nodeName']);
     }
 
     public function testLoadChildrenMapping()
@@ -561,28 +567,31 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
      */
     public function testReferrersMapping($class)
     {
+        $filtered = $class->mappings['filteredReferrers'];
+        $this->assertEquals('referrers', $filtered['type']);
+        $this->assertEquals('filteredReferrers', $filtered['fieldName']);
+        $this->assertEquals('referenceManyWeak', $filtered['referencedBy']);
+    }
+
+    /**
+     * @depends testLoadReferrersMapping
+     * @param ClassMetadata $class
+     */
+    public function testMixedReferrersMapping($class)
+    {
         $all = $class->mappings['allReferrers'];
+        $this->assertEquals('mixedreferrers', $all['type']);
         $this->assertEquals('allReferrers', $all['fieldName']);
-        $this->assertEquals('allReferrers', $all['name']);
-        $this->assertEmpty($all['filter']);
         $this->assertNull($all['referenceType']);
 
-        $filtered = $class->mappings['filteredReferrers'];
-        $this->assertEquals('filteredReferrers', $filtered['fieldName']);
-        $this->assertEquals('filteredReferrers', $filtered['name']);
-        $this->assertEquals('test_filter', $filtered['filter']);
-        $this->assertEmpty($filtered['referenceType']);
-
         $hard = $class->mappings['hardReferrers'];
+        $this->assertEquals('mixedreferrers', $hard['type']);
         $this->assertEquals('hardReferrers', $hard['fieldName']);
-        $this->assertEquals('hardReferrers', $hard['name']);
-        $this->assertEmpty($hard['filter']);
         $this->assertEquals('hard', $hard['referenceType']);
 
         $weak = $class->mappings['weakReferrers'];
+        $this->assertEquals('mixedreferrers', $weak['type']);
         $this->assertEquals('weakReferrers', $weak['fieldName']);
-        $this->assertEquals('weakReferrers', $weak['name']);
-        $this->assertEmpty($weak['filter']);
         $this->assertEquals('weak', $weak['referenceType']);
     }
 
@@ -604,6 +613,23 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($class->translatableFields));
         $this->assertContains('topic', $class->translatableFields);
         $this->assertContains('image', $class->translatableFields);
+    }
+
+    public function testLoadMixinMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadMixinMapping
+     * @param ClassMetadata $class
+     */
+    public function testMixinMapping($class)
+    {
+        $this->assertEquals(1, count($class->mixins));
+        $this->assertContains('mix:lastModified', $class->mixins);
     }
 
     public function testLoadLifecycleCallbackMapping()

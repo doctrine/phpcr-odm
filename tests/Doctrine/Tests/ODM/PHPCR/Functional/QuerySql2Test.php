@@ -148,8 +148,8 @@ class QuerySql2TestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
 }

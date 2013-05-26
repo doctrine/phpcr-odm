@@ -5,37 +5,37 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping\Model;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * A class that contains mapped fields via properties 
- * 
+ * A class that contains mapped fields via properties
+ *
  * @PHPCRODM\Document
  */
 class FieldMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
-    /** @PHPCRODM\String(name="string") */
+
+    /** @PHPCRODM\String */
     public $string;
-    /** @PHPCRODM\Binary(name="binary") */
+    /** @PHPCRODM\Binary */
     public $binary;
-    /** @PHPCRODM\Long(name="long") */
+    /** @PHPCRODM\Long */
     public $long;
-    /** @PHPCRODM\Int(name="int") */
+    /** @PHPCRODM\Int */
     public $int;
-    /** @PHPCRODM\Decimal(name="decimal") */
+    /** @PHPCRODM\Decimal */
     public $decimal;
-    /** @PHPCRODM\Double(name="double") */
+    /** @PHPCRODM\Double */
     public $double;
-    /** @PHPCRODM\Float(name="float") */
+    /** @PHPCRODM\Float */
     public $float;
-    /** @PHPCRODM\Date(name="date") */
+    /** @PHPCRODM\Date */
     public $date;
-    /** @PHPCRODM\Boolean(name="boolean") */
+    /** @PHPCRODM\Boolean */
     public $boolean;
-    /** @PHPCRODM\Name(name="name") */
+    /** @PHPCRODM\Name */
     public $name;
-    /** @PHPCRODM\Path(name="path") */
+    /** @PHPCRODM\Path */
     public $path;
-    /** @PHPCRODM\Uri(name="uri") */
+    /** @PHPCRODM\Uri */
     public $uri;
 }

@@ -38,10 +38,10 @@ abstract class AbstractFile
     /** @PHPCRODM\ParentDocument */
     protected $parent;
 
-    /** @PHPCRODM\Date(name="jcr:created") */
+    /** @PHPCRODM\Date(property="jcr:created") */
     protected $created;
 
-    /** @PHPCRODM\String(name="jcr:createdBy") */
+    /** @PHPCRODM\String(property="jcr:createdBy") */
     protected $createdBy;
 
     /**
@@ -136,6 +136,6 @@ abstract class AbstractFile
      */
     public function __toString()
     {
-        return $this->nodename;
+        return (string) $this->nodename;
     }
 }

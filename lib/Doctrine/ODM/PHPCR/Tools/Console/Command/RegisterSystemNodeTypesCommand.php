@@ -23,7 +23,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use PHPCR\Util\Console\Command\RegisterNodeTypesCommand;
+use PHPCR\Util\Console\Command\NodeTypeRegisterCommand;
 
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
@@ -32,7 +32,7 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  *
  * This command registers the necessary node types to get phpcr odm working
  */
-class RegisterSystemNodeTypesCommand extends RegisterNodeTypesCommand
+class RegisterSystemNodeTypesCommand extends NodeTypeRegisterCommand
 {
     private $phpcrNamespace = 'phpcr';
     private $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
@@ -60,63 +60,31 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var $session \PHPCR\SessionInterface */
-        $session = $this->getHelper('phpcr')->getSession();
-        if ($session instanceof \Jackalope\Session
-            && $session->getTransport() instanceof \Jackalope\Transport\Jackrabbit\Client
-        ) {
-            $cnd = <<<CND
+        $cnd = <<<CND
 // register phpcr_locale namespace
 <$this->localeNamespace='$this->localeNamespaceUri'>
 // register phpcr namespace
 <$this->phpcrNamespace='$this->phpcrNamespaceUri'>
 [phpcr:managed]
-  mixin
-  - phpcr:class (STRING)
-  - phpcr:classparents (STRING) multiple
+mixin
+- phpcr:class (STRING)
+- phpcr:classparents (STRING) multiple
 CND
-            ;
+        ;
 
-            try {
-                // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
-                $this->updateFromCnd($output, $session, $cnd, true);
-            } catch (\Exception $e) {
-                $output->writeln('<error>'.$e->getMessage().'</error>');
+        /** @var $session \PHPCR\SessionInterface */
+        $session = $this->getHelper('phpcr')->getSession();
+        try {
+            // automatically overwrite - we are inside our phpcr namespace, nothing can go wrong
+            $this->updateFromCnd($output, $session, $cnd, true);
+        } catch (\Exception $e) {
+            $output->writeln('<error>'.$e->getMessage().'</error>');
 
-                return 1;
-            }
-        } else {
-            $this->registerSystemNodeTypes($session);
+            return 1;
         }
+
         $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
 
         return 0;
-    }
-
-    public function registerSystemNodeTypes($session)
-    {
-        $ns = $session->getWorkspace()->getNamespaceRegistry();
-        $ns->registerNamespace($this->phpcrNamespace, $this->phpcrNamespaceUri);
-        $ns->registerNamespace($this->localeNamespace, $this->localeNamespaceUri);
-        $nt = $session->getWorkspace()->getNodeTypeManager();
-
-        $phpcrClassTpl = $nt->createPropertyDefinitionTemplate();
-        $phpcrClassTpl->setName('phpcr:class');
-        $phpcrClassTpl->setRequiredType(\PHPCR\PropertyType::STRING);
-
-        $phpcrClassParentsTpl = $nt->createPropertyDefinitionTemplate();
-        $phpcrClassParentsTpl->setName('phpcr:classparents');
-        $phpcrClassParentsTpl->setRequiredType(\PHPCR\PropertyType::STRING);
-        $phpcrClassParentsTpl->setMultiple(true);
-
-        $tpl = $nt->createNodeTypeTemplate();
-        $tpl->setName('phpcr:managed');
-        $tpl->setMixin(true);
-
-        $props = $tpl->getPropertyDefinitionTemplates();
-        $props->offsetSet(1, $phpcrClassTpl);
-        $props->offsetSet(2, $phpcrClassParentsTpl);
-
-        $nt->registerNodeType($tpl, true);
     }
 }

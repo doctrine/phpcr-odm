@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+           xmlns:phpcr="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+           elementFormDefault="qualified">
+
+    <xs:annotation>
+        <xs:documentation><![CDATA[
+       This is the XML Schema for the object/document
+       mapping file used by the Doctrine PHPCR-ODM.
+     ]]></xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="doctrine-mapping">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mapped-superclass" type="phpcr:mapped-superclass" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="document" type="phpcr:document" minOccurs="0" maxOccurs="unbounded" />
+                <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+            </xs:sequence>
+            <xs:anyAttribute namespace="##other"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="emptyType">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="cascade-type">
+        <xs:sequence>
+            <xs:element name="cascade-all" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:element name="cascade-persist" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:element name="cascade-merge" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:element name="cascade-remove" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:element name="cascade-detach" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:element name="cascade-refresh" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:element name="cascade-translation" type="phpcr:emptyType" minOccurs="0"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="mixin">
+        <xs:attribute name="type" type="xs:NMTOKEN"/>
+    </xs:complexType>
+
+    <xs:complexType name="mixins">
+        <xs:sequence>
+            <xs:element name="mixin" type="phpcr:mixin" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="option" mixed="true">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="option" type="phpcr:option"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="options">
+        <xs:sequence>
+            <xs:element name="option" type="phpcr:option" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:simpleType name="lifecycle-callback-type">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="prePersist"/>
+            <xs:enumeration value="postPersist"/>
+            <xs:enumeration value="preUpdate"/>
+            <xs:enumeration value="postUpdate"/>
+            <xs:enumeration value="preRemove"/>
+            <xs:enumeration value="postRemove"/>
+            <xs:enumeration value="postLoad"/>
+            <xs:enumeration value="preFlush"/>
+            <xs:enumeration value="preMove"/>
+            <xs:enumeration value="postMove"/>
+            <xs:enumeration value="onFlush"/>
+            <xs:enumeration value="postFlush"/>
+            <xs:enumeration value="onClear"/>
+            <xs:enumeration value="loadClassMetadata"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="lifecycle-callback">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="phpcr:lifecycle-callback-type" use="required" />
+        <xs:attribute name="method" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="lifecycle-callbacks">
+        <xs:sequence>
+            <xs:element name="lifecycle-callback" type="phpcr:lifecycle-callback" minOccurs="1" maxOccurs="unbounded" />
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <!--
+    TODO:  http://www.doctrine-project.org/jira/browse/PHPCR-108
+    <xs:complexType name="document-listener">
+        <xs:sequence>
+            <xs:element name="lifecycle-callback" type="phpcr:lifecycle-callback" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:any minOccurs="1" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="class" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="document-listeners">
+        <xs:sequence>
+            <xs:element name="document-listener" type="phpcr:document-listener" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    -->
+
+    <xs:simpleType name="versionable-type">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="false"/>
+            <xs:enumeration value="SIMPLE"/>
+            <xs:enumeration value="FULL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="document">
+        <xs:sequence>
+            <xs:element name="mixins" type="phpcr:mixins" minOccurs="0" />
+            <xs:element name="options" type="phpcr:options" minOccurs="0" />
+            <xs:element name="lifecycle-callbacks" type="phpcr:lifecycle-callbacks" minOccurs="0" maxOccurs="1" />
+            <!--
+            TODO:  http://www.doctrine-project.org/jira/browse/PHPCR-108
+            <xs:element name="document-listeners" type="phpcr:document-listeners" minOccurs="0" maxOccurs="1" />
+            -->
+            <xs:element name="id" type="phpcr:id" minOccurs="0" maxOccurs="1" />
+            <xs:element name="locale" type="phpcr:locale" minOccurs="0" maxOccurs="1" />
+            <xs:element name="field" type="phpcr:field" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="node" type="phpcr:node" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="nodename" type="phpcr:nodename" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="version-name" type="phpcr:version-name" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="version-created" type="phpcr:version-created" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="parent-document" type="phpcr:parent-document" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="child" type="phpcr:child" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="children" type="phpcr:children" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="reference-one" type="phpcr:reference-one" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="reference-many" type="phpcr:reference-many" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="referrers" type="phpcr:referrers" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="mixed-referrers" type="phpcr:mixed-referrers" minOccurs="0" maxOccurs="unbounded" />
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="translator" type="xs:NMTOKEN"/>
+        <xs:attribute name="versionable" type="phpcr:versionable-type" />
+        <xs:attribute name="referenceable" type="xs:boolean" default="false" />
+        <xs:attribute name="node-type" type="xs:NMTOKEN" />
+        <xs:attribute name="repository-class" type="xs:string"/>
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="mapped-superclass" >
+        <xs:complexContent>
+            <xs:extension base="phpcr:document">
+                <xs:sequence>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+                </xs:sequence>
+                <xs:anyAttribute namespace="##other"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="locale">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:simpleType name="generator-strategy">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="REPOSITORY"/>
+            <xs:enumeration value="ASSIGNED"/>
+            <xs:enumeration value="PARENT"/>
+            <!--
+            TODO: http://www.doctrine-project.org/jira/browse/PHPCR-73
+            <xs:enumeration value="CUSTOM"/>
+             -->
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="generator">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="strategy" type="phpcr:generator-strategy" use="optional" default="AUTO" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="id">
+        <xs:sequence>
+            <xs:element name="generator" type="phpcr:generator" minOccurs="0" />
+            <!--
+                TODO: http://www.doctrine-project.org/jira/browse/PHPCR-73
+            <xs:element name="custom-id-generator" type="phpcr:custom-id-generator" minOccurs="0" maxOccurs="1" />
+             -->
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <!--
+        TODO: http://www.doctrine-project.org/jira/browse/PHPCR-73
+    <xs:complexType name="custom-id-generator">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="class" type="xs:NMTOKEN" use="required" />
+    </xs:complexType>
+    -->
+
+    <xs:complexType name="field">
+        <xs:sequence>
+            <xs:element name="options" type="phpcr:options" minOccurs="0" />
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:attribute name="type" type="xs:NMTOKEN" default="string" />
+        <xs:attribute name="property" type="xs:NMTOKEN" />
+        <xs:attribute name="multivalue" type="xs:boolean" default="false" />
+        <xs:attribute name="assoc" type="xs:string" default="false" />
+        <xs:attribute name="translated" type="xs:boolean" default="false" />
+        <xs:attribute name="nullable" type="xs:boolean" default="false" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="node">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="nodename">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="version-name">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="version-created">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="relation-type" abstract="true">
+        <xs:sequence>
+            <xs:element name="cascade" type="phpcr:cascade-type" minOccurs="0" />
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <!--
+            orm has fetch-type here. we do not need this, as relations can not
+            be fetched in joins, so there is no benefit in declaring eager
+            loading. The only relevant optimization is fetch-depth for children
+         -->
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="parent-document">
+        <xs:complexContent>
+            <xs:extension base="phpcr:relation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="child">
+        <xs:complexContent>
+            <xs:extension base="phpcr:relation-type">
+                <xs:attribute name="node-name" type="xs:NMTOKEN" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="children">
+        <xs:complexContent>
+            <xs:extension base="phpcr:relation-type">
+                <xs:attribute name="filter" type="xs:string"/>
+                <xs:attribute name="fetch-depth" type="xs:integer"/>
+                <xs:attribute name="ignore-untranslated" type="xs:boolean"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="reference-strategy">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="WEAK"/>
+            <xs:enumeration value="HARD"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="reference-many">
+        <xs:complexContent>
+            <xs:extension base="phpcr:relation-type">
+                <xs:attribute name="target-document" type="xs:string" use="optional" />
+                <xs:attribute name="strategy" type="phpcr:reference-strategy" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="reference-one">
+        <xs:complexContent>
+            <xs:extension base="phpcr:relation-type">
+                <xs:attribute name="target-document" type="xs:string" use="optional" />
+                <xs:attribute name="strategy" type="phpcr:reference-strategy" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="mixed-referrers">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:attribute name="reference-type" type="phpcr:reference-strategy" use="optional" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="referrers">
+        <xs:complexContent>
+            <xs:extension base="phpcr:relation-type">
+                <xs:attribute name="referring-document" type="xs:string" use="required" />
+                <xs:attribute name="referenced-by" type="xs:NMTOKEN" use="required" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>

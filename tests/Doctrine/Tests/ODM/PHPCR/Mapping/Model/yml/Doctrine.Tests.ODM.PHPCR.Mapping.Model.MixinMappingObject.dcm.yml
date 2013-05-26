@@ -1,0 +1,11 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject:
+  mixins:
+    - mix:lastModified
+  id: id
+  fields:
+    lastModified:
+      property: jcr:lastModified
+      type: date
+    lastModifiedBy:
+      property: jcr:lastModifiedBy
+      type: string

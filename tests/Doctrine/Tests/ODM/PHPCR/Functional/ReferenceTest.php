@@ -762,7 +762,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->assertTrue($this->session->getNode('/functional/weakRefTestObj')->hasProperty('reference'));
-        $this->assertFalse($this->session->getNode('/functional/')->hasNode('refRefTestObj'));
+        $this->assertFalse($this->session->getNode('/functional')->hasNode('refRefTestObj'));
     }
 
     public function testHardReferenceDelete()
@@ -812,7 +812,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->assertFalse($this->session->getNode('/functional/hardRefTestObj')->hasProperty('reference'));
-        $this->assertFalse($this->session->getNode('/functional/')->hasNode('refRefTestObj'));
+        $this->assertFalse($this->session->getNode('/functional')->hasNode('refRefTestObj'));
     }
 
     public function testReferenceMany()

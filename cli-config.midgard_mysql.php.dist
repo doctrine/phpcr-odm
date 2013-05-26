@@ -24,7 +24,8 @@ $workspace = '';
 $user = 'admin';
 $pass = 'password';
 
-$repository = \Midgard\PHPCR\RepositoryFactory::getRepository($params);
+$factory = new \Midgard\PHPCR\RepositoryFactory();
+$repository = $factory->getRepository($params);
 $credentials = new \PHPCR\SimpleCredentials($user, $pass);
 $session =  $repository->login($credentials, $workspace);
 

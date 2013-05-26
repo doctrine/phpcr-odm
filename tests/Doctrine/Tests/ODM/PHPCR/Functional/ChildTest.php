@@ -360,7 +360,7 @@ class ChildTestObj
     public $node;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\Child(name="test", cascade="persist") */
+    /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
     public $child;
 }
 
@@ -390,6 +390,6 @@ class ChildReferenceableTestObj
   /** @PHPCRODM\String */
   public $name;
 
-  /** @PHPCRODM\Child(name="test", cascade="persist") */
+  /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
   public $aChild;
 }

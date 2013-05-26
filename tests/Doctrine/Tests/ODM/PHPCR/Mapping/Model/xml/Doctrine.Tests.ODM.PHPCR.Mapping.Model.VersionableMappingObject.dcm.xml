@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doctrine-mapping>
-    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject" versionable="simple">
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
+                  https://github.com/doctrine/phpcr-odm/raw/master/doctrine-phpcr-odm-mapping.xsd">
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject" versionable="SIMPLE">
         <id name="id" />
-        <version-name fieldName="versionName"/>
-        <version-created fieldName="versionCreated"/>
+        <version-name name="versionName"/>
+        <version-created name="versionCreated"/>
     </document>
 </doctrine-mapping>

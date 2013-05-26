@@ -16,11 +16,11 @@ class CmsUser
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String(name="status") */
+    /** @PHPCRODM\String */
     public $status;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\String(name="name") */
+    /** @PHPCRODM\String */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;
@@ -30,8 +30,15 @@ class CmsUser
     public $groups;
     /** @PHPCRODM\Children() */
     public $children;
-    /** @PHPCRODM\Child(name="assistant", cascade="persist") */
+    /** @PHPCRODM\Child(nodeName="assistant", cascade="persist") */
     public $child;
+    /** @PHPCRODM\Referrers(referencedBy="user", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
+    public $articlesReferrers;
+
+    public function __construct()
+    {
+        $this->articlesReferrers = new ArrayCollection();
+    }
 
     public function getId()
     {

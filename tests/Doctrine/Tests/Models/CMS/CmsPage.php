@@ -16,11 +16,11 @@ class CmsPage
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String(name="content") */
+    /** @PHPCRODM\String */
     public $content;
-    /** @PHPCRODM\String(name="title") */
+    /** @PHPCRODM\String */
     public $title;
-    /** @PHPCRODM\Referrers(referenceType="hard", cascade="persist") */
+    /** @PHPCRODM\MixedReferrers(referenceType="hard") */
     public $items = array();
 
     public function getId()
@@ -60,12 +60,12 @@ class CmsPage
     {
         return $this->items;
     }
-    
+
     public function addItem($item)
     {
         $this->items[] = $item;
     }
-    
+
     public function removeItem($item)
     {
         foreach($this->items as $key => $value){

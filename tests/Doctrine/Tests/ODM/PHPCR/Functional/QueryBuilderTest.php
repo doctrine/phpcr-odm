@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-use Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsItem;
@@ -218,5 +218,20 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         $res = $q->execute();
         $this->assertCount(3, $res);
+    }
+
+    public function testSameNode()
+    {
+        $qb = $this->createQb();
+        $qb->where($qb->expr()->eqPath('/functional/dtl'));
+        $q = $qb->getQuery();
+
+        $where = $qb->getPart('where');
+
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\SameNode', $where);
+        $this->assertEquals('/functional/dtl', $where->getPath());
+
+        $res = $q->execute();
+        $this->assertCount(1, $res);
     }
 }

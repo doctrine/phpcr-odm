@@ -28,11 +28,11 @@ class IdException extends \RuntimeException
         return new self($message);
     }
 
-    public static function noIdNoName($document, $nodename)
+    public static function noIdNoName($document, $fieldName)
     {
         $message = sprintf(
             'NodeName property "%s" may not be empty in document of class "%s"',
-            $nodename,
+            $fieldName,
             get_class($document)
         );
 

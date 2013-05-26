@@ -486,6 +486,24 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->parameters, $assocArray);
     }
 
+    public function testAssocNumberProperty()
+    {
+        $user = new User();
+        $user->username = "test";
+        $assocArray = array('foo' => 1, 'ding' => 2);
+        $user->assocNumbers = $assocArray;
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->assocNumbers, $assocArray);
+    }
+
     public function testVersionedDocument()
     {
         $user = new VersionTestObj();
@@ -514,12 +532,14 @@ class User
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
-    /** @PHPCRODM\String(name="parameters", assoc="") */
+    /** @PHPCRODM\String(assoc="") */
     public $parameters;
+    /** @PHPCRODM\Long(assoc="") */
+    public $assocNumbers;
 }
 
 /**
@@ -529,7 +549,7 @@ class User2
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
 }
 
@@ -540,7 +560,7 @@ class User3
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
 }
 
@@ -549,7 +569,7 @@ class User3
  */
 class User4 extends User
 {
-    /** @PHPCRODM\String(name="name") */
+    /** @PHPCRODM\String */
     public $name;
 }
 
@@ -562,9 +582,9 @@ class User5
     public $nodename;
     /** @PHPCRODM\ParentDocument */
     public $parent;
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
 }
 
@@ -607,9 +627,9 @@ class VersionTestObj
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-    /** @PHPCRODM\String(name="username") */
+    /** @PHPCRODM\String */
     public $username;
 
-    /** @PHPCRODM\Int(name="numbers", multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true) */
     public $numbers;
 }

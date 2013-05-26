@@ -31,7 +31,7 @@ class File extends AbstractFile
 {
     /**
      * @var Resource
-     * @PHPCRODM\Child(name="jcr:content", cascade="all")
+     * @PHPCRODM\Child(nodeName="jcr:content", cascade="all")
      */
     protected $content;
 
@@ -65,6 +65,23 @@ class File extends AbstractFile
     public function setContent(Resource $content)
     {
         $this->content = $content;
+    }
+
+    /*
+     * Get the resource representing the data of this file.
+     *
+     * Ensures the content object is created
+     *
+     * @return Resource
+     */
+    public function getContent()
+    {
+        if ($this->content === null) {
+            $this->content = new Resource();
+            $this->content->setLastModified(new \DateTime());
+        }
+
+        return $this->content;
     }
 
     /**
@@ -108,20 +125,4 @@ class File extends AbstractFile
 
       return $content !== false ? $content : '';
     }
-
-    /*
-     * Ensure content object is created
-     *
-     * @return Resource
-     */
-    private function getContent()
-    {
-        if ($this->content === null) {
-            $this->content = new Resource();
-            $this->content->setLastModified(new \DateTime());
-        }
-
-        return $this->content;
-    }
-
 }

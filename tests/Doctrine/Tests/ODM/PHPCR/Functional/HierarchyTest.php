@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-use Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
@@ -77,7 +77,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testParentChangeException()
     {
@@ -87,7 +87,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\PHPCRException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testIdChangeException()
     {

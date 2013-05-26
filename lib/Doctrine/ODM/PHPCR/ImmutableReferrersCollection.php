@@ -17,11 +17,22 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR\Proxy;
+namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Persistence\Proxy as BaseProxy;
+use Doctrine\Common\Collections\ArrayCollection;
 
-interface Proxy extends BaseProxy
+/**
+ * Immutable referrer collection class
+ *
+ * This class represents a collection of referrers of a document that can be
+ * mixed and thus never can be persisted.
+ */
+class ImmutableReferrersCollection extends ReferrersCollection
 {
+    public function __construct(DocumentManager $dm, $document, $type = null, $locale = null)
+    {
+        parent::__construct($dm, $document, $type, null, $locale);
+    }
 
+    // TODO: overwrite all methods that would modify this collection and throw exceptions
 }

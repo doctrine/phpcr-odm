@@ -29,6 +29,8 @@ final class Document
 {
     /** @var string */
     public $nodeType;
+    /** @var array */
+    public $mixins;
     /** @var string */
     public $repositoryClass;
     /** @var string */
@@ -85,14 +87,24 @@ final class ParentDocument
  */
 class Property
 {
-    /** @var string */
+    /**
+     * @deprecated use $property instead
+     * @var string
+     */
     public $name;
+    /**
+     * The PHPCR property name to use
+     * @var string
+     */
+    public $property;
     /** @var string */
     public $type = 'undefined';
     /** @var boolean */
     public $multivalue = false;
     /** @var string */
     public $assoc;
+    /** @var boolean */
+    public $nullable = false;
 }
 /**
  * Base class for all the translatable properties (i.e. every property but Uuid and Version)
@@ -119,7 +131,7 @@ final class Id
  */
 final class Uuid extends Property
 {
-    public $name = 'jcr:uuid';
+    public $property = 'jcr:uuid';
     public $type = 'string';
 }
 /**
@@ -230,6 +242,16 @@ final class Decimal extends TranslatableProperty
  */
 class Reference
 {
+    /**
+     * @deprecated use $property instead
+     * @var string
+     */
+    public $name;
+    /**
+     * The PHPCR property name to use
+     * @var string
+     */
+    public $property;
     /** @var string */
     public $targetDocument;
     /** @var string */
@@ -258,8 +280,11 @@ final class ReferenceMany extends Reference
  */
 final class Child
 {
-    /** @var string */
-    public $name;
+    /**
+     * PHPCR node name of the child to map
+     * @var string
+     */
+    public $nodeName;
     /** @var array */
     public $cascade = array();
 }
@@ -278,16 +303,31 @@ final class Children
     /** @var array */
     public $cascade = array();
 }
+
+
+/**
+ * @Annotation
+ * @Target("PROPERTY")
+ */
+final class MixedReferrers
+{
+    /** @var string */
+    public $referenceType;
+}
+
 /**
  * @Annotation
  * @Target("PROPERTY")
  */
 final class Referrers
 {
+    /**
+     * Name of the field in the other document referencing this document
+     * @var string
+     */
+    public $referencedBy;
     /** @var string */
-    public $filter;
-    /** @var string */
-    public $referenceType;
+    public $referringDocument;
     /** @var array */
     public $cascade = array();
 }

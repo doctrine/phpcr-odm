@@ -26,10 +26,4 @@ class CmsArticle
     {
         $this->user = $author;
     }
-
-    public function addComment(CmsComment $comment)
-    {
-        $this->comments[] = $comment;
-        $comment->setArticle($this);
-    }
 }

@@ -55,8 +55,6 @@ class ReferenceManyCollection extends PersistentCollection
     public function initialize()
     {
         if (!$this->initialized) {
-            $this->initialized = true;
-
             $referencedDocs = array();
             $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
             $uow = $this->dm->getUnitOfWork();
@@ -73,9 +71,11 @@ class ReferenceManyCollection extends PersistentCollection
             }
 
             $this->collection = new ArrayCollection($referencedDocs);
+            $this->initialized = true;
         }
     }
 
+    /** {@inheritDoc} */
     public function count()
     {
         if (!$this->initialized) {
@@ -85,8 +85,13 @@ class ReferenceManyCollection extends PersistentCollection
         return parent::count();
     }
 
+    /** {@inheritDoc} */
     public function isEmpty()
     {
-        return !$this->count();
+        if (!$this->initialized) {
+            return !$this->count();
+        }
+
+        return parent::isEmpty();
     }
 }
