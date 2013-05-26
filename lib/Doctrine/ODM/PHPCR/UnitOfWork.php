@@ -27,8 +27,10 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Id\IdException;
-use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+// TODO use Doctrine\Common\Persistence\Event\LifecycleEventArgs instead for the next version
+use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
+// TODO use Doctrine\Common\Persistence\Event\ManagerEventArgs instead for the next version
 use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
@@ -459,7 +461,7 @@ class UnitOfWork
             $class->invokeLifecycleCallbacks(Event::postLoad, $document);
         }
         if ($this->evm->hasListeners(Event::postLoad)) {
-            $this->evm->dispatchEvent(Event::postLoad, new Event\LifecycleEventArgs($document, $this->dm));
+            $this->evm->dispatchEvent(Event::postLoad, new LifecycleEventArgs($document, $this->dm));
         }
 
         return $document;

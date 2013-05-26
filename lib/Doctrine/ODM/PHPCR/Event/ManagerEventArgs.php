@@ -19,9 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs as BaseManagerEventArgs;
 
+/**
+ * @deprecated Will be dropped in favor of Doctrine\Common\Persistence\Event\ManagerEventArgs
+ */
 class ManagerEventArgs extends BaseManagerEventArgs
 {
     /**
@@ -30,6 +32,7 @@ class ManagerEventArgs extends BaseManagerEventArgs
      */
     public function getDocumentManager()
     {
+        trigger_error('The getDocumentManager method is deprecated, use getObjectManager instead', E_USER_DEPRECATED);
         return $this->getObjectManager();
     }
 }

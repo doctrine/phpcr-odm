@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Event;
 
@@ -12,6 +14,11 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
      */
     private $dm;
 
+    /**
+     * @param $fqn
+     *
+     * @return ClassMetadata
+     */
     protected function getMetadataFor($fqn)
     {
         $cache = new \Doctrine\Common\Cache\ArrayCache();
@@ -112,7 +119,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\Mapping\MappingException
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testValidateTranslatableNoStrategy()
     {
@@ -143,10 +150,10 @@ class Listener
     public $meta;
     public $called = false;
 
-    public function loadClassMetadata(\Doctrine\ODM\PHPCR\Event\LoadClassMetadataEventArgs $args)
+    public function loadClassMetadata(LoadClassMetadataEventArgs $args)
     {
         $this->called = true;
-        $this->dm = $args->getDocumentManager();
+        $this->dm = $args->getObjectManager();
         $this->meta = $args->getClassMetadata();
     }
 }

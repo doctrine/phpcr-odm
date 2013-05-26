@@ -21,23 +21,30 @@ namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs as BaseLifecycleEventArgs;
 
+/**
+ * @deprecated Will be dropped in favor of Doctrine\Common\Persistence\Event\LifecycleEventArgs
+ */
 class LifecycleEventArgs extends BaseLifecycleEventArgs
 {
     /**
      * @deprecated  Will be dropped in favor of getObject in 1.0
+     *
      * @return      object
      */
     public function getDocument()
     {
-        return $this->getEntity();
+        trigger_error('The getDocument method is deprecated, use getObject instead', E_USER_DEPRECATED);
+        return $this->getObject();
     }
 
     /**
      * @deprecated  Will be dropped in favor of getObjectManager in 1.0
+     *
      * @return      \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
+        trigger_error('The getDocumentManager method is deprecated, use getObjectManager instead', E_USER_DEPRECATED);
         return $this->getObjectManager();
     }
 }

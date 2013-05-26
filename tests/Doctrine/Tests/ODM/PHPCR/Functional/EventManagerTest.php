@@ -2,12 +2,13 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\EventArgs;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Common\Persistence\Event\ManagerEventArgs;
+use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\Models\CMS\CmsItem;
-use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 
 class EventManagerTest extends PHPCRFunctionalTestCase
 {
@@ -129,9 +130,9 @@ class TestPersistenceListener
     public $pagePreMove = false;
     public $pagePostMove = false;
 
-    public function prePersist(EventArgs $e)
+    public function prePersist(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if ($document instanceof CmsPage){
             $this->pagePrePersist = true;
         } elseif ($document instanceof CmsItem){
@@ -139,9 +140,9 @@ class TestPersistenceListener
         }
     }
 
-    public function postPersist(EventArgs $e)
+    public function postPersist(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if ($document instanceof CmsPage){
             $this->pagePostPersist = true;
         } elseif ($document instanceof CmsItem){
@@ -149,13 +150,13 @@ class TestPersistenceListener
         }
     }
 
-    public function preUpdate(EventArgs $e)
+    public function preUpdate(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if (! $document instanceof CmsPage ){
             return;
         }
-        $dm = $e->getDocumentManager();
+        $dm = $e->getObjectManager();
 
         foreach ($document->getItems() as $item) {
             $dm->persist($item);
@@ -163,14 +164,14 @@ class TestPersistenceListener
         $this->preUpdate = true;
     }
 
-    public function postUpdate(EventArgs $e)
+    public function postUpdate(LifecycleEventArgs $e)
     {
         $this->postUpdate = true;
     }
 
-    public function preRemove(EventArgs $e)
+    public function preRemove(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if ($document instanceof CmsPage){
             $this->pagePreRemove = true;
         } elseif ($document instanceof CmsItem){
@@ -178,9 +179,9 @@ class TestPersistenceListener
         }
     }
 
-    public function postRemove(EventArgs $e)
+    public function postRemove(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if ($document instanceof CmsPage){
             $this->pagePostRemove = true;
         } elseif ($document instanceof CmsItem){
@@ -188,9 +189,9 @@ class TestPersistenceListener
         }
     }
 
-    public function preMove(EventArgs $e)
+    public function preMove(MoveEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if ($document instanceof CmsPage){
             $this->pagePreMove = true;
         } elseif ($document instanceof CmsItem){
@@ -198,9 +199,9 @@ class TestPersistenceListener
         }
     }
 
-    public function postMove(EventArgs $e)
+    public function postMove(LifecycleEventArgs $e)
     {
-        $document = $e->getDocument();
+        $document = $e->getObject();
         if ($document instanceof CmsPage){
             $this->pagePostMove = true;
         } elseif ($document instanceof CmsItem){
@@ -208,7 +209,7 @@ class TestPersistenceListener
         }
     }
 
-    public function onFlush(EventArgs $e)
+    public function onFlush(ManagerEventArgs $e)
     {
         $this->onFlush = true;
     }

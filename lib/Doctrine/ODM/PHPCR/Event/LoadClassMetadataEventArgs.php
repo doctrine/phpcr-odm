@@ -20,17 +20,20 @@
 namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs as BaseLoadClassMetadataEventArgs;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\DocumentManager;
 
+/**
+ * @deprecated Will be dropped in favor of Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs
+ */
 class LoadClassMetadataEventArgs extends BaseLoadClassMetadataEventArgs
 {
     /**
      * @deprecated  Will be dropped in favor of getObjectManager in 1.0
+     *
      * @return      \Doctrine\ODM\PHPCR\DocumentManager
      */
     public function getDocumentManager()
     {
+        trigger_error('The getDocumentManager method is deprecated, use getObjectManager instead', E_USER_DEPRECATED);
         return $this->getObjectManager();
     }
 }

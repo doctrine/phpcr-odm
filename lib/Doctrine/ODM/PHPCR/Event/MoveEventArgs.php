@@ -20,7 +20,7 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ODM\PHPCR\DocumentManager;
 
 class MoveEventArgs extends LifecycleEventArgs
 {
@@ -37,38 +37,21 @@ class MoveEventArgs extends LifecycleEventArgs
     /**
      * Constructor
      *
-     * @param object                              $document   The object
-     * @param \Doctrine\ODM\PHPCR\DocumentManager $dm         The document manager
-     * @param string                              $sourcePath The source path
-     * @param string                              $targetPath The target path
+     * @param object          $document
+     * @param DocumentManager $dm
+     * @param string          $sourcePath Path the document is moved from
+     * @param string          $targetPath Path the document is moved to, including target name
      */
-    public function __construct($document, ObjectManager $om, $sourcePath, $targetPath)
+    public function __construct($document, DocumentManager $dm, $sourcePath, $targetPath)
     {
-        parent::__construct($document, $om);
+        parent::__construct($document, $dm);
         $this->sourcePath = $sourcePath;
         $this->targetPath = $targetPath;
     }
 
     /**
-     * @deprecated  Will be dropped in favor of getObject in 1.0
-     * @return      object
-     */
-    public function getDocument()
-    {
-        return $this->getEntity();
-    }
-
-    /**
-     * @deprecated  Will be dropped in favor of getObjectManager in 1.0
-     * @return      \Doctrine\ODM\PHPCR\DocumentManager
-     */
-    public function getDocumentManager()
-    {
-        return $this->getObjectManager();
-    }
-
-    /**
-     * Get the source path
+     * Get the path this document is being moved away from, including the
+     * document name.
      *
      * @return string
      */
@@ -78,7 +61,8 @@ class MoveEventArgs extends LifecycleEventArgs
     }
 
     /**
-     * Get the target path
+     * Get the path this document is being moved to, including the new document
+     * name.
      *
      * @return string
      */
