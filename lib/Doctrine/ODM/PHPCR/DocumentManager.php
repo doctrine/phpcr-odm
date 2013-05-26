@@ -885,18 +885,7 @@ class DocumentManager implements ObjectManager
      */
     public function getReference($documentName, $id)
     {
-        $class = $this->metadataFactory->getMetadataFor($documentName);
-
-        // Check identity map first, if its already in there just return it.
-        $document = $this->unitOfWork->getDocumentById($id);
-        if ($document) {
-            return $document;
-        }
-
-        $document = $this->proxyFactory->getProxy($class->name, $id);
-        $this->unitOfWork->registerDocument($document, $id);
-
-        return $document;
+        return $this->unitOfWork->getOrCreateProxy($id, $documentName);
     }
 
     /**
