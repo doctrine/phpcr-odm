@@ -38,7 +38,7 @@ use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
 use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
-use Doctrine\ODM\PHPCR\Proxy\Proxy;
+use Doctrine\Common\Proxy\Proxy;
 
 use Jackalope\Session as JackalopeSession;
 
@@ -509,7 +509,8 @@ class UnitOfWork
             return $document;
         }
 
-        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, $targetId);
+        $metadata      = $this->dm->getClassMetadata($className);
+        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, array($metadata->identifier => $targetId));
 
         // register the document under its own id
         $this->registerDocument($proxyDocument, $targetId);
@@ -529,7 +530,8 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $node = $this->session->getNode($document->__getIdentifier());
+        $metadata = $this->dm->getClassMetadata($className);
+        $node     = $this->session->getNode($metadata->getIdentifierValue($document));
 
         $hints = array('refresh' => true, 'fallback' => true);
 
