@@ -1135,7 +1135,6 @@ class ClassMetadata implements ClassMetadataInterface
             throw new InvalidArgumentException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
         }
 
-        // TODO this may be not set. what happens if we would return null then?
         return $this->mappings[$fieldName]['targetDocument'];
     }
 
