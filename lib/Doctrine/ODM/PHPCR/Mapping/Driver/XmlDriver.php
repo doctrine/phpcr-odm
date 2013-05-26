@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\Common\Util\Debug;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use SimpleXmlElement;
@@ -107,6 +108,9 @@ class XmlDriver extends FileDriver
                     if (in_array($key, array('id', 'multivalue', 'assoc', 'translated', 'nullable'))) {
                         $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
                     }
+                }
+                if (!isset($mapping['name'])) {
+                    throw new MappingException(sprintf('Missing name attribute for field of %s', $className));
                 }
                 $mapping['fieldName'] = $mapping['name'];
                 unset($mapping['name']);
@@ -235,7 +239,7 @@ class XmlDriver extends FileDriver
         $attributes = (array) $reference->attributes();
         $mapping = $attributes["@attributes"];
         $mapping['strategy'] = isset($mapping['strategy']) ? strtolower($mapping['strategy']) : null;
-        $mapping['targetDocument'] = $mapping['target-document'];
+        $mapping['targetDocument'] = isset($mapping['target-document']) ? $mapping['target-document'] : null;
         unset($mapping['target-document']);
 
         if ($type === 'many') {

@@ -176,15 +176,11 @@ class YamlDriver extends FileDriver
         }
         if (isset($element['referenceOne'])) {
             foreach ($element['referenceOne'] as $fieldName => $reference) {
-                $reference['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
-                $reference['name'] = (isset($reference['name'])) ? $reference['name'] : null;
                 $this->addMappingFromReference($class, $fieldName, $reference, 'one');
             }
         }
         if (isset($element['referenceMany'])) {
             foreach ($element['referenceMany'] as $fieldName => $reference) {
-                $reference['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
-                $reference['name'] = (isset($reference['name'])) ? $reference['name'] : null;
                 $this->addMappingFromReference($class, $fieldName, $reference, 'many');
             }
         }
@@ -240,7 +236,15 @@ class YamlDriver extends FileDriver
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
+        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         $mapping = array_merge(array('fieldName' => $fieldName), $reference);
+
+        $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
+        $mapping['name'] = (isset($reference['name'])) ? $reference['name'] : null;
+
+        if (! isset($mapping['targetDocument'])) {
+            $mapping['targetDocument'] = null;
+        }
 
         if ($type === 'many') {
             $class->mapManyToMany($mapping);
