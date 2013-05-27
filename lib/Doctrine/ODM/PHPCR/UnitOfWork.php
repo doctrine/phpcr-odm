@@ -19,37 +19,35 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Id\IdException;
+use Doctrine\Common\Proxy\Proxy;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
-use PHPCR\NodeType\ConstraintViolationException;
-use PHPCR\Util\PathHelper;
-use PHPCR\Util\NodeHelper;
-use PHPCR\PathNotFoundException;
+use Doctrine\ODM\PHPCR\Id\IdException;
+use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+// TODO use Doctrine\Common\Persistence\Event\LifecycleEventArgs instead for the next version
+use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
+// TODO use Doctrine\Common\Persistence\Event\ManagerEventArgs instead for the next version
+use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
-use Doctrine\ODM\PHPCR\Event\OnFlushEventArgs;
-use Doctrine\ODM\PHPCR\Event\PreFlushEventArgs;
-use Doctrine\ODM\PHPCR\Event\PostFlushEventArgs;
-use Doctrine\ODM\PHPCR\Event\OnClearEventArgs;
-use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
-use Doctrine\Common\Proxy\Proxy;
-
-use Jackalope\Session as JackalopeSession;
 
 use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
-use PHPCR\NodeType\NoSuchNodeTypeException;
-use PHPCR\ItemNotFoundException;
-use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\RepositoryException;
+use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\PathNotFoundException;
+use PHPCR\ItemNotFoundException;
+use PHPCR\NodeType\NoSuchNodeTypeException;
+use PHPCR\Util\PathHelper;
+use PHPCR\Util\NodeHelper;
 use PHPCR\Util\UUIDHelper;
+
+use Jackalope\Session as JackalopeSession;
 
 /**
  * Unit of work class
@@ -463,7 +461,7 @@ class UnitOfWork
             $class->invokeLifecycleCallbacks(Event::postLoad, $document);
         }
         if ($this->evm->hasListeners(Event::postLoad)) {
-            $this->evm->dispatchEvent(Event::postLoad, new Event\LifecycleEventArgs($document, $this->dm));
+            $this->evm->dispatchEvent(Event::postLoad, new LifecycleEventArgs($document, $this->dm));
         }
 
         return $document;
@@ -1724,7 +1722,7 @@ class UnitOfWork
     {
         // Raise preFlush
         if ($this->evm->hasListeners(Event::preFlush)) {
-            $this->evm->dispatchEvent(Event::preFlush, new PreFlushEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::preFlush, new ManagerEventArgs($this->dm));
         }
 
         if ($document === null) {
@@ -1738,7 +1736,7 @@ class UnitOfWork
         }
 
         if ($this->evm->hasListeners(Event::onFlush)) {
-            $this->evm->dispatchEvent(Event::onFlush, new OnFlushEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::onFlush, new ManagerEventArgs($this->dm));
         }
 
         try {
@@ -1787,7 +1785,7 @@ class UnitOfWork
 
         // Raise postFlush
         if ($this->evm->hasListeners(Event::postFlush)) {
-            $this->evm->dispatchEvent(Event::postFlush, new PostFlushEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::postFlush, new ManagerEventArgs($this->dm));
         }
 
         if (null === $document) {
@@ -2612,7 +2610,7 @@ class UnitOfWork
         $this->documentVersion = array();
 
         if ($this->evm->hasListeners(Event::onClear)) {
-            $this->evm->dispatchEvent(Event::onClear, new OnClearEventArgs($this->dm));
+            $this->evm->dispatchEvent(Event::onClear, new ManagerEventArgs($this->dm));
         }
 
         $this->session->refresh(false);

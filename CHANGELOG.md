@@ -1,6 +1,20 @@
 Changelog
 =========
 
+2013-05-27
+----------
+
+ * #288: Event refactoring to use doctrine commons 2.4 events where possible
+   Use the doctrine common event argument classes where possible instead of
+   custom classes. The classes `Doctrine\ODM\PHPCR\Event\LifecycleEventArgs`
+   and `Doctrine\ODM\PHPCR\Event\ManagerEventArgs` and
+   `Doctrine\ODM\PHPCR\Event\LoadClassMetadataEventArgs` are deprecated and
+   will be deleted soon. Switch your code to depend on the classes in namespace
+   `Doctrine\Common\Persistence\Event\` instead.
+   The only PHPCR-ODM specific event argument that will remain is MoveEventArgs
+   because it has additional parameters and the move operation is PHPCR-ODM
+   specific.
+
 2013-05-13
 ----------
 
