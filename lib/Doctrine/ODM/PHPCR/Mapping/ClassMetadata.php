@@ -748,11 +748,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (empty($mapping['fieldName'])) {
-            throw new MappingException("Mapping a property requires to specify the fieldName in '{$this->name}'.");
+            throw new MappingException("Mapping a property requires to specify the field name in '{$this->name}'.");
         }
 
         if (!is_string($mapping['fieldName'])) {
-            throw new MappingException("fieldName must be of type string in '{$this->name}'.");
+            throw new MappingException("Field name must be of type string in '{$this->name}'.");
         }
 
         if ($phpcrLabel &&
