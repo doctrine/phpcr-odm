@@ -41,13 +41,14 @@ Changelog
    createQuery returns you an ODM query that can find documents directly.
  * To get documents from a PHPCR query there is DocumentManager->getDocumentsByPhpcrQuery()
 
-* **2013-01-13**: DocumentManager->getQueryBuilder now returns an ODM QueryBuilder and
+* **2013-01-13**: Introduced ODM QueryBuilder and refactored PHPCR QueryBuilder
+ * DocumentManager->getQueryBuilder now returns an ODM QueryBuilder and
    NOT the PHPCR QueryBuilder. The PHPCR QueryBuilder is still available via.
    DocumentManager->getPhpcrQueryBuilder().
-* **2013-01-13**: The results of ->execute() on the new ODM query are Documents by default.
+ * The results of ->execute() on the new ODM query are Documents by default.
    It is possible to obtain the PHPCR nodes by using ->getPhpcrNodeResult() or
    ->execute(Query::HYDRATE_PHPCR);
-* **2013-01-13**: CreateQuery($statement, $language) has NOT been implemented in the new query builder.
+ * CreateQuery($statement, $language) has NOT been implemented in the new query builder.
    It is, however, still available in the DocumentManager.
-* **2013-01-13**: DocumetManager->getDocumentsByQuery renamed to getDocumentsByPhpcrQuery()
+ * DocumetManager->getDocumentsByQuery renamed to getDocumentsByPhpcrQuery()
 
