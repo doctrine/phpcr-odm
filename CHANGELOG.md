@@ -50,5 +50,5 @@ Changelog
    ->execute(Query::HYDRATE_PHPCR);
  * CreateQuery($statement, $language) has NOT been implemented in the new query builder.
    It is, however, still available in the DocumentManager.
- * DocumetManager->getDocumentsByQuery renamed to getDocumentsByPhpcrQuery()
+ * DocumentManager->getDocumentsByQuery renamed to getDocumentsByPhpcrQuery()
 
