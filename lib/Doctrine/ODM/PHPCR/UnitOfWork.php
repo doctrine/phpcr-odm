@@ -2216,12 +2216,10 @@ class UnitOfWork
                 unset($this->identityMap[$id]);
                 $this->identityMap[$newId] = $document;
 
-                if ($child instanceof Proxy && !$child->__isInitialized()) {
-                    $child->__setIdentifier($newId);
-                } else {
-                    $childClass = $this->dm->getClassMetadata(get_class($child));
-                    if ($childClass->identifier) {
-                        $childClass->setIdentifierValue($child, $newId);
+                $childClass = $this->dm->getClassMetadata(get_class($child));
+                if ($childClass->identifier) {
+                    $childClass->setIdentifierValue($child, $newId);
+                    if (! $child instanceof Proxy || $child->__isInitialized()) {
                         $this->originalData[$oid][$childClass->identifier] = $newId;
                     }
                 }

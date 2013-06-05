@@ -118,4 +118,27 @@ class MoveByAssignmentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTest
         $this->assertNull($user1, 'User must not exist');
     }
 
+    public function testMoveByAssignmentWithProxy()
+    {
+        $user = $this->node->getNode('dbu')->addNode('assistant');
+        $user->setProperty('username', 'foo');
+        $user->setProperty('status', 'created');
+        $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
+        $this->dm->getPhpcrSession()->save();
+
+        $this->dm->clear();
+        $user = $this->dm->find($this->type, '/functional/dbu');
+        $this->assertNotNull($user, 'User must exist');
+
+        $team = $this->dm->find($this->type, '/functional/team');
+        $this->assertNotNull($team, 'Team must exist');
+
+        $user->parent = $team;
+
+        $this->assertFalse($user->child->__isInitialized());
+
+        $this->dm->flush();
+
+        $this->assertFalse($user->child->__isInitialized());
+    }
 }
