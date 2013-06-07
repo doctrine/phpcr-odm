@@ -2214,7 +2214,7 @@ class UnitOfWork
                 }
 
                 unset($this->identityMap[$id]);
-                $this->identityMap[$newId] = $document;
+                $this->identityMap[$newId] = $child;
 
                 $childClass = $this->dm->getClassMetadata(get_class($child));
                 if ($childClass->identifier) {
