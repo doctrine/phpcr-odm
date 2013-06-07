@@ -140,5 +140,7 @@ class MoveByAssignmentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTest
         $this->dm->flush();
 
         $this->assertFalse($user->child->__isInitialized());
+        $this->assertEquals('/functional/team/dbu/assistant', $user->child->getId());
+        $this->assertEquals('foo', $user->child->getUsername());
     }
 }
