@@ -163,6 +163,8 @@ class YamlDriver extends FileDriver
                 }
                 if (!isset($mapping['filter'])) {
                     $mapping['filter'] = null;
+                } elseif (is_string($mapping['filter'])) {
+                    $mapping['filter'] = (array) $mapping['filter'];
                 }
                 if (!isset($mapping['fetchDepth'])) {
                     $mapping['fetchDepth'] = null;

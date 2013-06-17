@@ -294,7 +294,7 @@ final class Child
  */
 final class Children
 {
-    /** @var string */
+    /** @var array */
     public $filter;
     /** @var integer */
     public $fetchDepth;

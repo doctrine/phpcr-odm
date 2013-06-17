@@ -42,7 +42,7 @@ class ChildrenCollection extends PersistentCollection
      *
      * @param DocumentManager $dm                 The DocumentManager the collection will be associated with.
      * @param object          $document           Document instance
-     * @param string          $filter             filter string
+     * @param string|array    $filter             filter string
      * @param null|int        $fetchDepth         optional fetch depth
      * @param string          $locale             the locale to use during the loading of this collection
      */
@@ -55,11 +55,11 @@ class ChildrenCollection extends PersistentCollection
         $this->locale = $locale;
     }
 
-    private function getNode()
+    private function getNode($fetchDepth)
     {
         if (null === $this->node) {
             $path = $this->dm->getUnitOfWork()->getDocumentId($this->document);
-            $this->node = $this->dm->getPhpcrSession()->getNode($path, $this->fetchDepth);
+            $this->node = $this->dm->getPhpcrSession()->getNode($path, $fetchDepth);
         }
 
         return $this->node;
@@ -86,7 +86,8 @@ class ChildrenCollection extends PersistentCollection
     {
         if (!$this->initialized) {
             $this->getOriginalNodeNames();
-            $childNodes = $this->getNode()->getNodes($this->filter, $this->fetchDepth);
+            $fetchDepth = $this->fetchDepth > 0 ? $this->fetchDepth + 1 : null;
+            $childNodes = $this->getNode($fetchDepth)->getNodes($this->filter);
             $this->collection = new ArrayCollection($this->getChildren($childNodes));
             $this->initialized = true;
         }
@@ -165,7 +166,7 @@ class ChildrenCollection extends PersistentCollection
             }
 
             $nodeNames = array_slice($nodeNames, $offset, $length);
-            $parentPath = $this->getNode()->getPath();
+            $parentPath = $this->getNode($this->fetchDepth)->getPath();
             array_walk($nodeNames, function (&$nodeName) use ($parentPath) {
                 $nodeName = "$parentPath/$nodeName";
             });
@@ -193,7 +194,7 @@ class ChildrenCollection extends PersistentCollection
     public function getOriginalNodeNames()
     {
         if (null === $this->originalNodeNames) {
-            $this->originalNodeNames = (array) $this->getNode()->getNodeNames($this->filter);
+            $this->originalNodeNames = (array) $this->getNode($this->fetchDepth)->getNodeNames($this->filter);
         }
 
         return $this->originalNodeNames;

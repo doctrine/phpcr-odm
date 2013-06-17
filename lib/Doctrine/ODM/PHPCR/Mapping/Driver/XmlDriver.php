@@ -160,7 +160,7 @@ class XmlDriver extends FileDriver
                 $mapping = array(
                     'fieldName' => (string) $attributes->name,
                     'cascade' => (isset($children->cascade)) ? $this->getCascadeMode($children->cascade) : 0,
-                    'filter' => isset($attributes['filter']) ? (string) $attributes->filter : null,
+                    'filter' => isset($attributes['filter']) ? (array) $attributes->filter : null,
                     'fetchDepth' => isset($attributes['fetch-depth']) ? (int) $attributes->{'fetch-depth'} : null,
                     'ignoreUntranslated' => !empty($attributes['ignore-untranslated']),
             );
