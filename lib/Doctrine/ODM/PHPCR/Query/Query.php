@@ -116,7 +116,7 @@ class Query
     /**
      * Set the document class to use when using HYDRATION_DOCUMENT
      *
-     * Note: This is usefull in the following two cases:
+     * Note: This is useful in the following two cases:
      *
      *  1. You want to be sure that the ODM returns the correct document type
      *     (A query can return multiple document types, the ODM will ignore
