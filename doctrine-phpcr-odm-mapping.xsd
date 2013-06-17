@@ -14,24 +14,24 @@
 
     <xs:element name="doctrine-mapping">
         <xs:complexType>
-            <xs:sequence>
+            <xs:choice>
                 <xs:element name="mapped-superclass" type="phpcr:mapped-superclass" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="document" type="phpcr:document" minOccurs="0" maxOccurs="unbounded" />
                 <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-            </xs:sequence>
+            </xs:choice>
             <xs:anyAttribute namespace="##other"/>
         </xs:complexType>
     </xs:element>
 
     <xs:complexType name="emptyType">
-        <xs:sequence>
+        <xs:choice>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
     <xs:complexType name="cascade-type">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="cascade-all" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-persist" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-merge" type="phpcr:emptyType" minOccurs="0"/>
@@ -40,7 +40,7 @@
             <xs:element name="cascade-refresh" type="phpcr:emptyType" minOccurs="0"/>
             <xs:element name="cascade-translation" type="phpcr:emptyType" minOccurs="0"/>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
@@ -49,25 +49,25 @@
     </xs:complexType>
 
     <xs:complexType name="mixins">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="mixin" type="phpcr:mixin" minOccurs="1" maxOccurs="unbounded" />
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="option" mixed="true">
-        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="option" type="phpcr:option"/>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
     <xs:complexType name="options">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="option" type="phpcr:option" minOccurs="0" maxOccurs="unbounded"/>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
@@ -91,36 +91,36 @@
     </xs:simpleType>
 
     <xs:complexType name="lifecycle-callback">
-        <xs:sequence>
+        <xs:choice>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="type" type="phpcr:lifecycle-callback-type" use="required" />
         <xs:attribute name="method" type="xs:NMTOKEN" use="required" />
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
     <xs:complexType name="lifecycle-callbacks">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="lifecycle-callback" type="phpcr:lifecycle-callback" minOccurs="1" maxOccurs="unbounded" />
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
     <!--
     TODO:  http://www.doctrine-project.org/jira/browse/PHPCR-108
     <xs:complexType name="document-listener">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="lifecycle-callback" type="phpcr:lifecycle-callback" minOccurs="0" maxOccurs="unbounded"/>
             <xs:any minOccurs="1" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="class" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="document-listeners">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="document-listener" type="phpcr:document-listener" minOccurs="1" maxOccurs="unbounded" />
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     -->
 
@@ -133,7 +133,7 @@
     </xs:simpleType>
 
     <xs:complexType name="document">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="mixins" type="phpcr:mixins" minOccurs="0" />
             <xs:element name="options" type="phpcr:options" minOccurs="0" />
             <xs:element name="lifecycle-callbacks" type="phpcr:lifecycle-callbacks" minOccurs="0" maxOccurs="1" />
@@ -156,7 +156,7 @@
             <xs:element name="referrers" type="phpcr:referrers" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="mixed-referrers" type="phpcr:mixed-referrers" minOccurs="0" maxOccurs="unbounded" />
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required" />
         <xs:attribute name="translator" type="xs:NMTOKEN"/>
         <xs:attribute name="versionable" type="phpcr:versionable-type" />
@@ -169,9 +169,9 @@
     <xs:complexType name="mapped-superclass" >
         <xs:complexContent>
             <xs:extension base="phpcr:document">
-                <xs:sequence>
+                <xs:choice>
                     <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-                </xs:sequence>
+                </xs:choice>
                 <xs:anyAttribute namespace="##other"/>
             </xs:extension>
         </xs:complexContent>
@@ -195,22 +195,22 @@
     </xs:simpleType>
 
     <xs:complexType name="generator">
-        <xs:sequence>
+        <xs:choice>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="strategy" type="phpcr:generator-strategy" use="optional" default="AUTO" />
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
     <xs:complexType name="id">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="generator" type="phpcr:generator" minOccurs="0" />
             <!--
                 TODO: http://www.doctrine-project.org/jira/browse/PHPCR-73
             <xs:element name="custom-id-generator" type="phpcr:custom-id-generator" minOccurs="0" maxOccurs="1" />
              -->
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
@@ -218,18 +218,18 @@
     <!--
         TODO: http://www.doctrine-project.org/jira/browse/PHPCR-73
     <xs:complexType name="custom-id-generator">
-        <xs:sequence>
+        <xs:choice>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="class" type="xs:NMTOKEN" use="required" />
     </xs:complexType>
     -->
 
     <xs:complexType name="field">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="options" type="phpcr:options" minOccurs="0" />
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
         <xs:attribute name="type" type="xs:NMTOKEN" default="string" />
         <xs:attribute name="property" type="xs:NMTOKEN" />
@@ -261,10 +261,10 @@
     </xs:complexType>
 
     <xs:complexType name="relation-type" abstract="true">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="cascade" type="phpcr:cascade-type" minOccurs="0" />
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
         <!--
             orm has fetch-type here. we do not need this, as relations can not
