@@ -381,7 +381,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->mappings['all']));
         $this->assertFalse(isset($class->mappings['all']['filter']));
         $this->assertTrue(isset($class->mappings['some']));
-        $this->assertEquals('*some*', $class->mappings['some']['filter']);
+        $this->assertEquals(array('*some*'), $class->mappings['some']['filter']);
         $this->assertEquals(2, $class->mappings['some']['fetchDepth']);
         $this->assertEquals(3, $class->mappings['some']['cascade']);
     }
