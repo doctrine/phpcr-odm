@@ -1,6 +1,9 @@
 Changelog
 =========
 
+* **2013-08-16**: [Model] removed Doctrine\ODM\PHPCR\Document\Image and moved
+  it to the CmfMedia bundle
+
 1.0.0-beta4
 -----------
 
