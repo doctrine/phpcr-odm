@@ -14,6 +14,16 @@ use Doctrine\Tests\Models\CMS\CmsItem;
  */
 class QueryBuilderTest extends PHPCRFunctionalTestCase
 {
+    /**
+     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     */
+    protected $dm;
+
+    /**
+     * @var \PHPCR\NodeInterface
+     */
+    protected $node;
+
     public function setUp()
     {
         $this->dm = $this->createDocumentManager();
@@ -75,26 +85,47 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
             )
         );
         $res = $qb->getQuery()->execute();
-        $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE (username = 'dtl' OR username = 'js')", 
-            $qb->__toString()
-        );
+        switch ($qb->getQuery()->getLanguage()) {
+            case 'JCR-SQL2':
+                $query = "SELECT * FROM [nt:unstructured] WHERE (username = 'dtl' OR username = 'js')";
+                break;
+            case 'sql':
+                $query = "SELECT s FROM nt:unstructured WHERE (username = 'dtl' OR username = 'js')";
+                break;
+            default:
+                $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
+        }
+        $this->assertEquals($query, $qb->__toString());
         $this->assertCount(2, $res);
 
         $qb->andWhere($qb->expr()->eq('name', 'foobar'));
-        $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE ((username = 'dtl' OR username = 'js') AND name = 'foobar')", 
-            $qb->__toString()
-        );
+        switch ($qb->getQuery()->getLanguage()) {
+            case 'JCR-SQL2':
+                $query = "SELECT * FROM [nt:unstructured] WHERE ((username = 'dtl' OR username = 'js') AND name = 'foobar')";
+                break;
+            case 'sql':
+                $query = "SELECT s FROM nt:unstructured WHERE ((username = 'dtl' OR username = 'js') AND name = 'foobar')";
+                break;
+            default:
+                $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
+        }
+        $this->assertEquals($query, $qb->__toString());
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
         $qb->orWhere($qb->expr()->eq('name', 'johnsmith'));
         $res = $qb->getQuery()->execute();
-        $this->assertEquals(
-            "SELECT s FROM nt:unstructured WHERE (((username = 'dtl' OR username = 'js') AND name = 'foobar') OR name = 'johnsmith')", 
-            $qb->__toString()
-        );
+        switch ($qb->getQuery()->getLanguage()) {
+            case 'JCR-SQL2':
+                $query = "SELECT * FROM [nt:unstructured] WHERE (((username = 'dtl' OR username = 'js') AND name = 'foobar') OR name = 'johnsmith')";
+                break;
+            case 'sql':
+                $query = "SELECT s FROM nt:unstructured WHERE (((username = 'dtl' OR username = 'js') AND name = 'foobar') OR name = 'johnsmith')";
+                break;
+            default:
+                $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
+        }
+        $this->assertEquals($query, $qb->__toString());
         $this->assertCount(2, $res);
     }
 
@@ -125,26 +156,48 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $this->assertEquals(1, $rows->count());
         $values = $rows->current()->getValues();
-        $this->assertEquals(array('s.username' => 'dtl'), $values);
+        switch ($qb->getQuery()->getLanguage()) {
+            case 'JCR-SQL2':
+                $this->assertEquals(array('nt:unstructured.username' => 'dtl', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+                break;
+            case 'sql':
+                $this->assertEquals(array('s.username' => 'dtl'), $values);
+                break;
+            default:
+                $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
+        }
 
         // select two properties
         $qb->addSelect('name');
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
 
-        $this->assertEquals(array(
-            's.username' => 'dtl',
-            's.name' => 'daniel'
-        ), $values);
+        switch ($qb->getQuery()->getLanguage()) {
+            case 'JCR-SQL2':
+                $this->assertEquals(array('nt:unstructured.username' => 'dtl', 'nt:unstructured.name' => 'daniel', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+                break;
+            case 'sql':
+                $this->assertEquals(array('s.username' => 'dtl', 's.name' => 'daniel' ), $values);
+                break;
+            default:
+                $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
+        }
 
         // select overwrite
         $qb->select('status');
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
 
-        $this->assertEquals(array(
-            's.status' => 'query_builder',
-        ), $values);
+        switch ($qb->getQuery()->getLanguage()) {
+            case 'JCR-SQL2':
+                $this->assertEquals(array('nt:unstructured.status' => 'query_builder', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+                break;
+            case 'sql':
+                $this->assertEquals(array('s.status' => 'query_builder'), $values);
+                break;
+            default:
+                $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
+        }
     }
 
     public function testFrom()
@@ -158,7 +211,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $res);
     }
 
-    public function testFrom_all()
+    public function testFromAll()
     {
         $qb = $this->createQb();
 

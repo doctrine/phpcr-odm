@@ -67,7 +67,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
 
-        $this->assertEquals($created, $this->node->getNode('protected')->getProperty('jcr:created')->getDate());
+        $this->assertEquals($created->getTimestamp(), $this->node->getNode('protected')->getProperty('jcr:created')->getDate()->getTimestamp());
         $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
 
