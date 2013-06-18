@@ -41,8 +41,8 @@ class ChildrenCollection extends PersistentCollection
      * Creates a new persistent collection.
      *
      * @param DocumentManager $dm                 The DocumentManager the collection will be associated with.
-     * @param object          $document           Document instance
-     * @param string|array    $filter             filter string
+     * @param object          $document           The parent document instance
+     * @param string|array    $filter             filter string or array of filter string
      * @param null|int        $fetchDepth         optional fetch depth
      * @param string          $locale             the locale to use during the loading of this collection
      */
