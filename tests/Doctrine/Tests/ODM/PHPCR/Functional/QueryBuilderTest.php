@@ -232,9 +232,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function getTextSearches()
     {
         return array(
-            array('name', 'johnsmith', 2), 
-            array(null, 'johnsmith', 2),
-            array('username', 'dtl', 1), 
+            array('name', 'johnsmith', 2),
+            array('username', 'dtl', 1),
         );
     }
 
