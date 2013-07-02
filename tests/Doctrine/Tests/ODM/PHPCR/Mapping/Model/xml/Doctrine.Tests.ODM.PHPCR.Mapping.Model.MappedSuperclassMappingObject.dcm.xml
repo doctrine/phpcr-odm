@@ -3,7 +3,18 @@
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
                   https://github.com/doctrine/phpcr-odm/raw/master/doctrine-phpcr-odm-mapping.xsd">
-    <mapped-superclass name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject">
+    <mapped-superclass
+        name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject"
+        translator="children"
+        versionable="SIMPLE"
+        node-type="phpcr:test"
+        repository-class="Fqn\Class"
+        referenceable="true"
+    >
+        <mixins>
+            <mixin type="mix:one" />
+            <mixin type="mix:two" />
+        </mixins>
         <id name="id" />
     </mapped-superclass>
 </doctrine-mapping>

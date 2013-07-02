@@ -126,6 +126,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents)
     {
         if ($parent) {
+            $this->addInheritedDocumentOptions($class, $parent);
             $this->addInheritedFields($class, $parent);
         }
 
@@ -140,6 +141,22 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
         $this->validateRuntimeMetadata($class, $parent);
         $class->setParentClasses($this->getParentClasses($class->name));
+    }
+
+    /**
+     * Set the document level options of the parent class to the subclass.
+     *
+     * @param ClassMetadata $subClass
+     * @param ClassMetadata $parentClass
+     */
+    private function addInheritedDocumentOptions(ClassMetadata $subClass, ClassMetadata $parentClass)
+    {
+        $subClass->setCustomRepositoryClassName($parentClass->customRepositoryClassName);
+        $subClass->setTranslator($parentClass->translator);
+        $subClass->setVersioned($parentClass->versionable);
+        $subClass->setReferenceable($parentClass->referenceable);
+        $subClass->setNodeType($parentClass->getNodeType());
+        $subClass->setMixins($parentClass->getMixins());
     }
 
     /**

@@ -78,14 +78,12 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->markTestIncomplete('Test cache driver setting and handling.');
     }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
     public function testLoadMetadataReferenceableChildOverriddenAsFalse()
     {
-        // if the child class overrides referenceable as false it is not taken into account
-        // as we only ever set the referenceable property to TRUE. This prevents us from
-        // knowing if the user has explicitly set referenceable to FALSE on a child entity.
         $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableChildReferenceableFalseMappingObject');
-
-        $this->assertTrue($meta->referenceable);
     }
 
     public function testLoadMetadataDefaults()

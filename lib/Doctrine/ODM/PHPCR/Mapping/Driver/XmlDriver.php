@@ -64,37 +64,37 @@ class XmlDriver extends FileDriver
             return;
         }
 
-        if ($xmlRoot->getName() == 'document') {
-            if (isset($xmlRoot['repository-class'])) {
-                $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
-            }
+        if (isset($xmlRoot['repository-class'])) {
+            $class->setCustomRepositoryClassName((string) $xmlRoot['repository-class']);
+        }
 
-            if (isset($xmlRoot['translator'])) {
-                $class->setTranslator((string) $xmlRoot['translator']);
-            }
+        if (isset($xmlRoot['translator'])) {
+            $class->setTranslator((string) $xmlRoot['translator']);
+        }
 
-            if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
-                $class->setVersioned(strtolower($xmlRoot['versionable']));
-            }
+        if (isset($xmlRoot['versionable']) && $xmlRoot['versionable'] !== 'false') {
+            $class->setVersioned(strtolower($xmlRoot['versionable']));
+        }
 
-            if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
-                $class->setReferenceable((bool) $xmlRoot['referenceable']);
-            }
+        if (isset($xmlRoot['referenceable']) && $xmlRoot['referenceable'] !== 'false') {
+            $class->setReferenceable((bool) $xmlRoot['referenceable']);
+        }
 
-            if (isset($xmlRoot->mixins)) {
-                $mixins = array();
-                foreach ($xmlRoot->mixins->mixin as $mixin) {
-                    $attributes = $mixin->attributes();
-                    if (! isset($attributes['type'])) {
-                        throw new MappingException('<mixin> missing mandatory type attribute');
-                    }
-                    $mixins[] = (string) $attributes['type'];
+        if (isset($xmlRoot->mixins)) {
+            $mixins = array();
+            foreach ($xmlRoot->mixins->mixin as $mixin) {
+                $attributes = $mixin->attributes();
+                if (! isset($attributes['type'])) {
+                    throw new MappingException('<mixin> missing mandatory type attribute');
                 }
-                $class->setMixins($mixins);
+                $mixins[] = (string) $attributes['type'];
             }
+            $class->setMixins($mixins);
+        }
 
-            $class->setNodeType(isset($xmlRoot['node-type']) ? (string) $xmlRoot['node-type'] : 'nt:unstructured');
-        } elseif ($xmlRoot->getName() === 'mapped-superclass') {
+        $class->setNodeType(isset($xmlRoot['node-type']) ? (string) $xmlRoot['node-type'] : 'nt:unstructured');
+
+        if ($xmlRoot->getName() === 'mapped-superclass') {
             $class->isMappedSuperclass = true;
         }
 
