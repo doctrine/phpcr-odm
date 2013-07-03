@@ -64,33 +64,33 @@ class YamlDriver extends FileDriver
         }
         $element['type'] = isset($element['type']) ? $element['type'] : 'document';
 
-        if ($element['type'] == 'document') {
-            if (isset($element['repositoryClass'])) {
-                $class->setCustomRepositoryClassName($element['repositoryClass']);
-            }
+        if (isset($element['repositoryClass'])) {
+            $class->setCustomRepositoryClassName($element['repositoryClass']);
+        }
 
-            if (isset($element['translator'])) {
-                $class->setTranslator($element['translator']);
-            }
+        if (isset($element['translator'])) {
+            $class->setTranslator($element['translator']);
+        }
 
-            if (isset($element['versionable']) && $element['versionable']) {
-                $class->setVersioned($element['versionable']);
-            }
+        if (isset($element['versionable']) && $element['versionable']) {
+            $class->setVersioned($element['versionable']);
+        }
 
-            if (isset($element['referenceable']) && $element['referenceable']) {
-                $class->setReferenceable($element['referenceable']);
-            }
+        if (isset($element['referenceable']) && $element['referenceable']) {
+            $class->setReferenceable($element['referenceable']);
+        }
 
-            if (isset($element['mixins'])) {
-                $mixins = array();
-                foreach ($element['mixins'] as $mixin) {
-                    $mixins[] = $mixin;
-                }
-                $class->setMixins($mixins);
+        if (isset($element['mixins'])) {
+            $mixins = array();
+            foreach ($element['mixins'] as $mixin) {
+                $mixins[] = $mixin;
             }
+            $class->setMixins($mixins);
+        }
 
-            $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
-        } elseif ($element['type'] === 'mappedSuperclass') {
+        $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
+
+        if ($element['type'] === 'mappedSuperclass') {
             $class->isMappedSuperclass = true;
         }
 

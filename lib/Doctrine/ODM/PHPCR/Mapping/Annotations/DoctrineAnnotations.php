@@ -25,33 +25,27 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("CLASS")
  */
-final class Document
+class Document
 {
     /** @var string */
     public $nodeType;
-    /** @var array */
-    public $mixins;
     /** @var string */
     public $repositoryClass;
     /** @var string */
+    public $translator;
+    /** @var array */
+    public $mixins;
+    /** @var string */
     public $versionable;
     /** @var boolean */
-    public $referenceable = false;
-    /** @var string */
-    public $translator;
+    public $referenceable;
 }
 /**
  * @Annotation
  * @Target("CLASS")
  */
-final class MappedSuperclass
+final class MappedSuperclass extends Document
 {
-    /** @var string */
-    public $nodeType = 'nt:unstructured';
-    /** @var string */
-    public $repositoryClass;
-    /** @var string */
-    public $translator;
 }
 /**
  * @Annotation

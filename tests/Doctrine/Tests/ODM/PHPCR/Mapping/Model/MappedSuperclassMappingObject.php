@@ -6,8 +6,8 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * A class that uses the repository strategy to generate IDs
- * 
- * @PHPCRODM\MappedSuperclass
+ *
+ * @PHPCRODM\MappedSuperclass(nodeType="phpcr:test", repositoryClass="Fqn\Class", translator="children", mixins={"mix:one", "mix:two"}, versionable="simple", referenceable=true)
  */
 class MappedSuperclassMappingObject
 {
