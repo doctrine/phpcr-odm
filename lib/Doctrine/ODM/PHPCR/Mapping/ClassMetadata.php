@@ -132,7 +132,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var string
      */
-    public $nodeType;
+    public $nodeType = 'nt:unstructured';
 
     /**
      * READ-ONLY: The JCR Mixins to be used for this node
@@ -498,11 +498,11 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param string $versionable A valid versionable annotation.
+     * @param string|boolean $versionable A valid versionable annotation or false to disable versioning.
      */
     public function setVersioned($versionable)
     {
-        if (!in_array($versionable, self::$validVersionableAnnotations)) {
+        if ($versionable && !in_array($versionable, self::$validVersionableAnnotations)) {
             throw new \InvalidArgumentException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
         }
         $this->versionable = $versionable;
@@ -513,6 +513,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setReferenceable($referenceable)
     {
+        if ($this->referenceable && ! $referenceable) {
+            throw new MappingException('Can not overwrite referenceable attribute to false in child class');
+        }
         $this->referenceable = $referenceable;
     }
 
