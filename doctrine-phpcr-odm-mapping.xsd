@@ -168,12 +168,7 @@
 
     <xs:complexType name="mapped-superclass" >
         <xs:complexContent>
-            <xs:extension base="phpcr:document">
-                <xs:choice>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
-                </xs:choice>
-                <xs:anyAttribute namespace="##other"/>
-            </xs:extension>
+            <xs:extension base="document"/>
         </xs:complexContent>
     </xs:complexType>
 
