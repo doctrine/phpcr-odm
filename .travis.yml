@@ -3,6 +3,7 @@ language: php
 php:
   - 5.3
   - 5.4
+  - 5.5
 
 env:
   - TRANSPORT=jackrabbit
@@ -22,6 +23,5 @@ notifications:
 
 matrix:
   allow_failures:
-    - env: TRANSPORT=doctrine_dbal
 #    - env: TRANSPORT=midgard_sqlite
 #    - env: TRANSPORT=midgard_mysql
