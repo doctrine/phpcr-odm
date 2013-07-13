@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\Util\PathHelper;
 
 /**
  * @group functional
@@ -294,7 +295,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->removeVersion($version);
 
         // Check it's not in the history anymore
-        $this->assertFalse($this->dm->getPhpcrSession()->nodeExists(dirname($removedVersionPath)));
+        $this->assertFalse($this->dm->getPhpcrSession()->nodeExists(PathHelper::getParentPath($removedVersionPath)));
 
         return $lastVersionName;
     }

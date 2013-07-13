@@ -684,7 +684,7 @@ class UnitOfWork
                     $childClass = $this->dm->getClassMetadata(get_class($child));
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
-                        : basename($childClass->getIdentifierValue($child));
+                        : PathHelper::getNodeName($childClass->getIdentifierValue($child));
                     if (empty($nodename)) {
                         throw IdException::noIdNoName($child, $childClass->nodename);
                     }
@@ -978,10 +978,10 @@ class UnitOfWork
         } else {
             $childId = $childClass->getIdentifierValue($child) ?: $this->getIdGenerator($childClass->idGenerator)->generate($child, $childClass, $this->dm, $parent);
             if ('' !== $childId) {
-                if ($childId !== $id.'/'.basename($childId)) {
+                if ($childId !== $id.'/'.PathHelper::getNodeName($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
                 }
-                $nodename = basename($childId);
+                $nodename = PathHelper::getNodeName($childId);
             }
         }
 
@@ -1851,9 +1851,9 @@ class UnitOfWork
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
             $class = $this->dm->getClassMetadata(get_class($document));
-            $parentNode = $this->session->getNode(dirname($id) === '\\' ? '/' : dirname($id));
+            $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
 
-            $node = $parentNode->addNode(basename($id), $class->nodeType);
+            $node = $parentNode->addNode(PathHelper::getNodeName($id), $class->nodeType);
 
             try {
                 $node->addMixin('phpcr:managed');
