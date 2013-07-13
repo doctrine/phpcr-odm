@@ -42,7 +42,11 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
     public function tearDown()
     {
-        $this->removeTestNode();
+        try {
+            $this->removeTestNode();
+        } catch(\Exception $ignore) {
+            // do nothing
+        }
     }
 
     public function testSaveTranslation()
@@ -215,6 +219,9 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
     protected function removeTestNode()
     {
+        if (!$this->session) {
+            return;
+        }
         $root = $this->session->getRootNode();
         if ($root->hasNode($this->testNodeName)) {
             $root->getNode($this->testNodeName)->remove();

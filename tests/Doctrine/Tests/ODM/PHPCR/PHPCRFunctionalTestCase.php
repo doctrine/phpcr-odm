@@ -4,9 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use PHPCR\RepositoryFactoryInterface;
+use PHPCR\SessionInterface;
 
 abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var SessionInterface[]
+     */
     private $sessions = array();
 
     public function createDocumentManager(array $paths = null)
@@ -36,10 +41,11 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
             $GLOBALS['jackalope.doctrine_dbal_connection'] = \Doctrine\DBAL\DriverManager::getConnection($params);
         }
 
+        /** @var $factory RepositoryFactoryInterface */
         $factory = new $factoryclass();
         $parameters = array_intersect_key($GLOBALS, $factory->getConfigurationKeys());
-        // factory will return null if it gets unknown parameters
 
+        // factory returns null if it gets unknown parameters
         $repository = $factory->getRepository($parameters);
         $this->assertNotNull($repository, 'There is an issue with your parameters: '.var_export(array_keys($parameters), true));
 
@@ -61,7 +67,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         return DocumentManager::create($session, $config);
     }
 
-    public function resetFunctionalNode($dm)
+    public function resetFunctionalNode(DocumentManager $dm)
     {
         $session = $dm->getPhpcrSession();
         $root = $session->getNode('/');
