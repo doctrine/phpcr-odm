@@ -33,14 +33,26 @@ class ReferrersCollection extends PersistentCollection
     private $document;
     private $type;
     private $name;
+    private $refClass;
 
-    public function __construct(DocumentManager $dm, $document, $type = null, $name = null, $locale = null)
+    /**
+     * @param DocumentManager $dm
+     * @param object          $document The document to get referrers of.
+     * @param string|null     $type     'weak', 'hard' or null to get both weak
+     *                                  and hard references.
+     * @param string|null     $name     If set, name of the referencing property.
+     * @param string|null     $locale   The locale to use.
+     * @param string|null     $refClass Class the referrer document must be
+     *                                  instanceof.
+     */
+    public function __construct(DocumentManager $dm, $document, $type = null, $name = null, $locale = null, $refClass = null)
     {
         $this->dm = $dm;
         $this->document = $document;
         $this->type = $type;
         $this->name = $name;
         $this->locale = $locale;
+        $this->refClass = $refClass;
     }
 
     /**
@@ -73,12 +85,18 @@ class ReferrersCollection extends PersistentCollection
 
             foreach ($referrerPropertiesW as $referrerProperty) {
                 $referrerNode = $referrerProperty->getParent();
-                $referrerDocuments[] = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+                $document = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+                if (! $this->refClass || $document instanceof $this->refClass) {
+                    $referrerDocuments[] = $document;
+                }
             }
 
             foreach ($referrerPropertiesH as $referrerProperty) {
                 $referrerNode = $referrerProperty->getParent();
-                $referrerDocuments[] = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+                $document = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+                if (! $this->refClass || $document instanceof $this->refClass) {
+                    $referrerDocuments[] = $document;
+                }
             }
 
             $this->collection = new ArrayCollection($referrerDocuments);
