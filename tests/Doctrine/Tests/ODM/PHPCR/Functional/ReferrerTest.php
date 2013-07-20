@@ -568,10 +568,27 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, "/functional/allReferrerRefNamedPropTestObj");
+        $referenced = $this->dm->find(null, "/functional/allReferrerRefNamedPropTestObj");
 
-        $this->assertCount(1, $reference->referrers);
-        $this->assertEquals("referrerNamedPropTestObj", $reference->referrers[0]->name);
+        $this->assertCount(1, $referenced->referrers);
+        $this->assertEquals("referrerNamedPropTestObj", $referenced->referrers[0]->name);
+
+        $otherRef = new OtherReferrerTestObj();
+        $otherRef->id = '/functional/otherObj';
+        $otherRef->namedReference = $referenced;
+
+        $this->dm->persist($otherRef);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referenced = $this->dm->find(null, "/functional/allReferrerRefNamedPropTestObj");
+
+        // the other ref is a different class and should get filtered out
+        $this->assertCount(1, $referenced->referrers);
+        $this->assertEquals("referrerNamedPropTestObj", $referenced->referrers[0]->name);
+
+        $allReferrers = $this->dm->getReferrers($referenced, null, 'namedReference');
+        $this->assertCount(2, $allReferrers);
     }
 
     /**
@@ -710,6 +727,20 @@ class ReferrerTestObj
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
+}
+
+
+/**
+ * @PHPCRODM\Document()
+ */
+class OtherReferrerTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
+    public $namedReference;
 }
 
 /**

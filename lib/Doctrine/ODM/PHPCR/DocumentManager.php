@@ -834,12 +834,16 @@ class DocumentManager implements ObjectManager
      *
      * @param object       $document the target of the references to be loaded
      * @param string|null  $type     the reference type, null|'weak'|'hard'
-     * @param string|null  $name     optional PHPCR property name that holds the reference
-     * @param string       $locale   the locale to use during the loading of this collection
+     * @param string|null  $name     optional PHPCR property name that holds
+     *                               the reference
+     * @param string       $locale   the locale to use during the loading of
+     *                               this collection
+     * @param string|null  $refClass Class the referrer document must be
+                                     instanceof.
      *
      * @return ReferrersCollection collection of referrer documents
      */
-    public function getReferrers($document, $type = null, $name = null, $locale = null)
+    public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null)
     {
         if (!is_object($document)) {
             throw new \InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -847,7 +851,7 @@ class DocumentManager implements ObjectManager
 
         $this->errorIfClosed();
 
-        return new ReferrersCollection($this, $document, $type, $name, $locale);
+        return new ReferrersCollection($this, $document, $type, $name, $locale, $refClass);
     }
 
     /**
