@@ -428,7 +428,8 @@ class UnitOfWork
                 $document,
                 $referringField['strategy'],
                 $mapping['referencedBy'],
-                $locale
+                $locale,
+                $mapping['referringDocument']
             );
         }
         foreach ($class->mixedReferrersMappings as $fieldName) {
