@@ -86,7 +86,6 @@
             <xs:enumeration value="onFlush"/>
             <xs:enumeration value="postFlush"/>
             <xs:enumeration value="onClear"/>
-            <xs:enumeration value="loadClassMetadata"/>
         </xs:restriction>
     </xs:simpleType>
 
