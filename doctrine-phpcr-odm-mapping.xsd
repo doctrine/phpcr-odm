@@ -80,12 +80,8 @@
             <xs:enumeration value="preRemove"/>
             <xs:enumeration value="postRemove"/>
             <xs:enumeration value="postLoad"/>
-            <xs:enumeration value="preFlush"/>
             <xs:enumeration value="preMove"/>
             <xs:enumeration value="postMove"/>
-            <xs:enumeration value="onFlush"/>
-            <xs:enumeration value="postFlush"/>
-            <xs:enumeration value="onClear"/>
         </xs:restriction>
     </xs:simpleType>
 
