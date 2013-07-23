@@ -21,8 +21,6 @@ namespace Doctrine\ODM\PHPCR;
 
 final class Event
 {
-    const onFlush = 'onFlush';
-    const onClear = 'onClear';
     const prePersist = 'prePersist';
     const preRemove = 'preRemove';
     const preUpdate = 'preUpdate';
@@ -32,9 +30,24 @@ final class Event
     const postUpdate = 'postUpdate';
     const postMove = 'postMove';
     const postLoad = 'postLoad';
-    const postFlush = 'postFlush';
+
     const preFlush = 'preFlush';
+    const postFlush = 'postFlush';
+    const onFlush = 'onFlush';
+    const onClear = 'onClear';
     const loadClassMetadata = 'loadClassMetadata';
+
+    public static $lifecycleCallbacks = array(
+        self::prePersist => self::prePersist,
+        self::preRemove => self::preRemove ,
+        self::preUpdate => self::preUpdate,
+        self::preMove => self::preMove,
+        self::postRemove => self::postRemove,
+        self::postPersist => self::postPersist,
+        self::postUpdate => self::postUpdate,
+        self::postMove => self::postMove,
+        self::postLoad => self::postLoad,
+    );
 
     private function __construct()
     {

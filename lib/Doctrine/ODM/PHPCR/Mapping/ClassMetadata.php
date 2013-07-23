@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use Doctrine\ODM\PHPCR\Event;
 use ReflectionProperty;
 use ReflectionClass;
 use PHPCR\PropertyType;
@@ -483,6 +484,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function addLifecycleCallback($callback, $event)
     {
+        if (!isset(Event::$lifecycleCallbacks[$event])) {
+            throw new MappingException("$event is not a valid lifecycle callback event");
+        }
         $this->lifecycleCallbacks[$event][] = $callback;
     }
 
