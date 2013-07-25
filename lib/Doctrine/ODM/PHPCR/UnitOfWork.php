@@ -337,14 +337,14 @@ class UnitOfWork
         $refNodeUUIDs = array();
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
-            if (!$node->hasProperty($fieldName)) {
+            if (!$node->hasProperty($mapping['property'])) {
                 continue;
             }
 
             if ($mapping['type'] & ClassMetadata::MANY_TO_ONE
                 && $mapping['strategy'] !== 'path'
             ) {
-                $refNodeUUIDs[] = $node->getProperty($fieldName)->getString();
+                $refNodeUUIDs[] = $node->getProperty($mapping['property'])->getString();
             }
         }
 
@@ -356,7 +356,7 @@ class UnitOfWork
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if ($mapping['type'] === ClassMetadata::MANY_TO_ONE) {
-                if (!$node->hasProperty($fieldName)) {
+                if (!$node->hasProperty($mapping['property'])) {
                     continue;
                 }
 
@@ -365,15 +365,15 @@ class UnitOfWork
                         $referencedClass = $this->dm->getMetadataFactory()->getMetadataFor(ltrim($mapping['targetDocument'], '\\'))->name;
 
                         if ($mapping['strategy'] === 'path') {
-                            $path = $node->getProperty($fieldName)->getString();
+                            $path = $node->getProperty($mapping['property'])->getString();
                         } else {
-                            $referencedNode = $node->getProperty($fieldName)->getNode();
+                            $referencedNode = $node->getProperty($mapping['property'])->getNode();
                             $path = $referencedNode->getPath();
                         }
 
                         $proxy = $this->getOrCreateProxy($path, $referencedClass, $locale);
                     } else {
-                        $referencedNode = $node->getProperty($fieldName)->getNode();
+                        $referencedNode = $node->getProperty($mapping['property'])->getNode();
                         $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
                     }
                 } catch (RepositoryException $e) {
@@ -388,8 +388,8 @@ class UnitOfWork
                 $documentState[$fieldName] = $proxy;
             } elseif ($mapping['type'] === ClassMetadata::MANY_TO_MANY) {
                 $referencedNodes = array();
-                if ($node->hasProperty($fieldName)) {
-                    foreach ($node->getProperty($fieldName)->getString() as $reference) {
+                if ($node->hasProperty($mapping['property'])) {
+                    foreach ($node->getProperty($mapping['property'])->getString() as $reference) {
                         $referencedNodes[] = $reference;
                     }
                 }
@@ -2000,8 +2000,8 @@ class UnitOfWork
                     if (!$this->writeMetadata) {
                         continue;
                     }
-                    if ($node->hasProperty($fieldName) && is_null($fieldValue)) {
-                        $node->getProperty($fieldName)->remove();
+                    if ($node->hasProperty($mapping['property']) && is_null($fieldValue)) {
+                        $node->getProperty($mapping['property'])->remove();
                         continue;
                     }
 
@@ -2039,7 +2039,7 @@ class UnitOfWork
                             }
 
                             $refNodesIds = empty($refNodesIds) ? null : $refNodesIds;
-                            $node->setProperty($fieldName, $refNodesIds, $strategy);
+                            $node->setProperty($mapping['property'], $refNodesIds, $strategy);
                         }
                     } elseif ($mapping['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
@@ -2053,7 +2053,7 @@ class UnitOfWork
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
                                 }
-                                $node->setProperty($fieldName, $associatedNode->getIdentifier(), $strategy);
+                                $node->setProperty($mapping['property'], $associatedNode->getIdentifier(), $strategy);
                             }
                         }
                     }
