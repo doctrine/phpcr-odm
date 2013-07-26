@@ -188,8 +188,7 @@ class ClassMetadata implements ClassMetadataInterface
      * The name of the field in the Document.
      *
      * - <b>id</b> (boolean, optional)
-     * Marks the field as the primary key of the document. Multiple fields of an
-     * document can have the id attribute, forming a composite key.
+     * Marks the field as the primary key of the document.
      *
      * @var array
      */
