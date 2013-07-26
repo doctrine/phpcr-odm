@@ -587,7 +587,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount(1, $referenced->referrers);
         $this->assertEquals("referrerNamedPropTestObj", $referenced->referrers[0]->name);
 
-        $allReferrers = $this->dm->getReferrers($referenced, null, 'namedReference');
+        $allReferrers = $this->dm->getReferrers($referenced, null, 'named-reference');
         $this->assertCount(2, $allReferrers);
     }
 
@@ -739,7 +739,7 @@ class OtherReferrerTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
     public $namedReference;
 }
 
@@ -768,7 +768,7 @@ class ReferrerNamedPropTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
     public $namedReference;
 }
 

@@ -427,7 +427,7 @@ class UnitOfWork
                 $this->dm,
                 $document,
                 $referringField['strategy'],
-                $mapping['referencedBy'],
+                $referringField['property'],
                 $locale,
                 $mapping['referringDocument']
             );
@@ -1520,12 +1520,11 @@ class UnitOfWork
                     if (!$managedCol) {
                         $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
                         $referringField = $referringMeta->mappings[$mapping['referencedBy']];
-
                         $managedCol = new ReferrersCollection(
                             $this->dm,
                             $managedCopy,
                             $referringField['strategy'],
-                            $mapping['referencedBy'],
+                            $referringField['property'],
                             $locale
                         );
                         $prop->setValue($managedCopy, $managedCol);
