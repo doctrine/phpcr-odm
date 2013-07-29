@@ -619,6 +619,7 @@ class UnitOfWork
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
+        $this->cascadeScheduleReferrersRemove($class, $document);
     }
 
     /**
@@ -702,6 +703,33 @@ class UnitOfWork
             $parent = $class->reflFields[$class->parentMapping]->getValue($document);
             if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
                 $this->doScheduleInsert($parent, $visited);
+            }
+        }
+    }
+
+    /**
+     *
+     * Compare the items in a documents ReferrerCollection's with the items
+     * previously stored and remove any items that are not present in the
+     * current collection
+     *
+     * @param ClassMetadata $class
+     * @param object        $document
+     */
+    private function cascadeScheduleReferrersRemove($class, $document)
+    {
+        $activeReferrerItems = array();
+        foreach ($class->referrersMappings as $fieldName) {
+            $referrers = $class->reflFields[$fieldName]->getValue($document);
+            foreach ($referrers as $referrerDocument) {
+                $activeReferrerItems[$this->getDocumentId($referrerDocument)] = $referrerDocument;
+            }
+        }
+
+        $storedRefs = $this->dm->getReferrers($document);
+        foreach ($storedRefs as $ref) {
+            if(!isset($activeReferrerItems[$this->getDocumentId($ref)])){
+                $this->scheduleRemove($ref);
             }
         }
     }
