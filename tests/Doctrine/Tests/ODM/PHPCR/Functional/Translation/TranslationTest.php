@@ -55,7 +55,7 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * Test loading of a translatable document missing the @Locale annotation.
-     * @expectedException Doctrine\ODM\PHPCR\Mapping\MappingException
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadMissingLocaleAnnotation()
     {

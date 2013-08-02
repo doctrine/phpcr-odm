@@ -2,9 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\Translation\Translation,
-    Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\Translation;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 
 use Doctrine\Tests\Models\Translation\Article;
 
@@ -100,17 +100,34 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $doc = new Article();
 
         $strategy = new AttributeTranslationStrategy();
-        $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
+        $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'en'));
 
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->getText());
+        $this->assertEquals(array(), $doc->getSettings()); // nullable
 
         // Load another language and test the document has been updated
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
         $this->assertEquals('Texte français', $doc->getText());
+        $this->assertEquals(array(), $doc->getSettings());
+    }
+
+    public function testLoadTranslationNotNullable()
+    {
+        // Create the node in the content repository
+        $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
+
+        $this->session->save();
+
+        // Then try to read it's translation
+        $doc = new Article();
+
+        $strategy = new AttributeTranslationStrategy();
+        $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'));
     }
 
     /**
@@ -125,6 +142,8 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
+        $data['nullable'] = 'not null';
+        $data['settings'] = array('key' => 'value');
 
         $node = $this->getTestNode();
 
@@ -132,9 +151,10 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
-
+        $data = array();
+        $data['author'] = 'John Doe';
         $data['topic'] = 'Un sujet intéressant';
-        $data['text'] = null;
+        $data['text'] = 'Lorem français';
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
@@ -146,10 +166,14 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
         $this->assertEquals('Some interesting subject', $doc->topic);
         $this->assertEquals('Lorem ipsum...', $doc->getText());
+        $this->assertEquals('not null', $doc->nullable);
+        $this->assertEquals(array('key' => 'value'), $doc->getSettings());
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
         $this->assertEquals('Un sujet intéressant', $doc->topic);
-        $this->assertNull($doc->getText());
+        $this->assertEquals('Lorem français', $doc->getText());
+        $this->assertNull($doc->nullable);
+        $this->assertEquals(array(), $doc->getSettings());
     }
 
     public function testRemoveTranslation()

@@ -47,7 +47,10 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        $translationNode = $this->getTranslationNode($node, $locale);
+        $translationNode = $this->getTranslationNode($node, $locale, false);
+        if (!$translationNode) {
+            return false;
+        }
 
         return parent::loadTranslation($document, $translationNode, $metadata, $locale);
     }
@@ -88,10 +91,25 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
         return $locales;
     }
 
-    protected function getTranslationNode(NodeInterface $parentNode, $locale)
+    /**
+     * Get the child node with the translation. If create is true, the child
+     * node is created if not existing.
+     *
+     * @param NodeInterface $parentNode
+     * @param string        $locale
+     * @param boolean       $create      whether to create the node if it is
+     *      not yet existing
+     *
+     * @return boolean|NodeInterface the node or false if $create is false and
+     *      the node is not existing.
+     */
+    protected function getTranslationNode(NodeInterface $parentNode, $locale, $create = true)
     {
         $name = Translation::LOCALE_NAMESPACE . ":$locale";
         if (!$parentNode->hasNode($name)) {
+            if (!$create) {
+                return false;
+            }
             $node = $parentNode->addNode($name);
         } else {
             $node = $parentNode->getNode($name);

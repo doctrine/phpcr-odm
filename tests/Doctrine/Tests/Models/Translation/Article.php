@@ -55,7 +55,7 @@ class Article
     public $nullable;
 
     /**
-     * @PHPCRODM\String(assoc="", translated=true)
+     * @PHPCRODM\String(assoc="", translated=true, nullable=true)
      */
     protected $settings;
 
