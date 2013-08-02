@@ -68,7 +68,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     /**
      * {@inheritdoc}
      */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale, $continue = true)
     {
         if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
             $nullFields = $node->getPropertyValue($this->prefix . ':' . $locale . self::NULLFIELDS);
@@ -76,6 +76,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         } else {
             $nullFields = array();
         }
+
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             if (isset($nullFields[$field])) {
@@ -91,7 +92,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 }
             } else {
                 // Could not find the translation in the given language
-                if (!$metadata->mappings[$field]['nullable']) {
+                if (!$metadata->mappings[$field]['nullable'] || false === $continue) {
                     return false;
                 }
                 $value = (true === $metadata->mappings[$field]['multivalue']) ? array() : null;
@@ -101,7 +102,6 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
 
         return true;
     }
-
     /**
      * {@inheritdoc}
      */
