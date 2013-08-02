@@ -2714,7 +2714,7 @@ class UnitOfWork
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
         $locale = $locale ?: $currentLocale;
-        if ($locale && $strategy->loadTranslation($document, $node, $metadata, $locale)) {
+        if ($locale && $strategy->loadTranslation($document, $node, $metadata, $locale, false)) {
             $localeUsed = $locale;
         } elseif (!$fallback) {
             $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
@@ -2726,9 +2726,18 @@ class UnitOfWork
             $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
 
             foreach ($localesToTry as $desiredLocale) {
-                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
+                if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale, false)) {
                     $localeUsed = $desiredLocale;
                     break;
+                }
+            }
+
+            if (empty($localeUsed)) {
+                foreach ($localesToTry as $desiredLocale) {
+                    if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {
+                        $localeUsed = $desiredLocale;
+                        break;
+                    }
                 }
             }
 
