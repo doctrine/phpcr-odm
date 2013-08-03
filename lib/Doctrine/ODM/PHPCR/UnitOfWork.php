@@ -1215,6 +1215,8 @@ class UnitOfWork
                 }
 
                 $this->scheduledUpdates[$oid] = $document;
+            } elseif (isset($this->documentChangesets[$oid])) {
+                $this->documentChangesets[$oid]['fields'] = array();
             }
         }
     }
