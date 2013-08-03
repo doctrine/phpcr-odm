@@ -1215,8 +1215,8 @@ class UnitOfWork
                 }
 
                 $this->scheduledUpdates[$oid] = $document;
-            } else {
-                unset($this->documentChangesets[$oid]);
+            } elseif (isset($this->documentChangesets[$oid])) {
+                $this->documentChangesets[$oid]['fields'] = array();
             }
         }
     }
@@ -1974,10 +1974,6 @@ class UnitOfWork
                     $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
                     $this->computeChangeSet($class, $document);
                 }
-            }
-
-            if (empty($this->documentChangesets[$oid]['fields'])) {
-                continue;
             }
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
