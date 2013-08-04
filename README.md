@@ -1,28 +1,33 @@
-PHPCR ODM for Doctrine2
-=======================
+# PHPCR ODM for Doctrine2
 
-# Current Status
-
-* most key features implemented
-* alpha stage
-* [Issue Tracker](http://www.doctrine-project.org/jira/browse/PHPCR)
-* [![Build Status](https://secure.travis-ci.org/doctrine/phpcr-odm.png)](http://travis-ci.org/doctrine/phpcr-odm)
+[![Build Status](https://secure.travis-ci.org/doctrine/phpcr-odm.png)](http://travis-ci.org/doctrine/phpcr-odm)
+[![Latest Stable Version](https://poser.pugx.org/doctrine/phpcr-odm/version.png)](https://packagist.org/packages/doctrine/phpcr-odm)
+[![Total Downloads](https://poser.pugx.org/doctrine/phpcr-odm/d/total.png)](https://packagist.org/packages/doctrine/phpcr-odm)
 
 
-# Preconditions
+## Requirements
 
 * php >= 5.3
 * libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
-* phpunit >= 3.6 (if you want to run the tests)
 * [composer](http://getcomposer.org/)
+* See also the `require` section of [composer.json](composer.json)
 
 
-# Documentation
+## Documentation
 
 Please refer to [doctrine-project.org](http://docs.doctrine-project.org/projects/doctrine-phpcr-odm/en/latest/) for the documentation.
 
 
-# Running the tests
+## Contributing
+
+Pull requests are welcome. Please include tests to prevent regressions whenever
+possible.
+
+Thanks to
+[everyone who has contributed](https://github.com/doctrine/phpcr-odm/contributors) already.
+
+
+## Running the tests
 
 This examples shows how to run the tests for jackrabbit. You can run the tests
 for the other backends. Just replace jackrabbit with the name of the backend
