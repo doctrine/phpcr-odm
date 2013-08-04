@@ -1233,7 +1233,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
 
             if (!isset($mapping['nullable'])) {
-                $mapping['nullable'] = isset($parentMapping['nullable']) ? : false;
+                $mapping['nullable'] = isset($parentMapping['nullable']) ? $parentMapping['nullable'] : false;
             }
         }
 

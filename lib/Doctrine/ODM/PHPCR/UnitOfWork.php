@@ -2735,11 +2735,31 @@ class UnitOfWork
             }
 
             if (empty($localeUsed)) {
-                $msg = "No translation for locale '$locale' at '{$node->getPath()}' found with strategy '{$metadata->translator}.";
-                if (!empty($localesToTry)) {
-                    $msg.= " Tried the following additional locales: ".var_export($localesToTry, true);
+                // we found no translation. if all translated fields can be
+                // null, we want to just null them.
+                $allNullable = true;
+                foreach ($metadata->translatableFields as $fieldName) {
+                    if (!$metadata->translatableFields[$fieldName]['nullable']) {
+                        $allNullable = false;
+                        break;
+                    }
+                    $value = ($metadata->mappings[$fieldName]['multivalue']) ? array() : null;
+                    $metadata->reflFields[$fieldName]->setValue($document, $value);
                 }
-                throw new MissingTranslationException($msg);
+                // there was no translation, treat this as the requested locale was found.
+                $localeUsed = $locale;
+                if (!$allNullable) {
+                    $msg = sprintf("No translation for locale '%s' at '%s' found with strategy '%s'.",
+                        $locale,
+                        $node->getPath(),
+                        $metadata->translator
+                    );
+                    if (!empty($localesToTry)) {
+                        $msg .= " Tried the following additional locales: ".var_export($localesToTry, true);
+                    }
+
+                    throw new MissingTranslationException($msg);
+                }
             }
         }
 
