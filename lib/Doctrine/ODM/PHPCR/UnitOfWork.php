@@ -1216,6 +1216,8 @@ class UnitOfWork
 
                 $this->scheduledUpdates[$oid] = $document;
             } elseif (isset($this->documentChangesets[$oid])) {
+                // make sure we don't keep an old changeset if an event changed
+                // the document and no field changeset remains.
                 $this->documentChangesets[$oid]['fields'] = array();
             }
         }
