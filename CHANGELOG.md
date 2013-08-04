@@ -1,6 +1,27 @@
 Changelog
 =========
 
+* **2013-08-04**: [#304] fix various bugs around translation fallback
+  Fixed translation loading to never return non-nullable
+  fields set to null but fallback to the next. Also attribute translation will
+  properly fall back again if a translation is not present.
+
+* **2013-08-04**: [#305] Unset previously computed document change set if there are no changes
+  fields set to null but fallback to the next. Also attribute translation will
+  properly fall back again if a translation is not present.
+
+* **2013-07-26**: [#301 & #299 & #296] use the referring property name and not the class field name
+  This and a couple other PR fixed that we now use the configured PHPCR name
+  when fetching referrers and defining references and not the document field
+  name.
+
+* **2013-07-23**: [#298] remove non-lifecycle-callbacks from schema, validate lifecyclce callbacks
+  Cleanup and validation of lifecycle callbacks.
+
+* **2013-07-02**: [#294] inherit document level options and allow mapped-superclass to have all options
+
+* **2013-06-06**: [#291] fixed move by assignment
+
 * **2013-05-27**: [#288] Event refactoring to use doctrine commons 2.4 events where possible
  * Use the doctrine common event argument classes where possible instead of
    custom classes. The classes `Doctrine\ODM\PHPCR\Event\LifecycleEventArgs`
