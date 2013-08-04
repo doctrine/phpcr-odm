@@ -1181,6 +1181,10 @@ class UnitOfWork
                         }
 
                         $this->scheduledUpdates[$oid] = $document;
+                    } elseif (isset($this->documentChangesets[$oid])) {
+                        // make sure we don't keep an old changeset if an event changed
+                        // the document and no reoderings changeset remain.
+                        $this->documentChangesets[$oid]['reorderings'] = array();
                     }
                 }
             }
