@@ -89,6 +89,8 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $data['author'] = 'John Doe';
         $data['topic'] = 'English topic';
         $data['text'] = 'English text';
+        $data['nullable'] = 'not null';
+        $data['settings'] = array('key' => 'value');
 
         $node = $this->getTestNode();
 
@@ -96,9 +98,10 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
-
+        $data = array();
+        $data['author'] = 'John Doe';
         $data['topic'] = 'Sujet français';
-        $data['text'] = null;
+        $data['text'] = 'Texte français';
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
@@ -112,12 +115,16 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->getText());
+        $this->assertEquals('not null', $doc->nullable);
+        $this->assertEquals(array('key' => 'value'), $doc->getSettings());
 
         // Load another language and test the document has been updated
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
-        $this->assertNull($doc->getText());
+        $this->assertEquals('Texte français', $doc->text);
+        $this->assertNull($doc->nullable);
+        $this->assertEquals(array(), $doc->getSettings());
     }
 
     public function testTranslationNullProperties()

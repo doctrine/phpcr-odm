@@ -73,9 +73,35 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
             $nullFields = $node->getPropertyValue($this->prefix . ':' . $locale . self::NULLFIELDS);
             $nullFields = array_flip($nullFields);
+            // we have stored the document in this language at some point, even
+            // if all fields might be null.
+            $anyTranslatedField = true;
         } else {
             $nullFields = array();
+            $anyTranslatedField = false;
         }
+        // first check if we have any field translated in this language. if
+        // there is not a single one, this locale has no translation stored.
+        // if we encounter a non-nullable missing property we return
+        // immediately. do not update the document yet at all, to not mix
+        // languages.
+        foreach ($metadata->translatableFields as $field) {
+            $propName = $this->getTranslatedPropertyName($locale, $field);
+            if ($node->hasProperty($propName)) {
+                $anyTranslatedField = true;
+            } elseif (!$metadata->mappings[$field]['nullable']) {
+                // this field is required but missing
+                return false;
+            }
+        }
+
+        if (!$anyTranslatedField) {
+            // we found neither the null list nor any field defined, this node
+            // was never stored in this locale. lets try the next locale.
+            return false;
+        }
+
+        // we have a translation, now update the document fields
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             if (isset($nullFields[$field])) {
@@ -91,10 +117,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 }
             } else {
                 // Could not find the translation in the given language
-                if (!$metadata->mappings[$field]['nullable']) {
-                    return false;
-                }
-                $value = (true === $metadata->mappings[$field]['multivalue']) ? array() : null;
+                // we already returned above if this was a required field
+                $value = ($metadata->mappings[$field]['multivalue']) ? array() : null;
             }
             $metadata->reflFields[$field]->setValue($document, $value);
         }

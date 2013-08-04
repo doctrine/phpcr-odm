@@ -2,16 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\Tests\Models\Translation\Article,
-    Doctrine\Tests\Models\Translation\Comment,
-    Doctrine\Tests\Models\Translation\InvalidMapping,
-    Doctrine\Tests\Models\Translation\DerivedArticle,
-    Doctrine\Tests\Models\CMS\CmsArticle,
-    Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\Tests\Models\Translation\Article;
+use Doctrine\Tests\Models\Translation\Comment;
+use Doctrine\Tests\Models\Translation\InvalidMapping;
+use Doctrine\Tests\Models\Translation\DerivedArticle;
+use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy,
-    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
@@ -382,6 +382,47 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * Italian translation does not exist so as defined in $this->localePrefs we
      * will get french as it has higher priority than english
      */
+    public function testFindWithLanguageFallback()
+    {
+        $this->dm->persist($this->doc);
+        $this->doc->topic = 'Un autre sujet';
+        $this->doc->text = 'Text';
+        $this->doc->locale = 'fr';
+        $this->dm->flush();
+        $this->dm->getLocaleChooserStrategy()->setLocale('it');
+        $this->doc = $this->dm->find($this->class, '/functional/' . $this->testNodeName);
+
+        $this->assertNotNull($this->doc);
+        $this->assertEquals('fr', $this->doc->locale);
+        $this->assertEquals('Un autre sujet', $this->doc->topic);
+        $this->assertEquals('Text', $this->doc->text);
+    }
+
+    /**
+     * Same as findWithLanguageFallback, but all properties are nullable.
+     */
+    public function testFindWithLanguageFallbackNullable()
+    {
+        $doc = new Comment();
+        $doc->id = '/functional/fallback-nullable';
+        $doc->setText('Un commentaire');
+        $doc->locale = 'fr';
+        $this->dm->persist($doc);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->dm->getLocaleChooserStrategy()->setLocale('it');
+        $doc = $this->dm->find(null, '/functional/fallback-nullable');
+
+        $this->assertNotNull($doc);
+        $this->assertEquals('fr', $doc->locale);
+        $this->assertEquals('Un commentaire', $doc->getText());
+    }
+
+    /**
+     * Italian translation does not exist so as defined in $this->localePrefs we
+     * will get french as it has higher priority than english
+     */
     public function testFindTranslationWithLanguageFallback()
     {
         $this->dm->persist($this->doc);
@@ -394,6 +435,23 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($this->doc);
         $this->assertEquals('fr', $this->doc->locale);
         $this->assertEquals('Un autre sujet', $this->doc->topic);
+    }
+
+    /**
+     * Test what happens if all document fields are nullable and actually null.
+     */
+    public function testTranslationOnlyNullProperties()
+    {
+        $path = $this->node->getPath() . '/only-null';
+        $doc = new Comment();
+        $doc->id = $path;
+        $this->dm->persist($doc);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $doc = $this->dm->find(null, $path);
+        $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Comment', $doc);
+        $this->assertNull($doc->getText());
     }
 
     /**

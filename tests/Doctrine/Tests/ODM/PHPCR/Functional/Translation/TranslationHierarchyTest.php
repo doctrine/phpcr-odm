@@ -40,9 +40,11 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $user = $this->node->addNode('thename');
         $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
         $user->setProperty('phpcr_locale:fr-topic', 'french', \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:frnullfields', array('text', 'settings'), \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr_locale:fr-text', 'french text', \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr_locale:frnullfields', array('nullable'), \PHPCR\PropertyType::STRING);
         $user->setProperty('phpcr_locale:en-topic', 'english', \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:ennullfields', array('text', 'settings'), \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr_locale:en-text', 'english text', \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr_locale:ennullfields', array('nullable'), \PHPCR\PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 
