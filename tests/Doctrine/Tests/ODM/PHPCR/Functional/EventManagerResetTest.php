@@ -51,11 +51,19 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
         $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\CmsPageContent', $page->content);
 
+
         // This is required as the originalData in the UnitOfWork doesn’t set the node of the Document
         $this->dm->clear();
 
         $pageLoaded = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsPage')->find($page->id);
-        //$pageLoaded = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsPage')->find('/functional/my-page');
+
+        $pageLoaded->title = "my-page-changed";
+
+        $this->assertEquals('my-page-changed', $pageLoaded->title);
+
+        $this->dm->flush();
+
+        $this->assertEquals('my-page', $pageLoaded->title);
 
 
         $pageLoaded->content = $pageContent;
@@ -100,6 +108,10 @@ class TestResetListener
     public function preUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
+        if ($document instanceof CmsPage && $document->title !== 'my-page'){
+            $document->title = 'my-page';
+        }
+
         if ($document instanceof CmsPage && $document->content instanceof CmsPageContent){
             $contentReference = array('id' => $document->content->id);
             $document->content = serialize($contentReference);
