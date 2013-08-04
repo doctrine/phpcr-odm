@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.0.0-beta4
+-----------
+
 * **2013-08-04**: [#304] fix various bugs around translation fallback
   Fixed translation loading to never return non-nullable
   fields set to null but fallback to the next. Also attribute translation will
@@ -9,6 +12,9 @@ Changelog
 * **2013-08-04**: [#305] Unset previously computed document change set if there are no changes
   fields set to null but fallback to the next. Also attribute translation will
   properly fall back again if a translation is not present.
+
+1.0.0-beta3
+-----------
 
 * **2013-07-26**: [#301 & #299 & #296] use the referring property name and not the class field name
   This and a couple other PR fixed that we now use the configured PHPCR name
