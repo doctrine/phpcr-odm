@@ -2745,7 +2745,7 @@ class UnitOfWork
                 // null, we want to just null them.
                 $allNullable = true;
                 foreach ($metadata->translatableFields as $fieldName) {
-                    if (!$metadata->translatableFields[$fieldName]['nullable']) {
+                    if (!$metadata->mappings[$fieldName]['nullable']) {
                         $allNullable = false;
                         break;
                     }
