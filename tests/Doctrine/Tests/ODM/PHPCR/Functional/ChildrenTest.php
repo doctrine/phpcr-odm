@@ -9,6 +9,7 @@ use Doctrine\ODM\PHPCR\ChildrenCollection;
 use PHPCR\RepositoryInterface;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 
 use PHPCR\UnsupportedRepositoryOperationException;
 
@@ -26,6 +27,11 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      * @var \PHPCR\NodeInterface
      */
     private $node;
+
+    /**
+     * @var TestResetReorderingListener
+     */
+    private $listener;
 
     public function setUp()
     {
@@ -274,6 +280,37 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
+     * Reorder the children but reset the order in the preUpdate event
+     * Tests that the previously compute document change set gets overwritten
+     */
+    public function testResetResortingChildren()
+    {
+        $this->listener = new TestResetReorderingListener();
+        $this->dm->getEventManager()->addEventListener(array('preUpdate'), $this->listener);
+
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+
+        $this->assertEquals("Child A", $parent->allChildren->first()->name);
+
+        $parent->allChildren->remove('Child A');
+
+        $newChild = new ChildrenTestObj();
+        $newChild->name = 'Child A';
+
+        $parent->allChildren->add($newChild);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+
+        $this->assertEquals("Child A", $parent->allChildren->first()->name);
+        
+        $this->dm->getEventManager()->removeEventListener(array('preUpdate'), $this->listener);
+    }
+
+    /**
      * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testMoveByAssignment()
@@ -503,4 +540,28 @@ class ChildrenReferenceableTestObj
 
   /** @PHPCRODM\Children(cascade="persist") */
   public $allChildren;
+}
+
+class TestResetReorderingListener
+{
+    public function preUpdate(LifecycleEventArgs $e)
+    {
+        $document = $e->getObject();
+        if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B'){
+
+            /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
+            $childrenCollection = $document->allChildren;
+            $children = $childrenCollection->toArray();
+
+            $childrenCollection->clear();
+
+            $expectedOrder = array('Child A', 'Child B', 'Child C', 'Child D');
+
+            foreach ($expectedOrder as $name) {
+                $childrenCollection->set($name, $children[$name]);
+            }
+
+            $document->allChildren = $childrenCollection;
+        }
+    }
 }
