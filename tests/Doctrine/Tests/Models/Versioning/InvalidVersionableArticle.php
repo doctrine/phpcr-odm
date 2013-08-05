@@ -12,9 +12,6 @@ class InvalidVersionableArticle
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Date */
-    public $publishDate;
-
     /** @PHPCRODM\String */
     public $author;
 

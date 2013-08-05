@@ -13,9 +13,6 @@ class InconsistentVersionableArticle
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Date */
-    public $publishDate;
-
     /** @PHPCRODM\String */
     public $author;
 

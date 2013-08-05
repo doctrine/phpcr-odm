@@ -438,6 +438,36 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFindTranslationWithInvalidLanguageFallback()
+    {
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
+
+        $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'es');
+    }
+
+    /**
+     * Italian translation does not exist so as defined in $this->localePrefs we
+     * will get french as it has higher priority than english
+     */
+    public function testFindTranslationNoFallback()
+    {
+        $this->dm->persist($this->doc);
+        $this->dm->flush();
+        // if we do not flush, the translation node does not exist
+
+        $doc = $this->dm->findTranslation($this->class, $this->doc->id, 'it', true);
+        $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Article', $doc);
+        $this->assertEquals('John Doe', $doc->author);
+        $this->assertEquals('en', $doc->locale);
+
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\MissingTranslationException');
+        $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'it', false);
+    }
+
+    /**
      * Test what happens if all document fields are nullable and actually null.
      */
     public function testTranslationOnlyNullProperties()
@@ -455,14 +485,76 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * We only validate when saving, never when loading. This has to find the
+     * incomplete english translation.
      */
-    public function testFindTranslationWithInvalidLanguageFallback()
+    public function testFindNullableFieldIncomplete()
     {
-        $this->dm->persist($this->doc);
+        $node = $this->node->addNode('find');
+        $node->setProperty('phpcr:class', 'Doctrine\Tests\Models\Translation\Article');
+        $node->setProperty(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic'), 'title');
+        $node->setProperty(AttributeTranslationStrategyTest::propertyNameForLocale('de', 'topic'), 'Titel');
+
+        $this->dm->getPhpcrSession()->save();
+        $this->dm->clear();
+
+        /** @var $doc Article */
+        $doc = $this->dm->find(null, $this->node->getPath().'/find');
+
+        $this->assertEquals('en', $doc->locale);
+        $this->assertEquals('title', $doc->topic);
+        $this->assertNull($doc->text);
+    }
+
+    /**
+     * No translation whatsoever is available. All translated fields have to be
+     * null as we do not validate on loading.
+     */
+    public function testFindNullableFieldNone()
+    {
+        $node = $this->node->addNode('find');
+        $node->setProperty('phpcr:class', 'Doctrine\Tests\Models\Translation\Article');
+
+        $this->dm->getPhpcrSession()->save();
+        $this->dm->clear();
+
+        /** @var $doc Article */
+        $doc = $this->dm->find(null, $this->node->getPath().'/find');
+
+        $this->assertEquals('en', $doc->locale);
+        $this->assertNull($doc->topic);
+        $this->assertNull($doc->text);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testFlushNullableFieldNotSetInsert()
+    {
+        $doc = new Article();
+        $doc->id = $this->node->getPath().'/flush';
+        $doc->topic = 'title';
+        $doc->locale = 'en';
+        $this->dm->persist($doc);
+
+        $this->dm->flush();
+    }
+
+    public function testFlushNullableFieldNotSetUpdate()
+    {
+        $doc = new Article();
+        $doc->id = $this->node->getPath().'/flush';
+        $doc->topic = 'title';
+        $doc->text = 'text';
+        $doc->locale = 'en';
+        $this->dm->persist($doc);
+
         $this->dm->flush();
 
-        $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'es');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
+
+        $doc->topic = null;
+        $this->dm->flush();
     }
 
     public function testGetLocaleFor()

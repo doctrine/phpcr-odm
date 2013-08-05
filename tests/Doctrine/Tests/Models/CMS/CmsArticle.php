@@ -19,7 +19,7 @@ class CmsArticle
     public $user;
     public $comments;
 
-    /** @PHPCRODM\Binary */
+    /** @PHPCRODM\Binary(nullable=true) */
     public $attachments;
 
     public function setAuthor(CmsUser $author)

@@ -12,16 +12,13 @@ class VersionableArticle
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Date */
-    public $publishDate;
-
     /** @PHPCRODM\String */
     public $author;
 
     /** @PHPCRODM\String */
     public $topic;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     private $text;
 
     public function getText()

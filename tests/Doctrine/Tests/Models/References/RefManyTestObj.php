@@ -13,8 +13,6 @@ class RefManyTestObj
     public $id;
     /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj", cascade="persist", property="myReferences") */
     public $references;
-    /** @PHPCRODM\String */
-    public $name;
 
     public function __construct()
     {

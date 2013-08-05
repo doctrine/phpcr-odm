@@ -47,7 +47,7 @@ class Resource
     /** @PHPCRODM\String(property="jcr:mimeType") */
     protected $mimeType = 'application/octet-stream';
 
-    /** @PHPCRODM\String(property="jcr:encoding") */
+    /** @PHPCRODM\String(property="jcr:encoding", nullable=true) */
     protected $encoding;
 
     /** @PHPCRODM\Date(property="jcr:lastModified") */

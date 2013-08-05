@@ -32,8 +32,11 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     {
         $extending = new ExtendingClass();
         $extending->id = '/functional/extending';
+        $extending->text = 'test text';
+
         $this->dm->persist($extending);
         $this->dm->flush();
+
         $this->assertEquals(1, $extending->callback_run);
         $this->assertEquals(1, $extending->extending_run);
     }
@@ -52,6 +55,7 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     {
         $second = new SecondLevelWithDuplicate();
         $second->id = '/functional/second';
+        $second->text = 'text test';
         $this->dm->persist($second);
     }
 
@@ -115,10 +119,6 @@ class Testclass
     /** @PHPCRODM\Node */
     public $node;
     /** @PHPCRODM\String */
-    public $username;
-    /** @PHPCRODM\Int(property="numbers", multivalue=true) */
-    public $numbers;
-    /** @PHPCRODM\String */
     public $text;
     public $callback_run = 0;
 
@@ -136,9 +136,6 @@ class Testclass
  */
 class ExtendingClass extends Testclass
 {
-    /** @PHPCRODM\String */
-    public $name;
-
     /** @PHPCRODM\ReferenceOne */
     public $reference;
 
@@ -166,7 +163,7 @@ class SecondLevel extends ExtendingClass
 class SecondLevelWithDuplicate extends ExtendingClass
 {
     /** @PHPCRODM\Int */
-    public $username;
+    public $text;
 }
 
 /**

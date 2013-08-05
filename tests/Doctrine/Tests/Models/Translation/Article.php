@@ -29,11 +29,11 @@ class Article
     public $parent;
 
     // untranslated:
-    /** @PHPCRODM\Date */
+    /** @PHPCRODM\Date(nullable=true) */
     public $publishDate;
 
     // untranslated:
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     public $author;
 
     /** @PHPCRODM\String(translated=true) */

@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
@@ -280,7 +281,7 @@ class DocumentManager implements ObjectManager
      * Will return null if the document was not found.
      *
      * If the document is translatable, then the language chooser strategy is
-     * used to load the best * suited language for the translatable fields.
+     * used to load the best suited language for the translatable fields.
      *
      * @param null|string $className optional object class name to use
      * @param string      $id        the path or uuid of the document to find
@@ -366,20 +367,28 @@ class DocumentManager implements ObjectManager
 
     /**
      * Load the document from the content repository in the given language.
-     * If $fallback is set to true, then the language chooser strategy is used to load the best suited
-     * language for the translatable fields.
      *
-     * If no translations can be found either using the fallback mechanism or not, an error is thrown.
+     * If $fallback is set to true, then the language chooser strategy is used
+     * to load the best suited language for the translatable fields.
      *
-     * Note that this will be the same object as you got with a previous find/findTranslation call - we can't
-     * allow copies of objects to exist
+     * If fallback is true and no translation is found, this method has the
+     * same behaviour as find(), all translated fields will simply be null.
+     * If fallback is false and the requested translation does not exist, a
+     * MissingTranslationException is thrown.
+     *
+     * Note that this will be the same object as you got with a previous
+     * find/findTranslation call - we can't allow copies of objects to exist.
      *
      * @param null|string $className the class name to find the translation for
      * @param string      $id        the identifier of the class (path or uuid)
-     * @param string      $locale    The language to try to load
-     * @param boolean     $fallback  Set to true if the language fallback mechanism should be used
+     * @param string      $locale    The language to try to load.
+     * @param boolean     $fallback  Set to true if the language fallback
+     *                               mechanism should be used.
      *
-     * @return object the translated document
+     * @return object the translated document.
+     *
+     * @throws MissingTranslationException if $fallback is false and the
+     *      translation was not found
      */
     public function findTranslation($className, $id, $locale, $fallback = true)
     {
@@ -743,11 +752,20 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Merges the state of a detached object into the persistence context
-     * of this ObjectManager and returns the managed copy of the object.
-     * The object passed to merge will not become associated/managed with this ObjectManager.
+     * Merge the state of the detached object into the persistence context of
+     * this ObjectManager and returns the managed copy of the object.
      *
-     * @param object $document
+     * This will copy all fields of $document over the fields of the managed
+     * document and then cascade the merge to relations as configured.
+     *
+     * The object passed to merge will *not* become associated/managed with
+     * this ObjectManager.
+     *
+     * @param object $document The document to merge over a persisted document
+     *      with the same id.
+     *
+     * @return object The managed document where $document has been merged
+     *      into. This is *not* the same instance as the parameter.
      */
     public function merge($document)
     {
@@ -761,9 +779,10 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Detaches an object from the ObjectManager, causing a managed object to
-     * become detached. Unflushed changes made to the object if any
-     * (including removal of the object), will not be synchronized to the database.
+     * Detaches an object from the ObjectManager
+     *
+     * If there are any not yet flushed changes on this object (including
+     * removal of the object) will not be synchronized to the database.
      * Objects which previously referenced the detached object will continue to
      * reference it.
      *

@@ -61,8 +61,6 @@ class FixPHPCR1TestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
-    public $name;
     /** @PHPCRODM\Child(cascade="persist") */
     public $file;
 }

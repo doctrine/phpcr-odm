@@ -114,6 +114,8 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->dm->flush();
         $this->dm->clear();
 
+        // we find document "thename" with a specific locale. the child proxy
+        // object must be the same locale
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
         $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
@@ -137,12 +139,15 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->dm->flush();
         $this->dm->clear();
 
+        // if we remove the english translation from the doc and the related, loading the child
+        // should give the doc and the related in french
         $child = $this->dm->findTranslation($this->type, '/functional/thename/child', 'en');
 
         $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $child->parent);
         $this->assertEquals('en', $child->locale);
-        $this->assertEquals('french', $child->parent->topic);
+
         $this->assertEquals('fr', $child->parent->locale);
+        $this->assertEquals('french', $child->parent->topic);
         $this->assertEquals('fr', $child->relatedArticles[0]->locale);
     }
 

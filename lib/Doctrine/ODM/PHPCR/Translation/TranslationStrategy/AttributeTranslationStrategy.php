@@ -41,6 +41,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
+        // no need to validate non-nullable condition, the UoW does that for all fields
         $nullFields = array();
         foreach ($data as $field => $propValue) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
@@ -70,35 +71,14 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
+        $anyTranslatedField = false;
+        $nullFields = array();
         if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
             $nullFields = $node->getPropertyValue($this->prefix . ':' . $locale . self::NULLFIELDS);
             $nullFields = array_flip($nullFields);
             // we have stored the document in this language at some point, even
             // if all fields might be null.
             $anyTranslatedField = true;
-        } else {
-            $nullFields = array();
-            $anyTranslatedField = false;
-        }
-        // first check if we have any field translated in this language. if
-        // there is not a single one, this locale has no translation stored.
-        // if we encounter a non-nullable missing property we return
-        // immediately. do not update the document yet at all, to not mix
-        // languages.
-        foreach ($metadata->translatableFields as $field) {
-            $propName = $this->getTranslatedPropertyName($locale, $field);
-            if ($node->hasProperty($propName)) {
-                $anyTranslatedField = true;
-            } elseif (!$metadata->mappings[$field]['nullable']) {
-                // this field is required but missing
-                return false;
-            }
-        }
-
-        if (!$anyTranslatedField) {
-            // we found neither the null list nor any field defined, this node
-            // was never stored in this locale. lets try the next locale.
-            return false;
         }
 
         // we have a translation, now update the document fields
@@ -107,6 +87,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             if (isset($nullFields[$field])) {
                 $value = null;
             } elseif ($node->hasProperty($propName)) {
+                $anyTranslatedField = true;
                 $value = $node->getPropertyValue($propName);
                 $mapping = $metadata->mappings[$field];
                 if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
@@ -123,7 +104,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             $metadata->reflFields[$field]->setValue($document, $value);
         }
 
-        return true;
+        return $anyTranslatedField;
     }
 
     /**
@@ -146,6 +127,9 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                     }
                 }
             }
+        }
+        if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
+            $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, null);
         }
     }
 

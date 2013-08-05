@@ -91,8 +91,8 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testFindByUUID()
     {
         $refTestObj = new RefRefTestObj();
-
         $refTestObj->id = "/functional/refRefTestObj";
+        $refTestObj->name = 'referrer';
 
         $this->dm->persist($refTestObj);
         $this->dm->flush();
@@ -173,7 +173,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $refTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
-        $refRefTestObj->name = "referenced";
 
         $refTestObj->setReference($refRefTestObj);
 
@@ -196,7 +195,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $refManyTestObj->id = "/functional/refTestObj";
         $refRefTestObj->id = "/functional/refRefTestObj";
-        $refRefTestObj->name = "referenced";
 
         $refManyTestObj->references = $refRefTestObj;
 
@@ -235,7 +233,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCreateWithoutRef()
     {
         $refTestObj = new RefTestObj();
-        $refTestObj->name = 'referrer';
         $refTestObj->id = '/functional/refTestObj';
 
         $this->dm->persist($refTestObj);
@@ -248,7 +245,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCreateWithoutManyRef()
     {
         $refTestObj = new RefManyTestObj();
-        $refTestObj->name = 'referrer';
         $refTestObj->id = '/functional/refManyTestObj';
 
         $this->dm->persist($refTestObj);
@@ -261,7 +257,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCreateAddRefLater()
     {
         $refTestObj = new RefTestObj();
-        $refTestObj->name = 'referrer';
         $refTestObj->id = '/functional/refTestObj';
 
         $this->dm->persist($refTestObj);
@@ -288,7 +283,6 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCreateAddManyRefLater()
     {
         $refManyTestObj = new RefManyTestObj();
-        $refManyTestObj->name = 'referrer';
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $this->dm->persist($refManyTestObj);
@@ -1358,8 +1352,6 @@ class ReferenceRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
-    public $name;
     /** @PHPCRODM\Referrers(referringDocument="ReferenceTestObj", referencedBy="reference", cascade={"persist"}) */
     public $referrers;
 }
@@ -1371,8 +1363,6 @@ class ReferenceTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
-    public $name;
     /** @PHPCRODM\ReferenceMany(targetDocument="ReferenceRefTestObj", cascade={"persist", "remove"}) */
     public $reference;
 }
