@@ -989,6 +989,66 @@ class UnitOfWork
         return $nodename;
     }
 
+    private function computeAssociationChanges($class, $oid, $isNew, $actualData, $assocType)
+    {
+        switch ($assocType) {
+            case 'reference':
+                $mappings = $class->referenceMappings;
+                $computeMethod = 'computeReferenceChanges';
+                break;
+            case 'referrer':
+                $mappings = $class->referrersMappings;
+                $computeMethod = 'computeReferrerChanges';
+                break;
+            default:
+                throw new \RuntimeException('Unsupported association type used: '.$assocType);
+        }
+
+        foreach ($mappings as $fieldName) {
+            if ($actualData[$fieldName]) {
+                if ($actualData[$fieldName] instanceof PersistentCollection
+                    && !$actualData[$fieldName]->isInitialized()
+                ) {
+                    continue;
+                }
+
+                $mapping = $class->mappings[$fieldName];
+                if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
+                    if ($actualData[$fieldName] instanceof PersistentCollection) {
+                        if (!$actualData[$fieldName]->isInitialized()) {
+                            continue;
+                        }
+
+                        $coid = spl_object_hash($actualData[$fieldName]);
+                        $this->visitedCollections[$coid] = $actualData[$fieldName];
+                    }
+
+                    foreach ($actualData[$fieldName] as $association) {
+                        if ($association !== null) {
+                            $this->$computeMethod($mapping, $association);
+                        }
+                    }
+
+                    if (!$isNew && $mapping['cascade'] & ClassMetadata::CASCADE_REMOVE
+                        && (is_array($this->originalData[$oid][$fieldName])
+                            || $this->originalData[$oid][$fieldName] instanceof Collection
+                        )
+                    ) {
+                        $associations = $this->originalData[$oid][$fieldName]->getOriginalPaths();
+                        foreach ($associations as $association) {
+                            $association = $this->getDocumentById($association);
+                            if ($association && !$this->originalData[$oid][$fieldName]->contains($association)) {
+                                $this->scheduleRemove($association);
+                            }
+                        }
+                    }
+                } elseif ('reference' === $assocType) {
+                    $this->computeReferenceChanges($mapping, $actualData[$fieldName]);
+                }
+            }
+        }
+    }
+
     /**
      * Computes changeset for a given document.
      *
@@ -1048,45 +1108,9 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->referenceMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            if ($actualData[$fieldName]) {
-                if ($actualData[$fieldName] instanceof PersistentCollection
-                    && !$actualData[$fieldName]->isInitialized()
-                ) {
-                    continue;
-                }
+        $this->computeAssociationChanges($class, $oid, $isNew, $actualData, 'reference');
+        $this->computeAssociationChanges($class, $oid, $isNew, $actualData, 'referrer');
 
-                if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
-                    if ($actualData[$fieldName] instanceof PersistentCollection && !$actualData[$fieldName]->isInitialized()) {
-                        continue;
-                    }
-
-                    foreach ($actualData[$fieldName] as $ref) {
-                        if ($ref !== null) {
-                            $this->computeReferenceChanges($mapping, $ref);
-                        }
-                    }
-                } else {
-                    $this->computeReferenceChanges($mapping, $actualData[$fieldName]);
-                }
-            }
-        }
-
-        foreach ($class->referrersMappings as $fieldName) {
-            if ($actualData[$fieldName]) {
-                if ($actualData[$fieldName] instanceof PersistentCollection
-                    && !$actualData[$fieldName]->isInitialized()
-                ) {
-                    continue;
-                }
-
-                $mapping = $class->mappings[$fieldName];
-                foreach ($actualData[$fieldName] as $referrer) {
-                    $this->computeReferrerChanges($mapping, $referrer);
-                }
-            }
-        }
         foreach ($class->mixedReferrersMappings as $fieldName) {
             if ($actualData[$fieldName]
                 && $actualData[$fieldName] instanceof PersistentCollection
@@ -1139,10 +1163,13 @@ class UnitOfWork
 
             foreach ($class->childrenMappings as $fieldName) {
                 $mapping = $class->mappings[$fieldName];
-                if ($actualData[$fieldName] instanceof PersistentCollection
-                    && !$actualData[$fieldName]->isInitialized()
-                ) {
-                    continue;
+                if ($actualData[$fieldName] instanceof PersistentCollection) {
+                    if (!$actualData[$fieldName]->isInitialized()) {
+                        continue;
+                    }
+
+                    $coid = spl_object_hash($actualData[$fieldName]);
+                    $this->visitedCollections[$coid] = $actualData[$fieldName];
                 }
 
                 $childNames = array();
@@ -1803,7 +1830,7 @@ class UnitOfWork
             }
         } else {
             $documents = is_array($document) ? $document : array($document);
-            foreach($documents as $doc) {
+            foreach ($documents as $doc) {
                 $oid = spl_object_hash($doc);
                 unset($this->documentTranslations[$oid]);
                 if (isset($this->documentLocales[$oid])) {
@@ -1861,7 +1888,14 @@ class UnitOfWork
             $class = $this->dm->getClassMetadata(get_class($document));
             $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
 
-            $node = $parentNode->addNode(PathHelper::getNodeName($id), $class->nodeType);
+            $nodename = PathHelper::getNodeName($id);
+            $node = $parentNode->addNode($nodename, $class->nodeType);
+            if ($class->node) {
+                $this->originalData[$oid][$class->node] = $node;
+            }
+            if ($class->nodename) {
+                $this->originalData[$oid][$class->nodename] = $nodename;
+            }
 
             try {
                 $node->addMixin('phpcr:managed');
@@ -3104,7 +3138,7 @@ class UnitOfWork
             return false;
         }
         $mixinNodeTypes = $node->getMixinNodeTypes();
-        foreach($mixinNodeTypes as $nt) {
+        foreach ($mixinNodeTypes as $nt) {
             if (!$nt->canRemoveProperty($name)) {
                 return false;
             }

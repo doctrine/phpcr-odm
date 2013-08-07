@@ -34,6 +34,7 @@ class ReferrersCollection extends PersistentCollection
     private $type;
     private $name;
     private $refClass;
+    private $originalReferrerPaths;
 
     /**
      * @param DocumentManager $dm
@@ -55,6 +56,26 @@ class ReferrersCollection extends PersistentCollection
         $this->refClass = $refClass;
     }
 
+    private function getReferrerNodes()
+    {
+        $uow = $this->dm->getUnitOfWork();
+        $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($this->document));
+
+        switch ($this->type) {
+            case 'weak':
+                $referrerProperties = $node->getWeakReferences($this->name)->getArrayCopy();
+                break;
+            case 'hard':
+                $referrerProperties = $node->getReferences($this->name)->getArrayCopy();
+                break;
+            default:
+                $referrerProperties = $node->getWeakReferences($this->name)->getArrayCopy();
+                $referrerProperties= array_merge($node->getReferences($this->name)->getArrayCopy(), $referrerProperties);
+        }
+
+        return $referrerProperties;
+    }
+
     /**
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
@@ -63,44 +84,62 @@ class ReferrersCollection extends PersistentCollection
     {
         if (!$this->initialized) {
             $uow = $this->dm->getUnitOfWork();
-            $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($this->document));
 
             $referrerDocuments = array();
-            $referrerPropertiesW = array();
-            $referrerPropertiesH = array();
-
-            switch ($this->type) {
-                case 'weak':
-                    $referrerPropertiesW = $node->getWeakReferences($this->name);
-                    break;
-                case 'hard':
-                    $referrerPropertiesH = $node->getReferences($this->name);
-                    break;
-                default:
-                    $referrerPropertiesW = $node->getWeakReferences($this->name);
-                    $referrerPropertiesH = $node->getReferences($this->name);
-            }
+            $referrerProperties = $this->getReferrerNodes();
 
             $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
 
-            foreach ($referrerPropertiesW as $referrerProperty) {
+            foreach ($referrerProperties as $referrerProperty) {
                 $referrerNode = $referrerProperty->getParent();
                 $document = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
                 if (! $this->refClass || $document instanceof $this->refClass) {
                     $referrerDocuments[] = $document;
-                }
-            }
-
-            foreach ($referrerPropertiesH as $referrerProperty) {
-                $referrerNode = $referrerProperty->getParent();
-                $document = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
-                if (! $this->refClass || $document instanceof $this->refClass) {
-                    $referrerDocuments[] = $document;
+                    $this->originalReferrerPaths[] = $referrerNode->getPath();
                 }
             }
 
             $this->collection = new ArrayCollection($referrerDocuments);
             $this->initialized = true;
         }
+    }
+
+    /**
+     * Return the ordered list of referrer that existed when the collection was initialized
+     *
+     * @return array
+     */
+    public function getOriginalPaths()
+    {
+        if (null === $this->originalReferrerPaths) {
+            $this->originalPaths = array();
+            $nodes = $this->getReferrerNodes();
+            foreach ($nodes as $node) {
+                $this->originalReferrerPaths[] = $node->getPath();
+            }
+        }
+
+        return $this->originalReferrerPaths;
+    }
+
+    /**
+     * Reset original referrer paths and mark the collection as non dirty
+     */
+    public function takeSnapshot()
+    {
+        if (is_array($this->originalReferrerPaths)) {
+            if ($this->initialized) {
+                foreach ($this->collection->toArray() as $document) {
+                    try {
+                        $this->originalReferrerPaths[] = $this->dm->getUnitOfWork()->getDocumentId($document);
+                    } catch (PHPCRException $e) {
+                    }
+                }
+            } else {
+                $this->originalPaths = null;
+            }
+        }
+
+        parent::takeSnapshot();
     }
 }
