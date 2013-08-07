@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Util\ClassUtils;
 
 /**
  * Property collection class
@@ -59,14 +60,8 @@ class ReferenceManyCollection extends PersistentCollection
             $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
             $uow = $this->dm->getUnitOfWork();
 
-            $referencedClass = $this->targetDocument
-                ? $this->dm->getMetadataFactory()->getMetadataFor(ltrim($this->targetDocument, '\\'))->name
-                : null;
-
             foreach ($referencedNodes as $referencedNode) {
-                $proxy = $referencedClass
-                    ? $uow->getOrCreateProxy($referencedNode->getPath(), $referencedClass, $this->locale)
-                    : $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
+                $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
                 $referencedDocs[] = $proxy;
             }
 
