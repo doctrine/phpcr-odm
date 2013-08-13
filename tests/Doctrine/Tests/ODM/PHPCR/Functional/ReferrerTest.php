@@ -706,14 +706,10 @@ class AllReferrerRefTestObj
 /**
  * @PHPCRODM\Document(referenceable=true)
  */
-class AllReferrerRefNamedPropTestObj
+class AllReferrerRefNamedPropTestObj extends ReferrerRefTestObj
 {
-    /** @PHPCRODM\Id */
-    public $id;
     /** @PHPCRODM\Referrers(referencedBy="namedReference",referringDocument="ReferrerNamedPropTestObj") */
     public $referrers;
-    /** @PHPCRODM\String */
-    public $name;
 }
 
 /**
