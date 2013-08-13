@@ -625,6 +625,37 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame($referrer, $referenced->referrers->first());
         $this->assertEquals('changed', $referrer->name);
     }
+
+    public function testCascadeRemoveByCollection()
+    {
+        $referrerRefManyTestObj = new ReferrerRefTestObj2();
+        $referrerRefManyTestObj->id = "/functional/referrerRefManyTestObj";
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newReferrerTestObj = new ReferrerTestObj2();
+            $newReferrerTestObj->id = "/functional/referrerTestObj$i";
+            $newReferrerTestObj->name = "referrerTestObj$i";
+            $newReferrerTestObj->reference = $referrerRefManyTestObj;
+            $this->dm->persist($newReferrerTestObj);
+        }
+
+        $this->dm->persist($referrerRefManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referenced = $this->dm->find(null, "/functional/referrerRefManyTestObj");
+        $this->assertCount($max, $referenced->referrers);
+        $referenced->referrers->remove(0);
+        $referenced->referrers->remove(3);
+        $this->assertCount($max - 2, $referenced->referrers);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referenced = $this->dm->find(null, "/functional/referrerRefManyTestObj");
+        $this->assertCount($max - 2, $referenced->referrers);
+    }
 }
 
 /**
@@ -725,7 +756,6 @@ class ReferrerTestObj
     public $reference;
 }
 
-
 /**
  * @PHPCRODM\Document()
  */
@@ -779,4 +809,30 @@ class ReferrerRefTestObj
     public $name;
     /** @PHPCRODM\MixedReferrers() */
     public $referrers;
+}
+
+/**
+ * @PHPCRODM\Document(referenceable=true)
+ */
+class ReferrerRefTestObj2
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+    /** @PHPCRODM\Referrers(referringDocument="ReferrerTestObj2", referencedBy="reference", cascade={"persist", "remove"}) */
+    public $referrers;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class ReferrerTestObj2
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj2", cascade="persist") */
+    public $reference;
 }
