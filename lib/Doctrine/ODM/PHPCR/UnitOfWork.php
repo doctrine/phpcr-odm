@@ -363,6 +363,9 @@ class UnitOfWork
                 try {
                     $referencedNode = $node->getProperty($mapping['property'])->getNode();
                     $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
+                    if (isset($mapping['targetDocument']) && !$proxy instanceOf $mapping['targetDocument']) {
+                        throw new \RuntimeException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$mapping['targetDocument']}' but got '".ClassUtils::getClass($proxy)."'.");
+                    }
                 } catch (RepositoryException $e) {
                     if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
                         // a weak reference or an old version can have lost references
