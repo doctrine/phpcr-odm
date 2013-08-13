@@ -12,7 +12,7 @@ class RefManyWithParentTestObjForCascade
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="RefCascadeManyTestObj", cascade="all") */
+    /** @PHPCRODM\ReferenceMany(cascade="all") */
     public $references;
 
     /** @PHPCRODM\String */
