@@ -62,6 +62,30 @@ abstract class AbstractNode
      */
     abstract public function getCardinalityMap();
 
+    protected function isValidType($node)
+    {
+        return $this->getBaseType($node) !== null;
+    }
+
+    protected function getBaseType($node)
+    {
+        foreach (array_keys($this->getCardinalityMap()) as $type) {
+            $validFqn = __NAMESPACE__.'\\'.$type;
+
+            // silly hack for unit tests...
+            if ($node->getName() == $type) {
+                return $type;
+            }
+
+            // support polymorphism
+            if ($node instanceof $validFqn) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Add a child to this node.
      *
@@ -83,7 +107,7 @@ abstract class AbstractNode
         $end = false;
 
         // if proposed child node is of an invalid type
-        if (!isset($cardinalityMap[$node->getName()])) {
+        if (!$this->isValidType($node)) {
             throw new \OutOfBoundsException(sprintf(
                 'QueryBuilder node "%s" cannot be appended to "%s". '.
                 'Must be one of "%s"',
@@ -96,7 +120,7 @@ abstract class AbstractNode
         $currentCardinality = isset($this->children[$node->getName()]) ? 
             count($this->children[$node->getName()]) : 0;
 
-        list($min, $max) = $cardinalityMap[$node->getName()];
+        list($min, $max) = $cardinalityMap[$this->getBaseType($node)];
 
         // if bounded and cardinality will exceed max
         if (null !== $max && $currentCardinality + 1 > $max) {

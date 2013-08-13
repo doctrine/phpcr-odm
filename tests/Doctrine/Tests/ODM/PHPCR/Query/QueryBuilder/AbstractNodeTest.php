@@ -204,7 +204,7 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @depends testAddChild
+     * @depends testAddChildValidation
      * @dataProvider provideValidate
      */
     public function testValidate($cardinalityMap, $data, $options)
