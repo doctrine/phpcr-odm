@@ -199,4 +199,20 @@ class ChildrenCollection extends PersistentCollection
 
         return $this->originalNodeNames;
     }
+
+    /**
+     * Reset originalNodeNames and mark the collection as non dirty
+     */
+    public function takeSnapshot()
+    {
+        if (is_array($this->originalNodeNames)) {
+            if ($this->initialized) {
+                $this->originalNodeNames[] = $this->collection->getKeys();
+            } else {
+                $this->originalNodeNames = null;
+            }
+        }
+
+        parent::takeSnapshot();
+    }
 }

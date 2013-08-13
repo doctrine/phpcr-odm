@@ -32,6 +32,7 @@ class ReferenceManyCollection extends PersistentCollection
 {
     private $referencedNodes;
     private $targetDocument;
+    private $originalReferencePaths;
 
     /**
      * Creates a new persistent collection.
@@ -70,6 +71,7 @@ class ReferenceManyCollection extends PersistentCollection
                     throw new \RuntimeException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '$targetDocument' but got '".ClassUtils::getClass($proxy)."'.");
                 }
                 $referencedDocs[] = $proxy;
+                $this->originalReferencePaths[] = $referencedNode->getPath();
             }
 
             $this->collection = new ArrayCollection($referencedDocs);
@@ -95,5 +97,44 @@ class ReferenceManyCollection extends PersistentCollection
         }
 
         return parent::isEmpty();
+    }
+
+    /**
+     * Return the ordered list of references that existed when the collection was initialized
+     *
+     * @return array
+     */
+    public function getOriginalPaths()
+    {
+        if (null === $this->originalReferencePaths) {
+            $this->originalPaths = array();
+            $nodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
+            foreach ($nodes as $node) {
+                $this->originalReferencePaths[] = $node->getPath();
+            }
+        }
+
+        return $this->originalReferencePaths;
+    }
+
+    /**
+     * Reset original reference paths and mark the collection as non dirty
+     */
+    public function takeSnapshot()
+    {
+        if (is_array($this->originalReferencePaths)) {
+            if ($this->initialized) {
+                foreach ($this->collection->toArray() as $document) {
+                    try {
+                        $this->originalReferencePaths[] = $this->dm->getUnitOfWork()->getDocumentId($document);
+                    } catch (PHPCRException $e) {
+                    }
+                }
+            } else {
+                $this->originalReferencePaths = null;
+            }
+        }
+
+        parent::takeSnapshot();
     }
 }

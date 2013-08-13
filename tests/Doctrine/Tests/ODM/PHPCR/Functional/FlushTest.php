@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
+use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
@@ -261,5 +262,39 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $uuidObj->id = '/functional/uuidObj';
         $this->dm->persist($uuidObj);
         $this->dm->flush();
+    }
+
+    public function testRepeatedFlush()
+    {
+        $user1 = new CmsUser();
+        $user1->username = 'romanb';
+        $user2 = new CmsTeamUser();
+        $user2->username = 'jwage';
+        $user2->parent = $user1;
+        $user3 = new CmsTeamUser();
+        $user3->username = 'beberlei';
+        $user3->parent = $user2;
+
+        $group = new CmsGroup();
+        $group->id = '/functional/group';
+        $group->setName('foo');
+        $group->addUser($user1);
+        $group->addUser($user2);
+        $group->addUser($user3);
+        $this->dm->persist($group);
+        $this->assertCount(3, $group->getUsers());
+        $this->dm->flush();
+        $this->dm->getPhpcrSession()->removeItem($user2->id);
+        $this->dm->getPhpcrSession()->save();
+        $this->dm->flush();
+        $this->assertInstanceOf('\PHPCR\NodeInterface', $user1->node);
+
+        $this->assertCount(3, $group->getUsers());
+        $this->dm->clear();
+
+        $group = $this->dm->find(null, '/functional/group');
+        $group->getUsers()->first();
+        $this->assertCount(1, $group->getUsers());
+        $this->assertInstanceOf('\PHPCR\NodeInterface', $group->getUsers()->first()->node);
     }
 }

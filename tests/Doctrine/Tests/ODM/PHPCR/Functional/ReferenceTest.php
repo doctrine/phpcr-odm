@@ -1318,4 +1318,61 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertFalse($this->session->getNode("/functional")->hasNode("refManyWithParentTestObjForCascade"));
     }
+
+    public function testCascadeRemoveByCollection()
+    {
+        $referrerRefManyTestObj = new ReferenceTestObj();
+        $referrerRefManyTestObj->id = "/functional/referenceTestObj";
+        $referrerRefManyTestObj->reference = array();
+
+        $max = 5;
+        for ($i = 0; $i < $max; $i++) {
+            $newReferrerTestObj = new ReferenceRefTestObj();
+            $newReferrerTestObj->id = "/functional/referenceRefTestObj$i";
+            $newReferrerTestObj->name = "referrerTestObj$i";
+            $referrerRefManyTestObj->reference[] = $newReferrerTestObj;
+        }
+
+        $this->dm->persist($referrerRefManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrered = $this->dm->find(null, "/functional/referenceTestObj");
+        $this->assertCount($max, $referrered->reference);
+        $referrered->reference->remove(0);
+        $referrered->reference->remove(3);
+        $this->assertCount($max - 2, $referrered->reference);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $referrered = $this->dm->find(null, "/functional/referenceTestObj");
+        $this->assertCount($max - 2, $referrered->reference);
+    }
+}
+
+/**
+ * @PHPCRODM\Document(referenceable=true)
+ */
+class ReferenceRefTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+    /** @PHPCRODM\Referrers(referringDocument="ReferenceTestObj", referencedBy="reference", cascade={"persist", "remove"}) */
+    public $referrers;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class ReferenceTestObj
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\String */
+    public $name;
+    /** @PHPCRODM\ReferenceMany(targetDocument="ReferrerRefTestObj", cascade={"persist", "remove"}) */
+    public $reference;
 }
