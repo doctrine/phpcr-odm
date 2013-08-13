@@ -6,9 +6,43 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->node1 = $this->getMockBuilder(
+        $this->parent = $this->getMockBuilder(
             'Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode'
-        )->setMockClassName('TestNode')->getMockForAbstractClass();
+        )->setMockClassName('ParentNode')->getMockForAbstractClass();
+
+        $this->node1 = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode')
+            ->setMockClassName('TestNode')
+            ->setConstructorArgs(array($this->parent))
+            ->getMockForAbstractClass();
+
+        $this->leafNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode')
+            ->setMockClassName('LeafNode')
+            ->setConstructorArgs(array($this->node1))
+            ->getMockForAbstractClass();
+        $this->leafNode->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue(array()));
+    }
+
+    protected function addChildrenToNode1($data)
+    {
+        foreach ($data as $className) {
+            $childNode = $this->getMockForAbstractClass(
+                'Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode',
+                array(),
+                $className
+            );
+
+            // only add non-leaf (i.e. with cardinality map) mock children
+            $childNode->expects($this->any())
+                ->method('getCardinalityMap')
+                ->will($this->returnValue(array(
+                    'BarBar' => array(null, null),
+                )));
+
+            $res = $this->node1->addChild($childNode);
+            $this->assertSame($childNode, $res);
+        }
     }
 
     public function testGetName()
@@ -17,27 +51,88 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('TestNode', $res);
     }
 
-    public function provideAddChild()
+    public function provideAddChildValidation()
     {
         return array(
-            array(array(
-                'FooBar' => array(1, 1),
-            ), array(
-                'FooBar',
-                'Foobar',
-            ), array(
-                'exceeds_max' => true
-            )
-        ));
+            // 1. Foobar bounded 1..1
+            // VALID: We fulful criteria
+            array(
+                array(
+                    'FooBar' => array(1, 1),
+                ), 
+                array(
+                    'FooBar',
+                ),
+                array(
+                ),
+            ),
+            // 1a. 
+            // INVALID: Out of bounds
+            array(
+                array(
+                    'FooBar' => array(1, 1),
+                ), 
+                array(
+                    'FooBar',
+                    'Foobar',
+                ), 
+                array(
+                    'exceeds_max' => true
+                ),
+            ),
+            // 1b.
+            // INVALID: Wrong child type
+            array(
+                array(
+                    'FooBar' => array(1, 1),
+                ), 
+                array(
+                    'BarFoo',
+                ), 
+                array(
+                    'invalid_child' => true
+                ),
+            ),
+            // 2. FooBar bounded below, unbounded above
+            array(
+                array(
+                    'FooBar' => array(1, null),
+                ), 
+                array(
+                    'FooBar',
+                    'FooBar',
+                    'FooBar',
+                    'FooBar',
+                ), 
+                array(
+                ),
+            ),
+            // 2a.
+            // INVALID: third datum is of wrong type
+            array(
+                array(
+                    'FooBar' => array(1, null),
+                ), 
+                array(
+                    'FooBar',
+                    'FooBar',
+                    'BarFoo',
+                ), 
+                array(
+                    'invalid_child' => true,
+                ),
+            ),
+        );
     }
 
     /**
-     * @dataProvider provideAddChild
+     * @dataProvider provideAddChildValidation
      */
-    public function testAddChild($cardinalityMap, $data, $options)
+    public function testAddChildValidation($cardinalityMap, $data, $options)
     {
         $options = array_merge(array(
             'exceeds_max' => false,
+            'invalid_child' => false,
         ), $options);
 
         $this->node1->expects($this->any())
@@ -45,18 +140,100 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($cardinalityMap));
 
         if ($options['exceeds_max']) {
-            $this->setExpectedException('OutOfBoundsException');
+            $this->setExpectedException('OutOfBoundsException', 'cannot exceed');
         }
 
-        foreach ($data as $className) {
-            $childNode = $this->getMockForAbstractClass(
-                'Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode',
-                array(),
-                $className
-            );
-
-            $this->node1->addChild($childNode);
+        if ($options['invalid_child']) {
+            $this->setExpectedException('OutOfBoundsException', 'cannot be appended');
         }
+
+        $this->addChildrenToNode1($data);
+        $this->assertCount(count($data), $this->node1->getChildren());
+    }
+
+    public function testAddChildLeaf()
+    {
+        $this->node1->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue(array(
+                'LeafNode' => array(1, 1),
+            )));
+
+        $res = $this->node1->addChild($this->leafNode);
+        $this->assertSame($this->node1, $res);
+    }
+
+    public function provideValidate()
+    {
+        return array(
+
+            // 1. Not enough data
+            // INVALID
+            array(
+                array(
+                    'FooBar' => array(1, 1),
+                ),
+                array(
+                ), // not data!
+                array(
+                    'expected_exception' => array(
+                        'OutOfBoundsException',
+                        '"TestNode" must have at least "1" child nodes of type "FooBar". "0" given'
+                    ),
+                )
+            ),
+
+            // 1a.
+            // INVALID
+            array(
+                array(
+                    'FooBar' => array(3, 3),
+                ),
+                array(
+                    'FooBar',
+                    'FooBar',
+                ),
+                array(
+                    'expected_exception' => array(
+                        'OutOfBoundsException',
+                        '"TestNode" must have at least "3" child nodes of type "FooBar". "2" given'
+                    ),
+                )
+            ),
+        );
+    }
+
+    /**
+     * @depends testAddChild
+     * @dataProvider provideValidate
+     */
+    public function testValidate($cardinalityMap, $data, $options)
+    {
+        $options = array_merge(array(
+            'invalid_child' => false,
+            'expected_exception' => false,
+        ), $options);
+
+        if ($options['expected_exception']) {
+            list($exceptionType, $exceptionMessage) = $options['expected_exception'];
+            $this->setExpectedException($exceptionType, $exceptionMessage);
+        }
+
+        $this->node1->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue($cardinalityMap));
+
+        $this->addChildrenToNode1($data);
+        $this->node1->validate();
+    }
+
+    public function testEnd()
+    {
+        $this->node1->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue(array()));
+
+        $res = $this->node1->end();
+        $this->assertSame($this->parent, $res);
     }
 }
-
