@@ -1,8 +1,10 @@
 <?php
 
-class Builder extends Node
+namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
+
+class Builder extends AbstractNode
 {
-    public function getCardinatlities()
+    public function getCardinalityMap()
     {
         return array(
             'Select' => array(0, null),    // 1..*
@@ -14,7 +16,21 @@ class Builder extends Node
 
     public function where()
     {
-        $where = new Fundamental\Where;
-        $this->addChild($where)
+        return $this->addChild(new Where($this));
+    }
+
+    public function from()
+    {
+        return $this->addChild(new From($this));
+    }
+
+    public function select()
+    {
+        return $this->addChild(new Select($this));
+    }
+
+    public function orderBy()
+    {
+        return $this->addChild(new OrderBy($this));
     }
 }

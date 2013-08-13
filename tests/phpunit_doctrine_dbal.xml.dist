@@ -1,4 +1,4 @@
-<phpunit bootstrap="bootstrap.php" backupGlobals="false" cacheTokens="true">
+<phpunit colors="true" bootstrap="bootstrap.php" backupGlobals="false" cacheTokens="true">
     <php>
         <var name="DOCTRINE_PHPCR_FACTORY" value="\Jackalope\RepositoryFactoryDoctrineDBAL" />
         <var name="jackalope.doctrine.dbal.driver" value="pdo_mysql" />

@@ -1,4 +1,4 @@
-<phpunit bootstrap="bootstrap.php" backupGlobals="false" cacheTokens="true">
+<phpunit colors="true" bootstrap="bootstrap.php" backupGlobals="false" cacheTokens="true">
     <php>
         <var name="DOCTRINE_PHPCR_FACTORY" value="\Midgard\PHPCR\RepositoryFactory" />
         <var name="midgard2.configuration.db.type" value="SQLite" />
