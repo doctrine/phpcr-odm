@@ -996,13 +996,6 @@ class UnitOfWork
 
         foreach ($mappings as $fieldName) {
             if ($actualData[$fieldName]) {
-                if ($actualData[$fieldName] instanceof PersistentCollection
-                    && !$actualData[$fieldName]->isInitialized()
-                ) {
-                    continue;
-                }
-
-                $mapping = $class->mappings[$fieldName];
                 if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
                     if ($actualData[$fieldName] instanceof PersistentCollection) {
                         if (!$actualData[$fieldName]->isInitialized()) {
@@ -1013,6 +1006,7 @@ class UnitOfWork
                         $this->visitedCollections[$coid] = $actualData[$fieldName];
                     }
 
+                    $mapping = $class->mappings[$fieldName];
                     foreach ($actualData[$fieldName] as $association) {
                         if ($association !== null) {
                             $this->$computeMethod($mapping, $association);
@@ -1032,7 +1026,8 @@ class UnitOfWork
                             }
                         }
                     }
-                } elseif ('reference' === $assocType) {
+                } elseif ('reference' === $assocType && $actualData[$fieldName]) {
+                    $mapping = $class->mappings[$fieldName];
                     $this->computeReferenceChanges($mapping, $actualData[$fieldName]);
                 }
             }
@@ -1152,7 +1147,6 @@ class UnitOfWork
             }
 
             foreach ($class->childrenMappings as $fieldName) {
-                $mapping = $class->mappings[$fieldName];
                 if ($actualData[$fieldName] instanceof PersistentCollection) {
                     if (!$actualData[$fieldName]->isInitialized()) {
                         continue;
@@ -1161,6 +1155,8 @@ class UnitOfWork
                     $coid = spl_object_hash($actualData[$fieldName]);
                     $this->visitedCollections[$coid] = $actualData[$fieldName];
                 }
+
+                $mapping = $class->mappings[$fieldName];
 
                 $childNames = array();
                 if ($actualData[$fieldName]) {

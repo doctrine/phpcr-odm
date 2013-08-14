@@ -1360,7 +1360,7 @@ class ReferenceRefTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\Referrers(referringDocument="ReferenceTestObj", referencedBy="reference", cascade={"persist", "remove"}) */
+    /** @PHPCRODM\Referrers(referringDocument="ReferenceTestObj", referencedBy="reference", cascade={"persist"}) */
     public $referrers;
 }
 
@@ -1373,6 +1373,6 @@ class ReferenceTestObj
     public $id;
     /** @PHPCRODM\String */
     public $name;
-    /** @PHPCRODM\ReferenceMany(targetDocument="ReferrerRefTestObj", cascade={"persist", "remove"}) */
+    /** @PHPCRODM\ReferenceMany(targetDocument="ReferenceRefTestObj", cascade={"persist", "remove"}) */
     public $reference;
 }
