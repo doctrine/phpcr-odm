@@ -15,6 +15,4 @@ class RefDifTestObj
     public $referenceType1;
     /** @PHPCRODM\ReferenceOne(targetDocument="RefType2TestObj", cascade="persist") */
     public $referenceType2;
-    /** @PHPCRODM\String */
-    public $name;
 }

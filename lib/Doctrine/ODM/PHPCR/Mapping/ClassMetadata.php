@@ -1006,6 +1006,9 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function hasField($fieldName)
     {
+        if (null === $fieldName) {
+            return false;
+        }
         return in_array($fieldName, $this->fieldMappings)
             || $this->localeMapping === $fieldName
             || $this->node === $fieldName
@@ -1168,6 +1171,23 @@ class ClassMetadata implements ClassMetadataInterface
     public function isInheritedField($fieldName)
     {
         return isset($this->inheritedFields[$fieldName]) ? $this->inheritedFields[$fieldName] : false;
+    }
+
+    /**
+     * Check if the field is nullable or not.
+     *
+     * @param string $fieldName  The field name
+     *
+     * @return boolean TRUE if the field is nullable, FALSE otherwise.
+     */
+    public function isNullable($fieldName)
+    {
+        $mapping = $this->getField($fieldName);
+        if ($mapping !== false) {
+            return isset($mapping['nullable']) && true == $mapping['nullable'];
+        }
+
+        return false;
     }
 
     /**

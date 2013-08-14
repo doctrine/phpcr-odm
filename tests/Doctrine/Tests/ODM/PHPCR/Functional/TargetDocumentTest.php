@@ -105,7 +105,7 @@ class ReferenceOneObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     public $name;
     /** @PHPCRODM\ReferenceOne(cascade="persist") */
     public $reference;

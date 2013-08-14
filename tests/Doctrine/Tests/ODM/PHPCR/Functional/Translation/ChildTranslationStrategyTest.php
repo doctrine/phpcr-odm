@@ -224,17 +224,16 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->assertEquals(null, $doc->nullable);
     }
 
-    public function testLoadTranslationWithNonNullable()
+    public function testLoadTranslationMissing()
     {
         $node = $this->fillTranslations();
 
-        $enNode = $node->getNode(Translation::LOCALE_NAMESPACE . ':en');
-        $enNode->setProperty('topic', null); // remove required translatable property
+        $node->getNode(Translation::LOCALE_NAMESPACE . ':en')->remove();
         $this->session->save();
 
         $doc = new Article();
         $strategy = new ChildTranslationStrategy();
-        $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should fail to load english because of missing topic translation');
+        $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should fail to load english as there is no english child node');
     }
 
     protected function fillTranslations()

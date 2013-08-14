@@ -13,9 +13,6 @@ class RefTestPrivateObj
     public $id;
     /** @PHPCRODM\ReferenceOne(cascade="persist") */
     private $reference;
-    /** @PHPCRODM\String */
-    public $name;
-
 
     public function getReference()
     {

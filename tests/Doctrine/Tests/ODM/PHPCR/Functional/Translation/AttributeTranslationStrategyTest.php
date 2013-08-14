@@ -189,11 +189,13 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $strategy = new AttributeTranslationStrategy();
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
-        $doc['topic'] = 'sujet interessant';
+        $data['topic'] = 'sujet interessant';
+        $data['text'] = null;
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
 
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
+        $this->assertTrue($node->hasProperty('phpcr_locale:frnullfields'));
 
         // Then remove the french translation
         $doc = new Article;
@@ -204,6 +206,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr', 'topic')));
         $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr', 'text')));
+        $this->assertFalse($node->hasProperty('phpcr_locale:frnullfields'));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
     }
@@ -253,7 +256,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         }
     }
 
-    static function propertyNameForLocale($locale, $property)
+    public static function propertyNameForLocale($locale, $property)
     {
         return Translation::LOCALE_NAMESPACE . ':' . $locale . '-' . $property;
     }

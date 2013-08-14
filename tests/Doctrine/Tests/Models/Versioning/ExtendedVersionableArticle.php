@@ -9,10 +9,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class ExtendedVersionableArticle extends FullVersionableArticle
 {
-
-    /** @PHPCRODM\Date */
-    public $publishDate;
-
     /** @PHPCRODM\String */
     public $author;
 

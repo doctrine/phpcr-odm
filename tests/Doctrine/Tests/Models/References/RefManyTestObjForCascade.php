@@ -13,6 +13,4 @@ class RefManyTestObjForCascade
     public $id;
     /** @PHPCRODM\ReferenceMany(targetDocument="RefCascadeManyTestObj", cascade="persist") */
     public $references;
-    /** @PHPCRODM\String */
-    public $name;
 }

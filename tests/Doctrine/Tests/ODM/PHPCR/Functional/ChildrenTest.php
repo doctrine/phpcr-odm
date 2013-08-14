@@ -306,7 +306,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
 
         $this->assertEquals("Child A", $parent->allChildren->first()->name);
-        
+
         $this->dm->getEventManager()->removeEventListener(array('preUpdate'), $this->listener);
     }
 
@@ -480,7 +480,7 @@ class ChildrenTestObj
   /** @PHPCRODM\Id(strategy="repository") */
   public $id;
 
-  /** @PHPCRODM\String */
+  /** @PHPCRODM\String(nullable=true) */
   public $name;
 
   /** @PHPCRODM\Children(filter="*A", fetchDepth=1, cascade="persist") */

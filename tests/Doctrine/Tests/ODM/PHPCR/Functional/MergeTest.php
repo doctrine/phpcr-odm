@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsArticle;
@@ -9,6 +10,9 @@ use Doctrine\Tests\Models\CMS\CmsTeamUser;
 
 class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var DocumentManager
+     */
     private $dm;
 
     public function setUp()
@@ -165,10 +169,14 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $mergableUser = new CmsUser();
         $mergableUser->id = $user->id;
+        $mergableUser->username = 'dbu';
+        $mergableUser->name = 'David';
 
         $mergedUser = $this->dm->merge($mergableUser);
 
         $this->assertSame($mergedUser, $user);
+        $this->assertEquals('dbu', $mergedUser->username);
+        $this->assertEquals('David', $mergedUser->name);
         $this->assertEquals("jwage", $mergedUser->child->username);
 
         $this->dm->flush();
@@ -205,10 +213,13 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $mergableUser = new CmsUser();
         $mergableUser->id = $user->id;
+        $mergableUser->username = 'dbu';
 
         $mergedUser = $this->dm->merge($mergableUser);
 
         $this->assertSame($mergedUser, $user);
+        $this->assertEquals('dbu', $mergedUser->username);
+        $this->assertNull($mergedUser->name);
         $this->assertCount(1, $mergedUser->children);
 
         $this->dm->flush();

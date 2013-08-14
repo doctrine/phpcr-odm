@@ -1874,6 +1874,19 @@ class UnitOfWork
             $class = $this->dm->getClassMetadata(get_class($document));
             $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
 
+            // PHPCR does not validate nullable unless we would start to
+            // generate custom node types, which we at the moment don't.
+            // the ORM can delegate this validation to the relational database
+            // that is using a strict schema
+            foreach ($class->fieldMappings as $fieldName) {
+                if (!isset($this->documentChangesets[$oid]['fields'][$fieldName]) // empty string is ok
+                    && !$class->isNullable($fieldName)
+                    && !$this->isAutocreatedProperty($class, $fieldName)
+                ) {
+                    throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
+                }
+            }
+
             $nodename = PathHelper::getNodeName($id);
             $node = $parentNode->addNode($nodename, $class->nodeType);
             if ($class->node) {
@@ -1970,6 +1983,41 @@ class UnitOfWork
     }
 
     /**
+     * Identify whether a PHPCR property is autocreated or not.
+     *
+     * @param ClassMetadata $class
+     * @param string        $fieldName
+     *
+     * @return boolean
+     */
+    private function isAutocreatedProperty(ClassMetadata $class, $fieldName)
+    {
+        $field = $class->getField($fieldName);
+        if ('jcr:uuid' === $field['property']) {
+            // jackrabbit at least does not identify this as auto created
+            // it is strictly speaking no property
+            return true;
+        }
+        $ntm = $this->session->getWorkspace()->getNodeTypeManager();
+        $nodeType = $ntm->getNodeType($class->getNodeType());
+        $propertyDefinitions = $nodeType->getPropertyDefinitions();
+        foreach ($class->getMixins() as $mixinTypeName) {
+            $nodeType = $ntm->getNodeType($mixinTypeName);
+            $propertyDefinitions = array_merge($propertyDefinitions, $nodeType->getPropertyDefinitions());
+        }
+
+        foreach ($propertyDefinitions as $property) {
+            if ($class->mappings[$fieldName]['property'] === $property->getName()
+                && $property->isAutoCreated()
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Executes all document updates
      *
      * @param array   $documents      array of all to be updated documents
@@ -2003,6 +2051,20 @@ class UnitOfWork
             }
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
+                // PHPCR does not validate nullable unless we would start to
+                // generate custom node types, which we at the moment don't.
+                // the ORM can delegate this validation to the relational database
+                // that is using a strict schema.
+                // do this after the preUpdate events to give listener a last
+                // chance to provide values
+                if (null === $fieldValue
+                    && in_array($fieldName, $class->fieldMappings) // only care about non-virtual fields
+                    && !$class->isNullable($fieldName)
+                    && !$this->isAutocreatedProperty($class, $fieldName)
+                ) {
+                    throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
+                }
+
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
                     continue;
@@ -2742,14 +2804,11 @@ class UnitOfWork
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
         $locale = $locale ?: $currentLocale;
-        if ($locale && $strategy->loadTranslation($document, $node, $metadata, $locale)) {
+        if ($strategy->loadTranslation($document, $node, $metadata, $locale)) {
             $localeUsed = $locale;
         } elseif (!$fallback) {
-            $localeUsed = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
-            if (!$strategy->loadTranslation($document, $node, $metadata, $localeUsed)) {
-                $msg = "No translation at '{$node->getPath()}' found with strategy '{$metadata->translator} using the default locale '$localeUsed'.";
-                throw new MissingTranslationException($msg);
-            }
+            $msg = "No translation at '{$node->getPath()}' found with strategy '{$metadata->translator} using the default locale '$locale'.";
+            throw new MissingTranslationException($msg);
         } else {
             $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
 
@@ -2761,30 +2820,12 @@ class UnitOfWork
             }
 
             if (empty($localeUsed)) {
-                // we found no translation. if all translated fields can be
-                // null, we want to just null them.
-                $allNullable = true;
+                // we found no locale. so all translated fields are null and we
+                // consider the locale to be the requested one
+                $localeUsed = $locale;
                 foreach ($metadata->translatableFields as $fieldName) {
-                    if (!$metadata->mappings[$fieldName]['nullable']) {
-                        $allNullable = false;
-                        break;
-                    }
                     $value = ($metadata->mappings[$fieldName]['multivalue']) ? array() : null;
                     $metadata->reflFields[$fieldName]->setValue($document, $value);
-                }
-                // there was no translation, treat this as the requested locale was found.
-                $localeUsed = $locale;
-                if (!$allNullable) {
-                    $msg = sprintf("No translation for locale '%s' at '%s' found with strategy '%s'.",
-                        $locale,
-                        $node->getPath(),
-                        $metadata->translator
-                    );
-                    if (!empty($localesToTry)) {
-                        $msg .= " Tried the following additional locales: ".var_export($localesToTry, true);
-                    }
-
-                    throw new MissingTranslationException($msg);
                 }
             }
         }
@@ -3108,27 +3149,5 @@ class UnitOfWork
     public function getScheduledRemovals()
     {
         return $this->scheduledRemovals;
-    }
-
-    /**
-     * Check whether the property with the given name can be removed from the node
-     * @param NodeInterface $node
-     * @param string $name
-     *
-     * @return bool true if the property can be removed
-     */
-    private function canRemoveProperty(NodeInterface $node, $name)
-    {
-        $primaryNodeType = $node->getPrimaryNodeType();
-        if (!$primaryNodeType->canRemoveProperty($name)) {
-            return false;
-        }
-        $mixinNodeTypes = $node->getMixinNodeTypes();
-        foreach ($mixinNodeTypes as $nt) {
-            if (!$nt->canRemoveProperty($name)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

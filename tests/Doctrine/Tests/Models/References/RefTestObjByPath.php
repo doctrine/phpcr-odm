@@ -13,6 +13,4 @@ class RefTestObjByPath
     public $id;
     /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", strategy="path", cascade="persist") */
     public $reference;
-    /** @PHPCRODM\String */
-    public $name;
 }
