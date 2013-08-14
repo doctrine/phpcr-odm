@@ -37,6 +37,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
+        $user->setProperty('note', 'test');
         $user->setProperty('numbers', array(3, 1, 2));
         $user->setProperty('parameters', array('bar', 'dong'));
         $user->setProperty('parameterKey', array('foo', 'ding'));
@@ -150,6 +151,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User();
         $user->numbers = array(1);
         $user->id = '/functional/test';
+        $user->username = 'testuser';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -387,13 +389,13 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testNullRemovesTheProperty()
     {
         $user1 = $this->dm->find($this->type, '/functional/user');
-        $user1->username = null;
+        $user1->note = null;
         $this->dm->flush();
         $this->dm->clear();
 
         $user2 = $this->dm->find($this->type, '/functional/user');
-        $this->assertFalse($user2->node->hasProperty('username'));
-        $this->assertNull($user2->username);
+        $this->assertFalse($user2->node->hasProperty('note'));
+        $this->assertNull($user2->note);
     }
 
     public function testInheritance()
@@ -534,11 +536,13 @@ class User
     public $node;
     /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(multivalue=true) */
+    /** @PHPCRODM\String(nullable=true) */
+    public $note;
+    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
     public $numbers;
-    /** @PHPCRODM\String(assoc="") */
+    /** @PHPCRODM\String(assoc="",nullable=true) */
     public $parameters;
-    /** @PHPCRODM\Long(assoc="") */
+    /** @PHPCRODM\Long(assoc="",nullable=true) */
     public $assocNumbers;
 }
 
@@ -584,7 +588,7 @@ class User5
     public $parent;
     /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\Int(multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
     public $numbers;
 }
 
@@ -630,6 +634,6 @@ class VersionTestObj
     /** @PHPCRODM\String */
     public $username;
 
-    /** @PHPCRODM\Int(multivalue=true) */
+    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
     public $numbers;
 }

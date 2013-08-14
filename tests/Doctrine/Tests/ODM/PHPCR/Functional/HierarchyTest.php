@@ -106,7 +106,6 @@ class HierarchyTest extends PHPCRFunctionalTestCase
 
         $child = new NameDoc();
         $child->id = '/functional/parent/child';
-        $child->title = 'foo';
 
         $this->dm->persist($child);
         $this->dm->flush();
@@ -270,8 +269,6 @@ class NameDoc
     public $children;
     /** @PHPCRODM\Child(cascade="persist") */
     public $child;
-    /** @PHPCRODM\String */
-    public $title;
 }
 
 /**

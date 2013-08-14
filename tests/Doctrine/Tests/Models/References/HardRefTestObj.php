@@ -13,6 +13,4 @@ class HardRefTestObj
     public $id;
     /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", strategy="hard", cascade="persist") */
     public $reference;
-    /** @PHPCRODM\String */
-    public $name;
 }

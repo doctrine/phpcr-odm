@@ -15,9 +15,6 @@ class RefManyWithParentTestObjForCascade
     /** @PHPCRODM\ReferenceMany(cascade="all") */
     public $references;
 
-    /** @PHPCRODM\String */
-    public $name;
-
     public function setReferences($references)
     {
         foreach ($references as $reference) {

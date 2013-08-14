@@ -127,7 +127,7 @@ class ProtectedPropertyTestObj
     /** @PHPCRODM\String(property="jcr:createdBy") */
     public $createdBy;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     public $changeme;
 }
 

@@ -96,7 +96,7 @@ class FileTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     public $name;
     /**
      * @var File

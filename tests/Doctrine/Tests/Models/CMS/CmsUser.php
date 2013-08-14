@@ -16,11 +16,11 @@ class CmsUser
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     public $status;
     /** @PHPCRODM\String */
     public $username;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(nullable=true) */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;

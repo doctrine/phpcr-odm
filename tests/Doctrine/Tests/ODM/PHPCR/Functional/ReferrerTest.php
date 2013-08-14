@@ -69,7 +69,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerTestObj->id = "/functional/referrerTestObj";
         $referrerTestObj->name = "referrer";
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
+
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -97,7 +97,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testCreateWithoutRef()
     {
         $referrerTestObj = new ReferrerRefTestObj();
-        $referrerTestObj->name = 'referrerRefTestObj';
         $referrerTestObj->id = '/functional/referrerRefTestObj';
 
         $this->dm->persist($referrerTestObj);
@@ -115,7 +114,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $ids = array();
         for ($i = 0; $i < $max; $i++) {
@@ -150,7 +148,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $ids = array();
         for ($i = 0; $i < $max; $i++) {
@@ -179,7 +176,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerTestObj->id = "/functional/referrerTestObj";
         $referrerTestObj->name = "referrer";
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -203,7 +199,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $ids = array();
         for ($i = 0; $i < $max; $i++) {
@@ -248,7 +243,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $ids = array();
         for ($i = 0; $i < $max; $i++) {
@@ -299,7 +293,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerTestObj->id = "/functional/referrerTestObj";
         $referrerTestObj->name = "referrer";
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -332,7 +325,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $ids = array();
         for ($i = 0; $i < $max; $i++) {
@@ -380,7 +372,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerTestObj->id = "/functional/referrerTestObj";
         $referrerTestObj->name = "referrer";
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -465,8 +456,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerRefTestObj = new ReferrerRefTestObj();
 
         $referrerTestObj->id = "/functional/referrerTestObj";
+        $referrerTestObj->name = 'referrer';
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -498,15 +489,12 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $weakReferrerRefTestObj = new WeakReferrerRefTestObj();
         $weakReferrerRefTestObj->id = "/functional/weakReferrerRefTestObj";
-        $weakReferrerRefTestObj->name = "weakReferrerRefTestObj";
 
         $hardReferrerRefTestObj = new HardReferrerRefTestObj();
         $hardReferrerRefTestObj->id = "/functional/hardReferrerRefTestObj";
-        $hardReferrerRefTestObj->name = "hardReferrerRefTestObj";
 
         $allReferrerRefTestObj = new AllReferrerRefTestObj();
         $allReferrerRefTestObj->id = "/functional/allReferrerRefTestObj";
-        $allReferrerRefTestObj->name = "allReferrerRefTestObj";
 
 
         $weakReferrerTestObj->referenceToWeak = $weakReferrerRefTestObj;
@@ -558,7 +546,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerNamedPropTestObj->name = "referrerNamedPropTestObj";
 
         $allReferrerRefNamedPropTestObj->id = "/functional/allReferrerRefNamedPropTestObj";
-        $allReferrerRefNamedPropTestObj->name = "referenced";
 
         $referrerTestObj->reference = $allReferrerRefNamedPropTestObj;
         $referrerNamedPropTestObj->namedReference = $allReferrerRefNamedPropTestObj;
@@ -575,6 +562,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $otherRef = new OtherReferrerTestObj();
         $otherRef->id = '/functional/otherObj';
+        $otherRef->name = 'other ref';
         $otherRef->namedReference = $referenced;
 
         $this->dm->persist($otherRef);
@@ -607,7 +595,6 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrerTestObj->id = "/functional/referrerTestObj";
         $referrerTestObj->name = "referrer";
         $referrerRefTestObj->id = "/functional/referrerRefTestObj";
-        $referrerRefTestObj->name = "referenced";
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -704,8 +691,6 @@ class WeakReferrerRefTestObj
     public $id;
     /** @PHPCRODM\MixedReferrers(referenceType="weak") */
     public $referrers;
-    /** @PHPCRODM\String */
-    public $name;
 }
 
 /**
@@ -717,8 +702,6 @@ class HardReferrerRefTestObj
     public $id;
     /** @PHPCRODM\MixedReferrers(referenceType="hard") */
     public $referrers;
-    /** @PHPCRODM\String */
-    public $name;
 }
 
 /**
@@ -730,8 +713,6 @@ class AllReferrerRefTestObj
     public $id;
     /** @PHPCRODM\MixedReferrers() */
     public $referrers;
-    /** @PHPCRODM\String */
-    public $name;
 }
 
 /**
@@ -805,8 +786,6 @@ class ReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
-    public $name;
     /** @PHPCRODM\MixedReferrers() */
     public $referrers;
 }
@@ -818,8 +797,6 @@ class ReferrerRefTestObj2
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
-    public $name;
     /** @PHPCRODM\Referrers(referringDocument="ReferrerTestObj2", referencedBy="reference", cascade={"persist", "remove"}) */
     public $referrers;
 }
@@ -831,8 +808,6 @@ class ReferrerTestObj2
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
-    public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj2", cascade="persist") */
     public $reference;
 }
