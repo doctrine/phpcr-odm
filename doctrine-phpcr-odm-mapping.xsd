@@ -273,7 +273,7 @@
     <xs:complexType name="child">
         <xs:complexContent>
             <xs:extension base="phpcr:relation-type">
-                <xs:attribute name="node-name" type="xs:NMTOKEN" use="required"/>
+                <xs:attribute name="node-name" type="xs:NMTOKEN"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
