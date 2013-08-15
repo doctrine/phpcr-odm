@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class SourceDocument extends Source
+class SourceDocument extends AbstractLeafNode implements SourceInterface
 {
     protected $documentFqn;
     protected $selectorName;
@@ -14,11 +14,6 @@ class SourceDocument extends Source
         parent::__construct($parent);
         $this->documentFqn = $documentFqn;
         $this->selectorName = $selectorName;
-    }
-
-    public function getCardinalityMap()
-    {
-        return array();
     }
 
     public function getDocumentFqn()

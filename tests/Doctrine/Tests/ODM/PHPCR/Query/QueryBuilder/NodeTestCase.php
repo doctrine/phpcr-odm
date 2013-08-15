@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Builder;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractLeafNode;
 
 abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
 {
@@ -21,9 +22,11 @@ abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
     public function testInterface($method, $expectedClass, $args = array())
     {
         $res = call_user_func_array(array($this->node, $method), $args);
+        $refl = new \ReflectionClass($expectedClass);
 
-        // only leaf nodes have arguments, and leaf nodes return the parent
-        if ($args) {
+        if ($refl->isSubclassOf(
+            'Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractLeafNode'
+        )) {
             $this->assertSame($this->node, $res);
         } else {
             $this->assertInstanceOf($expectedClass, $res);

@@ -15,13 +15,10 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs(array($this->parent))
             ->getMockForAbstractClass();
 
-        $this->leafNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode')
+        $this->leafNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractLeafNode')
             ->setMockClassName('LeafNode')
             ->setConstructorArgs(array($this->node1))
             ->getMockForAbstractClass();
-        $this->leafNode->expects($this->any())
-            ->method('getCardinalityMap')
-            ->will($this->returnValue(array()));
     }
 
     protected function addChildrenToNode1($data)
@@ -32,13 +29,6 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
                 array(),
                 $className
             );
-
-            // only add non-leaf (i.e. with cardinality map) mock children
-            $childNode->expects($this->any())
-                ->method('getCardinalityMap')
-                ->will($this->returnValue(array(
-                    'BarBar' => array(null, null),
-                )));
 
             $res = $this->node1->addChild($childNode);
             $this->assertSame($childNode, $res);
