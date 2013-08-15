@@ -54,10 +54,6 @@ abstract class AbstractNode
      *         'FooBar' => array(null, 1), // require none to 1 FooBars
      *     );
      *
-     * or for a leaf node:
-     *     array(
-     *     );
-     *
      * @return array
      */
     abstract public function getCardinalityMap();
@@ -136,12 +132,18 @@ abstract class AbstractNode
 
         $this->children[$node->getName()][] = $node;
 
-        // return the parent node if this is a leaf node
-        if (count($node->getCardinalityMap()) === 0) {
-            return $node->getParent();
-        }
+        return $node->getNext();
+    }
 
-        return $node;
+    /**
+     * Return the next object in the fluid interface
+     * chain.
+     *
+     * @return AbstractNode
+     */
+    public function getNext()
+    {
+        return $this;
     }
 
     /**
