@@ -35,7 +35,7 @@ class SourceJoin extends AbstractNode implements SourceInterface
     public function getCardinalityMap()
     {
         return array(
-            'JoinCondition' => array(1, 1),
+            'SourceJoinCondition' => array(1, 1),
             'SourceJoinLeft' => array(1, 1),
             'SourceJoinRight' => array(1, 1),
         );

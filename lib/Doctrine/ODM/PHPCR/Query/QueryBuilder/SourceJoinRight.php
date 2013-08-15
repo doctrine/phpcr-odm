@@ -4,6 +4,6 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class SourceJoinLeft extends From
+class SourceJoinRight extends From
 {
 }

@@ -11,16 +11,35 @@ abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $this->parent = $this->getMockBuilder(
+            'Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode'
+        )->setMockClassName('ParentNode')->getMockForAbstractClass();
         $this->node = $this->getNode();
     }
 
     abstract public function provideInterface();
 
+    public function getNode($args = array())
+    {
+        $refl = new \ReflectionClass($this);
+        preg_match('&^(.*?)Test&', $refl->getShortName(), $matches);
+        $nodeClass = $matches[1];
+        $fqn = 'Doctrine\\ODM\\PHPCR\Query\\QueryBuilder\\'.$nodeClass;
+        $nodeRefl = new \ReflectionClass($fqn);
+        $inst = $nodeRefl->newInstanceArgs(array_merge(array(
+            $this->parent
+        ), $args));
+
+        return $inst;
+    }
+
     /**
      * @dataProvider provideInterface
      */
-    public function testInterface($method, $expectedClass, $args = array())
+    public function testInterface($method, $type, $args = array())
     {
+        $expectedClass = 'Doctrine\\ODM\\PHPCR\\Query\\QueryBuilder\\'.$type;
+
         $res = call_user_func_array(array($this->node, $method), $args);
         $refl = new \ReflectionClass($expectedClass);
 
@@ -35,6 +54,3 @@ abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 }
-
-
-
