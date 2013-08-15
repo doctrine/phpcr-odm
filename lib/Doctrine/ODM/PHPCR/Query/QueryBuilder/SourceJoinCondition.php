@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class SourceConditionFactory extends AbstractNode implements SourceInterface
+class SourceJoinCondition extends AbstractNode implements SourceInterface
 {
     public function getCardinalityMap()
     {
