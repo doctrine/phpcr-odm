@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class SourceJoinConditionEqui extends AbstractLeafNode implements SourceInterface
+class SourceJoinConditionEqui extends AbstractLeafNode implements SourceJoinConditionInterface
 {
     protected $property1;
     protected $selector1;
