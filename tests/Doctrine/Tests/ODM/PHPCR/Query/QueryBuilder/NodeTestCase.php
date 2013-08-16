@@ -46,7 +46,7 @@ abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
         if ($refl->isSubclassOf(
             'Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractLeafNode'
         )) {
-            $this->assertSame($this->node, $res);
+            $this->assertSame($this->node, $res, 'Leaf node method "'.$method.'" returns parent');
         } else {
             $this->assertInstanceOf($expectedClass, $res);
             $parent = $res->getParent();
