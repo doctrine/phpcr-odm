@@ -10,5 +10,10 @@ class Select extends AbstractNode
             'Property' => array(0, null)
         );
     }
+
+    public function property($propertyName, $selectorName)
+    {
+        return $this->addChild(new Property($this, $propertyName, $selectorName));
+    }
 }
 

@@ -2,10 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
-use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
-
-class SourceJoinConditionChildDocument extends AbstractLeafNode implements SourceJoinConditionInterface
+class SourceJoinConditionChildDocument extends AbstractLeafNode implements 
+    SourceJoinConditionInterface
 {
     protected $childSelectorName;
     protected $parentSelectorName;
