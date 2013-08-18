@@ -10,7 +10,8 @@ class ConstraintComparison extends AbstractNode implements
     public function getCardinalityMap()
     {
         return array(
-            'OperandInterface' => '2', '2'
+            'DynamicOperand' => '1', '1'
+            'StaticOperand' => '1', '1'
         );
     }
 
