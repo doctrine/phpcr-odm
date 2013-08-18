@@ -1,9 +1,8 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
-class Where extends ConstraintFactory
+class ConstraintFactory extends AbstractNode
 {
     public function getCardinalityMap()
     {
@@ -51,54 +50,5 @@ class Where extends ConstraintFactory
     public function not()
     {
         return $this->addChild(new ConstraintNot($this));
-    }
-
-    public function eq()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_EQUAL_TO
-        ));
-    }
-
-    public function neq()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO
-        ));
-    }
-
-    public function lt()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_LESS_THAN
-        ));
-    }
-
-    public function lte()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO
-        ));
-    }
-
-    public function gt()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_GREATER_THAN
-        ));
-    }
-
-    public function gte()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO
-        ));
-    }
-
-    public function like()
-    {
-        return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_LIKE
-        ));
     }
 }
