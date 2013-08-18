@@ -31,25 +31,25 @@ class WhereTest extends NodeTestCase
             )),
             array('not', 'ConstraintNot', array(
             )),
-            array('eq', 'ConstraintComparisson', array(
+            array('eq', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_EQUAL_TO
             )),
-            array('neq', 'ConstraintComparisson', array(
+            array('neq', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO
             )),
-            array('lt', 'ConstraintComparisson', array(
+            array('lt', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_LESS_THAN
             )),
-            array('lte', 'ConstraintComparisson', array(
+            array('lte', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO
             )),
-            array('gt', 'ConstraintComparisson', array(
+            array('gt', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_GREATER_THAN
             )),
-            array('gte', 'ConstraintComparisson', array(
+            array('gte', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO
             )),
-            array('like', 'ConstraintComparisson', array(
+            array('like', 'ConstraintComparison', array(
                 QOMConstants::JCR_OPERATOR_LIKE
             )),
         );

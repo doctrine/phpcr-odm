@@ -2,7 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class ConstraintOrx extends ConstraintFactory
+class ConstraintOrx extends ConstraintFactory implements
+    ConstraintInterface
 {
     public function getCardinalityMap()
     {

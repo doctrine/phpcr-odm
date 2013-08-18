@@ -2,6 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+
 class ConstraintFactory extends AbstractNode
 {
     public function getCardinalityMap()
@@ -13,12 +15,12 @@ class ConstraintFactory extends AbstractNode
 
     public function andX()
     {
-        return $this->addChild(new ConstraintAndx($this, $constraint1, $constraint2));
+        return $this->addChild(new ConstraintAndx($this));
     }
 
     public function orX()
     {
-        return $this->addChild(new ConstraintOrx($this, $constraint1, $constraint2));
+        return $this->addChild(new ConstraintOrx($this));
     }
 
     public function propertyExists($propertyName, $selectorName)
@@ -50,5 +52,54 @@ class ConstraintFactory extends AbstractNode
     public function not()
     {
         return $this->addChild(new ConstraintNot($this));
+    }
+
+    public function eq()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_EQUAL_TO
+        ));
+    }
+
+    public function neq()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO
+        ));
+    }
+
+    public function lt()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_LESS_THAN
+        ));
+    }
+
+    public function lte()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO
+        ));
+    }
+
+    public function gt()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_GREATER_THAN
+        ));
+    }
+
+    public function gte()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO
+        ));
+    }
+
+    public function like()
+    {
+        return $this->addChild(new ConstraintComparison(
+            $this, QOMConstants::JCR_OPERATOR_LIKE
+        ));
     }
 }

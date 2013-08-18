@@ -2,7 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class ConstraintAndx extends ConstraintFactory
+class ConstraintAndx extends ConstraintFactory implements
+    ConstraintInterface
 {
     public function getCardinalityMap()
     {
