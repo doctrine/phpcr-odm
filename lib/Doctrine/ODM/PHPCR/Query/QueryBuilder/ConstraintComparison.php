@@ -2,7 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class ConstraintComparison extends AbstractNode
+class ConstraintComparison extends AbstractNode implements
+    ConstraintInterface
 {
     protected $operator;
 
@@ -16,6 +17,7 @@ class ConstraintComparison extends AbstractNode
     public function __construct(AbstractNode $parent, $operator)
     {
         $this->operator = $operator;
+        parent::__construct($parent);
     }
 }
 
