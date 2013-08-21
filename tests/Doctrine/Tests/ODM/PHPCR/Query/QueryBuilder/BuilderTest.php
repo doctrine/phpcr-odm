@@ -15,5 +15,23 @@ class BuilderTest extends NodeTestCase
             array('select', 'Select'),
         );
     }
-}
 
+    public function testApi()
+    {
+        $this->node
+            ->select()->property('foobar', 'a')->property('barfoo', 'a')->end()
+            ->from()->document('Foobar', 'a')->end()
+            ->where()
+                ->andX()
+                    ->eq()
+                        ->left()->propertyValue('foobar', 'a')->end()
+                        ->right()->literal('foo_value')->end()
+                    ->end()
+                    ->like()
+                        ->left()->documentName('my_doc')->end()
+                        ->right()->bindVariable('my_var')->end()
+                    ->end()
+                ->end()
+            ->end();
+    }
+}

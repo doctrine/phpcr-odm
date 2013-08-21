@@ -27,7 +27,7 @@ abstract class AbstractNode
      *
      * @return string
      */
-    public function getName()
+    final public function getName()
     {
         $refl = new \ReflectionClass($this);
         $short = $refl->getShortName();
@@ -60,21 +60,28 @@ abstract class AbstractNode
 
     protected function isValidType($node)
     {
-        return $this->getBaseType($node) !== null;
+        return $this->getBaseType($node->getName()) !== null;
     }
 
-    protected function getBaseType($node)
+    protected function getBaseType($nodeName)
     {
         foreach (array_keys($this->getCardinalityMap()) as $type) {
             $validFqn = __NAMESPACE__.'\\'.$type;
+            $nodeFqn = __NAMESPACE__.'\\'.$nodeName;
 
             // silly hack for unit tests...
-            if ($node->getName() == $type) {
+            if ($nodeName == $type) {
                 return $type;
             }
 
+            if (!class_exists($nodeFqn)) {
+                return null;
+            }
+
+            $refl = new \ReflectionClass($nodeFqn);
+
             // support polymorphism
-            if ($node instanceof $validFqn) {
+            if ($refl->isSubclassOf($validFqn)) {
                 return $type;
             }
         }
@@ -116,7 +123,7 @@ abstract class AbstractNode
         $currentCardinality = isset($this->children[$node->getName()]) ? 
             count($this->children[$node->getName()]) : 0;
 
-        list($min, $max) = $cardinalityMap[$this->getBaseType($node)];
+        list($min, $max) = $cardinalityMap[$this->getBaseType($node->getName())];
 
         // if bounded and cardinality will exceed max
         if (null !== $max && $currentCardinality + 1 > $max) {
@@ -184,12 +191,12 @@ abstract class AbstractNode
         $cardinalityMap = $this->getCardinalityMap();
         $typeCount = array();
 
-        // initialize DS
         foreach (array_keys($cardinalityMap) as $type) {
             $typeCount[$type] = 0;
         }
 
         foreach ($this->children as $type => $children) {
+            $type = $this->getBaseType($type);
             $typeCount[$type] += count($children);
         }
 

@@ -10,8 +10,8 @@ class ConstraintComparison extends AbstractNode implements
     public function getCardinalityMap()
     {
         return array(
-            'DynamicOperand' => array('1', '1'),
-            'StaticOperand' => array('1', '1')
+            'OperandDynamicFactory' => array('1', '1'),
+            'OperandStaticFactory' => array('1', '1')
         );
     }
 
@@ -19,6 +19,16 @@ class ConstraintComparison extends AbstractNode implements
     {
         $this->operator = $operator;
         parent::__construct($parent);
+    }
+
+    public function left()
+    {
+        return $this->addChild(new OperandDynamicFactory($this));
+    }
+
+    public function right()
+    {
+        return $this->addChild(new OperandStaticFactory($this));
     }
 }
 
