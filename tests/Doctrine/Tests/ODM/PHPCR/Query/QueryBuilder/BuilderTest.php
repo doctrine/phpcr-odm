@@ -16,7 +16,7 @@ class BuilderTest extends NodeTestCase
         );
     }
 
-    public function testApi()
+    public function testApi1()
     {
         $this->node
             ->select()->property('foobar', 'a')->property('barfoo', 'a')->end()
@@ -31,6 +31,22 @@ class BuilderTest extends NodeTestCase
                         ->left()->documentName('my_doc')->end()
                         ->right()->bindVariable('my_var')->end()
                     ->end()
+                ->end()
+            ->end()
+            ->orderBy()
+                ->ascending()->documentName('a')->end()
+                ->descending()->documentName('b')->end()
+            ->end();
+    }
+
+    public function testApi2()
+    {
+        $this->node
+            ->from()
+                ->joinInner()
+                    ->left()->document('foobar', 'a')->end()
+                    ->right()->document('barfoo', 'b')->end()
+                    ->condition()->equi('prop_1', 'a', 'prop_2', 'b')->end()
                 ->end()
             ->end();
     }
