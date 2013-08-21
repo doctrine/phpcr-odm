@@ -18,9 +18,9 @@ class OperandDynamicFactory extends AbstractNode
         return $this->addChild(new OperandDynamicFullTextSearchScore($this, $selectorName));
     }
 
-    public function length(PropertyValueInterface $propertyValue)
+    public function length($selectorName, $propertyName)
     {
-        return $this->addChild(new OperandDynamicPropertyValue($this, $propertyValue));
+        return $this->addChild(new OperandDynamicPropertyValue($this, $selectorName, $selectorName));
     }
 
     public function lowerCase()

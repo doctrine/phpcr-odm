@@ -7,7 +7,7 @@ class OperandDynamicPropertyValue extends AbstractLeafNode implements OperandDyn
     protected $selectorName;
     protected $propertyName;
 
-    public function __construct(AbstractNode $parent, $selectorName, $propertyName)
+    public function __construct(AbstractNode $parent, $propertyName, $selectorName)
     {
         $this->selectorName = $selectorName;
         $this->propertyName = $propertyName;

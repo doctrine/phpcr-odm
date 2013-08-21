@@ -14,7 +14,7 @@ class OperandDynamicFactoryTest extends NodeTestCase
                 'selector_name',
             )),
             array('length', 'OperandDynamicLength', array(
-                'property_value',
+                'selector_name', 'property_value', 
             )),
             array('lowerCase', 'OperandDynamicLowerCase', array(
             )),

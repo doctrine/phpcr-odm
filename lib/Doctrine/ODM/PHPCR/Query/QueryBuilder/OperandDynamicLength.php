@@ -4,17 +4,23 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 class OperandDynamicLength extends AbstractLeafNode implements OperandDynamicInterface
 {
-    // todo: how should this work ??
-    protected $propertyValue;
+    protected $selectorName;
+    protected $propertyName;
 
-    public function __construct(AbstractNode $parent, PropertyValueInterface $propertyValue)
+    public function __construct(AbstractNode $parent, $propertyName, $selectorName)
     {
-        $this->propertyValue = $propertyValue;
+        $this->propertyName = $propertyName;
+        $this->selectorName = $selectorName;
         parent::__construct($parent);
     }
 
-    public function getPropertyValue() 
+    public function getPropertyName() 
     {
-        return $this->propertyValue;
+        return $this->propertyName;
+    }
+
+    public function getSelectorName() 
+    {
+        return $this->selectorName;
     }
 }

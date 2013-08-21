@@ -21,15 +21,23 @@ class ConstraintComparison extends AbstractNode implements
         parent::__construct($parent);
     }
 
-    public function left()
+    /**
+     * Left Operand
+     *
+     * @return OperandDynamicFactory
+     */
+    public function lop()
     {
         return $this->addChild(new OperandDynamicFactory($this));
     }
 
-    public function right()
+    /**
+     * Right Operand
+     *
+     * @return OperandStaticFactory
+     */
+    public function rop()
     {
         return $this->addChild(new OperandStaticFactory($this));
     }
 }
-
-
