@@ -5,7 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Where;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
-class WhereTest extends NodeTestCase
+class ConstraintFactoryTest extends NodeTestCase
 {
     public function provideInterface()
     {
