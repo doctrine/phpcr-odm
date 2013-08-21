@@ -4,16 +4,16 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 class OperandStaticBindVariable extends AbstractLeafNode implements OperandStaticInterface
 {
-    protected $name;
+    protected $variableName;
 
-    public function __construct(AbstractNode $parent, $name)
+    public function __construct(AbstractNode $parent, $variableName)
     {
-        $this->name = $name;
+        $this->variableName = $variableName;
         parent::__construct($parent);
     }
 
-    public function getName() 
+    public function getVariableName() 
     {
-        return $this->name;
+        return $this->variableName;
     }
 }
