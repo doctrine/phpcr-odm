@@ -207,10 +207,6 @@ abstract class AbstractNode
             return current($node);
         }
 
-        throw new \OutOfBoundsException(sprintf(
-            'getChildOfType called, but no nodes of type "%s" exist.',
-            $type
-        ));
     }
 
     /**
@@ -271,8 +267,9 @@ abstract class AbstractNode
     public function __call($methodName, $args)
     {
         throw new \RuntimeException(sprintf(
-            'Unknown method "%s", did you mean one of: "%s"',
+            'Unknown method "%s" called on class "%s", did you mean one of: "%s"',
             $methodName,
+            get_class($this),
             implode(',', get_class_methods($this))
         ));
     }

@@ -127,6 +127,9 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res->getLeft());
     }
 
+    /**
+     * @depends testDispatchFrom
+     */
     public function testDispatchSelect()
     {
         $this->primeBuilder();
@@ -144,5 +147,34 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('prop_1_phpcr', $res[0]->getColumnName());
         $this->assertEquals('prop_2_phpcr', $res[1]->getPropertyName());
         $this->assertEquals('prop_2_phpcr', $res[1]->getColumnName());
+    }
+
+    public function provideDispatchComposites()
+    {
+        return array(
+            array('andX', 'PHPCR\Query\QOM\AndInterface'),
+            array('orX', 'PHPCR\Query\QOM\orInterface'),
+        );
+    }
+
+    /**
+     * @depends testDispatchFrom
+     * @dataProvider provideDispatchComposites
+     */
+    public function testDispatchComposites($method, $expectedClass)
+    {
+        $this->primeBuilder();
+
+        $where = $this->qb
+            ->where()
+                ->$method()
+                    ->propertyExists('prop_1', 'sel_1')
+                    ->propertyExists('prop_2', 'sel_1');
+
+        $res = $this->converter->dispatch($where);
+
+        $this->assertInstanceOf($expectedClass, $res);
+        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint1());
+        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
     }
 }
