@@ -9,11 +9,11 @@ use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
  */
 class SourceJoin extends AbstractNode implements SourceInterface
 {
-    protected $type;
+    protected $joinType;
 
-    public function __construct($parent, $type)
+    public function __construct($parent, $joinType)
     {
-        $this->type = $type;
+        $this->joinType = $joinType;
         parent::__construct($parent);
     }
 
@@ -30,6 +30,11 @@ class SourceJoin extends AbstractNode implements SourceInterface
     public function condition()
     {
         return $this->addChild(new SourceJoinCondition($this));
+    }
+
+    public function getJoinType()
+    {
+        return $this->joinType;
     }
 
     public function getCardinalityMap()

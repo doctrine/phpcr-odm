@@ -4,6 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
@@ -13,7 +14,7 @@ class BuilderConverterPhpcr
     protected $qomf;
     protected $mdf;
 
-    protected $selectorMetadata;
+    protected $selectorMetadata = array();
 
     public function __construct(ClassMetadataFactory $mdf, QueryObjectModelFactoryInterface $qomf)
     {
@@ -25,8 +26,9 @@ class BuilderConverterPhpcr
     {
         if (!isset($this->selectorMetadata[$selectorName])) {
             throw new \RuntimeException(sprintf(
-                'Selector name "%s" has not known. The following selectors'.
-                'Are valid: "%s"',
+                'Selector name "%s" has not known. The following selectors '.
+                'are valid: "%s"',
+                $selectorName,
                 implode(array_keys($this->selectorMetadata))
             ));
         }
@@ -36,11 +38,16 @@ class BuilderConverterPhpcr
 
     protected function getFieldMapping($selectorName, $propertyName)
     {
-        $fieldMeta = $this->getMetadata(
-            $property->getSelectorName()
-        )->getField($property->getPropertyName());
+        $fieldMeta = $this->getMetadata($selectorName)
+            ->getField($propertyName);
 
         return $fieldMeta;
+    }
+
+    protected function getPhpcrProperty($selectorName, $odmPropertyName)
+    {
+        $fieldMeta = $this->getFieldMapping($selectorName, $odmPropertyName);
+        return $fieldMeta['property'];
     }
 
     public function getQuery(Builder $builder)
@@ -60,14 +67,14 @@ class BuilderConverterPhpcr
         $this->dispatchMany($builder->getChildrenOfType('Select'));
     }
 
-    protected function dispatchMany($nodes)
+    public function dispatchMany($nodes)
     {
         foreach ($nodes as $node) {
             $this->dispatch($node);
         }
     }
 
-    protected function dispatch(AbstractNode $node)
+    public function dispatch(AbstractNode $node)
     {
         $methodName = sprintf('walk%s', $node->getName());
 
@@ -78,7 +85,7 @@ class BuilderConverterPhpcr
             ));
         }
 
-        $this->$methodName($node, $res);
+        $res = $this->$methodName($node);
 
         return $res;
     }
@@ -86,26 +93,30 @@ class BuilderConverterPhpcr
     public function walkSelect($node)
     {
         foreach ($node->getChildren() as $property) {
-            $mapping = $this->getFieldMapping(
-                $proprety->getSelectorName(),
+            $phpcrName = $this->getPhpcrProperty(
+                $property->getSelectorName(),
                 $property->getPropertyName()
             );
 
             $this->columns[] = $this->qomf->column(
                 // do we want to support custom column names in ODM?
-                $mapping['property'],
-                $mapping['property']
+                // what do columns get used for in an ODM in anycase?
+                $phpcrName,
+                $phpcrName
             );
         }
     }
 
     public function walkFrom(AbstractNode $node)
     {
-        $res = $this->walk($constraint);
-        $this->from = $res;
+        foreach($node->getChildren() as $source) {
+            $res = $this->dispatch($source);
+        }
+
+        return $res;
     }
 
-    public function walkSourceDocument(SourceDocument $node)
+    protected function walkSourceDocument(SourceDocument $node)
     {
         // make sure we add the phpcr:{class,classparents} constraints
         // From is dispatched first, so these will always be the primary
@@ -113,10 +124,12 @@ class BuilderConverterPhpcr
         $this->constraints[] = $this->qomf->orConstraint(
             $this->qomf->comparison(
                 $this->qomf->propertyValue('phpcr:class'),
+                QOMConstants::JCR_OPERATOR_EQUAL_TO,
                 $this->qomf->literal($node->getDocumentFqn())
             ),
             $this->qomf->comparison(
                 $this->qomf->propertyValue('phpcr:classparents'),
+                QOMConstants::JCR_OPERATOR_EQUAL_TO,
                 $this->qomf->literal($node->getDocumentFqn())
             )
         );
@@ -127,14 +140,59 @@ class BuilderConverterPhpcr
 
         // get the PHPCR Selector
         $selector = $this->qomf->selector(
-            'nt:unstructured', 
-            $meta->getNodeType()
+            $meta->getNodeType(),
+            $node->getSelectorName()
         );
 
         return $selector;
     }
 
-    public function walkSourceJoin(SourceJoin $node, $context)
+    protected function walkSourceJoin(SourceJoin $node)
     {
+        $left = $this->dispatch($node->getChildOfType('SourceJoinLeft'));
+        $riht = $this->dispatch($node->getChildOfType('SourceJoinRight'));
+        $cond = $this->dispatch($node->getChildOfType('SourceJoinCondition'));
+
+        $join = $this->qomf->join($left, $riht, $node->getJoinType(), $cond);
+
+        return $join;
+    }
+
+    protected function walkSourceJoinLeft(SourceJoinLeft $node)
+    {
+        $left = $this->walkFrom($node);
+        return $left;
+    }
+
+    protected function walkSourceJoinRight(SourceJoinRight $node)
+    {
+        $right = $this->walkFrom($node);
+        return $right;
+    }
+
+    protected function walkSourceJoinCondition(SourceJoinCondition $node)
+    {
+        foreach ($node->getChildren() as $child) {
+            $res = $this->dispatch($child);
+        }
+
+        return $res;
+    }
+
+    protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
+    {
+        $phpcrProperty1 = $this->getPhpcrProperty(
+            $node->getSelector1(), $node->getProperty1()
+        );
+        $phpcrProperty2 = $this->getPhpcrProperty(
+            $node->getSelector2(), $node->getProperty2()
+        );
+
+        $equi = $this->qomf->equiJoinCondition(
+            $node->getSelector1(), $phpcrProperty1, 
+            $node->getSelector2(), $phpcrProperty2
+        );
+
+        return $equi;
     }
 }

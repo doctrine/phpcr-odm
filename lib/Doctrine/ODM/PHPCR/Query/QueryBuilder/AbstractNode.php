@@ -180,7 +180,37 @@ abstract class AbstractNode
      */
     public function getChildrenOfType($type) 
     {
-        return $this->children[$type];
+        if (isset($this->children[$type])) {
+            return $this->children[$type];
+        }
+
+        return array();
+    }
+
+    /**
+     * Return child of specified type.
+     * 
+     * @throws \OutOfBoundsException if there are more than one or none
+     * @return array AbstractNode[]
+     */
+    public function getChildOfType($type) 
+    {
+        if (isset($this->children[$type])) {
+            $node = $this->children[$type];
+            if (count($node) > 1) {
+                throw new \OutOfBoundsException(sprintf(
+                    'More than one node of type "%s" but getChildOfType will only ever return one.',
+                    $type
+                ));
+            }
+
+            return current($node);
+        }
+
+        throw new \OutOfBoundsException(sprintf(
+            'getChildOfType called, but no nodes of type "%s" exist.',
+            $type
+        ));
     }
 
     /**
@@ -236,5 +266,14 @@ abstract class AbstractNode
     {
         $this->validate();
         return $this->parent;
+    }
+
+    public function __call($methodName, $args)
+    {
+        throw new \RuntimeException(sprintf(
+            'Unknown method "%s", did you mean one of: "%s"',
+            $methodName,
+            implode(',', get_class_methods($this))
+        ));
     }
 }
