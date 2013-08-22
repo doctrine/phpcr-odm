@@ -227,4 +227,40 @@ class BuilderConverterPhpcr
         );
         return $joinCon;
     }
+
+    protected function walkConstraintAndX(ConstraintAndX $node)
+    {
+        list($lopNode, $ropNode) = $node->getChildren();
+        $lop = $this->dispatch($lopNode);
+        $rop = $this->dispatch($ropNode);
+
+        $composite = $this->qomf->andConstraint($lop, $rop);
+
+        return $composite;
+    }
+
+    protected function walkConstraintOrX(ConstraintOrX $node)
+    {
+        list($lopNode, $ropNode) = $node->getChildren();
+        $lop = $this->dispatch($lopNode);
+        $rop = $this->dispatch($ropNode);
+
+        $composite = $this->qomf->orConstraint($lop, $rop);
+
+        return $composite;
+    }
+
+    protected function walkConstraintPropertyExists(ConstraintPropertyExists $node)
+    {
+        $phpcrProperty = $this->getPhpcrProperty(
+            $node->getSelectorName(), $node->getPropertyName()
+        );
+
+        $con = $this->qomf->propertyExistence(
+            $phpcrProperty,
+            $node->getSelectorName()
+        );
+
+        return $con;
+    }
 }
