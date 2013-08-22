@@ -8,6 +8,8 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
  */
 class BuilderConverterPhpcr
 {
@@ -98,13 +100,15 @@ class BuilderConverterPhpcr
                 $property->getPropertyName()
             );
 
-            $this->columns[] = $this->qomf->column(
+            $columns[] = $this->qomf->column(
                 // do we want to support custom column names in ODM?
                 // what do columns get used for in an ODM in anycase?
                 $phpcrName,
                 $phpcrName
             );
         }
+
+        return $columns;
     }
 
     public function walkFrom(AbstractNode $node)
@@ -194,5 +198,33 @@ class BuilderConverterPhpcr
         );
 
         return $equi;
+    }
+
+    protected function walkSourceJoinConditionDescendant(SourceJoinConditionDescendant $node)
+    {
+        $joinCon = $this->qomf->descendantNodeJoinCondition(
+            $node->getDescendantSelectorName(),
+            $node->getAncestorSelectorName()
+        );
+        return $joinCon;
+    }
+
+    protected function walkSourceJoinConditionChildDocument(SourceJoinConditionChildDocument $node)
+    {
+        $joinCon = $this->qomf->childNodeJoinCondition(
+            $node->getChildSelectorName(),
+            $node->getParentSelectorName()
+        );
+        return $joinCon;
+    }
+
+    protected function walkSourceJoinConditionSameDocument(SourceJoinConditionSameDocument $node)
+    {
+        $joinCon = $this->qomf->childNodeJoinCondition(
+            $node->getSelector1Name(),
+            $node->getSelector2Name(),
+            $node->getSelector2Path()
+        );
+        return $joinCon;
     }
 }
