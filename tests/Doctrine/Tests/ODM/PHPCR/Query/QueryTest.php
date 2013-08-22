@@ -150,7 +150,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
     }
 
     /**
-     * @expectedException \Doctrine\ODM\PHPCR\Query\QueryException
+     * @expectedException \Doctrine\ODM\PHPCR\Query\NoResultException
      */
     public function testGetSingleResult_noResult()
     {

@@ -3,8 +3,6 @@
 namespace Doctrine\ODM\PHPCR\Query;
 
 /**
- * Mapping exception class
- *
  * @author      Daniel Leech <daniel@dantleech.com>
  */
 class QueryException extends \Exception
@@ -20,12 +18,7 @@ class QueryException extends \Exception
 
     public static function nonUniqueResult()
     {
-        return new self(sprintf('Expected unique unique result'));
-    }
-
-    public static function noResult()
-    {
-        return new self(sprintf('Expected result from query, didn\'t get one.'));
+        return new self(sprintf('Expected unique result'));
     }
 
     public static function notImplemented($method)
