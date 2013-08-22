@@ -248,7 +248,7 @@ class Query
         $result = $this->getOneOrNullResult($hydrationMode);
 
         if (null === $result) {
-            throw QueryException::noResult();
+            throw new NoResultException();
         }
 
         return $result;
