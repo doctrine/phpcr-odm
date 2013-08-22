@@ -174,6 +174,16 @@ abstract class AbstractNode
     }
 
     /**
+     * Return children of specified type.
+     *
+     * @return array AbstractNode[]
+     */
+    public function getChildrenOfType($type) 
+    {
+        return $this->children[$type];
+    }
+
+    /**
      * Validate the current node.
      *
      * Validation is performed both when the query is being
