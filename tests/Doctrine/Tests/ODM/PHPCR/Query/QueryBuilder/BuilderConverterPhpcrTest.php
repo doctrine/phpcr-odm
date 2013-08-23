@@ -149,19 +149,19 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('prop_2_phpcr', $res[1]->getColumnName());
     }
 
-    public function provideDispatchComposites()
+    public function provideDispatchCompositeConstraints()
     {
         return array(
             array('andX', 'PHPCR\Query\QOM\AndInterface'),
-            array('orX', 'PHPCR\Query\QOM\orInterface'),
+            array('orX', 'PHPCR\Query\QOM\OrInterface'),
         );
     }
 
     /**
      * @depends testDispatchFrom
-     * @dataProvider provideDispatchComposites
+     * @dataProvider provideDispatchCompositeConstraints
      */
-    public function testDispatchComposites($method, $expectedClass)
+    public function testDispatchCompositeConstraints($method, $expectedClass)
     {
         $this->primeBuilder();
 
@@ -176,5 +176,102 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf($expectedClass, $res);
         $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint1());
         $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
+    }
+
+    public function provideDisaptchConstraintsLeaf()
+    {
+        return array(
+            array('propertyExists', 'PHPCR\Query\QOM\PropertyExistenceInterface'),
+            array('fullTextSearch', 'PHPCR\Query\QOM\FullTextSearchInterface'),
+            array('sameDocument', 'PHPCR\Query\QOM\SameNodeInterface'),
+            array('descendantDocument', 'PHPCR\Query\QOM\DescendantNodeInterface'),
+            array('childDocument', 'PHPCR\Query\QOM\ChildNodeInterface'),
+        );
+    }
+
+    /**
+     * @depends testDispatchFrom
+     * @dataProvider provideDisaptchConstraintsLeaf
+     */
+    public function testDispatchConstraintsLeaf($method, $expectedClass)
+    {
+        $this->primeBuilder();
+
+        $where = $this->qb
+            ->where();
+
+        switch ($method) {
+            case 'propertyExists':
+                $where->$method('prop_1', 'sel_1');
+                break;
+            case 'fullTextSearch':
+                $where->$method('prop_1', 'search_expr', 'sel_1');
+                break;
+            case 'sameDocument':
+                $where->$method('/path', 'sel_1');
+                break;
+            case 'descendantDocument':
+                $where->$method('/ancestor/path', 'sel_1');
+                break;
+            case 'childDocument':
+                $where->$method('/parent/path', 'sel_1');
+                break;
+            default:
+                throw new \Exception('Do not know how to test method "'.$method.'"');
+        }
+
+        $children = $where->getChildren();
+        $constraint = $children[0];
+
+        $res = $this->converter->dispatch($constraint);
+
+        $this->assertInstanceOf($expectedClass, $res);
+    }
+
+    public function provideDispatchConstraintsComparison()
+    {
+        return array(
+            array('eq', QOMConstants::JCR_OPERATOR_EQUAL_TO),
+            array('neq', QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO),
+            array('gt', QOMConstants::JCR_OPERATOR_GREATER_THAN),
+            array('gte', QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO),
+            array('lt', QOMConstants::JCR_OPERATOR_LESS_THAN),
+            array('lte', QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO),
+            array('like', QOMConstants::JCR_OPERATOR_LIKE),
+        );
+    }
+
+    /**
+     * @dataProvider provideDispatchConstraintsComparison
+     * @depends testDispatchFrom
+     */
+    public function testDispatchConstraintsComparison($method)
+    {
+        $this->primeBuilder();
+
+        $comparison = $this->qb->where()
+            ->$method()
+                ->lop()->propertyValue('prop_1', 'sel_1')->end()
+                ->rop()->literal('foobar')->end();
+
+        $res = $this->converter->dispatch($comparison);
+
+        $this->assertInstanceOf('PHPCR\Query\QOM\ComparisonInterface', $res);
+        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyValueInterface', $res->getOperand1());
+        $this->assertInstanceOf('PHPCR\Query\QOM\LiteralInterface', $res->getOperand2());
+    }
+
+    public function testDispatchConstraintsNot()
+    {
+        $this->primeBuilder();
+        $comparison = $this->qb->where()
+            ->not()->propertyExists('prop_1', 'sel_1');
+
+        $this->assertInstanceOf('PHPCR\Query\QOM\NotInterface', $res);
+        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint());
+    }
+
+    public function provideTestDispatchOperands()
+    {
     }
 }
