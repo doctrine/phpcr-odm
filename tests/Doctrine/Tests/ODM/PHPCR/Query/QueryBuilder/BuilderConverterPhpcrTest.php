@@ -10,6 +10,8 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 {
+    protected $parentNode;
+
     public function setUp()
     {
         $that = $this;
@@ -48,6 +50,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
                 return $meta;
             }));
+
+        $this->parentNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode')
+            ->disableOriginalConstructor()
+            ->getMock();
     
         $this->converter = new BuilderConverterPhpcr($mdf, $qomf);
         $this->qb = new Builder;
@@ -61,6 +67,18 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $from = $this->qb->from()->document('foobar', 'sel_1');
         $res = $this->converter->dispatch($from);
+    }
+
+    protected function createNode($class, $constructorArgs)
+    {
+        array_unshift($constructorArgs, $this->parentNode);
+        
+        $ns = 'Doctrine\\ODM\\PHPCR\\Query\\QueryBuilder';
+        $refl = new \ReflectionClass($ns.'\\'.$class);
+
+        $node = $refl->newInstanceArgs($constructorArgs);
+
+        return $node;
     }
 
     public function testDispatchFrom()
@@ -181,11 +199,26 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     public function provideDisaptchConstraintsLeaf()
     {
         return array(
-            array('propertyExists', 'PHPCR\Query\QOM\PropertyExistenceInterface'),
-            array('fullTextSearch', 'PHPCR\Query\QOM\FullTextSearchInterface'),
-            array('sameDocument', 'PHPCR\Query\QOM\SameNodeInterface'),
-            array('descendantDocument', 'PHPCR\Query\QOM\DescendantNodeInterface'),
-            array('childDocument', 'PHPCR\Query\QOM\ChildNodeInterface'),
+            array(
+                'ConstraintPropertyExists', array('prop_1', 'sel_1'), 
+                'PHPCR\Query\QOM\PropertyExistenceInterface'
+            ),
+            array(
+                'ConstraintFullTextSearch', array('prop_1', 'search_expr', 'sel_1'), 
+                'PHPCR\Query\QOM\FullTextSearchInterface'
+            ),
+            array(
+                'ConstraintSameDocument', array('/path', 'sel_1'),
+                'PHPCR\Query\QOM\SameNodeInterface'
+            ),
+            array(
+                'ConstraintDescendantDocument', array('/ancestor/path', 'sel_1'),
+                'PHPCR\Query\QOM\DescendantNodeInterface'
+            ),
+            array(
+                'ConstraintChildDocument', array('/parent/path', 'sel_1'),
+                'PHPCR\Query\QOM\ChildNodeInterface'
+            ),
         );
     }
 
@@ -193,36 +226,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      * @depends testDispatchFrom
      * @dataProvider provideDisaptchConstraintsLeaf
      */
-    public function testDispatchConstraintsLeaf($method, $expectedClass)
+    public function testDispatchConstraintsLeaf($class, $args, $expectedClass)
     {
         $this->primeBuilder();
-
-        $where = $this->qb
-            ->where();
-
-        switch ($method) {
-            case 'propertyExists':
-                $where->$method('prop_1', 'sel_1');
-                break;
-            case 'fullTextSearch':
-                $where->$method('prop_1', 'search_expr', 'sel_1');
-                break;
-            case 'sameDocument':
-                $where->$method('/path', 'sel_1');
-                break;
-            case 'descendantDocument':
-                $where->$method('/ancestor/path', 'sel_1');
-                break;
-            case 'childDocument':
-                $where->$method('/parent/path', 'sel_1');
-                break;
-            default:
-                throw new \Exception('Do not know how to test method "'.$method.'"');
-        }
-
-        $children = $where->getChildren();
-        $constraint = $children[0];
-
+        $constraint = $this->createNode($class, $args);;
         $res = $this->converter->dispatch($constraint);
 
         $this->assertInstanceOf($expectedClass, $res);
@@ -243,9 +250,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideDispatchConstraintsComparison
-     * @depends testDispatchFrom
      */
-    public function testDispatchConstraintsComparison($method)
+    public function testDispatchConstraintsComparison($method, $expectedOperator)
     {
         $this->primeBuilder();
 
@@ -259,13 +265,16 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PHPCR\Query\QOM\ComparisonInterface', $res);
         $this->assertInstanceOf('PHPCR\Query\QOM\PropertyValueInterface', $res->getOperand1());
         $this->assertInstanceOf('PHPCR\Query\QOM\LiteralInterface', $res->getOperand2());
+        $this->assertEquals($expectedOperator, $res->getOperator());
     }
 
     public function testDispatchConstraintsNot()
     {
         $this->primeBuilder();
-        $comparison = $this->qb->where()
+        $not = $this->qb->where()
             ->not()->propertyExists('prop_1', 'sel_1');
+
+        $res = $this->converter->dispatch($not);
 
         $this->assertInstanceOf('PHPCR\Query\QOM\NotInterface', $res);
         $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint());
@@ -273,5 +282,35 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
     public function provideTestDispatchOperands()
     {
+        return array(
+            // leaf
+            array('OperandDynamicDocumentLocalName', array('selector_name')),
+            array('OperandDynamicDocumentName', array('selector_name')),
+            array('OperandDynamicFullTextSearchScore', array('selector_name')),
+            array('OperandDynamicLength', array('property_name', 'selector_name')),
+            array('OperandDynamicPropertyValue', array('property_name', 'selector_name')),
+
+            // non-leaf
+            array('OperandDynamicLowerCase', array('selector_name')),
+            array('OperandDynamicUpperCase', array('selector_name')),
+
+            // static
+            array('OperandStaticBindVariable', array('variable_name')),
+            array('OperandStaticLiteral', array('literal_value')),
+        );
+
+    }
+
+    /**
+     * @dataProvider provideTestDispatchOperands
+     *
+     * @todo: Assertions
+     */
+    public function testDispatchOperands($class, $args)
+    {
+        $this->primeBuilder();
+
+        $operand = $this->createNode($class, $args);
+        $res = $this->converter->dispatch($operand);
     }
 }

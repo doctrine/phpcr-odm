@@ -40,4 +40,9 @@ class ConstraintComparison extends AbstractNode implements
     {
         return $this->addChild(new OperandStaticFactory($this));
     }
+
+    public function getOperator()
+    {
+        return $this->operator;
+    }
 }
