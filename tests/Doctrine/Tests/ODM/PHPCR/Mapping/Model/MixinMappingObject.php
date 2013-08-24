@@ -14,6 +14,9 @@ class MixinMappingObject
     /** @PHPCRODM\Id */
     public $id;
 
+    /** @PHPCRODM\Node */
+    public $node;
+
     /** @PHPCRODM\Date(property="jcr:lastModified") */
     public $lastModified;
 

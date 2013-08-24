@@ -41,12 +41,25 @@ class MixinTest extends PHPCRFunctionalTestCase
 
         $this->dm->persist($mixin);
         $this->dm->flush();
+
+        $this->assertTrue($mixin->node->hasProperty('jcr:lastModified'));
+        $this->assertTrue($mixin->node->hasProperty('jcr:lastModifiedBy'));
+        $lastModified = $mixin->node->getPropertyValue('jcr:lastModified');
+        $this->assertNotNull($lastModified);
+        $this->assertNull($mixin->lastModified);
+        $this->assertNotNull($mixin->node->getPropertyValue('jcr:lastModifiedBy'));
+
+        $mixin->lastModified = new \DateTime();
+        $mixin->lastModified->add(new \DateInterval('P0Y0M0DT0H0M1S'));
+        $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertTrue($this->node->getNode('mixin')->hasProperty('jcr:lastModified'));
-        $this->assertTrue($this->node->getNode('mixin')->hasProperty('jcr:lastModifiedBy'));
-        $this->assertNotNull($this->node->getNode('mixin')->getProperty('jcr:lastModified'));
-        $this->assertNotNull($this->node->getNode('mixin')->getProperty('jcr:lastModifiedBy'));
+        $mixin = $this->dm->find(null, '/functional/mixin');
+        $this->assertNotEquals($lastModified, $mixin->lastModified);
+        $lastModified = $mixin->node->getPropertyValue('jcr:lastModified');
+        $this->assertNotNull($lastModified);
+        $this->assertNotNull($mixin->lastModified);
+        $this->assertEquals($lastModified, $mixin->lastModified);
     }
 
     public function testProtectedPropertyIsCreatedAndNotChanged()
