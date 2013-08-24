@@ -33,23 +33,23 @@ class ParentIdGenerator extends IdGenerator
      *
      * {@inheritDoc}
      */
-    public function generate($document, ClassMetadata $cm, DocumentManager $dm)
+    public function generate($document, ClassMetadata $class, DocumentManager $dm, $parent = null)
     {
-        $parent = $cm->getFieldValue($document, $cm->parentMapping);
-        $name = $cm->getFieldValue($document, $cm->nodename);
-        $id = $cm->getFieldValue($document, $cm->identifier);
+        $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
+        $name = $class->getFieldValue($document, $class->nodename);
+        $id = $class->getFieldValue($document, $class->identifier);
 
         if (empty($id)) {
             if (empty($name) && empty($parent)) {
-                throw IdException::noIdentificationParameters($document, $cm->parentMapping, $cm->nodename);
+                throw IdException::noIdentificationParameters($document, $class->parentMapping, $class->nodename);
             }
 
             if ($name && empty($parent)) {
-                throw IdException::noIdNoParent($document, $cm->parentMapping);
+                throw IdException::noIdNoParent($document, $class->parentMapping);
             }
 
             if (empty($name) && $parent) {
-                throw IdException::noIdNoName($document, $cm->nodename);
+                throw IdException::noIdNoName($document, $class->nodename);
             }
         }
 
@@ -63,7 +63,7 @@ class ParentIdGenerator extends IdGenerator
         // get the id of the parent document
         $id = $dm->getUnitOfWork()->getDocumentId($parent);
         if (!$id) {
-            throw IdException::parentIdCouldNotBeDetermined($document, $cm->parentMapping, $parent);
+            throw IdException::parentIdCouldNotBeDetermined($document, $class->parentMapping, $parent);
         }
 
         // edge case parent is root

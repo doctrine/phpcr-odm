@@ -21,24 +21,30 @@ namespace Doctrine\ODM\PHPCR\Id;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\Util\NodeHelper;
 
 /**
- * Generator to handle explicitly assigned repository paths.
+ * Generate the id using the auto naming strategy
  */
-class AssignedIdGenerator extends IdGenerator
+class AutoIdGenerator extends IdGenerator
 {
     /**
-     * Use the identifier field as id and throw exception if not set.
+     * Use the parent field together with an auto generated name to generate the id
      *
      * {@inheritDoc}
      */
-    public function generate($document, ClassMetadata $cm, DocumentManager $dm, $parent = null)
+    public function generate($document, ClassMetadata $class, DocumentManager $dm, $parent = null)
     {
-        $id = $cm->getFieldValue($document, $cm->identifier);
-        if (!$id) {
-            throw new \RuntimeException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the document is to be stored.');
+        if (null === $parent) {
+            $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
+        $parentNode = $dm->getNodeForDocument($parent);
 
-        return $id;
+        return $parentNode->getPath().'/'.NodeHelper::generateAutoNodeName(
+            (array) $parentNode->getNodeNames(),
+            $dm->getPhpcrSession()->getWorkspace()->getNamespaceRegistry()->getNamespaces(),
+            '',
+            ''
+        );
     }
 }

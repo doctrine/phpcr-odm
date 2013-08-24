@@ -52,6 +52,9 @@ abstract class IdGenerator
             case ClassMetadata::GENERATOR_TYPE_PARENT:
                 $instance = new ParentIdGenerator();
                 break;
+            case ClassMetadata::GENERATOR_TYPE_AUTO:
+                $instance = new AutoIdGenerator();
+                break;
 
             default:
                 throw new \InvalidArgumentException("ID Generator does not exist: $generatorType");
@@ -64,10 +67,11 @@ abstract class IdGenerator
      * Generate the actual id, to be overwritten by extending classes
      *
      * @param object          $document the object to create the id for
-     * @param ClassMetadata   $cm       class metadata of this object
+     * @param ClassMetadata   $class    class metadata of this object
      * @param DocumentManager $dm
+     * @param object          $parent
      *
      * @return string the id for this document
      */
-    abstract public function generate($document, ClassMetadata $cm, DocumentManager $dm);
+    abstract public function generate($document, ClassMetadata $class, DocumentManager $dm, $parent = null);
 }

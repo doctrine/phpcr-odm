@@ -432,16 +432,33 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User5', '/functional/test');
 
         $userNew->username = "test2";
         $this->dm->flush();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User5', '/functional/test');
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals('test2', $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
+    }
+
+    public function testAutoId()
+    {
+        $functional = $this->dm->find(null, '/functional');
+
+        $user = new User6();
+        $user->username = "test";
+        $user->numbers = array(1, 2, 3);
+        $user->parent = $functional;
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User6', '/functional/'.$user->nodename);
+        $this->assertEquals($userNew->nodename, $user->nodename);
     }
 
     public function testAssocProperty()
@@ -590,6 +607,15 @@ class User5
     public $username;
     /** @PHPCRODM\Int(multivalue=true,nullable=true) */
     public $numbers;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class User6 extends User5
+{
+    /** @PHPCRODM\Id(strategy="auto") */
+    public $id;
 }
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
