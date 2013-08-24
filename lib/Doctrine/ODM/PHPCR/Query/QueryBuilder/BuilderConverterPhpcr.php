@@ -242,6 +242,7 @@ class BuilderConverterPhpcr
     protected function walkConstraintOrX(ConstraintOrX $node)
     {
         list($lopNode, $ropNode) = $node->getChildren();
+
         $lop = $this->dispatch($lopNode);
         $rop = $this->dispatch($ropNode);
 
@@ -262,5 +263,109 @@ class BuilderConverterPhpcr
         );
 
         return $con;
+    }
+
+    protected function walkConstraintFullTextSearch(ConstraintFullTextSearch $node)
+    {
+        $phpcrProperty = $this->getPhpcrProperty(
+            $node->getSelectorName(), $node->getPropertyName()
+        );
+
+        $con = $this->qomf->fullTextSearch(
+            $phpcrProperty,
+            $node->getFullTextSearchExpression(),
+            $node->getSelectorName()
+        );
+
+        return $con;
+    }
+
+    protected function walkConstraintSameDocument(ConstraintSameDocument $node)
+    {
+        $con = $this->qomf->sameNode(
+            '/path/to',
+            'sel_1'
+        );
+
+        return $con;
+    }
+
+    protected function walkConstraintDescendantDocument(ConstraintDescendantDocument $node)
+    {
+        $con = $this->qomf->descendantNode(
+            '/path/to',
+            'sel_1'
+        );
+
+        return $con;
+    }
+
+    protected function walkConstraintChildDocument(ConstraintChildDocument $node)
+    {
+        $con = $this->qomf->childNode(
+            '/path/to/parent',
+            'sel_1'
+        );
+
+        return $con;
+    }
+
+    protected function walkConstraintComparison(ConstraintComparison $node)
+    {
+        $dynOp = $node->getChildOfType('OperandDynamicFactory');
+        $staOp = $node->getChildOfType('OperandStaticFactory');
+        $phpcrDynOp = $this->dispatch($dynOp);
+        $phpcrStaOp = $this->dispatch($staOp);
+
+        $compa = $this->qomf->comparison(
+            $phpcrDynOp, $node->getOperator(), $phpcrStaOp
+        );
+
+        return $compa;
+    }
+
+    protected function walkConstraintNot(ConstraintNot $node)
+    {
+        $con = $node->getChildOfType('ConstraintInterface');
+        $phpcrCon = $this->dispatch($con);
+
+        $ret = $this->qomf->notConstraint(
+            $phpcrCon
+        );
+
+        return $ret;
+    }
+
+    // dynamic operand stuff
+    protected function walkOperandDynamicFactory(OperandDynamicFactory $node)
+    {
+        $op = $node->getChildOfType('OperandDynamicInterface');
+        return $this->dispatch($op);
+    }
+
+    protected function walkOperandDynamicPropertyValue(OperandDynamicPropertyValue $node)
+    {
+        $phpcrProperty = $this->getPhpcrProperty(
+            $node->getSelectorName(), $node->getPropertyName()
+        );
+
+        $op = $this->qomf->propertyValue(
+            $node->getSelectorName(), $phpcrProperty
+        );
+
+        return $op;
+    }
+
+    // static operand stuff
+    protected function walkOperandStaticFactory(OperandStaticFactory $node)
+    {
+        $op = $node->getChildOfType('OperandStaticInterface');
+        return $this->dispatch($op);
+    }
+
+    protected function walkOperandStaticLiteral(OperandStaticLiteral $node)
+    {
+        $op = $this->qomf->literal($node->getValue());
+        return $op;
     }
 }

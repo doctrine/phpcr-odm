@@ -180,33 +180,48 @@ abstract class AbstractNode
      */
     public function getChildrenOfType($type) 
     {
-        if (isset($this->children[$type])) {
-            return $this->children[$type];
+        $ret = array();
+
+        foreach ($this->children as $childType => $children) {
+            foreach ($children as $child) {
+                $baseType = $this->getBaseType($child->getName());
+
+                if ($baseType === $type) {
+                    $ret[] = $child;
+                }
+            }
         }
 
-        return array();
+        return $ret;
     }
 
     /**
      * Return child of specified type.
+     *
+     * Note: This does not take inheritance into account.
      * 
      * @throws \OutOfBoundsException if there are more than one or none
      * @return array AbstractNode[]
      */
     public function getChildOfType($type) 
     {
-        if (isset($this->children[$type])) {
-            $node = $this->children[$type];
-            if (count($node) > 1) {
-                throw new \OutOfBoundsException(sprintf(
-                    'More than one node of type "%s" but getChildOfType will only ever return one.',
-                    $type
-                ));
-            }
+        $children = $this->getChildrenOfType($type);
 
-            return current($node);
+        if (!$children) {
+            throw new \OutOfBoundsException(sprintf(
+                'Expected exactly one child of type "%s", got "%s"',
+                $type, count($children)
+            ));
         }
 
+        if (count($children) > 1) {
+            throw new \OutOfBoundsException(sprintf(
+                'More than one node of type "%s" but getChildOfType will only ever return one.',
+                $type
+            ));
+        }
+
+        return current($children);
     }
 
     /**
