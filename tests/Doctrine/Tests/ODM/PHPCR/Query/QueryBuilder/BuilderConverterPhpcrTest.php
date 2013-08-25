@@ -201,23 +201,23 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 'ConstraintPropertyExists', array('prop_1', 'sel_1'), 
-                'PHPCR\Query\QOM\PropertyExistenceInterface'
+                'PropertyExistenceInterface'
             ),
             array(
                 'ConstraintFullTextSearch', array('prop_1', 'search_expr', 'sel_1'), 
-                'PHPCR\Query\QOM\FullTextSearchInterface'
+                'FullTextSearchInterface'
             ),
             array(
                 'ConstraintSameDocument', array('/path', 'sel_1'),
-                'PHPCR\Query\QOM\SameNodeInterface'
+                'SameNodeInterface'
             ),
             array(
                 'ConstraintDescendantDocument', array('/ancestor/path', 'sel_1'),
-                'PHPCR\Query\QOM\DescendantNodeInterface'
+                'DescendantNodeInterface'
             ),
             array(
                 'ConstraintChildDocument', array('/parent/path', 'sel_1'),
-                'PHPCR\Query\QOM\ChildNodeInterface'
+                'ChildNodeInterface'
             ),
         );
     }
@@ -228,11 +228,13 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      */
     public function testDispatchConstraintsLeaf($class, $args, $expectedClass)
     {
+        $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$expectedClass;
+
         $this->primeBuilder();
         $constraint = $this->createNode($class, $args);;
         $res = $this->converter->dispatch($constraint);
 
-        $this->assertInstanceOf($expectedClass, $res);
+        $this->assertInstanceOf($expectedPhpcrClass, $res);
     }
 
     public function provideDispatchConstraintsComparison()
@@ -284,33 +286,123 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             // leaf
-            array('OperandDynamicDocumentLocalName', array('selector_name')),
-            array('OperandDynamicDocumentName', array('selector_name')),
-            array('OperandDynamicFullTextSearchScore', array('selector_name')),
-            array('OperandDynamicLength', array('property_name', 'selector_name')),
-            array('OperandDynamicPropertyValue', array('property_name', 'selector_name')),
+            array('OperandDynamicDocumentLocalName', array('sel_1'), array(
+                'phpcr_class' => 'NodeLocalNameInterface',
+                'assert' => function ($test, $node) {
+                    $test->assertEquals('sel_1', $node->getSelectorName());
+                }
+            )),
+            array('OperandDynamicDocumentName', array('sel_1'), array(
+                'phpcr_class' => 'NodeNameInterface',
+                'assert' => function ($test, $node) {
+                    $test->assertEquals('sel_1', $node->getSelectorName());
+                }
+            )),
+            array('OperandDynamicFullTextSearchScore', array('sel_1'), array(
+                'phpcr_class' => 'FullTextSearchScoreInterface',
+                'assert' => function ($test, $node) {
+                    $test->assertEquals('sel_1', $node->getSelectorName());
+                }
+            )),
+            array('OperandDynamicLength', array('property_name', 'sel_1'), array(
+                'phpcr_class' => 'LengthInterface',
+                'assert' => function ($test, $node) {
+                    $propertyValue = $node->getPropertyValue();
+                    $test->assertInstanceOf(
+                        'PHPCR\Query\QOM\PropertyValueInterface',
+                        $propertyValue
+                    );
+                    $test->assertEquals('property_name_phpcr', $propertyValue->getPropertyName());
+                    $test->assertEquals('sel_1', $propertyValue->getSelectorName());
+                }
+            )),
+            array('OperandDynamicPropertyValue', array('property_name', 'sel_1'), array(
+                'phpcr_class' => 'PropertyValueinterface',
+                'assert' => function ($test, $node) {
+                    $test->assertEquals('sel_1', $node->getSelectorName());
+                    $test->assertEquals('property_name_phpcr', $node->getPropertyName());
+                }
+            )),
 
             // non-leaf
-            array('OperandDynamicLowerCase', array('selector_name')),
-            array('OperandDynamicUpperCase', array('selector_name')),
+            array('OperandDynamicLowerCase', array('sel_1'), array(
+                'phpcr_class' => 'LowerCaseInterface',
+                'add_child_operand' => true,
+                'assert' => function ($test, $node) {
+                    $op = $node->getOperand();
+                    $this->assertInstanceOf(
+                        'PHPCR\Query\QOM\NodeLocalNameInterface',
+                        $op
+                   );
+                }
+            )),
+            array('OperandDynamicUpperCase', array('sel_1'), array(
+                'phpcr_class' => 'UpperCaseInterface',
+                'add_child_operand' => true,
+                'assert' => function ($test, $node) {
+                    $op = $node->getOperand();
+                    $this->assertInstanceOf(
+                        'PHPCR\Query\QOM\NodeLocalNameInterface',
+                        $op
+                   );
+                }
+            )),
 
             // static
-            array('OperandStaticBindVariable', array('variable_name')),
-            array('OperandStaticLiteral', array('literal_value')),
+            array('OperandStaticBindVariable', array('variable_name'), array(
+                'phpcr_class' => 'BindVariableValueInterface',
+                'assert' => function ($test, $node) {
+                    $test->assertEquals('variable_name', $node->getBindVariableName());
+                }
+            )),
+            array('OperandStaticLiteral', array('literal_value'), array(
+                'phpcr_class' => 'LiteralInterface',
+                'assert' => function ($test, $node) {
+                    $test->assertEquals('literal_value', $node->getLiteralValue());
+                }
+            )),
         );
 
     }
 
     /**
      * @dataProvider provideTestDispatchOperands
-     *
-     * @todo: Assertions
      */
-    public function testDispatchOperands($class, $args)
+    public function testDispatchOperands($class, $args, $options)
     {
+        $options = array_merge(array(
+            'phpcr_class' => null,
+            'add_child_operand' => false,
+            'assert' => null,
+        ), $options);
+
+        $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$options['phpcr_class'];
+
         $this->primeBuilder();
 
         $operand = $this->createNode($class, $args);
+
+        if ($options['add_child_operand']) {
+            $operand->addChild(
+                $this->createNode('OperandDynamicDocumentLocalName', array('sel_1'))
+            );
+        }
+
         $res = $this->converter->dispatch($operand);
+        $this->assertInstanceOf($expectedPhpcrClass, $res);
+
+        if (null !== $options['assert']) {
+            $me = $this;
+            $options['assert']($me, $res);
+        }
+    }
+
+    public function testOrderings()
+    {
+        $order = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
+        $op = $this->createNode('OperandDynamicDocumentLocalName', array('sel_1'));
+        $order->addChild($op);
+
+        $res = $this->converter->dispatch($order);
     }
 }

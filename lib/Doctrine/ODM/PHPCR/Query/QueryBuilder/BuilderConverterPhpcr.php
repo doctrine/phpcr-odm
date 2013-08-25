@@ -350,7 +350,75 @@ class BuilderConverterPhpcr
         );
 
         $op = $this->qomf->propertyValue(
-            $node->getSelectorName(), $phpcrProperty
+            $phpcrProperty, $node->getSelectorName()
+        );
+
+        return $op;
+    }
+
+    protected function walkOperandDynamicDocumentLocalName(OperandDynamicDocumentLocalName $node)
+    {
+        $op = $this->qomf->nodeLocalName(
+            $node->getSelectorName()
+        );
+
+        return $op;
+    }
+
+    protected function walkOperandDynamicFullTextSearchScore(OperandDynamicFullTextSearchScore $node)
+    {
+        $op = $this->qomf->fullTextSearchScore(
+            $node->getSelectorName()
+        );
+
+        return $op;
+    }
+
+    protected function walkOperandDynamicLength(OperandDynamicLength $node)
+    {
+        $phpcrProperty = $this->getPhpcrProperty(
+            $node->getSelectorName(), $node->getPropertyName()
+        );
+
+        $propertyValue = $this->qomf->propertyValue(
+            $phpcrProperty, $node->getSelectorName()
+        );
+
+        $op = $this->qomf->length(
+            $propertyValue
+        );
+
+        return $op;
+    }
+
+    protected function walkOperandDynamicDocumentName(OperandDynamicDocumentName $node)
+    {
+        $op = $this->qomf->nodeName(
+            $node->getSelectorName()
+        );
+
+        return $op;
+    }
+
+    protected function walkOperandDynamicLowerCase(OperandDynamicLowerCase $node)
+    {
+        $child = $node->getChildOfType('OperandDynamicInterface');
+        $phpcrChild = $this->dispatch($child);
+
+        $op = $this->qomf->lowerCase(
+            $phpcrChild
+        );
+
+        return $op;
+    }
+
+    protected function walkOperandDynamicUpperCase(OperandDynamicUpperCase $node)
+    {
+        $child = $node->getChildOfType('OperandDynamicInterface');
+        $phpcrChild = $this->dispatch($child);
+
+        $op = $this->qomf->upperCase(
+            $phpcrChild
         );
 
         return $op;
@@ -367,5 +435,26 @@ class BuilderConverterPhpcr
     {
         $op = $this->qomf->literal($node->getValue());
         return $op;
+    }
+
+    protected function walkOperandStaticBindVariable(OperandStaticBindVariable $node)
+    {
+        $op = $this->qomf->bindVariable($node->getVariableName());
+        return $op;
+    }
+
+    // ordering
+    protected function walkOrdering(Ordering $node)
+    {
+        $dynOp = $node->getChildOfType('OperandDynamicInterface');
+        $phpcrDynOp = $this->dispatch($dynOp);
+
+        if ($node->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
+            $ordering = $this->qomf->ascending($phpcrDynOp);
+        } else {
+            $ordering = $this->qomf->descending($phpcrDynOp);
+        }
+
+        return $ordering;
     }
 }
