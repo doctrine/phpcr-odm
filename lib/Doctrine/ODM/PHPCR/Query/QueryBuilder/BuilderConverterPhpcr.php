@@ -18,6 +18,11 @@ class BuilderConverterPhpcr
 
     protected $selectorMetadata = array();
 
+    protected $from = null;
+    protected $columns = array();
+    protected $orderings = array();
+    protected $where = null;
+
     public function __construct(ClassMetadataFactory $mdf, QueryObjectModelFactoryInterface $qomf)
     {
         $this->qomf = $qomf;
@@ -67,6 +72,15 @@ class BuilderConverterPhpcr
 
         // dispatch everything else
         $this->dispatchMany($builder->getChildrenOfType('Select'));
+        $this->dispatchMany($builder->getChildrenOfType('Where'));
+        $this->dispatchMany($builder->getChildrenOfType('Ordering'));
+
+        $query = $this->qomf->createQuery(
+            $this->from,
+            $this->where,
+            $this->orderings,
+            $this->columns
+        );
     }
 
     public function dispatchMany($nodes)
@@ -94,18 +108,23 @@ class BuilderConverterPhpcr
 
     public function walkSelect($node)
     {
+        $columns = array();
+
         foreach ($node->getChildren() as $property) {
             $phpcrName = $this->getPhpcrProperty(
                 $property->getSelectorName(),
                 $property->getPropertyName()
             );
 
-            $columns[] = $this->qomf->column(
+            $column = $this->qomf->column(
                 // do we want to support custom column names in ODM?
                 // what do columns get used for in an ODM in anycase?
                 $phpcrName,
                 $phpcrName
             );
+
+            $columns[] = $column;
+            $this->columns[] = $column;
         }
 
         return $columns;
@@ -113,9 +132,20 @@ class BuilderConverterPhpcr
 
     public function walkFrom(AbstractNode $node)
     {
-        foreach($node->getChildren() as $source) {
-            $res = $this->dispatch($source);
-        }
+        $source = $node->getChild();
+        $res = $this->dispatch($source);
+
+        $this->from = $res;
+
+        return $res;
+    }
+
+    public function walkWhere(Where $where)
+    {
+        // note: only supporting "one" where constraint atm (no aggregation)
+        $constraint = $where->getChild();
+        $res = $this->dispatch($constraint);
+        $this->where = $res;
 
         return $res;
     }
@@ -454,6 +484,8 @@ class BuilderConverterPhpcr
         } else {
             $ordering = $this->qomf->descending($phpcrDynOp);
         }
+
+        $this->orderings[] = $ordering;
 
         return $ordering;
     }

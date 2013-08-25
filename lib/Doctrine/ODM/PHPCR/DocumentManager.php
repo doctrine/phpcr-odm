@@ -531,7 +531,7 @@ class DocumentManager implements ObjectManager
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
 
-        return new QueryBuilder($this, $qm->getQOMFactory());
+        return new QueryBuilder\Builder($this, $qm->getQOMFactory());
     }
 
     /**

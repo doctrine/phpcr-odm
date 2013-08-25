@@ -196,6 +196,32 @@ abstract class AbstractNode
     }
 
     /**
+     * Return child
+     *
+     * @throws \OutOfBoundsException if there are more than one or none
+     * @return array AbstractNode[]
+     */
+    public function getChild() 
+    {
+        $children = $this->getChildren();
+
+        if (!$children) {
+            throw new \OutOfBoundsException(sprintf(
+                'Expected exactly one child, got "%s"',
+                count($children)
+            ));
+        }
+
+        if (count($children) > 1) {
+            throw new \OutOfBoundsException(
+                'More than one child node but getChild will only ever return one.'
+            );
+        }
+
+        return current($children);
+    }
+
+    /**
      * Return child of specified type.
      *
      * Note: This does not take inheritance into account.

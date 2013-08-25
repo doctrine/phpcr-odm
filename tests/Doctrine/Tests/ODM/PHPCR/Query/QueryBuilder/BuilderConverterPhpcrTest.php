@@ -51,12 +51,16 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 return $meta;
             }));
 
+        $dm = $this->getMockBuilder(
+            'Doctrine\ODM\PHPCR\DocumentManager'
+        )->disableOriginalConstructor()->getMock();
+
         $this->parentNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode')
             ->disableOriginalConstructor()
             ->getMock();
     
         $this->converter = new BuilderConverterPhpcr($mdf, $qomf);
-        $this->qb = new Builder;
+        $this->qb = new Builder($dm, $qomf, $this->converter);;
     }
 
     /**

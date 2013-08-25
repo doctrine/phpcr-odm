@@ -29,8 +29,6 @@ use Doctrine\ODM\PHPCR\Query\Query;
 /**
  * Class to programatically construct query objects for the PHPCR ODM.
  *
- * @todo: Joins, Cloning, Parameter binding
- *
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class QueryBuilder
