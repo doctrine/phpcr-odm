@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 /**
- * Special class for leaf nodes. Leaf (have no children)
+ * Special class for leaf nodes. Leaf nodes have no children
  * and always return the parent rather than themselves.
  *
  * @author Daniel Leech <daniel@dantleech.com>

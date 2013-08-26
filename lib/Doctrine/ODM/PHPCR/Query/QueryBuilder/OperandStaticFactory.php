@@ -4,6 +4,15 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
+/**
+ * Factory/node class for static operands.
+ *
+ * As the name suggests, static operand values do
+ * not change once initialized and are used as the "right hand
+ * side" operands (rop) in comparisons.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class OperandStaticFactory extends AbstractNode
 {
     public function getCardinalityMap()
