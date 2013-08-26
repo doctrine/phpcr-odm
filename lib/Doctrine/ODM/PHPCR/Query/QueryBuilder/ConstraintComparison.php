@@ -26,7 +26,13 @@ class ConstraintComparison extends AbstractNode
     }
 
     /**
-     * Left Operand
+     * The left hand side of the comparison - a dynamic operand.
+     *
+     * $qb->where()
+     *   ->eq()
+     *      ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *      ->rop()->literal('foobar')->end()
+     *   ->end()
      *
      * @return OperandDynamicFactory
      */
@@ -36,7 +42,13 @@ class ConstraintComparison extends AbstractNode
     }
 
     /**
-     * Right Operand
+     * The right hand side of the comparison - a static operand.
+     *
+     * $qb->where()
+     *   ->eq()
+     *      ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *      ->rop()->literal('foobar')->end()
+     *   ->end()
      *
      * @return OperandStaticFactory
      */

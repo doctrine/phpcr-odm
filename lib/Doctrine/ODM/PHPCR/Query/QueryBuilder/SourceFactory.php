@@ -4,6 +4,17 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
+/**
+ * Abstract factory/node class for Sources.
+ *
+ * In PHPCR terms there is only ever one "source", which
+ * can either be a "node type" source, or a join.
+ *
+ * In the ODM the concept of "node type" is replaced with the
+ * Document type
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 abstract class SourceFactory extends AbstractNode
 {
     public function getCardinalityMap()
@@ -18,11 +29,32 @@ abstract class SourceFactory extends AbstractNode
         return self::NT_SOURCE_FACTORY;
     }
 
+    /**
+     * Document source:
+     *
+     *   $qb->from()->document('My/Document/Class')
+     *
+     * @return SourceDocument
+     */
     public function document($documentFqn, $selectorName)
     {
         return $this->addChild(new SourceDocument($this, $documentFqn, $selectorName));
     }
 
+    /**
+     * Inner Join:
+     *
+     *   $qb->from()
+     *     ->joinInner()
+     *       ->left()->document('My/Document/Class/One', 'sel_1')->end()
+     *       ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *       ->condition()
+     *         ->equi('prop_1','sel_1', 'prop_2', 'sel_2')
+     *       ->end()
+     *     ->end()
+     *
+     * @return SourceJoin
+     */
     public function joinInner()
     {
         return $this->addChild(new SourceJoin($this,
@@ -30,6 +62,20 @@ abstract class SourceFactory extends AbstractNode
         ));
     }
 
+    /**
+     * Left Outer Join:
+     *
+     *   $qb->from()
+     *     ->joinLeftOuter()
+     *       ->left()->document('My/Document/Class/One', 'sel_1')->end()
+     *       ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *       ->condition()
+     *         ->equi('prop_1','sel_1', 'prop_2', 'sel_2')
+     *       ->end()
+     *     ->end()
+     *
+     * @return SourceJoin
+     */
     public function joinLeftOuter()
     {
         return $this->addChild(new SourceJoin($this, 
@@ -37,6 +83,20 @@ abstract class SourceFactory extends AbstractNode
         ));
     }
 
+    /**
+     * Right Outer Join:
+     *
+     *   $qb->from()
+     *     ->joinRightOuter()
+     *       ->left()->document('My/Document/Class/One', 'sel_1')->end()
+     *       ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *       ->condition()
+     *         ->equi('prop_1','sel_1', 'prop_2', 'sel_2')
+     *       ->end()
+     *     ->end()
+     *
+     * @return SourceJoin
+     */
     public function joinRightOuter()
     {
         return $this->addChild(new SourceJoin($this, 

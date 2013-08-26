@@ -4,6 +4,14 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
+/**
+ * Factory/node class for order by.
+ *
+ * Query results can be ordered by any dynamic operand
+ * in either ascending or descending order.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class OrderBy extends AbstractNode
 {
     public function getCardinalityMap()
@@ -13,11 +21,27 @@ class OrderBy extends AbstractNode
         );
     }
 
+    /**
+     * Add ascending ordering:
+     *
+     *   $qb->orderBy()
+     *     ->ascending()->propertyValue('prop_1', 'sel_1')->end()
+     *
+     * @return Ordering
+     */
     public function ascending()
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_ASCENDING));
     }
 
+    /**
+     * Add descending ordering:
+     *
+     *   $qb->orderBy()
+     *     ->descending()->propertyValue('prop_1', 'sel_1')->end()
+     *
+     * @return Ordering
+     */
     public function descending()
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_DESCENDING));
@@ -28,5 +52,3 @@ class OrderBy extends AbstractNode
         return self::NT_ORDER_BY;
     }
 }
-
-

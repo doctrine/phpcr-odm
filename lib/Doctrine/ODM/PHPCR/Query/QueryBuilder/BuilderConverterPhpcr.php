@@ -16,10 +16,27 @@ use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode as QBConstants;
  */
 class BuilderConverterPhpcr
 {
+    /**
+     * @var PHPCR\Query\QOM\QueryObjectModelFactoryInterface
+     */
     protected $qomf;
+
+    /**
+     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory
+     */
     protected $mdf;
+
+    /**
+     * @var Doctrine\ODM\PHPCR\DocumentManager
+     */
     protected $dm;
 
+    /**
+     * When document sources are registered we put the document
+     * metadata here.
+     *
+     * @var array
+     */
     protected $selectorMetadata = array();
 
     protected $from = null;
@@ -27,7 +44,10 @@ class BuilderConverterPhpcr
     protected $orderings = array();
     protected $where = null;
 
-    public function __construct(DocumentManager $dm, QueryObjectModelFactoryInterface $qomf)
+    public function __construct(
+        DocumentManager $dm, 
+        QueryObjectModelFactoryInterface $qomf
+    )
     {
         $this->qomf = $qomf;
         $this->mdf = $dm->getMetadataFactory();
@@ -56,12 +76,32 @@ class BuilderConverterPhpcr
         return $fieldMeta;
     }
 
+    /**
+     * Return the PHPCR property name for the given ODM document property name
+     *
+     * @param string $selectorName - Name of selector (corresponds to document source)
+     * @param string $odmPropertyName - Name of ODM document property
+     *
+     * @return string
+     */
     protected function getPhpcrProperty($selectorName, $odmPropertyName)
     {
         $fieldMeta = $this->getFieldMapping($selectorName, $odmPropertyName);
         return $fieldMeta['property'];
     }
 
+    /**
+     * Returns an ODM Query object from the given ODM (query) Builder.
+     *
+     * Dispatches the From, Select, Where and OrderBy nodes. Each of these
+     * "root" nodes append or set PHPCR QOM objects to corresponding properties 
+     * in this class, which are subsequently used to create a PHPCR QOM object which
+     * is embeded in an ODM Query object.
+     *
+     * @param Builder $builder
+     *
+     * @return Doctrine\ODM\PHPCR\Query\Query
+     */
     public function getQuery(Builder $builder)
     {
         $from = $builder->getChildrenOfType(
@@ -102,13 +142,29 @@ class BuilderConverterPhpcr
         return $this->query;
     }
 
-    public function dispatchMany($nodes)
+    /**
+     * Convenience method to dispatch an array of nodes.
+     *
+     * @param array
+     */
+    protected function dispatchMany($nodes)
     {
         foreach ($nodes as $node) {
             $this->dispatch($node);
         }
     }
 
+    /**
+     * Dispatch a node.
+     *
+     * This method will look for a method of the form 
+     * "walk{NodeType}" in this class and then use that
+     * to build the PHPCR QOM counterpart of the given node.
+     *
+     * @param AbstractNode $node
+     *
+     * @return object - PHPCR QOM object
+     */
     public function dispatch(AbstractNode $node)
     {
         $methodName = sprintf('walk%s', $node->getName());

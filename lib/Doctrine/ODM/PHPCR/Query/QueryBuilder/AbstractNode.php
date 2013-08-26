@@ -5,6 +5,11 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 /**
  * All QueryBuilder nodes extend this class.
  *
+ * Each query builder node must declare its node type
+ * (one of the NT_* constants declared below) and provide
+ * a cardinality map describing how many of each type of nodes
+ * are allowed to be added.
+ *
  * @author Daniel Leech <daniel@dantleech.com>
  */
 abstract class AbstractNode
@@ -38,17 +43,28 @@ abstract class AbstractNode
     }
 
     /**
-     * Return the type of node
+     * Return the type of node.
+     *
+     * Must be one of self::NT_*
+     *
+     * @return string
      */
     abstract public function getNodeType();
 
+    /**
+     * Return the parent of this node.
+     *
+     * @return AbstractNode
+     */
     public function getParent()
     {
         return $this->parent;
     }
 
     /**
-     * Return the last part of the this classes FQN (i.e. the basename)
+     * Return the last part of the this classes FQN (i.e. the basename).
+     *
+     * This should only be used when generating exceptions.
      *
      * @return string
      */
@@ -86,9 +102,10 @@ abstract class AbstractNode
     /**
      * Add a child to this node.
      *
-     * Exception will be thrown if given child is of
-     * an unmapped type or if adding given child would
-     * exceed the upper bound.
+     * Exception will be thrown if child node type is not
+     * described in the cardinality map, or if the maxiumum
+     * permitted number of nodes would be exceeded by adding
+     * the given child node.
      *
      * The given node will be returned EXCEPT when the current 
      * node is a leaf node, in which case we return the parent.
@@ -140,7 +157,8 @@ abstract class AbstractNode
 
     /**
      * Return the next object in the fluid interface
-     * chain.
+     * chain. Leaf nodes always return the parent, deafult
+     * behavior is to return /this/ class.
      *
      * @return AbstractNode
      */
@@ -292,6 +310,12 @@ abstract class AbstractNode
         return $this->parent;
     }
 
+    /**
+     * Catch any undefined method calls and tell the developer what
+     * methods can be called.
+     *
+     * @throws \RuntimeException
+     */
     public function __call($methodName, $args)
     {
         throw new \RuntimeException(sprintf(

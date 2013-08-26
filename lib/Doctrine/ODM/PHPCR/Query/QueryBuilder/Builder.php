@@ -5,6 +5,11 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\DocumentManager;
 
+/**
+ * Base QueryBuilder node.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class Builder extends AbstractNode
 {
     protected $converter;
@@ -14,6 +19,11 @@ class Builder extends AbstractNode
     public function getNodeType()
     {
         return self::NT_BUILDER;
+    }
+
+    public function getQuery()
+    {
+        return $this->getConverter()->getQuery($this);
     }
 
     public function setConverter(BuilderConverterPhpcr $converter)
@@ -28,11 +38,6 @@ class Builder extends AbstractNode
         }
 
         return $this->converter;
-    }
-
-    public function getQuery()
-    {
-        return $this->getConverter()->getQuery($this);
     }
 
     public function getCardinalityMap()
