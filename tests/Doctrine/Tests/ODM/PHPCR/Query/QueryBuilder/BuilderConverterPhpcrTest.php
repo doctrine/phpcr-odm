@@ -7,6 +7,7 @@ use Jackalope\Query\QOM\QueryObjectModelFactory;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\BuilderConverterPhpcr;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode as QBConstants;
 
 class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 {
@@ -145,7 +146,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $n->end();
 
-        $from = $this->qb->getChildOfType('From');
+        $from = $this->qb->getChildOfType(QBConstants::NT_FROM);
         $res = $this->converter->dispatch($from);
 
         $this->assertInstanceOf('PHPCR\Query\QOM\JoinInterface', $res);

@@ -2,12 +2,17 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandDynamicUpperCase extends OperandDynamicFactory implements OperandDynamicInterface
+class OperandDynamicUpperCase extends OperandDynamicFactory
 {
     public function getCardinalityMap()
     {
         return array(
-            'OperandDynamicInterface' => array(1, 1),    // 1..*
+            self::NT_OPERAND_DYNAMIC => array(1, 1),    // 1..*
         );
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_DYNAMIC;
     }
 }

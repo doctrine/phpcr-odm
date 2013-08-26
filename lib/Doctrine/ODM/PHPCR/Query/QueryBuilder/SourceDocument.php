@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class SourceDocument extends AbstractLeafNode implements SourceInterface
+class SourceDocument extends AbstractLeafNode
 {
     protected $documentFqn;
     protected $selectorName;
@@ -24,6 +24,11 @@ class SourceDocument extends AbstractLeafNode implements SourceInterface
     public function getSelectorName()
     {
         return $this->selectorName;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_SOURCE;
     }
 }
 

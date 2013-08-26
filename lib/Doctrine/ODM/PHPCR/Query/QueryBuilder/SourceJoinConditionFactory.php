@@ -4,13 +4,18 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class SourceJoinCondition extends AbstractNode implements SourceInterface
+class SourceJoinConditionFactory extends AbstractNode
 {
     public function getCardinalityMap()
     {
         return array(
-            'SourceJoinConditionInterface' => array(1, 1)
+            self::NT_SOURCE_JOIN_CONDITION => array(1, 1)
         );
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_SOURCE_JOIN_CONDITION_FACTORY;
     }
 
     public function descendant($descendantSelectorName, $ancestorSelectorName)

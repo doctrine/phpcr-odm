@@ -5,8 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
-class ConstraintPropertyExists extends AbstractLeafNode implements 
-    ConstraintInterface
+class ConstraintPropertyExists extends AbstractLeafNode
 {
     protected $propertyName;
     protected $selectorName;
@@ -16,6 +15,11 @@ class ConstraintPropertyExists extends AbstractLeafNode implements
         $this->propertyName = $propertyName;
         $this->selectorName = $selectorName;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_CONSTRAINT;
     }
 
     public function getPropertyName() 

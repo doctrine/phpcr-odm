@@ -4,8 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class ConstraintFullTextSearch extends AbstractLeafNode implements 
-    ConstraintInterface
+class ConstraintFullTextSearch extends AbstractLeafNode
 {
     protected $selectorName;
     protected $propertyName;
@@ -17,6 +16,11 @@ class ConstraintFullTextSearch extends AbstractLeafNode implements
         $this->propertyName = $propertyName;
         $this->fullTextSearchExpression = $fullTextSearchExpression;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_CONSTRAINT;
     }
 
     public function getSelectorName()

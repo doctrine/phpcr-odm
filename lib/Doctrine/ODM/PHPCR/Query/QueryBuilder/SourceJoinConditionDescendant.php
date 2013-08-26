@@ -5,8 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
-class SourceJoinConditionDescendant extends AbstractLeafNode implements 
-    SourceJoinConditionInterface
+class SourceJoinConditionDescendant extends AbstractLeafNode
 {
     protected $path;
     protected $descendantSelectorName;
@@ -25,6 +24,11 @@ class SourceJoinConditionDescendant extends AbstractLeafNode implements
         parent::__construct($parent);
     }
 
+    public function getNodeType()
+    {
+        return self::NT_SOURCE_JOIN_CONDITION;
+    }
+
     public function getDescendantSelectorName()
     {
         return $this->descendantSelectorName;
@@ -35,4 +39,3 @@ class SourceJoinConditionDescendant extends AbstractLeafNode implements
         return $this->ancestorSelectorNode;
     }
 }
-

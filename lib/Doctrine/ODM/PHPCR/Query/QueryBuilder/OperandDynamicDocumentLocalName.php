@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandDynamicDocumentLocalName extends AbstractLeafNode implements OperandDynamicInterface
+class OperandDynamicDocumentLocalName extends AbstractLeafNode
 {
     protected $selectorName;
 
@@ -15,5 +15,10 @@ class OperandDynamicDocumentLocalName extends AbstractLeafNode implements Operan
     public function getSelectorName() 
     {
         return $this->selectorName;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_DYNAMIC;
     }
 }

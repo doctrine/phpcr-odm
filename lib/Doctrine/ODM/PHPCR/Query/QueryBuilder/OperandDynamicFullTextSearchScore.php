@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandDynamicFullTextSearchScore extends AbstractLeafNode implements OperandDynamicInterface
+class OperandDynamicFullTextSearchScore extends AbstractLeafNode
 {
     protected $selectorName;
 
@@ -15,5 +15,10 @@ class OperandDynamicFullTextSearchScore extends AbstractLeafNode implements Oper
     public function getSelectorName() 
     {
         return $this->selectorName;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_DYNAMIC;
     }
 }

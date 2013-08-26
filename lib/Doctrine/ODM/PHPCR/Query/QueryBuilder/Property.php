@@ -2,8 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class Property extends AbstractLeafNode implements 
-    SourceJoinConditionInterface
+class Property extends AbstractLeafNode
 {
     protected $propertyName;
     protected $selectorName;
@@ -23,5 +22,10 @@ class Property extends AbstractLeafNode implements
     public function getSelectorName() 
     {
         return $this->selectorName;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_PROPERTY;
     }
 }

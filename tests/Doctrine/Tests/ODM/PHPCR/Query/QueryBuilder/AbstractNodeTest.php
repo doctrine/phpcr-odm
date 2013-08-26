@@ -19,6 +19,9 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             ->setMockClassName('LeafNode')
             ->setConstructorArgs(array($this->node1))
             ->getMockForAbstractClass();
+        $this->leafNode->expects($this->any())
+            ->method('getNodeType')
+            ->will($this->returnValue('LeafNode'));
     }
 
     protected function addChildrenToNode1($data)
@@ -29,6 +32,9 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
                 array(),
                 $className
             );
+            $childNode->expects($this->once())
+                ->method('getNodeType')
+                ->will($this->returnValue($className));
 
             $res = $this->node1->addChild($childNode);
             $this->assertSame($childNode, $res);
@@ -64,7 +70,7 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
                 ), 
                 array(
                     'FooBar',
-                    'Foobar',
+                    'FooBar',
                 ), 
                 array(
                     'exceeds_max' => true

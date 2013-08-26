@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Query\QueryBuilder\From;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\SourceJoin;
 
-class SourceJoinConditionTest extends NodeTestCase
+class SourceJoinConditionFactoryTest extends NodeTestCase
 {
     public function provideInterface()
     {

@@ -2,17 +2,21 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class ConstraintComparison extends AbstractNode implements
-    ConstraintInterface
+class ConstraintComparison extends AbstractNode
 {
     protected $operator;
 
     public function getCardinalityMap()
     {
         return array(
-            'OperandDynamicFactory' => array('1', '1'),
-            'OperandStaticFactory' => array('1', '1')
+            self::NT_OPERAND_DYNAMIC_FACTORY => array('1', '1'),
+            self::NT_OPERAND_STATIC_FACTORY => array('1', '1'),
         );
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_CONSTRAINT;
     }
 
     public function __construct(AbstractNode $parent, $operator)

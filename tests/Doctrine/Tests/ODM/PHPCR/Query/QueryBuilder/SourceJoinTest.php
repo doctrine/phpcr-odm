@@ -22,7 +22,7 @@ class SourceJoinTest extends NodeTestCase
             )),
             array('right', 'SourceJoinRight', array(
             )),
-            array('condition', 'SourceJoinCondition', array(
+            array('condition', 'SourceJoinConditionFactory', array(
             )),
         );
     }

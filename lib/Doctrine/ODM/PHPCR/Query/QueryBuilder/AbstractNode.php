@@ -9,6 +9,26 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
  */
 abstract class AbstractNode
 {
+    const NT_BUILDER = 'builder';
+    const NT_CONSTRAINT = 'constraint';
+    const NT_CONSTRAINT_FACTORY = 'constraint_factory';
+    const NT_FROM = 'from';
+    const NT_OPERAND_DYNAMIC = 'operand_dynamic';
+    const NT_OPERAND_DYNAMIC_FACTORY = 'operand_dynamic_factory';
+    const NT_OPERAND_STATIC = 'operand_static';
+    const NT_OPERAND_STATIC_FACTORY = 'operand_static_factory';
+    const NT_ORDERING = 'ordering';
+    const NT_ORDER_BY = 'order_by';
+    const NT_PROPERTY = 'property';
+    const NT_SELECT = 'select';
+    const NT_SOURCE = 'source';
+    const NT_SOURCE_FACTORY = 'source_factory';
+    const NT_SOURCE_JOIN_CONDITION = 'source_join_condition';
+    const NT_SOURCE_JOIN_CONDITION_FACTORY = 'source_join_condition_factory';
+    const NT_SOURCE_JOIN_LEFT = 'source_join_left';
+    const NT_SOURCE_JOIN_RIGHT = 'source_join_right';
+    const NT_WHERE = 'where';
+
     protected $children = array();
     protected $parent;
 
@@ -16,6 +36,11 @@ abstract class AbstractNode
     {
         $this->parent = $parent;
     }
+
+    /**
+     * Return the type of node
+     */
+    abstract public function getNodeType();
 
     public function getParent()
     {
@@ -40,54 +65,23 @@ abstract class AbstractNode
      *
      * e.g.
      *     array(
-     *         'JoinCondition' => array(1, 1), // require exactly 1 join condition
-     *         'Source' => array(2, 2), // exactly 2 sources
+     *         self::NT_JOIN_CONDITION => array(1, 1), // require exactly 1 join condition
+     *         self::NT_SOURCE => array(2, 2), // exactly 2 sources
      *     );
      *
      * or:
      *     array(
-     *         'Column' => array(1, null), // require one to many Columns
+     *         self::NT_PROPERTY => array(1, null), // require one to many Columns
      *     );
      *
      * or:
      *     array(
-     *         'FooBar' => array(null, 1), // require none to 1 FooBars
+     *         self::NT_PROPERTY => array(null, 1), // require none to 1 properties
      *     );
      *
      * @return array
      */
     abstract public function getCardinalityMap();
-
-    protected function isValidType($node)
-    {
-        return $this->getBaseType($node->getName()) !== null;
-    }
-
-    protected function getBaseType($nodeName)
-    {
-        foreach (array_keys($this->getCardinalityMap()) as $type) {
-            $validFqn = __NAMESPACE__.'\\'.$type;
-            $nodeFqn = __NAMESPACE__.'\\'.$nodeName;
-
-            // silly hack for unit tests...
-            if ($nodeName == $type) {
-                return $type;
-            }
-
-            if (!class_exists($nodeFqn)) {
-                return null;
-            }
-
-            $refl = new \ReflectionClass($nodeFqn);
-
-            // support polymorphism
-            if ($refl->isSubclassOf($validFqn)) {
-                return $type;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Add a child to this node.
@@ -105,16 +99,18 @@ abstract class AbstractNode
     public function addChild(AbstractNode $node)
     {
         $cardinalityMap = $this->getCardinalityMap();
+        $nodeType = $node->getNodeType();
 
         $validChild = true;
         $end = false;
 
         // if proposed child node is of an invalid type
-        if (!$this->isValidType($node)) {
+        if (!isset($cardinalityMap[$nodeType])) {
             throw new \OutOfBoundsException(sprintf(
-                'QueryBuilder node "%s" cannot be appended to "%s". '.
-                'Must be one of "%s"',
+                'QueryBuilder node "%s" of type "%s" cannot be appended to "%s". '.
+                'Must be one type of "%s"',
                 $node->getName(),
+                $nodeType,
                 $this->getName(),
                 implode(', ', array_keys($cardinalityMap))
             ));
@@ -123,7 +119,7 @@ abstract class AbstractNode
         $currentCardinality = isset($this->children[$node->getName()]) ? 
             count($this->children[$node->getName()]) : 0;
 
-        list($min, $max) = $cardinalityMap[$this->getBaseType($node->getName())];
+        list($min, $max) = $cardinalityMap[$nodeType];
 
         // if bounded and cardinality will exceed max
         if (null !== $max && $currentCardinality + 1 > $max) {
@@ -132,12 +128,12 @@ abstract class AbstractNode
                 'Number of "%s" nodes cannot exceed "%s"',
                 $node->getName(),
                 $this->getName(),
-                $node->getName(),
+                $nodeType,
                 $max
             ));
         }
 
-        $this->children[$node->getName()][] = $node;
+        $this->children[$nodeType][] = $node;
 
         return $node->getNext();
     }
@@ -180,23 +176,15 @@ abstract class AbstractNode
      */
     public function getChildrenOfType($type) 
     {
-        $ret = array();
-
-        foreach ($this->children as $childType => $children) {
-            foreach ($children as $child) {
-                $baseType = $this->getBaseType($child->getName());
-
-                if ($baseType === $type) {
-                    $ret[] = $child;
-                }
-            }
+        if (!isset($this->children[$type])) {
+            return array();
         }
 
-        return $ret;
+        return $this->children[$type];
     }
 
     /**
-     * Return child
+     * Return child of node, there must be exactly one child of any type.
      *
      * @throws \OutOfBoundsException if there are more than one or none
      * @return array AbstractNode[]
@@ -273,7 +261,6 @@ abstract class AbstractNode
         }
 
         foreach ($this->children as $type => $children) {
-            $type = $this->getBaseType($type);
             $typeCount[$type] += count($children);
         }
 
