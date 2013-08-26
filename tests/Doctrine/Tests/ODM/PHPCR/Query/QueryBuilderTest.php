@@ -429,4 +429,73 @@ class QueryBuilderTest extends \PHPUnit_Framework_Testcase
 
         $this->assertEquals(QueryBuilder::STATE_DIRTY, $this->qb->getState());
     }
+
+    public function testJoinIdeas()
+    {
+        // from - note we need to add the selector name ("a")
+        //        and that we have factored the selector name into the factory
+        $this->qb->from($qb->src()->class('Namespace/BarFoo', 'a'));
+
+        // join with node type
+        // join condition idea 1: reuse the expr() class, but
+        //   change context in ExpressionVisitor
+        $this->qb->leftJoin(
+            $qb->src()->nodeType('nt:base', 'b'), 
+            $qb->expr()->eq('foobar', 'b.foobar')
+        );
+
+        // same as above but join by class and
+        //   expr() wouldn't work here, as the descendent
+        //   join type is different to the descendent expression
+        //   so maybe we can have a new factory
+        $this->qb->leftJoin(
+
+            // src factory:
+            //   
+            //   Introduce a new factory for sources, allow to specify
+            //   exactly a node type or a class to select from.
+            $qb->src()->class('Namespace/FooBar', 'b'), 
+
+            $qb->joinCond()->descendant('a', 'b')
+            // $qb->joinCond()->eq('a.foobar', 'b.foobar');
+            // $qb->joinCond()->same('a', 'b', '/foo/bar');
+            // $qb->joinCond()->same('a', 'b', '/foo/bar');
+            // $qb->joinCond()->child('a', 'b');
+        );
+
+        // We could also maybe do some, ahem, "magic"
+        $this->qb->leftJoin(
+            // Magic Selector:
+            //
+            //   Check for presence of namespace and then check for metadata
+            //   if no metadata fallback to node type.
+            //
+            //   Or we can pass the object from the src() factory
+            'Foo/Bar as b', // or 'nt:foobar'
+
+            // Can't really see a way to make the join condition magical
+            $qb->jcon()->child('a', 'b')
+        );
+
+        // Or we could inverse things a bit
+        //
+        $qb->joinEquals(
+            $qb->src()->class('Namespace/FooBar', 'b'),
+            'a.foobar', 'b.foobar'
+            'left', // join type
+        );
+
+        // join all children of selector "a" 
+        //   e.g. $qb->from($qb->src()->class('Foobar', 'a')))
+        $qb->joinChildren(
+            $qb->src()->nodeType('nt:base', 'b'),
+            'a', // parent selector "a"
+            'inner', // join type
+        );
+
+        $qb->joinDescendant(
+            $qb->src()->class('Foobar', 'b'),
+            'a', // descendants of source selector name "a"
+        );
+    }
 }
