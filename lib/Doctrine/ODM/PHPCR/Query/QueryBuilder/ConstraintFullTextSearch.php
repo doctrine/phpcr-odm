@@ -16,6 +16,7 @@ class ConstraintFullTextSearch extends AbstractLeafNode implements
         $this->selectorName = $selectorName;
         $this->propertyName = $propertyName;
         $this->fullTextSearchExpression = $fullTextSearchExpression;
+        parent::__construct($parent);
     }
 
     public function getSelectorName()

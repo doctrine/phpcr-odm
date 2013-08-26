@@ -12,6 +12,13 @@ class Ordering extends OperandDynamicFactory
         parent::__construct($parent);
     }
 
+    public function getCardinalityMap()
+    {
+        return array(
+            'OperandDynamicInterface' => array(1, 1),
+        );
+    }
+
     public function getOrder()
     {
         return $this->order;

@@ -16,6 +16,8 @@ class BuilderTest extends NodeTestCase
         );
     }
 
+    // this test serves no other purpose than to demonstrate
+    // the API
     public function testApi1()
     {
         $this->node
@@ -46,5 +48,14 @@ class BuilderTest extends NodeTestCase
                 ->ascending()->documentName('a')->end()
                 ->descending()->documentName('b')->end()
             ->end();
+    }
+
+    public function testFirstMaxResult()
+    {
+        $this->node->setMaxResults(123);
+        $this->node->setFirstResult(4);
+
+        $this->assertEquals(123, $this->node->getMaxResults());
+        $this->assertEquals(4, $this->node->getFirstResult());
     }
 }
