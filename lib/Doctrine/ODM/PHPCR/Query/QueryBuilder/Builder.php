@@ -11,6 +11,11 @@ class Builder extends AbstractNode
     protected $firstResult;
     protected $maxResults;
 
+    public function getNodeType()
+    {
+        return self::NT_BUILDER;
+    }
+
     public function setConverter(BuilderConverterPhpcr $converter)
     {
         $this->converter = $converter;
@@ -33,10 +38,10 @@ class Builder extends AbstractNode
     public function getCardinalityMap()
     {
         return array(
-            'Select' => array(0, null),    // 1..*
-            'From' => array(1, 1),         // 1..1
-            'Where' => array(0, 1),     // 0..1
-            'OrderBy' => array(0, null),   // 0..*
+            self::NT_SELECT => array(0, null),    // 1..*
+            self::NT_FROM => array(1, 1),         // 1..1
+            self::NT_WHERE => array(0, 1),     // 0..1
+            self::NT_ORDER_BY => array(0, null),   // 0..*
         );
     }
 

@@ -9,8 +9,13 @@ abstract class SourceFactory extends AbstractNode
     public function getCardinalityMap()
     {
         return array(
-            'SourceInterface' => array(1, 1)
+            self::NT_SOURCE => array(1, 1)
         );
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_SOURCE_FACTORY;
     }
 
     public function document($documentFqn, $selectorName)

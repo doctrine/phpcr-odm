@@ -4,8 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 
-class ConstraintSameDocument extends AbstractLeafNode implements 
-    ConstraintInterface
+class ConstraintSameDocument extends AbstractLeafNode
 {
     protected $selectorName;
     protected $path;
@@ -15,6 +14,11 @@ class ConstraintSameDocument extends AbstractLeafNode implements
         $this->selectorName = $selectorName;
         $this->path = $path;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_CONSTRAINT;
     }
 
     public function getSelectorName()

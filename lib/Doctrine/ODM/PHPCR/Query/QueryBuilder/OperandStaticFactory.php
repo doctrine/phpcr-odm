@@ -9,8 +9,13 @@ class OperandStaticFactory extends AbstractNode
     public function getCardinalityMap()
     {
         return array(
-            'OperandStaticInterface' => array(1, 1),
+            self::NT_OPERAND_STATIC => array(1, 1),
         );
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_STATIC_FACTORY;
     }
 
     public function bindVariable($name)

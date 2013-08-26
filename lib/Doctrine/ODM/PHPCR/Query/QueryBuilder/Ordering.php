@@ -15,12 +15,17 @@ class Ordering extends OperandDynamicFactory
     public function getCardinalityMap()
     {
         return array(
-            'OperandDynamicInterface' => array(1, 1),
+            self::NT_OPERAND_DYNAMIC => array(1, 1),
         );
     }
 
     public function getOrder()
     {
         return $this->order;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_ORDERING;
     }
 }

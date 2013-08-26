@@ -9,8 +9,13 @@ class ConstraintFactory extends AbstractNode
     public function getCardinalityMap()
     {
         return array(
-            'ConstraintInterface' => array(1, 1),
+            self::NT_CONSTRAINT => array(1, 1),
         );
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_CONSTRAINT_FACTORY;
     }
 
     public function andX()

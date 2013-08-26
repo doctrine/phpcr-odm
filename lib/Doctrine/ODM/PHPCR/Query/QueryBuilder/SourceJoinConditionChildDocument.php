@@ -2,8 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class SourceJoinConditionChildDocument extends AbstractLeafNode implements 
-    SourceJoinConditionInterface
+class SourceJoinConditionChildDocument extends AbstractLeafNode
 {
     protected $childSelectorName;
     protected $parentSelectorName;
@@ -13,6 +12,11 @@ class SourceJoinConditionChildDocument extends AbstractLeafNode implements
         $this->childSelectorNode = (string) $childSelectorName;
         $this->parentSelectorName = (string) $parentSelectorName;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_SOURCE_JOIN_CONDITION;
     }
 
     public function getChildSelectorName() 

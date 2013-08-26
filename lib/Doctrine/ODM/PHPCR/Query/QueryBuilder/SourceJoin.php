@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\Query\QueryBuilder\Source;
 /**
  * $from->joinInner()->left()->document()->
  */
-class SourceJoin extends AbstractNode implements SourceInterface
+class SourceJoin extends AbstractNode
 {
     protected $joinType;
 
@@ -15,6 +15,11 @@ class SourceJoin extends AbstractNode implements SourceInterface
     {
         $this->joinType = $joinType;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_SOURCE;
     }
 
     public function left()
@@ -29,7 +34,7 @@ class SourceJoin extends AbstractNode implements SourceInterface
 
     public function condition()
     {
-        return $this->addChild(new SourceJoinCondition($this));
+        return $this->addChild(new SourceJoinConditionFactory($this));
     }
 
     public function getJoinType()
@@ -40,9 +45,9 @@ class SourceJoin extends AbstractNode implements SourceInterface
     public function getCardinalityMap()
     {
         return array(
-            'SourceJoinCondition' => array(1, 1),
-            'SourceJoinLeft' => array(1, 1),
-            'SourceJoinRight' => array(1, 1),
+            self::NT_SOURCE_JOIN_CONDITION_FACTORY => array(1, 1),
+            self::NT_SOURCE_JOIN_LEFT => array(1, 1),
+            self::NT_SOURCE_JOIN_RIGHT => array(1, 1),
         );
     }
 }

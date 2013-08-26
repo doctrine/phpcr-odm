@@ -6,10 +6,15 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class OperandDynamicFactory extends AbstractNode
 {
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_DYNAMIC_FACTORY;
+    }
+
     public function getCardinalityMap()
     {
         return array(
-            'OperandDynamicInterface' => array(1, 1),
+            self::NT_OPERAND_DYNAMIC => array(1, 1),
         );
     }
 

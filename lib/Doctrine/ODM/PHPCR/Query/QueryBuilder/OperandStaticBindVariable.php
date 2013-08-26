@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandStaticBindVariable extends AbstractLeafNode implements OperandStaticInterface
+class OperandStaticBindVariable extends AbstractLeafNode
 {
     protected $variableName;
 
@@ -15,5 +15,10 @@ class OperandStaticBindVariable extends AbstractLeafNode implements OperandStati
     public function getVariableName() 
     {
         return $this->variableName;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_STATIC;
     }
 }

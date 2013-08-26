@@ -2,13 +2,18 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class ConstraintOrx extends ConstraintFactory implements
-    ConstraintInterface
+class ConstraintOrx extends ConstraintFactory
 {
     public function getCardinalityMap()
     {
         return array(
-            'ConstraintInterface' => array(2, 2),
+            self::NT_CONSTRAINT => array(2, 2),
         );
     }
+
+    public function getNodeType()
+    {
+        return self::NT_CONSTRAINT;
+    }
+
 }

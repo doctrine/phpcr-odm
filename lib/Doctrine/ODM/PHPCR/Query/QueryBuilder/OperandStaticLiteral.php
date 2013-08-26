@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandStaticLiteral extends AbstractLeafNode implements OperandStaticInterface
+class OperandStaticLiteral extends AbstractLeafNode
 {
     protected $value;
 
@@ -15,5 +15,10 @@ class OperandStaticLiteral extends AbstractLeafNode implements OperandStaticInte
     public function getValue() 
     {
         return $this->value;
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_STATIC;
     }
 }

@@ -9,7 +9,7 @@ class OrderBy extends AbstractNode
     public function getCardinalityMap()
     {
         return array(
-            'Ordering' => array(0, null)
+            self::NT_ORDERING => array(0, null)
         );
     }
 
@@ -21,6 +21,11 @@ class OrderBy extends AbstractNode
     public function descending()
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_DESCENDING));
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_ORDER_BY;
     }
 }
 

@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandDynamicPropertyValue extends AbstractLeafNode implements OperandDynamicInterface
+class OperandDynamicPropertyValue extends AbstractLeafNode
 {
     protected $selectorName;
     protected $propertyName;
@@ -12,6 +12,11 @@ class OperandDynamicPropertyValue extends AbstractLeafNode implements OperandDyn
         $this->selectorName = $selectorName;
         $this->propertyName = $propertyName;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_DYNAMIC;
     }
 
     public function getSelectorName() 

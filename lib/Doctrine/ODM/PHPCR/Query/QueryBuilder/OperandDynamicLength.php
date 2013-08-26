@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandDynamicLength extends AbstractLeafNode implements OperandDynamicInterface
+class OperandDynamicLength extends AbstractLeafNode
 {
     protected $selectorName;
     protected $propertyName;
@@ -12,6 +12,11 @@ class OperandDynamicLength extends AbstractLeafNode implements OperandDynamicInt
         $this->propertyName = $propertyName;
         $this->selectorName = $selectorName;
         parent::__construct($parent);
+    }
+
+    public function getNodeType()
+    {
+        return self::NT_OPERAND_DYNAMIC;
     }
 
     public function getPropertyName() 

@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode as QBConstants;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
@@ -63,7 +64,9 @@ class BuilderConverterPhpcr
 
     public function getQuery(Builder $builder)
     {
-        $from = $builder->getChildrenOfType('From');
+        $from = $builder->getChildrenOfType(
+            QBConstants::NT_FROM
+        );
 
         if (!$from) {
             throw new \RuntimeException(
@@ -72,12 +75,12 @@ class BuilderConverterPhpcr
         }
 
         // dispatch From first
-        $this->dispatchMany($builder->getChildrenOfType('From'));
+        $this->dispatchMany($from);
 
         // dispatch everything else
-        $this->dispatchMany($builder->getChildrenOfType('Select'));
-        $this->dispatchMany($builder->getChildrenOfType('Where'));
-        $this->dispatchMany($builder->getChildrenOfType('OrderBy'));
+        $this->dispatchMany($builder->getChildrenOfType(QBConstants::NT_SELECT));
+        $this->dispatchMany($builder->getChildrenOfType(QBConstants::NT_WHERE));
+        $this->dispatchMany($builder->getChildrenOfType(QBConstants::NT_ORDER_BY));
 
         $phpcrQuery = $this->qomf->createQuery(
             $this->from,
@@ -198,11 +201,11 @@ class BuilderConverterPhpcr
 
     protected function walkSourceJoin(SourceJoin $node)
     {
-        $left = $this->dispatch($node->getChildOfType('SourceJoinLeft'));
-        $riht = $this->dispatch($node->getChildOfType('SourceJoinRight'));
-        $cond = $this->dispatch($node->getChildOfType('SourceJoinCondition'));
+        $left = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_LEFT));
+        $right = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_RIGHT));
+        $cond = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_CONDITION_FACTORY));
 
-        $join = $this->qomf->join($left, $riht, $node->getJoinType(), $cond);
+        $join = $this->qomf->join($left, $right, $node->getJoinType(), $cond);
 
         return $join;
     }
@@ -219,11 +222,9 @@ class BuilderConverterPhpcr
         return $right;
     }
 
-    protected function walkSourceJoinCondition(SourceJoinCondition $node)
+    protected function walkSourceJoinConditionFactory(SourceJoinConditionFactory $node)
     {
-        foreach ($node->getChildren() as $child) {
-            $res = $this->dispatch($child);
-        }
+        $res = $this->dispatch($node->getChild());
 
         return $res;
     }
@@ -357,13 +358,18 @@ class BuilderConverterPhpcr
 
     protected function walkConstraintComparison(ConstraintComparison $node)
     {
-        $dynOp = $node->getChildOfType('OperandDynamicFactory');
-        $staOp = $node->getChildOfType('OperandStaticFactory');
+        $dynOp = $node->getChildOfType(
+            QBConstants::NT_OPERAND_DYNAMIC_FACTORY
+        );
+        $statOp = $node->getChildOfType(
+            QBConstants::NT_OPERAND_STATIC_FACTORY
+        );
+
         $phpcrDynOp = $this->dispatch($dynOp);
-        $phpcrStaOp = $this->dispatch($staOp);
+        $phpcrStatOp = $this->dispatch($statOp);
 
         $compa = $this->qomf->comparison(
-            $phpcrDynOp, $node->getOperator(), $phpcrStaOp
+            $phpcrDynOp, $node->getOperator(), $phpcrStatOp
         );
 
         return $compa;
@@ -371,7 +377,10 @@ class BuilderConverterPhpcr
 
     protected function walkConstraintNot(ConstraintNot $node)
     {
-        $con = $node->getChildOfType('ConstraintInterface');
+        $con = $node->getChildOfType(
+            QBConstants::NT_CONSTRAINT
+        );
+
         $phpcrCon = $this->dispatch($con);
 
         $ret = $this->qomf->notConstraint(
@@ -384,7 +393,10 @@ class BuilderConverterPhpcr
     // dynamic operand stuff
     protected function walkOperandDynamicFactory(OperandDynamicFactory $node)
     {
-        $op = $node->getChildOfType('OperandDynamicInterface');
+        $op = $node->getChildOfType(
+            QBConstants::NT_OPERAND_DYNAMIC
+        );
+
         return $this->dispatch($op);
     }
 
@@ -447,7 +459,10 @@ class BuilderConverterPhpcr
 
     protected function walkOperandDynamicLowerCase(OperandDynamicLowerCase $node)
     {
-        $child = $node->getChildOfType('OperandDynamicInterface');
+        $child = $node->getChildOfType(
+            QBConstants::NT_OPERAND_DYNAMIC
+        );
+
         $phpcrChild = $this->dispatch($child);
 
         $op = $this->qomf->lowerCase(
@@ -459,7 +474,10 @@ class BuilderConverterPhpcr
 
     protected function walkOperandDynamicUpperCase(OperandDynamicUpperCase $node)
     {
-        $child = $node->getChildOfType('OperandDynamicInterface');
+        $child = $node->getChildOfType(
+            QBConstants::NT_OPERAND_DYNAMIC
+        );
+
         $phpcrChild = $this->dispatch($child);
 
         $op = $this->qomf->upperCase(
@@ -472,7 +490,10 @@ class BuilderConverterPhpcr
     // static operand stuff
     protected function walkOperandStaticFactory(OperandStaticFactory $node)
     {
-        $op = $node->getChildOfType('OperandStaticInterface');
+        $op = $node->getChildOfType(
+            QBConstants::NT_OPERAND_STATIC
+        );
+
         return $this->dispatch($op);
     }
 
@@ -494,7 +515,10 @@ class BuilderConverterPhpcr
         $orderings = $node->getChildren();
 
         foreach ($orderings as $ordering) {
-            $dynOp = $ordering->getChildOfType('OperandDynamicInterface');
+            $dynOp = $ordering->getChildOfType(
+                QBConstants::NT_OPERAND_DYNAMIC
+            );
+
             $phpcrDynOp = $this->dispatch($dynOp);
 
             if ($ordering->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
