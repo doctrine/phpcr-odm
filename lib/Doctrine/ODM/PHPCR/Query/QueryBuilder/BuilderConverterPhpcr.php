@@ -5,6 +5,8 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\DocumentManager;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
@@ -15,6 +17,7 @@ class BuilderConverterPhpcr
 {
     protected $qomf;
     protected $mdf;
+    protected $dm;
 
     protected $selectorMetadata = array();
 
@@ -23,10 +26,11 @@ class BuilderConverterPhpcr
     protected $orderings = array();
     protected $where = null;
 
-    public function __construct(ClassMetadataFactory $mdf, QueryObjectModelFactoryInterface $qomf)
+    public function __construct(DocumentManager $dm, QueryObjectModelFactoryInterface $qomf)
     {
         $this->qomf = $qomf;
-        $this->mdf = $mdf;
+        $this->mdf = $dm->getMetadataFactory();
+        $this->dm = $dm;
     }
 
     protected function getMetadata($selectorName)
@@ -73,14 +77,26 @@ class BuilderConverterPhpcr
         // dispatch everything else
         $this->dispatchMany($builder->getChildrenOfType('Select'));
         $this->dispatchMany($builder->getChildrenOfType('Where'));
-        $this->dispatchMany($builder->getChildrenOfType('Ordering'));
+        $this->dispatchMany($builder->getChildrenOfType('OrderBy'));
 
-        $query = $this->qomf->createQuery(
+        $phpcrQuery = $this->qomf->createQuery(
             $this->from,
             $this->where,
             $this->orderings,
             $this->columns
         );
+
+        $this->query = new Query($phpcrQuery, $this->dm);
+
+        if ($firstResult = $builder->getFirstResult()) {
+            $this->query->setFirstResult($firstResult);
+        }
+
+        if ($maxResults = $builder->getMaxResults()) {
+            $this->query->setMaxResults($maxResults);
+        }
+
+        return $this->query;
     }
 
     public function dispatchMany($nodes)
@@ -123,11 +139,10 @@ class BuilderConverterPhpcr
                 $phpcrName
             );
 
-            $columns[] = $column;
             $this->columns[] = $column;
         }
 
-        return $columns;
+        return $this->columns;
     }
 
     public function walkFrom(AbstractNode $node)
@@ -137,7 +152,7 @@ class BuilderConverterPhpcr
 
         $this->from = $res;
 
-        return $res;
+        return $this->from;
     }
 
     public function walkWhere(Where $where)
@@ -147,7 +162,7 @@ class BuilderConverterPhpcr
         $res = $this->dispatch($constraint);
         $this->where = $res;
 
-        return $res;
+        return $this->where;
     }
 
     protected function walkSourceDocument(SourceDocument $node)
@@ -474,19 +489,23 @@ class BuilderConverterPhpcr
     }
 
     // ordering
-    protected function walkOrdering(Ordering $node)
+    protected function walkOrderBy(OrderBy $node)
     {
-        $dynOp = $node->getChildOfType('OperandDynamicInterface');
-        $phpcrDynOp = $this->dispatch($dynOp);
+        $orderings = $node->getChildren();
 
-        if ($node->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
-            $ordering = $this->qomf->ascending($phpcrDynOp);
-        } else {
-            $ordering = $this->qomf->descending($phpcrDynOp);
+        foreach ($orderings as $ordering) {
+            $dynOp = $ordering->getChildOfType('OperandDynamicInterface');
+            $phpcrDynOp = $this->dispatch($dynOp);
+
+            if ($ordering->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
+                $ordering = $this->qomf->ascending($phpcrDynOp);
+            } else {
+                $ordering = $this->qomf->descending($phpcrDynOp);
+            }
+
+            $this->orderings[] = $ordering;
         }
 
-        $this->orderings[] = $ordering;
-
-        return $ordering;
+        return $this->orderings;
     }
 }

@@ -532,16 +532,21 @@ class DocumentManager implements ObjectManager
     /**
      * Create the fluent query builder.
      *
-     * After building your query, use DocumentManager::getDocumentsByPhpcrQuery with the
-     * query returned by QueryBuilder::getQuery()
+     * Query returned by QueryBuilder\Builder::getQuery()
      *
-     * @return QueryBuilder
+     * @return QueryBuilder\Builder
      */
     public function createQueryBuilder()
     {
-        $qm = $this->session->getWorkspace()->getQueryManager();
+        $builder =  new QueryBuilder\Builder();
 
-        return new QueryBuilder\Builder($this, $qm->getQOMFactory());
+        $qm = $this->session->getWorkspace()->getQueryManager();
+        $qomf = $qm->getQOMFactory();
+        $converter = new QueryBuilder\BuilderConverterPhpcr($this, $qomf);
+
+        $builder->setConverter($converter);
+
+        return $builder;
     }
 
     /**

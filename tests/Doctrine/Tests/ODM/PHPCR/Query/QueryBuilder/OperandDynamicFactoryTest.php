@@ -13,21 +13,22 @@ class OperandDynamicFactoryTest extends NodeTestCase
             array('fullTextSearchScore', 'OperandDynamicFullTextSearchScore', array(
                 'selector_name',
             )),
-            array('length', 'OperandDynamicLength', array(
-                'selector_name', 'property_value', 
+            array('length', 'OperandDynamicFullTextSearchScore', array(
+                'selector_name', 'property_name',
             )),
             array('lowerCase', 'OperandDynamicLowerCase', array(
             )),
             array('upperCase', 'OperandDynamicUpperCase', array(
             )),
-            array('documentLocalName', 'OperandDynamicDocumentLocalName', array(
-                'selector_name',
-            )),
             array('documentName', 'OperandDynamicDocumentName', array(
                 'selector_name',
             )),
+            array('documentLocalName', 'OperandDynamicDocumentLocalName', array(
+                'selector_name',
+            )),
             array('propertyValue', 'OperandDynamicPropertyValue', array(
-                'selector_name', 'property_name',
+                'selector_name',
+                'property_name',
             )),
         );
     }

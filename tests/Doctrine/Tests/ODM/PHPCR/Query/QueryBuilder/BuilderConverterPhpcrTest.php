@@ -17,10 +17,9 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $that = $this;
         // note: this "factory" seems unnecessary in current jackalope
         //       implementation
-        $factory = $this->getMock('Jackalope\FactoryInterface');
+        $this->qomfFactory = $this->getMock('Jackalope\FactoryInterface');
 
-        // todo: we should have an implementation neutral test model here
-        $qomf = new QueryObjectModelFactory($factory);
+        $this->qomf = new QueryObjectModelFactory($this->qomfFactory);
 
         $mdf = $this->getMockBuilder(
             'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory'
@@ -55,12 +54,18 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
             'Doctrine\ODM\PHPCR\DocumentManager'
         )->disableOriginalConstructor()->getMock();
 
+        $dm->expects($this->once())
+            ->method('getMetadataFactory')
+            ->will($this->returnValue($mdf));
+
         $this->parentNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode')
             ->disableOriginalConstructor()
             ->getMock();
     
-        $this->converter = new BuilderConverterPhpcr($mdf, $qomf);
-        $this->qb = new Builder($dm, $qomf, $this->converter);;
+        $this->converter = new BuilderConverterPhpcr($dm, $this->qomf);
+
+        $this->qb = new Builder();
+        $this->qb->setConverter($this->converter);
     }
 
     /**
@@ -79,7 +84,6 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         
         $ns = 'Doctrine\\ODM\\PHPCR\\Query\\QueryBuilder';
         $refl = new \ReflectionClass($ns.'\\'.$class);
-
         $node = $refl->newInstanceArgs($constructorArgs);
 
         return $node;
@@ -87,8 +91,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
     public function testDispatchFrom()
     {
-        $this->qb->from()->document('foobar', 'selector_name')->end();
-        $from = $this->qb->getChildOfType('From');
+        $from = $this->createNode('From', array());
+        $source = $this->createNode('SourceDocument', array('foobar', 'selector_name'));
+        $from->addChild($source);
+
         $res = $this->converter->dispatch($from);
 
         $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res);
@@ -138,7 +144,6 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         }
 
         $n->end();
-
 
         $from = $this->qb->getChildOfType('From');
         $res = $this->converter->dispatch($from);
@@ -401,12 +406,66 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testOrderings()
+    public function testOrderBy()
     {
-        $order = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
-        $op = $this->createNode('OperandDynamicDocumentLocalName', array('sel_1'));
-        $order->addChild($op);
+        $order1 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
+        $order2 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
+        $orderBy = $this->createNode('OrderBy', array());
+        $orderBy->addChild($order1);
+        $orderBy->addChild($order2);
 
-        $res = $this->converter->dispatch($order);
+        $op = $this->createNode('OperandDynamicDocumentLocalName', array('sel_1'));
+        $order1->addChild($op);
+        $order2->addChild($op);
+
+        $res = $this->converter->dispatch($orderBy);
+    }
+
+    public function testGetQuery()
+    {
+        $me = $this;
+
+        // setup the query, depends on the query builder
+        // working properly..
+        $this->qb->select()
+            ->property('foobar', 'sel_1');
+
+        $this->qb->from()->document('Fooar', 'sel_1');
+        $this->qb->where()->propertyExists('foobar', 'sel_1');
+        $this->qb->orderBy()->ascending()->documentName('sel_1');
+
+        // setup the qomf factory to expect the right parameters for createQuery
+        $this->qomfFactory->expects($this->once())
+            ->method('get')
+            ->will($this->returnCallback(function ($class, $args) use ($me) {
+                list($om, $source, $constraint, $orderings, $columns) = $args;
+                $me->assertInstanceOf(
+                    'PHPCR\Query\QOM\SourceInterface', $source
+                );
+                $me->assertInstanceOf(
+                    'PHPCR\Query\QOM\ConstraintInterface', $constraint
+                );
+                $me->assertCount(1, $columns);
+
+                $column = $columns[0];
+                $me->assertInstanceOf(
+                    'PHPCR\Query\QOM\ColumnInterface', $column
+                );
+
+                $me->assertCount(1, $orderings);
+                $ordering = $orderings[0];
+                $me->assertInstanceOf(
+                    'PHPCR\Query\QOM\OrderingInterface', $ordering
+                );
+
+                $qom = $me->getMock('PHPCR\Query\QOM\QueryObjectModelInterface');
+                return $qom;
+            }));
+
+        $phpcrQuery = $this->converter->getQuery($this->qb);
+
+        $this->assertInstanceOf(
+            'Doctrine\ODM\PHPCR\Query\Query', $phpcrQuery
+        );
     }
 }

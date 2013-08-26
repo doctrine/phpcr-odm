@@ -15,12 +15,12 @@ class OrderBy extends AbstractNode
 
     public function ascending()
     {
-        return new Ordering($this, QOMConstants::JCR_ORDER_ASCENDING);
+        return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_ASCENDING));
     }
 
     public function descending()
     {
-        return new Ordering($this, QOMConstants::JCR_ORDER_DESCENDING);
+        return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_DESCENDING));
     }
 }
 

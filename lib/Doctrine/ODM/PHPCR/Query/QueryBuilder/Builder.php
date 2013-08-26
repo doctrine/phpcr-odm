@@ -7,31 +7,27 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 
 class Builder extends AbstractNode
 {
-    /**
-     * Initializes a new (Query) Builder
-     *
-     * This is the root node of the builder tree and the object
-     * returned by DocumentManager:createQueryBuilder
-     *
-     * @param Doctrine\ODM\PHPCR\DocumentManager
-     * @param PHPCR\Query\QOM\QueryObjectModelFactoryInterface
-     * @param Doctrine\ODM\PHPCR\Query\ExpressionBuilder - inject for test cases
-     * @param Doctrine\ODM\PHPCR\Query\PhpcrExpressionVisitor - inject for test cases
-     */
-    public function __construct(
-        DocumentManager $dm,
-        QueryObjectModelFactoryInterface $qomf,
-        BuilderConverterPhpcr $converter = null
-    )
+    protected $converter;
+    protected $firstResult;
+    protected $maxResults;
+
+    public function setConverter(BuilderConverterPhpcr $converter)
     {
-        $this->dm = $dm;
-        $this->qomf = $qomf;
-        $this->converter = $converter ? $converter : new BuilderConverterPhpcr($dm->getMetadataFactory(), $qomf);
+        $this->converter = $converter;
+    }
+
+    protected function getConverter()
+    {
+        if (!$this->converter) {
+            throw new \RuntimeException('No query converter has been set on Builder node.');
+        }
+
+        return $this->converter;
     }
 
     public function getQuery()
     {
-        return $this->converter->getQuery($this);
+        return $this->getConverter()->getQuery($this);
     }
 
     public function getCardinalityMap()
@@ -39,7 +35,7 @@ class Builder extends AbstractNode
         return array(
             'Select' => array(0, null),    // 1..*
             'From' => array(1, 1),         // 1..1
-            'Where' => array(0, null),     // 0..*
+            'Where' => array(0, 1),     // 0..1
             'OrderBy' => array(0, null),   // 0..*
         );
     }
@@ -62,5 +58,25 @@ class Builder extends AbstractNode
     public function orderBy()
     {
         return $this->addChild(new OrderBy($this));
+    }
+
+    public function getFirstResult() 
+    {
+        return $this->firstResult;
+    }
+    
+    public function setFirstResult($firstResult)
+    {
+        $this->firstResult = $firstResult;
+    }
+
+    public function getMaxResults() 
+    {
+        return $this->maxResults;
+    }
+    
+    public function setMaxResults($maxResults)
+    {
+        $this->maxResults = $maxResults;
     }
 }
