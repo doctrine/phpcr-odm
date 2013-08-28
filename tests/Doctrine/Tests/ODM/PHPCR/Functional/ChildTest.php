@@ -280,6 +280,98 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('new name', $parent->child->name);
     }
 
+    public function testChildReplaceRemoveChild()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildTestObj();
+        $grandchild = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->id = '/functional/childtest';
+        $parent->child = $child;
+        $child->name = 'Child';
+        $child->child = $grandchild;
+        $grandchild->name = 'Grandchild';
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $newChild = new ChildTestObj();
+        $newChild->name = 'new name';
+        $parent->child = $newChild;
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertEquals('new name', $parent->child->name);
+        // should be assertNull but then tries to dump the object which goes into endless loop
+        $this->assertTrue(null == $parent->child->child, 'the child was not deleted');
+    }
+
+    public function testChildReplaceDeep()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildTestObj();
+        $grandchild = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->id = '/functional/childtest';
+        $parent->child = $child;
+        $child->name = 'Child';
+        $child->child = $grandchild;
+        $grandchild->name = 'Grandchild';
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $newChild = new ChildTestObj();
+        $newChild->name = 'new name';
+        $parent->child = $newChild;
+        $newGrandChild = new ChildChildTestObj();
+        $newChild->child = $newGrandChild;
+        $newGrandChild->name = 'new grandchild';
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertEquals('new name', $parent->child->name);
+        $this->assertEquals('new grandchild', $parent->child->child->name);
+    }
+
+
+    public function testChildReplaceDeepUnneededPersist()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildTestObj();
+        $grandchild = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->id = '/functional/childtest';
+        $parent->child = $child;
+        $child->name = 'Child';
+        $child->child = $grandchild;
+        $grandchild->name = 'Grandchild';
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $newChild = new ChildTestObj();
+        $newChild->name = 'new name';
+        $parent->child = $newChild;
+        $newGrandChild = new ChildChildTestObj();
+        $newChild->child = $newGrandChild;
+        $newGrandChild->name = 'new grandchild';
+        $this->dm->persist($parent);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/childtest');
+        $this->assertEquals('new name', $parent->child->name);
+        $this->assertEquals('new grandchild', $parent->child->child->name);
+    }
+
     public function testModificationAfterPersist()
     {
         $parent = new ChildTestObj();
