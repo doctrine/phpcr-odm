@@ -58,10 +58,10 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      * @return SourceJoinConditionDescendant
      */
-    public function equi($property1, $selector1Name, $property2, $selector2Name)
+    public function equi($selector1Name, $property1, $selector2Name, $property2)
     {
         return $this->addChild(new SourceJoinConditionEqui($this,
-            $property1, $selector1Name, $property2, $selector2Name
+            $selector1Name, $property1, $selector2Name, $property2
         ));
     }
 

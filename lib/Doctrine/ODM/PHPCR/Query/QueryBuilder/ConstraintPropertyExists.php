@@ -10,7 +10,7 @@ class ConstraintPropertyExists extends AbstractLeafNode
     protected $propertyName;
     protected $selectorName;
 
-    public function __construct(AbstractNode $parent, $propertyName, $selectorName)
+    public function __construct(AbstractNode $parent, $selectorName, $propertyName)
     {
         $this->propertyName = $propertyName;
         $this->selectorName = $selectorName;

@@ -63,7 +63,7 @@ class OperandDynamicFactory extends AbstractNode
      */
     public function length($selectorName, $propertyName)
     {
-        return $this->addChild(new OperandDynamicPropertyValue($this, $selectorName, $selectorName));
+        return $this->addChild(new OperandDynamicPropertyValue($this, $selectorName, $propertyName));
     }
 
     /**

@@ -75,7 +75,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      */
     protected function primeBuilder()
     {
-        $from = $this->qb->from()->document('foobar', 'sel_1');
+        $from = $this->qb->from()->document('sel_1', 'foobar');
         $res = $this->converter->dispatch($from);
     }
 
@@ -93,7 +93,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     public function testDispatchFrom()
     {
         $from = $this->createNode('From', array());
-        $source = $this->createNode('SourceDocument', array('foobar', 'selector_name'));
+        $source = $this->createNode('SourceDocument', array('selector_name', 'foobar'));
         $from->addChild($source);
 
         $res = $this->converter->dispatch($from);
@@ -126,8 +126,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $n = $this->qb->from()
             ->$method()
-                ->left()->document('foobar', 'selector_1')->end()
-                ->right()->document('barfoo', 'selector_2')->end();
+                ->left()->document('selector_1', 'foobar')->end()
+                ->right()->document('selector_2', 'barfoo')->end();
 
         switch ($joinCond) {
             case 'childDocument':
@@ -141,7 +141,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 break;
             case 'equi':
             default:
-                $n->condition()->equi('prop_1', 'selector_1', 'prop_2', 'selector_2')->end();
+                $n->condition()->equi('selector_1', 'prop_1', 'selector_2', 'prop_2')->end();
         }
 
         $n->end();
@@ -164,8 +164,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $select = $this->qb
             ->select()
-                ->property('prop_1', 'sel_1')
-                ->property('prop_2', 'sel_1');
+                ->property('sel_1', 'prop_1')
+                ->property('sel_1', 'prop_2');
 
         $res = $this->converter->dispatch($select);
 
@@ -196,8 +196,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $where = $this->qb
             ->where()
                 ->$method()
-                    ->propertyExists('prop_1', 'sel_1')
-                    ->propertyExists('prop_2', 'sel_1');
+                    ->propertyExists('sel_1', 'prop_1')
+                    ->propertyExists('sel_1', 'prop_2');
 
         $res = $this->converter->dispatch($where);
 
@@ -210,23 +210,23 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                'ConstraintPropertyExists', array('prop_1', 'sel_1'), 
+                'ConstraintPropertyExists', array('sel_1','prop_1'), 
                 'PropertyExistenceInterface'
             ),
             array(
-                'ConstraintFullTextSearch', array('prop_1', 'search_expr', 'sel_1'), 
+                'ConstraintFullTextSearch', array('sel_1', 'prop_1', 'search_expr'), 
                 'FullTextSearchInterface'
             ),
             array(
-                'ConstraintSameDocument', array('/path', 'sel_1'),
+                'ConstraintSameDocument', array('sel_1', '/path'),
                 'SameNodeInterface'
             ),
             array(
-                'ConstraintDescendantDocument', array('/ancestor/path', 'sel_1'),
+                'ConstraintDescendantDocument', array('sel_1', '/ancestor/path'),
                 'DescendantNodeInterface'
             ),
             array(
-                'ConstraintChildDocument', array('/parent/path', 'sel_1'),
+                'ConstraintChildDocument', array('sel_1', '/parent/path'),
                 'ChildNodeInterface'
             ),
         );
@@ -269,7 +269,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $comparison = $this->qb->where()
             ->$method()
-                ->propertyValue('prop_1', 'sel_1')
+                ->propertyValue('sel_1','prop_1')
                 ->literal('foobar');
 
         $res = $this->converter->dispatch($comparison);
@@ -284,7 +284,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $this->primeBuilder();
         $not = $this->qb->where()
-            ->not()->propertyExists('prop_1', 'sel_1');
+            ->not()->propertyExists('sel_1','prop_1');
 
         $res = $this->converter->dispatch($not);
 
@@ -314,7 +314,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     $test->assertEquals('sel_1', $node->getSelectorName());
                 }
             )),
-            array('OperandDynamicLength', array('property_name', 'sel_1'), array(
+            array('OperandDynamicLength', array('sel_1', 'property_name'), array(
                 'phpcr_class' => 'LengthInterface',
                 'assert' => function ($test, $node) {
                     $propertyValue = $node->getPropertyValue();
@@ -326,7 +326,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     $test->assertEquals('sel_1', $propertyValue->getSelectorName());
                 }
             )),
-            array('OperandDynamicPropertyValue', array('property_name', 'sel_1'), array(
+            array('OperandDynamicPropertyValue', array('sel_1', 'property_name'), array(
                 'phpcr_class' => 'PropertyValueinterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('sel_1', $node->getSelectorName());
@@ -429,10 +429,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         // setup the query, depends on the query builder
         // working properly..
         $this->qb->select()
-            ->property('foobar', 'sel_1');
+            ->property('sel_1', 'foobar');
 
-        $this->qb->from()->document('Fooar', 'sel_1');
-        $this->qb->where()->propertyExists('foobar', 'sel_1');
+        $this->qb->from()->document('sel_1', 'Fooar', 'sel_1');
+        $this->qb->where()->propertyExists('sel_1', 'foobar');
         $this->qb->orderBy()->ascending()->documentName('sel_1');
 
         // setup the qomf factory to expect the right parameters for createQuery

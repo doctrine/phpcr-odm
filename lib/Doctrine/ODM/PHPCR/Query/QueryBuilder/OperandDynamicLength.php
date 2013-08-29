@@ -7,7 +7,7 @@ class OperandDynamicLength extends AbstractLeafNode
     protected $selectorName;
     protected $propertyName;
 
-    public function __construct(AbstractNode $parent, $propertyName, $selectorName)
+    public function __construct(AbstractNode $parent, $selectorName, $propertyName)
     {
         $this->propertyName = $propertyName;
         $this->selectorName = $selectorName;

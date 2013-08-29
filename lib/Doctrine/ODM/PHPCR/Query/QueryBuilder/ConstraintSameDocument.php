@@ -9,7 +9,7 @@ class ConstraintSameDocument extends AbstractLeafNode
     protected $selectorName;
     protected $path;
 
-    public function __construct(AbstractNode $parent, $path, $selectorName)
+    public function __construct(AbstractNode $parent, $selectorName, $path)
     {
         $this->selectorName = $selectorName;
         $this->path = $path;
