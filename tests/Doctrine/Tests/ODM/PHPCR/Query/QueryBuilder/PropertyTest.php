@@ -11,8 +11,8 @@ class PropertyTest extends LeafNodeTestCase
     {
         return array(
             array('Property', array(
-                'propertyName' => 'FooBar',
                 'selectorName' => 'a',
+                'propertyName' => 'FooBar',
             )),
         );
     }

@@ -61,9 +61,9 @@ class ConstraintFactory extends AbstractNode
      *
      * @return ConstraintPropertyExists
      */
-    public function propertyExists($propertyName, $selectorName)
+    public function propertyExists($selectorName, $propertyName)
     {
-        return $this->addChild(new ConstraintPropertyExists($this, $propertyName, $selectorName));
+        return $this->addChild(new ConstraintPropertyExists($this, $selectorName, $propertyName));
     }
 
     /**
@@ -77,9 +77,9 @@ class ConstraintFactory extends AbstractNode
      *
      * @return ConstraintFullTextSearch
      */
-    public function fullTextSearch($propertyName, $fullTextSearchExpression, $selectorName)
+    public function fullTextSearch($selectorName, $propertyName, $fullTextSearchExpression)
     {
-        return $this->addChild(new ConstraintFullTextSearch($this, $propertyName, $fullTextSearchExpression, $selectorName));
+        return $this->addChild(new ConstraintFullTextSearch($this, $selectorName, $propertyName, $fullTextSearchExpression));
     }
 
     /**
@@ -92,9 +92,9 @@ class ConstraintFactory extends AbstractNode
      *
      * @return ConstraintSameDocument
      */
-    public function sameDocument($path, $selectorName)
+    public function sameDocument($selectorName, $path)
     {
-        return $this->addChild(new ConstraintSameDocument($this, $path, $selectorName));
+        return $this->addChild(new ConstraintSameDocument($this, $selectorName, $path));
     }
 
     /**
@@ -107,9 +107,9 @@ class ConstraintFactory extends AbstractNode
      *
      * @return ConstraintDescendantDocument
      */
-    public function descendantDocument($ancestorPath, $selectorName)
+    public function descendantDocument($selectorName, $ancestorPath)
     {
-        return $this->addChild(new ConstraintDescendantDocument($this, $ancestorPath, $selectorName));
+        return $this->addChild(new ConstraintDescendantDocument($this, $selectorName, $ancestorPath));
     }
 
     /**
@@ -122,9 +122,9 @@ class ConstraintFactory extends AbstractNode
      *
      * @return ConstraintChildDocument
      */
-    public function childDocument($parentPath, $selectorName)
+    public function childDocument($selectorName, $parentPath)
     {
-        return $this->addChild(new ConstraintChildDocument($this, $parentPath, $selectorName));
+        return $this->addChild(new ConstraintChildDocument($this, $selectorName, $parentPath));
     }
 
     /**

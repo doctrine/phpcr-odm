@@ -31,9 +31,9 @@ abstract class SourceFactory extends AbstractNode
      *
      * @return SourceDocument
      */
-    public function document($documentFqn, $selectorName)
+    public function document($selectorName, $documentFqn)
     {
-        return $this->addChild(new SourceDocument($this, $documentFqn, $selectorName));
+        return $this->addChild(new SourceDocument($this, $selectorName, $documentFqn));
     }
 
     /**

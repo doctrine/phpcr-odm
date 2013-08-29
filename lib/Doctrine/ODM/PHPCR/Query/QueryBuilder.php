@@ -347,9 +347,9 @@ class QueryBuilder
      *
      * @return QueryBuilder - this QueryBuilder instance.
      */
-    public function select($propertyName, $columnName = null, $selectorName = null)
+    public function select($selectorName, $propertyName, $columnName = null)
     {
-        $this->add('select', $this->qomf->column($propertyName, $columnName, $selectorName));
+        $this->add('select', $this->qomf->column($selectorName, $propertyName, $columnName));
 
         return $this;
     }
@@ -365,9 +365,9 @@ class QueryBuilder
      *
      * @return QueryBuilder - this QueryBuilder instance.
      */
-    public function addSelect($propertyName, $columnName = null, $selectorName = null)
+    public function addSelect($selectorName, $propertyName, $columnName = null)
     {
-        $this->add('select', $this->qomf->column($propertyName, $columnName, $selectorName), true);
+        $this->add('select', $this->qomf->column($selectorName, $propertyName, $columnName), true);
 
         return $this;
     }
@@ -383,9 +383,9 @@ class QueryBuilder
      *
      * @return QueryBuilder this QueryBuilder instance.
      */
-    public function nodeType($nodeTypeName, $selectorName = null)
+    public function nodeType($selectorName, $nodeTypeName)
     {
-        $this->add('nodeType', $this->qomf->selector($nodeTypeName, $selectorName));
+        $this->add('nodeType', $this->qomf->selector($seletorName, $nodeTypeName));
 
         return $this;
     }
@@ -414,9 +414,9 @@ class QueryBuilder
      *
      * @see joinWithtype
      */
-    public function join($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
+    public function join($selectorName, $nodeTypeName, JoinConditionInterface $joinCondition)
     {
-        return $this->innerJoin($nodeTypeName, $selectorName, $joinCondition);
+        return $this->innerJoin($selectorName, $nodeTypeName, $joinCondition);
     }
 
     /**
@@ -426,9 +426,9 @@ class QueryBuilder
      *
      * @see joinWithtype
      */
-    public function innerJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
+    public function innerJoin($selectorName, $nodeTypeName, JoinConditionInterface $joinCondition)
     {
-        return $this->joinWithType($nodeTypeName, $selectorName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_INNER, $joinCondition);
+        return $this->joinWithType($selectorName, $nodeTypeName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_INNER, $joinCondition);
     }
 
     /**
@@ -438,9 +438,9 @@ class QueryBuilder
      *
      * @see joinWithtype
      */
-    public function leftJoin($nodeTypeName, $selectorName, JoinConditionInterface $joinCondition)
+    public function leftJoin($selectorName, $nodeTypeName, JoinConditionInterface $joinCondition)
     {
-        return $this->joinWithType($nodeTypeName, $selectorName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_LEFT_OUTER, $joinCondition);
+        return $this->joinWithType($selectorName, $nodeTypeName, QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_LEFT_OUTER, $joinCondition);
     }
 
     /**
@@ -470,7 +470,7 @@ class QueryBuilder
      *
      * @throws QueryBuilderException if the source is not yet set
      */
-    public function joinWithType($nodeTypename, $selectorName, $joinType, JoinConditionInterface $joinCondition)
+    public function joinWithType($selectorName, $nodeTypename, $joinType, JoinConditionInterface $joinCondition)
     {
         throw QueryBuilderException::notYetSupported(__METHOD__, 'Joins not supported in QueryBuilder yet. Need some good test cases.');
 

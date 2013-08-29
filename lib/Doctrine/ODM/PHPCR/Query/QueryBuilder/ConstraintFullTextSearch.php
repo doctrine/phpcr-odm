@@ -10,7 +10,7 @@ class ConstraintFullTextSearch extends AbstractLeafNode
     protected $propertyName;
     protected $fullTextSearchExpression;
 
-    public function __construct(AbstractNode $parent, $propertyName, $fullTextSearchExpression, $selectorName)
+    public function __construct(AbstractNode $parent, $selectorName, $propertyName, $fullTextSearchExpression)
     {
         $this->selectorName = $selectorName;
         $this->propertyName = $propertyName;
