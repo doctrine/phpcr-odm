@@ -269,8 +269,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $comparison = $this->qb->where()
             ->$method()
-                ->lop()->propertyValue('prop_1', 'sel_1')->end()
-                ->rop()->literal('foobar')->end();
+                ->propertyValue('prop_1', 'sel_1')
+                ->literal('foobar');
 
         $res = $this->converter->dispatch($comparison);
 

@@ -415,10 +415,10 @@ class BuilderConverterPhpcr
     protected function walkConstraintComparison(ConstraintComparison $node)
     {
         $dynOp = $node->getChildOfType(
-            QBConstants::NT_OPERAND_DYNAMIC_FACTORY
+            QBConstants::NT_OPERAND_DYNAMIC
         );
         $statOp = $node->getChildOfType(
-            QBConstants::NT_OPERAND_STATIC_FACTORY
+            QBConstants::NT_OPERAND_STATIC
         );
 
         $phpcrDynOp = $this->dispatch($dynOp);
@@ -444,16 +444,6 @@ class BuilderConverterPhpcr
         );
 
         return $ret;
-    }
-
-    // dynamic operand stuff
-    protected function walkOperandDynamicFactory(OperandDynamicFactory $node)
-    {
-        $op = $node->getChildOfType(
-            QBConstants::NT_OPERAND_DYNAMIC
-        );
-
-        return $this->dispatch($op);
     }
 
     protected function walkOperandDynamicPropertyValue(OperandDynamicPropertyValue $node)
@@ -541,16 +531,6 @@ class BuilderConverterPhpcr
         );
 
         return $op;
-    }
-
-    // static operand stuff
-    protected function walkOperandStaticFactory(OperandStaticFactory $node)
-    {
-        $op = $node->getChildOfType(
-            QBConstants::NT_OPERAND_STATIC
-        );
-
-        return $this->dispatch($op);
     }
 
     protected function walkOperandStaticLiteral(OperandStaticLiteral $node)

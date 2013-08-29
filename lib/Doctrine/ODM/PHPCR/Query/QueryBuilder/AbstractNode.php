@@ -21,7 +21,7 @@ abstract class AbstractNode
     const NT_OPERAND_DYNAMIC = 'operand_dynamic';
     const NT_OPERAND_DYNAMIC_FACTORY = 'operand_dynamic_factory';
     const NT_OPERAND_STATIC = 'operand_static';
-    const NT_OPERAND_STATIC_FACTORY = 'operand_static_factory';
+    const NT_OPERAND_FACTORY = 'operand_static_factory';
     const NT_ORDERING = 'ordering';
     const NT_ORDER_BY = 'order_by';
     const NT_PROPERTY = 'property';

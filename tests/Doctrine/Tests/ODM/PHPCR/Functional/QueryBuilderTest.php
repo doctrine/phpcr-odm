@@ -63,14 +63,22 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComparison()
     {
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured')->where($qb->expr()->eq('phpcr:class', 'Not Exist'));
+        $qb->where()
+            ->eq()
+                ->propertyValue('phpcr:class')
+                ->literal('Not Exist')
+            ->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured')->where(
-            $qb->expr()->eq('username', 'dtl')
-        );
+        $qb->where()
+            ->eq()
+                ->propertyValue('username')
+                ->literal('dtl')
+            ->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
     }
@@ -78,13 +86,14 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComposite()
     {
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured')->where(
-            $qb->expr()->orX(
-                $qb->expr()->eq('username', 'dtl'),
-                $qb->expr()->eq('username', 'js')
-            )
-        );
+        $qb->where()
+            ->orX()
+                ->eq()->propertyValue('username')->literal('dtl')->end()
+                ->eq()->propertyValue('username')->literal('js')->end()
+            ->end();
+
         $res = $qb->getQuery()->execute();
+
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
                 $query = "SELECT * FROM [nt:unstructured] WHERE (username = 'dtl' OR username = 'js')";
@@ -98,6 +107,9 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertEquals($query, $qb->__toString());
         $this->assertCount(2, $res);
 
+        $this->markTestIncomplete('Need to add way to add new where conditions');
+
+        // none of below works
         $qb->andWhere($qb->expr()->eq('name', 'foobar'));
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
@@ -132,15 +144,17 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testOrderBy()
     {
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured');
-        $qb->where($qb->expr()->eq('phpcr:class', 'nt:unstructured'));
-        $qb->where($qb->expr()->eq('status', 'query_builder'));
-        $qb->orderBy('username');
+        $qb->where()->eq()->propertyValue('status')->literal('query_builder')->end();
+
+        $qb->orderBy()
+            ->ascending()->propertyValue('username')->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('dtl', $res->first()->username);
 
-        $qb->orderBy('username', 'desc');
+        $qb->orderBy()->descending()->propertyValue('username')->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('js', $res->first()->username);
@@ -150,12 +164,18 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         // select one property
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured');
-        $qb->select('username');
-        $qb->where($qb->expr()->eq('username', 'dtl'));
+        $qb->from()->nodeType('nt:unstructured');
+        $qb->select()->property('username');
+        $qb->where()
+            ->eq()
+                ->propertyValue('username')
+                ->literal('dtl')
+            ->end();
+
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $this->assertEquals(1, $rows->count());
         $values = $rows->current()->getValues();
+
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
                 $this->assertEquals(array('nt:unstructured.username' => 'dtl', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
@@ -168,6 +188,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         }
 
         // select two properties
+        $this->markTestIncomplete('todo: cannot currently add additional select columns');
+
         $qb->addSelect('name');
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
@@ -203,10 +225,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testFrom()
     {
         $qb = $this->createQb();
-        $qb->from('Doctrine\Tests\Models\CMS\CmsUser');
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser');
 
         // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
-        $qb->where($qb->expr()->eq('status', 'query_builder'));
+        $qb->where()->eq()->propertyValue('status')->literal('query_builder')->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
     }
@@ -216,7 +239,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb = $this->createQb();
 
         // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
-        $qb->where($qb->expr()->eq('name', 'johnsmith'));
+        $qb->where()
+            ->eq()
+              ->propertyValue('name')
+              ->literal('johnsmith')
+            ->end();
+              
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
 
@@ -243,14 +271,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testTextSearch($field, $search, $resCount)
     {
         $qb = $this->createQb();
-        $qb->where($qb->expr()->textSearch($field, $search));
+        $qb->where()->fullTextSearch($field, $search);
         $q = $qb->getQuery();
-
-        $where = $qb->getPart('where');
-
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\TextSearch', $where);
-        $this->assertEquals($field, $where->getField());
-        $this->assertEquals($search, $where->getSearch());
 
         $res = $q->execute();
 
@@ -260,7 +282,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testDescendant()
     {
         $qb = $this->createQb();
-        $qb->where($qb->expr()->descendant('/functional'));
+        $qb->where()->descendantDocument('/functional')->end();
         $q = $qb->getQuery();
 
         $where = $qb->getPart('where');
@@ -275,7 +297,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testSameNode()
     {
         $qb = $this->createQb();
-        $qb->where($qb->expr()->eqPath('/functional/dtl'));
+        $qb->where()->sameDocument('/functional/dtl');
         $q = $qb->getQuery();
 
         $where = $qb->getPart('where');

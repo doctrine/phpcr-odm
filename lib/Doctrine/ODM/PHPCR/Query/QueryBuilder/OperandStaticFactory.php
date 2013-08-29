@@ -9,7 +9,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  *
  * As the name suggests, static operand values do
  * not change once initialized and are used as the "right hand
- * side" operands (rop) in comparisons.
+ * side" operands in comparisons.
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -24,7 +24,7 @@ class OperandStaticFactory extends AbstractNode
 
     public function getNodeType()
     {
-        return self::NT_OPERAND_STATIC_FACTORY;
+        return self::NT_OPERAND_FACTORY;
     }
 
     public function bindVariable($name)
