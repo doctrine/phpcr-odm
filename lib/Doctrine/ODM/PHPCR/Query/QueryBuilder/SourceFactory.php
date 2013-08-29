@@ -24,11 +24,6 @@ abstract class SourceFactory extends AbstractNode
         );
     }
 
-    public function getNodeType()
-    {
-        return self::NT_SOURCE_FACTORY;
-    }
-
     /**
      * Document source:
      *
