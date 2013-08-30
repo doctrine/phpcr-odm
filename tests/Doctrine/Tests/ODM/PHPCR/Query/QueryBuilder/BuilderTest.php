@@ -10,6 +10,8 @@ class BuilderTest extends NodeTestCase
     {
         return array(
             array('where', 'Where'),
+            array('andWhere', 'WhereAnd'), // andWhere adds Where if no existing Where
+            array('orWhere', 'WhereOr'), // andWhere adds Where if no existing Where
             array('from', 'From'),
             array('orderBy', 'OrderBy'),
             array('select', 'Select'),
@@ -43,6 +45,12 @@ class BuilderTest extends NodeTestCase
                         ->bindVariable('my_var')
                     ->end()
                 ->end()
+            ->end()
+            ->andWhere()
+                ->propertyExists('sel_1', 'foobar')
+            ->end()
+            ->orWhere()
+                ->propertyExists('sel_1', 'foobar')
             ->end()
             ->orderBy()
                 ->ascending()->documentName('a')->end()

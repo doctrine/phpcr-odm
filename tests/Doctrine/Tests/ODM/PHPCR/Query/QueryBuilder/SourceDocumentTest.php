@@ -11,8 +11,8 @@ class SourceDocumentTest extends LeafNodeTestCase
     {
         return array(
             array('SourceDocument', array(
-                'selectorName' => 'a',
                 'documentFqn' => 'FooBar',
+                'selectorName' => 'a',
             )),
         );
     }

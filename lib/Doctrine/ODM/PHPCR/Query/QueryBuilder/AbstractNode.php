@@ -33,6 +33,8 @@ abstract class AbstractNode
     const NT_SOURCE_JOIN_LEFT = 'source_join_left';
     const NT_SOURCE_JOIN_RIGHT = 'source_join_right';
     const NT_WHERE = 'where';
+    const NT_WHERE_AND = 'where_and';
+    const NT_WHERE_OR = 'where_or';
 
     protected $children = array();
     protected $parent;
@@ -64,7 +66,8 @@ abstract class AbstractNode
     /**
      * Return the last part of the this classes FQN (i.e. the basename).
      *
-     * This should only be used when generating exceptions.
+     * <strike>This should only be used when generating exceptions</strike>
+     * This is also used to determine the dispatching method -- should it be?
      *
      * @return string
      */

@@ -533,7 +533,6 @@ class DocumentManager implements ObjectManager
         $qm = $this->session->getWorkspace()->getQueryManager();
         $qomf = $qm->getQOMFactory();
         $converter = new QueryBuilder\BuilderConverterPhpcr($this, $qomf);
-
         $builder->setConverter($converter);
 
         return $builder;

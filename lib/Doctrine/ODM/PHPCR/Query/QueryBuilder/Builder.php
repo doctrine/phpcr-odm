@@ -55,6 +55,16 @@ class Builder extends AbstractNode
         return $this->setChild(new Where($this));
     }
 
+    public function andWhere()
+    {
+        return $this->addChild(new WhereAnd($this));
+    }
+
+    public function orWhere()
+    {
+        return $this->addChild(new WhereOr($this));
+    }
+
     public function from()
     {
         return $this->setChild(new From($this));
@@ -68,6 +78,11 @@ class Builder extends AbstractNode
     public function orderBy()
     {
         return $this->setChild(new OrderBy($this));
+    }
+
+    public function addOrderBy()
+    {
+        return $this->addChild(new OrderBy($this));
     }
 
     public function getFirstResult() 

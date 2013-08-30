@@ -75,7 +75,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      */
     protected function primeBuilder()
     {
-        $from = $this->qb->from()->document('sel_1', 'foobar');
+        $from = $this->qb->from()->document('foobar', 'sel_1');
         $res = $this->converter->dispatch($from);
     }
 
@@ -93,7 +93,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     public function testDispatchFrom()
     {
         $from = $this->createNode('From', array());
-        $source = $this->createNode('SourceDocument', array('selector_name', 'foobar'));
+        $source = $this->createNode('SourceDocument', array(
+            'foobar',
+            'selector_name',
+        ));
         $from->addChild($source);
 
         $res = $this->converter->dispatch($from);
@@ -101,6 +104,51 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res);
         $this->assertEquals('nt:unstructured', $res->getNodeTypeName());
         $this->assertEquals('selector_name', $res->getSelectorName());
+    }
+
+    public function provideDispatchWheres()
+    {
+        return array(
+            array('And'),
+            array('Or'),
+        );
+    }
+
+    /**
+     * @depends testDispatchFrom
+     * @dataProvider provideDispatchWheres
+     */
+    public function testDispatchWheres($logicalOp)
+    {
+        $this->primeBuilder();
+
+        // test original where
+        $where = $this->createNode('Where', array());
+        $constraint = $this->createNode('ConstraintPropertyExists', array(
+            'sel_1',
+            'foobar',
+        ));
+        $where->addChild($constraint);
+
+        $res = $this->converter->dispatch($where);
+
+        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
+        $this->assertEquals('sel_1', $res->getSelectorName());
+        $this->assertEquals('foobar_phpcr', $res->getPropertyName());
+
+        // test add / or where (see dataProvider)
+        $whereCon = $this->createNode('Where'.$logicalOp, array());
+        $constraint = $this->createNode('ConstraintPropertyExists', array(
+            'sel_1',
+            'barfoo',
+        ));
+        $whereCon->addChild($constraint);
+
+        $res = $this->converter->dispatch($whereCon);
+
+        $this->assertInstanceOf('PHPCR\Query\QOM\\'.$logicalOp.'Interface', $res);
+        $this->assertEquals('foobar_phpcr', $res->getConstraint1()->getPropertyName());
+        $this->assertEquals('barfoo_phpcr', $res->getConstraint2()->getPropertyName());
     }
 
     public function provideDispatchFromJoin()
@@ -126,8 +174,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $n = $this->qb->from()
             ->$method()
-                ->left()->document('selector_1', 'foobar')->end()
-                ->right()->document('selector_2', 'barfoo')->end();
+                ->left()->document('foobar', 'selector_1')->end()
+                ->right()->document('barfoo', 'selector_2')->end();
 
         switch ($joinCond) {
             case 'childDocument':
@@ -431,7 +479,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->qb->select()
             ->property('sel_1', 'foobar');
 
-        $this->qb->from()->document('sel_1', 'Fooar', 'sel_1');
+        $this->qb->from()->document('Fooar', 'sel_1');
         $this->qb->where()->propertyExists('sel_1', 'foobar');
         $this->qb->orderBy()->ascending()->documentName('sel_1');
 
@@ -443,9 +491,33 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 $me->assertInstanceOf(
                     'PHPCR\Query\QOM\SourceInterface', $source
                 );
+
+                // test that we append the phpcr:class and classparents constraints
                 $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\ConstraintInterface', $constraint
+                    'PHPCR\Query\QOM\AndInterface', $constraint
                 );
+                $me->assertInstanceOf(
+                    'PHPCR\Query\QOM\PropertyExistenceInterface', $constraint->getConstraint1()
+                );
+                $me->assertInstanceOf(
+                    'PHPCR\Query\QOM\OrInterface', $constraint->getConstraint2()
+                );
+                $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
+                $this->assertEquals(
+                    'phpcr:class', $phpcrClassConstraint->getOperand1()->getPropertyName()
+                );
+                $this->assertEquals(
+                    'Fooar', $phpcrClassConstraint->getOperand2()->getLiteralValue()
+                );
+                $phpcrClassParentsConstraint = $constraint->getConstraint2()->getConstraint2();
+                $this->assertEquals(
+                    'phpcr:classparents', $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
+                );
+                $this->assertEquals(
+                    'Fooar', $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
+                );
+
+                // test columns
                 $me->assertCount(1, $columns);
 
                 $column = $columns[0];
@@ -453,12 +525,14 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     'PHPCR\Query\QOM\ColumnInterface', $column
                 );
 
+                // test orderings
                 $me->assertCount(1, $orderings);
                 $ordering = $orderings[0];
                 $me->assertInstanceOf(
                     'PHPCR\Query\QOM\OrderingInterface', $ordering
                 );
 
+                // return something ..
                 $qom = $me->getMock('PHPCR\Query\QOM\QueryObjectModelInterface');
                 return $qom;
             }));
