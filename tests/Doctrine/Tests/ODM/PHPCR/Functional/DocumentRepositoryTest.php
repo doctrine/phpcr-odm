@@ -137,4 +137,3 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $this->assertEquals(null, $users2);
     }
 }
-

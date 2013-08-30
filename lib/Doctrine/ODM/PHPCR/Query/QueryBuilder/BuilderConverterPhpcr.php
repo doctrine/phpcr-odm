@@ -39,10 +39,19 @@ class BuilderConverterPhpcr
      */
     protected $selectorMetadata = array();
 
+    /**
+     * Ugly: We need to store the document source types so that we
+     * can append constraints to match the phpcr:class and phpcr:classparents
+     * later on.
+     *
+     * @var SourceDocument[]
+     */
+    protected $sourceDocumentNodes;
+
     protected $from = null;
     protected $columns = array();
     protected $orderings = array();
-    protected $where = null;
+    protected $constraint = null;
 
     public function __construct(
         DocumentManager $dm, 
@@ -61,7 +70,7 @@ class BuilderConverterPhpcr
                 'Selector name "%s" has not known. The following selectors '.
                 'are valid: "%s"',
                 $selectorName,
-                implode(array_keys($this->selectorMetadata))
+                implode(', ', array_keys($this->selectorMetadata))
             ));
         }
 
@@ -114,17 +123,47 @@ class BuilderConverterPhpcr
             );
         }
 
-        // dispatch From first
-        $this->dispatchMany($from);
+        $dispatches = array(
+            QBConstants::NT_FROM,
+            QBConstants::NT_SELECT,
+            QBConstants::NT_WHERE,
+            QBConstants::NT_ORDER_BY,
+        );
 
-        // dispatch everything else
-        $this->dispatchMany($builder->getChildrenOfType(QBConstants::NT_SELECT));
-        $this->dispatchMany($builder->getChildrenOfType(QBConstants::NT_WHERE));
-        $this->dispatchMany($builder->getChildrenOfType(QBConstants::NT_ORDER_BY));
+        foreach ($dispatches as $dispatchType) {
+            $this->dispatchMany($builder->getChildrenOfType($dispatchType));
+        }
+
+        // for each document source add phpcr:{class,classparents} restrictions
+        foreach ($this->sourceDocumentNodes as $sourceNode) {
+            $odmClassConstraints = $this->qomf->orConstraint(
+                $this->qomf->comparison(
+                    $this->qomf->propertyValue(
+                        'phpcr:class', 
+                        $sourceNode->getSelectorName()
+                    ),
+                    QOMConstants::JCR_OPERATOR_EQUAL_TO,
+                    $this->qomf->literal($sourceNode->getDocumentFqn())
+                ),
+                $this->qomf->comparison(
+                    $this->qomf->propertyValue(
+                        'phpcr:classparents', 
+                        $sourceNode->getSelectorName()
+                    ),
+                    QOMConstants::JCR_OPERATOR_EQUAL_TO,
+                    $this->qomf->literal($sourceNode->getDocumentFqn())
+                )
+            );
+
+            $this->constraint = $this->qomf->andConstraint(
+                $this->constraint,
+                $odmClassConstraints
+            );
+        }
 
         $phpcrQuery = $this->qomf->createQuery(
             $this->from,
-            $this->where,
+            $this->constraint,
             $this->orderings,
             $this->columns
         );
@@ -199,8 +238,10 @@ class BuilderConverterPhpcr
                 $property->getSelectorName()
             );
 
-            $this->columns[] = $column;
+            $columns[] = $column;
         }
+
+        $this->columns = $columns;
 
         return $this->columns;
     }
@@ -217,12 +258,37 @@ class BuilderConverterPhpcr
 
     public function walkWhere(Where $where)
     {
-        // note: only supporting "one" where constraint atm (no aggregation)
         $constraint = $where->getChild();
         $res = $this->dispatch($constraint);
-        $this->where = $res;
+        $this->constraint = $res;
 
-        return $this->where;
+        return $this->constraint;
+    }
+
+    public function walkWhereAnd(WhereAnd $whereAnd)
+    {
+        $constraint = $whereAnd->getChild();
+        $res = $this->dispatch($constraint);
+        $newConstraint = $this->qomf->andConstraint(
+            $this->constraint,
+            $res
+        );
+        $this->constraint = $newConstraint;
+
+        return $this->constraint;
+    }
+
+    public function walkWhereOr(WhereOr $whereOr)
+    {
+        $constraint = $whereOr->getChild();
+        $res = $this->dispatch($constraint);
+        $newConstraint = $this->qomf->orConstraint(
+            $this->constraint,
+            $res
+        );
+        $this->constraint = $newConstraint;
+
+        return $this->constraint;
     }
 
     protected function walkSourceDocument(SourceDocument $node)
@@ -230,18 +296,7 @@ class BuilderConverterPhpcr
         // make sure we add the phpcr:{class,classparents} constraints
         // From is dispatched first, so these will always be the primary
         // constraints.
-        $this->constraints[] = $this->qomf->orConstraint(
-            $this->qomf->comparison(
-                $this->qomf->propertyValue('phpcr:class'),
-                QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                $this->qomf->literal($node->getDocumentFqn())
-            ),
-            $this->qomf->comparison(
-                $this->qomf->propertyValue('phpcr:classparents'),
-                QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                $this->qomf->literal($node->getDocumentFqn())
-            )
-        );
+        $this->sourceDocumentNodes[] = $node;
 
         // index the metadata for this document
         $meta = $this->mdf->getMetadataFor($node->getDocumentFqn());

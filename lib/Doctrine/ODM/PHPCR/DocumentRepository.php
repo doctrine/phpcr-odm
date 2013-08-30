@@ -131,9 +131,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
-        $qb = $this->dm->createQueryBuilder();
-
-        $qb->from($this->className);
+        $qb = $this->createQueryBuilder('a');
 
         if ($limit) {
             $qb->setMaxResults($limit);
@@ -141,15 +139,19 @@ class DocumentRepository implements ObjectRepository
         if ($offset) {
             $qb->setFirstResult($offset);
         }
+
+        $orderBy = $qb->orderBy();
+
         if ($orderBy) {
             foreach ($orderBy as $ordering) {
-                $qb->addOrderBy($ordering);
+                $orderBy->ascending()->propertyValue($ordering);
             }
         }
+
+        $where = $qb->where();
+
         foreach ($criteria as $field => $value) {
-            $qb->andWhere(
-                $qb->expr()->eq($field, $value)
-            );
+            throw new \Exception('TODO (needs aggregateable where');
         }
 
         return $qb->getQuery()->execute();
@@ -292,10 +294,10 @@ class DocumentRepository implements ObjectRepository
      *
      * @return \Doctrine\ODM\PHPCR\Query\QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder($selectorName)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->from($this->className);
+        $qb->from()->document($this->className, $selectorName);
 
         return $qb;
     }

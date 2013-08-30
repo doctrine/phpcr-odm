@@ -19,7 +19,7 @@ abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
 
     abstract public function provideInterface();
 
-    public function getNode($args = array())
+    protected function getNode($args = array())
     {
         $refl = new \ReflectionClass($this);
         preg_match('&^(.*?)Test&', $refl->getShortName(), $matches);
