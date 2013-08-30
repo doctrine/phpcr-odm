@@ -223,6 +223,34 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
         $this->node1->validate();
     }
 
+    public function testSetChild()
+    {
+        $this->parent->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue(array(
+                'foo' => array(1, 2),
+                'bar' => array(1, 2),
+            )));
+
+        $this->node1->expects($this->any())
+            ->method('getNodeType')
+            ->will($this->onConsecutiveCalls(
+                'foo', 'foo', 'bar', 'foo', 'foo'
+            ));
+
+        $this->parent->addChild($this->node1);
+        $this->parent->addChild($this->node1);
+        $this->parent->addChild($this->node1);
+
+        $this->assertCount(3, $this->parent->getChildren());
+        $this->assertCount(2, $this->parent->getChildrenOfType('foo'));
+
+        // set child removes 2 existing "foo" nodes and adds one
+        $this->parent->setChild($this->node1);
+        $this->assertCount(2, $this->parent->getChildren());
+        $this->assertCount(1, $this->parent->getChildrenOfType('foo'));
+    }
+
     public function testEnd()
     {
         $this->node1->expects($this->any())

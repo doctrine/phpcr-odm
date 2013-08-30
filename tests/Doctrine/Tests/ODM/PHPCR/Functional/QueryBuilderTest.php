@@ -54,18 +54,28 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         return $qb;
     }
 
-    protected function getDocs($q)
+    public function testFrom()
     {
-        $res = $this->dm->getDocumentsByPhpcrQuery($q);
-        return $res;
+        $qb = $this->createQb();
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
+
+        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
+        $qb->where()->eq()->propertyValue('a', 'status')->literal('query_builder')->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(2, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testComparison()
     {
         $qb = $this->createQb();
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
         $qb->where()
             ->eq()
-                ->propertyValue('phpcr:class')
+                ->propertyValue('a', 'username')
                 ->literal('Not Exist')
             ->end();
 
@@ -73,9 +83,10 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
         $qb->where()
             ->eq()
-                ->propertyValue('username')
+                ->propertyValue('a', 'username')
                 ->literal('dtl')
             ->end();
 
@@ -83,27 +94,32 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testComposite()
     {
         $qb = $this->createQb();
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
         $qb->where()
             ->orX()
-                ->eq()->propertyValue('username')->literal('dtl')->end()
-                ->eq()->propertyValue('username')->literal('js')->end()
+                ->eq()->propertyValue('a', 'username')->literal('dtl')->end()
+                ->eq()->propertyValue('a', 'username')->literal('js')->end()
             ->end();
 
         $res = $qb->getQuery()->execute();
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] WHERE (username = 'dtl' OR username = 'js')";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE (a.username = 'dtl' OR a.username = 'js')";
                 break;
             case 'sql':
-                $query = "SELECT s FROM nt:unstructured WHERE (username = 'dtl' OR username = 'js')";
+                $query = "SELECT s FROM nt:unstructured AS a WHERE (a.username = 'dtl' OR a,username = 'js')";
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
         }
+
         $this->assertEquals($query, $qb->__toString());
         $this->assertCount(2, $res);
 
@@ -141,19 +157,22 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testOrderBy()
     {
         $qb = $this->createQb();
-        $qb->where()->eq()->propertyValue('status')->literal('query_builder')->end();
-
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
+        $qb->where()->eq()->propertyValue('a', 'status')->literal('query_builder')->end();
         $qb->orderBy()
-            ->ascending()->propertyValue('username')->end();
+            ->ascending()->propertyValue('a', 'username')->end();
 
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('dtl', $res->first()->username);
 
-        $qb->orderBy()->descending()->propertyValue('username')->end();
+        $qb->orderBy()->descending()->propertyValue('a', 'username')->end();
 
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
@@ -164,11 +183,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         // select one property
         $qb = $this->createQb();
-        $qb->from()->nodeType('nt:unstructured');
-        $qb->select()->property('username');
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
+        $qb->select()->property('a', 'username');
         $qb->where()
             ->eq()
-                ->propertyValue('username')
+                ->propertyValue('a', 'username')
                 ->literal('dtl')
             ->end();
 
@@ -178,7 +197,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $this->assertEquals(array('nt:unstructured.username' => 'dtl', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+                $this->assertEquals(array('a.username' => 'dtl', 'a.jcr:primaryType' => 'nt:unstructured'), $values);
                 break;
             case 'sql':
                 $this->assertEquals(array('s.username' => 'dtl'), $values);
@@ -222,26 +241,18 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public function testFrom()
-    {
-        $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser');
-
-        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
-        $qb->where()->eq()->propertyValue('status')->literal('query_builder')->end();
-
-        $res = $qb->getQuery()->execute();
-        $this->assertCount(2, $res);
-    }
-
+    /**
+     * @depends testFrom
+     */
     public function testFromAll()
     {
         $qb = $this->createQb();
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
 
         // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
         $qb->where()
             ->eq()
-              ->propertyValue('name')
+              ->propertyValue('a', 'name')
               ->literal('johnsmith')
             ->end();
               
@@ -257,6 +268,9 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertContains('Doctrine\Tests\Models\CMS\CmsItem', $fqns);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function getTextSearches()
     {
         return array(
@@ -271,7 +285,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testTextSearch($field, $search, $resCount)
     {
         $qb = $this->createQb();
-        $qb->where()->fullTextSearch($field, $search);
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
+        $qb->where()->fullTextSearch('a', $field, $search);
         $q = $qb->getQuery();
 
         $res = $q->execute();
@@ -279,32 +294,28 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount($resCount, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testDescendant()
     {
         $qb = $this->createQb();
-        $qb->where()->descendantDocument('/functional')->end();
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
+        $qb->where()->descendantDocument('a', '/functional')->end();
         $q = $qb->getQuery();
-
-        $where = $qb->getPart('where');
-
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\Descendant', $where);
-        $this->assertEquals('/functional', $where->getPath());
-
         $res = $q->execute();
         $this->assertCount(3, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testSameNode()
     {
         $qb = $this->createQb();
-        $qb->where()->sameDocument('/functional/dtl');
+        $qb->from()->document('Doctrine\Tests\Models\CMS\CmsUser', 'a');
+        $qb->where()->sameDocument('a', '/functional/dtl');
         $q = $qb->getQuery();
-
-        $where = $qb->getPart('where');
-
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\SameNode', $where);
-        $this->assertEquals('/functional/dtl', $where->getPath());
-
         $res = $q->execute();
         $this->assertCount(1, $res);
     }

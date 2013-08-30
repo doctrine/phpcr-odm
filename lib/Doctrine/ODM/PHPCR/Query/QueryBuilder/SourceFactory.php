@@ -27,13 +27,19 @@ abstract class SourceFactory extends AbstractNode
     /**
      * Document source:
      *
-     *   $qb->from()->document('My/Document/Class')
+     *   $qb->from()->document('My/Document/Class', 'my_selector_name')
+     *
+     * Select documents of specified class. The selector name is mandatory
+     * and will be used to reference documents selected from this source.
+     *
+     * @param string $documentFqn
+     * @param string $selectorName
      *
      * @return SourceDocument
      */
-    public function document($selectorName, $documentFqn)
+    public function document($documentFqn, $selectorName)
     {
-        return $this->addChild(new SourceDocument($this, $selectorName, $documentFqn));
+        return $this->addChild(new SourceDocument($this, $documentFqn, $selectorName));
     }
 
     /**

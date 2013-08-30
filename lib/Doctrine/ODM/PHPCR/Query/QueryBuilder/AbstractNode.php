@@ -100,6 +100,22 @@ abstract class AbstractNode
     abstract public function getCardinalityMap();
 
     /**
+     * Remove any previous children and add
+     * given node via. addChild.
+     *
+     * @see removeChildrenOfType
+     * @see addChild
+     *
+     * @param AbstractNode $node
+     * @return AbstractNode
+     */
+    public function setChild(AbstractNode $node)
+    {
+        $this->removeChildrenOfType($node->getNodeType());
+        return $this->addChild($node);
+    }
+
+    /**
      * Add a child to this node.
      *
      * Exception will be thrown if child node type is not
@@ -111,6 +127,7 @@ abstract class AbstractNode
      * node is a leaf node, in which case we return the parent.
      *
      * @throws \OutOfBoundsException
+     *
      * @return AbstractNode
      */
     public function addChild(AbstractNode $node)
@@ -199,6 +216,11 @@ abstract class AbstractNode
         }
 
         return $this->children[$type];
+    }
+
+    public function removeChildrenOfType($type)
+    {
+        unset($this->children[$type]);
     }
 
     /**

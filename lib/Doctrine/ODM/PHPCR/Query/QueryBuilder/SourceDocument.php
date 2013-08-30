@@ -9,7 +9,7 @@ class SourceDocument extends AbstractLeafNode
     protected $documentFqn;
     protected $selectorName;
 
-    public function __construct(AbstractNode $parent, $selectorName, $documentFqn)
+    public function __construct(AbstractNode $parent, $documentFqn, $selectorName)
     {
         $this->documentFqn = $documentFqn;
         $this->selectorName = $selectorName;
