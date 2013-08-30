@@ -246,6 +246,16 @@ class BuilderConverterPhpcr
         return $this->columns;
     }
 
+    public function walkSelectAdd(SelectAdd $node)
+    {
+        $this->columns = array_merge(
+            $this->columns,
+            $this->walkSelect($node)
+        );
+
+        return $this->columns;
+    }
+
     public function walkFrom(AbstractNode $node)
     {
         $source = $node->getChild();

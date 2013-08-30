@@ -75,6 +75,11 @@ class Builder extends AbstractNode
         return $this->setChild(new Select($this));
     }
 
+    public function addSelect()
+    {
+        return $this->setChild(new SelectAdd($this));
+    }
+
     public function orderBy()
     {
         return $this->setChild(new OrderBy($this));
