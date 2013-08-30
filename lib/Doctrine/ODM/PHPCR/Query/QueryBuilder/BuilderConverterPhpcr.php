@@ -267,6 +267,12 @@ class BuilderConverterPhpcr
 
     public function walkWhereAnd(WhereAnd $whereAnd)
     {
+        if (!$this->constraint) {
+            throw new \BadMethodCallException(
+                'No initial constraint found when dispatching whereAnd - call where() first'
+            );
+        }
+
         $constraint = $whereAnd->getChild();
         $res = $this->dispatch($constraint);
         $newConstraint = $this->qomf->andConstraint(
@@ -280,6 +286,12 @@ class BuilderConverterPhpcr
 
     public function walkWhereOr(WhereOr $whereOr)
     {
+        if (!$this->constraint) {
+            throw new \BadMethodCallException(
+                'No initial constraint found when dispatching whereOr - call where() first'
+            );
+        }
+
         $constraint = $whereOr->getChild();
         $res = $this->dispatch($constraint);
         $newConstraint = $this->qomf->orConstraint(
@@ -623,6 +635,16 @@ class BuilderConverterPhpcr
 
             $this->orderings[] = $ordering;
         }
+
+        return $this->orderings;
+    }
+
+    protected function walkOrderByAdd(OrderBy $node)
+    {
+        $this->orderings = array_merge(
+            $this->orderings,
+            $this->walkOrderBy($node)
+        );
 
         return $this->orderings;
     }

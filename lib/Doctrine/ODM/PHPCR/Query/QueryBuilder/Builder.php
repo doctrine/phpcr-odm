@@ -82,7 +82,7 @@ class Builder extends AbstractNode
 
     public function addOrderBy()
     {
-        return $this->addChild(new OrderBy($this));
+        return $this->addChild(new OrderByAdd($this));
     }
 
     public function getFirstResult() 
