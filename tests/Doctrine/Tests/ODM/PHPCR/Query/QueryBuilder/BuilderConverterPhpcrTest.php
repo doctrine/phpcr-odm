@@ -111,6 +111,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         return array(
             array('And'),
             array('Or'),
+            array('And', true),
+            array('Or', true),
         );
     }
 
@@ -118,23 +120,26 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      * @depends testDispatchFrom
      * @dataProvider provideDispatchWheres
      */
-    public function testDispatchWheres($logicalOp)
+    public function testDispatchWheres($logicalOp, $skipOriginalWhere = false)
     {
         $this->primeBuilder();
 
-        // test original where
-        $where = $this->createNode('Where', array());
-        $constraint = $this->createNode('ConstraintPropertyExists', array(
-            'sel_1',
-            'foobar',
-        ));
-        $where->addChild($constraint);
+        if ($skipOriginalWhere) {
+            $this->setExpectedException('\BadMethodCallException', 'call where() first');
+        } else {
+            $where = $this->createNode('Where', array());
+            $constraint = $this->createNode('ConstraintPropertyExists', array(
+                'sel_1',
+                'foobar',
+            ));
+            $where->addChild($constraint);
 
-        $res = $this->converter->dispatch($where);
+            $res = $this->converter->dispatch($where);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
-        $this->assertEquals('sel_1', $res->getSelectorName());
-        $this->assertEquals('foobar_phpcr', $res->getPropertyName());
+            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
+            $this->assertEquals('sel_1', $res->getSelectorName());
+            $this->assertEquals('foobar_phpcr', $res->getPropertyName());
+        }
 
         // test add / or where (see dataProvider)
         $whereCon = $this->createNode('Where'.$logicalOp, array());
@@ -459,6 +464,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $order1 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
         $order2 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
+        $order3 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_DESCENDING));
+
         $orderBy = $this->createNode('OrderBy', array());
         $orderBy->addChild($order1);
         $orderBy->addChild($order2);
@@ -466,8 +473,22 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $op = $this->createNode('OperandDynamicDocumentLocalName', array('sel_1'));
         $order1->addChild($op);
         $order2->addChild($op);
+        $order3->addChild($op);
 
+        $orderByAdd = $this->createNode('OrderByAdd', array());
+        $orderByAdd->addChild($order3);
+
+        // original adds 2 orderings
         $res = $this->converter->dispatch($orderBy);
+        $this->assertCount(2, $res);
+
+        // orderByAdd adds 1 ordering, making 3
+        $res = $this->converter->dispatch($orderByAdd);
+        $this->assertCount(3, $res);
+
+        // redispatching orderBy resets so we only have 2 again
+        $res = $this->converter->dispatch($orderBy);
+        $this->assertCount(2, $res);
     }
 
     public function testGetQuery()
