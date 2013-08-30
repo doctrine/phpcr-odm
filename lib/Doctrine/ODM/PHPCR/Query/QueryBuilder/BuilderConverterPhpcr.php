@@ -195,7 +195,8 @@ class BuilderConverterPhpcr
                 // do we want to support custom column names in ODM?
                 // what do columns get used for in an ODM in anycase?
                 $phpcrName,
-                $phpcrName
+                $phpcrName,
+                $property->getSelectorName()
             );
 
             $this->columns[] = $column;
@@ -385,8 +386,8 @@ class BuilderConverterPhpcr
     protected function walkConstraintSameDocument(ConstraintSameDocument $node)
     {
         $con = $this->qomf->sameNode(
-            '/path/to',
-            'sel_1'
+            $node->getPath(),
+            $node->getSelectorName()
         );
 
         return $con;
@@ -395,8 +396,8 @@ class BuilderConverterPhpcr
     protected function walkConstraintDescendantDocument(ConstraintDescendantDocument $node)
     {
         $con = $this->qomf->descendantNode(
-            '/path/to',
-            'sel_1'
+            $node->getAncestorPath(),
+            $node->getSelectorName()
         );
 
         return $con;
@@ -405,8 +406,8 @@ class BuilderConverterPhpcr
     protected function walkConstraintChildDocument(ConstraintChildDocument $node)
     {
         $con = $this->qomf->childNode(
-            '/path/to/parent',
-            'sel_1'
+            $node->getParentPath(),
+            $node->getSelectorName()
         );
 
         return $con;
@@ -548,6 +549,8 @@ class BuilderConverterPhpcr
     // ordering
     protected function walkOrderBy(OrderBy $node)
     {
+        $this->orderings = array();
+
         $orderings = $node->getChildren();
 
         foreach ($orderings as $ordering) {

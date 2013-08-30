@@ -52,22 +52,22 @@ class Builder extends AbstractNode
 
     public function where()
     {
-        return $this->addChild(new Where($this));
+        return $this->setChild(new Where($this));
     }
 
     public function from()
     {
-        return $this->addChild(new From($this));
+        return $this->setChild(new From($this));
     }
 
     public function select()
     {
-        return $this->addChild(new Select($this));
+        return $this->setChild(new Select($this));
     }
 
     public function orderBy()
     {
-        return $this->addChild(new OrderBy($this));
+        return $this->setChild(new OrderBy($this));
     }
 
     public function getFirstResult() 
@@ -88,5 +88,10 @@ class Builder extends AbstractNode
     public function setMaxResults($maxResults)
     {
         $this->maxResults = $maxResults;
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getQuery()->getStatement();
     }
 }
