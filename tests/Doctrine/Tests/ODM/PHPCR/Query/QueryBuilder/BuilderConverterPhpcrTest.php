@@ -228,6 +228,14 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('prop_1_phpcr', $res[0]->getColumnName());
         $this->assertEquals('prop_2_phpcr', $res[1]->getPropertyName());
         $this->assertEquals('prop_2_phpcr', $res[1]->getColumnName());
+
+        $addSelect = $this->qb
+            ->addSelect()
+                ->property('sel_1', 'prop_3');
+
+        $res = $this->converter->dispatch($addSelect);
+        $this->assertCount(3, $res);
+        $this->assertEquals('prop_3_phpcr', $res[2]->getPropertyName());
     }
 
     public function provideDispatchCompositeConstraints()
