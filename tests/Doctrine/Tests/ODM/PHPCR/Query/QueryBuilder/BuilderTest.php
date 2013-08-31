@@ -27,6 +27,10 @@ class BuilderTest extends NodeTestCase
                 ->property('foobar', 'a')
                 ->property('barfoo', 'a')
             ->end()
+            ->addSelect()
+                ->property('foobar', 'a')
+                ->property('barfoo', 'a')
+            ->end()
             ->from()
                 ->joinInner()
                     ->left()->document('foobar', 'a')->end()
@@ -55,6 +59,9 @@ class BuilderTest extends NodeTestCase
             ->orderBy()
                 ->ascending()->documentName('a')->end()
                 ->descending()->documentName('b')->end()
+            ->end()
+            ->addOrderBy()
+                ->ascending()->documentName('c')->end()
             ->end();
     }
 

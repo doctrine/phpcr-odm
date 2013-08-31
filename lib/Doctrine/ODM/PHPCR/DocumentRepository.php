@@ -148,10 +148,16 @@ class DocumentRepository implements ObjectRepository
             }
         }
 
-        $where = $qb->where();
-
+        $first = true;
         foreach ($criteria as $field => $value) {
-            throw new \Exception('TODO (needs aggregateable where');
+            if ($first) {
+                $first = false;
+                $where = $qb->where();
+            } else {
+                $where = $qb->andWhere();
+            }
+
+            $where->eq()->propertyValue('a', $field)->literal($value);
         }
 
         return $qb->getQuery()->execute();

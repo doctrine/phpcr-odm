@@ -50,43 +50,51 @@ class Builder extends AbstractNode
         );
     }
 
-    public function where()
+    public function where($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new Where($this));
     }
 
-    public function andWhere()
+    public function andWhere($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->addChild(new WhereAnd($this));
     }
 
-    public function orWhere()
+    public function orWhere($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->addChild(new WhereOr($this));
     }
 
-    public function from()
+    public function from($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new From($this));
     }
 
-    public function select()
+    public function select($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new Select($this));
     }
 
-    public function addSelect()
+    public function addSelect($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new SelectAdd($this));
     }
 
-    public function orderBy()
+    public function orderBy($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new OrderBy($this));
     }
 
-    public function addOrderBy()
+    public function addOrderBy($void = null)
     {
+        $this->ensureNoArguments(__METHOD__, $void);
         return $this->addChild(new OrderByAdd($this));
     }
 
