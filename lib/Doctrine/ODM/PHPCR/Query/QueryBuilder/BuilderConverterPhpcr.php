@@ -155,10 +155,14 @@ class BuilderConverterPhpcr
                 )
             );
 
-            $this->constraint = $this->qomf->andConstraint(
-                $this->constraint,
-                $odmClassConstraints
-            );
+            if ($this->constraint) {
+                $this->constraint = $this->qomf->andConstraint(
+                    $this->constraint,
+                    $odmClassConstraints
+                );
+            } else {
+                $this->constraint = $odmClassConstraints;
+            }
         }
 
         $phpcrQuery = $this->qomf->createQuery(
@@ -248,9 +252,11 @@ class BuilderConverterPhpcr
 
     public function walkSelectAdd(SelectAdd $node)
     {
+        $columns = $this->columns;
+        $addColumns = $this->walkSelect($node);
         $this->columns = array_merge(
-            $this->columns,
-            $this->walkSelect($node)
+            $columns,
+            $addColumns
         );
 
         return $this->columns;
@@ -315,19 +321,20 @@ class BuilderConverterPhpcr
 
     protected function walkSourceDocument(SourceDocument $node)
     {
+        $selectorName = $node->getSelectorName();
         // make sure we add the phpcr:{class,classparents} constraints
         // From is dispatched first, so these will always be the primary
         // constraints.
-        $this->sourceDocumentNodes[] = $node;
+        $this->sourceDocumentNodes[$selectorName] = $node;
 
         // index the metadata for this document
         $meta = $this->mdf->getMetadataFor($node->getDocumentFqn());
-        $this->selectorMetadata[$node->getSelectorName()] = $meta;
+        $this->selectorMetadata[$selectorName] = $meta;
 
         // get the PHPCR Selector
         $selector = $this->qomf->selector(
             $meta->getNodeType(),
-            $node->getSelectorName()
+            $selectorName
         );
 
         return $selector;

@@ -350,4 +350,14 @@ abstract class AbstractNode
             implode(',', get_class_methods($this))
         ));
     }
+
+    public function ensureNoArguments($method, $void)
+    {
+        if ($void) {
+            throw new \Exception(sprintf(
+                'Method "%s" is a factory method and accepts no arguments',
+                $method
+            ));
+        }
+    }
 }
