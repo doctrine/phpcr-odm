@@ -33,7 +33,7 @@ class IdGeneratorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      * @covers Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
     public function testCreateException()

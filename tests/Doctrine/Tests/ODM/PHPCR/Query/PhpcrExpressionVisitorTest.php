@@ -55,7 +55,7 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Query\QueryException
      */
     public function testWalkComparison_unknownOperator()
     {
@@ -112,7 +112,7 @@ class PhpcrExpressionVisitorTest extends PHPCRFunctionalTestCase
                 )
             ),
             array(
-                $eb->textSearch('foobar', 'barfoo'), 
+                $eb->textSearch('foobar', 'barfoo'),
                 'PHPCR\Query\QOM\FullTextSearchInterface', array(
                     'getPropertyName' => 'foobar',
                     'getFullTextSearchExpression' => 'barfoo',

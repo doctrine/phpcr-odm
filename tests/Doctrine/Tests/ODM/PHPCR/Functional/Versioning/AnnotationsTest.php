@@ -44,7 +44,7 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * Test that using an invalid versionable annotation will not work
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadInvalidAnnotation()
     {
@@ -54,7 +54,7 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * Test that using the Version annotation on non-versionable documents will not work
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadInconsistentAnnotations()
     {

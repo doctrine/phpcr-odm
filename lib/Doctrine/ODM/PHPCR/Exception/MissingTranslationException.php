@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Exception;
 
+use Doctrine\ODM\PHPCR\PHPCRException;
+
 /**
  * Missing translation exception class
  *
@@ -27,6 +29,6 @@ namespace Doctrine\ODM\PHPCR\Exception;
  * @since       1.0
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class MissingTranslationException extends \InvalidArgumentException
+class MissingTranslationException extends PHPCRException
 {
 }

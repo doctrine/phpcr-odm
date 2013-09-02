@@ -168,7 +168,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = 'domnikl';
         $user->status = 'developer';
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->setExpectedException('\Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException');
         $this->dm->flush($user);
     }
 

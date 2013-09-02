@@ -52,7 +52,7 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testDetachedKnownObject()
     {
@@ -81,7 +81,7 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testDetachWithPerist()
     {
@@ -93,7 +93,7 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testDetachWithMove()
     {
@@ -105,7 +105,7 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testDetachWithRemove()
     {

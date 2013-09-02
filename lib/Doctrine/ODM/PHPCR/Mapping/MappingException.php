@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Persistence\Mapping\MappingException as BaseMappingException;
+
 /**
  * Mapping exception class
  *
@@ -28,7 +30,7 @@ namespace Doctrine\ODM\PHPCR\Mapping;
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class MappingException extends \Exception
+class MappingException extends BaseMappingException
 {
     public static function classNotFound($className)
     {
@@ -73,19 +75,9 @@ class MappingException extends \Exception
         return new self("Property '$fieldName' in '$document' must have a type attribute defined");
     }
 
-    public static function fileMappingDriversRequireConfiguredDirectoryPath($path)
-    {
-        return new self("File mapping drivers must have a valid directory path, however the given path '$path' seems to be incorrect!");
-    }
-
     public static function classNotMapped($className)
     {
         return new self("Class '$className' is not mapped to a document");
-    }
-
-    public static function pathRequired()
-    {
-        return new self('Path is required');
     }
 
     public static function noTypeSpecified()
@@ -116,11 +108,6 @@ class MappingException extends \Exception
     public static function mappingNotFound($className, $fieldName)
     {
         return new self("No mapping found for field '$fieldName' in class '$className'.");
-    }
-
-    public static function mappingFileNotFound($className, $filedName)
-    {
-        return new self("No mapping file '$filedName' found for class '$className'.");
     }
 
     public static function identifierRequired($entityName)

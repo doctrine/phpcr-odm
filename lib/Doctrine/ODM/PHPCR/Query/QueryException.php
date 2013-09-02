@@ -1,11 +1,12 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Query;
+use Doctrine\ODM\PHPCR\PHPCRException;
 
 /**
- * @author      Daniel Leech <daniel@dantleech.com>
+ * @author Daniel Leech <daniel@dantleech.com>
  */
-class QueryException extends \Exception
+class QueryException extends PHPCRException
 {
     public static function hydrationModeNotKnown($hydrationMode)
     {
