@@ -23,6 +23,7 @@ use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 
+use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
@@ -650,16 +651,14 @@ class UnitOfWork
         }
 
         // children are inserted unconditionally, cascading is inherent
-
         $id = $this->getDocumentId($document);
         foreach ($class->childMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             $child = $class->reflFields[$fieldName]->getValue($document);
             if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
-                $childId = $id.'/'.$mapping['nodeName'];
                 // TODO check if $childId is managed, if yes, merge
-                $childClass->setIdentifierValue($child, $childId);
+                $childClass->setIdentifierValue($child, $id.'/'.$mapping['nodeName']);
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
         }
@@ -679,8 +678,7 @@ class UnitOfWork
                     if (empty($nodename)) {
                         throw IdException::noIdNoName($child, $childClass->nodename);
                     }
-                    $childId = $id.'/'.$nodename;
-                    $childClass->setIdentifierValue($child, $childId);
+                    $childClass->setIdentifierValue($child, $id.'/'.$nodename);
                     $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
                 }
             }
@@ -967,7 +965,9 @@ class UnitOfWork
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
         } else {
-            $childId = $childClass->getIdentifierValue($child) ?: $this->getIdGenerator($childClass->idGenerator)->generate($child, $childClass, $this->dm, $parent);
+            $generator = $this->getIdGenerator($childClass->idGenerator);
+            $childId = $childClass->getIdentifierValue($child)
+                ?: $generator->generate($child, $childClass, $this->dm, $parent);
             if ('' !== $childId) {
                 if ($childId !== $id.'/'.PathHelper::getNodeName($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
@@ -1047,7 +1047,6 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-
         if (in_array($oid, $this->changesetComputed)) {
             return;
         }
@@ -1055,7 +1054,7 @@ class UnitOfWork
         $this->changesetComputed[] = $oid;
 
         $actualData = $this->getDocumentActualData($class, $document);
-        $id = $this->getDocumentId($document);
+        $id = $this->getDocumentId($document, false);
 
         $isNew = !isset($this->originalData[$oid]);
         if ($isNew) {
@@ -1065,8 +1064,8 @@ class UnitOfWork
             $this->scheduledInserts[$oid] = $document;
 
             foreach ($class->childrenMappings as $fieldName) {
-                $mapping = $class->mappings[$fieldName];
                 if ($actualData[$fieldName]) {
+                    $mapping = $class->mappings[$fieldName];
                     foreach ($actualData[$fieldName] as $nodename => $child) {
                         $nodename = $this->getChildNodename($id, $nodename, $child, $document);
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
@@ -1350,12 +1349,11 @@ class UnitOfWork
             $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
         }
 
-        $generator = $overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator;
-
-        $id = $this->getIdGenerator($generator)->generate($document, $class, $this->dm, $parent);
+        $generator = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator);
+        $id = $generator->generate($document, $class, $this->dm, $parent);
         $this->registerDocument($document, $id);
 
-        if ($generator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
+        if (!$generator instanceof AssignedIdGenerator) {
             $class->setIdentifierValue($document, $id);
         }
     }
@@ -1859,7 +1857,7 @@ class UnitOfWork
                 $bCount = substr_count($b, '/');
 
                 // ensure that the original order is maintained for nodes with the same depth
-                if ($aCount == $bCount) {
+                if ($aCount === $bCount) {
                     return ($order[$a] < $order[$b]) ? -1 : 1;
                 }
 
@@ -1872,7 +1870,6 @@ class UnitOfWork
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
             $class = $this->dm->getClassMetadata(get_class($document));
-            $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
 
             // PHPCR does not validate nullable unless we would start to
             // generate custom node types, which we at the moment don't.
@@ -1887,6 +1884,7 @@ class UnitOfWork
                 }
             }
 
+            $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
             $nodename = PathHelper::getNodeName($id);
             $node = $parentNode->addNode($nodename, $class->nodeType);
             if ($class->node) {
@@ -2642,14 +2640,17 @@ class UnitOfWork
      *
      * @param object|string $document document instance or document object hash
      *
-     * @return string
+     * @return string|null
      *
      * @throws PHPCRException
      */
-    public function getDocumentId($document)
+    public function getDocumentId($document, $throw = true)
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
         if (empty($this->documentIds[$oid])) {
+            if (!$throw) {
+                return null;
+            }
             $msg = 'Document is not managed and has no id';
             if (is_object($document)) {
                 $msg.= ': '.self::objToStr($document);
