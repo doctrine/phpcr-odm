@@ -75,6 +75,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     const GENERATOR_TYPE_PARENT = 3;
 
+    /**
+     * means the document uses the auto name mapping to find its place.
+     */
+    const GENERATOR_TYPE_AUTO = 4;
+
     protected static $validVersionableAnnotations = array('simple', 'full');
 
     /**
@@ -877,7 +882,14 @@ class ClassMetadata implements ClassMetadataInterface
                     throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no property "%s"', $this->name, $mapping['fieldName'], $mapping['referringDocument'], $mapping['referencedBy']));
                 }
             }
+        }
 
+        if ($this->idStrategySet && self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->parentMapping) {
+            throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a parent mapping', $this->name));
+        }
+
+        if ($this->idStrategySet && self::GENERATOR_TYPE_AUTO === $this->idGenerator && !$this->parentMapping) {
+            throw new MappingException(sprintf('Using the auto node name id generator strategy in "%s" without a parent mapping', $this->name));
         }
     }
 
