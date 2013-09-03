@@ -884,12 +884,14 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if ($this->idStrategySet && self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->parentMapping) {
-            throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a parent mapping', $this->name));
-        }
+        if (!$this->isMappedSuperclass) {
+            if ($this->idStrategySet && self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->parentMapping) {
+                throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a parent mapping', $this->name));
+            }
 
-        if ($this->idStrategySet && self::GENERATOR_TYPE_AUTO === $this->idGenerator && !$this->parentMapping) {
-            throw new MappingException(sprintf('Using the auto node name id generator strategy in "%s" without a parent mapping', $this->name));
+            if ($this->idStrategySet && self::GENERATOR_TYPE_AUTO === $this->idGenerator && !$this->parentMapping) {
+                throw new MappingException(sprintf('Using the auto node name id generator strategy in "%s" without a parent mapping', $this->name));
+            }
         }
     }
 
