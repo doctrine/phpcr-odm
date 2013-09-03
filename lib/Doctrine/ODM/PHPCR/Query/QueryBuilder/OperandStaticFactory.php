@@ -27,11 +27,19 @@ class OperandStaticFactory extends AbstractNode
         return self::NT_OPERAND_FACTORY;
     }
 
+    /**
+     * @factoryMethod
+     * @return OperandStaticBindVariable
+     */
     public function bindVariable($name)
     {
         return $this->addChild(new OperandStaticBindVariable($this, $name));
     }
 
+    /**
+     * @factoryMethod
+     * @return OperandStaticLiteral
+     */
     public function literal($value)
     {
         return $this->addChild(new OperandStaticLiteral($this, $value));

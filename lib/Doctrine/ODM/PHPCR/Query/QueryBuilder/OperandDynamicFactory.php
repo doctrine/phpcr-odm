@@ -40,6 +40,7 @@ class OperandDynamicFactory extends AbstractNode
      *   $qb->orderBy()
      *     ->ascending()->fullTextSearchScore('sel_1')->end()
      *
+     * @factoryMethod
      * @return OperandDynamicFullTextSearchScore
      */
     public function fullTextSearchScore($selectorName)
@@ -59,6 +60,7 @@ class OperandDynamicFactory extends AbstractNode
      *   $qb->orderBy()
      *     ->ascending()->fullTextSearchScore('sel_1')->end()
      *
+     * @factoryMethod
      * @return OperandDynamicPropertyValue
      */
     public function length($selectorName, $propertyName)
@@ -77,6 +79,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('lower_case')->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return OperandDynamicLowerCase
      */
     public function lowerCase()
@@ -95,6 +98,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('UPPER_CASE')->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return OperandDynamicUpperCase
      */
     public function upperCase()
@@ -112,6 +116,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('my_node_name')
      *     ->end()
      *
+     * @factoryMethod
      * @return OperandDynamicDocumentLocalName
      */
     public function documentLocalName($selectorName)
@@ -129,6 +134,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('namespace:my_node_name')
      *     ->end()
      *
+     * @factoryMethod
      * @return OperandDynamicDocumentName
      */
     public function documentName($selectorName)
@@ -145,6 +151,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('my_property_value')
      *     ->end()
      *
+     * @factoryMethod
      * @return OperandDynamicPropertyValue
      */
     public function propertyValue($selectorName, $propertyName)

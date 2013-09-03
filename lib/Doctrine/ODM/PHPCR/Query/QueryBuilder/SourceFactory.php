@@ -35,6 +35,7 @@ abstract class SourceFactory extends AbstractNode
      * @param string $documentFqn
      * @param string $selectorName
      *
+     * @factoryMethod
      * @return SourceDocument
      */
     public function document($documentFqn, $selectorName)
@@ -54,6 +55,7 @@ abstract class SourceFactory extends AbstractNode
      *       ->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return SourceJoin
      */
     public function joinInner()
@@ -75,6 +77,7 @@ abstract class SourceFactory extends AbstractNode
      *       ->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return SourceJoin
      */
     public function joinLeftOuter()
@@ -96,6 +99,7 @@ abstract class SourceFactory extends AbstractNode
      *       ->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return SourceJoin
      */
     public function joinRightOuter()

@@ -19,6 +19,8 @@ class OperandFactory extends OperandDynamicFactory
      * Static operand: Resolves to the value of the variable bound to the given $name
      *
      * @param string $name
+     * @factoryMethod
+     * @return OperandStaticBindVariable
      */
     public function bindVariable($name)
     {
@@ -29,6 +31,8 @@ class OperandFactory extends OperandDynamicFactory
      * Static operand: Resolves to the given literal value
      *
      * @param string $value
+     * @factoryMethod
+     * @return OperandStaticLiteral
      */
     public function literal($value)
     {

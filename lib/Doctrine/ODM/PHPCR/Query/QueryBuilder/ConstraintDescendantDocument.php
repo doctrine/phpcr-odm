@@ -4,6 +4,9 @@ namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
 class ConstraintDescendantDocument extends AbstractLeafNode
 {
+    protected $selectorName;
+    protected $ancestorPath;
+
     public function __construct(AbstractNode $parent, $selectorName, $ancestorPath)
     {
         $this->selectorName = $selectorName;

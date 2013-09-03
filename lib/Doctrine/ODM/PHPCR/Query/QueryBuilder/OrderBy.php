@@ -27,6 +27,7 @@ class OrderBy extends AbstractNode
      *   $qb->orderBy()
      *     ->ascending()->propertyValue('prop_1', 'sel_1')->end()
      *
+     * @factoryMethod
      * @return Ordering
      */
     public function ascending()
@@ -40,6 +41,7 @@ class OrderBy extends AbstractNode
      *   $qb->orderBy()
      *     ->descending()->propertyValue('prop_1', 'sel_1')->end()
      *
+     * @factoryMethod
      * @return Ordering
      */
     public function descending()
