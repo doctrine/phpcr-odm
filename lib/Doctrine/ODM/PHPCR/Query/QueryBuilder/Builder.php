@@ -50,48 +50,80 @@ class Builder extends AbstractNode
         );
     }
 
+    /**
+     * @factoryMethod
+     * @return Where
+     */
     public function where($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new Where($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return WhereAnd
+     */
     public function andWhere($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->addChild(new WhereAnd($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return WhereOr
+     */
     public function orWhere($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->addChild(new WhereOr($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return From
+     */
     public function from($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new From($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return Select
+     */
     public function select($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new Select($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return SelectAdd
+     */
     public function addSelect($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new SelectAdd($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return OrderBy
+     */
     public function orderBy($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
         return $this->setChild(new OrderBy($this));
     }
 
+    /**
+     * @factoryMethod
+     * @return OrderByAdd
+     */
     public function addOrderBy($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);

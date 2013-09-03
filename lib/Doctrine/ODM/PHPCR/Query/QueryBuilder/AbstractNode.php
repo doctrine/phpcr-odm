@@ -343,11 +343,11 @@ abstract class AbstractNode
      */
     public function __call($methodName, $args)
     {
-        throw new \RuntimeException(sprintf(
+        throw new \BadMethodCallException(sprintf(
             'Unknown method "%s" called on class "%s", did you mean one of: "%s"',
             $methodName,
             get_class($this),
-            implode(',', get_class_methods($this))
+            implode(', ', $this->getFactoryMethods())
         ));
     }
 
@@ -359,5 +359,29 @@ abstract class AbstractNode
                 $method
             ));
         }
+    }
+
+    /**
+     * This method retrieves the names of all the methods annotated
+     * with "@factoryMethod". This enables us to throw useful exceptions
+     * listing valid QB factory methods when user makes a typo.
+     *
+     * @return array
+     */
+    protected function getFactoryMethods()
+    {
+        $refl = new \ReflectionClass($this);
+
+        $fMethods = array();
+        foreach ($refl->getMethods() as $rMethod) {
+            $comment = $rMethod->getDocComment();
+            if ($comment) {
+                if (false !== strstr($comment, '@factoryMethod')) {
+                    $fMethods[] = $rMethod->name;
+                }
+            }
+        }
+
+        return $fMethods;
     }
 }

@@ -18,6 +18,14 @@ class BuilderTest extends NodeTestCase
         );
     }
 
+    public function testNonExistantMethod()
+    {
+        $this->setExpectedException('BadMethodCallException', 
+            'Unknown method "foobar" called on class "Doctrine\ODM\PHPCR\Query\QueryBuilder\Builder", did you mean one of: "where, andWhere, orWhere'
+        );
+        $this->node->foobar();
+    }
+
     // this test serves no other purpose than to demonstrate
     // the API
     public function testApi1()

@@ -27,6 +27,7 @@ class ConstraintFactory extends AbstractNode
      *       ->propertyExsts('prop_2', 'sel_1')
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintAndx
      */
     public function andX()
@@ -44,6 +45,7 @@ class ConstraintFactory extends AbstractNode
      *       ->propertyExsts('prop_2', 'sel_1')
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintOrx
      */
     public function orX()
@@ -59,6 +61,7 @@ class ConstraintFactory extends AbstractNode
      * @param string $propertyName
      * @param string $selectorName
      *
+     * @factoryMethod
      * @return ConstraintPropertyExists
      */
     public function propertyExists($selectorName, $propertyName)
@@ -75,6 +78,7 @@ class ConstraintFactory extends AbstractNode
      * @param string $fullTextSearchExpression
      * @param string $selectorName
      *
+     * @factoryMethod
      * @return ConstraintFullTextSearch
      */
     public function fullTextSearch($selectorName, $propertyName, $fullTextSearchExpression)
@@ -90,6 +94,7 @@ class ConstraintFactory extends AbstractNode
      * @param string $path
      * @param string $selectorName
      *
+     * @factoryMethod
      * @return ConstraintSameDocument
      */
     public function sameDocument($selectorName, $path)
@@ -105,6 +110,7 @@ class ConstraintFactory extends AbstractNode
      * @param string $ancestorPath
      * @param string $selectorName
      *
+     * @factoryMethod
      * @return ConstraintDescendantDocument
      */
     public function descendantDocument($selectorName, $ancestorPath)
@@ -120,6 +126,7 @@ class ConstraintFactory extends AbstractNode
      * @param string $parentPath
      * @param string $selectorName
      *
+     * @factoryMethod
      * @return ConstraintChildDocument
      */
     public function childDocument($selectorName, $parentPath)
@@ -134,6 +141,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()->not()->propertyExists('foobar', 'sel_1')
      *
+     * @factoryMethod
      * @return ConstraintNot
      */
     public function not()
@@ -150,6 +158,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->bindVariable('var_1')->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function eq()
@@ -168,6 +177,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->bindVariable('var_1')->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function neq()
@@ -186,6 +196,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function lt()
@@ -204,6 +215,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function lte()
@@ -222,6 +234,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function gt()
@@ -240,6 +253,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function gte()
@@ -258,6 +272,7 @@ class ConstraintFactory extends AbstractNode
      *       ->rop()->literal('foo%')->end()
      *     ->end()
      *
+     * @factoryMethod
      * @return ConstraintComparison
      */
     public function like()
