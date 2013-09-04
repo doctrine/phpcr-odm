@@ -123,17 +123,15 @@ class DocumentRepository implements ObjectRepository
      * not supported.
      *
      * @param  array      $criteria
-     * @param  array|null $orderBy
+     * @param  array|null $orderByFields
      * @param  int|null   $limit
      * @param  int|null   $offset
      *
      * @return array The objects matching the criteria.
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, array $orderByFields = null, $limit = null, $offset = null)
     {
-        $qb = $this->dm->createQueryBuilder();
-
-        $qb->from($this->className);
+        $qb = $this->createQueryBuilder('a');
 
         if ($limit) {
             $qb->setMaxResults($limit);
@@ -141,15 +139,31 @@ class DocumentRepository implements ObjectRepository
         if ($offset) {
             $qb->setFirstResult($offset);
         }
-        if ($orderBy) {
-            foreach ($orderBy as $ordering) {
-                $qb->addOrderBy($ordering);
+
+        if ($orderByFields) {
+            $first = true;
+            foreach ($orderByFields as $ordering) {
+                if ($first) {
+                    $first = false;
+                    $orderBy = $qb->orderBy();
+                } else {
+                    $orderBy = $qb->orderBy();
+                }
+
+                $orderBy->ascending()->propertyValue('a', $ordering);
             }
         }
+
+        $first = true;
         foreach ($criteria as $field => $value) {
-            $qb->andWhere(
-                $qb->expr()->eq($field, $value)
-            );
+            if ($first) {
+                $first = false;
+                $where = $qb->where();
+            } else {
+                $where = $qb->andWhere();
+            }
+
+            $where->eq()->propertyValue('a', $field)->literal($value);
         }
 
         return $qb->getQuery()->execute();
@@ -292,10 +306,10 @@ class DocumentRepository implements ObjectRepository
      *
      * @return \Doctrine\ODM\PHPCR\Query\QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder($selectorName)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->from($this->className);
+        $qb->from()->document($this->className, $selectorName);
 
         return $qb;
     }
