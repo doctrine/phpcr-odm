@@ -23,7 +23,7 @@ abstract class AbstractLeafNode extends AbstractNode
         ));
     }
 
-    public function addChild()
+    public function addChild(AbstractNode $node)
     {
         throw new \RuntimeException(sprintf(
             'Cannot call addChild to leaf node "%s"',

@@ -199,13 +199,15 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
                 ->literal('dtl')
             ->end();
 
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
         $this->assertEquals(1, $rows->count());
-        $values = $rows->current()->getValues();
+        $values = $rows->current()->getValues('a');
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $this->assertEquals(array('a.username' => 'dtl', 'a.jcr:primaryType' => 'nt:unstructured'), $values);
+                $this->assertEquals(array('a'), $result->getSelectorNames());
+                $this->assertEquals(array('a.username' => 'dtl'), $values);
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
@@ -216,15 +218,16 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         $qb->addSelect()->property('a', 'name');
 
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
-        $values = $rows->current()->getValues();
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
+        $values = $rows->current()->getValues('a');
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
+                $this->assertEquals(array('a'), $result->getSelectorNames());
                 $this->assertEquals(array(
                     'a.username' => 'dtl', 
-                    'a.name' => 'daniel', 
-                    'a.jcr:primaryType' => 'nt:unstructured'
+                    'a.name' => 'daniel',
                 ), $values);
                 break;
             case 'sql':
@@ -236,14 +239,15 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         // select overwrite
         $qb->select()->property('a', 'status');
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
-        $values = $rows->current()->getValues();
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
+        $values = $rows->current()->getValues('a');
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
+                $this->assertEquals(array('a'), $result->getSelectorNames());
                 $this->assertEquals(array(
                     'a.status' => 'query_builder', 
-                    'a.jcr:primaryType' => 'nt:unstructured',
                 ), $values);
                 break;
             case 'sql':

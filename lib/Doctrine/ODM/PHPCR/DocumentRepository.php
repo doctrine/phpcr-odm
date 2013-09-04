@@ -123,13 +123,13 @@ class DocumentRepository implements ObjectRepository
      * not supported.
      *
      * @param  array      $criteria
-     * @param  array|null $orderBy
+     * @param  array|null $orderByFields
      * @param  int|null   $limit
      * @param  int|null   $offset
      *
      * @return array The objects matching the criteria.
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, array $orderByFields = null, $limit = null, $offset = null)
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -140,11 +140,17 @@ class DocumentRepository implements ObjectRepository
             $qb->setFirstResult($offset);
         }
 
-        $orderBy = $qb->orderBy();
+        if ($orderByFields) {
+            $first = true;
+            foreach ($orderByFields as $ordering) {
+                if ($first) {
+                    $first = false;
+                    $orderBy = $qb->orderBy();
+                } else {
+                    $orderBy = $qb->orderBy();
+                }
 
-        if ($orderBy) {
-            foreach ($orderBy as $ordering) {
-                $orderBy->ascending()->propertyValue($ordering);
+                $orderBy->ascending()->propertyValue('a', $ordering);
             }
         }
 
