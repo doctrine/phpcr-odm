@@ -2,8 +2,10 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode as QBConstants;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 
 /**
  * Base QueryBuilder node.
@@ -45,12 +47,17 @@ class Builder extends AbstractNode
         return array(
             self::NT_SELECT => array(0, null),    // 1..*
             self::NT_FROM => array(1, 1),         // 1..1
-            self::NT_WHERE => array(0, 1),     // 0..1
-            self::NT_ORDER_BY => array(0, null),   // 0..*
+            self::NT_WHERE => array(0, 1),        // 0..1
+            self::NT_ORDER_BY => array(0, null),  // 0..*
         );
     }
 
     /**
+     * Where factory node is used to specify selection criteria:
+     *
+     *   ->where()
+     *     ->eq()->propertyValue('a', 'foobar')->literal('bar')->end()
+     *
      * @factoryMethod
      * @return Where
      */
@@ -61,6 +68,9 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Add additional selection criteria using the AND operator. 
+     * @see where
+     *
      * @factoryMethod
      * @return WhereAnd
      */
@@ -71,6 +81,9 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Add additional selection criteria using the OR operator. 
+     * @see where
+     *
      * @factoryMethod
      * @return WhereOr
      */
@@ -81,6 +94,17 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Set the from source for the query.
+     *
+     *   ->from()->document('Foobar', 'a')
+     *
+     *   // or
+     *
+     *   ->from()->join[Inner|OuterLeft|OuterRight]()
+     *     ->left()->document('Foobar', 'a')->end()
+     *     ->right()->document('Foobar', 'a')->end()
+     *   ->end()
+     *
      * @factoryMethod
      * @return From
      */
@@ -91,6 +115,113 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Shortcut for:
+     *
+     *   $qb->from()->document('Foobar', 'a')->end()
+     *
+     * Which becomes:
+     *
+     *   $qb->fromDocument('Foobar', 'a');
+     *
+     * Replaces any existing from source.
+     *
+     * @factoryMethod
+     * @return Builder
+     */
+    public function fromDocument($documentFqn, $selectorName)
+    {
+        $from = new From($this);
+        $from->document($documentFqn, $selectorName);
+        $this->setChild($from);
+        return $from->end();
+    }
+
+    /**
+     * This method is currently private in accordance with the rule that
+     * factory methods should have no arguments (thus it is easier to determine
+     * which nodes are leaf nodes).
+     */
+    private function addJoin($joinType)
+    {
+        $from = $this->getChildOfType(QBConstants::NT_FROM);
+        $curSource = $from->getChild(QBConstants::NT_SOURCE);
+
+        $src = new SourceJoin($this, $joinType);
+        $src->left()->addChild($curSource);
+        $from->setChild($src);
+
+        return $src;
+    }
+
+    /**
+     * Replace the existing source with a left outer join source using the existing
+     * source as the left operand.
+     *
+     *   ->fromDocument('Foobar', 'a')
+     *   ->addJoinLeftOuter()
+     *     ->right()->document('Barfoo', 'b')->end()
+     *     ->condition()->equi('a', 'prop_1', 'b', 'prop_2')
+     *   ->end()
+     *
+     * @factoryMethod
+     * @return SourceJoin
+     */
+    public function addJoinLeftOuter($void = null)
+    {
+        $this->ensureNoArguments(__METHOD__, $void);
+        return $this->addJoin(QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER);
+    }
+
+    /**
+     * Replace the existing source with a right outer join source using the existing
+     * source as the left operand.
+     *
+     *   ->fromDocument('Foobar', 'a')
+     *   ->addJoinRightOuter()
+     *     ->right()->document('Barfoo', 'b')->end()
+     *     ->condition()->equi('a', 'prop_1', 'b', 'prop_2')
+     *   ->end()
+     *
+     * @factoryMethod
+     * @return SourceJoin
+     */
+    public function addJoinRightOuter($void = null)
+    {
+        $this->ensureNoArguments(__METHOD__, $void);
+        return $this->addJoin(QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER);
+    }
+
+    /**
+     * Replace the existing source with an inner join source using the existing
+     * source as the left operand.
+     *
+     *   ->fromDocument('Foobar', 'a')
+     *   ->addJoinInner()
+     *     ->right()->document('Barfoo', 'b')->end()
+     *     ->condition()->equi('a', 'prop_1', 'b', 'prop_2')
+     *   ->end()
+     *
+     * @factoryMethod
+     * @return SourceJoin
+     */
+    public function addJoinInner($void = null)
+    {
+        $this->ensureNoArguments(__METHOD__, $void);
+        return $this->addJoin(QOMConstants::JCR_JOIN_TYPE_INNER);
+    }
+
+    /**
+     * Method to add properties for selection to builder tree, replaces any 
+     * existing select.
+     *
+     * Number of property nodes is unbounded.
+     *
+     *   ->select()
+     *     ->property('a', 'prop_1')
+     *     ->property('a', 'prop_2')
+     *     ->property('a', 'prop_3')
+     *   ->end()
+     *
      * @factoryMethod
      * @return Select
      */
@@ -101,6 +232,17 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Add additional properties to selection.
+     *
+     *   ->select()
+     *      ->propery('a', 'prop_1')
+     *   ->end()
+     *   ->addSelect()
+     *     ->property('a', 'prop_2')
+     *     ->property('a', 'prop_3')
+     *     ->property('a', 'prop_4')
+     *   ->end()
+     *
      * @factoryMethod
      * @return SelectAdd
      */
@@ -111,6 +253,15 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Add orderings to the builder tree.
+     *
+     * Number of orderings is unbounded.
+     *
+     *   ->orderBy()
+     *     ->ascending()->propertyValue('a', 'prop_1')
+     *     ->descending()->propertyValue('a', 'prop_2')
+     *   ->end()
+     *
      * @factoryMethod
      * @return OrderBy
      */
@@ -121,6 +272,10 @@ class Builder extends AbstractNode
     }
 
     /**
+     * Add additional orderings to the builder tree.
+     *
+     * @see orderBy
+     *
      * @factoryMethod
      * @return OrderByAdd
      */
@@ -130,21 +285,41 @@ class Builder extends AbstractNode
         return $this->addChild(new OrderByAdd($this));
     }
 
+    /**
+     * Return the offset of the first result in the resultset.
+     *
+     * @return integer
+     */
     public function getFirstResult() 
     {
         return $this->firstResult;
     }
-    
+
+    /**
+     * Set the offset of the first result in the resultset.
+     *
+     * @param integer $firstResult
+     */
     public function setFirstResult($firstResult)
     {
         $this->firstResult = $firstResult;
     }
 
+    /**
+     * Return the maximum number of results to be imposed on the generated query.
+     *
+     * @return integer
+     */
     public function getMaxResults() 
     {
         return $this->maxResults;
     }
-    
+
+    /**
+     * Set the maximum number of results to be returned by the generated query.
+     *
+     * @param integer $maxResults
+     */
     public function setMaxResults($maxResults)
     {
         $this->maxResults = $maxResults;
