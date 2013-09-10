@@ -298,7 +298,7 @@ class DocumentRepository implements ObjectRepository
      *       use ->andWhere(...) as ->where(...) will overwrite
      *       the class criteria.
      *
-     * @return \Doctrine\ODM\PHPCR\Query\QueryBuilder
+     * @return \Doctrine\ODM\PHPCR\Query\Builder
      */
     public function createQueryBuilder($selectorName)
     {

@@ -5,7 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 
 /**
  * @group functional
@@ -24,9 +24,9 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $qb = $rep->createQueryBuilder('a');
 
         $from = $qb->getChildOfType(QBConstants::NT_FROM);
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\QueryBuilder\From', $from);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\From', $from);
         $source = $from->getChildOfType(QBConstants::NT_SOURCE);
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\QueryBuilder\SourceDocument', $source);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\SourceDocument', $source);
         
         $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $source->getDocumentFqn());
     }

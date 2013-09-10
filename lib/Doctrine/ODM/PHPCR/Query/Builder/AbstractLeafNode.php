@@ -1,0 +1,66 @@
+<?php
+
+namespace Doctrine\ODM\PHPCR\Query\Builder;
+
+/**
+ * Special class for leaf nodes. Leaf nodes have no children
+ * and always return the parent rather than themselves.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
+abstract class AbstractLeafNode extends AbstractNode
+{
+    public function getNext()
+    {
+        return $this->getParent();
+    }
+
+    public function getChildren()
+    {
+        throw new \RuntimeException(sprintf(
+            'Cannot call getChildren on leaf node "%s"',
+            $this->getName()
+        ));
+    }
+
+    public function addChild()
+    {
+        throw new \RuntimeException(sprintf(
+            'Cannot call addChild to leaf node "%s"',
+            $this->getName()
+        ));
+    }
+
+    public function getCardinalityMap()
+    {
+        // no children , no cardinality map...
+        return array();
+    }
+
+    /**
+     * Return the selector name and field name
+     * from the given string of form
+     *
+     *     [selector_name].[field_name]
+     *
+     * e.g. my_selector.first_name
+     *
+     * @param string $field
+     *
+     * @return array
+     */
+    protected function explodeField($field)
+    {
+        $parts = explode('.', $field);
+
+        if (count($parts) == 2) {
+            return $parts;
+        } else {
+            throw new \RuntimeException(sprintf(
+                'Invalid field specification, '.
+                'expected string like "[selector_name].[field_name]", got "%s"',
+                $field
+            ));
+        }
+    }
+}

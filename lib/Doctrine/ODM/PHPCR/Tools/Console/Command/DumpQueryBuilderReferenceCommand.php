@@ -22,8 +22,8 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\ODM\PHPCR\Query\QueryBuilder\Builder;
-use Doctrine\ODM\PHPCR\Query\QueryBuilder\AbstractNode;
+use Doctrine\ODM\PHPCR\Query\Builder\Builder;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -37,7 +37,7 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class DumpQueryBuilderReferenceCommand extends Command
 {
-    const QB_NS = 'Doctrine\\ODM\\PHPCR\\Query\\QueryBuilder';
+    const QB_NS = 'Doctrine\\ODM\\PHPCR\\Query\\Builder';
 
     protected $formatString;
 
@@ -58,7 +58,7 @@ class DumpQueryBuilderReferenceCommand extends Command
         $this->depth = $input->getOption('depth');
         $nodeAssocMap = array();
 
-        $dirHandle = opendir(__DIR__.'/../../../Query/QueryBuilder');
+        $dirHandle = opendir(__DIR__.'/../../../Query/Builder');
         while ($fname = readdir($dirHandle)) {
             $className = sprintf(
                 '\\'.self::QB_NS.'\\%s',

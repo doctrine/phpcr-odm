@@ -30,7 +30,6 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterf
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
-use Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
@@ -534,15 +533,15 @@ class DocumentManager implements ObjectManager
      *
      * Query returned by QueryBuilder\Builder::getQuery()
      *
-     * @return QueryBuilder\Builder
+     * @return Builder\Builder
      */
     public function createQueryBuilder()
     {
-        $builder =  new QueryBuilder\Builder();
+        $builder =  new Builder\Builder();
 
         $qm = $this->session->getWorkspace()->getQueryManager();
         $qomf = $qm->getQOMFactory();
-        $converter = new QueryBuilder\BuilderConverterPhpcr($this, $qomf);
+        $converter = new Builder\BuilderConverterPhpcr($this, $qomf);
         $builder->setConverter($converter);
 
         return $builder;
