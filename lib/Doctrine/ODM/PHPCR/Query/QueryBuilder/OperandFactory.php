@@ -18,13 +18,15 @@ class OperandFactory extends OperandDynamicFactory
     /**
      * Static operand: Resolves to the value of the variable bound to the given $name
      *
+     * Relates to PHPCR BindVariableValueInterface
+     *
      * @param string $name
      * @factoryMethod
      * @return OperandStaticBindVariable
      */
-    public function bindVariable($name)
+    public function parameter($name)
     {
-        return $this->addChild(new OperandStaticBindVariable($this, $name));
+        return $this->addChild(new OperandStaticParameter($this, $name));
     }
 
     /**

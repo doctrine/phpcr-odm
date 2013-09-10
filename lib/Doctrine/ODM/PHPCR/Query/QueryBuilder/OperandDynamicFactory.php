@@ -65,7 +65,7 @@ class OperandDynamicFactory extends AbstractNode
      */
     public function length($field)
     {
-        return $this->addChild(new OperandDynamicPropertyValue($this, $field));
+        return $this->addChild(new OperandDynamicLength($this, $field));
     }
 
     /**
@@ -116,12 +116,14 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('my_node_name')
      *     ->end()
      *
+     * Relates to PHPCR NodeLocalNameInterface
+     *
      * @factoryMethod
      * @return OperandDynamicDocumentLocalName
      */
-    public function documentLocalName($selectorName)
+    public function localName($selectorName)
     {
-        return $this->addChild(new OperandDynamicDocumentLocalName($this, $selectorName));
+        return $this->addChild(new OperandDynamicLocalName($this, $selectorName));
     }
 
     /**
@@ -134,12 +136,14 @@ class OperandDynamicFactory extends AbstractNode
      *       ->rop()->literal('namespace:my_node_name')
      *     ->end()
      *
+     * Relates to PHPCR NodeNameInterface
+     *
      * @factoryMethod
      * @return OperandDynamicDocumentName
      */
-    public function documentName($selectorName)
+    public function name($selectorName)
     {
-        return $this->addChild(new OperandDynamicDocumentName($this, $selectorName));
+        return $this->addChild(new OperandDynamicName($this, $selectorName));
     }
 
     /**
@@ -154,9 +158,9 @@ class OperandDynamicFactory extends AbstractNode
      * @factoryMethod
      * @return OperandDynamicPropertyValue
      */
-    public function propertyValue($field)
+    public function field($field)
     {
-        return $this->addChild(new OperandDynamicPropertyValue($this, $field));
+        return $this->addChild(new OperandDynamicField($this, $field));
     }
 }
 

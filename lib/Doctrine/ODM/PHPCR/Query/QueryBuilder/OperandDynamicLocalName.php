@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandDynamicDocumentName extends AbstractLeafNode
+class OperandDynamicLocalName extends AbstractLeafNode
 {
     protected $selectorName;
 

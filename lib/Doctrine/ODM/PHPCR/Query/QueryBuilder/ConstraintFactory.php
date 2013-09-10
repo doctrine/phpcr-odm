@@ -54,7 +54,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Property existance constraint:
+     * Field existance constraint:
      *
      *   $qb->where()->propertyExists('prop_1', 'sel_1')
      *
@@ -62,11 +62,11 @@ class ConstraintFactory extends AbstractNode
      * @param string $selectorName
      *
      * @factoryMethod
-     * @return ConstraintPropertyExists
+     * @return ConstraintFieldExists
      */
-    public function propertyExists($field)
+    public function fieldExists($field)
     {
-        return $this->addChild(new ConstraintPropertyExists($this, $field));
+        return $this->addChild(new ConstraintFieldExists($this, $field));
     }
 
     /**
@@ -91,15 +91,17 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()->sameDocument('/path/to/doc', 'sel_1')
      *
+     * Relates to PHPCR SameNodeInterface
+     *
      * @param string $path
      * @param string $selectorName
      *
      * @factoryMethod
-     * @return ConstraintSameDocument
+     * @return ConstraintSame
      */
-    public function sameDocument($selectorName, $path)
+    public function same($selectorName, $path)
     {
-        return $this->addChild(new ConstraintSameDocument($this, $selectorName, $path));
+        return $this->addChild(new ConstraintSame($this, $selectorName, $path));
     }
 
     /**
@@ -107,15 +109,17 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()->descendantDocument('/ancestor/path', 'sel_1')
      *
+     * Relates to PHPCR DescendantNodeInterface
+     *
      * @param string $ancestorPath
      * @param string $selectorName
      *
      * @factoryMethod
      * @return ConstraintDescendantDocument
      */
-    public function descendantDocument($selectorName, $ancestorPath)
+    public function descendant($selectorName, $ancestorPath)
     {
-        return $this->addChild(new ConstraintDescendantDocument($this, $selectorName, $ancestorPath));
+        return $this->addChild(new ConstraintDescendant($this, $selectorName, $ancestorPath));
     }
 
     /**
@@ -126,12 +130,14 @@ class ConstraintFactory extends AbstractNode
      * @param string $parentPath
      * @param string $selectorName
      *
+     * Relates to PHPCR ChildNodeInterface
+     *
      * @factoryMethod
-     * @return ConstraintChildDocument
+     * @return ConstraintChild
      */
-    public function childDocument($selectorName, $parentPath)
+    public function child($selectorName, $parentPath)
     {
-        return $this->addChild(new ConstraintChildDocument($this, $selectorName, $parentPath));
+        return $this->addChild(new ConstraintChild($this, $selectorName, $parentPath));
     }
 
     /**

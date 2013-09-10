@@ -438,7 +438,7 @@ class BuilderConverterPhpcr
         return $composite;
     }
 
-    protected function walkConstraintPropertyExists(ConstraintPropertyExists $node)
+    protected function walkConstraintFieldExists(ConstraintFieldExists $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
             $node->getSelectorName(), $node->getPropertyName()
@@ -467,7 +467,7 @@ class BuilderConverterPhpcr
         return $con;
     }
 
-    protected function walkConstraintSameDocument(ConstraintSameDocument $node)
+    protected function walkConstraintSame(ConstraintSame $node)
     {
         $con = $this->qomf->sameNode(
             $node->getPath(),
@@ -477,7 +477,7 @@ class BuilderConverterPhpcr
         return $con;
     }
 
-    protected function walkConstraintDescendantDocument(ConstraintDescendantDocument $node)
+    protected function walkConstraintDescendant(ConstraintDescendant $node)
     {
         $con = $this->qomf->descendantNode(
             $node->getAncestorPath(),
@@ -487,7 +487,7 @@ class BuilderConverterPhpcr
         return $con;
     }
 
-    protected function walkConstraintChildDocument(ConstraintChildDocument $node)
+    protected function walkConstraintChild(ConstraintChild $node)
     {
         $con = $this->qomf->childNode(
             $node->getParentPath(),
@@ -531,7 +531,7 @@ class BuilderConverterPhpcr
         return $ret;
     }
 
-    protected function walkOperandDynamicPropertyValue(OperandDynamicPropertyValue $node)
+    protected function walkOperandDynamicField(OperandDynamicField $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
             $node->getSelectorName(), $node->getPropertyName()
@@ -544,7 +544,7 @@ class BuilderConverterPhpcr
         return $op;
     }
 
-    protected function walkOperandDynamicDocumentLocalName(OperandDynamicDocumentLocalName $node)
+    protected function walkOperandDynamicLocalName(OperandDynamicLocalName $node)
     {
         $op = $this->qomf->nodeLocalName(
             $node->getSelectorName()
@@ -579,7 +579,7 @@ class BuilderConverterPhpcr
         return $op;
     }
 
-    protected function walkOperandDynamicDocumentName(OperandDynamicDocumentName $node)
+    protected function walkOperandDynamicName(OperandDynamicName $node)
     {
         $op = $this->qomf->nodeName(
             $node->getSelectorName()
@@ -624,7 +624,7 @@ class BuilderConverterPhpcr
         return $op;
     }
 
-    protected function walkOperandStaticBindVariable(OperandStaticBindVariable $node)
+    protected function walkOperandStaticParameter(OperandStaticParameter $node)
     {
         $op = $this->qomf->bindVariable($node->getVariableName());
         return $op;

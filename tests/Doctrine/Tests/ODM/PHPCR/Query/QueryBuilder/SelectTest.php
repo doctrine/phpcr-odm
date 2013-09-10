@@ -10,7 +10,7 @@ class SelectTest extends NodeTestCase
     public function provideInterface()
     {
         return array(
-            array('property', 'Property', array(
+            array('field', 'Field', array(
                 'selector_name.property_name',
             )),
         );

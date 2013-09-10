@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class OperandStaticBindVariable extends AbstractLeafNode
+class OperandStaticParameter extends AbstractLeafNode
 {
     protected $variableName;
 

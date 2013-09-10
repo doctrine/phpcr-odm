@@ -20,13 +20,13 @@ class OperandDynamicFactoryTest extends NodeTestCase
             )),
             array('upperCase', 'OperandDynamicUpperCase', array(
             )),
-            array('documentName', 'OperandDynamicDocumentName', array(
+            array('name', 'OperandDynamicName', array(
                 'selector_name',
             )),
-            array('documentLocalName', 'OperandDynamicDocumentLocalName', array(
+            array('localName', 'OperandDynamicLocalName', array(
                 'selector_name',
             )),
-            array('propertyValue', 'OperandDynamicPropertyValue', array(
+            array('field', 'OperandDynamicField', array(
                 'selector_name.property_name',
             )),
         );

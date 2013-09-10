@@ -14,19 +14,19 @@ class ConstraintFactoryTest extends NodeTestCase
             )),
             array('orX', 'ConstraintOrx', array(
             )),
-            array('propertyExists', 'ConstraintPropertyExists', array(
+            array('fieldExists', 'ConstraintFieldExists', array(
                 'selector_name.propery_name',
             )),
             array('fullTextSearch', 'ConstraintFullTextSearch', array(
                 'selector_name.property_name', 'full_text_expression',
             )),
-            array('sameDocument', 'ConstraintSameDocument', array(
+            array('same', 'ConstraintSame', array(
                 'path', 'selector_name',
             )),
-            array('descendantDocument', 'ConstraintDescendantDocument', array(
+            array('descendant', 'ConstraintDescendant', array(
                 'ancestor_path', 'selector_name',
             )),
-            array('childDocument', 'ConstraintChildDocument', array(
+            array('child', 'ConstraintChild', array(
                 'parent_path', 'selector_name',
             )),
             array('not', 'ConstraintNot', array(

@@ -2,12 +2,15 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class ConstraintChildDocument extends AbstractLeafNode
+class ConstraintDescendant extends AbstractLeafNode
 {
-    public function __construct(AbstractNode $parent, $selectorName, $parentPath)
+    protected $selectorName;
+    protected $ancestorPath;
+
+    public function __construct(AbstractNode $parent, $selectorName, $ancestorPath)
     {
         $this->selectorName = $selectorName;
-        $this->parentPath = $parentPath;
+        $this->ancestorPath = $ancestorPath;
         parent::__construct($parent);
     }
 
@@ -16,9 +19,9 @@ class ConstraintChildDocument extends AbstractLeafNode
         return self::NT_CONSTRAINT;
     }
 
-    public function getParentPath() 
+    public function getAncestorPath() 
     {
-        return $this->parentPath;
+        return $this->ancestorPath;
     }
 
     public function getSelectorName() 

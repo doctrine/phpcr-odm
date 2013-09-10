@@ -11,9 +11,11 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  * not change once initialized and are used as the "right hand
  * side" operands in comparisons.
  *
+ * Inherits from dynamic factory, see note there.
+ *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class OperandStaticFactory extends AbstractNode
+class OperandStaticFactory extends OperandFactory
 {
     public function getCardinalityMap()
     {
@@ -25,23 +27,5 @@ class OperandStaticFactory extends AbstractNode
     public function getNodeType()
     {
         return self::NT_OPERAND_FACTORY;
-    }
-
-    /**
-     * @factoryMethod
-     * @return OperandStaticBindVariable
-     */
-    public function bindVariable($name)
-    {
-        return $this->addChild(new OperandStaticBindVariable($this, $name));
-    }
-
-    /**
-     * @factoryMethod
-     * @return OperandStaticLiteral
-     */
-    public function literal($value)
-    {
-        return $this->addChild(new OperandStaticLiteral($this, $value));
     }
 }

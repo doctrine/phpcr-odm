@@ -13,7 +13,7 @@ class OperandStaticFactoryTest extends NodeTestCase
             array('literal', 'OperandStaticLiteral', array(
                 'value',
             )),
-            array('bindVariable', 'OperandStaticBindVariable', array(
+            array('parameter', 'OperandStaticParameter', array(
                 'variable_name',
             )),
         );

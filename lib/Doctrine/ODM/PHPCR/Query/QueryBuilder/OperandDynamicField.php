@@ -2,22 +2,22 @@
 
 namespace Doctrine\ODM\PHPCR\Query\QueryBuilder;
 
-class Property extends AbstractLeafNode
+class OperandDynamicField extends AbstractLeafNode
 {
-    protected $propertyName;
     protected $selectorName;
+    protected $propertyName;
 
     public function __construct(AbstractNode $parent, $field)
     {
         list($selectorName, $propertyName) = $this->explodeField($field);
-        $this->propertyName = $propertyName;
         $this->selectorName = $selectorName;
+        $this->propertyName = $propertyName;
         parent::__construct($parent);
     }
 
-    public function getPropertyName() 
+    public function getNodeType()
     {
-        return $this->propertyName;
+        return self::NT_OPERAND_DYNAMIC;
     }
 
     public function getSelectorName() 
@@ -25,8 +25,8 @@ class Property extends AbstractLeafNode
         return $this->selectorName;
     }
 
-    public function getNodeType()
+    public function getPropertyName() 
     {
-        return self::NT_PROPERTY;
+        return $this->propertyName;
     }
 }
