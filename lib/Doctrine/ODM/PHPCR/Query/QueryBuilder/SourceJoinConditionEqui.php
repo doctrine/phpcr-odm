@@ -11,8 +11,10 @@ class SourceJoinConditionEqui extends AbstractLeafNode
     protected $property2;
     protected $selector2;
 
-    public function __construct($parent, $selector1, $property1, $selector2, $property2)
+    public function __construct($parent, $field1, $field2)
     {
+        list($selector1, $property1) = $this->explodeField($field1);
+        list($selector2, $property2) = $this->explodeField($field2);
         parent::__construct($parent);
         $this->property1 = $property1;
         $this->selector1 = $selector1;

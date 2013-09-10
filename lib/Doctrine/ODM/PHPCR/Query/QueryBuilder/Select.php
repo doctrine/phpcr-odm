@@ -15,9 +15,9 @@ class Select extends AbstractNode
      * @factoryMethod
      * @return Property
      */
-    public function property($selectorName, $propertyName)
+    public function property($field)
     {
-        return $this->addChild(new Property($this, $selectorName, $propertyName));
+        return $this->addChild(new Property($this, $field));
     }
 
     public function getNodeType()

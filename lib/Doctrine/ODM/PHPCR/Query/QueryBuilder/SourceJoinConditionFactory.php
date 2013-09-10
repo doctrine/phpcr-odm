@@ -52,16 +52,16 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
      *       ->condition()
-     *         ->equi('prop_1', 'sel_1', 'prop_2', 'sel_2')
+     *         ->equi('sel_1.prop_1', 'sel_2.prop_2')
      *       ->end()
      *     ->end()
      *
      * @return SourceJoinConditionDescendant
      */
-    public function equi($selector1Name, $property1, $selector2Name, $property2)
+    public function equi($field1, $field2)
     {
         return $this->addChild(new SourceJoinConditionEqui($this,
-            $selector1Name, $property1, $selector2Name, $property2
+            $field1, $field2
         ));
     }
 

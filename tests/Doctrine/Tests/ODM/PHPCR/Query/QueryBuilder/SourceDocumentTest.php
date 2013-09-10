@@ -10,9 +10,9 @@ class SourceDocumentTest extends LeafNodeTestCase
     public function provideNode()
     {
         return array(
-            array('SourceDocument', array(
-                'documentFqn' => 'FooBar',
-                'selectorName' => 'a',
+            array('SourceDocument', array('FooBar', 'a'), array(
+                'getDocumentFqn' => 'FooBar',
+                'getSelectorName' => 'a',
             )),
         );
     }

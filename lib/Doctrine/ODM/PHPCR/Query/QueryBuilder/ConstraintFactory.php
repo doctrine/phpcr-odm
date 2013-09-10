@@ -64,9 +64,9 @@ class ConstraintFactory extends AbstractNode
      * @factoryMethod
      * @return ConstraintPropertyExists
      */
-    public function propertyExists($selectorName, $propertyName)
+    public function propertyExists($field)
     {
-        return $this->addChild(new ConstraintPropertyExists($this, $selectorName, $propertyName));
+        return $this->addChild(new ConstraintPropertyExists($this, $field));
     }
 
     /**
@@ -81,9 +81,9 @@ class ConstraintFactory extends AbstractNode
      * @factoryMethod
      * @return ConstraintFullTextSearch
      */
-    public function fullTextSearch($selectorName, $propertyName, $fullTextSearchExpression)
+    public function fullTextSearch($field, $fullTextSearchExpression)
     {
-        return $this->addChild(new ConstraintFullTextSearch($this, $selectorName, $propertyName, $fullTextSearchExpression));
+        return $this->addChild(new ConstraintFullTextSearch($this, $field, $fullTextSearchExpression));
     }
 
     /**

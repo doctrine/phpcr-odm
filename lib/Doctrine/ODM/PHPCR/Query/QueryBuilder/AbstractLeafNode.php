@@ -36,4 +36,31 @@ abstract class AbstractLeafNode extends AbstractNode
         // no children , no cardinality map...
         return array();
     }
+
+    /**
+     * Return the selector name and field name
+     * from the given string of form
+     *
+     *     [selector_name].[field_name]
+     *
+     * e.g. my_selector.first_name
+     *
+     * @param string $field
+     *
+     * @return array
+     */
+    protected function explodeField($field)
+    {
+        $parts = explode('.', $field);
+
+        if (count($parts) == 2) {
+            return $parts;
+        } else {
+            throw new \RuntimeException(sprintf(
+                'Invalid field specification, '.
+                'expected string like "[selector_name].[field_name]", got "%s"',
+                $field
+            ));
+        }
+    }
 }

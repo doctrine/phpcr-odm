@@ -17,19 +17,18 @@ abstract class LeafNodeTestCase extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideNode
      */
-    public function testNode($type, $argumethods)
+    public function testNode($type, $args, $methods)
     {
         $ns = 'Doctrine\ODM\PHPCR\Query\QueryBuilder';
         $fqn = $ns . '\\' . $type;
 
-        $values = array_values($argumethods);
+        $values = array_values($args);
         array_unshift($values, $this->parent);
 
         $refl = new \ReflectionClass($fqn);
         $instance = $refl->newInstanceArgs($values);
 
-        foreach ($argumethods as $key => $value) {
-            $method = 'get'.ucfirst($key);
+        foreach ($methods as $method => $value) {
             $res = $instance->{$method}();
             $this->assertEquals($value, $res);
         }

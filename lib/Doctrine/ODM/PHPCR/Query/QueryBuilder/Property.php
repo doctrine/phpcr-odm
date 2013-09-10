@@ -7,8 +7,9 @@ class Property extends AbstractLeafNode
     protected $propertyName;
     protected $selectorName;
 
-    public function __construct(AbstractNode $parent, $selectorName, $propertyName)
+    public function __construct(AbstractNode $parent, $field)
     {
+        list($selectorName, $propertyName) = $this->explodeField($field);
         $this->propertyName = $propertyName;
         $this->selectorName = $selectorName;
         parent::__construct($parent);

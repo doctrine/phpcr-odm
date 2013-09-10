@@ -7,8 +7,9 @@ class OperandDynamicPropertyValue extends AbstractLeafNode
     protected $selectorName;
     protected $propertyName;
 
-    public function __construct(AbstractNode $parent, $selectorName, $propertyName)
+    public function __construct(AbstractNode $parent, $field)
     {
+        list($selectorName, $propertyName) = $this->explodeField($field);
         $this->selectorName = $selectorName;
         $this->propertyName = $propertyName;
         parent::__construct($parent);

@@ -11,7 +11,7 @@ class SelectTest extends NodeTestCase
     {
         return array(
             array('property', 'Property', array(
-                'property_name', 'selector_name',
+                'selector_name.property_name',
             )),
         );
     }

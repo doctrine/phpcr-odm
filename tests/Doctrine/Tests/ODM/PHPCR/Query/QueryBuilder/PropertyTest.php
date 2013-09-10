@@ -10,9 +10,9 @@ class PropertyTest extends LeafNodeTestCase
     public function provideNode()
     {
         return array(
-            array('Property', array(
-                'selectorName' => 'a',
-                'propertyName' => 'FooBar',
+            array('Property', array('a.FooBar'), array(
+                'getSelectorName' => 'a',
+                'getPropertyName' => 'FooBar',
             )),
         );
     }

@@ -14,7 +14,7 @@ class OperandDynamicFactoryTest extends NodeTestCase
                 'selector_name',
             )),
             array('length', 'OperandDynamicFullTextSearchScore', array(
-                'selector_name', 'property_name',
+                'selector_name.property_name',
             )),
             array('lowerCase', 'OperandDynamicLowerCase', array(
             )),
@@ -27,8 +27,7 @@ class OperandDynamicFactoryTest extends NodeTestCase
                 'selector_name',
             )),
             array('propertyValue', 'OperandDynamicPropertyValue', array(
-                'selector_name',
-                'property_name',
+                'selector_name.property_name',
             )),
         );
     }

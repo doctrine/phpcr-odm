@@ -63,9 +63,9 @@ class OperandDynamicFactory extends AbstractNode
      * @factoryMethod
      * @return OperandDynamicPropertyValue
      */
-    public function length($selectorName, $propertyName)
+    public function length($field)
     {
-        return $this->addChild(new OperandDynamicPropertyValue($this, $selectorName, $propertyName));
+        return $this->addChild(new OperandDynamicPropertyValue($this, $field));
     }
 
     /**
@@ -154,9 +154,9 @@ class OperandDynamicFactory extends AbstractNode
      * @factoryMethod
      * @return OperandDynamicPropertyValue
      */
-    public function propertyValue($selectorName, $propertyName)
+    public function propertyValue($field)
     {
-        return $this->addChild(new OperandDynamicPropertyValue($this, $selectorName, $propertyName));
+        return $this->addChild(new OperandDynamicPropertyValue($this, $field));
     }
 }
 
