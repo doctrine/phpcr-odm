@@ -39,6 +39,8 @@ use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\PathNotFoundException;
 use PHPCR\Util\ValueConverter;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Builder\BuilderConverterPhpcr;
 
 /**
  * Document Manager
@@ -531,17 +533,17 @@ class DocumentManager implements ObjectManager
     /**
      * Create the fluent query builder.
      *
-     * Query returned by QueryBuilder\Builder::getQuery()
+     * Query returned by QueryBuilder::getQuery()
      *
-     * @return Builder\Builder
+     * @return Builder\QueryBuilder
      */
     public function createQueryBuilder()
     {
-        $builder =  new Builder\Builder();
+        $builder =  new QueryBuilder();
 
         $qm = $this->session->getWorkspace()->getQueryManager();
         $qomf = $qm->getQOMFactory();
-        $converter = new Builder\BuilderConverterPhpcr($this, $qomf);
+        $converter = new BuilderConverterPhpcr($this, $qomf);
         $builder->setConverter($converter);
 
         return $builder;

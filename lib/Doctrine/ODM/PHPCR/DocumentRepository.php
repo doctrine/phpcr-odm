@@ -144,7 +144,7 @@ class DocumentRepository implements ObjectRepository
 
         if ($orderBy) {
             foreach ($orderBy as $ordering) {
-                $orderBy->ascending()->propertyValue($ordering);
+                $orderBy->ascending()->field($ordering);
             }
         }
 
@@ -157,7 +157,7 @@ class DocumentRepository implements ObjectRepository
                 $where = $qb->andWhere();
             }
 
-            $where->eq()->propertyValue('a', $field)->literal($value);
+            $where->eq()->field('a.'.$field)->literal($value);
         }
 
         return $qb->getQuery()->execute();

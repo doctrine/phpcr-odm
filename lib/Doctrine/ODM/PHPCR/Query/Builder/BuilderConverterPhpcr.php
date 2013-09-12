@@ -111,7 +111,7 @@ class BuilderConverterPhpcr
      *
      * @return Doctrine\ODM\PHPCR\Query\Query
      */
-    public function getQuery(Builder $builder)
+    public function getQuery(QueryBuilder $builder)
     {
         $from = $builder->getChildrenOfType(
             QBConstants::NT_FROM
@@ -402,6 +402,7 @@ class BuilderConverterPhpcr
             $node->getChildSelectorName(),
             $node->getParentSelectorName()
         );
+
         return $joinCon;
     }
 

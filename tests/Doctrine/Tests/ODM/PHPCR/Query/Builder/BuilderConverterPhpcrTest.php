@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Builder;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Jackalope\Query\QOM\QueryObjectModelFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\BuilderConverterPhpcr;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
@@ -65,7 +65,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     
         $this->converter = new BuilderConverterPhpcr($dm, $this->qomf);
 
-        $this->qb = new Builder();
+        $this->qb = new QueryBuilder();
         $this->qb->setConverter($this->converter);
     }
 

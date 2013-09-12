@@ -2,9 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Builder;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
-class BuilderTest extends NodeTestCase
+class QueryBuilderTest extends NodeTestCase
 {
     public function provideInterface()
     {
@@ -21,7 +21,7 @@ class BuilderTest extends NodeTestCase
     public function testNonExistantMethod()
     {
         $this->setExpectedException('BadMethodCallException', 
-            'Unknown method "foobar" called on class "Doctrine\ODM\PHPCR\Query\Builder\Builder", did you mean one of: "where, andWhere, orWhere'
+            'Unknown method "foobar" called on class'
         );
         $this->node->foobar();
     }

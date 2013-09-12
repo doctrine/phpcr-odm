@@ -124,7 +124,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\Builder', $qb);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder', $qb);
     }
 }
 

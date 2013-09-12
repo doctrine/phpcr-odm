@@ -12,7 +12,7 @@ use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class Builder extends AbstractNode
+class QueryBuilder extends AbstractNode
 {
     protected $converter;
     protected $firstResult;

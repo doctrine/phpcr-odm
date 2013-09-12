@@ -22,16 +22,34 @@ class SourceJoin extends AbstractNode
         return self::NT_SOURCE;
     }
 
+    /**
+     * "Left" source
+     *
+     * @factoryMethod
+     * @return SourceJoinLeft
+     */
     public function left()
     {
         return $this->addChild(new SourceJoinLeft($this));
     }
 
+    /**
+     * "Right" source
+     *
+     * @factoryMethod
+     * @return SourceJoinRight
+     */
     public function right()
     {
         return $this->addChild(new SourceJoinRight($this));
     }
 
+    /**
+     * Join condition
+     *
+     * @factoryMethod
+     * @return SourceJoinConditionFactory
+     */
     public function condition()
     {
         return $this->addChild(new SourceJoinConditionFactory($this));

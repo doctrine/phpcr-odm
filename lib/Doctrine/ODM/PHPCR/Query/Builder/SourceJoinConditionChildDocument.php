@@ -9,7 +9,7 @@ class SourceJoinConditionChildDocument extends AbstractLeafNode
 
     public function __construct($parent, $childSelectorName, $parentSelectorName)
     {
-        $this->childSelectorNode = (string) $childSelectorName;
+        $this->childSelectorName = (string) $childSelectorName;
         $this->parentSelectorName = (string) $parentSelectorName;
         parent::__construct($parent);
     }
