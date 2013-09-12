@@ -125,7 +125,7 @@ class ConstraintFactory extends AbstractNode
     /**
      * Child document constraint:
      *
-     *   $qb->where()->childDocument('/parent/path', 'sel_1')
+     *   $qb->where()->child('/parent/path', 'sel_1')
      *
      * @param string $parentPath
      * @param string $selectorName

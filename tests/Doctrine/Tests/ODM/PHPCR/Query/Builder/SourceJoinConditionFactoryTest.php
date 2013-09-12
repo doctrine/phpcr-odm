@@ -17,7 +17,7 @@ class SourceJoinConditionFactoryTest extends NodeTestCase
             array('equi', 'SourceJoinConditionEqui', array(
                 'selector1.property1', 'selector2.property2',
             )),
-            array('childDocument', 'SourceJoinConditionChildDocument', array(
+            array('child', 'SourceJoinConditionChildDocument', array(
                 'child_selector', 'parent_selector',
             )),
             array('sameDocument', 'SourceJoinConditionSameDocument', array(

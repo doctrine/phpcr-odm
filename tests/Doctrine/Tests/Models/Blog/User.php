@@ -16,5 +16,11 @@ class User
 
     /** @PHPCRODM\String */
     public $username;
+
+    /** @PHPCRODM\String */
+    public $name;
+
+    /** @PHPCRODM\String */
+    public $status;
 }
 

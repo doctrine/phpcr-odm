@@ -164,7 +164,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
             array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER),
 
             // conditions
-            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'childDocument'),
+            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'child'),
             array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'descendant'),
             array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'sameDocument'),
         );
@@ -181,8 +181,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 ->right()->document('barfoo', 'selector_2')->end();
 
         switch ($joinCond) {
-            case 'childDocument':
-                $n->condition()->childDocument('child_selector_name', 'parent_selector_name')->end();
+            case 'child':
+                $n->condition()->child('child_selector_name', 'parent_selector_name')->end();
                 break;
             case 'descendant':
                 $n->condition()->descendant('descendant_selector_name', 'ancestor_selector_name')->end();

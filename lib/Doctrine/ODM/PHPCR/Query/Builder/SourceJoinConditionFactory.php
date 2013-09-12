@@ -73,13 +73,13 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
      *       ->condition()
-     *         ->childDocument('sel_1', 'sel_2')
+     *         ->child('sel_1', 'sel_2')
      *       ->end()
      *     ->end()
      *
      * @return SourceJoinConditionDescendant
      */
-    public function childDocument($childSelectorName, $parentSelectorName)
+    public function child($childSelectorName, $parentSelectorName)
     {
         return $this->addChild(new SourceJoinConditionChildDocument($this, 
             $childSelectorName, $parentSelectorName
