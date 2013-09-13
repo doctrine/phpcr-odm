@@ -766,6 +766,10 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException("Field name must be of type string in '{$this->name}'.");
         }
 
+        if (empty($mapping['property'])) {
+            $mapping['property'] = $mapping['fieldName'];
+        }
+
         if ($phpcrLabel &&
             (!isset($mapping[$phpcrLabel]) || empty($mapping[$phpcrLabel]))
         ) {
@@ -1024,6 +1028,7 @@ class ClassMetadata implements ClassMetadataInterface
             return false;
         }
         return in_array($fieldName, $this->fieldMappings)
+            || $this->identifier === $fieldName
             || $this->localeMapping === $fieldName
             || $this->node === $fieldName
             || $this->nodename === $fieldName

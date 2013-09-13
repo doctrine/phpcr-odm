@@ -6,8 +6,11 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\CMS\CmsItem;
+use Doctrine\Tests\Models\Blog\User as BlogUser;
+use Doctrine\Tests\Models\Blog\Post;
+use Doctrine\Tests\Models\Blog\Comment;
+use PHPCR\Util\PathHelper;
+use PHPCR\Util\NodeHelper;
 
 /**
  * @group functional
@@ -28,23 +31,73 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
+        $session = $this->dm->getPhpcrSession();
 
-        $user = new CmsUser;
-        $user->username = 'dtl';
+        // comment
+        // post
+        // user
+        NodeHelper::createPath($session, '/functional/user');
+        NodeHelper::createPath($session, '/functional/post');
+        
+        $user = new BlogUser;
+        $user->id = '/functional/user/dtl';
         $user->name = 'daniel';
+        $user->username = 'dtl';
         $user->status = 'query_builder';
         $this->dm->persist($user);
 
-        $user = new CmsUser;
+        $user = new BlogUser;
+        $user->id = '/functional/user/js';
         $user->username = 'js';
         $user->name = 'johnsmith';
         $user->status = 'query_builder';
         $this->dm->persist($user);
 
-        $item = new CmsItem;
-        $item->name = 'johnsmith';
-        $item->id = '/functional/item1';
-        $this->dm->persist($item);
+        $user = new BlogUser;
+        $user->id = '/functional/user/js2';
+        $user->name = 'johnsmith';
+        $user->username = 'js2';
+        $user->status = 'another_johnsmith';
+        $this->dm->persist($user);
+
+        $post = new Post;
+        $post->id = '/functional/post/post_1';
+        $post->title = 'Post 2';
+        $post->username = 'dtl';
+        $this->dm->persist($post);
+
+        $comment1 = new Comment;
+        $comment1->id = '/functional/post/post_1/comment_1';
+        $comment1->title = 'Comment 1';
+        $this->dm->persist($comment1);
+
+        $comment2 = new Comment;
+        $comment2->id = '/functional/post/post_1/comment_2';
+        $comment2->title = 'Comment 1';
+        $this->dm->persist($comment2);
+
+        $reply1 = new Comment;
+        $reply1->id = '/functional/post/post_1/comment_1/reply_1';
+        $reply1->title = 'Reply to Comment 1';
+        $this->dm->persist($reply1);
+
+        $post = new Post;
+        $post->id = '/functional/post/post_2';
+        $post->title = 'Post 2';
+        $post->username = 'dtl';
+        $this->dm->persist($post);
+
+        $comment3 = new Comment;
+        $comment3->id = '/functional/post/post_2/comment_3';
+        $comment3->title = 'Comment 3';
+        $this->dm->persist($comment3);
+
+        $post3 = new Post;
+        $post3->id = '/functional/post/post_3';
+        $post3->title = 'Post 3';
+        $post3->username = 'js';
+        $this->dm->persist($post3);
+
         $this->dm->flush();
     }
 
@@ -54,57 +107,83 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         return $qb;
     }
 
-    protected function getDocs($q)
+    public function testFrom()
     {
-        $res = $this->dm->getDocumentsByPhpcrQuery($q);
-        return $res;
+        $qb = $this->createQb();
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+
+        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
+        $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(2, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testComparison()
     {
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured')->where($qb->expr()->eq('phpcr:class', 'Not Exist'));
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()
+            ->eq()
+                ->field('a.username')
+                ->literal('Not Exist')
+            ->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured')->where(
-            $qb->expr()->eq('username', 'dtl')
-        );
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()
+            ->eq()
+                ->field('a.username')
+                ->literal('dtl')
+            ->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
     }
 
+    /**
+     */
     public function testComposite()
     {
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured')->where(
-            $qb->expr()->orX(
-                $qb->expr()->eq('username', 'dtl'),
-                $qb->expr()->eq('username', 'js')
-            )
-        );
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()
+            ->orX()
+                ->eq()->field('a.username')->literal('dtl')->end()
+                ->eq()->field('a.username')->literal('js')->end()
+            ->end();
+
         $res = $qb->getQuery()->execute();
+
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] WHERE (username = 'dtl' OR username = 'js')";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((a.username = 'dtl' OR a.username = 'js') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
                 break;
             case 'sql':
-                $query = "SELECT s FROM nt:unstructured WHERE (username = 'dtl' OR username = 'js')";
+                $query = "SELECT s FROM nt:unstructured AS a WHERE (a.username = 'dtl' OR a,username = 'js')";
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
         }
+
         $this->assertEquals($query, $qb->__toString());
         $this->assertCount(2, $res);
 
-        $qb->andWhere($qb->expr()->eq('name', 'foobar'));
+        $qb->andWhere()
+            ->eq()->field('a.name')->literal('foobar');
+
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] WHERE ((username = 'dtl' OR username = 'js') AND name = 'foobar')";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE (((a.username = 'dtl' OR a.username = 'js') AND a.name = 'foobar') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
                 break;
             case 'sql':
-                $query = "SELECT s FROM nt:unstructured WHERE ((username = 'dtl' OR username = 'js') AND name = 'foobar')";
+                $this->markTestIncomplete('Not testing SQL for sql query language');
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -113,122 +192,136 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
-        $qb->orWhere($qb->expr()->eq('name', 'johnsmith'));
+        $qb->orWhere()
+            ->eq()->field('a.name')->literal('johnsmith');
+
         $res = $qb->getQuery()->execute();
+
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] WHERE (((username = 'dtl' OR username = 'js') AND name = 'foobar') OR name = 'johnsmith')";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((((a.username = 'dtl' OR a.username = 'js') AND a.name = 'foobar') OR a.name = 'johnsmith') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
                 break;
             case 'sql':
-                $query = "SELECT s FROM nt:unstructured WHERE (((username = 'dtl' OR username = 'js') AND name = 'foobar') OR name = 'johnsmith')";
+                $this->markTestIncomplete('Not testing SQL for sql query language');
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
         }
+
         $this->assertEquals($query, $qb->__toString());
         $this->assertCount(2, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testOrderBy()
     {
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured');
-        $qb->where($qb->expr()->eq('phpcr:class', 'nt:unstructured'));
-        $qb->where($qb->expr()->eq('status', 'query_builder'));
-        $qb->orderBy('username');
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
+        $qb->orderBy()->ascending()->field('a.username')->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('dtl', $res->first()->username);
 
-        $qb->orderBy('username', 'desc');
+        $qb->orderBy()->descending()->field('a.username')->end();
+
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('js', $res->first()->username);
+    }
+
+    /**
+     * Removes jcr:primaryType from row values,
+     * Jackrabbit does not return this, but doctrinedbal does.
+     */
+    protected function cleanValues($values)
+    {
+        if (isset($values['a.jcr:primaryType'])) {
+            unset($values['a.jcr:primaryType']);
+        }
+
+        return $values;
     }
 
     public function testSelect()
     {
         // select one property
         $qb = $this->createQb();
-        $qb->nodeType('nt:unstructured');
-        $qb->select('username');
-        $qb->where($qb->expr()->eq('username', 'dtl'));
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->select()->field('a.username');
+        $qb->where()
+            ->eq()
+                ->field('a.username')
+                ->literal('dtl')
+            ->end();
+
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
+        $values = $rows->current()->getValues('a');
+        $values = $this->cleanValues($values);
+
         $this->assertEquals(1, $rows->count());
-        $values = $rows->current()->getValues();
+
         switch ($qb->getQuery()->getLanguage()) {
-            case 'JCR-SQL2':
-                $this->assertEquals(array('nt:unstructured.username' => 'dtl', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+        case 'JCR-SQL2':
+                $this->assertEquals(array('a'), $result->getSelectorNames());
+                $this->assertEquals(array('a.username' => 'dtl'), $values);
                 break;
             case 'sql':
-                $this->assertEquals(array('s.username' => 'dtl'), $values);
+                $this->markTestIncomplete('Not testing SQL for sql query language');
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
         }
 
-        // select two properties
-        $qb->addSelect('name');
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
-        $values = $rows->current()->getValues();
+        $qb->addSelect()->field('a.name');
+
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
+        $values = $rows->current()->getValues('a');
+        $values = $this->cleanValues($values);
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $this->assertEquals(array('nt:unstructured.username' => 'dtl', 'nt:unstructured.name' => 'daniel', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+                $this->assertEquals(array('a'), $result->getSelectorNames());
+                $this->assertEquals(array(
+                    'a.username' => 'dtl', 
+                    'a.name' => 'daniel', 
+                ), $values);
                 break;
             case 'sql':
-                $this->assertEquals(array('s.username' => 'dtl', 's.name' => 'daniel' ), $values);
+                $this->markTestIncomplete('Not testing SQL for sql query language');
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
         }
 
         // select overwrite
-        $qb->select('status');
+        $qb->select()->field('a.status');
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
+        $values = $this->cleanValues($values);
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $this->assertEquals(array('nt:unstructured.status' => 'query_builder', 'nt:unstructured.jcr:primaryType' => 'nt:unstructured'), $values);
+                $this->assertEquals(array(
+                    'a.status' => 'query_builder', 
+                ), $values);
                 break;
             case 'sql':
-                $this->assertEquals(array('s.status' => 'query_builder'), $values);
+                $this->markTestIncomplete('Not testing SQL for sql query language');
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
         }
     }
 
-    public function testFrom()
-    {
-        $qb = $this->createQb();
-        $qb->from('Doctrine\Tests\Models\CMS\CmsUser');
-
-        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
-        $qb->where($qb->expr()->eq('status', 'query_builder'));
-        $res = $qb->getQuery()->execute();
-        $this->assertCount(2, $res);
-    }
-
-    public function testFromAll()
-    {
-        $qb = $this->createQb();
-
-        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
-        $qb->where($qb->expr()->eq('name', 'johnsmith'));
-        $res = $qb->getQuery()->execute();
-        $this->assertCount(2, $res);
-
-        $fqns = array(
-            get_class($res->current()),
-            get_class($res->next()),
-        );
-
-        $this->assertContains('Doctrine\Tests\Models\CMS\CmsUser', $fqns);
-        $this->assertContains('Doctrine\Tests\Models\CMS\CmsItem', $fqns);
-    }
-
+    /**
+     * @depends testFrom
+     */
     public function getTextSearches()
     {
         return array(
@@ -243,47 +336,139 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testTextSearch($field, $search, $resCount)
     {
         $qb = $this->createQb();
-        $qb->where($qb->expr()->textSearch($field, $search));
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()->fullTextSearch('a.'.$field, $search);
         $q = $qb->getQuery();
-
-        $where = $qb->getPart('where');
-
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\TextSearch', $where);
-        $this->assertEquals($field, $where->getField());
-        $this->assertEquals($search, $where->getSearch());
 
         $res = $q->execute();
 
         $this->assertCount($resCount, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testDescendant()
     {
         $qb = $this->createQb();
-        $qb->where($qb->expr()->descendant('/functional'));
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()->descendant('/functional', 'a')->end();
         $q = $qb->getQuery();
-
-        $where = $qb->getPart('where');
-
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\Descendant', $where);
-        $this->assertEquals('/functional', $where->getPath());
-
         $res = $q->execute();
         $this->assertCount(3, $res);
     }
 
+    /**
+     * @depends testFrom
+     */
     public function testSameNode()
     {
         $qb = $this->createQb();
-        $qb->where($qb->expr()->eqPath('/functional/dtl'));
+        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()->same('/functional/user/dtl', 'a');
         $q = $qb->getQuery();
-
-        $where = $qb->getPart('where');
-
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Expression\SameNode', $where);
-        $this->assertEquals('/functional/dtl', $where->getPath());
-
         $res = $q->execute();
+
         $this->assertCount(1, $res);
+    }
+
+    public function testJoinChildInner()
+    {
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+
+        $qb = $this->createQb();
+        $qb->from()
+            ->joinInner()
+                ->left()->document('Doctrine\Tests\Models\Blog\Comment', 'comment')->end()
+                ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
+                ->condition()->child('comment', 'post')->end()
+                ->end();
+
+        $q = $qb->getQuery();
+        $res = $q->getPhpcrNodeResult();
+        $nodes = $res->getNodes();
+
+        $this->assertCount(3, $nodes);
+        $this->assertEquals('/functional/post/post_1/comment_1', $nodes->current()->getPath());
+    }
+
+    public function testJoinChildInnerAdd()
+    {
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+
+        $qb = $this->createQb();
+        $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
+        $qb->addJoinInner()
+            ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
+            ->condition()->child('comment', 'post');
+
+        $q = $qb->getQuery();
+        $res = $q->getPhpcrNodeResult();
+        $nodes = $res->getNodes();
+
+        $this->assertCount(3, $nodes);
+        $this->assertEquals('/functional/post/post_1/comment_1', $nodes->current()->getPath());
+    }
+
+    /**
+     * @todo: Not sure how to conclusively test this in difference to testJoinInner
+     */
+    public function testJoinChildOuterLeft()
+    {
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+
+        $qb = $this->createQb();
+        $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
+        $qb->addJoinLeftOuter()
+            ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
+            ->condition()->child('comment', 'post');
+
+        $q = $qb->getQuery();
+        $res = $q->getPhpcrNodeResult();
+        $nodes = $res->getNodes();
+
+        $this->assertCount(3, $nodes);
+        $this->assertEquals('/functional/post/post_1/comment_1', $nodes->current()->getPath());
+        $this->assertInstanceOf('Doctrine\Tests\Models\Blog\Comment', $res->current());
+    }
+
+    /**
+     * @todo: Not sure how to conclusively test this in difference to testJoinInner
+     */
+    public function testJoinChildOuterRight()
+    {
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+
+        $qb = $this->createQb();
+        $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
+        $qb->addJoinRightOuter()
+            ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
+            ->condition()->child('comment', 'post');
+
+        $q = $qb->getQuery();
+        $res = $q->execute();
+
+        $this->assertCount(1, $res);
+        $this->assertEquals('/functional/post/post_1/comment_1', $res->current()->id);
+        $this->assertInstanceOf('Doctrine\Tests\Models\Blog\Comment', $res->current());
+    }
+
+    public function testJoinEqui()
+    {
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+
+        $qb = $this->createQb();
+        $qb->fromDocument('Doctrine\Tests\Models\Blog\Post', 'post');
+        $qb->addJoinInner()
+            ->right()->document('Doctrine\Tests\Models\Blog\User', 'user')->end()
+            ->condition()->equi('post.username', 'user.username');
+
+        $qb->where()->eq()->field('user.name')->literal('daniel');
+
+        $q = $qb->getQuery();
+        $res = $q->execute();
+
+        $this->assertCount(1, $res);
+        $this->assertInstanceOf('Doctrine\Tests\Models\Blog\Post', $res->current());
     }
 }
