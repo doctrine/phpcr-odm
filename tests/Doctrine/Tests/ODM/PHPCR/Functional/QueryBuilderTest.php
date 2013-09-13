@@ -233,6 +233,19 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertEquals('js', $res->first()->username);
     }
 
+    /**
+     * Removes jcr:primaryType from row values,
+     * Jackrabbit does not return this, but doctrinedbal does.
+     */
+    protected function cleanValues($values)
+    {
+        if (isset($values['a.jcr:primaryType'])) {
+            unset($values['a.jcr:primaryType']);
+        }
+
+        return $values;
+    }
+
     public function testSelect()
     {
         // select one property
@@ -248,10 +261,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $result = $qb->getQuery()->getPhpcrNodeResult();
         $rows = $result->getRows();
         $values = $rows->current()->getValues('a');
+        $values = $this->cleanValues($values);
+
         $this->assertEquals(1, $rows->count());
 
         switch ($qb->getQuery()->getLanguage()) {
-            case 'JCR-SQL2':
+        case 'JCR-SQL2':
                 $this->assertEquals(array('a'), $result->getSelectorNames());
                 $this->assertEquals(array('a.username' => 'dtl'), $values);
                 break;
@@ -267,6 +282,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $result = $qb->getQuery()->getPhpcrNodeResult();
         $rows = $result->getRows();
         $values = $rows->current()->getValues('a');
+        $values = $this->cleanValues($values);
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
@@ -287,6 +303,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->select()->field('a.status');
         $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
         $values = $rows->current()->getValues();
+        $values = $this->cleanValues($values);
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
