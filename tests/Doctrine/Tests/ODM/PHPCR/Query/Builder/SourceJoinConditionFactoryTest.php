@@ -26,7 +26,3 @@ class SourceJoinConditionFactoryTest extends NodeTestCase
         );
     }
 }
-
-
-
-

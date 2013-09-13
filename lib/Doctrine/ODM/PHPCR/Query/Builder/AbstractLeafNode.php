@@ -57,12 +57,12 @@ abstract class AbstractLeafNode extends AbstractNode
 
         if (count($parts) == 2) {
             return $parts;
-        } else {
-            throw new \RuntimeException(sprintf(
-                'Invalid field specification, '.
-                'expected string like "[selector_name].[field_name]", got "%s"',
-                $field
-            ));
         }
+
+        throw new \RuntimeException(sprintf(
+            'Invalid field specification, '.
+            'expected string like "[selector_name].[field_name]", got "%s"',
+            $field
+        ));
     }
 }

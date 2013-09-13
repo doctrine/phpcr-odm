@@ -6,9 +6,13 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
+use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
 
 /**
  * Base QueryBuilder node.
+ *
+ * @IgnoreException('factoryMethod')
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -143,7 +147,7 @@ class QueryBuilder extends AbstractNode
      */
     private function addJoin($joinType)
     {
-        throw new \InvalidArgumentException(__METHOD__.' not supported yet');
+        throw new PHPCRBadMethodCallException(__METHOD__.' not supported yet');
 
         $from = $this->getChildOfType(QBConstants::NT_FROM);
         $curSource = $from->getChild(QBConstants::NT_SOURCE);

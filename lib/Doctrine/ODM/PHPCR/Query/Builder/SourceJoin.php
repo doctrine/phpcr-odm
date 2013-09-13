@@ -6,6 +6,8 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
 /**
  * $from->joinInner()->left()->document()->
+ *
+ * @IgnoreAnnotation("factoryMethod")
  */
 class SourceJoin extends AbstractNode
 {
@@ -69,4 +71,3 @@ class SourceJoin extends AbstractNode
         );
     }
 }
-

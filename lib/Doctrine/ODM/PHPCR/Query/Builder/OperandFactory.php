@@ -11,6 +11,8 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  *
  * Traits would be really useful here.
  *
+ * @IgnoreAnnotation("factoryMethod")
+ *
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class OperandFactory extends OperandDynamicFactory

@@ -244,7 +244,6 @@ abstract class AbstractNode
         }
 
         if (count($children) > 1) {
-            var_dump($children);
             throw new \OutOfBoundsException(sprintf(
                 'More than one child node but getChild will only ever return one. "%d" returned.',
                 count($children)

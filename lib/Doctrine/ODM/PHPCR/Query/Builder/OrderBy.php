@@ -10,6 +10,8 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  * Query results can be ordered by any dynamic operand
  * in either ascending or descending order.
  *
+ * @IgnoreAnnotation("factoryMethod")
+ *
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class OrderBy extends AbstractNode

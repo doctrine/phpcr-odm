@@ -2,6 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+/**
+ * @IgnoreAnnotation("factoryMethod")
+ */
 class Select extends AbstractNode
 {
     public function getCardinalityMap()

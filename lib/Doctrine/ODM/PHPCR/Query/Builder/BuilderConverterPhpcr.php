@@ -8,6 +8,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
@@ -56,8 +57,7 @@ class BuilderConverterPhpcr
     public function __construct(
         DocumentManager $dm, 
         QueryObjectModelFactoryInterface $qomf
-    )
-    {
+    ) {
         $this->qomf = $qomf;
         $this->mdf = $dm->getMetadataFactory();
         $this->dm = $dm;
@@ -213,7 +213,7 @@ class BuilderConverterPhpcr
         $methodName = sprintf('walk%s', $node->getName());
 
         if (!method_exists($this, $methodName)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new PHPCRInvalidArgumentException(sprintf(
                 'Do not know how to walk node of type "%s"',
                 $node->getName()
             ));

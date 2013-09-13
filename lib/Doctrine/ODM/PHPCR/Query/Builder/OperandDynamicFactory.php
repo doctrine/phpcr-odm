@@ -12,6 +12,8 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  * "left hand side" (lop) operands in comparisons and
  * in orderings.
  *
+ * @IgnoreAnnotation("factoryMethod")
+ *
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class OperandDynamicFactory extends AbstractNode

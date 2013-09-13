@@ -15,7 +15,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $that = $this;
+        $me = $this;
         // note: this "factory" seems unnecessary in current jackalope
         //       implementation
         $this->qomfFactory = $this->getMock('Jackalope\FactoryInterface');
@@ -28,14 +28,14 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $mdf->expects($this->any())
             ->method('getMetadataFor')
-            ->will($this->returnCallback(function ($documentFqn) use ($that) {
-                $meta = $that->getMockBuilder(
+            ->will($this->returnCallback(function ($documentFqn) use ($me) {
+                $meta = $me->getMockBuilder(
                     'Doctrine\ODM\PHPCR\Mapping\ClassMetadata'
                 )->disableOriginalConstructor()->getMock();
 
-                $meta->expects($this->any())
+                $meta->expects($me->any())
                     ->method('getField')
-                    ->will($this->returnCallback(function ($name) {
+                    ->will($me->returnCallback(function ($name) {
                         $res = array(
                             'fieldName' => $name,
                             'property' => $name.'_phpcr',
@@ -44,9 +44,9 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                         return $res;
                     }));
 
-                $meta->expects($this->any())
+                $meta->expects($me->any())
                     ->method('getNodeType')
-                    ->will($this->returnValue('nt:unstructured'));
+                    ->will($me->returnValue('nt:unstructured'));
 
                 return $meta;
             }));
@@ -401,7 +401,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 'add_child_operand' => true,
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
-                    $this->assertInstanceOf(
+                    $test->assertInstanceOf(
                         'PHPCR\Query\QOM\NodeLocalNameInterface',
                         $op
                    );
@@ -412,7 +412,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 'add_child_operand' => true,
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
-                    $this->assertInstanceOf(
+                    $test->assertInstanceOf(
                         'PHPCR\Query\QOM\NodeLocalNameInterface',
                         $op
                    );
@@ -532,17 +532,17 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     'PHPCR\Query\QOM\OrInterface', $constraint->getConstraint2()
                 );
                 $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
-                $this->assertEquals(
+                $me->assertEquals(
                     'phpcr:class', $phpcrClassConstraint->getOperand1()->getPropertyName()
                 );
-                $this->assertEquals(
+                $me->assertEquals(
                     'Fooar', $phpcrClassConstraint->getOperand2()->getLiteralValue()
                 );
                 $phpcrClassParentsConstraint = $constraint->getConstraint2()->getConstraint2();
-                $this->assertEquals(
+                $me->assertEquals(
                     'phpcr:classparents', $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
                 );
-                $this->assertEquals(
+                $me->assertEquals(
                     'Fooar', $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
                 );
 

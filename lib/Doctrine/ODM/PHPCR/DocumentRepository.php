@@ -24,6 +24,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -146,7 +147,7 @@ class DocumentRepository implements ObjectRepository
             foreach ($orderBy as $field => $order) {
                 $order = strtolower($order);
                 if (!in_array($order, array('asc', 'desc'))) {
-                    throw new \InvalidArgumentException(sprintf(
+                    throw new PHPCRInvalidArgumentException(sprintf(
                         'Invalid order specified by order, expected either "asc" or "desc", got "%s"',
                         $order
                     ));

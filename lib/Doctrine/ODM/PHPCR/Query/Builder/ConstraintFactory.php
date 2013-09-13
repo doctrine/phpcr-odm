@@ -4,6 +4,9 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
+/**
+ * @IgnoreAnnotation("factoryMethod")
+ */
 class ConstraintFactory extends AbstractNode
 {
     public function getCardinalityMap()
@@ -34,7 +37,6 @@ class ConstraintFactory extends AbstractNode
     {
         return $this->addChild(new ConstraintAndx($this));
     }
-
 
     /**
      * Or composite constraint:

@@ -357,7 +357,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinChildInner()
     {
-        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->from()
@@ -377,7 +377,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinChildInnerAdd()
     {
-        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
@@ -398,7 +398,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     public function testJoinChildOuterLeft()
     {
-        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
@@ -420,7 +420,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     public function testJoinChildOuterRight()
     {
-        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
@@ -438,7 +438,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinEqui()
     {
-        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Post', 'post');
