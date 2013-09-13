@@ -7,6 +7,14 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class FromTest extends NodeTestCase
 {
+    /**
+     * @dataProvider provideInterface
+     */
+    public function testInterface($method, $type, $args = array())
+    {
+        $this->markTestSkipped('Joins temporarily disabled');
+    }
+
     public function provideInterface()
     {
         return array(

@@ -74,9 +74,8 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()->fullTextSearch('prop_1', 'search_expression', 'sel_1')
      *
-     * @param string $propertyName
+     * @param string $field
      * @param string $fullTextSearchExpression
-     * @param string $selectorName
      *
      * @factoryMethod
      * @return ConstraintFullTextSearch
@@ -99,7 +98,7 @@ class ConstraintFactory extends AbstractNode
      * @factoryMethod
      * @return ConstraintSame
      */
-    public function same($selectorName, $path)
+    public function same($path, $selectorName)
     {
         return $this->addChild(new ConstraintSame($this, $selectorName, $path));
     }
@@ -117,7 +116,7 @@ class ConstraintFactory extends AbstractNode
      * @factoryMethod
      * @return ConstraintDescendant
      */
-    public function descendant($selectorName, $ancestorPath)
+    public function descendant($ancestorPath, $selectorName)
     {
         return $this->addChild(new ConstraintDescendant($this, $selectorName, $ancestorPath));
     }
@@ -135,7 +134,7 @@ class ConstraintFactory extends AbstractNode
      * @factoryMethod
      * @return ConstraintChild
      */
-    public function child($selectorName, $parentPath)
+    public function child($parentPath, $selectorName)
     {
         return $this->addChild(new ConstraintChild($this, $selectorName, $parentPath));
     }

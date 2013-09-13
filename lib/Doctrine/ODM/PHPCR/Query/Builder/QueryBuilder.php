@@ -143,6 +143,8 @@ class QueryBuilder extends AbstractNode
      */
     private function addJoin($joinType)
     {
+        throw new \InvalidArgumentException(__METHOD__.' not supported yet');
+
         $from = $this->getChildOfType(QBConstants::NT_FROM);
         $curSource = $from->getChild(QBConstants::NT_SOURCE);
 

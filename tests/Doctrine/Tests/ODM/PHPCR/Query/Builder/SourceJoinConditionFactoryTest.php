@@ -20,7 +20,7 @@ class SourceJoinConditionFactoryTest extends NodeTestCase
             array('child', 'SourceJoinConditionChildDocument', array(
                 'child_selector', 'parent_selector',
             )),
-            array('sameDocument', 'SourceJoinConditionSameDocument', array(
+            array('same', 'SourceJoinConditionSameDocument', array(
                 'selector_1', 'selector_2', '/path/to/doc',
             )),
         );

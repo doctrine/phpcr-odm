@@ -94,13 +94,13 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
      *       ->condition()
-     *         ->sameDocument('sel_1', 'sel_2', '/path_to/sel_2/document')
+     *         ->same('sel_1', 'sel_2', '/path_to/sel_2/document')
      *       ->end()
      *     ->end()
      *
      * @return SourceJoinConditionDescendant
      */
-    public function sameDocument($selector1Name, $selector2Name, $selector2Path)
+    public function same($selector1Name, $selector2Name, $selector2Path)
     {
         return $this->addChild(new SourceJoinConditionSameDocument($this, 
             $selector1Name, $selector2Name, $selector2Path

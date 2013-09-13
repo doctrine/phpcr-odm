@@ -140,11 +140,21 @@ class DocumentRepository implements ObjectRepository
             $qb->setFirstResult($offset);
         }
 
-        $orderBy = $qb->orderBy();
+        $orderByNode = $qb->orderBy();
 
         if ($orderBy) {
-            foreach ($orderBy as $ordering) {
-                $orderBy->ascending()->field($ordering);
+            foreach ($orderBy as $field => $order) {
+                $order = strtolower($order);
+                if (!in_array($order, array('asc', 'desc'))) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Invalid order specified by order, expected either "asc" or "desc", got "%s"',
+                        $order
+                    ));
+                }
+
+                $method = $order == 'asc' ? 'ascending' : 'descending';
+
+                $orderByNode->$method()->field('a.'.$field);
             }
         }
 

@@ -175,6 +175,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      */
     public function testDispatchFromJoin($method, $type, $joinCond = null)
     {
+        $this->markTestSkipped('Joins temporarily disabled');
+
         $n = $this->qb->from()
             ->$method()
                 ->left()->document('foobar', 'selector_1')->end()

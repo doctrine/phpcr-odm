@@ -331,7 +331,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         $qb = $this->createQb();
         $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
-        $qb->where()->descendant('a', '/functional')->end();
+        $qb->where()->descendant('/functional', 'a')->end();
         $q = $qb->getQuery();
         $res = $q->execute();
         $this->assertCount(3, $res);
@@ -344,7 +344,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         $qb = $this->createQb();
         $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
-        $qb->where()->same('a', '/functional/user/dtl');
+        $qb->where()->same('/functional/user/dtl', 'a');
         $q = $qb->getQuery();
         $res = $q->execute();
 
@@ -353,6 +353,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinChildInner()
     {
+        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+
         $qb = $this->createQb();
         $qb->from()
             ->joinInner()
@@ -371,6 +373,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinChildInnerAdd()
     {
+        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
         $qb->addJoinInner()
@@ -390,6 +394,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     public function testJoinChildOuterLeft()
     {
+        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
         $qb->addJoinLeftOuter()
@@ -410,6 +416,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     public function testJoinChildOuterRight()
     {
+        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
         $qb->addJoinRightOuter()
@@ -426,6 +434,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinEqui()
     {
+        $this->setExpectedException('InvalidArgumentException', 'not supported yet');
+
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Post', 'post');
         $qb->addJoinInner()

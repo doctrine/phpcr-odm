@@ -60,6 +60,8 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinInner()
     {
+        throw new \InvalidArgumentException(__METHOD__.' not supported yet');
+
         return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_INNER
         ));
@@ -82,6 +84,8 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinLeftOuter()
     {
+        throw new \InvalidArgumentException(__METHOD__.' not supported yet');
+
         return $this->addChild(new SourceJoin($this, 
             QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER
         ));
@@ -104,6 +108,8 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinRightOuter()
     {
+        throw new \InvalidArgumentException(__METHOD__.' not supported yet');
+
         return $this->addChild(new SourceJoin($this, 
             QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER
         ));
