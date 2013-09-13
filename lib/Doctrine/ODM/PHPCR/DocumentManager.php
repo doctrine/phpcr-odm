@@ -30,7 +30,6 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterf
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
-use Doctrine\ODM\PHPCR\Query\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
@@ -40,6 +39,8 @@ use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\PathNotFoundException;
 use PHPCR\Util\ValueConverter;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Builder\BuilderConverterPhpcr;
 
 /**
  * Document Manager
@@ -532,16 +533,20 @@ class DocumentManager implements ObjectManager
     /**
      * Create the fluent query builder.
      *
-     * After building your query, use DocumentManager::getDocumentsByPhpcrQuery with the
-     * query returned by QueryBuilder::getQuery()
+     * Query returned by QueryBuilder::getQuery()
      *
-     * @return QueryBuilder
+     * @return Builder\QueryBuilder
      */
     public function createQueryBuilder()
     {
-        $qm = $this->session->getWorkspace()->getQueryManager();
+        $builder =  new QueryBuilder();
 
-        return new QueryBuilder($this, $qm->getQOMFactory());
+        $qm = $this->session->getWorkspace()->getQueryManager();
+        $qomf = $qm->getQOMFactory();
+        $converter = new BuilderConverterPhpcr($this, $qomf);
+        $builder->setConverter($converter);
+
+        return $builder;
     }
 
     /**

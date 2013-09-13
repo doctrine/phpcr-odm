@@ -107,11 +107,15 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $users3 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), null, 1);
         $this->assertCount(1, $users3);
 
-        $users4 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name'), 2, 0);
+        $users4 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name' => 'asc'), 2, 0);
         $this->assertEquals('/functional/beberlei', $users4->key());
 
-        $users5 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name'), 2, 1);
+        $users5 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name' => 'asc'), 2, 1);
         $this->assertEquals('/functional/lsmith', $users5->key());
+
+        // test descending order
+        $users6 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name' => 'desc'));
+        $this->assertEquals('/functional/lsmith', $users6->key());
     }
 
     public function testFindOneBy()
@@ -137,4 +141,3 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $this->assertEquals(null, $users2);
     }
 }
-

@@ -24,6 +24,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -131,9 +132,7 @@ class DocumentRepository implements ObjectRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
-        $qb = $this->dm->createQueryBuilder();
-
-        $qb->from($this->className);
+        $qb = $this->createQueryBuilder('a');
 
         if ($limit) {
             $qb->setMaxResults($limit);
@@ -141,15 +140,35 @@ class DocumentRepository implements ObjectRepository
         if ($offset) {
             $qb->setFirstResult($offset);
         }
+
+        $orderByNode = $qb->orderBy();
+
         if ($orderBy) {
-            foreach ($orderBy as $ordering) {
-                $qb->addOrderBy($ordering);
+            foreach ($orderBy as $field => $order) {
+                $order = strtolower($order);
+                if (!in_array($order, array('asc', 'desc'))) {
+                    throw new PHPCRInvalidArgumentException(sprintf(
+                        'Invalid order specified by order, expected either "asc" or "desc", got "%s"',
+                        $order
+                    ));
+                }
+
+                $method = $order == 'asc' ? 'ascending' : 'descending';
+
+                $orderByNode->$method()->field('a.'.$field);
             }
         }
+
+        $first = true;
         foreach ($criteria as $field => $value) {
-            $qb->andWhere(
-                $qb->expr()->eq($field, $value)
-            );
+            if ($first) {
+                $first = false;
+                $where = $qb->where();
+            } else {
+                $where = $qb->andWhere();
+            }
+
+            $where->eq()->field('a.'.$field)->literal($value);
         }
 
         return $qb->getQuery()->execute();
@@ -290,12 +309,12 @@ class DocumentRepository implements ObjectRepository
      *       use ->andWhere(...) as ->where(...) will overwrite
      *       the class criteria.
      *
-     * @return \Doctrine\ODM\PHPCR\Query\QueryBuilder
+     * @return \Doctrine\ODM\PHPCR\Query\Builder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder($selectorName)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->from($this->className);
+        $qb->from()->document($this->className, $selectorName);
 
         return $qb;
     }
