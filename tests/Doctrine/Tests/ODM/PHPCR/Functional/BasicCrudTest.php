@@ -2,11 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
-    Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
 use PHPCR\PropertyType;
+
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @group functional
@@ -81,7 +82,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testInsertTwice()
     {
@@ -267,7 +268,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testRemoveAndInsertBeforeFlush()
     {
@@ -382,7 +383,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotInstanceOf($this->type, $user);
 
         $this->dm->getConfiguration()->setValidateDoctrineMetadata(true);
-        $this->setExpectedException('InvalidArgumentException');
+        $this->setExpectedException('\Doctrine\ODM\PHPCR\PHPCRException');
         $this->dm->find($this->type, '/functional/user');
     }
 

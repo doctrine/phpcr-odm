@@ -36,7 +36,7 @@ class LocaleChooserTest extends PHPCRTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\MissingTranslationException
      */
     public function testGetPreferredLocalesOrderNonexisting()
     {
@@ -60,7 +60,7 @@ class LocaleChooserTest extends PHPCRTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\MissingTranslationException
      */
     public function testSetLocaleNonexisting()
     {

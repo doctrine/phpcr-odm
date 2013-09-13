@@ -19,8 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use InvalidArgumentException;
-
 use Doctrine\ODM\PHPCR\DocumentManager;
 
 use PHPCR\NodeInterface;
@@ -78,7 +76,8 @@ class DocumentClassMapper implements DocumentClassMapperInterface
             $class = $dm->getClassMetadata(get_class($document));
             $path = $class->getIdentifierValue($document);
             $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata at path '$path'";
-            throw new InvalidArgumentException($msg);
+
+            throw new PHPCRException($msg);
         }
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
-class IdException extends \RuntimeException
+use Doctrine\ODM\PHPCR\PHPCRException;
+
+class IdException extends PHPCRException
 {
     public static function noIdentificationParameters($document, $parent, $nodename)
     {

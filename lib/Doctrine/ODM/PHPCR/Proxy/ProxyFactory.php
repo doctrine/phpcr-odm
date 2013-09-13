@@ -28,8 +28,8 @@ use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
+use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
 use ReflectionProperty;
-use InvalidArgumentException;
 
 /**
  * This factory is used to create proxy objects for entities at runtime.

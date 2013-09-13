@@ -19,11 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Event;
 use ReflectionProperty;
 use ReflectionClass;
 use PHPCR\PropertyType;
-use InvalidArgumentException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
@@ -511,7 +511,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function setVersioned($versionable)
     {
         if ($versionable && !in_array($versionable, self::$validVersionableAnnotations)) {
-            throw new \InvalidArgumentException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
+            throw new MappingException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
         }
         $this->versionable = $versionable;
     }
@@ -852,11 +852,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if(!empty($this->versionNameField) && !$this->versionable){
-            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
+            throw new MappingException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
         }
 
         if(!empty($this->versionCreatedField) && !$this->versionable){
-            throw new \InvalidArgumentException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
+            throw new MappingException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
         }
 
         if (count($this->translatableFields)) {
@@ -1155,7 +1155,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function getAssociationTargetClass($fieldName)
     {
         if (!in_array($fieldName, $this->referenceMappings)) {
-            throw new InvalidArgumentException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
+            throw new MappingException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
         }
 
         return $this->mappings[$fieldName]['targetDocument'];

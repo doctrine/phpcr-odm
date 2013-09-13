@@ -57,7 +57,7 @@ interface DocumentClassMapperInterface
      * @param object          $document
      * @param string          $className
      *
-     * @throws \InvalidArgumentException if document is not of type $className
+     * @throws PHPCRException if document is not of type $className
      */
     public function validateClassName(DocumentManager $dm, $document, $className);
 }
