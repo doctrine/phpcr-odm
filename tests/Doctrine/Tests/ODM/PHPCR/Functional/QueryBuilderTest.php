@@ -245,12 +245,14 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
                 ->literal('dtl')
             ->end();
 
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
+        $values = $rows->current()->getValues('a');
         $this->assertEquals(1, $rows->count());
-        $values = $rows->current()->getValues();
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
+                $this->assertEquals(array('a'), $result->getSelectorNames());
                 $this->assertEquals(array('a.username' => 'dtl'), $values);
                 break;
             case 'sql':
@@ -262,11 +264,13 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         $qb->addSelect()->field('a.name');
 
-        $rows = $qb->getQuery()->getPhpcrNodeResult()->getRows();
-        $values = $rows->current()->getValues();
+        $result = $qb->getQuery()->getPhpcrNodeResult();
+        $rows = $result->getRows();
+        $values = $rows->current()->getValues('a');
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
+                $this->assertEquals(array('a'), $result->getSelectorNames());
                 $this->assertEquals(array(
                     'a.username' => 'dtl', 
                     'a.name' => 'daniel', 
