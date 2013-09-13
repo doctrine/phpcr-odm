@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Id;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
 
 /**
  * Used to abstract ID generation
@@ -57,7 +58,7 @@ abstract class IdGenerator
                 break;
 
             default:
-                throw new \InvalidArgumentException("ID Generator does not exist: $generatorType");
+                throw new PHPCRInvalidArgumentException("ID Generator does not exist: $generatorType");
         }
 
         return $instance;

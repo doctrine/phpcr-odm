@@ -63,7 +63,7 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testRefreshDetached()
     {

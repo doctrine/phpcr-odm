@@ -67,7 +67,7 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
                 $qomOperator = QOMConstant::JCR_OPERATOR_LIKE;
                 break;
             default:
-                throw new \InvalidArgumentException("Unsupported operator $operator");
+                throw new QueryException("Unsupported operator $operator");
         }
 
         if ($comparison instanceof NodeLocalName) {
@@ -97,7 +97,7 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
         }
 
         if (count($constraintList) < 2) {
-            throw new \RuntimeException(sprintf(
+            throw new QueryException(sprintf(
                 'Composite "%s" must have at least two constraints! (%d given)',
                 $expr->getType(),
                 count($constraintList)
@@ -112,7 +112,7 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
                 $method = 'orConstraint';
                 break;
             default:
-                throw new \RuntimeException("Unknown composite " . $expr->getType());
+                throw new QueryException("Unknown composite " . $expr->getType());
         }
 
         $firstConstraint = array_shift($constraintList);
@@ -197,7 +197,7 @@ class PhpcrExpressionVisitor extends ExpressionVisitor
                 return $this->walkSameNode($expr);
 
             default:
-                throw new \RuntimeException("Unknown Expression " . get_class($expr));
+                throw new QueryException("Unknown Expression " . get_class($expr));
         }
     }
 }

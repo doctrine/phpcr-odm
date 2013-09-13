@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\Models\Translation\InvalidMapping;
@@ -34,7 +35,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     protected $node;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * @var ClassMetadata
      */
     protected $metadata;
 
@@ -166,7 +167,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         try {
             $this->dm->removeTranslation($this->doc, 'fr');
             $this->fail('Last translation should not be removable');
-        } catch (\RuntimeException $e) {
+        } catch (PHPCRException $e) {
 
         }
     }
@@ -438,7 +439,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\MissingTranslationException
      */
     public function testFindTranslationWithInvalidLanguageFallback()
     {
@@ -619,7 +620,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testInvalidTranslationStrategy()
     {
@@ -634,7 +635,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * bindTranslation with a document that is not persisted should fail
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
      */
     public function testBindTranslationWithoutPersist()
     {

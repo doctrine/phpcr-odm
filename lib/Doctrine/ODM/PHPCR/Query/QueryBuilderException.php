@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query;
 
-class QueryBuilderException extends \Exception
+class QueryBuilderException extends QueryException
 {
     public static function unknownPart($part, $parts)
     {
