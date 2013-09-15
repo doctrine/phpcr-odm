@@ -22,9 +22,11 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\ODM\PHPCR\Query\Builder\Builder;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Input\InputArgument;
 
 /**
  * Dump a structure reference of the query builder.
@@ -45,20 +47,215 @@ class DumpQueryBuilderReferenceCommand extends Command
     {
         $this
             ->setName('doctrine:phpcr:qb:dump-reference')
-            ->addOption('depth', null, InputOption::VALUE_REQUIRED, 'Depth of reference dump', 3)
-            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'Depth of reference dump', 
-                ':indent:<comment> -> </comment>:method:(<comment>:args:</comment>) : <info>:nodeType:</info> [:cMin:..:cMax:]'
-            )
+            ->addArgument('search', InputArgument::OPTIONAL)
+            ->addOption('format-rst', null, InputOption::VALUE_NONE)
             ->setDescription('Splurge the structure of the query builder to stdOut');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->formatString = $input->getOption('format');
-        $this->depth = $input->getOption('depth');
-        $nodeAssocMap = array();
+        $style = new OutputFormatterStyle('blue');
+        $output->getFormatter()->setStyle('blue', $style);
+        $style = new OutputFormatterStyle('green', null, array('bold'));
+        $output->getFormatter()->setStyle('keyword', $style);
+        $style = new OutputFormatterStyle('magenta', null, array('bold'));
+        $output->getFormatter()->setStyle('class', $style);
+
+        $formatRst = $input->getOption('format-rst');
+
+        $search = $input->getArgument('search');
+
+        $map = $this->buildMap();
+
+        if ($search) {
+            foreach (array_keys($map['nodeMap']) as $type) {
+                if (!preg_match('&'.$search.'&', $type)) {
+                    unset($map['nodeMap'][$type]);
+                }
+            }
+        }
+
+        if ($map) {
+            if ($formatRst) {
+                $out = implode("\n", $this->formatMapRst($map));
+            } else {
+                $out = implode("\n", $this->formatMap($map));
+            }
+        } else {
+            $output->writeln('<info>Nothing found for search </info>'.$search);
+            return 0;
+        }
+
+        $output->writeln($out);
+    }
+
+    protected function formatMap($map)
+    {
+        $out = array();
+
+        foreach ($map['nodeMap'] as $nClass => $nData) {
+            if ($nData['parent']) {
+                $out[] = sprintf('<class>%s</class> (%s) <keyword>extends</keyword> <class>%s</class>', $nClass, $nData['nodeType'], $nData['parent']);
+            } else {
+                $out[] = sprintf('<class>%s</class> (%s)', $nClass, $nData['nodeType']);
+            }
+            $out[] = $nData['doc'];
+
+            // dump cardinality map
+            foreach ($nData['cardMap'] as $cnType => $cnLimits) {
+                list($cMin, $cMax) = $cnLimits;
+                $out[] = sprintf('  [%s..%s] <blue>%s</blue>',
+                    $cMin, $cMax ? $cMax : '*', $cnType
+                );
+            }
+
+
+            foreach ($nData['fMeths'] as $fMeth => $fData) {
+                $out[] = sprintf('  -><info>%s</info>(<comment>%s</comment>) : <class>%s</class> (<blue>%s</blue>)',
+                    $fMeth,
+                    implode(', ', $fData['args']),
+                    $fData['rType'],
+                    $fData['rNodeType']
+                );
+            }
+        }
+
+        return $out;
+    }
+
+    protected function formatMapRst($map)
+    {
+        $f = array(
+            'humanize' => function ($string) {
+                $string = str_replace('_', ' ', $string);
+                return ucfirst($string);
+            },
+            'genRef' => function ($string, $prefix) {
+                $ref = strtolower($string);
+                return sprintf(':ref:`%s <qbref_%s_%s>`', $string, $prefix, $ref);
+            },
+            'genAnc' => function ($string, $prefix) {
+                $ref = strtolower($string);
+                return sprintf('.. _qbref_%s_%s:', $prefix, $ref);
+            },
+            'underline' => function ($string, $underChar = '=') {
+                return str_repeat($underChar, strlen($string));
+            },
+            'formatDoc' => function ($string) {
+                $out = array();
+                $indent = 0;
+                foreach (explode("\n", $string) as $line) {
+                    if (strstr($line, '<code>')) {
+                        $out[] = '.. code-block:: php';
+                        $indent = 4;
+                        $out[] = str_repeat(' ', $indent);
+                        $out[] = str_repeat(' ', $indent).'<?php';
+                    } elseif (strstr($line, '</code>')) {
+                        $indent = 0;
+                        $out[] = '';
+                    } else {
+                        $out[] = str_repeat(' ', $indent).$line;
+                    }
+                }
+
+                return implode("\n", $out);
+            }
+        );
+
+
+        $out = array();
+        $out[] = 'Query Builder Reference';
+        $out[] = '=======================';
+        $out[] = '';
+        $out[] = '.. note::';
+        $out[] = '';
+        $out[] = '    This is document is generated by the PHPCR-ODM';
+        $out[] = '';
+        $out[] = 'Node Type Index';
+        $out[] = '---------------';
+        $out[] = '';
+
+        foreach ($map['nodeTypeIndex'] as $nType => $nClasses) {
+            $out[] = $f['genAnc']($nType, 'type');
+            $out[] = '';
+            $out[] = $f['humanize']($nType);
+            $out[] = $f['underline']($nType, '~');;
+            $out[] = '';
+            
+            foreach ($nClasses as $nClass) {
+                $out[] = '* '.$f['genRef']($nClass, 'node');
+            }
+            $out[] = '';
+        }
+
+        $out[] = 'Reference';
+        $out[] = '---------';
+        $out[] = '';
+
+        foreach ($map['nodeMap'] as $nClass => $nData) {
+            if ($nData['isLeaf']) {
+                continue;
+            }
+
+            $out[] = $f['genAnc']($nClass, 'node');
+            $out[] = '';
+            $out[] = $nClass;
+            $out[] = $f['underline']($nClass, '~');
+            $out[] = '';
+            if ($nData['doc']) {
+                $out[] = $nData['doc'];
+                $out[] = '';
+            }
+
+            $out[] = '* **Type**: '.$f['genRef']($nData['nodeType'], 'type');
+
+            if ($nData['parent']) {
+                $out[] = '* **Extends**: '.$f['genRef']($nData['parent'], 'node');
+            }
+
+            if ($nData['cardMap']) {
+                $out[] = '* **Children**:';
+                // dump cardinality map
+                foreach ($nData['cardMap'] as $cnType => $cnLimits) {
+                    list($cMin, $cMax) = $cnLimits;
+                    $out[] = sprintf('    * **%s..%s** %s',
+                        $cMin, $cMax ? $cMax : '*', $f['genRef']($cnType, 'type')
+                    );
+                }
+            }
+
+            $out[] = '';
+            if ($nData['fMeths']) {
+                foreach ($nData['fMeths'] as $fMeth => $fData) {
+                    $out[] = $fTitle = '->'.$fMeth;
+                    $out[] = $f['underline']($fTitle, '^');
+                    $out[] = '';
+                    if ($fData['args']) {
+                        $out[] = 'Arguments:';
+                        $out[] = '';
+                        foreach ($fData['args'] as $arg) {
+                            $out[] = '* **'.$arg.'**: Description of arg.';
+                        }
+                        $out[] = '';
+                    }
+
+                    $out[] = $f['formatDoc']($fData['doc']);
+                    $out[] = '';
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    protected function buildMap()
+    {
+        $map = array();
+        $nodeMap = array();
+        $nodeTypeIndex = array();
 
         $dirHandle = opendir(__DIR__.'/../../../Query/Builder');
+
         while ($fname = readdir($dirHandle)) {
             $className = sprintf(
                 '\\'.self::QB_NS.'\\%s',
@@ -76,159 +273,95 @@ class DumpQueryBuilderReferenceCommand extends Command
                     continue;
                 }
 
-                $node = $refl->newInstanceWithoutConstructor();
+                $inst = $refl->newInstanceWithoutConstructor();
+                $fMethRetMap = $inst->getFactoryMethodMap();
+                $fMethData = array();
 
-                $fMethods = $node->getFactoryMethodMap();
+                foreach ($fMethRetMap as $fMeth => $fmType) {
+                    $fmReflMeth = $refl->getMethod($fMeth);
 
-                $nodeAssocMap[$refl->getShortName()] = array(
-                    'factoryMap' => $fMethods,
-                    'cardinalityMap' => $node->getCardinalityMap(),
+                    if ($fmReflMeth->class != $refl->name) {
+                        continue;
+                    }
+
+                    $fmArgs = array();
+                    foreach ($fmReflMeth->getParameters() as $fmArg) {
+                        if ($fmArg->name != 'void') { // hmm
+                            $fmArgs[] = '$'.$fmArg->name;
+                        }
+                    }
+
+                    $fMethRefl = new \ReflectionClass(self::QB_NS.'\\'.$fmType);
+                    $fMethInst = $fMethRefl->newInstanceWithoutConstructor();
+                    $fMethDoc = $this->parseDocComment($fmReflMeth->getDocComment(), 4);
+
+                    $fMethData[$fMeth] = array(
+                        'args' => $fmArgs,
+                        'rType' => $fmType,
+                        'rNodeType' => $fMethInst->getNodeType(),
+                        'doc' => $fMethDoc,
+                    );
+
+
+                }
+
+                $cardinalityMap = $inst->getCardinalityMap();
+                $doc = $this->parseDocComment($refl->getDocComment(), 2);
+                $isLeaf = $refl->isSubclassOf('Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode');
+
+                $parentName = null;
+                if ($parentRefl = $refl->getParentClass()) {
+                    if ($parentRefl->isInstantiable()) {
+                        $parentName = $parentRefl->getShortName();
+                    }
+                }
+
+                $nodeData = array(
+                    'nodeType' => $inst->getNodeType(),
+                    'parent' => $parentName,
+                    'doc' => $doc,
+                    'fMeths' => $fMethData,
+                    'cardMap' => $cardinalityMap,
+                    'isLeaf' => $isLeaf,
                 );
+
+                $nodeMap[$refl->getShortName()] = $nodeData;
+
+                if (!isset($nodeTypeMap['nodeTypeMap'][$inst->getNodeType()])) {
+                    $nodeTypeMap[$inst->getNodeType()] = array();
+                }
+
+                $nodeTypeIndex[$inst->getNodeType()][] = $refl->getShortName();
             }
         }
 
-        $out = implode("\n", $this->formatTree($nodeAssocMap, 'Builder'));
-        // $out = $this->formatRst($nodeAssocMap);
-        $output->writeln($out);
+        $map['nodeMap'] = $nodeMap;
+        $map['nodeTypeIndex'] = $nodeTypeIndex;
+
+        return $map;
     }
 
-    protected function formatTree($nodeAssocMap, $type, $level = 0, $iterated = array())
+    protected function parseDocComment($comment, $indent = 0)
     {
-        if ($level >= $this->depth) {
-            return array();
-        }
-
         $out = array();
-        $indent = str_repeat(' ', $level * 2);
-
-        $tRefl = new \ReflectionClass(self::QB_NS.'\\'.$type);
-        $tInst = $tRefl->newInstanceWithoutConstructor();
-
-        foreach ($nodeAssocMap[$type]['factoryMap'] as $method => $ret) {
-            if ($ret == $type) {
-                $out[] = $indent.'   <comment>-></comment> ** recursion **';
+        foreach (explode("\n", $comment) as $line) {
+            if (strstr($line, '/**')) {
                 continue;
             }
 
-            $fRefl = new \ReflectionClass(self::QB_NS.'\\'.$ret);
-            $inst = $fRefl->newInstanceWithoutConstructor();
-            $nt = $inst->getNodeType();
-            $fMethod = $tRefl->getMethod($method);
-            $args = array();
-            foreach ($fMethod->getParameters() as $arg) {
-                if ($arg->name != 'void') { // hmm
-                    $args[] = '$'.$arg->name;
-                }
+            if (strstr($line, '*/')) {
+                break;
             }
 
-            if (isset($nodeAssocMap[$type]['cardinalityMap'][$nt])) {
-                list($cMin, $cMax) = $nodeAssocMap[$type]['cardinalityMap'][$nt];
-            } else {
-                $cMin = $cMax = '?';
+            if (strstr($line, '@')) {
+                continue;
             }
 
-            $out[] = str_replace(
-                array(':indent:', ':method:', ':args:', ':nodeType:', ':cMin:', ':cMax:', ':class:'),
-                array($indent, $method, implode(', ', $args), $nt, $cMin, $cMax == null ? '*' : $cMax, $ret),
-                $this->formatString
-            );
+            $line = preg_replace('& *\* ?&', '', $line);
 
-            if (!in_array($ret, $iterated)) {
-                $iterated[] = $type;
-
-                $out = array_merge(
-                    $out,
-                    $this->formatTree($nodeAssocMap, $ret, $level + 1, $iterated)
-                );
-            }
-
+            $out[] = str_repeat(' ', $indent).$line;
         }
 
-        return $out;
+        return str_repeat(' ', $indent).trim(implode("\n", $out));
     }
-
-    //    protected function formatRst($nodeAssocMap)
-    //    {
-    //        $out = '';
-    //        $out .= $this->buildRstBlock($nodeAssocMap, 'Builder', 'Builder Node');
-    //        $out .= $this->buildRstBlock($nodeAssocMap, 'ConstraintFactory', 'Constraint Node');
-    //        $out .= $this->buildRstBlock($nodeAssocMap, 'OperandDynamicFactory', 'Dynamic Operand Node');
-    //        $out .= $this->buildRstBlock($nodeAssocMap, 'OperandStaticFactory', 'Static Operand Node');
-    //        $out .= $this->buildRstBlock($nodeAssocMap, 'OrderBy', 'Order Node');
-    //
-    //        return $out;
-    //    }
-
-    //    protected function buildRstBlock($nodeAssocMap, $type, $label)
-    //    {
-    //        $out = array();
-    //        $out[] = $label;
-    //        $out[] = str_repeat('-', strlen($label));
-    //        $out[] = '';
-    //
-    //        foreach ($nodeAssocMap[$type]['cardinalityMap'] as $cType => $cardinalities) {
-    //            list($cMin, $cMax) = $cardinalities;
-    //            $out[] = sprintf('*[%s..%s]*: %s',
-    //                $cMin, $cMax === null ? '*' : $cMax,
-    //                $cType
-    //            );
-    //            $out[] = '';
-    //        }
-    //
-    //        foreach ($nodeAssocMap[$type]['factoryMap'] as $mName => $rType) {
-    //            if ($fMethods = $nodeAssocMap[$rType]['factoryMap']) {
-    //                // factory node
-    //                $out[] = $l = $mName.' (factory)';
-    //                $out[] = str_repeat('~', strlen($l));
-    //                $out[] = '';
-    //
-    //                $methods = array();
-    //                foreach (array_keys($fMethods) as $fMethod) {
-    //                    $methods[] = $fMethod.'()';
-    //                }
-    //                $out[] = 'Methods: '.implode(', ', $methods);
-    //                $out[] = '';
-    //
-    //            } else {
-    //                $refl = new \ReflectionClass(self::QB_NS.'\\'.$type);
-    //                $meth = $refl->getMethod($mName);
-    //                $args = $meth->getParameters();
-    //                $argNames = array();
-    //                foreach ($args as $arg) {
-    //                    $argNames[] = $arg->name;
-    //                }
-    //
-    //                $out[] = $l = $mName.' (leaf)';
-    //                $out[] = str_repeat('~', strlen($l));
-    //                $out[] = '';
-    //
-    //                $out[] = 'Arguments: ';
-    //                foreach ($argNames as $arg) {
-    //                    $out[] = ' - '.$arg;
-    //                }
-    //
-    //                $out[] = '';
-    //            }
-    //        }
-    //
-    //        $out[] = '';
-    //
-    //        return implode("\n", $out);
-    //    }
-
-    //    protected function formatDot($nodeAssocMap)
-    //    {
-    //        $out = array();
-    //        $out[] = 'digraph G {';
-    //        foreach ($nodeAssocMap as $nodeType => $maps) {
-    //            foreach ($maps['factoryMap'] as $mName => $rType) {
-    //                $out[$nodeType.$mName.$rType] = sprintf('  %s -> "%s()";',
-    //                    $nodeType, $mName
-    //                );
-    //            }
-    //        }
-    //        $out[] = '}';
-    //
-    //        return implode("\n", $out);
-    //    }
 }

@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 /**
  * Factory/node class for join conditions.
  *
+ * @IgnoreAnnotation('factoryMethod');
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class SourceJoinConditionFactory extends AbstractNode
@@ -26,6 +27,7 @@ class SourceJoinConditionFactory extends AbstractNode
     /**
      * Descendant join condition:
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
@@ -34,7 +36,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *         ->descendant('alias_1', 'alias_2')
      *       ->end()
      *     ->end()
+     * </code>
      *
+     * @factoryMethod
      * @return SourceJoinConditionDescendant
      */
     public function descendant($descendantAlias, $ancestorAlias)
@@ -47,6 +51,7 @@ class SourceJoinConditionFactory extends AbstractNode
     /**
      * Equi (equality) join condition:
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
@@ -55,7 +60,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *         ->equi('alias_1.prop_1', 'alias_2.prop_2')
      *       ->end()
      *     ->end()
+     * </code>
      *
+     * @factoryMethod
      * @return SourceJoinConditionDescendant
      */
     public function equi($field1, $field2)
@@ -68,6 +75,7 @@ class SourceJoinConditionFactory extends AbstractNode
     /**
      * Child document join condition:
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
@@ -76,7 +84,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *         ->child('alias_1', 'alias_2')
      *       ->end()
      *     ->end()
+     * </code>
      *
+     * @factoryMethod
      * @return SourceJoinConditionDescendant
      */
     public function child($childAlias, $parentAlias)
@@ -89,6 +99,7 @@ class SourceJoinConditionFactory extends AbstractNode
     /**
      * Same document join condition:
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
@@ -97,7 +108,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *         ->same('alias_1', 'alias_2', '/path_to/alias_2/document')
      *       ->end()
      *     ->end()
+     * </code>
      *
+     * @factoryMethod
      * @return SourceJoinConditionDescendant
      */
     public function same($selector1Name, $selector2Name, $selector2Path)

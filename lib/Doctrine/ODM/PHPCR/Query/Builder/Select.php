@@ -16,7 +16,7 @@ class Select extends AbstractNode
 
     /**
      * @factoryMethod
-     * @return Field
+     * @return Select
      */
     public function field($field)
     {

@@ -26,8 +26,10 @@ class OrderBy extends AbstractNode
     /**
      * Add asc ordering:
      *
+     * <code>
      *   $qb->orderBy()
      *     ->asc()->propertyValue('prop_1', 'alias_1')->end()
+     * </code>
      *
      * @factoryMethod
      * @return Ordering
@@ -40,8 +42,10 @@ class OrderBy extends AbstractNode
     /**
      * Add desc ordering:
      *
+     * <code>
      *   $qb->orderBy()
      *     ->desc()->propertyValue('prop_1', 'alias_1')->end()
+     * </code>
      *
      * @factoryMethod
      * @return Ordering

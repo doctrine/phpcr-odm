@@ -33,6 +33,7 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * Full text search score operand:
      *
+     * <code>
      *   $qb->where()
      *     ->gt()
      *       ->lop()->fullTextSearchScore('alias_1')->end()
@@ -41,6 +42,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->orderBy()
      *     ->asc()->fullTextSearchScore('alias_1')->end()
+     * </code>
      *
      * @factoryMethod
      * @return OperandDynamicFullTextSearchScore
@@ -53,6 +55,7 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * Length operand resolves to length of child operand:
      *
+     * <code>
      *   $qb->where()
      *     ->gt()
      *       ->lop()->length('alias_1', 'prop_1')->end()
@@ -61,6 +64,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->orderBy()
      *     ->asc()->fullTextSearchScore('alias_1')->end()
+     * </code>
      *
      * @factoryMethod
      * @return OperandDynamicLength
@@ -73,6 +77,7 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * LowerCase operand evaluates to lower-cased string of child operand:
      *
+     * <code>
      *   $qb->where()
      *     ->eq()
      *       ->lop()
@@ -80,6 +85,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->end()
      *       ->rop()->literal('lower_case')->end()
      *     ->end()
+     * </code>
      *
      * @factoryMethod
      * @return OperandDynamicLowerCase
@@ -92,6 +98,7 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * UpperCase operand evaluates to upper-cased string of child operand:
      *
+     * <code>
      *   $qb->where()
      *     ->eq()
      *       ->lop()
@@ -99,6 +106,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->end()
      *       ->rop()->literal('UPPER_CASE')->end()
      *     ->end()
+     * </code>
      *
      * @factoryMethod
      * @return OperandDynamicUpperCase
@@ -112,11 +120,13 @@ class OperandDynamicFactory extends AbstractNode
      * Document local name resolves to the local (non namespaced)
      * name of the node being compared:
      *
+     * <code>
      *   $qb->where()
      *     ->eq()
      *       ->lop()->documentLocalName('alias_1')->end()
      *       ->rop()->literal('my_node_name')
      *     ->end()
+     * </code>
      *
      * Relates to PHPCR NodeLocalNameInterface
      *
@@ -132,11 +142,13 @@ class OperandDynamicFactory extends AbstractNode
      * Resolves to the namespaced
      * name of the node being compared:
      *
+     * <code>
      *   $qb->where()
      *     ->eq()
      *       ->lop()->documentName('alias_1')->end()
      *       ->rop()->literal('namespace:my_node_name')
      *     ->end()
+     * </code>
      *
      * Relates to PHPCR NodeNameInterface
      *
@@ -151,11 +163,13 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * Resolves to the value of the specified property
      *
+     * <code>
      *   $qb->where()
      *     ->eq()
      *       ->lop()->propertyValue('prop_name', 'alias_1')->end()
      *       ->rop()->literal('my_property_value')
      *     ->end()
+     * </code>
      *
      * @factoryMethod
      * @return OperandDynamicField
