@@ -207,7 +207,7 @@ class ChildrenCollection extends PersistentCollection
     {
         if (is_array($this->originalNodeNames)) {
             if ($this->initialized) {
-                $this->originalNodeNames[] = $this->collection->getKeys();
+                $this->originalNodeNames = $this->collection->getKeys();
             } else {
                 $this->originalNodeNames = null;
             }
