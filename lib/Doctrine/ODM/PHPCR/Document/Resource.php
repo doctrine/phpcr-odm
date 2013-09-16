@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
+use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
 use PHPCR\NodeInterface;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -140,6 +141,28 @@ class Resource
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * Get the size of the <strong>stored</strong> data stream in this
+     * resource.
+     *
+     * You should call this method instead of anything else to know the file
+     * size as PHPCR implementations are expected to be able to provide this
+     * information without needing to to load the actual data stream.
+     *
+     * Do not use this right after updating data before flushing, as it will
+     * only look at the stored data.
+     *
+     * @return int the resource size in bytes.
+     */
+    public function getSize()
+    {
+        if (null === $this->node) {
+            throw new PHPCRBadMethodCallException('Do not call Resource::getSize on unsaved objects, as it only reads the stored size.');
+        }
+
+        return $this->node->getProperty('jcr:data')->getLength();
     }
 
     /**
