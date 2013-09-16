@@ -19,41 +19,64 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
+use PHPCR\NodeInterface;
+
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents a jcr nt:resource and is used by the File document
+ *
  * @see http://wiki.apache.org/jackrabbit/nt:resource
  *
  * @PHPCRODM\Document(nodeType="nt:resource")
  */
 class Resource
 {
-    /** @PHPCRODM\Id */
+    /**
+     * @PHPCRODM\Id
+     */
     protected $id;
 
-    /** @PHPCRODM\Node */
+    /**
+     * @var NodeInterface
+     *
+     * @PHPCRODM\Node
+     */
     protected $node;
 
-    /** @PHPCRODM\Nodename */
+    /**
+     * @PHPCRODM\Nodename
+     */
     protected $nodename;
 
-    /** @PHPCRODM\ParentDocument */
+    /**
+     * @PHPCRODM\ParentDocument
+     */
     protected $parent;
 
-    /** @PHPCRODM\Binary(property="jcr:data") */
+    /**
+     * @PHPCRODM\Binary(property="jcr:data")
+     */
     protected $data;
 
-    /** @PHPCRODM\String(property="jcr:mimeType") */
+    /**
+     * @PHPCRODM\String(property="jcr:mimeType")
+     */
     protected $mimeType = 'application/octet-stream';
 
-    /** @PHPCRODM\String(property="jcr:encoding", nullable=true) */
+    /**
+     * @PHPCRODM\String(property="jcr:encoding", nullable=true)
+     */
     protected $encoding;
 
-    /** @PHPCRODM\Date(property="jcr:lastModified") */
+    /**
+     * @PHPCRODM\Date(property="jcr:lastModified")
+     */
     protected $lastModified;
 
-    /** @PHPCRODM\String(property="jcr:lastModifiedBy") */
+    /**
+     * @PHPCRODM\String(property="jcr:lastModifiedBy")
+     */
     protected $lastModifiedBy;
 
     /**
@@ -67,9 +90,12 @@ class Resource
     }
 
     /**
-     * Set the node name of the file. (only mutable on new document before the persist)
+     * Set the node name of the resource.
      *
-     * @param string $name the name of the file
+     * Only mutable on new document before the persist. For an nt:file resource
+     * child, this must be "jcr:content".
+     *
+     * @param string $name the name of the resource
      */
     public function setNodename($name)
     {
@@ -87,8 +113,7 @@ class Resource
     }
 
     /**
-     * Set the parent document of this document. Only mutable on new document
-     * before the persist.
+     * Set the parent document of this resource.
      *
      * @param object $parent Document that is the parent of this node.
      */
@@ -98,8 +123,7 @@ class Resource
     }
 
     /**
-     * setter for the data property
-     * This property stores the content of this resource
+     * Set the data from a binary stream.
      *
      * @param stream $data the contents of this resource
      */
@@ -109,8 +133,7 @@ class Resource
     }
 
     /**
-     * getter for the data property
-     * This returns the content of this resource
+     * Get the binary data stream of this resource.
      *
      * @param stream
      */
@@ -120,8 +143,7 @@ class Resource
     }
 
     /**
-     * setter for the mimeType property
-     * This property stores the mimeType of this resource
+     * Set the mime type information for this resource.
      *
      * @param string $mimeType
      */
@@ -131,8 +153,7 @@ class Resource
     }
 
     /**
-     * getter for the mimeType property
-     * This returns the mimeType of this resource
+     * Get the mime type information of this resource.
      *
      * @return string
      */
@@ -142,8 +163,7 @@ class Resource
     }
 
     /**
-     * setter for the encoding property
-     * This property stores the encoding of this resource
+     * Set the encoding information for the data stream.
      *
      * @param string $encoding
      */
@@ -153,10 +173,9 @@ class Resource
     }
 
     /**
-     * getter for the encoding property
-     * This returns the encoding of this resource
+     * Get the optional encoding information for the data stream.
      *
-     * @return string
+     * @return string|null the encoding of this resource
      */
     public function getEncoding()
     {
@@ -164,9 +183,10 @@ class Resource
     }
 
     /**
-     * setter for the lastModified property
-     * This property stores the lastModified date of this resource
-     * If not set, this might be set by PHPCR
+     * Set the last modified date manually.
+     *
+     * This might be updated automatically by some PHPCR implementations, but
+     * it is not required by the specification.
      *
      * @param \DateTime $lastModified
      */
@@ -176,8 +196,7 @@ class Resource
     }
 
     /**
-     * getter for the lastModified property
-     * This returns the lastModified date of this resource
+     * Get the last modified date.
      *
      * @return \DateTime
      */
@@ -187,8 +206,10 @@ class Resource
     }
 
     /**
-     * setter for the lastModifiedBy property
-     * name of the jcr user that last modified this resource
+     * Set the jcr username of the user that last modified this resource.
+     *
+     * This might be updated automatically by some PHPCR implementations, but
+     * it is not required by the specification.
      *
      * @param string $lastModifiedBy
      */
@@ -198,8 +219,7 @@ class Resource
     }
 
     /**
-     * getter for the lastModifiedBy property
-     * This returns name of the jcr user that last modified this resource
+     * Get the jcr username of the user that last modified this resource.
      *
      * @return string
      */
@@ -209,7 +229,8 @@ class Resource
     }
 
     /**
-     * get mime and encoding (RFC2045)
+     * Get mime type and encoding (RFC2045)
+     *
      * @return string
      */
     public function getMime()
