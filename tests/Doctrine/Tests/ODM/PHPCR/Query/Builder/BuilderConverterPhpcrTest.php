@@ -241,8 +241,12 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     public function provideDispatchCompositeConstraints()
     {
         return array(
-            array('andX', 'PHPCR\Query\QOM\AndInterface'),
-            array('orX', 'PHPCR\Query\QOM\OrInterface'),
+            array('andX', 'PHPCR\Query\QOM\PropertyExistenceInterface', 1),
+            array('andX', 'PHPCR\Query\QOM\AndInterface', 2),
+            array('andX', 'PHPCR\Query\QOM\AndInterface', 3),
+            array('orX', 'PHPCR\Query\QOM\PropertyExistenceInterface', 1),
+            array('orX', 'PHPCR\Query\QOM\OrInterface', 2),
+            array('orX', 'PHPCR\Query\QOM\OrInterface', 3),
         );
     }
 
@@ -250,21 +254,28 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      * @depends testDispatchFrom
      * @dataProvider provideDispatchCompositeConstraints
      */
-    public function testDispatchCompositeConstraints($method, $expectedClass)
+    public function testDispatchCompositeConstraints($method, $expectedClass, $nbConstraints)
     {
         $this->primeBuilder();
 
-        $where = $this->qb
-            ->where()
-                ->$method()
-                    ->fieldExists('sel_1.prop_1')
-                    ->fieldExists('sel_1.prop_2');
+        $where = $this->qb->where();
+        $composite = $where->$method();
+
+        for ($i = 0; $i < $nbConstraints; $i++) {
+            $composite->fieldExists('sel_1.prop_2');
+        }
 
         $res = $this->converter->dispatch($where);
 
         $this->assertInstanceOf($expectedClass, $res);
-        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint1());
-        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
+
+        if ($nbConstraints == 2) {
+            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint1());
+            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
+        } elseif ($nbConstraints > 2) {
+            $this->assertInstanceOf($expectedClass, $res->getConstraint1());
+            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
+        }
     }
 
     public function provideDisaptchConstraintsLeaf()
