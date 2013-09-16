@@ -2,7 +2,8 @@ Changelog
 =========
 
 * **2013-08-16**: [Model] removed Doctrine\ODM\PHPCR\Document\Image and moved
-  it to the CmfMedia bundle
+  it to the CmfMediaBundle. Note that the CmfMediaBundle image is itself a file
+  and no longer uses a file child.
 * **2013-08-05**: [#314] properly validate nullable=false on flushing
   If you see exceptions about fields not being nullable, either adjust your
   mappings to say nullable=true or fix your code so they are not null.
