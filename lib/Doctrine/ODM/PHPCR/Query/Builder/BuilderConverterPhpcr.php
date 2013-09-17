@@ -416,27 +416,36 @@ class BuilderConverterPhpcr
         return $joinCon;
     }
 
+    protected function doWalkConstraintComposite($node, $method)
+    {
+        $children = $node->getChildren();
+
+        if (count($children) == 1) {
+            $op = $this->dispatch(current($children));
+            return $op;
+        }
+
+        $lConstraint = array_shift($children);
+        $lPhpcrConstraint = $this->dispatch($lConstraint);
+
+        foreach ($children as $rConstraint) {
+            $rPhpcrConstraint = $this->dispatch($rConstraint);
+            $phpcrComposite = $this->qomf->$method($lPhpcrConstraint, $rPhpcrConstraint);
+
+            $lPhpcrConstraint = $phpcrComposite;
+        }
+
+        return $phpcrComposite;
+    }
+
     protected function walkConstraintAndX(ConstraintAndX $node)
     {
-        list($lopNode, $ropNode) = $node->getChildren();
-        $lop = $this->dispatch($lopNode);
-        $rop = $this->dispatch($ropNode);
-
-        $composite = $this->qomf->andConstraint($lop, $rop);
-
-        return $composite;
+        return $this->doWalkConstraintComposite($node, 'andConstraint');
     }
 
     protected function walkConstraintOrX(ConstraintOrX $node)
     {
-        list($lopNode, $ropNode) = $node->getChildren();
-
-        $lop = $this->dispatch($lopNode);
-        $rop = $this->dispatch($ropNode);
-
-        $composite = $this->qomf->orConstraint($lop, $rop);
-
-        return $composite;
+        return $this->doWalkConstraintComposite($node, 'orConstraint');
     }
 
     protected function walkConstraintFieldExists(ConstraintFieldExists $node)

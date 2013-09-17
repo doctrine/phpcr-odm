@@ -12,7 +12,7 @@ class ConstraintAndx extends ConstraintFactory
     public function getCardinalityMap()
     {
         return array(
-            self::NT_CONSTRAINT => array(2, 2),
+            self::NT_CONSTRAINT => array(1, null),
         );
     }
 }
