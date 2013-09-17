@@ -154,7 +154,7 @@ class DumpQueryBuilderReferenceCommand extends Command
                         $indent = 0;
                         $out[] = '';
                     } else {
-                        $out[] = str_repeat(' ', $indent).$line;
+                        $out[] = str_repeat(' ', $indent).trim($line);
                     }
                 }
 
@@ -205,18 +205,20 @@ class DumpQueryBuilderReferenceCommand extends Command
             $out[] = $f['underline']($nClass, '~');
             $out[] = '';
             if ($nData['doc']) {
-                $out[] = $nData['doc'];
+                $out[] = $f['formatDoc']($nData['doc']);
                 $out[] = '';
             }
 
-            $out[] = '* **Type**: '.$f['genRef']($nData['nodeType'], 'type');
+            $out[] = '**Type**: '.$f['genRef']($nData['nodeType'], 'type');
+            $out[] = '';
 
             if ($nData['parent']) {
-                $out[] = '* **Extends**: '.$f['genRef']($nData['parent'], 'node');
+                $out[] = '**Extends**: '.$f['genRef']($nData['parent'], 'node');
+                $out[] = '';
             }
 
             if ($nData['cardMap']) {
-                $out[] = '* **Children**:';
+                $out[] = '**Children**:';
                 // dump cardinality map
                 foreach ($nData['cardMap'] as $cnType => $cnLimits) {
                     list($cMin, $cMax) = $cnLimits;
@@ -224,6 +226,7 @@ class DumpQueryBuilderReferenceCommand extends Command
                         $cMin, $cMax ? $cMax : '*', $f['genRef']($cnType, 'type')
                     );
                 }
+                $out[] = '';
             }
 
             $out[] = '';
@@ -232,17 +235,19 @@ class DumpQueryBuilderReferenceCommand extends Command
                     $out[] = $fTitle = '->'.$fMeth;
                     $out[] = $f['underline']($fTitle, '^');
                     $out[] = '';
+                    $out[] = $f['formatDoc']($fData['doc']);
+                    $out[] = '';
+
                     if ($fData['args']) {
-                        $out[] = 'Arguments:';
+                        $out[] = '**Arguments**:';
                         $out[] = '';
-                        foreach ($fData['args'] as $arg) {
-                            $out[] = '* **'.$arg.'**: Description of arg.';
+                        foreach ($fData['args'] as $argName => $arg) {
+                            $out[] = sprintf('* **$%s**: *%s* %s',
+                                $argName, $arg['type'], $arg['doc']
+                            );
                         }
                         $out[] = '';
                     }
-
-                    $out[] = $f['formatDoc']($fData['doc']);
-                    $out[] = '';
                 }
             }
         }
@@ -290,20 +295,13 @@ class DumpQueryBuilderReferenceCommand extends Command
                         continue;
                     }
 
-                    $fmArgs = array();
-                    foreach ($fmReflMeth->getParameters() as $fmArg) {
-                        if ($fmArg->name != 'void') { // hmm
-                            $fmArgs[] = '$'.$fmArg->name;
-                        }
-                    }
-
                     $fMethRefl = new \ReflectionClass(self::QB_NS.'\\'.$fmType);
                     $fMethInst = $fMethRefl->newInstanceWithoutConstructor();
                     $fMethDoc = $this->parseDocComment($fmReflMeth->getDocComment(), 4);
                     $fParams = $this->parseDocParams($fmReflMeth);
 
                     $fMethData[$fMeth] = array(
-                        'args' => $fmArgs,
+                        'args' => $fParams,
                         'rType' => $fmType,
                         'rNodeType' => $fMethInst->getNodeType(),
                         'doc' => $fMethDoc,
@@ -361,7 +359,7 @@ class DumpQueryBuilderReferenceCommand extends Command
         $docParams = array();
         foreach (explode("\n", $docComment) as $line) {
             if (preg_match('&@param +([a-zA-Z]+) ?\$([a-zA-Z0-9_]+) +(.*)&', $line, $matches)) {
-                $docParams[$matches[2]] = array($matches[1], $matches[3]);
+                $docParams[$matches[2]] = array('type' => $matches[1], 'doc' => $matches[3]);
             }
         }
 
@@ -370,18 +368,17 @@ class DumpQueryBuilderReferenceCommand extends Command
                 continue;
             }
 
-            $params[$reflParam->name] = array();
-
             if (!isset($docParams[$reflParam->name])) {
                 throw new \Exception(sprintf(
                     'Undocummented parameter "%s" in "%s" for method "%s"',
                     $reflParam->name, $reflMethod->class, $reflMethod->name
                 ));
             }
+
+            $params[$reflParam->name] = $docParams[$reflParam->name];
         }
 
-        foreach (array_keys($params) as $paramName) {
-        }
+        return $params;
     }
 
     protected function parseDocComment($comment, $indent = 0)
