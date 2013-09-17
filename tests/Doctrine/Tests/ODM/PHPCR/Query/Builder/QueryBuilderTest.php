@@ -69,6 +69,11 @@ class QueryBuilderTest extends NodeTestCase
                         ->name('my_doc')
                         ->parameter('my_var')
                     ->end()
+                    ->fieldExists('a.foo') // we can more than two arguments
+                    ->fieldExists('a.foo')
+                    ->andX()
+                      ->eq()->field('f.foo')->literal('bar')->end() // andX works with a single constraint also
+                    ->end()
                 ->end()
             ->end()
             ->andWhere()
