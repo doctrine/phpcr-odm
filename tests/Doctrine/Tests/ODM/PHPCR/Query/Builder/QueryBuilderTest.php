@@ -91,6 +91,66 @@ class QueryBuilderTest extends NodeTestCase
             ->end();
     }
 
+    public function provideGetNodeByPath()
+    {
+        return array(
+            // valids
+            array(
+                'where.constraint.operand_static',
+                'OperandStaticLiteral',
+            ),
+            array(
+                'order_by.ordering.operand_dynamic[0]',
+                'OperandDynamicLocalName',
+            ),
+            array(
+                'order_by.ordering[1].operand_dynamic',
+                'OperandDynamicField',
+            ),
+
+            // invalids
+            array(
+                'arf',
+                null,
+                array('InvalidArgumentException', 'No children'),
+            ),
+            array(
+                'arf.garf',
+                null,
+                array('InvalidArgumentException', 'No children'),
+            ),
+            array(
+                'arf[123].garf',
+                null,
+                array('InvalidArgumentException', 'No child of node'),
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider provideGetNodeByPath
+     */
+    public function testGetNodeByPath($path, $expectedClassName, $expectedException = null)
+    {
+        $this->node
+            ->where()->eq()->field('f.foo')->literal('foo.bar')->end()->end()
+            ->orderBy()
+              ->ascending()->localName('f')->end()
+              ->descending()->field('f.foo')->end()
+              ->end();
+
+        if ($expectedException) {
+            list($exceptionType, $exceptionMessage) = $expectedException;
+            $this->setExpectedException($exceptionType, $exceptionMessage);
+        }
+
+        $node = $this->node->getNodeByPath($path);
+
+        if (!$expectedException) {
+            $this->assertInstanceOf('Doctrine\\ODM\\PHPCR\\Query\\Builder\\'.$expectedClassName, $node);
+        }
+    }
+
     public function testFirstMaxResult()
     {
         $this->node->setMaxResults(123);
