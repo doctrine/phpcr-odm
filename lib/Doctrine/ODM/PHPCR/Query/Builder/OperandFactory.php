@@ -18,13 +18,18 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 class OperandFactory extends OperandDynamicFactory
 {
     /**
-     * Static operand: Resolves to the value of the variable bound to the given $name
+     * Resolves to the value of the variable bound to the given $name.
      *
      * Relates to PHPCR BindVariableValueInterface
      *
-     * @param string $name
+     * <code>
+     * $qb->where()->eq()->field('f.foobar')->parameter('param_1');
+     * </code>
+     *
+     * @param string $name - Name of parameter to resolve.
+     *
      * @factoryMethod
-     * @return OperandStaticParameter
+     * @return OperandFactory
      */
     public function parameter($name)
     {
@@ -32,9 +37,14 @@ class OperandFactory extends OperandDynamicFactory
     }
 
     /**
-     * Static operand: Resolves to the given literal value
+     * Resolves to the given literal value.
      *
-     * @param string $value
+     * <code>
+     * $qb->where()->eq()->field('f.foobar')->litreal('Literal Value');
+     * </code>
+     *
+     * @param string $value - Literal value.
+     *
      * @factoryMethod
      * @return OperandStaticLiteral
      */

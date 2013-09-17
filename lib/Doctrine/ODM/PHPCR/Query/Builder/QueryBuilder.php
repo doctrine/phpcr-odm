@@ -135,6 +135,9 @@ class QueryBuilder extends AbstractNode
      *
      * Replaces any existing from source.
      *
+     * @param string $documentFqn - Fully qualified class name for document.
+     * @param string $selectorName - Selector name.
+     *
      * @factoryMethod
      * @return QueryBuilder
      */

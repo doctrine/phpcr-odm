@@ -64,10 +64,10 @@ class ConstraintFactory extends AbstractNode
      * @param string $alias
      *
      * <code>
-     *   $qb->where()->fieldExists('prop_1', 'sel_1')
+     * $qb->where()->fieldExists('prop_1.sel_1')
      * </code>
      *
-     * @param string $field
+     * @param string $field - Name of field to check, including selector name.
      *
      * @factoryMethod
      * @return ConstraintFieldIsset
@@ -80,19 +80,17 @@ class ConstraintFactory extends AbstractNode
     /**
      * Full text search constraint:
      *
-<<<<<<< HEAD
-     *   $qb->where()->fullTextSearch('prop_1', 'search_expression', 'alias_1')
-=======
      * <code>
-     *   $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression')
+     * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression');
      * </code>
->>>>>>> Working on dumping QB reference
      *
-     * @param string $field
-     * @param string $fullTextSearchExpression
+     * http://docs.jboss.org/jbossdna/0.7/manuals/reference/html/jcr-query-and-search.html#fulltext-search-query-language
+     *
+     * @param string $field - Name of field to check, including selector name.
+     * @param string $fullTextSearchExpression - Search expression.
      *
      * @factoryMethod
-     * @return ConstraintFullTextSearch
+     * @return ConstraintFactory
      */
     public function fullTextSearch($field, $fullTextSearchExpression)
     {
@@ -102,21 +100,17 @@ class ConstraintFactory extends AbstractNode
     /**
      * Same document constraint:
      *
-<<<<<<< HEAD
-     *   $qb->where()->sameDocument('/path/to/doc', 'alias_1')
-=======
      * <code>
-     *   $qb->where()->sameDocument('/path/to/doc', 'sel_1')
+     * $qb->where()->sameDocument('/path/to/doc', 'sel_1');
      * </code>
->>>>>>> Working on dumping QB reference
      *
-     * Relates to PHPCR SameNodeInterface
+     * Relates to PHPCR QOM SameNodeInterface.
      *
-     * @param string $path
-     * @param string $alias
+     * @param string $path - Path to reference document.
+     * @param string $selectorName - Name of selector to use.
      *
      * @factoryMethod
-     * @return ConstraintSame
+     * @return ConstraintFactory
      */
     public function same($path, $alias)
     {
@@ -126,21 +120,17 @@ class ConstraintFactory extends AbstractNode
     /**
      * Descendant document constraint:
      *
-<<<<<<< HEAD
-     *   $qb->where()->descendantDocument('/ancestor/path', 'alias_1')
-=======
      * <code>
-     *   $qb->where()->descendantDocument('/ancestor/path', 'sel_1')
+     *   $qb->where()->descendant('/ancestor/path', 'sel_1');
      * </code>
->>>>>>> Working on dumping QB reference
      *
-     * Relates to PHPCR DescendantNodeInterface
+     * Relates to PHPCR QOM DescendantNodeInterface
      *
-     * @param string $ancestorPath
-     * @param string $alias
+     * @param string $ancestorPath - Select descendants of this path.
+     * @param string $selectorName - Name of selector to use.
      *
      * @factoryMethod
-     * @return ConstraintDescendant
+     * @return ConstraintFactory
      */
     public function descendant($ancestorPath, $alias)
     {
@@ -148,23 +138,19 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Child document constraint:
+     * Select children of the node at the given path.
      *
-<<<<<<< HEAD
-     *   $qb->where()->child('/parent/path', 'alias_1')
-=======
      * <code>
-     *   $qb->where()->child('/parent/path', 'sel_1')
+     * $qb->where()->child('/parent/path', 'sel_1')
      * </code>
->>>>>>> Working on dumping QB reference
      *
-     * @param string $parentPath
-     * @param string $alias
+     * Relates to PHPCR QOM ChildNodeInterface.
      *
-     * Relates to PHPCR ChildNodeInterface
+     * @param string $parentPath - Select children of this path.
+     * @param string $selectorName - Name of selector to use
      *
      * @factoryMethod
-     * @return ConstraintChild
+     * @return ConstraintFactory
      */
     public function child($parentPath, $alias)
     {
@@ -172,17 +158,11 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Not constraint.
+     * Inverts the truth of any given appended costraint.
      *
-     * Inverts the truth of any given constraint:
-     *
-<<<<<<< HEAD
-     *   $qb->where()->not()->fieldIsset('foobar', 'alias_1')
-=======
      * <code>
-     *   $qb->where()->not()->fieldExists('sel_1.foobar')
+     * $qb->where()->not()->fieldExists('sel_1.foobar')
      * </code>
->>>>>>> Working on dumping QB reference
      *
      * @factoryMethod
      * @return ConstraintNot
@@ -193,19 +173,13 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Equality comparison constraint
+     * Equality comparison constraint.
      *
      * <code>
-     *   $qb->where()
-     *     ->eq()
-<<<<<<< HEAD
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->bindVariable('var_1')->end()
-=======
-     *       ->field('sel_1.foobar')->end()
-     *       ->bindVariable('var_1')->end()
->>>>>>> Working on dumping QB reference
-     *     ->end()
+     * $qb->where()
+     *   ->eq()
+     *     ->field('sel_1.foobar')->end()
+     *     ->literal('var_1');
      * </code>
      *
      * @factoryMethod
@@ -222,16 +196,10 @@ class ConstraintFactory extends AbstractNode
      * Inequality comparison constraint
      *
      * <code>
-     *   $qb->where()
-     *     ->neq()
-<<<<<<< HEAD
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->bindVariable('var_1')->end()
-=======
-     *       ->field('sel_1.foobar')->end()
-     *       ->bindVariable('var_1')->end()
->>>>>>> Working on dumping QB reference
-     *     ->end()
+     * $qb->where()
+     *   ->neq()
+     *     ->field('sel_1.foobar')->end()
+     *     ->literal('var_1');
      * </code>
      *
      * @factoryMethod
@@ -248,16 +216,10 @@ class ConstraintFactory extends AbstractNode
      * Less than comparison constraint
      *
      * <code>
-     *   $qb->where()
-     *     ->lt()
-<<<<<<< HEAD
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-=======
-     *       ->field('sel_1.foobar')->end()
-     *       ->literal(5)->end()
->>>>>>> Working on dumping QB reference
-     *     ->end()
+     * $qb->where()
+     *   ->lt()
+     *     ->field('sel_1.foobar')->end()
+     *     ->literal(5);
      * </code>
      *
      * @factoryMethod
@@ -274,16 +236,10 @@ class ConstraintFactory extends AbstractNode
      * Less than or equal to comparison constraint
      *
      * <code>
-     *   $qb->where()
-     *     ->lte()
-<<<<<<< HEAD
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-=======
-     *       ->field('sel_1.foobar')->end()
-     *       ->literal(5)->end()
->>>>>>> Working on dumping QB reference
-     *     ->end()
+     * $qb->where()
+     *   ->lte()
+     *     ->field('sel_1.foobar')->end()
+     *     ->literal(5);
      * </code>
      *
      * @factoryMethod
@@ -300,16 +256,10 @@ class ConstraintFactory extends AbstractNode
      * Greater than comparison constraint
      *
      * <code>
-     *   $qb->where()
-     *     ->gt()
-<<<<<<< HEAD
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-=======
-     *       ->field('sel_1.foobar')->end()
-     *       ->literal(5)->end()
->>>>>>> Working on dumping QB reference
-     *     ->end()
+     * $qb->where()
+     *   ->gt()
+     *     ->field('sel_1.foobar')->end()
+     *     ->literal(5);
      * </code>
      *
      * @factoryMethod
@@ -325,21 +275,12 @@ class ConstraintFactory extends AbstractNode
     /**
      * Greater than or equal to comparison constraint
      *
-<<<<<<< HEAD
-     *   $qb->where()
-     *     ->gte()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-     *     ->end()
-=======
      * <code>
      * $qb->where()
      *   ->gte()
      *     ->field('sel_1.foobar')->end()
-     *     ->literal(5)->end()
-     *   ->end()
+     *     ->literal(5);
      * </code>
->>>>>>> Working on dumping QB reference
      *
      * @factoryMethod
      * @return ConstraintComparison
@@ -352,20 +293,17 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Like comparison constraint
+     * Like comparison constraint.
+     * Use "%" as wildcards.
      *
      * <code>
-     *   $qb->where()
-     *     ->lt()
-<<<<<<< HEAD
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal('foo%')->end()
-=======
-     *       ->field('sel_1.foobar')->end()
-     *       ->literal('foo%')->end()
->>>>>>> Working on dumping QB reference
-     *     ->end()
+     * $qb->where()
+     *   ->lt()
+     *     ->field('sel_1.foobar')->end()
+     *     ->literal('foo%');
      * </code>
+     *
+     * The above example will match "foo" and "foobar" but not "barfoo".
      *
      * @factoryMethod
      * @return ConstraintComparison

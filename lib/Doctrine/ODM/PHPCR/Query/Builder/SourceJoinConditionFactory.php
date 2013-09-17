@@ -25,7 +25,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Descendant join condition:
+     * Descendant join condition.
      *
      * <code>
      *   $qb->from()
@@ -35,11 +35,14 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->condition()
      *         ->descendant('alias_1', 'alias_2')
      *       ->end()
-     *     ->end()
+     *   ->end()
      * </code>
      *
+     * @param string $descendantSelectorName - Name of selector for descendant documents.
+     * @param string $ancestorSelectorName - Name of selector to match for ancestor documents.
+     *
      * @factoryMethod
-     * @return SourceJoinConditionDescendant
+     * @return SourceJoinConditionFactory
      */
     public function descendant($descendantAlias, $ancestorAlias)
     {
@@ -49,21 +52,21 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Equi (equality) join condition:
+     * Equi (equality) join condition.
      *
      * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->equi('alias_1.prop_1', 'alias_2.prop_2')
-     *       ->end()
-     *     ->end()
+     *       ->condition()->equi('alias_1.prop_1', 'alias_2.prop_2');
      * </code>
      *
+     * @param string $field1 - Field name for first field.
+     * @param string $field2 - Field name for second field.
+     *
      * @factoryMethod
-     * @return SourceJoinConditionDescendant
+     * @return SourceJoinConditionFactory
      */
     public function equi($field1, $field2)
     {
@@ -73,21 +76,21 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Child document join condition:
+     * Child document join condition.
      *
      * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->child('alias_1', 'alias_2')
-     *       ->end()
-     *     ->end()
+     *       ->condition()->child('alias_1', 'alias_2');
      * </code>
      *
+     * @param string $childSelectorName - Name of selector for child documents.
+     * @param string $parentSelectorName - Name of selector to match for parent documents.
+     *
      * @factoryMethod
-     * @return SourceJoinConditionDescendant
+     * @return SourceJoinConditionFactory
      */
     public function child($childAlias, $parentAlias)
     {
@@ -110,8 +113,12 @@ class SourceJoinConditionFactory extends AbstractNode
      *     ->end()
      * </code>
      *
+     * @param string $selector1Name - Name of first selector.
+     * @param string $selector2Name - Name of first selector.
+     * @param string $selector2Path - Path for documents of second selector.
+     *
      * @factoryMethod
-     * @return SourceJoinConditionDescendant
+     * @return SourceJoinConditionFactory
      */
     public function same($selector1Name, $selector2Name, $selector2Path)
     {

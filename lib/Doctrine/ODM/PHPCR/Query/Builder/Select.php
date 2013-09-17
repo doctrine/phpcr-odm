@@ -15,6 +15,16 @@ class Select extends AbstractNode
     }
 
     /**
+     * Field to select.
+     *
+     * <code>
+     * $qb->select()
+     *   ->field('sel_1.foobar')
+     *   ->field('sel_1.barfoo');
+     * </code>
+     *
+     * @param string $field - name of field to check, including selector name
+     *
      * @factoryMethod
      * @return Select
      */
