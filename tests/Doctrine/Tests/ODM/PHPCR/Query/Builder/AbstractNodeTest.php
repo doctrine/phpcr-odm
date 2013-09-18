@@ -260,4 +260,51 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
         $res = $this->node1->end();
         $this->assertSame($this->parent, $res);
     }
+
+    public function testGetPath()
+    {
+        $this->parent->expects($this->any())
+            ->method('getNodeType')
+            ->will($this->returnValue('ParentNode'));
+        $this->node1->expects($this->any())
+            ->method('getNodeType')
+            ->will($this->returnValue('Node'));
+
+        $this->node1->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue(array('LeafNode' => array(1,1))));
+
+        $this->node1->addChild($this->leafNode);
+
+        $res = $this->node1->getPath();
+
+        $this->assertEquals('ParentNode.Node.LeafNode', $this->leafNode->getPath());
+    }
+
+    /**
+     * @depends testGetPath
+     */
+    public function testDumpNodePaths()
+    {
+        $this->parent->expects($this->any())
+            ->method('getNodeType')
+            ->will($this->returnValue('ParentNode'));
+        $this->node1->expects($this->any())
+            ->method('getNodeType')
+            ->will($this->returnValue('Node'));
+
+        $this->node1->expects($this->any())
+            ->method('getCardinalityMap')
+            ->will($this->returnValue(array('LeafNode' => array(2,2))));
+
+        $this->node1->addChild($this->leafNode);
+        $this->node1->addChild($this->leafNode);
+
+        $res = $this->node1->dumpNodePaths();
+        $this->assertEquals(<<<HERE
+ParentNode.Node.LeafNode
+ParentNode.Node.LeafNode
+HERE
+, $res);
+    }
 }

@@ -345,9 +345,10 @@ abstract class AbstractNode
     public function __call($methodName, $args)
     {
         throw new \BadMethodCallException(sprintf(
-            'Unknown method "%s" called on class "%s", did you mean one of: "%s"',
+            'Unknown method "%s" called on class "%s" at "%s", did you mean one of: "%s"',
             $methodName,
-            get_class($this),
+            $this->getName(),
+            $this->getPath(),
             implode(', ', array_keys($this->getFactoryMethodMap()))
         ));
     }
@@ -370,22 +371,76 @@ abstract class AbstractNode
         foreach ($refl->getMethods() as $rMethod) {
             $comment = $rMethod->getDocComment();
             if ($comment) {
-                if (false !== strstr($comment, '@factoryMethod')) {
-                    preg_match('&@return (.[a-zA-Z]+)&', $comment, $matches);
+                if (preg_match('&@factoryMethod ([A-Za-z]+)&', $comment, $matches)) {
+                    $fMethods[$rMethod->name] = array(
+                        'returnType' => null,
+                        'factoryType' => null,
+                    );
+
                     if (!isset($matches[1])) {
                         throw new \Exception(sprintf(
-                            'Expected docblock for factoryMethod "%s" to declare a return type.',
+                            'Expected annotation for factoryMethod "%s" to declare a child type.',
                             $rMethod->name
                         ));
                     }
 
-                    $retType = $matches[1];
+                    $factoryType = $matches[1];
 
-                    $fMethods[$rMethod->name] = $retType;
+                    $fMethods[$rMethod->name]['factoryType'] = $factoryType;
+
+                    if (preg_match('&@return ([A-Za-z]+)&', $comment, $matches)) {
+                        if (!isset($matches[1])) {
+                            throw new \Exception(sprintf(
+                                'Expected docblock for factoryMethod "%s" to declare a return type.',
+                                $rMethod->name
+                            ));
+                        }
+
+                        $returnType = $matches[1];
+                        $fMethods[$rMethod->name]['returnType'] = $returnType;
+                    }
                 }
             }
         }
 
         return $fMethods;
+    }
+
+    /**
+     * Debug method to get path to node
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        $path = array();
+
+        $current = $this;
+        do {
+            $path[] = $current->getNodeType();
+        } while ($current = $current->getParent());
+
+        $path = array_reverse($path);
+
+        return implode(".", $path);
+    }
+
+    /**
+     * Debug method to dump the paths of all descendants (including self)
+     *
+     * @return string
+     */
+    public function dumpNodePaths()
+    {
+        $paths = array();
+
+        foreach ($this->getChildren() as $child) {
+            $paths[] = $child->getPath();
+            if (!$child instanceOf AbstractLeafNode) {
+                $paths[] = $child->dumpNodePaths();
+            }
+        }
+
+        return implode("\n", $paths);
     }
 }
