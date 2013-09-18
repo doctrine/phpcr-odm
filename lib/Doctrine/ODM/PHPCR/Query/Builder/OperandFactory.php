@@ -28,7 +28,7 @@ class OperandFactory extends OperandDynamicFactory
      *
      * @param string $name - Name of parameter to resolve.
      *
-     * @factoryMethod
+     * @factoryMethod OperandStaticParameter
      * @return OperandFactory
      */
     public function parameter($name)
@@ -45,7 +45,7 @@ class OperandFactory extends OperandDynamicFactory
      *
      * @param string $value - Literal value.
      *
-     * @factoryMethod
+     * @factoryMethod OperandStaticLiteral
      * @return OperandStaticLiteral
      */
     public function literal($value)

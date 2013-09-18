@@ -62,7 +62,7 @@ class QueryBuilder extends AbstractNode
      *    ->eq()->field('a.foobar')->literal('bar')->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Where
      * @return Where
      */
     public function where($void = null)
@@ -75,7 +75,7 @@ class QueryBuilder extends AbstractNode
      * Add additional selection criteria using the AND operator. 
      * @see where
      *
-     * @factoryMethod
+     * @factoryMethod WhereAnd
      * @return WhereAnd
      */
     public function andWhere($void = null)
@@ -88,7 +88,7 @@ class QueryBuilder extends AbstractNode
      * Add additional selection criteria using the OR operator. 
      * see "where"
      *
-     * @factoryMethod
+     * @factoryMethod WhereOr
      * @return WhereOr
      */
     public function orWhere($void = null)
@@ -111,7 +111,7 @@ class QueryBuilder extends AbstractNode
      *  ->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod From
      * @return From
      */
     public function from($void = null)
@@ -138,7 +138,7 @@ class QueryBuilder extends AbstractNode
      * @param string $documentFqn - Fully qualified class name for document.
      * @param string $selectorName - Selector name.
      *
-     * @factoryMethod
+     * @factoryMethod From
      * @return QueryBuilder
      */
     public function fromDocument($documentFqn, $alias)
@@ -180,7 +180,7 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Select
      * @return SourceJoin
      */
     public function addJoinLeftOuter($void = null)
@@ -201,7 +201,7 @@ class QueryBuilder extends AbstractNode
      *   ->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Select
      * @return SourceJoin
      */
     public function addJoinRightOuter($void = null)
@@ -222,7 +222,7 @@ class QueryBuilder extends AbstractNode
      * ->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Select
      * @return SourceJoin
      */
     public function addJoinInner($void = null)
@@ -245,7 +245,7 @@ class QueryBuilder extends AbstractNode
      * ->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Select
      * @return Select
      */
     public function select($void = null)
@@ -268,7 +268,7 @@ class QueryBuilder extends AbstractNode
      *   ->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod SelectAdd
      * @return SelectAdd
      */
     public function addSelect($void = null)
@@ -289,7 +289,7 @@ class QueryBuilder extends AbstractNode
      *   ->end()
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod OrderBy
      * @return OrderBy
      */
     public function orderBy($void = null)
@@ -303,7 +303,7 @@ class QueryBuilder extends AbstractNode
      *
      * See "orderBy"
      *
-     * @factoryMethod
+     * @factoryMethod OrderByAdd
      * @return OrderByAdd
      */
     public function addOrderBy($void = null)

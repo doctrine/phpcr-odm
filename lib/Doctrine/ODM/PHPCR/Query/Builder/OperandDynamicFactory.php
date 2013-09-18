@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
- * Factory/node class for dynamic operands.
+ * Factory node for dynamic operands.
  *
  * As the name suggests, dynamic operand values change
  * according to the node being compared and are used as
@@ -34,7 +34,7 @@ class OperandDynamicFactory extends AbstractNode
      * Represents document rank by relevance to the full text search expression 
      * given by the "fullTextSearch" constraint.
      *
-     * http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
+     * See also: http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
      *
      * <code>
      * $qb->where()
@@ -49,7 +49,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * @param string $selectorName - Name of selector to use
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicFullTextSearchScore
      * @return OperandDynamicFactory
      */
     public function fullTextSearchScore($alias)
@@ -71,7 +71,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * @param string $field - name of field to check, including selector name.
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicLength
      * @return OperandDynamicFactory
      */
     public function length($field)
@@ -89,7 +89,7 @@ class OperandDynamicFactory extends AbstractNode
      *     ->literal('lower_case');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicLowerCase
      * @return OperandDynamicLowerCase
      */
     public function lowerCase()
@@ -107,7 +107,7 @@ class OperandDynamicFactory extends AbstractNode
      *       ->literal('UPPER_CASE');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicUpperCase
      * @return OperandDynamicUpperCase
      */
     public function upperCase()
@@ -133,7 +133,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * @param string $selectorName - Name of selector to use
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicLocalName
      * @return OperandDynamicFactory
      */
     public function localName($alias)
@@ -158,7 +158,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * @param string $selectorName - Name of selector to use
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicName
      * @return OperandDynamicFactory
      */
     public function name($alias)
@@ -178,7 +178,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * @param string $field - name of field to check, including selector name.
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicField
      * @return OperandDynamicFactory
      */
     public function field($field)

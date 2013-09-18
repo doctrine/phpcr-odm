@@ -41,7 +41,7 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $descendantSelectorName - Name of selector for descendant documents.
      * @param string $ancestorSelectorName - Name of selector to match for ancestor documents.
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoinConditionDescendant
      * @return SourceJoinConditionFactory
      */
     public function descendant($descendantAlias, $ancestorAlias)
@@ -65,7 +65,7 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $field1 - Field name for first field.
      * @param string $field2 - Field name for second field.
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoinConditionEqui
      * @return SourceJoinConditionFactory
      */
     public function equi($field1, $field2)
@@ -89,7 +89,7 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $childSelectorName - Name of selector for child documents.
      * @param string $parentSelectorName - Name of selector to match for parent documents.
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoinConditionChildDocument
      * @return SourceJoinConditionFactory
      */
     public function child($childAlias, $parentAlias)
@@ -117,7 +117,7 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $selector2Name - Name of first selector.
      * @param string $selector2Path - Path for documents of second selector.
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoinConditionSameDocument
      * @return SourceJoinConditionFactory
      */
     public function same($selector1Name, $selector2Name, $selector2Path)

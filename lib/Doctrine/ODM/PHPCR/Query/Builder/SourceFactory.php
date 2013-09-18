@@ -38,7 +38,7 @@ abstract class SourceFactory extends AbstractNode
      * @param string $documentFqn - Fully qualified class name for document.
      * @param string $selectorName - Selector name.
      *
-     * @factoryMethod
+     * @factoryMethod SourceDocument
      * @return SourceDocument
      */
     public function document($documentFqn, $alias)
@@ -57,7 +57,7 @@ abstract class SourceFactory extends AbstractNode
      *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoin
      * @return SourceJoin
      */
     public function joinInner()
@@ -82,7 +82,7 @@ abstract class SourceFactory extends AbstractNode
      *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoin
      * @return SourceJoin
      */
     public function joinLeftOuter()
@@ -107,7 +107,7 @@ abstract class SourceFactory extends AbstractNode
      *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoin
      * @return SourceJoin
      */
     public function joinRightOuter()

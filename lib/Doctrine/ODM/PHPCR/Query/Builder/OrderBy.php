@@ -10,7 +10,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  * Query results can be ordered by any dynamic operand
  * in either asc or desc order.
  *
- * @IgnoreAnnotation("factoryMethod")
+ * @IgnoreAnnotation("factoryMethod") Ordering
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -30,7 +30,7 @@ class OrderBy extends AbstractNode
      * $qb->orderBy()->asc()->field('sel_1.prop_1');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Ordering
      * @return Ordering
      */
     public function asc()
