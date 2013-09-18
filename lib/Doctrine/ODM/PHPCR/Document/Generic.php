@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPCR\NodeInterface;
 
 /**
  * This class represents an arbitrary node
@@ -69,7 +70,7 @@ class Generic
     /**
      * The node of for document.
      *
-     * @return string
+     * @return NodeInterface
      */
     public function getNode()
     {
