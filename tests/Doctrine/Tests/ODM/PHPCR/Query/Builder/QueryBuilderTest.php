@@ -90,13 +90,4 @@ class QueryBuilderTest extends NodeTestCase
                 ->ascending()->name('c')->end()
             ->end();
     }
-
-    public function testFirstMaxResult()
-    {
-        $this->node->setMaxResults(123);
-        $this->node->setFirstResult(4);
-
-        $this->assertEquals(123, $this->node->getMaxResults());
-        $this->assertEquals(4, $this->node->getFirstResult());
-    }
 }
