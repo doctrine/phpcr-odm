@@ -250,7 +250,7 @@ HERE
                 }
 
                 $inst = $refl->newInstanceWithoutConstructor();
-                $fMethRetMap = $inst->getFactoryMethodMap();
+                $fMethRetMap = $this->getFactoryMethodMap($refl);
                 $fMethData = array();
 
                 foreach ($fMethRetMap as $fMeth => $fmData) {
@@ -292,7 +292,7 @@ HERE
                         $parentName = $parentRefl->getShortName();
 
                         $parentInst = $parentRefl->newInstanceWithoutConstructor();
-                        $parentMethods = $parentInst->getFactoryMethodMap();
+                        $parentMethods = $this->getFactoryMethodMap($parentRefl);
                         foreach (array_keys($parentMethods) as $parentMethod) {
                             $parentReflMeth = $parentRefl->getMethod($parentMethod);
 
@@ -386,5 +386,46 @@ HERE
         }
 
         return trim(implode("\n", $out));
+    }
+
+    protected function getFactoryMethodMap($refl)
+    {
+        $reflMethods = $refl->getMethods();
+        $fMethods = array();
+
+        foreach ($reflMethods as $rMethod) {
+            $comment = $rMethod->getDocComment();
+            if (preg_match('&@factoryMethod ([A-Za-z]+)&', $comment, $matches)) {
+                $fMethods[$rMethod->name] = array(
+                    'returnType' => null,
+                    'factoryType' => null,
+                );
+
+                if (!isset($matches[1])) {
+                    throw new \Exception(sprintf(
+                        'Expected annotation for factoryMethod "%s" to declare a child type.',
+                        $rMethod->name
+                    ));
+                }
+
+                $factoryType = $matches[1];
+
+                $fMethods[$rMethod->name]['factoryType'] = $factoryType;
+
+                if (preg_match('&@return ([A-Za-z]+)&', $comment, $matches)) {
+                    if (!isset($matches[1])) {
+                        throw new \Exception(sprintf(
+                            'Expected docblock for factoryMethod "%s" to declare a return type.',
+                            $rMethod->name
+                        ));
+                    }
+
+                    $returnType = $matches[1];
+                    $fMethods[$rMethod->name]['returnType'] = $returnType;
+                }
+            }
+        }
+
+        return $fMethods;
     }
 }

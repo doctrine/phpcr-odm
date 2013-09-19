@@ -21,7 +21,7 @@ class QueryBuilderTest extends NodeTestCase
     public function testNonExistantMethod()
     {
         $this->setExpectedException('BadMethodCallException', 
-            'Unknown method "foobar" called on class'
+            'Unknown method "foobar" called on node'
         );
         $this->node->foobar();
     }
