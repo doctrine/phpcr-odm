@@ -58,6 +58,6 @@ HERE
     public function testGetAllNodes()
     {
         $count = count($this->qbTester->getAllNodes());
-        $this->assertEquals(5, $count);
+        $this->assertEquals(8, $count);
     }
 }
