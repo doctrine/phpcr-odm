@@ -60,8 +60,9 @@ class QueryBuilderTester
             $children = $currentNode->getChildrenOfType($nodeType);
 
             if (!$children) {
-                throw new \BadMethodCallException(sprintf('No children at path "%s"',
-                    implode('.', $currentPath)
+                throw new \BadMethodCallException(sprintf("No children at path \"%s\". Node has following paths: \n%s",
+                    implode('.', $currentPath),
+                    $this->dumpPaths($node)
                 ));
             }
 
@@ -92,6 +93,8 @@ class QueryBuilderTester
     public function dumpPaths(AbstractNode $node = null)
     {
         $children = array();
+        $paths = array();
+
         if (null === $node) {
             $node = $this->qb;
         }
@@ -131,5 +134,27 @@ class QueryBuilderTester
         array_shift($path);
 
         return implode('.', $path);
+    }
+
+    /**
+     * Return all the nodes in the query builder.
+     *
+     * @return AbstractNode[]
+     */
+    public function getAllNodes(AbstractNode $node = null)
+    {
+        $nodes = array();
+        if (!$node) {
+            $node = $this->qb;
+        }
+
+        foreach ($node->getChildren() as $child) {
+            if (!$child instanceof AbstractLeafNode) {
+                $nodes[] = $child;
+                $nodes = array_merge($nodes, $this->getAllNodes($child));
+            }
+        }
+
+        return $nodes;
     }
 }

@@ -54,4 +54,10 @@ HERE
         );
         $this->assertEquals('Bar', $node->getValue());
     }
+
+    public function testGetAllNodes()
+    {
+        $count = count($this->qbTester->getAllNodes());
+        $this->assertEquals(5, $count);
+    }
 }
