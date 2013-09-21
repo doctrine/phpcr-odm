@@ -15,19 +15,19 @@ class ConstraintFactoryTest extends NodeTestCase
             array('orX', 'ConstraintOrx', array(
             )),
             array('fieldExists', 'ConstraintFieldExists', array(
-                'selector_name.propery_name',
+                'alias.propery_name',
             )),
             array('fullTextSearch', 'ConstraintFullTextSearch', array(
-                'selector_name.property_name', 'full_text_expression',
+                'alias.field', 'full_text_expression',
             )),
             array('same', 'ConstraintSame', array(
-                'path', 'selector_name',
+                'path', 'alias',
             )),
             array('descendant', 'ConstraintDescendant', array(
-                'ancestor_path', 'selector_name',
+                'ancestor_path', 'alias',
             )),
             array('child', 'ConstraintChild', array(
-                'parent_path', 'selector_name',
+                'parent_path', 'alias',
             )),
             array('not', 'ConstraintNot', array(
             )),

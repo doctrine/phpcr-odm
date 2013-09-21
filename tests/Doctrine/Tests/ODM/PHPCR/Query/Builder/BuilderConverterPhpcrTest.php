@@ -75,7 +75,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      */
     protected function primeBuilder()
     {
-        $from = $this->qb->from()->document('foobar', 'sel_1');
+        $from = $this->qb->from()->document('foobar', 'alias_1');
         $res = $this->converter->dispatch($from);
     }
 
@@ -95,7 +95,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $from = $this->createNode('From', array());
         $source = $this->createNode('SourceDocument', array(
             'foobar',
-            'selector_name',
+            'alias',
         ));
         $from->addChild($source);
 
@@ -103,7 +103,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res);
         $this->assertEquals('nt:unstructured', $res->getNodeTypeName());
-        $this->assertEquals('selector_name', $res->getSelectorName());
+        $this->assertEquals('alias', $res->getSelectorName());
     }
 
     public function provideDispatchWheres()
@@ -129,21 +129,21 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         } else {
             $where = $this->createNode('Where', array());
             $constraint = $this->createNode('ConstraintFieldExists', array(
-                'sel_1.foobar',
+                'alias_1.foobar',
             ));
             $where->addChild($constraint);
 
             $res = $this->converter->dispatch($where);
 
             $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
-            $this->assertEquals('sel_1', $res->getSelectorName());
+            $this->assertEquals('alias_1', $res->getSelectorName());
             $this->assertEquals('foobar_phpcr', $res->getPropertyName());
         }
 
         // test add / or where (see dataProvider)
         $whereCon = $this->createNode('Where'.$logicalOp, array());
         $constraint = $this->createNode('ConstraintFieldExists', array(
-            'sel_1.barfoo',
+            'alias_1.barfoo',
         ));
         $whereCon->addChild($constraint);
 
@@ -184,10 +184,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         switch ($joinCond) {
             case 'child':
-                $n->condition()->child('child_selector_name', 'parent_selector_name')->end();
+                $n->condition()->child('child_alias', 'parent_alias')->end();
                 break;
             case 'descendant':
-                $n->condition()->descendant('descendant_selector_name', 'ancestor_selector_name')->end();
+                $n->condition()->descendant('descendant_alias', 'ancestor_alias')->end();
                 break;
             case 'sameDocument':
                 $n->condition()->sameDocument('selector_1_name', 'selector_2_name', '/selector2/path')->end();
@@ -217,8 +217,8 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $select = $this->qb
             ->select()
-                ->field('sel_1.prop_1')
-                ->field('sel_1.prop_2');
+                ->field('alias_1.prop_1')
+                ->field('alias_1.prop_2');
 
         $res = $this->converter->dispatch($select);
 
@@ -231,7 +231,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $addSelect = $this->qb
             ->addSelect()
-                ->field('sel_1.prop_3');
+                ->field('alias_1.prop_3');
 
         $res = $this->converter->dispatch($addSelect);
         $this->assertCount(3, $res);
@@ -262,7 +262,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $composite = $where->$method();
 
         for ($i = 0; $i < $nbConstraints; $i++) {
-            $composite->fieldExists('sel_1.prop_2');
+            $composite->fieldExists('alias_1.prop_2');
         }
 
         $res = $this->converter->dispatch($where);
@@ -282,23 +282,23 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                'ConstraintFieldExists', array('sel_1.rop_1'), 
+                'ConstraintFieldExists', array('alias_1.rop_1'), 
                 'PropertyExistenceInterface'
             ),
             array(
-                'ConstraintFullTextSearch', array('sel_1.prop_1', 'search_expr'), 
+                'ConstraintFullTextSearch', array('alias_1.prop_1', 'search_expr'), 
                 'FullTextSearchInterface'
             ),
             array(
-                'ConstraintSame', array('sel_1', '/path'),
+                'ConstraintSame', array('alias_1', '/path'),
                 'SameNodeInterface'
             ),
             array(
-                'ConstraintDescendant', array('sel_1', '/ancestor/path'),
+                'ConstraintDescendant', array('alias_1', '/ancestor/path'),
                 'DescendantNodeInterface'
             ),
             array(
-                'ConstraintChild', array('sel_1', '/parent/path'),
+                'ConstraintChild', array('alias_1', '/parent/path'),
                 'ChildNodeInterface'
             ),
         );
@@ -341,7 +341,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $comparison = $this->qb->where()
             ->$method()
-                ->field('sel_1.prop_1')
+                ->field('alias_1.prop_1')
                 ->literal('foobar');
 
         $res = $this->converter->dispatch($comparison);
@@ -356,7 +356,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $this->primeBuilder();
         $not = $this->qb->where()
-            ->not()->fieldExists('sel_1.prop_1');
+            ->not()->fieldExists('alias_1.prop_1');
 
         $res = $this->converter->dispatch($not);
 
@@ -368,25 +368,25 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             // leaf
-            array('OperandDynamicLocalName', array('sel_1'), array(
+            array('OperandDynamicLocalName', array('alias_1'), array(
                 'phpcr_class' => 'NodeLocalNameInterface',
                 'assert' => function ($test, $node) {
-                    $test->assertEquals('sel_1', $node->getSelectorName());
+                    $test->assertEquals('alias_1', $node->getSelectorName());
                 }
             )),
-            array('OperandDynamicName', array('sel_1'), array(
+            array('OperandDynamicName', array('alias_1'), array(
                 'phpcr_class' => 'NodeNameInterface',
                 'assert' => function ($test, $node) {
-                    $test->assertEquals('sel_1', $node->getSelectorName());
+                    $test->assertEquals('alias_1', $node->getSelectorName());
                 }
             )),
-            array('OperandDynamicFullTextSearchScore', array('sel_1'), array(
+            array('OperandDynamicFullTextSearchScore', array('alias_1'), array(
                 'phpcr_class' => 'FullTextSearchScoreInterface',
                 'assert' => function ($test, $node) {
-                    $test->assertEquals('sel_1', $node->getSelectorName());
+                    $test->assertEquals('alias_1', $node->getSelectorName());
                 }
             )),
-            array('OperandDynamicLength', array('sel_1.property_name'), array(
+            array('OperandDynamicLength', array('alias_1.field'), array(
                 'phpcr_class' => 'LengthInterface',
                 'assert' => function ($test, $node) {
                     $propertyValue = $node->getPropertyValue();
@@ -394,20 +394,20 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                         'PHPCR\Query\QOM\PropertyValueInterface',
                         $propertyValue
                     );
-                    $test->assertEquals('property_name_phpcr', $propertyValue->getPropertyName());
-                    $test->assertEquals('sel_1', $propertyValue->getSelectorName());
+                    $test->assertEquals('field_phpcr', $propertyValue->getPropertyName());
+                    $test->assertEquals('alias_1', $propertyValue->getSelectorName());
                 }
             )),
-            array('OperandDynamicField', array('sel_1.property_name'), array(
+            array('OperandDynamicField', array('alias_1.field'), array(
                 'phpcr_class' => 'PropertyValueinterface',
                 'assert' => function ($test, $node) {
-                    $test->assertEquals('sel_1', $node->getSelectorName());
-                    $test->assertEquals('property_name_phpcr', $node->getPropertyName());
+                    $test->assertEquals('alias_1', $node->getSelectorName());
+                    $test->assertEquals('field_phpcr', $node->getPropertyName());
                 }
             )),
 
             // non-leaf
-            array('OperandDynamicLowerCase', array('sel_1'), array(
+            array('OperandDynamicLowerCase', array('alias_1'), array(
                 'phpcr_class' => 'LowerCaseInterface',
                 'add_child_operand' => true,
                 'assert' => function ($test, $node) {
@@ -418,7 +418,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                    );
                 }
             )),
-            array('OperandDynamicUpperCase', array('sel_1'), array(
+            array('OperandDynamicUpperCase', array('alias_1'), array(
                 'phpcr_class' => 'UpperCaseInterface',
                 'add_child_operand' => true,
                 'assert' => function ($test, $node) {
@@ -466,7 +466,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         if ($options['add_child_operand']) {
             $operand->addChild(
-                $this->createNode('OperandDynamicLocalName', array('sel_1'))
+                $this->createNode('OperandDynamicLocalName', array('alias_1'))
             );
         }
 
@@ -489,7 +489,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $orderBy->addChild($order1);
         $orderBy->addChild($order2);
 
-        $op = $this->createNode('OperandDynamicLocalName', array('sel_1'));
+        $op = $this->createNode('OperandDynamicLocalName', array('alias_1'));
         $order1->addChild($op);
         $order2->addChild($op);
         $order3->addChild($op);
@@ -517,11 +517,11 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         // setup the query, depends on the query builder
         // working properly..
         $this->qb->select()
-            ->field('sel_1.foobar');
+            ->field('alias_1.foobar');
 
-        $this->qb->from()->document('Fooar', 'sel_1');
-        $this->qb->where()->fieldExists('sel_1.foobar');
-        $this->qb->orderBy()->ascending()->name('sel_1');
+        $this->qb->from()->document('Fooar', 'alias_1');
+        $this->qb->where()->fieldExists('alias_1.foobar');
+        $this->qb->orderBy()->ascending()->name('alias_1');
 
         // setup the qomf factory to expect the right parameters for createQuery
         $this->qomfFactory->expects($this->once())

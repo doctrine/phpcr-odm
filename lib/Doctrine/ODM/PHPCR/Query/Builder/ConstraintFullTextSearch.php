@@ -6,15 +6,15 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
 class ConstraintFullTextSearch extends AbstractLeafNode
 {
-    protected $selectorName;
-    protected $propertyName;
+    protected $alias;
+    protected $field;
     protected $fullTextSearchExpression;
 
     Public function __construct(AbstractNode $parent, $field, $fullTextSearchExpression)
     {
-        list($selectorName, $propertyName) = $this->explodeField($field);
-        $this->selectorName = $selectorName;
-        $this->propertyName = $propertyName;
+        list($alias, $field) = $this->explodeField($field);
+        $this->alias = $alias;
+        $this->field = $field;
         $this->fullTextSearchExpression = $fullTextSearchExpression;
         parent::__construct($parent);
     }
@@ -24,14 +24,14 @@ class ConstraintFullTextSearch extends AbstractLeafNode
         return self::NT_CONSTRAINT;
     }
 
-    public function getSelectorName()
+    public function getAlias()
     {
-        return $this->selectorName;
+        return $this->alias;
     }
 
-    public function getPropertyName()
+    public function getField()
     {
-        return $this->propertyName;
+        return $this->field;
     }
 
     public function getFullTextSearchExpression()

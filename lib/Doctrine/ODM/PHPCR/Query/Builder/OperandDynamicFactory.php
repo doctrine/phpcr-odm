@@ -35,19 +35,19 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->gt()
-     *       ->lop()->fullTextSearchScore('sel_1')->end()
+     *       ->lop()->fullTextSearchScore('alias_1')->end()
      *       ->rop()->literal(50)->end()
      *     ->end()
      *
      *   $qb->orderBy()
-     *     ->ascending()->fullTextSearchScore('sel_1')->end()
+     *     ->ascending()->fullTextSearchScore('alias_1')->end()
      *
      * @factoryMethod
      * @return OperandDynamicFullTextSearchScore
      */
-    public function fullTextSearchScore($selectorName)
+    public function fullTextSearchScore($alias)
     {
-        return $this->addChild(new OperandDynamicFullTextSearchScore($this, $selectorName));
+        return $this->addChild(new OperandDynamicFullTextSearchScore($this, $alias));
     }
 
     /**
@@ -55,12 +55,12 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->gt()
-     *       ->lop()->length('sel_1', 'prop_1')->end()
+     *       ->lop()->length('alias_1', 'prop_1')->end()
      *       ->rop()->literal(50)->end()
      *     ->end()
      *
      *   $qb->orderBy()
-     *     ->ascending()->fullTextSearchScore('sel_1')->end()
+     *     ->ascending()->fullTextSearchScore('alias_1')->end()
      *
      * @factoryMethod
      * @return OperandDynamicLength
@@ -76,7 +76,7 @@ class OperandDynamicFactory extends AbstractNode
      *   $qb->where()
      *     ->eq()
      *       ->lop()
-     *         ->lowerCase()->propertyValue('prop_1', 'sel_1')->end()
+     *         ->lowerCase()->propertyValue('prop_1', 'alias_1')->end()
      *       ->end()
      *       ->rop()->literal('lower_case')->end()
      *     ->end()
@@ -95,7 +95,7 @@ class OperandDynamicFactory extends AbstractNode
      *   $qb->where()
      *     ->eq()
      *       ->lop()
-     *         ->upperCase()->propertyValue('prop_1', 'sel_1')->end()
+     *         ->upperCase()->propertyValue('prop_1', 'alias_1')->end()
      *       ->end()
      *       ->rop()->literal('UPPER_CASE')->end()
      *     ->end()
@@ -114,7 +114,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->eq()
-     *       ->lop()->documentLocalName('sel_1')->end()
+     *       ->lop()->documentLocalName('alias_1')->end()
      *       ->rop()->literal('my_node_name')
      *     ->end()
      *
@@ -123,9 +123,9 @@ class OperandDynamicFactory extends AbstractNode
      * @factoryMethod
      * @return OperandDynamicLocalName
      */
-    public function localName($selectorName)
+    public function localName($alias)
     {
-        return $this->addChild(new OperandDynamicLocalName($this, $selectorName));
+        return $this->addChild(new OperandDynamicLocalName($this, $alias));
     }
 
     /**
@@ -134,7 +134,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->eq()
-     *       ->lop()->documentName('sel_1')->end()
+     *       ->lop()->documentName('alias_1')->end()
      *       ->rop()->literal('namespace:my_node_name')
      *     ->end()
      *
@@ -143,9 +143,9 @@ class OperandDynamicFactory extends AbstractNode
      * @factoryMethod
      * @return OperandDynamicName
      */
-    public function name($selectorName)
+    public function name($alias)
     {
-        return $this->addChild(new OperandDynamicName($this, $selectorName));
+        return $this->addChild(new OperandDynamicName($this, $alias));
     }
 
     /**
@@ -153,7 +153,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->eq()
-     *       ->lop()->propertyValue('prop_name', 'sel_1')->end()
+     *       ->lop()->propertyValue('prop_name', 'alias_1')->end()
      *       ->rop()->literal('my_property_value')
      *     ->end()
      *

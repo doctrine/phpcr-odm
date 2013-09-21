@@ -6,12 +6,12 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
 class ConstraintSame extends AbstractLeafNode
 {
-    protected $selectorName;
+    protected $alias;
     protected $path;
 
-    public function __construct(AbstractNode $parent, $selectorName, $path)
+    public function __construct(AbstractNode $parent, $alias, $path)
     {
-        $this->selectorName = $selectorName;
+        $this->alias = $alias;
         $this->path = $path;
         parent::__construct($parent);
     }
@@ -21,9 +21,9 @@ class ConstraintSame extends AbstractLeafNode
         return self::NT_CONSTRAINT;
     }
 
-    public function getSelectorName()
+    public function getAlias()
     {
-        return $this->selectorName;
+        return $this->alias;
     }
 
     public function getPath()

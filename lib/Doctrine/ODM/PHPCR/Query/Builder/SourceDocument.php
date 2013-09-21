@@ -7,12 +7,12 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 class SourceDocument extends AbstractLeafNode
 {
     protected $documentFqn;
-    protected $selectorName;
+    protected $alias;
 
-    public function __construct(AbstractNode $parent, $documentFqn, $selectorName)
+    public function __construct(AbstractNode $parent, $documentFqn, $alias)
     {
         $this->documentFqn = $documentFqn;
-        $this->selectorName = $selectorName;
+        $this->alias = $alias;
         parent::__construct($parent);
     }
 
@@ -21,9 +21,9 @@ class SourceDocument extends AbstractLeafNode
         return $this->documentFqn;
     }
 
-    public function getSelectorName()
+    public function getAlias()
     {
-        return $this->selectorName;
+        return $this->alias;
     }
 
     public function getNodeType()

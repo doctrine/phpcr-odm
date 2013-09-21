@@ -138,10 +138,10 @@ class QueryBuilder extends AbstractNode
      * @factoryMethod
      * @return QueryBuilder
      */
-    public function fromDocument($documentFqn, $selectorName)
+    public function fromDocument($documentFqn, $alias)
     {
         $from = new From($this);
-        $from->document($documentFqn, $selectorName);
+        $from->document($documentFqn, $alias);
         $this->setChild($from);
         return $from->end();
     }
