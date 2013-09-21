@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\Source;
 use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
-class ConstraintFieldExists extends AbstractLeafNode
+class ConstraintFieldIsset extends AbstractLeafNode
 {
     protected $field;
     protected $alias;

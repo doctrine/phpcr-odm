@@ -14,7 +14,7 @@ class ConstraintFactoryTest extends NodeTestCase
             )),
             array('orX', 'ConstraintOrx', array(
             )),
-            array('fieldExists', 'ConstraintFieldExists', array(
+            array('fieldIsset', 'ConstraintFieldIsset', array(
                 'alias.propery_name',
             )),
             array('fullTextSearch', 'ConstraintFullTextSearch', array(

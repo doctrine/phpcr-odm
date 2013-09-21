@@ -128,7 +128,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
             $this->setExpectedException('\BadMethodCallException', 'call where() first');
         } else {
             $where = $this->createNode('Where', array());
-            $constraint = $this->createNode('ConstraintFieldExists', array(
+            $constraint = $this->createNode('ConstraintFieldIsset', array(
                 'alias_1.foobar',
             ));
             $where->addChild($constraint);
@@ -142,7 +142,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         // test add / or where (see dataProvider)
         $whereCon = $this->createNode('Where'.$logicalOp, array());
-        $constraint = $this->createNode('ConstraintFieldExists', array(
+        $constraint = $this->createNode('ConstraintFieldIsset', array(
             'alias_1.barfoo',
         ));
         $whereCon->addChild($constraint);
@@ -262,7 +262,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $composite = $where->$method();
 
         for ($i = 0; $i < $nbConstraints; $i++) {
-            $composite->fieldExists('alias_1.prop_2');
+            $composite->fieldIsset('alias_1.prop_2');
         }
 
         $res = $this->converter->dispatch($where);
@@ -282,7 +282,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                'ConstraintFieldExists', array('alias_1.rop_1'), 
+                'ConstraintFieldIsset', array('alias_1.rop_1'), 
                 'PropertyExistenceInterface'
             ),
             array(
@@ -356,7 +356,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $this->primeBuilder();
         $not = $this->qb->where()
-            ->not()->fieldExists('alias_1.prop_1');
+            ->not()->fieldIsset('alias_1.prop_1');
 
         $res = $this->converter->dispatch($not);
 
@@ -520,7 +520,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
             ->field('alias_1.foobar');
 
         $this->qb->from()->document('Fooar', 'alias_1');
-        $this->qb->where()->fieldExists('alias_1.foobar');
+        $this->qb->where()->fieldIsset('alias_1.foobar');
         $this->qb->orderBy()->ascending()->name('alias_1');
 
         // setup the qomf factory to expect the right parameters for createQuery

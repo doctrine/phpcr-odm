@@ -448,7 +448,7 @@ class BuilderConverterPhpcr
         return $this->doWalkConstraintComposite($node, 'orConstraint');
     }
 
-    protected function walkConstraintFieldExists(ConstraintFieldExists $node)
+    protected function walkConstraintFieldIsset(ConstraintFieldIsset $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
             $node->getAlias(), $node->getField()

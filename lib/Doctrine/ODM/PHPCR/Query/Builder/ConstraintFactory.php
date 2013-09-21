@@ -58,17 +58,17 @@ class ConstraintFactory extends AbstractNode
     /**
      * Field existance constraint:
      *
-     *   $qb->where()->propertyExists('prop_1', 'alias_1')
+     *   $qb->where()->fieldIsset('prop_1', 'alias_1')
      *
      * @param string $field
      * @param string $alias
      *
      * @factoryMethod
-     * @return ConstraintFieldExists
+     * @return ConstraintFieldIsset
      */
-    public function fieldExists($field)
+    public function fieldIsset($field)
     {
-        return $this->addChild(new ConstraintFieldExists($this, $field));
+        return $this->addChild(new ConstraintFieldIsset($this, $field));
     }
 
     /**
@@ -146,7 +146,7 @@ class ConstraintFactory extends AbstractNode
      *
      * Inverts the truth of any given constraint:
      *
-     *   $qb->where()->not()->propertyExists('foobar', 'alias_1')
+     *   $qb->where()->not()->fieldIsset('foobar', 'alias_1')
      *
      * @factoryMethod
      * @return ConstraintNot
