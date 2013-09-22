@@ -38,8 +38,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *   ->end()
      * </code>
      *
-     * @param string $descendantSelectorName - Name of selector for descendant documents.
-     * @param string $ancestorSelectorName - Name of selector to match for ancestor documents.
+     * @param string $descendantAlias - Name of selector for descendant documents.
+     * @param string $ancestorAlias - Name of selector to match for ancestor documents.
      *
      * @factoryMethod SourceJoinConditionDescendant
      * @return SourceJoinConditionFactory
@@ -86,8 +86,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->condition()->child('alias_1', 'alias_2');
      * </code>
      *
-     * @param string $childSelectorName - Name of selector for child documents.
-     * @param string $parentSelectorName - Name of selector to match for parent documents.
+     * @param string $childAlias - Name of selector for child documents.
+     * @param string $parentAlias - Name of selector to match for parent documents.
      *
      * @factoryMethod SourceJoinConditionChildDocument
      * @return SourceJoinConditionFactory
@@ -113,17 +113,17 @@ class SourceJoinConditionFactory extends AbstractNode
      *     ->end()
      * </code>
      *
-     * @param string $selector1Name - Name of first selector.
-     * @param string $selector2Name - Name of first selector.
-     * @param string $selector2Path - Path for documents of second selector.
+     * @param string $alias1 - Name of first alias.
+     * @param string $alias2 - Name of first alias.
+     * @param string $alias2Path - Path for documents of second selector.
      *
      * @factoryMethod SourceJoinConditionSameDocument
      * @return SourceJoinConditionFactory
      */
-    public function same($selector1Name, $selector2Name, $selector2Path)
+    public function same($alias1, $alias2, $alias2Path)
     {
         return $this->addChild(new SourceJoinConditionSameDocument($this, 
-            $selector1Name, $selector2Name, $selector2Path
+            $alias1, $alias2, $alias2Path
         ));
     }
 }

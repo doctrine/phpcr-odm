@@ -47,7 +47,7 @@ class OperandDynamicFactory extends AbstractNode
      *    ->ascending()->fullTextSearchScore('sel_1')->end()
      * </code>
      *
-     * @param string $selectorName - Name of selector to use
+     * @param string $alias - Name of selector to use
      *
      * @factoryMethod OperandDynamicFullTextSearchScore
      * @return OperandDynamicFactory
@@ -131,7 +131,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * Relates to PHPCR NodeLocalNameInterface
      *
-     * @param string $selectorName - Name of selector to use
+     * @param string $alias - Name of selector to use
      *
      * @factoryMethod OperandDynamicLocalName
      * @return OperandDynamicFactory
@@ -156,7 +156,7 @@ class OperandDynamicFactory extends AbstractNode
      *
      * Relates to PHPCR NodeNameInterface.
      *
-     * @param string $selectorName - Name of selector to use
+     * @param string $alias - Name of selector to use
      *
      * @factoryMethod OperandDynamicName
      * @return OperandDynamicFactory

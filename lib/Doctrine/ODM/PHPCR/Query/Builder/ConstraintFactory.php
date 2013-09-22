@@ -100,7 +100,7 @@ class ConstraintFactory extends AbstractNode
      *
      * @param string $field - Name of field to check, including selector name.
      *
-     * @factoryMethod ConstraintFieldExists
+     * @factoryMethod ConstraintFieldIsset
      * @return ConstraintFactory
      */
     public function fieldIsset($field)
@@ -138,7 +138,7 @@ class ConstraintFactory extends AbstractNode
      * Relates to PHPCR QOM SameNodeInterface.
      *
      * @param string $path - Path to reference document.
-     * @param string $selectorName - Name of selector to use.
+     * @param string $alias - Name of selector to use.
      *
      * @factoryMethod ConstraintSame
      * @return ConstraintFactory
@@ -158,7 +158,7 @@ class ConstraintFactory extends AbstractNode
      * Relates to PHPCR QOM DescendantNodeInterface
      *
      * @param string $ancestorPath - Select descendants of this path.
-     * @param string $selectorName - Name of selector to use.
+     * @param string $alias - Name of selector to use.
      *
      * @factoryMethod ConstraintDescendant
      * @return ConstraintFactory
@@ -178,7 +178,7 @@ class ConstraintFactory extends AbstractNode
      * Relates to PHPCR QOM ChildNodeInterface.
      *
      * @param string $parentPath - Select children of this path.
-     * @param string $selectorName - Name of selector to use
+     * @param string $alias - Name of selector to use
      *
      * @factoryMethod ConstraintChild
      * @return ConstraintFactory
