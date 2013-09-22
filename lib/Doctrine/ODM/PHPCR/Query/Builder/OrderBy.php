@@ -8,7 +8,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  * Factory/node class for order by.
  *
  * Query results can be ordered by any dynamic operand
- * in either ascending or descending order.
+ * in either asc or desc order.
  *
  * @IgnoreAnnotation("factoryMethod")
  *
@@ -24,29 +24,29 @@ class OrderBy extends AbstractNode
     }
 
     /**
-     * Add ascending ordering:
+     * Add asc ordering:
      *
      *   $qb->orderBy()
-     *     ->ascending()->propertyValue('prop_1', 'alias_1')->end()
+     *     ->asc()->propertyValue('prop_1', 'alias_1')->end()
      *
      * @factoryMethod
      * @return Ordering
      */
-    public function ascending()
+    public function asc()
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_ASCENDING));
     }
 
     /**
-     * Add descending ordering:
+     * Add desc ordering:
      *
      *   $qb->orderBy()
-     *     ->descending()->propertyValue('prop_1', 'alias_1')->end()
+     *     ->desc()->propertyValue('prop_1', 'alias_1')->end()
      *
      * @factoryMethod
      * @return Ordering
      */
-    public function descending()
+    public function desc()
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_DESCENDING));
     }

@@ -56,8 +56,8 @@ class TestQueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->node
             ->where()->eq()->field('f.foo')->literal('foo.bar')->end()->end()
             ->orderBy()
-              ->ascending()->localName('f')->end()
-              ->descending()->field('f.foo')->end()
+              ->asc()->localName('f')->end()
+              ->desc()->field('f.foo')->end()
               ->end();
 
         if ($expectedException) {

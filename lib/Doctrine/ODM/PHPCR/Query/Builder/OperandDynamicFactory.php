@@ -40,7 +40,7 @@ class OperandDynamicFactory extends AbstractNode
      *     ->end()
      *
      *   $qb->orderBy()
-     *     ->ascending()->fullTextSearchScore('alias_1')->end()
+     *     ->asc()->fullTextSearchScore('alias_1')->end()
      *
      * @factoryMethod
      * @return OperandDynamicFullTextSearchScore
@@ -60,7 +60,7 @@ class OperandDynamicFactory extends AbstractNode
      *     ->end()
      *
      *   $qb->orderBy()
-     *     ->ascending()->fullTextSearchScore('alias_1')->end()
+     *     ->asc()->fullTextSearchScore('alias_1')->end()
      *
      * @factoryMethod
      * @return OperandDynamicLength

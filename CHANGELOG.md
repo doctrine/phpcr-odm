@@ -1,7 +1,10 @@
 Changelog
 =========
 
-* **2013-09-22**: [QueryBuilder] Renamed fieldExists => fieldIsset.
+* **2013-09-22**: [QueryBuilder] API method renames 
+    [constraint] fieldExists => fieldIsset
+    [orderBy] ascending -> asc
+    [orderBy] descending -> desc
 * **2013-09-13**: [QueryBuilder] Replaced query builder with new
   implementation. See new documentation.
 * **2013-08-16**: [Model] removed Doctrine\ODM\PHPCR\Document\Image and moved

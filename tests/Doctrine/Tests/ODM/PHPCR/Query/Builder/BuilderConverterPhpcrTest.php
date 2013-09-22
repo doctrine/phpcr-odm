@@ -521,7 +521,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $this->qb->from()->document('Fooar', 'alias_1');
         $this->qb->where()->fieldIsset('alias_1.foobar');
-        $this->qb->orderBy()->ascending()->name('alias_1');
+        $this->qb->orderBy()->asc()->name('alias_1');
 
         // setup the qomf factory to expect the right parameters for createQuery
         $this->qomfFactory->expects($this->once())

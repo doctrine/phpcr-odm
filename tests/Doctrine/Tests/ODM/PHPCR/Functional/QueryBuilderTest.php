@@ -220,13 +220,13 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb = $this->createQb();
         $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
-        $qb->orderBy()->ascending()->field('a.username')->end();
+        $qb->orderBy()->asc()->field('a.username')->end();
 
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);
         $this->assertEquals('dtl', $res->first()->username);
 
-        $qb->orderBy()->descending()->field('a.username')->end();
+        $qb->orderBy()->desc()->field('a.username')->end();
 
         $res = $qb->getQuery()->execute();
         $this->assertCount(2, $res);

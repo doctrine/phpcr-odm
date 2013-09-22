@@ -83,11 +83,11 @@ class QueryBuilderTest extends NodeTestCase
                 ->fieldIsset('alias_1.foobar')
             ->end()
             ->orderBy()
-                ->ascending()->name('a')->end()
-                ->descending()->name('b')->end()
+                ->asc()->name('a')->end()
+                ->desc()->name('b')->end()
             ->end()
             ->addOrderBy()
-                ->ascending()->name('c')->end()
+                ->asc()->name('c')->end()
             ->end();
     }
 }

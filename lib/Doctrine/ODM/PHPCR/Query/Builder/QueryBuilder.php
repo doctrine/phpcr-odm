@@ -281,8 +281,8 @@ class QueryBuilder extends AbstractNode
      *
      * <code>
      * $qb->orderBy()
-     *     ->ascending()->field('a.prop_1')
-     *     ->descending()->field('a.prop_2')
+     *     ->asc()->field('a.prop_1')
+     *     ->desc()->field('a.prop_2')
      *   ->end()
      * </code>
      *
