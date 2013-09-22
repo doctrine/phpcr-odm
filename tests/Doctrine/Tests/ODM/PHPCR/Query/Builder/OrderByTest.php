@@ -10,10 +10,10 @@ class OrderByTest extends NodeTestCase
     public function provideInterface()
     {
         return array(
-            array('ascending', 'Ordering', array(
+            array('asc', 'Ordering', array(
                 QOMConstants::JCR_ORDER_ASCENDING,
             )),
-            array('descending', 'Ordering', array(
+            array('desc', 'Ordering', array(
                 QOMConstants::JCR_ORDER_DESCENDING,
             )),
         );

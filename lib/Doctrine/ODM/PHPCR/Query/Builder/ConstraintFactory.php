@@ -26,8 +26,8 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->andX()
-     *       ->propertyExsts('prop_1', 'sel_1')
-     *       ->propertyExsts('prop_2', 'sel_1')
+     *       ->propertyExsts('prop_1', 'alias_1')
+     *       ->propertyExsts('prop_2', 'alias_1')
      *     ->end()
      *
      * @factoryMethod
@@ -43,8 +43,8 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->orX()
-     *       ->propertyExsts('prop_1', 'sel_1')
-     *       ->propertyExsts('prop_2', 'sel_1')
+     *       ->propertyExsts('prop_1', 'alias_1')
+     *       ->propertyExsts('prop_2', 'alias_1')
      *     ->end()
      *
      * @factoryMethod
@@ -58,23 +58,23 @@ class ConstraintFactory extends AbstractNode
     /**
      * Field existance constraint:
      *
-     *   $qb->where()->propertyExists('prop_1', 'sel_1')
+     *   $qb->where()->fieldIsset('prop_1', 'alias_1')
      *
-     * @param string $propertyName
-     * @param string $selectorName
+     * @param string $field
+     * @param string $alias
      *
      * @factoryMethod
-     * @return ConstraintFieldExists
+     * @return ConstraintFieldIsset
      */
-    public function fieldExists($field)
+    public function fieldIsset($field)
     {
-        return $this->addChild(new ConstraintFieldExists($this, $field));
+        return $this->addChild(new ConstraintFieldIsset($this, $field));
     }
 
     /**
      * Full text search constraint:
      *
-     *   $qb->where()->fullTextSearch('prop_1', 'search_expression', 'sel_1')
+     *   $qb->where()->fullTextSearch('prop_1', 'search_expression', 'alias_1')
      *
      * @param string $field
      * @param string $fullTextSearchExpression
@@ -90,55 +90,55 @@ class ConstraintFactory extends AbstractNode
     /**
      * Same document constraint:
      *
-     *   $qb->where()->sameDocument('/path/to/doc', 'sel_1')
+     *   $qb->where()->sameDocument('/path/to/doc', 'alias_1')
      *
      * Relates to PHPCR SameNodeInterface
      *
      * @param string $path
-     * @param string $selectorName
+     * @param string $alias
      *
      * @factoryMethod
      * @return ConstraintSame
      */
-    public function same($path, $selectorName)
+    public function same($path, $alias)
     {
-        return $this->addChild(new ConstraintSame($this, $selectorName, $path));
+        return $this->addChild(new ConstraintSame($this, $alias, $path));
     }
 
     /**
      * Descendant document constraint:
      *
-     *   $qb->where()->descendantDocument('/ancestor/path', 'sel_1')
+     *   $qb->where()->descendantDocument('/ancestor/path', 'alias_1')
      *
      * Relates to PHPCR DescendantNodeInterface
      *
      * @param string $ancestorPath
-     * @param string $selectorName
+     * @param string $alias
      *
      * @factoryMethod
      * @return ConstraintDescendant
      */
-    public function descendant($ancestorPath, $selectorName)
+    public function descendant($ancestorPath, $alias)
     {
-        return $this->addChild(new ConstraintDescendant($this, $selectorName, $ancestorPath));
+        return $this->addChild(new ConstraintDescendant($this, $alias, $ancestorPath));
     }
 
     /**
      * Child document constraint:
      *
-     *   $qb->where()->child('/parent/path', 'sel_1')
+     *   $qb->where()->child('/parent/path', 'alias_1')
      *
      * @param string $parentPath
-     * @param string $selectorName
+     * @param string $alias
      *
      * Relates to PHPCR ChildNodeInterface
      *
      * @factoryMethod
      * @return ConstraintChild
      */
-    public function child($parentPath, $selectorName)
+    public function child($parentPath, $alias)
     {
-        return $this->addChild(new ConstraintChild($this, $selectorName, $parentPath));
+        return $this->addChild(new ConstraintChild($this, $alias, $parentPath));
     }
 
     /**
@@ -146,7 +146,7 @@ class ConstraintFactory extends AbstractNode
      *
      * Inverts the truth of any given constraint:
      *
-     *   $qb->where()->not()->propertyExists('foobar', 'sel_1')
+     *   $qb->where()->not()->fieldIsset('foobar', 'alias_1')
      *
      * @factoryMethod
      * @return ConstraintNot
@@ -161,7 +161,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->eq()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->bindVariable('var_1')->end()
      *     ->end()
      *
@@ -180,7 +180,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->neq()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->bindVariable('var_1')->end()
      *     ->end()
      *
@@ -199,7 +199,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->lt()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
@@ -218,7 +218,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->lte()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
@@ -237,7 +237,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->gt()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
@@ -256,7 +256,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->gte()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->literal(5)->end()
      *     ->end()
      *
@@ -275,7 +275,7 @@ class ConstraintFactory extends AbstractNode
      *
      *   $qb->where()
      *     ->lt()
-     *       ->lop()->propertyValue('foobar', 'sel_1')->end()
+     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
      *       ->rop()->literal('foo%')->end()
      *     ->end()
      *

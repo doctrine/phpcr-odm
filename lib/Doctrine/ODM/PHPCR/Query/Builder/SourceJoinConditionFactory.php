@@ -28,19 +28,19 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinInner()
-     *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
-     *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
+     *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
+     *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->descendant('sel_1', 'sel_2')
+     *         ->descendant('alias_1', 'alias_2')
      *       ->end()
      *     ->end()
      *
      * @return SourceJoinConditionDescendant
      */
-    public function descendant($descendantSelectorName, $ancestorSelectorName)
+    public function descendant($descendantAlias, $ancestorAlias)
     {
         return $this->addChild(new SourceJoinConditionDescendant($this, 
-            $descendantSelectorName, $ancestorSelectorName
+            $descendantAlias, $ancestorAlias
         ));
     }
 
@@ -49,10 +49,10 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinInner()
-     *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
-     *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
+     *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
+     *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->equi('sel_1.prop_1', 'sel_2.prop_2')
+     *         ->equi('alias_1.prop_1', 'alias_2.prop_2')
      *       ->end()
      *     ->end()
      *
@@ -70,19 +70,19 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinInner()
-     *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
-     *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
+     *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
+     *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->child('sel_1', 'sel_2')
+     *         ->child('alias_1', 'alias_2')
      *       ->end()
      *     ->end()
      *
      * @return SourceJoinConditionDescendant
      */
-    public function child($childSelectorName, $parentSelectorName)
+    public function child($childAlias, $parentAlias)
     {
         return $this->addChild(new SourceJoinConditionChildDocument($this, 
-            $childSelectorName, $parentSelectorName
+            $childAlias, $parentAlias
         ));
     }
 
@@ -91,10 +91,10 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinInner()
-     *       ->left()->document('Foo/Bar/One', 'sel_1')->end()
-     *       ->right()->document('Foo/Bar/Two', 'sel_2')->end()
+     *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
+     *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->same('sel_1', 'sel_2', '/path_to/sel_2/document')
+     *         ->same('alias_1', 'alias_2', '/path_to/alias_2/document')
      *       ->end()
      *     ->end()
      *

@@ -138,10 +138,10 @@ class QueryBuilder extends AbstractNode
      * @factoryMethod
      * @return QueryBuilder
      */
-    public function fromDocument($documentFqn, $selectorName)
+    public function fromDocument($documentFqn, $alias)
     {
         $from = new From($this);
-        $from->document($documentFqn, $selectorName);
+        $from->document($documentFqn, $alias);
         $this->setChild($from);
         return $from->end();
     }
@@ -281,8 +281,8 @@ class QueryBuilder extends AbstractNode
      *
      * <code>
      * $qb->orderBy()
-     *     ->ascending()->field('a.prop_1')
-     *     ->descending()->field('a.prop_2')
+     *     ->asc()->field('a.prop_1')
+     *     ->desc()->field('a.prop_2')
      *   ->end()
      * </code>
      *

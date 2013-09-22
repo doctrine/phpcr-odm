@@ -2,12 +2,15 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-class OperandDynamicLength extends AbstractLeafNode
-{
-    protected $alias;
-    protected $field;
+use Doctrine\ODM\PHPCR\Query\Builder\Source;
+use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
-    Public function __construct(AbstractNode $parent, $field)
+class ConstraintFieldIsset extends AbstractLeafNode
+{
+    protected $field;
+    protected $alias;
+
+    public function __construct(AbstractNode $parent, $field)
     {
         list($alias, $field) = $this->explodeField($field);
         $this->field = $field;
@@ -17,7 +20,7 @@ class OperandDynamicLength extends AbstractLeafNode
 
     public function getNodeType()
     {
-        return self::NT_OPERAND_DYNAMIC;
+        return self::NT_CONSTRAINT;
     }
 
     public function getField() 

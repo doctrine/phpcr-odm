@@ -4,9 +4,9 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class ConstraintChild extends AbstractLeafNode
 {
-    public function __construct(AbstractNode $parent, $selectorName, $parentPath)
+    public function __construct(AbstractNode $parent, $alias, $parentPath)
     {
-        $this->selectorName = $selectorName;
+        $this->alias = $alias;
         $this->parentPath = $parentPath;
         parent::__construct($parent);
     }
@@ -21,8 +21,8 @@ class ConstraintChild extends AbstractLeafNode
         return $this->parentPath;
     }
 
-    public function getSelectorName() 
+    public function getAlias() 
     {
-        return $this->selectorName;
+        return $this->alias;
     }
 }

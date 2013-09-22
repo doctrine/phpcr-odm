@@ -43,7 +43,7 @@ abstract class AbstractLeafNode extends AbstractNode
      * Return the selector name and field name
      * from the given string of form
      *
-     *     [selector_name].[field_name]
+     *     [alias].[field_name]
      *
      * e.g. my_selector.first_name
      *
@@ -61,7 +61,7 @@ abstract class AbstractLeafNode extends AbstractNode
 
         throw new \RuntimeException(sprintf(
             'Invalid field specification, '.
-            'expected string like "[selector_name].[field_name]", got "%s"',
+            'expected string like "[alias].[field_name]", got "%s"',
             $field
         ));
     }

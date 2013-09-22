@@ -4,14 +4,14 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class OperandDynamicField extends AbstractLeafNode
 {
-    protected $selectorName;
-    protected $propertyName;
+    protected $alias;
+    protected $field;
 
     public function __construct(AbstractNode $parent, $field)
     {
-        list($selectorName, $propertyName) = $this->explodeField($field);
-        $this->selectorName = $selectorName;
-        $this->propertyName = $propertyName;
+        list($alias, $field) = $this->explodeField($field);
+        $this->alias = $alias;
+        $this->field = $field;
         parent::__construct($parent);
     }
 
@@ -20,13 +20,13 @@ class OperandDynamicField extends AbstractLeafNode
         return self::NT_OPERAND_DYNAMIC;
     }
 
-    public function getSelectorName() 
+    public function getAlias() 
     {
-        return $this->selectorName;
+        return $this->alias;
     }
 
-    public function getPropertyName() 
+    public function getField() 
     {
-        return $this->propertyName;
+        return $this->field;
     }
 }

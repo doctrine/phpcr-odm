@@ -4,17 +4,17 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class OperandDynamicLocalName extends AbstractLeafNode
 {
-    protected $selectorName;
+    protected $alias;
 
-    public function __construct(AbstractNode $parent, $selectorName)
+    public function __construct(AbstractNode $parent, $alias)
     {
-        $this->selectorName = $selectorName;
+        $this->alias = $alias;
         parent::__construct($parent);
     }
 
-    public function getSelectorName() 
+    public function getAlias() 
     {
-        return $this->selectorName;
+        return $this->alias;
     }
 
     public function getNodeType()

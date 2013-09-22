@@ -8,19 +8,19 @@ use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 class SourceJoinConditionDescendant extends AbstractLeafNode
 {
     protected $path;
-    protected $descendantSelectorName;
+    protected $descendantAlias;
     protected $ancestorSelectorNode;
 
     /**
      * Constructor
      *
-     * @param string $descendantSelectorName
-     * @param string $ancestorSelectorName
+     * @param string $descendantAlias
+     * @param string $ancestorAlias
      */
-    public function __construct($parent, $descendantSelectorName, $ancestorSelectorName)
+    public function __construct($parent, $descendantAlias, $ancestorAlias)
     {
-        $this->ancestorSelectorNode = (string) $ancestorSelectorName;
-        $this->descendantSelectorName = (string) $descendantSelectorName;
+        $this->ancestorSelectorNode = (string) $ancestorAlias;
+        $this->descendantAlias = (string) $descendantAlias;
         parent::__construct($parent);
     }
 
@@ -29,12 +29,12 @@ class SourceJoinConditionDescendant extends AbstractLeafNode
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getDescendantSelectorName()
+    public function getDescendantAlias()
     {
-        return $this->descendantSelectorName;
+        return $this->descendantAlias;
     }
 
-    public function getAncestorSelectorName()
+    public function getAncestorAlias()
     {
         return $this->ancestorSelectorNode;
     }
