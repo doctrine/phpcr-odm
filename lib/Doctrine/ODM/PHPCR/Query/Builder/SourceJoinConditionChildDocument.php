@@ -4,13 +4,13 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class SourceJoinConditionChildDocument extends AbstractLeafNode
 {
-    protected $childSelectorName;
-    protected $parentSelectorName;
+    protected $childAlias;
+    protected $parentAlias;
 
-    public function __construct($parent, $childSelectorName, $parentSelectorName)
+    public function __construct($parent, $childAlias, $parentAlias)
     {
-        $this->childSelectorName = (string) $childSelectorName;
-        $this->parentSelectorName = (string) $parentSelectorName;
+        $this->childAlias = (string) $childAlias;
+        $this->parentAlias = (string) $parentAlias;
         parent::__construct($parent);
     }
 
@@ -19,14 +19,14 @@ class SourceJoinConditionChildDocument extends AbstractLeafNode
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getChildSelectorName() 
+    public function getChildAlias() 
     {
-        return $this->childSelectorName;
+        return $this->childAlias;
     }
 
-    public function getParentSelectorName() 
+    public function getParentAlias() 
     {
-        return $this->parentSelectorName;
+        return $this->parentAlias;
     }
 }
 

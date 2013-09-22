@@ -153,7 +153,7 @@ class DocumentRepository implements ObjectRepository
                     ));
                 }
 
-                $method = $order == 'asc' ? 'ascending' : 'descending';
+                $method = $order == 'asc' ? 'asc' : 'desc';
 
                 $orderByNode->$method()->field('a.'.$field);
             }

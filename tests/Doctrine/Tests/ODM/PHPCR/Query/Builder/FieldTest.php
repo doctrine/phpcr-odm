@@ -11,8 +11,8 @@ class FieldTest extends LeafNodeTestCase
     {
         return array(
             array('Field', array('a.FooBar'), array(
-                'getSelectorName' => 'a',
-                'getPropertyName' => 'FooBar',
+                'getAlias' => 'a',
+                'getField' => 'FooBar',
             )),
         );
     }

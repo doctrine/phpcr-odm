@@ -63,24 +63,24 @@ class BuilderConverterPhpcr
         $this->dm = $dm;
     }
 
-    protected function getMetadata($selectorName)
+    protected function getMetadata($alias)
     {
-        if (!isset($this->selectorMetadata[$selectorName])) {
+        if (!isset($this->selectorMetadata[$alias])) {
             throw new \RuntimeException(sprintf(
                 'Selector name "%s" has not known. The following selectors '.
                 'are valid: "%s"',
-                $selectorName,
+                $alias,
                 implode(', ', array_keys($this->selectorMetadata))
             ));
         }
 
-        return $this->selectorMetadata[$selectorName];
+        return $this->selectorMetadata[$alias];
     }
 
-    protected function getFieldMapping($selectorName, $propertyName)
+    protected function getFieldMapping($alias, $field)
     {
-        $fieldMeta = $this->getMetadata($selectorName)
-            ->getField($propertyName);
+        $fieldMeta = $this->getMetadata($alias)
+            ->getField($field);
 
         return $fieldMeta;
     }
@@ -88,14 +88,14 @@ class BuilderConverterPhpcr
     /**
      * Return the PHPCR property name for the given ODM document property name
      *
-     * @param string $selectorName - Name of selector (corresponds to document source)
-     * @param string $odmPropertyName - Name of ODM document property
+     * @param string $alias - Name of selector (corresponds to document source)
+     * @param string $odmField - Name of ODM document property
      *
      * @return string
      */
-    protected function getPhpcrProperty($selectorName, $odmPropertyName)
+    protected function getPhpcrProperty($alias, $odmField)
     {
-        $fieldMeta = $this->getFieldMapping($selectorName, $odmPropertyName);
+        $fieldMeta = $this->getFieldMapping($alias, $odmField);
         return $fieldMeta['property'];
     }
 
@@ -140,7 +140,7 @@ class BuilderConverterPhpcr
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
                         'phpcr:class', 
-                        $sourceNode->getSelectorName()
+                        $sourceNode->getAlias()
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
                     $this->qomf->literal($sourceNode->getDocumentFqn())
@@ -148,7 +148,7 @@ class BuilderConverterPhpcr
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
                         'phpcr:classparents', 
-                        $sourceNode->getSelectorName()
+                        $sourceNode->getAlias()
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
                     $this->qomf->literal($sourceNode->getDocumentFqn())
@@ -230,8 +230,8 @@ class BuilderConverterPhpcr
 
         foreach ($node->getChildren() as $property) {
             $phpcrName = $this->getPhpcrProperty(
-                $property->getSelectorName(),
-                $property->getPropertyName()
+                $property->getAlias(),
+                $property->getField()
             );
 
             $column = $this->qomf->column(
@@ -239,7 +239,7 @@ class BuilderConverterPhpcr
                 // what do columns get used for in an ODM in anycase?
                 $phpcrName,
                 $phpcrName,
-                $property->getSelectorName()
+                $property->getAlias()
             );
 
             $columns[] = $column;
@@ -321,20 +321,20 @@ class BuilderConverterPhpcr
 
     protected function walkSourceDocument(SourceDocument $node)
     {
-        $selectorName = $node->getSelectorName();
+        $alias = $node->getAlias();
         // make sure we add the phpcr:{class,classparents} constraints
         // From is dispatched first, so these will always be the primary
         // constraints.
-        $this->sourceDocumentNodes[$selectorName] = $node;
+        $this->sourceDocumentNodes[$alias] = $node;
 
         // index the metadata for this document
         $meta = $this->mdf->getMetadataFor($node->getDocumentFqn());
-        $this->selectorMetadata[$selectorName] = $meta;
+        $this->selectorMetadata[$alias] = $meta;
 
         // get the PHPCR Selector
         $selector = $this->qomf->selector(
             $meta->getNodeType(),
-            $selectorName
+            $alias
         );
 
         return $selector;
@@ -390,8 +390,8 @@ class BuilderConverterPhpcr
     protected function walkSourceJoinConditionDescendant(SourceJoinConditionDescendant $node)
     {
         $joinCon = $this->qomf->descendantNodeJoinCondition(
-            $node->getDescendantSelectorName(),
-            $node->getAncestorSelectorName()
+            $node->getDescendantAlias(),
+            $node->getAncestorAlias()
         );
         return $joinCon;
     }
@@ -399,8 +399,8 @@ class BuilderConverterPhpcr
     protected function walkSourceJoinConditionChildDocument(SourceJoinConditionChildDocument $node)
     {
         $joinCon = $this->qomf->childNodeJoinCondition(
-            $node->getChildSelectorName(),
-            $node->getParentSelectorName()
+            $node->getChildAlias(),
+            $node->getParentAlias()
         );
 
         return $joinCon;
@@ -448,15 +448,15 @@ class BuilderConverterPhpcr
         return $this->doWalkConstraintComposite($node, 'orConstraint');
     }
 
-    protected function walkConstraintFieldExists(ConstraintFieldExists $node)
+    protected function walkConstraintFieldIsset(ConstraintFieldIsset $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
-            $node->getSelectorName(), $node->getPropertyName()
+            $node->getAlias(), $node->getField()
         );
 
         $con = $this->qomf->propertyExistence(
             $phpcrProperty,
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $con;
@@ -465,13 +465,13 @@ class BuilderConverterPhpcr
     protected function walkConstraintFullTextSearch(ConstraintFullTextSearch $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
-            $node->getSelectorName(), $node->getPropertyName()
+            $node->getAlias(), $node->getField()
         );
 
         $con = $this->qomf->fullTextSearch(
             $phpcrProperty,
             $node->getFullTextSearchExpression(),
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $con;
@@ -481,7 +481,7 @@ class BuilderConverterPhpcr
     {
         $con = $this->qomf->sameNode(
             $node->getPath(),
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $con;
@@ -491,7 +491,7 @@ class BuilderConverterPhpcr
     {
         $con = $this->qomf->descendantNode(
             $node->getAncestorPath(),
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $con;
@@ -501,7 +501,7 @@ class BuilderConverterPhpcr
     {
         $con = $this->qomf->childNode(
             $node->getParentPath(),
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $con;
@@ -544,11 +544,11 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicField(OperandDynamicField $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
-            $node->getSelectorName(), $node->getPropertyName()
+            $node->getAlias(), $node->getField()
         );
 
         $op = $this->qomf->propertyValue(
-            $phpcrProperty, $node->getSelectorName()
+            $phpcrProperty, $node->getAlias()
         );
 
         return $op;
@@ -557,7 +557,7 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicLocalName(OperandDynamicLocalName $node)
     {
         $op = $this->qomf->nodeLocalName(
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $op;
@@ -566,7 +566,7 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicFullTextSearchScore(OperandDynamicFullTextSearchScore $node)
     {
         $op = $this->qomf->fullTextSearchScore(
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $op;
@@ -575,11 +575,11 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicLength(OperandDynamicLength $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
-            $node->getSelectorName(), $node->getPropertyName()
+            $node->getAlias(), $node->getField()
         );
 
         $propertyValue = $this->qomf->propertyValue(
-            $phpcrProperty, $node->getSelectorName()
+            $phpcrProperty, $node->getAlias()
         );
 
         $op = $this->qomf->length(
@@ -592,7 +592,7 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicName(OperandDynamicName $node)
     {
         $op = $this->qomf->nodeName(
-            $node->getSelectorName()
+            $node->getAlias()
         );
 
         return $op;

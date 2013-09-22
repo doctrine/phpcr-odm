@@ -69,25 +69,25 @@ class QueryBuilderTest extends NodeTestCase
                         ->name('my_doc')
                         ->parameter('my_var')
                     ->end()
-                    ->fieldExists('a.foo') // we can more than two arguments
-                    ->fieldExists('a.foo')
+                    ->fieldIsset('a.foo') // we can more than two arguments
+                    ->fieldIsset('a.foo')
                     ->andX()
                       ->eq()->field('f.foo')->literal('bar')->end() // andX works with a single constraint also
                     ->end()
                 ->end()
             ->end()
             ->andWhere()
-                ->fieldExists('sel_1.foobar')
+                ->fieldIsset('alias_1.foobar')
             ->end()
             ->orWhere()
-                ->fieldExists('sel_1.foobar')
+                ->fieldIsset('alias_1.foobar')
             ->end()
             ->orderBy()
-                ->ascending()->name('a')->end()
-                ->descending()->name('b')->end()
+                ->asc()->name('a')->end()
+                ->desc()->name('b')->end()
             ->end()
             ->addOrderBy()
-                ->ascending()->name('c')->end()
+                ->asc()->name('c')->end()
             ->end();
     }
 }

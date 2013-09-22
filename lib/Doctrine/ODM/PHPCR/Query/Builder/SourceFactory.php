@@ -30,20 +30,20 @@ abstract class SourceFactory extends AbstractNode
     /**
      * Document source:
      *
-     *   $qb->from()->document('My/Document/Class', 'my_selector_name')
+     *   $qb->from()->document('My/Document/Class', 'my_alias')
      *
      * Select documents of specified class. The selector name is mandatory
      * and will be used to reference documents selected from this source.
      *
      * @param string $documentFqn
-     * @param string $selectorName
+     * @param string $alias
      *
      * @factoryMethod
      * @return SourceDocument
      */
-    public function document($documentFqn, $selectorName)
+    public function document($documentFqn, $alias)
     {
-        return $this->addChild(new SourceDocument($this, $documentFqn, $selectorName));
+        return $this->addChild(new SourceDocument($this, $documentFqn, $alias));
     }
 
     /**
@@ -51,10 +51,10 @@ abstract class SourceFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinInner()
-     *       ->left()->document('My/Document/Class/One', 'sel_1')->end()
-     *       ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *       ->left()->document('My/Document/Class/One', 'alias_1')->end()
+     *       ->right()->document('My/Document/Class/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->equi('prop_1','sel_1', 'prop_2', 'sel_2')
+     *         ->equi('prop_1','alias_1', 'prop_2', 'alias_2')
      *       ->end()
      *     ->end()
      *
@@ -75,10 +75,10 @@ abstract class SourceFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinLeftOuter()
-     *       ->left()->document('My/Document/Class/One', 'sel_1')->end()
-     *       ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *       ->left()->document('My/Document/Class/One', 'alias_1')->end()
+     *       ->right()->document('My/Document/Class/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->equi('prop_1','sel_1', 'prop_2', 'sel_2')
+     *         ->equi('prop_1','alias_1', 'prop_2', 'alias_2')
      *       ->end()
      *     ->end()
      *
@@ -99,10 +99,10 @@ abstract class SourceFactory extends AbstractNode
      *
      *   $qb->from()
      *     ->joinRightOuter()
-     *       ->left()->document('My/Document/Class/One', 'sel_1')->end()
-     *       ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *       ->left()->document('My/Document/Class/One', 'alias_1')->end()
+     *       ->right()->document('My/Document/Class/Two', 'alias_2')->end()
      *       ->condition()
-     *         ->equi('prop_1','sel_1', 'prop_2', 'sel_2')
+     *         ->equi('prop_1','alias_1', 'prop_2', 'alias_2')
      *       ->end()
      *     ->end()
      *
