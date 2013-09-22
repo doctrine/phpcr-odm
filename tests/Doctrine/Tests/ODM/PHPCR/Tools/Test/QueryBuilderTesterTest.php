@@ -42,8 +42,8 @@ HERE
         $this->assertInstanceOf(
             'Doctrine\ODM\PHPCR\Query\Builder\OperandDynamicField', $node
         );
-        $this->assertEquals('a', $node->getSelectorName());
-        $this->assertEquals('foo', $node->getPropertyName());
+        $this->assertEquals('a', $node->getAlias());
+        $this->assertEquals('foo', $node->getField());
 
         // test literal of 2nd part of and statement
         $node = $this->qbTester->getNode(
