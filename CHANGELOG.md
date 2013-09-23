@@ -2,8 +2,8 @@ Changelog
 =========
 
 * **2013-09-13**: [QueryBuilder] Replaced query builder with new
-  implementation. See documentation: 
-  http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/query-builder.html
+  implementation. See documentation:
+  http://docs.doctrine-project.org/projects/doctrine-phpcr-odm/en/latest/reference/query-builder.html 
 * **2013-08-16**: [Model] removed Doctrine\ODM\PHPCR\Document\Image and moved
   it to the CmfMediaBundle. Note that the CmfMediaBundle image is itself a file
   and no longer uses a file child.
