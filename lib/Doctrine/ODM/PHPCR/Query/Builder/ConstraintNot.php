@@ -2,6 +2,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+/**
+ * Constraint which evaluates to the opposite truth of its child
+ * operand.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class ConstraintNot extends ConstraintFactory
 {
     public function getCardinalityMap()
