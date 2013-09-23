@@ -10,7 +10,7 @@
 
         <meta name="author" content="Symfony CMF" />
         <meta name="email" content="symfony-cmf-devs@googlegroups.com" />
-        <meta name="date" content="2011-01-13" />
+        <meta name="date" content="2013-09-23" />
         <meta name="venue" content="The Internets" />
 
         <!-- Slippy core file and dependencies -->
@@ -250,12 +250,21 @@
 
                 // SELECT * FROM [nt:unstructured] WHERE text = 'foo' ORDER BY title
                 $qb = $conn->createQueryBuilder()
-                    ->nodeType('nt:unstructured')
-                    ->where($qb->expr()->eq('text', 'foo'))
-                    ->orderBy('title')
-                    ->setMaxResults($limit)
-                    ->setFirstResult($offset)
-                    ->execute();
+                        ->from()
+                            ->document('Foo\Bar', 'b')
+                        ->end()
+                        ->where()
+                            ->eq()
+                                ->field('b.text')
+                                ->literal('foo')
+                            ->end()
+                        ->end()
+                        ->orderBy()
+                            ->asc()->field('title')->end()
+                        ->end()
+                        ->setMaxResults($limit)
+                        ->setFirstResult($offset)
+                        ->execute();
 
                 $collection = $dm->getDocumentsByPhpcrQuery($qb->getQuery());
             </pre>
@@ -421,9 +430,8 @@
             <h2>Next steps</h2>
             <ul>
                 <li>Improve documentation</li>
-                <li>Various missing minor ORM features</li>
-                <li>Logging</li>
-                <li>Result caching</li>
+                <li>Clean up glitches and edge-case bugs</li>
+                <li>Release 1.0.0</li>
             </ul>
         </div>
 
