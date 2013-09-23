@@ -30,7 +30,7 @@ class ConstraintFactory extends AbstractNode
      *
      * <code>
      * $qb->where()->andX()
-     *   ->fieldExists('f.foo')
+     *   ->fieldIsset('f.foo')
      *   ->gt()->field('f.max')->literal(40);
      * </code>
      *
@@ -47,14 +47,14 @@ class ConstraintFactory extends AbstractNode
      *
      * // when adding more than one,
      * $qb->where()->andX()
-     *   ->fieldExists('f.foo')
+     *   ->fieldIsset('f.foo')
      *   ->gt()->field('f.max')->literal(40);
      *   ->eq()->field('f.zar')->literal('bar')
      *
      * // is equivilent to:
      * $qb->where()->andX()
      *   ->andX()
-     *     ->fieldExists('f.foo')
+     *     ->fieldIsset('f.foo')
      *     ->gt()->field('f.max')->literal(40);
      *   ->eq()->field('f.zar')->litreal('bar');
      * </code>
@@ -73,8 +73,8 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->orX()
-     *     ->fieldExsts('prop_1', 'sel_1')
-     *     ->fieldExsts('prop_2', 'sel_1')
+     *     ->fieldIsset('sel_1.prop_1')
+     *     ->fieldIsset('sel_1.prop_1')
      *   ->end();
      * </code>
      *
@@ -89,13 +89,10 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Field existance constraint.
-     *
-     * @param string $field
-     * @param string $alias
+     * Field existance constraint:
      *
      * <code>
-     * $qb->where()->fieldExists('prop_1.sel_1');
+     * $qb->where()->fieldIsset('prop_1.sel_1');
      * </code>
      *
      * @param string $field - Name of field to check, including selector name.
@@ -191,12 +188,7 @@ class ConstraintFactory extends AbstractNode
     /**
      * Inverts the truth of any given appended costraint.
      *
-     * <code>
-     * $qb->where()->not()->fieldExists('sel_1.foobar');
-     * </code>
-     *
-     * @factoryMethod ConstraintNot
-     * @return ConstraintNot
+     * @return ConstraintFactory
      */
     public function not()
     {
