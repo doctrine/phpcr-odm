@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
 /**
- * Factory/node class for join conditions.
+ * Factory node for join conditions.
  *
  * @IgnoreAnnotation('factoryMethod');
  * @author Daniel Leech <daniel@dantleech.com>
@@ -61,6 +61,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
      *       ->condition()->equi('alias_1.prop_1', 'alias_2.prop_2');
      * </code>
+     *
+     * See: http://en.wikipedia.org/wiki/Join_%28SQL%29#Equi-join
      *
      * @param string $field1 - Field name for first field.
      * @param string $field2 - Field name for second field.

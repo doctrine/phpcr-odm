@@ -7,11 +7,6 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 /**
  * Factory node for dynamic operands.
  *
- * As the name suggests, dynamic operand values change
- * according to the node being compared and are used as
- * "left hand side" (lop) operands in comparisons and
- * in orderings.
- *
  * @IgnoreAnnotation("factoryMethod")
  *
  * @author Daniel Leech <daniel@dantleech.com>
@@ -31,20 +26,20 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Represents document rank by relevance to the full text search expression 
-     * given by the "fullTextSearch" constraint.
+     * Represents the aliased documents rank by relevance to the full text 
+     * search expression given by the "fullTextSearch" constraint.
      *
      * See also: http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
      *
      * <code>
      * $qb->where()
      *   ->gt()
-     *     ->fullTextSearchScore('sel_1')->end()
-     *     ->literal(50)->end()
+     *     ->fullTextSearchScore('sel_1')
+     *     ->literal(50)
      *   ->end()
      *
      * $qb->orderBy()
-     *    ->ascending()->fullTextSearchScore('sel_1')->end()
+     *    ->asc()->fullTextSearchScore('sel_1');
      * </code>
      *
      * @param string $alias - Name of selector to use
@@ -58,18 +53,18 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Length operand resolves to length of child operand.
+     * Length operand resolves to length of aliased document.
      *
      * <code>
      * $qb->where()
      *   ->gt()
-     *     ->length('alias_1.prop_1')->end()
+     *     ->length('alias_1.prop_1')
      *     ->literal(50);
      *
      * $qb->orderBy()->asc()->fullTextSearchScore('sel_1');
      * </code>
      *
-     * @param string $field - name of field to check, including selector name.
+     * @param string $field - Name of field to check.
      *
      * @factoryMethod OperandDynamicLength
      * @return OperandDynamicFactory
@@ -116,7 +111,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Document local name resolves to the local (non namespaced)
+     * Document local name evaluates to the local (non namespaced)
      * name of the node being compared.
      *
      * For example, if a node has the path "/path/to/foobar", then "foobar"
@@ -142,7 +137,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Resolves to the namespaced name of the node being compared.
+     * Evaluates to the namespaced name of the node being compared.
      *
      * For example, if a node has the path "/path/to/bar:foobar", then 
      * "bar:foobar" is the namespaced node name.
@@ -167,7 +162,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Resolves to the value of the specified field.
+     * Evaluates to the value of the specified field.
      *
      * <code>
      * $qb->where()

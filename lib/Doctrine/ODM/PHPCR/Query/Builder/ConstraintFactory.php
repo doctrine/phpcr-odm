@@ -34,7 +34,7 @@ class ConstraintFactory extends AbstractNode
      *   ->gt()->field('f.max')->literal(40);
      * </code>
      *
-     * The andX node allows you to add 1, 2 or many operand node. When
+     * The andX node allows you to add 1, 2 or many operand nodes. When
      * one operand is added the "and" is removed, when more than one
      * is added the "and" operands are nested.
      *
@@ -74,7 +74,7 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->orX()
      *     ->fieldIsset('sel_1.prop_1')
-     *     ->fieldIsset('sel_1.prop_1')
+     *     ->fieldIsset('sel_1.prop_2')
      *   ->end();
      * </code>
      *
@@ -92,10 +92,10 @@ class ConstraintFactory extends AbstractNode
      * Field existance constraint:
      *
      * <code>
-     * $qb->where()->fieldIsset('prop_1.sel_1');
+     * $qb->where()->fieldIsset('sel_1.prop_1');
      * </code>
      *
-     * @param string $field - Name of field to check, including selector name.
+     * @param string $field - Field to check
      *
      * @factoryMethod ConstraintFieldIsset
      * @return ConstraintFactory
@@ -111,8 +111,6 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression');
      * </code>
-     *
-     * See also: http://docs.jboss.org/jbossdna/0.7/manuals/reference/html/jcr-query-and-search.html#fulltext-search-query-language
      *
      * @param string $field - Name of field to check, including selector name.
      * @param string $fullTextSearchExpression - Search expression.
@@ -166,7 +164,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Select children of the node at the given path.
+     * Select children of the aliased document at the given path.
      *
      * <code>
      * $qb->where()->child('/parent/path', 'sel_1');
@@ -186,7 +184,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Inverts the truth of any given appended costraint.
+     * Inverts the truth of the given appended constraint.
      *
      * @return ConstraintFactory
      */
@@ -201,7 +199,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->eq()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal('var_1');
      * </code>
      *
@@ -221,7 +219,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->neq()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal('var_1');
      * </code>
      *
@@ -241,7 +239,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->lt()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal(5);
      * </code>
      *
@@ -261,7 +259,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->lte()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal(5);
      * </code>
      *
@@ -281,7 +279,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->gt()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal(5);
      * </code>
      *
@@ -301,7 +299,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->gte()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal(5);
      * </code>
      *
@@ -323,7 +321,7 @@ class ConstraintFactory extends AbstractNode
      * <code>
      * $qb->where()
      *   ->like()
-     *     ->field('sel_1.foobar')->end()
+     *     ->field('sel_1.foobar')
      *     ->literal('foo%');
      * </code>
      *

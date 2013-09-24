@@ -5,13 +5,10 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
- * Factory/node class for static operands.
+ * Factory node for static operands.
  *
- * As the name suggests, static operand values do
- * not change once initialized and are used as the "right hand
- * side" operands in comparisons.
- *
- * Inherits from dynamic factory, see note there.
+ * Note that this class is not used by the query builder and
+ * is only featured here to help with tests.
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */

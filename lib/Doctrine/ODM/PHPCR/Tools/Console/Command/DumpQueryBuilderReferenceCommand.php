@@ -127,6 +127,7 @@ HERE
         $out[] = '    create an issue or make a pull request on the phpcr-odm repository.';
         $out[] = '';
         $out[] = '    All the classes here documented can be found in the namespace: ``Doctrine\ODM\PHPCR\Query\Builder``';
+        $out[] = '';
 
         $nti = array();
         $nti[] = 'Node Type Index';
@@ -202,7 +203,10 @@ HERE
                     $out[] = '';
                     $out[] = $f['formatDoc']($fData['doc']);
                     $out[] = '';
-                    $out[] = '**Type**: *'.$fData['rNodeType'].'*';
+                    $out[] = sprintf('**Adds**: %s (%s)',
+                        $f['genRef']($fData['rNodeType'], 'node'),
+                        $fData['fType']
+                    );
                     $out[] = '';
                     $out[] = '**Returns**: '.$f['genRef']($fData['rType'], 'node');
                     $out[] = '';
@@ -276,6 +280,7 @@ HERE
                         'args' => $fParams,
                         'rType' => $fmReturnType,
                         'rNodeType' => $fmNodeType,
+                        'fType' => $fmFactoryType,
                         'doc' => $fMethDoc,
                     );
                 }

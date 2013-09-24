@@ -3,7 +3,11 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 /**
+ * Factory node for adding selection fields.
+ *
  * @IgnoreAnnotation("factoryMethod")
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
  */
 class Select extends AbstractNode
 {

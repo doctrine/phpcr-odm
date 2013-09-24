@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 /**
- * Append an additional "where" with an OR
+ * Factory node for appending additional "wheres" with an OR
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */

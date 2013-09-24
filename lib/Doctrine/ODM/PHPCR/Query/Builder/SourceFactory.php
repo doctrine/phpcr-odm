@@ -6,7 +6,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
 
 /**
- * Abstract factory/node class for Sources.
+ * Abstract factory node class for Sources.
  *
  * In PHPCR terms there is only ever one "source", which
  * can either be a "node type" source, or a join.
