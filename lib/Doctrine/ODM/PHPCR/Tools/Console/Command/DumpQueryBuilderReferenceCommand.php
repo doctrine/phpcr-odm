@@ -62,6 +62,10 @@ HERE
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if (0 == strpos(phpversion(), '5.3')) {
+            $this->markTestSkipped('Dump reference command not compatible with PHP 5.3');
+        }
+
         $search = $input->getArgument('search');
 
         $map = $this->buildMap();
