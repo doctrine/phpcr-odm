@@ -291,7 +291,7 @@ class DocumentRepository implements ObjectRepository
         $factory = $qb->getQOMFactory();
 
         $comparison = $factory->comparison(
-            $factory->propertyValue('phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $factory->literal($this->className)
+            $factory->propertyValue('a', 'phpcr:class'), Constants::JCR_OPERATOR_EQUAL_TO, $factory->literal($this->className)
         );
 
         $qb->andWhere($comparison);
