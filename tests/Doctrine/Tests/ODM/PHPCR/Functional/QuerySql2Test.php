@@ -101,7 +101,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * @dataProvider queryRepositoryStatements
      */
-    public function testRepositporyQuery($statement, $rowCount)
+    public function testRepositoryQuery($statement, $rowCount)
     {
         if ($rowCount == -1) {
             // magic to tell this is an invalid query
