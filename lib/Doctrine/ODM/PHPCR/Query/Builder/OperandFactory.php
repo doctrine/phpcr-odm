@@ -5,11 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
- * Factory/node class for dynamic all operands.
- *
- * Extends OperandDynamicFactory, and adds the static operands.
- *
- * Traits would be really useful here.
+ * Factory node for all operands, both dynamic and static.
  *
  * @IgnoreAnnotation("factoryMethod")
  *
@@ -18,13 +14,19 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 class OperandFactory extends OperandDynamicFactory
 {
     /**
-     * Static operand: Resolves to the value of the variable bound to the given $name
+     * Evaluates to the value of the parameter bound to the given $name.
      *
      * Relates to PHPCR BindVariableValueInterface
      *
-     * @param string $name
-     * @factoryMethod
-     * @return OperandStaticParameter
+     * <code>
+     * $qb->where()->eq()->field('f.foobar')->parameter('param_1');
+     * $qb->setParameter('param_1', 'foo');
+     * </code>
+     *
+     * @param string $name - Name of parameter to resolve.
+     *
+     * @factoryMethod OperandStaticParameter
+     * @return OperandFactory
      */
     public function parameter($name)
     {
@@ -32,10 +34,15 @@ class OperandFactory extends OperandDynamicFactory
     }
 
     /**
-     * Static operand: Resolves to the given literal value
+     * Evaluates to the given literal value.
      *
-     * @param string $value
-     * @factoryMethod
+     * <code>
+     * $qb->where()->eq()->field('f.foobar')->litreal('Literal Value');
+     * </code>
+     *
+     * @param string $value - Literal value.
+     *
+     * @factoryMethod OperandStaticLiteral
      * @return OperandStaticLiteral
      */
     public function literal($value)

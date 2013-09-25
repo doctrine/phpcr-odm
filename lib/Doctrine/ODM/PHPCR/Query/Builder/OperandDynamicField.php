@@ -2,6 +2,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+/**
+ * Operand evaluates to the value of the given field of the
+ * aliased document.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class OperandDynamicField extends AbstractLeafNode
 {
     protected $alias;

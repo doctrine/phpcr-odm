@@ -5,12 +5,12 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
- * Factory/node class for order by.
+ * Factory node for order by.
  *
  * Query results can be ordered by any dynamic operand
- * in either asc or desc order.
+ * in either ascending or descending order.
  *
- * @IgnoreAnnotation("factoryMethod")
+ * @IgnoreAnnotation("factoryMethod") Ordering
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -24,12 +24,13 @@ class OrderBy extends AbstractNode
     }
 
     /**
-     * Add asc ordering:
+     * Add ascending ordering:
      *
-     *   $qb->orderBy()
-     *     ->asc()->propertyValue('prop_1', 'alias_1')->end()
+     * <code>
+     * $qb->orderBy()->asc()->field('sel_1.prop_1');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Ordering
      * @return Ordering
      */
     public function asc()
@@ -38,12 +39,13 @@ class OrderBy extends AbstractNode
     }
 
     /**
-     * Add desc ordering:
+     * Add descending ordering:
      *
-     *   $qb->orderBy()
-     *     ->desc()->propertyValue('prop_1', 'alias_1')->end()
+     * <code>
+     * $qb->orderBy()->desc()->field('sel_1.prop_1');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Ordering
      * @return Ordering
      */
     public function desc()

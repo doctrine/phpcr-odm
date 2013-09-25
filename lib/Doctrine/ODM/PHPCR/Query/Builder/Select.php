@@ -3,7 +3,11 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 /**
+ * Factory node for adding selection fields.
+ *
  * @IgnoreAnnotation("factoryMethod")
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
  */
 class Select extends AbstractNode
 {
@@ -15,8 +19,18 @@ class Select extends AbstractNode
     }
 
     /**
+     * Field to select.
+     *
+     * <code>
+     * $qb->select()
+     *   ->field('sel_1.foobar')
+     *   ->field('sel_1.barfoo');
+     * </code>
+     *
+     * @param string $field - name of field to check, including selector name
+     *
      * @factoryMethod
-     * @return Field
+     * @return Select
      */
     public function field($field)
     {

@@ -5,12 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
- * Factory/node class for dynamic operands.
- *
- * As the name suggests, dynamic operand values change
- * according to the node being compared and are used as
- * "left hand side" (lop) operands in comparisons and
- * in orderings.
+ * Factory node for dynamic operands.
  *
  * @IgnoreAnnotation("factoryMethod")
  *
@@ -31,19 +26,26 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Full text search score operand:
+     * Represents the aliased documents rank by relevance to the full text 
+     * search expression given by the "fullTextSearch" constraint.
      *
-     *   $qb->where()
-     *     ->gt()
-     *       ->lop()->fullTextSearchScore('alias_1')->end()
-     *       ->rop()->literal(50)->end()
-     *     ->end()
+     * See also: http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
      *
-     *   $qb->orderBy()
-     *     ->asc()->fullTextSearchScore('alias_1')->end()
+     * <code>
+     * $qb->where()
+     *   ->gt()
+     *     ->fullTextSearchScore('sel_1')
+     *     ->literal(50)
+     *   ->end()
      *
-     * @factoryMethod
-     * @return OperandDynamicFullTextSearchScore
+     * $qb->orderBy()
+     *    ->asc()->fullTextSearchScore('sel_1');
+     * </code>
+     *
+     * @param string $alias - Name of selector to use
+     *
+     * @factoryMethod OperandDynamicFullTextSearchScore
+     * @return OperandDynamicFactory
      */
     public function fullTextSearchScore($alias)
     {
@@ -51,19 +53,21 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Length operand resolves to length of child operand:
+     * Length operand resolves to length of aliased document.
      *
-     *   $qb->where()
-     *     ->gt()
-     *       ->lop()->length('alias_1', 'prop_1')->end()
-     *       ->rop()->literal(50)->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->gt()
+     *     ->length('alias_1.prop_1')
+     *     ->literal(50);
      *
-     *   $qb->orderBy()
-     *     ->asc()->fullTextSearchScore('alias_1')->end()
+     * $qb->orderBy()->asc()->fullTextSearchScore('sel_1');
+     * </code>
      *
-     * @factoryMethod
-     * @return OperandDynamicLength
+     * @param string $field - Name of field to check.
+     *
+     * @factoryMethod OperandDynamicLength
+     * @return OperandDynamicFactory
      */
     public function length($field)
     {
@@ -73,15 +77,14 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * LowerCase operand evaluates to lower-cased string of child operand:
      *
-     *   $qb->where()
-     *     ->eq()
-     *       ->lop()
-     *         ->lowerCase()->propertyValue('prop_1', 'alias_1')->end()
-     *       ->end()
-     *       ->rop()->literal('lower_case')->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->eq()
+     *     ->lowerCase()->field('sel_1.prop_1')->end()
+     *     ->literal('lower_case');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicLowerCase
      * @return OperandDynamicLowerCase
      */
     public function lowerCase()
@@ -92,15 +95,14 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * UpperCase operand evaluates to upper-cased string of child operand:
      *
-     *   $qb->where()
-     *     ->eq()
-     *       ->lop()
-     *         ->upperCase()->propertyValue('prop_1', 'alias_1')->end()
-     *       ->end()
-     *       ->rop()->literal('UPPER_CASE')->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->eq()
+     *       ->upperCase()->field('sel_1.prop_1')->end()
+     *       ->literal('UPPER_CASE');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod OperandDynamicUpperCase
      * @return OperandDynamicUpperCase
      */
     public function upperCase()
@@ -109,19 +111,25 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Document local name resolves to the local (non namespaced)
-     * name of the node being compared:
+     * Document local name evaluates to the local (non namespaced)
+     * name of the node being compared.
      *
-     *   $qb->where()
-     *     ->eq()
-     *       ->lop()->documentLocalName('alias_1')->end()
-     *       ->rop()->literal('my_node_name')
-     *     ->end()
+     * For example, if a node has the path "/path/to/foobar", then "foobar"
+     * is the local node name.
+     *
+     * <code>
+     * $qb->where()
+     *   ->eq()
+     *     ->localName('sel_1')
+     *     ->literal('my_node_name');
+     * </code>
      *
      * Relates to PHPCR NodeLocalNameInterface
      *
-     * @factoryMethod
-     * @return OperandDynamicLocalName
+     * @param string $alias - Name of selector to use
+     *
+     * @factoryMethod OperandDynamicLocalName
+     * @return OperandDynamicFactory
      */
     public function localName($alias)
     {
@@ -129,19 +137,24 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Resolves to the namespaced
-     * name of the node being compared:
+     * Evaluates to the namespaced name of the node being compared.
      *
-     *   $qb->where()
-     *     ->eq()
-     *       ->lop()->documentName('alias_1')->end()
-     *       ->rop()->literal('namespace:my_node_name')
-     *     ->end()
+     * For example, if a node has the path "/path/to/bar:foobar", then 
+     * "bar:foobar" is the namespaced node name.
      *
-     * Relates to PHPCR NodeNameInterface
+     * <code>
+     * $qb->where()
+     *   ->eq()
+     *     ->name('sel_1')
+     *     ->literal('namespace:my_node_name');
+     * </code>
      *
-     * @factoryMethod
-     * @return OperandDynamicName
+     * Relates to PHPCR NodeNameInterface.
+     *
+     * @param string $alias - Name of selector to use
+     *
+     * @factoryMethod OperandDynamicName
+     * @return OperandDynamicFactory
      */
     public function name($alias)
     {
@@ -149,16 +162,19 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Resolves to the value of the specified property
+     * Evaluates to the value of the specified field.
      *
-     *   $qb->where()
-     *     ->eq()
-     *       ->lop()->propertyValue('prop_name', 'alias_1')->end()
-     *       ->rop()->literal('my_property_value')
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->eq()
+     *     ->field('sel_1.prop_name')
+     *     ->literal('my_field_value');
+     * </code>
      *
-     * @factoryMethod
-     * @return OperandDynamicField
+     * @param string $field - name of field to check, including selector name.
+     *
+     * @factoryMethod OperandDynamicField
+     * @return OperandDynamicFactory
      */
     public function field($field)
     {

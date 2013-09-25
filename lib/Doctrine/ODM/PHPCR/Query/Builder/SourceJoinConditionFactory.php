@@ -5,8 +5,9 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
 /**
- * Factory/node class for join conditions.
+ * Factory node for join conditions.
  *
+ * @IgnoreAnnotation('factoryMethod');
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class SourceJoinConditionFactory extends AbstractNode
@@ -24,8 +25,9 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Descendant join condition:
+     * Descendant join condition.
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
@@ -33,9 +35,14 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->condition()
      *         ->descendant('alias_1', 'alias_2')
      *       ->end()
-     *     ->end()
+     *   ->end()
+     * </code>
      *
-     * @return SourceJoinConditionDescendant
+     * @param string $descendantAlias - Name of selector for descendant documents.
+     * @param string $ancestorAlias - Name of selector to match for ancestor documents.
+     *
+     * @factoryMethod SourceJoinConditionDescendant
+     * @return SourceJoinConditionFactory
      */
     public function descendant($descendantAlias, $ancestorAlias)
     {
@@ -45,18 +52,23 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Equi (equality) join condition:
+     * Equi (equality) join condition.
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->equi('alias_1.prop_1', 'alias_2.prop_2')
-     *       ->end()
-     *     ->end()
+     *       ->condition()->equi('alias_1.prop_1', 'alias_2.prop_2');
+     * </code>
      *
-     * @return SourceJoinConditionDescendant
+     * See: http://en.wikipedia.org/wiki/Join_%28SQL%29#Equi-join
+     *
+     * @param string $field1 - Field name for first field.
+     * @param string $field2 - Field name for second field.
+     *
+     * @factoryMethod SourceJoinConditionEqui
+     * @return SourceJoinConditionFactory
      */
     public function equi($field1, $field2)
     {
@@ -66,18 +78,21 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Child document join condition:
+     * Child document join condition.
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->child('alias_1', 'alias_2')
-     *       ->end()
-     *     ->end()
+     *       ->condition()->child('alias_1', 'alias_2');
+     * </code>
      *
-     * @return SourceJoinConditionDescendant
+     * @param string $childAlias - Name of selector for child documents.
+     * @param string $parentAlias - Name of selector to match for parent documents.
+     *
+     * @factoryMethod SourceJoinConditionChildDocument
+     * @return SourceJoinConditionFactory
      */
     public function child($childAlias, $parentAlias)
     {
@@ -89,6 +104,7 @@ class SourceJoinConditionFactory extends AbstractNode
     /**
      * Same document join condition:
      *
+     * <code>
      *   $qb->from()
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
@@ -97,13 +113,19 @@ class SourceJoinConditionFactory extends AbstractNode
      *         ->same('alias_1', 'alias_2', '/path_to/alias_2/document')
      *       ->end()
      *     ->end()
+     * </code>
      *
-     * @return SourceJoinConditionDescendant
+     * @param string $alias1 - Name of first alias.
+     * @param string $alias2 - Name of first alias.
+     * @param string $alias2Path - Path for documents of second selector.
+     *
+     * @factoryMethod SourceJoinConditionSameDocument
+     * @return SourceJoinConditionFactory
      */
-    public function same($selector1Name, $selector2Name, $selector2Path)
+    public function same($alias1, $alias2, $alias2Path)
     {
         return $this->addChild(new SourceJoinConditionSameDocument($this, 
-            $selector1Name, $selector2Name, $selector2Path
+            $alias1, $alias2, $alias2Path
         ));
     }
 }

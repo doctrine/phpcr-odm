@@ -2,6 +2,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+/**
+ * Constraint which evaluates to true when the aliased document 
+ * path is a decscendant of the specified ancestor path.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class ConstraintDescendant extends AbstractLeafNode
 {
     protected $alias;

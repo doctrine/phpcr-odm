@@ -25,7 +25,7 @@ class SourceJoin extends AbstractNode
     }
 
     /**
-     * "Left" source
+     * Specify the document source for the "left" side of a join.
      *
      * @factoryMethod
      * @return SourceJoinLeft
@@ -36,7 +36,7 @@ class SourceJoin extends AbstractNode
     }
 
     /**
-     * "Right" source
+     * Specify the document source for the "right" side of a join.
      *
      * @factoryMethod
      * @return SourceJoinRight
@@ -47,7 +47,7 @@ class SourceJoin extends AbstractNode
     }
 
     /**
-     * Join condition
+     * Specify the join condition.
      *
      * @factoryMethod
      * @return SourceJoinConditionFactory

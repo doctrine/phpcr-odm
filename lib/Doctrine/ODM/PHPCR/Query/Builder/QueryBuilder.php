@@ -8,7 +8,21 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
 
 /**
- * Base QueryBuilder node.
+ * The Query Builder root node.
+ *
+ * This is the node which is returned when a query builder is asked for.
+ *
+ * <code>
+ * $dm = // get document manager
+ * $qb = $dm->createQueryBuilder();
+ * $qb->fromDocument('Blog\Post', 'p');
+ * $qb->where()->eq()->field('p.title')->literal('My Post');
+ * $docs = $qb->getQuery()->execute();
+ * </code>
+ *
+ * A converter is required to be set if the purpose of the query builder
+ * is to be fulfilled. The PHPCR converter walks over the query builder node
+ * hierarchy and converts the object graph the PHPCR QOM object graph.
  *
  * @IgnoreException('factoryMethod')
  *
@@ -55,14 +69,13 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Where factory node is used to specify selection criteria:
+     * Where factory node is used to specify selection criteria.
      *
      * <code>
-     *  $qb->where()
-     *    ->eq()->field('a.foobar')->literal('bar')->end()
+     *  $qb->where()->eq()->field('a.foobar')->literal('bar');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Where
      * @return Where
      */
     public function where($void = null)
@@ -72,10 +85,9 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Add additional selection criteria using the AND operator. 
-     * @see where
+     * Add additional selection criteria using the AND operator.
      *
-     * @factoryMethod
+     * @factoryMethod WhereAnd
      * @return WhereAnd
      */
     public function andWhere($void = null)
@@ -86,9 +98,8 @@ class QueryBuilder extends AbstractNode
 
     /**
      * Add additional selection criteria using the OR operator. 
-     * see "where"
      *
-     * @factoryMethod
+     * @factoryMethod WhereOr
      * @return WhereOr
      */
     public function orWhere($void = null)
@@ -107,11 +118,11 @@ class QueryBuilder extends AbstractNode
      *
      *  -$qb->from()->joinInner()
      *    ->left()->document('Foobar', 'a')->end()
-     *    ->right()->document('Foobar', 'a')->end()
-     *  ->end()
+     *    ->right()->document('Barfoo', 'b')->end()
+     *    ->condition()->equi('a.prop_1', 'b.prop_1');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod From
      * @return From
      */
     public function from($void = null)
@@ -135,7 +146,10 @@ class QueryBuilder extends AbstractNode
      *
      * Replaces any existing from source.
      *
-     * @factoryMethod
+     * @param string $documentFqn - Fully qualified class name for document.
+     * @param string $alias - Selector name.
+     *
+     * @factoryMethod From
      * @return QueryBuilder
      */
     public function fromDocument($documentFqn, $alias)
@@ -173,11 +187,14 @@ class QueryBuilder extends AbstractNode
      * $qb->fromDocument('Foobar', 'a')
      * ->addJoinLeftOuter()
      *   ->right()->document('Barfoo', 'b')->end()
-     *   ->condition()->equi('a.prop_1', 'b.prop_2')
+     *   ->condition()->equi('a.prop_1', 'b.prop_2');
      * ->end();
      * </code>
      *
-     * @factoryMethod
+     * Note that this method is currently not implemented until we can decide 
+     * on how it should work.
+     *
+     * @factoryMethod Select
      * @return SourceJoin
      */
     public function addJoinLeftOuter($void = null)
@@ -194,11 +211,13 @@ class QueryBuilder extends AbstractNode
      * $qb->fromDocument('Foobar', 'a')
      *   ->addJoinRightOuter()
      *     ->right()->document('Barfoo', 'b')->end()
-     *     ->condition()->equi('a.prop_1', 'b.prop_2')
-     *   ->end()
+     *     ->condition()->equi('a.prop_1', 'b.prop_2');
      * </code>
      *
-     * @factoryMethod
+     * Note that this method is currently not implemented until we can decide 
+     * on how it should work.
+     *
+     * @factoryMethod Select
      * @return SourceJoin
      */
     public function addJoinRightOuter($void = null)
@@ -215,11 +234,14 @@ class QueryBuilder extends AbstractNode
      * $qb->fromDocument('Foobar', 'a')
      * ->addJoinInner()
      *   ->right()->document('Barfoo', 'b')->end()
-     *   ->condition()->equi('a.prop_1', 'b.prop_2')
+     *   ->condition()->equi('a.prop_1', 'b.prop_2');
      * ->end()
      * </code>
      *
-     * @factoryMethod
+     * Note that this method is currently not implemented until we can decide 
+     * on how it should work.
+     *
+     * @factoryMethod Select
      * @return SourceJoin
      */
     public function addJoinInner($void = null)
@@ -238,11 +260,10 @@ class QueryBuilder extends AbstractNode
      * $qb->select()
      *   ->field('a.prop_1')
      *   ->field('a.prop_2')
-     *   ->field('a.prop_3')
-     * ->end()
+     *   ->field('a.prop_3');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod Select
      * @return Select
      */
     public function select($void = null)
@@ -261,11 +282,10 @@ class QueryBuilder extends AbstractNode
      *   ->addSelect()
      *     ->field('a.prop_2')
      *     ->field('a.prop_3')
-     *     ->field('a.prop_4')
-     *   ->end()
+     *     ->field('a.prop_4');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod SelectAdd
      * @return SelectAdd
      */
     public function addSelect($void = null)
@@ -281,12 +301,11 @@ class QueryBuilder extends AbstractNode
      *
      * <code>
      * $qb->orderBy()
-     *     ->asc()->field('a.prop_1')
-     *     ->desc()->field('a.prop_2')
-     *   ->end()
+     *     ->asc()->field('a.prop_1')->end()
+     *     ->desc()->field('a.prop_2');
      * </code>
      *
-     * @factoryMethod
+     * @factoryMethod OrderBy
      * @return OrderBy
      */
     public function orderBy($void = null)
@@ -298,9 +317,7 @@ class QueryBuilder extends AbstractNode
     /**
      * Add additional orderings to the builder tree.
      *
-     * See "orderBy"
-     *
-     * @factoryMethod
+     * @factoryMethod OrderByAdd
      * @return OrderByAdd
      */
     public function addOrderBy($void = null)
