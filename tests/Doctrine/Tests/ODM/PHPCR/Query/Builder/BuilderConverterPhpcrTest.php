@@ -369,41 +369,41 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         return array(
             // leaf
             array('OperandDynamicLocalName', array('alias_1'), array(
-                'phpcr_class' => 'NodeLocalNameInterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
-                }
+                },
+                'phpcr_class' => 'NodeLocalNameInterface',
             )),
             array('OperandDynamicName', array('alias_1'), array(
-                'phpcr_class' => 'NodeNameInterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
-                }
+                },
+                'phpcr_class' => 'NodeNameInterface',
             )),
             array('OperandDynamicFullTextSearchScore', array('alias_1'), array(
-                'phpcr_class' => 'FullTextSearchScoreInterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
-                }
+                },
+                'phpcr_class' => 'FullTextSearchScoreInterface',
             )),
             array('OperandDynamicLength', array('alias_1.field'), array(
-                'phpcr_class' => 'LengthInterface',
                 'assert' => function ($test, $node) {
                     $propertyValue = $node->getPropertyValue();
                     $test->assertInstanceOf(
                         'PHPCR\Query\QOM\PropertyValueInterface',
                         $propertyValue
                     );
-                    $test->assertEquals('field_phpcr', $propertyValue->getPropertyName());
                     $test->assertEquals('alias_1', $propertyValue->getSelectorName());
-                }
+                    $test->assertEquals('field_phpcr', $propertyValue->getPropertyName());
+                },
+                'phpcr_class' => 'LengthInterface',
             )),
             array('OperandDynamicField', array('alias_1.field'), array(
-                'phpcr_class' => 'PropertyValueinterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
                     $test->assertEquals('field_phpcr', $node->getPropertyName());
-                }
+                },
+                'phpcr_class' => 'PropertyValueinterface',
             )),
 
             // non-leaf
@@ -419,29 +419,29 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 }
             )),
             array('OperandDynamicUpperCase', array('alias_1'), array(
-                'phpcr_class' => 'UpperCaseInterface',
-                'add_child_operand' => true,
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
                     $test->assertInstanceOf(
                         'PHPCR\Query\QOM\NodeLocalNameInterface',
                         $op
                    );
-                }
+                },
+                'add_child_operand' => true,
+                'phpcr_class' => 'UpperCaseInterface',
             )),
 
             // static
             array('OperandStaticParameter', array('variable_name'), array(
-                'phpcr_class' => 'BindVariableValueInterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('variable_name', $node->getBindVariableName());
-                }
+                },
+                'phpcr_class' => 'BindVariableValueInterface',
             )),
             array('OperandStaticLiteral', array('literal_value'), array(
-                'phpcr_class' => 'LiteralInterface',
                 'assert' => function ($test, $node) {
                     $test->assertEquals('literal_value', $node->getLiteralValue());
-                }
+                },
+                'phpcr_class' => 'LiteralInterface',
             )),
         );
 
@@ -453,9 +453,9 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     public function testDispatchOperands($class, $args, $options)
     {
         $options = array_merge(array(
-            'phpcr_class' => null,
-            'add_child_operand' => false,
             'assert' => null,
+            'add_child_operand' => false,
+            'phpcr_class' => null,
         ), $options);
 
         $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$options['phpcr_class'];

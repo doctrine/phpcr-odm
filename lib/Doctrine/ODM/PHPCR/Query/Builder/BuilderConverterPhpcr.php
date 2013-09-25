@@ -139,16 +139,16 @@ class BuilderConverterPhpcr
             $odmClassConstraints = $this->qomf->orConstraint(
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
-                        'phpcr:class', 
-                        $sourceNode->getAlias()
+                        $sourceNode->getAlias(),
+                        'phpcr:class'
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
                     $this->qomf->literal($sourceNode->getDocumentFqn())
                 ),
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
-                        'phpcr:classparents', 
-                        $sourceNode->getAlias()
+                        $sourceNode->getAlias(),
+                        'phpcr:classparents'
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
                     $this->qomf->literal($sourceNode->getDocumentFqn())
@@ -235,11 +235,11 @@ class BuilderConverterPhpcr
             );
 
             $column = $this->qomf->column(
+                $property->getAlias(),
                 // do we want to support custom column names in ODM?
                 // what do columns get used for in an ODM in anycase?
                 $phpcrName,
-                $phpcrName,
-                $property->getAlias()
+                $phpcrName
             );
 
             $columns[] = $column;
@@ -333,8 +333,8 @@ class BuilderConverterPhpcr
 
         // get the PHPCR Selector
         $selector = $this->qomf->selector(
-            $meta->getNodeType(),
-            $alias
+            $alias,
+            $meta->getNodeType()
         );
 
         return $selector;
@@ -455,8 +455,8 @@ class BuilderConverterPhpcr
         );
 
         $con = $this->qomf->propertyExistence(
-            $phpcrProperty,
-            $node->getAlias()
+            $node->getAlias(),
+            $phpcrProperty
         );
 
         return $con;
@@ -469,9 +469,9 @@ class BuilderConverterPhpcr
         );
 
         $con = $this->qomf->fullTextSearch(
+            $node->getAlias(),
             $phpcrProperty,
-            $node->getFullTextSearchExpression(),
-            $node->getAlias()
+            $node->getFullTextSearchExpression()
         );
 
         return $con;
@@ -480,8 +480,8 @@ class BuilderConverterPhpcr
     protected function walkConstraintSame(ConstraintSame $node)
     {
         $con = $this->qomf->sameNode(
-            $node->getPath(),
-            $node->getAlias()
+            $node->getAlias(),
+            $node->getPath()
         );
 
         return $con;
@@ -490,8 +490,8 @@ class BuilderConverterPhpcr
     protected function walkConstraintDescendant(ConstraintDescendant $node)
     {
         $con = $this->qomf->descendantNode(
-            $node->getAncestorPath(),
-            $node->getAlias()
+            $node->getAlias(),
+            $node->getAncestorPath()
         );
 
         return $con;
@@ -500,8 +500,8 @@ class BuilderConverterPhpcr
     protected function walkConstraintChild(ConstraintChild $node)
     {
         $con = $this->qomf->childNode(
-            $node->getParentPath(),
-            $node->getAlias()
+            $node->getAlias(),
+            $node->getParentPath()
         );
 
         return $con;
@@ -544,11 +544,13 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicField(OperandDynamicField $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
-            $node->getAlias(), $node->getField()
+            $node->getAlias(),
+            $node->getField()
         );
 
         $op = $this->qomf->propertyValue(
-            $phpcrProperty, $node->getAlias()
+            $node->getAlias(),
+            $phpcrProperty
         );
 
         return $op;
@@ -575,11 +577,13 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicLength(OperandDynamicLength $node)
     {
         $phpcrProperty = $this->getPhpcrProperty(
-            $node->getAlias(), $node->getField()
+            $node->getAlias(),
+            $node->getField()
         );
 
         $propertyValue = $this->qomf->propertyValue(
-            $phpcrProperty, $node->getAlias()
+            $node->getAlias(),
+            $phpcrProperty
         );
 
         $op = $this->qomf->length(

@@ -40,10 +40,10 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function queryRepositoryStatements()
     {
         return array(
-            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional")', 4),
-            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username', 4),
-            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") AND username="dbu"', 1),
-            array('SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") AND username="notexisting"', 0),
+            array('SELECT username FROM [nt:unstructured] AS a WHERE ISCHILDNODE(a, "/functional")', 4),
+            array('SELECT username FROM [nt:unstructured] AS a WHERE ISCHILDNODE(a, "/functional") ORDER BY username', 4),
+            array('SELECT username FROM [nt:unstructured] AS a WHERE ISCHILDNODE(a, "/functional") AND username="dbu"', 1),
+            array('SELECT username FROM [nt:unstructured] AS a WHERE ISCHILDNODE(a, "/functional") AND username="notexisting"', 0),
             array('invalidstatement', -1),
             // TODO: try a join
         );
