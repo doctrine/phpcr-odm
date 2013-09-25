@@ -1,6 +1,6 @@
 #!/bin/bash
 
-composer require jackalope/jackalope-jackrabbit:~1.0.0-beta4 --prefer-source
+composer require jackalope/jackalope-jackrabbit:~1.0.0-RC1 --prefer-source
 
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"
