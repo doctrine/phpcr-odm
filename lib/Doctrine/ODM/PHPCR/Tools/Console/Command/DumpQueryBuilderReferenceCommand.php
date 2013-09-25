@@ -62,8 +62,8 @@ HERE
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (0 == strpos(phpversion(), '5.3')) {
-            $this->markTestSkipped('Dump reference command not compatible with PHP 5.3');
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            throw new \Exception('Dump reference needs at least PHP 5.4');
         }
 
         $search = $input->getArgument('search');
