@@ -4,6 +4,12 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
+/**
+ * Constraint which evaluates to true if the aliased document is
+ * reachable by the specified path.
+ *
+ * @author Daniel Leech <daniel@dantleech.com>
+ */
 class ConstraintSame extends AbstractLeafNode
 {
     protected $alias;

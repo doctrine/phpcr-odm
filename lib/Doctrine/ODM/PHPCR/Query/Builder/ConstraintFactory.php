@@ -5,7 +5,11 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
+ * This factory node provides both leaf and factory nodes all of which
+ * return nodes of type "constraint".
+ *
  * @IgnoreAnnotation("factoryMethod")
+ * @author Daniel Leech <daniel@dantleech.com>
  */
 class ConstraintFactory extends AbstractNode
 {
@@ -22,15 +26,40 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * And composite constraint, usage
+     * And composite constraint.
      *
-     *   $qb->where()
-     *     ->andX()
-     *       ->propertyExsts('prop_1', 'alias_1')
-     *       ->propertyExsts('prop_2', 'alias_1')
-     *     ->end()
+     * <code>
+     * $qb->where()->andX()
+     *   ->fieldIsset('f.foo')
+     *   ->gt()->field('f.max')->literal(40);
+     * </code>
      *
-     * @factoryMethod
+     * The andX node allows you to add 1, 2 or many operand nodes. When
+     * one operand is added the "and" is removed, when more than one
+     * is added the "and" operands are nested.
+     *
+     * <code>
+     * // when adding only a single operand,
+     * $qb->where()->andX()->eq()->field('f.foo')->literal('bar');
+     * // is equivilent to:
+     * $qb->where()->eq()->field('f.foo')->literal('bar');
+     *
+     *
+     * // when adding more than one,
+     * $qb->where()->andX()
+     *   ->fieldIsset('f.foo')
+     *   ->gt()->field('f.max')->literal(40);
+     *   ->eq()->field('f.zar')->literal('bar')
+     *
+     * // is equivilent to:
+     * $qb->where()->andX()
+     *   ->andX()
+     *     ->fieldIsset('f.foo')
+     *     ->gt()->field('f.max')->literal(40);
+     *   ->eq()->field('f.zar')->litreal('bar');
+     * </code>
+     *
+     * @factoryMethod ConstraintAndx
      * @return ConstraintAndx
      */
     public function andX()
@@ -39,15 +68,19 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Or composite constraint:
+     * Or composite constraint.
      *
-     *   $qb->where()
-     *     ->orX()
-     *       ->propertyExsts('prop_1', 'alias_1')
-     *       ->propertyExsts('prop_2', 'alias_1')
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->orX()
+     *     ->fieldIsset('sel_1.prop_1')
+     *     ->fieldIsset('sel_1.prop_2')
+     *   ->end();
+     * </code>
      *
-     * @factoryMethod
+     * As with "andX", "orX" allows one to many operands.
+     *
+     * @factoryMethod ConstraintOrx
      * @return ConstraintOrx
      */
     public function orX()
@@ -58,13 +91,14 @@ class ConstraintFactory extends AbstractNode
     /**
      * Field existance constraint:
      *
-     *   $qb->where()->fieldIsset('prop_1', 'alias_1')
+     * <code>
+     * $qb->where()->fieldIsset('sel_1.prop_1');
+     * </code>
      *
-     * @param string $field
-     * @param string $alias
+     * @param string $field - Field to check
      *
-     * @factoryMethod
-     * @return ConstraintFieldIsset
+     * @factoryMethod ConstraintFieldIsset
+     * @return ConstraintFactory
      */
     public function fieldIsset($field)
     {
@@ -72,15 +106,17 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Full text search constraint:
+     * Full text search constraint.
      *
-     *   $qb->where()->fullTextSearch('prop_1', 'search_expression', 'alias_1')
+     * <code>
+     * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression');
+     * </code>
      *
-     * @param string $field
-     * @param string $fullTextSearchExpression
+     * @param string $field - Name of field to check, including selector name.
+     * @param string $fullTextSearchExpression - Search expression.
      *
-     * @factoryMethod
-     * @return ConstraintFullTextSearch
+     * @factoryMethod ConstraintFullTextSearch
+     * @return ConstraintFactory
      */
     public function fullTextSearch($field, $fullTextSearchExpression)
     {
@@ -88,17 +124,19 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Same document constraint:
+     * Same document constraint.
      *
-     *   $qb->where()->sameDocument('/path/to/doc', 'alias_1')
+     * <code>
+     * $qb->where()->same('/path/to/doc', 'sel_1');
+     * </code>
      *
-     * Relates to PHPCR SameNodeInterface
+     * Relates to PHPCR QOM SameNodeInterface.
      *
-     * @param string $path
-     * @param string $alias
+     * @param string $path - Path to reference document.
+     * @param string $alias - Name of selector to use.
      *
-     * @factoryMethod
-     * @return ConstraintSame
+     * @factoryMethod ConstraintSame
+     * @return ConstraintFactory
      */
     public function same($path, $alias)
     {
@@ -106,17 +144,19 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Descendant document constraint:
+     * Descendant document constraint.
      *
-     *   $qb->where()->descendantDocument('/ancestor/path', 'alias_1')
+     * <code>
+     *   $qb->where()->descendant('/ancestor/path', 'sel_1');
+     * </code>
      *
-     * Relates to PHPCR DescendantNodeInterface
+     * Relates to PHPCR QOM DescendantNodeInterface
      *
-     * @param string $ancestorPath
-     * @param string $alias
+     * @param string $ancestorPath - Select descendants of this path.
+     * @param string $alias - Name of selector to use.
      *
-     * @factoryMethod
-     * @return ConstraintDescendant
+     * @factoryMethod ConstraintDescendant
+     * @return ConstraintFactory
      */
     public function descendant($ancestorPath, $alias)
     {
@@ -124,17 +164,19 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Child document constraint:
+     * Select children of the aliased document at the given path.
      *
-     *   $qb->where()->child('/parent/path', 'alias_1')
+     * <code>
+     * $qb->where()->child('/parent/path', 'sel_1');
+     * </code>
      *
-     * @param string $parentPath
-     * @param string $alias
+     * Relates to PHPCR QOM ChildNodeInterface.
      *
-     * Relates to PHPCR ChildNodeInterface
+     * @param string $parentPath - Select children of this path.
+     * @param string $alias - Name of selector to use
      *
-     * @factoryMethod
-     * @return ConstraintChild
+     * @factoryMethod ConstraintChild
+     * @return ConstraintFactory
      */
     public function child($parentPath, $alias)
     {
@@ -142,14 +184,9 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Not constraint.
+     * Inverts the truth of the given appended constraint.
      *
-     * Inverts the truth of any given constraint:
-     *
-     *   $qb->where()->not()->fieldIsset('foobar', 'alias_1')
-     *
-     * @factoryMethod
-     * @return ConstraintNot
+     * @return ConstraintFactory
      */
     public function not()
     {
@@ -157,15 +194,16 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Equality comparison constraint
+     * Equality comparison constraint.
      *
-     *   $qb->where()
-     *     ->eq()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->bindVariable('var_1')->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->eq()
+     *     ->field('sel_1.foobar')
+     *     ->literal('var_1');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function eq()
@@ -178,13 +216,14 @@ class ConstraintFactory extends AbstractNode
     /**
      * Inequality comparison constraint
      *
-     *   $qb->where()
-     *     ->neq()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->bindVariable('var_1')->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->neq()
+     *     ->field('sel_1.foobar')
+     *     ->literal('var_1');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function neq()
@@ -195,15 +234,16 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Less than comparison constraint
+     * Less than comparison constraint.
      *
-     *   $qb->where()
-     *     ->lt()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->lt()
+     *     ->field('sel_1.foobar')
+     *     ->literal(5);
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function lt()
@@ -214,15 +254,16 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Less than or equal to comparison constraint
+     * Less than or equal to comparison constraint.
      *
-     *   $qb->where()
-     *     ->lte()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->lte()
+     *     ->field('sel_1.foobar')
+     *     ->literal(5);
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function lte()
@@ -233,15 +274,16 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Greater than comparison constraint
+     * Greater than comparison constraint.
      *
-     *   $qb->where()
-     *     ->gt()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->gt()
+     *     ->field('sel_1.foobar')
+     *     ->literal(5);
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function gt()
@@ -252,15 +294,16 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Greater than or equal to comparison constraint
+     * Greater than or equal to comparison constraint.
      *
-     *   $qb->where()
-     *     ->gte()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal(5)->end()
-     *     ->end()
+     * <code>
+     * $qb->where()
+     *   ->gte()
+     *     ->field('sel_1.foobar')
+     *     ->literal(5);
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function gte()
@@ -271,15 +314,20 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Like comparison constraint
+     * Like comparison constraint.
      *
-     *   $qb->where()
-     *     ->lt()
-     *       ->lop()->propertyValue('foobar', 'alias_1')->end()
-     *       ->rop()->literal('foo%')->end()
-     *     ->end()
+     * Use "%" as wildcards.
      *
-     * @factoryMethod
+     * <code>
+     * $qb->where()
+     *   ->like()
+     *     ->field('sel_1.foobar')
+     *     ->literal('foo%');
+     * </code>
+     *
+     * The above example will match "foo" and "foobar" but not "barfoo".
+     *
+     * @factoryMethod ConstraintComparison
      * @return ConstraintComparison
      */
     public function like()

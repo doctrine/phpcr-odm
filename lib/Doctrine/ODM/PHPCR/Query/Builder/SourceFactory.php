@@ -6,7 +6,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
 
 /**
- * Abstract factory/node class for Sources.
+ * Abstract factory node class for Sources.
  *
  * In PHPCR terms there is only ever one "source", which
  * can either be a "node type" source, or a join.
@@ -28,17 +28,17 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Document source:
-     *
-     *   $qb->from()->document('My/Document/Class', 'my_alias')
-     *
      * Select documents of specified class. The selector name is mandatory
      * and will be used to reference documents selected from this source.
      *
-     * @param string $documentFqn
-     * @param string $alias
+     * <code>
+     * $qb->from()->document('My/Document/Class', 'my_selector_name')
+     * </code>
      *
-     * @factoryMethod
+     * @param string $documentFqn - Fully qualified class name for document.
+     * @param string $selectorName - Selector name.
+     *
+     * @factoryMethod SourceDocument
      * @return SourceDocument
      */
     public function document($documentFqn, $alias)
@@ -47,18 +47,17 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Inner Join:
+     * Note that his is currently disabled due to API uncertainty.
      *
-     *   $qb->from()
-     *     ->joinInner()
-     *       ->left()->document('My/Document/Class/One', 'alias_1')->end()
-     *       ->right()->document('My/Document/Class/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->equi('prop_1','alias_1', 'prop_2', 'alias_2')
-     *       ->end()
-     *     ->end()
+     * <code>
+     * $qb->from()
+     *   ->joinInner()
+     *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
+     *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
+     * </code>
      *
-     * @factoryMethod
+     * @factoryMethod SourceJoin
      * @return SourceJoin
      */
     public function joinInner()
@@ -71,18 +70,19 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Left Outer Join:
+     * Left Outer Join.
      *
-     *   $qb->from()
-     *     ->joinLeftOuter()
-     *       ->left()->document('My/Document/Class/One', 'alias_1')->end()
-     *       ->right()->document('My/Document/Class/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->equi('prop_1','alias_1', 'prop_2', 'alias_2')
-     *       ->end()
-     *     ->end()
+     * Note that his is currently disabled due to API uncertainty.
      *
-     * @factoryMethod
+     * <code>
+     * $qb->from()
+     *   ->joinLeftOuter()
+     *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
+     *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
+     * </code>
+     *
+     * @factoryMethod SourceJoin
      * @return SourceJoin
      */
     public function joinLeftOuter()
@@ -95,18 +95,19 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Right Outer Join:
+     * Right Outer Join.
      *
-     *   $qb->from()
-     *     ->joinRightOuter()
-     *       ->left()->document('My/Document/Class/One', 'alias_1')->end()
-     *       ->right()->document('My/Document/Class/Two', 'alias_2')->end()
-     *       ->condition()
-     *         ->equi('prop_1','alias_1', 'prop_2', 'alias_2')
-     *       ->end()
-     *     ->end()
+     * Note that his is currently disabled due to API uncertainty.
      *
-     * @factoryMethod
+     * <code>
+     * $qb->from()
+     *   ->joinRightOuter()
+     *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
+     *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
+     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
+     * </code>
+     *
+     * @factoryMethod SourceJoin
      * @return SourceJoin
      */
     public function joinRightOuter()
