@@ -24,6 +24,8 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents an abstract "file"
+ *
+ * @PHPCRODM\MappedSuperclass(mixins="mix:created")
  */
 abstract class AbstractFile implements HierarchyInterface
 {
