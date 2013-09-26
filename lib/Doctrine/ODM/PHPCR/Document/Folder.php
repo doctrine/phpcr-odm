@@ -19,8 +19,9 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\HierarchyInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents a Folder in the repository, aka nt:folder
@@ -66,11 +67,12 @@ class Folder extends AbstractFile
     }
 
     /**
-     * Add a child File to this Folder document
+     * Add a child document that resolves to nt:hierarchyNode (like the File)
+     * to this document that resolves to nt:folder (like the Folder)
      *
-     * @param $child AbstractFile
+     * @param $child HierarchyInterface
      */
-    public function addChild(AbstractFile $child)
+    public function addChild(HierarchyInterface $child)
     {
         if (null === $this->children) {
             $this->children = new ArrayCollection();

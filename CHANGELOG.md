@@ -1,6 +1,9 @@
 Changelog
 =========
 
+* **2013-09-26**: [Model] add HierarchyInterface for objects that resolve to
+  nt:HierarchyNode, the method AbstractFile::addChild is
+  changed to use the interface instead of AbstractFile as parameter.
 * **2013-09-13**: [QueryBuilder] Replaced query builder with new
   implementation. See documentation:
   http://docs.doctrine-project.org/projects/doctrine-phpcr-odm/en/latest/reference/query-builder.html 
