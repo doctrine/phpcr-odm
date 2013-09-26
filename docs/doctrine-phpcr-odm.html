@@ -96,6 +96,7 @@
         <div class="slide" style="text-align:left">
             <h2>Doctrine ODM</h2>
             <ul>
+                <li>PHPCR: Graph-based, schema-less, versioning document database</li>
                 <li>Object to Document mapper</li>
                 <li>Persist your Objects as PHPCR nodes</li>
                 <li>This is <em>not</em> active record</li>
@@ -108,6 +109,22 @@
                 </li>
             </ul>
         </div>
+
+        <div class="slide" style="text-align:left">
+            <h1>PHPCR-ODM is not MongoDB or CouchDB ODM</h1>
+            <ul>
+                <li>Tree/graph structure</li>
+                <li>Direct access and search</li>
+                <li>Translation of documents</li>
+                <li>Versioning</li>
+                <li>Document and subtree locking</li>
+                <li>Standardized XML import/export</li>
+                <li>Observation (*)</li>
+                <li>Access Control *</li>
+            </ul>
+            <p>* Not yet implemented in Jackalope</p>
+        </div>
+
 
         <div class="slide">
             <h2>Document class</h2>
@@ -260,10 +277,11 @@
                             ->end()
                         ->end()
                         ->orderBy()
-                            ->asc()->field('title')->end()
+                            ->asc()->field('b.title')->end()
                         ->end()
                         ->setMaxResults($limit)
                         ->setFirstResult($offset)
+                        ->getQuery()
                         ->execute();
 
                 $collection = $dm->getDocumentsByPhpcrQuery($qb->getQuery());
