@@ -19,12 +19,13 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
+use Doctrine\ODM\PHPCR\HierarchyInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents an abstract "file"
  */
-abstract class AbstractFile
+abstract class AbstractFile implements HierarchyInterface
 {
     /** @PHPCRODM\Id(strategy="parent") */
     protected $id;
