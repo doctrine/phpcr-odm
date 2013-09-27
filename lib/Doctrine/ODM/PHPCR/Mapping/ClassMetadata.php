@@ -1224,15 +1224,6 @@ class ClassMetadata implements ClassMetadataInterface
         $parentMapping = isset($mapping['fieldName']) && isset($this->mappings[$mapping['fieldName']])
             ? $this->mappings[$mapping['fieldName']] : null;
 
-        if (isset($mapping['name'])) {
-            $msg = sprintf('use "property" and not "name" to specify the PHPCR property name of field "%s" in "%s"', $mapping['fieldName'], $this->name);
-            trigger_error($msg, E_USER_DEPRECATED);
-            if (!isset($mapping['property'])) {
-                $mapping['property'] = $mapping['name'];
-            }
-            unset($mapping['name']);
-        }
-
         if (!$inherited) {
             if (isset($mapping['id']) && $mapping['id'] === true) {
                 $mapping['type'] = 'string';
