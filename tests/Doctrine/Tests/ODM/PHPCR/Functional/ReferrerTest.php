@@ -128,12 +128,14 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
+        /** @var $reference ReferrerRefTestObj */
         $reference = $this->dm->find(null, "/functional/referrerRefTestObj");
 
         $this->assertCount($max, $reference->referrers);
 
         $tmpIds = array();
         foreach ($reference->referrers as $referrer) {
+            $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\ReferrerTestObj', $referrer);
             $tmpIds[] = $referrer->id;
         }
 
