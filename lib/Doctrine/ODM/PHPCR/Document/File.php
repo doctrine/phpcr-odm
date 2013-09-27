@@ -25,7 +25,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * This class represents a JCR file, aka nt:file.
  * @ see http://wiki.apache.org/jackrabbit/nt:file
  *
- * @PHPCRODM\Document(nodeType="nt:file", referenceable=true)
+ * @PHPCRODM\Document(nodeType="nt:file", mixins={}, referenceable=true)
  */
 class File extends AbstractFile
 {
