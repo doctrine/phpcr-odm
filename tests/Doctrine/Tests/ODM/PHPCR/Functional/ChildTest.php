@@ -69,6 +69,38 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
     }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCreateArray()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->child = array($child);
+        $child->name = 'Child';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCreateNoObject()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->child = 'This is not an object';
+        $child->name = 'Child';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+    }
+
     public function testCreateAddChildLater()
     {
         $parent = new ChildTestObj();
