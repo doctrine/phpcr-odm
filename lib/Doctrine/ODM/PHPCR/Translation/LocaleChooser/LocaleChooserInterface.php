@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 
 /**
  * Interface to get the list of preferred locales.
@@ -37,24 +38,41 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 interface LocaleChooserInterface
 {
     /**
-     * @param array $localePreference array of arrays with a preferred locale order list
-     *      for each locale
+     * Set the preferences.
+     *
+     * For example:
+     *
+     * array(
+     *      'en' => array('fr', 'de'),
+     *      'fr' => array('en'),
+     *      'de' => array('en),
+     * )
+     *
+     * @param array $localePreference array of arrays with a preferred locale
+     *      order list for each locale
+     *
+     * @throws MissingTranslationException if no entry for the default locale
+     *      is found in $localePreference
      */
     public function setLocalePreference($localePreference);
 
     /**
-     * Gets an ordered list of preferred locales.
+     * Gets an ordered list of locales to try as fallback for a locale.
      *
      * Example return value with param $forLocale = 'en':
-     *  array('en', 'fr', 'de')
+     *     array('fr', 'de')
      *
      * @param object        $document  The document object
      * @param ClassMetadata $metadata  The metadata of the document class
-     * @param string        $forLocale for which locale you need the locale order, e.g. the current request locale
+     * @param string|null   $forLocale Locale for which you want the fallback
+     *                                 order, e.g. the current request locale.
+     *                                 If null, the default locale is to be used.
      *
      * @return array $preferredLocales
+     *
+     * @throws MissingTranslationException
      */
-    public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null);
+    public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null);
 
     /**
      * Get the locale of the current session.
@@ -72,7 +90,9 @@ interface LocaleChooserInterface
 
     /**
      * Get the ordered list of locales for the default locale without any
-     * context
+     * context.
+     *
+     * This list has to include the default locale as first element.
      *
      * @return array preferred locale order for the default locale
      */

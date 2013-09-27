@@ -69,10 +69,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * @param array $localePreference array of arrays with a preferred locale order list
-     *      for each locale
-     *
-     * @throws MissingTranslationException
+     * {@inheritDoc}
      */
     public function setLocalePreference($localePreference)
     {
@@ -84,19 +81,9 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * Gets an ordered list of preferred locales.
-     *
-     * If forLocale is not present in the list of preferred locales, return the preference order for the defaultLocale.
-     *
-     * @param object        $document  The document object
-     * @param ClassMetadata $metadata  The metadata of the document class
-     * @param string        $forLocale for which locale you need the locale order, e.g. the current request locale
-     *
-     * @return array $preferredLocales
-     *
-     * @throws MissingTranslationException
+     * {@inheritDoc}
      */
-    public function getPreferredLocalesOrder($document, ClassMetadata $metadata, $forLocale = null)
+    public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null)
     {
         if (is_null($forLocale)) {
             return $this->localePreference[$this->getLocale()];
@@ -113,7 +100,10 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function getDefaultLocalesOrder()
     {
-        return $this->localePreference[$this->defaultLocale];
+        $locales = $this->localePreference[$this->defaultLocale];
+        array_unshift($locales, $this->defaultLocale);
+
+        return $locales;
     }
 
     /**
