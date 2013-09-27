@@ -585,6 +585,13 @@ class UnitOfWork
 
     private function doScheduleInsert($document, &$visited, $overrideIdGenerator = null)
     {
+        if (!is_object($document)) {
+            throw new PHPCRException(sprintf(
+                'Expected a mapped object, found <%s>',
+                gettype($document)
+            ));
+        }
+
         $oid = spl_object_hash($document);
         // To avoid recursion loops (over children and parents)
         if (isset($visited[$oid])) {
@@ -636,7 +643,19 @@ class UnitOfWork
             if ($related !== null) {
                 if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                     if (is_array($related) || $related instanceof Collection) {
-                        throw new PHPCRException('Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
+                        throw new PHPCRException(sprintf(
+                            'Referenced document is not stored correctly in a reference-one property. Do not use array notation or a (ReferenceMany)Collection in field "%s" of document "%s"',
+                            $fieldName,
+                            self::objToStr($document, $this->dm)
+                        ));
+                    }
+                    if (!is_object($related)) {
+                        throw new PHPCRException(sprintf(
+                            'A reference field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+                            gettype($related),
+                            $fieldName,
+                            self::objToStr($document, $this->dm)
+                        ));
                     }
 
                     if ($this->getDocumentState($related) === self::STATE_NEW) {
@@ -644,10 +663,21 @@ class UnitOfWork
                     }
                 } else {
                     if (!is_array($related) && !$related instanceof Collection) {
-                        throw new PHPCRException('Referenced document is not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
+                        throw new PHPCRException('Referenced documents are not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection: '.self::objToStr($document, $this->dm));
                     }
                     foreach ($related as $relatedDocument) {
-                        if (isset($relatedDocument) && $this->getDocumentState($relatedDocument) === self::STATE_NEW) {
+                        if (!isset($relatedDocument)) {
+                            continue;
+                        }
+                        if (!is_object($relatedDocument)) {
+                            throw new PHPCRException(sprintf(
+                                'A reference field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+                                gettype($relatedDocument),
+                                $fieldName,
+                                self::objToStr($document, $this->dm)
+                            ));
+                        }
+                        if ($this->getDocumentState($relatedDocument) === self::STATE_NEW) {
                             $this->doScheduleInsert($relatedDocument, $visited);
                         }
                     }
@@ -660,12 +690,30 @@ class UnitOfWork
         foreach ($class->childMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             $child = $class->reflFields[$fieldName]->getValue($document);
-            if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
+            if ($child === null) {
+                continue;
+            }
+            if (is_array($child) || $child instanceof Collection) {
+                throw new PHPCRException(sprintf(
+                    'Child document is not stored correctly in a child property. Do not use array notation or a Collection in field "%s" of document "%s"',
+                    $fieldName,
+                    self::objToStr($document, $this->dm)
+                ));
+            }
+            if (!is_object($child)) {
+                throw new PHPCRException(sprintf(
+                    'A child field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+                    gettype($child),
+                    $fieldName,
+                    self::objToStr($document, $this->dm)
+                ));
+            }
+            if ($this->getDocumentState($child) === self::STATE_NEW) {
                 $childClass = $this->dm->getClassMetadata(get_class($child));
-                // TODO check if $childId is managed, if yes, merge
                 $childClass->setIdentifierValue($child, $id.'/'.$mapping['nodeName']);
                 $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
             }
+            // TODO check if $childId is managed. if yes, merge. see also https://github.com/doctrine/phpcr-odm/pull/262
         }
 
         foreach ($class->childrenMappings as $fieldName) {
@@ -673,9 +721,27 @@ class UnitOfWork
             if (empty($children)) {
                 continue;
             }
+            if (!is_array($children) && !$children instanceof Collection) {
+                throw new PHPCRException(sprintf(
+                    'Children documents are not stored correctly in a children property. Use array notation or a Collection: field "%s" of "%s"',
+                    $fieldName,
+                    self::objToStr($document, $this->dm)
+                ));
+            }
 
             foreach ($children as $child) {
-                if ($child !== null && $this->getDocumentState($child) === self::STATE_NEW) {
+                if ($child === null) {
+                    continue;
+                }
+                if (!is_object($child)) {
+                    throw new PHPCRException(sprintf(
+                        'A children field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+                        gettype($child),
+                        $fieldName,
+                        self::objToStr($document, $this->dm)
+                    ));
+                }
+                if ($this->getDocumentState($child) === self::STATE_NEW) {
                     $childClass = $this->dm->getClassMetadata(get_class($child));
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
@@ -695,6 +761,15 @@ class UnitOfWork
         if ($class->parentMapping) {
             $parent = $class->reflFields[$class->parentMapping]->getValue($document);
             if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
+                if (!is_object($parent)) {
+                    throw new PHPCRException(sprintf(
+                        'A parent field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+                        gettype($parent),
+                        $class->parentMapping,
+                        self::objToStr($document, $this->dm)
+                    ));
+                 }
+
                 $this->doScheduleInsert($parent, $visited);
             }
         }
