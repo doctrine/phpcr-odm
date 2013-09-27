@@ -29,10 +29,8 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
-// TODO use Doctrine\Common\Persistence\Event\LifecycleEventArgs instead for the next version
-use Doctrine\ODM\PHPCR\Event\LifecycleEventArgs;
-// TODO use Doctrine\Common\Persistence\Event\ManagerEventArgs instead for the next version
-use Doctrine\ODM\PHPCR\Event\ManagerEventArgs;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
 
