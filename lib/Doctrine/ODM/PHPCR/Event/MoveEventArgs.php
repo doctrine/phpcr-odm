@@ -20,6 +20,7 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
 
 class MoveEventArgs extends LifecycleEventArgs

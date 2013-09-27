@@ -82,11 +82,6 @@ final class ParentDocument
 class Property
 {
     /**
-     * @deprecated use $property instead
-     * @var string
-     */
-    public $name;
-    /**
      * The PHPCR property name to use
      * @var string
      */
@@ -236,11 +231,6 @@ final class Decimal extends TranslatableProperty
  */
 class Reference
 {
-    /**
-     * @deprecated use $property instead
-     * @var string
-     */
-    public $name;
     /**
      * The PHPCR property name to use
      * @var string
