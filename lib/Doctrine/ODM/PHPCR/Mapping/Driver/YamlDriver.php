@@ -88,7 +88,9 @@ class YamlDriver extends FileDriver
             $class->setMixins($mixins);
         }
 
-        $class->setNodeType(isset($element['nodeType']) ? $element['nodeType'] : 'nt:unstructured');
+        if (isset($element['nodeType'])) {
+            $class->setNodeType($element['nodeType']);
+        }
 
         if ($element['type'] === 'mappedSuperclass') {
             $class->isMappedSuperclass = true;

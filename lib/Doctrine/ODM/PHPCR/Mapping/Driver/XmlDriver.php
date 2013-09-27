@@ -92,7 +92,9 @@ class XmlDriver extends FileDriver
             $class->setMixins($mixins);
         }
 
-        $class->setNodeType(isset($xmlRoot['node-type']) ? (string) $xmlRoot['node-type'] : 'nt:unstructured');
+        if (isset($xmlRoot['node-type'])) {
+            $class->setNodeType((string) $xmlRoot['node-type']);
+        }
 
         if ($xmlRoot->getName() === 'mapped-superclass') {
             $class->isMappedSuperclass = true;
