@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
@@ -195,5 +196,38 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
         $removedArticle = $user->articlesReferrers->first();
         $this->assertNull($removedArticle->user);
+    }
+
+    /**
+     * Almost the same as testCascadeManagedDocumentReferrerDuringFlush but
+     * using a plain array instead of an ArrayCollection to be sure sloppy
+     * initialization by a user does not lead to issues.
+     */
+    public function testCascadeManagedDocumentReferrerDuringFlushArray()
+    {
+        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user->username = "dbu";
+        $user->name = "David";
+        $this->dm->persist($user);
+
+        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article->text = "foo";
+        $article->topic = "bar";
+        $article->id = '/functional/article_referrer';
+        $user->articlesReferrers = array($article);
+
+        $this->dm->flush();
+
+        $this->assertEquals($user, $article->user);
+
+        $this->dm->clear();
+
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', '/functional/dbu');
+        $this->assertNotNull($user);
+        $this->assertTrue(1 <= count($user->articlesReferrers));
+        $savedArticle = $user->articlesReferrers->first();
+        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsArticle', $savedArticle);
+        $this->assertEquals($article->id, $savedArticle->id);
+
     }
 }
