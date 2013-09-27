@@ -7,10 +7,11 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * A class that represents a parent class for the purposes
  * of testing class property inheritance
- * 
+ *
  * @PHPCRODM\Document(
- *   referenceable=true, 
- *   nodeType="nt:test", 
+ *   referenceable=true,
+ *   nodeType="nt:test",
+ *   mixins={"mix:foo","mix:bar"},
  *   translator="foo",
  *   repositoryClass="Foobar",
  *   versionable="simple"
