@@ -30,7 +30,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * To add files or folders to a folder, create the new File/Folder and set
  * this document as parent, then persist the new File/Folder.
  *
- * @PHPCRODM\Document(nodeType="nt:folder")
+ * @PHPCRODM\Document(nodeType="nt:folder", mixins={})
  */
 class Folder extends AbstractFile
 {
