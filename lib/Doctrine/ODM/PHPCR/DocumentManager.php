@@ -680,7 +680,7 @@ class DocumentManager implements ObjectManager
         if ($includeFallbacks) {
             $fallBackLocales = array();
             foreach ($locales as $locale) {
-                $fallBackLocales = array_merge($fallBackLocales, $this->localeChooserStrategy->getPreferredLocalesOrder($document, $metadata, $locale));
+                $fallBackLocales = array_merge($fallBackLocales, $this->localeChooserStrategy->getFallbackLocales($document, $metadata, $locale));
             }
 
             $locales = array_unique(array_merge($locales, $fallBackLocales));
