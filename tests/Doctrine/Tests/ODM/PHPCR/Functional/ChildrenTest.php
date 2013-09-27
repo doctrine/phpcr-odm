@@ -184,6 +184,36 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount(2, $parent->allChildren);
     }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCreateChildrenNoArray()
+    {
+        $child = new ChildrenTestObj();
+        $child->id = '/functional/parent/Child A/Child Create-1';
+        $child->name = 'Child A';
+
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
+        $this->assertCount(0, $parent->allChildren);
+
+        $parent->allChildren = $child;
+        $this->dm->persist($parent);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCreateChildrenNoObject()
+    {
+        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
+        $this->assertCount(0, $parent->allChildren);
+
+        $parent->allChildren = array('This is not an object');
+        $this->dm->persist($parent);
+        $this->dm->flush();
+    }
+
     public function testSliceChildrenCollection()
     {
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');

@@ -228,6 +228,65 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsArticle', $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);
+    }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCascadeReferenceArray()
+    {
+        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article->text = "foo";
+        $article->topic = "bar";
+        $article->id = '/functional/article';
+        $article->user = array();
+
+        $this->dm->persist($article);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCascadeReferenceNoObject()
+    {
+        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article->text = "foo";
+        $article->topic = "bar";
+        $article->id = '/functional/article';
+        $article->user = "This is not an object";
+
+        $this->dm->persist($article);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCascadeReferenceManyNoArray()
+    {
+        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user->name = "foo";
+        $user->username = "bar";
+        $user->id = '/functional/user';
+        $user->groups = $this;
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testCascadeReferenceManyNoObject()
+    {
+        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user->name = "foo";
+        $user->username = "bar";
+        $user->id = '/functional/user';
+        $user->groups = array("this is a bad idea");
+
+        $this->dm->persist($user);
+        $this->dm->flush();
     }
 }
