@@ -2890,7 +2890,7 @@ class UnitOfWork
             $msg = "No translation at '{$node->getPath()}' found with strategy '{$metadata->translator} using the default locale '$locale'.";
             throw new MissingTranslationException($msg);
         } else {
-            $localesToTry = $this->dm->getLocaleChooserStrategy()->getPreferredLocalesOrder($document, $metadata, $locale);
+            $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales($document, $metadata, $locale);
 
             foreach ($localesToTry as $desiredLocale) {
                 if ($strategy->loadTranslation($document, $node, $metadata, $desiredLocale)) {

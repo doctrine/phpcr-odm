@@ -13,8 +13,8 @@ class LocaleChooserTest extends PHPCRTestCase
      * @var LocaleChooser
      */
     protected $localeChooser;
-    protected $orderEn = array('en', 'de');
-    protected $orderDe = array('de', 'en');
+    protected $orderEn = array('de');
+    protected $orderDe = array('en');
     protected $mockMetadata;
 
     public function setUp()
@@ -24,30 +24,30 @@ class LocaleChooserTest extends PHPCRTestCase
     }
 
 
-    public function testGetPreferredLocalesOrder()
+    public function testGetFallbackLocales()
     {
-        $orderDe = $this->localeChooser->getPreferredLocalesOrder(null, $this->mockMetadata, 'de');
+        $orderDe = $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de');
         $this->assertEquals($this->orderDe, $orderDe);
-        $orderEn = $this->localeChooser->getPreferredLocalesOrder(null, $this->mockMetadata, 'en');
+        $orderEn = $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'en');
         $this->assertEquals($this->orderEn, $orderEn);
         $this->localeChooser->setLocale('de');
-        $orderDe = $this->localeChooser->getPreferredLocalesOrder(null, $this->mockMetadata);
+        $orderDe = $this->localeChooser->getFallbackLocales(null, $this->mockMetadata);
         $this->assertEquals($this->orderDe, $orderDe);
     }
 
     /**
      * @expectedException \Doctrine\ODM\PHPCR\Exception\MissingTranslationException
      */
-    public function testGetPreferredLocalesOrderNonexisting()
+    public function testGetFallbackLocalesNonexisting()
     {
-        $this->localeChooser->getPreferredLocalesOrder(null, $this->mockMetadata, 'notexisting');
+        $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'notexisting');
     }
 
     public function testGetDefaultLocalesOrder()
     {
         $this->localeChooser->setLocale('de'); // default should not use current locale but default locale
         $orderEn = $this->localeChooser->getDefaultLocalesOrder();
-        $this->assertEquals($this->orderEn, $orderEn);
+        $this->assertEquals(array('en', 'de'), $orderEn);
     }
 
     public function testGetLocale()
