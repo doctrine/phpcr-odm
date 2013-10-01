@@ -9,19 +9,13 @@ Changelog
   - Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs
   - Doctrine\Common\Persistence\Event\ManagerEventArgs
   - Doctrine\Common\Persistence\Event\LifecycleEventArgs
-
-  Only the MoveEventArgs are specific to PHPCR-ODM.
-
+  Only the MoveEventArgs remain specific to PHPCR-ODM.
 * **2013-09-27**: Removed deprecated legacy handling for the mapping that
   allowed using "name" instead of "property" to configure PHCPR property in mapping.
-
-1.0.0-RC2
----------
 
 * **2013-09-26**: [Model] add HierarchyInterface for objects that resolve to
   nt:HierarchyNode, the method AbstractFile::addChild is
   changed to use the interface instead of AbstractFile as parameter.
-
 
 1.0.0-RC1
 ---------
@@ -29,6 +23,10 @@ Changelog
 * **2013-09-13**: [QueryBuilder] Replaced query builder with new
   implementation. See documentation:
   http://docs.doctrine-project.org/projects/doctrine-phpcr-odm/en/latest/reference/query-builder.html
+
+1.0.0-beta5
+-----------
+
 * **2013-08-16**: [Model] removed Doctrine\ODM\PHPCR\Document\Image and moved
   it to the CmfMediaBundle. Note that the CmfMediaBundle image is itself a file
   and no longer uses a file child.
