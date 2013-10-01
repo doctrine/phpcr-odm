@@ -15,7 +15,7 @@ Changelog
 * **2013-09-27**: Removed deprecated legacy handling for the mapping that
   allowed using "name" instead of "property" to configure PHCPR property in mapping.
 
-1.0.0-RC2
+1.0.0-RC1
 ---------
 
 * **2013-09-26**: [Model] add HierarchyInterface for objects that resolve to
@@ -23,8 +23,8 @@ Changelog
   changed to use the interface instead of AbstractFile as parameter.
 
 
-1.0.0-RC1
----------
+1.0.0-beta5
+-----------
 
 * **2013-09-13**: [QueryBuilder] Replaced query builder with new
   implementation. See documentation:
