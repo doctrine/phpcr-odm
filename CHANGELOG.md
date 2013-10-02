@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.0.0-RC2
+---------
+
 * **2013-09-27**: Cleaned up LocaleChooserInterface:
   - renamed getPreferredLocalesOrder to getFallbackLocales as this was not
     containing the primary language for a while now.
