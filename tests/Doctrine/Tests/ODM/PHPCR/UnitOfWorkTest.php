@@ -47,6 +47,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $metadata = new ClassMetadata($this->type);
         $metadata->initializeReflection($cmf->getReflectionService());
         $metadata->mapId(array('fieldName' => 'id', 'id' => true));
+        $metadata->idGenerator = ClassMetadata::GENERATOR_TYPE_ASSIGNED;
         $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
         $cmf->setMetadataFor($this->type, $metadata);
     }

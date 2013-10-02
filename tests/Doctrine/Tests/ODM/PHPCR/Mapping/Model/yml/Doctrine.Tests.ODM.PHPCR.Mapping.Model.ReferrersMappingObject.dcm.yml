@@ -1,6 +1,7 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject:
   type: document
   referenceable: true
+  id: id
   referrers:
     filteredReferrers:
       referencedBy: referenceManyWeak

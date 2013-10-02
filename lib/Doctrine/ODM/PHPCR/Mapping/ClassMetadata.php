@@ -55,28 +55,32 @@ class ClassMetadata implements ClassMetadataInterface
     const CASCADE_ALL = 255;
 
     /**
-     * means no strategy has been set so far.
+     * No strategy has been set so far.
      */
     const GENERATOR_TYPE_NONE = 0;
 
     /**
-     * means the repository will need to be able to generate the id.
+     * The repository will be asked to generate the id.
      */
     const GENERATOR_TYPE_REPOSITORY = 1;
 
     /**
-     * NONE means Doctrine will not generate any id for us and you are responsible for manually
-     * assigning an id.
+     * Doctrine will not generate any id for us and you are responsible for
+     * manually assigning a valid id string in the document.
+     *
+     * Be aware that in PHPCR, the parent of a node must exist.
      */
     const GENERATOR_TYPE_ASSIGNED = 2;
 
     /**
-     * means the document uses the parent and name mapping to find its place.
+     * The document uses the parent and name mapping to find its location in
+     * the tree.
      */
     const GENERATOR_TYPE_PARENT = 3;
 
     /**
-     * means the document uses the auto name mapping to find its place.
+     * The document uses the parent mapping to find its location in the tree
+     * and will use the PHPCR addNodeAutoNamed feature for the node name.
      */
     const GENERATOR_TYPE_AUTO = 4;
 
@@ -101,14 +105,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var \Doctrine\ODM\PHPCR\Id\IdGenerator
      */
-    public $idGenerator = self::GENERATOR_TYPE_ASSIGNED;
-
-    /**
-     * keep track whether an id strategy was explicitly set
-     *
-     * @var boolean
-     */
-    private $idStrategySet = false;
+    public $idGenerator = self::GENERATOR_TYPE_NONE;
 
     /**
      * READ-ONLY: The field name of the document identifier.
@@ -604,9 +601,6 @@ class ClassMetadata implements ClassMetadataInterface
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
                 $this->setIdGenerator($mapping['strategy']);
-                $this->idStrategySet = true;
-            } elseif (null !== $this->parentMapping && null !== $this->nodename) {
-                $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
             }
         }
 
@@ -625,9 +619,6 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping['type'] = 'nodename';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->nodename = $mapping['fieldName'];
-        if (null !== $this->parentMapping && !$this->idStrategySet) {
-            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
-        }
     }
 
     public function mapParentDocument(array $mapping, ClassMetadata $inherited = null)
@@ -638,9 +629,6 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping['type'] = 'parent';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->parentMapping = $mapping['fieldName'];
-        if (null !== $this->nodename && !$this->idStrategySet) {
-            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
-        }
     }
 
     public function mapChild(array $mapping, ClassMetadata $inherited = null)
@@ -835,8 +823,16 @@ class ClassMetadata implements ClassMetadataInterface
         return $mapping;
     }
 
+    /**
+     * Finalize the mapping and make sure that it is consistent.
+     *
+     * @throws MappingException if inconsistencies are discovered.
+     */
     public function validateClassMapping()
     {
+        // associative array fields need a separate property to store the keys.
+        // make sure that generated or specified name does not collide with an
+        // existing mapping.
         $assocFields = array();
         foreach ($this->fieldMappings as $fieldName) {
             $mapping = $this->mappings[$fieldName];
@@ -889,14 +885,50 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (!$this->isMappedSuperclass) {
-            if ($this->idStrategySet && self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->parentMapping) {
-                throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a parent mapping', $this->name));
-            }
+            if ($this->isIdGeneratorNone()) {
+                $this->determineIdStrategy();
+            } else {
+                // if we assigned the strategy, we need to check if we have the needed fields
 
-            if ($this->idStrategySet && self::GENERATOR_TYPE_AUTO === $this->idGenerator && !$this->parentMapping) {
-                throw new MappingException(sprintf('Using the auto node name id generator strategy in "%s" without a parent mapping', $this->name));
+                if (self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->parentMapping) {
+                    throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a parent mapping', $this->name));
+                }
+                if (self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->nodename) {
+                    throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a nodename mapping', $this->name));
+                }
+
+                if (self::GENERATOR_TYPE_AUTO === $this->idGenerator && !$this->parentMapping) {
+                    throw new MappingException(sprintf('Using the auto node name id generator strategy in "%s" without a parent mapping', $this->name));
+                }
             }
         }
+    }
+
+    /**
+     * Determine the id strategy for this document. Only call this if no explicit
+     * strategy was assigned.
+     *
+     * @throws MappingException if no strategy is applicable with the mapped fields.
+     */
+    private  function determineIdStrategy()
+    {
+        if ($this->parentMapping && $this->nodename) {
+            $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
+
+            return;
+        }
+        if ($this->parentMapping) {
+            $this->setIdGenerator(self::GENERATOR_TYPE_AUTO);
+
+            return;
+        }
+        if ($this->getIdentifier()) {
+            $this->setIdGenerator(self::GENERATOR_TYPE_ASSIGNED);
+
+            return;
+        }
+
+        throw new MappingException(sprintf('No id generator could be determined in "%s". Either map a parent and a nodename field and add values to them, or map the id field and configure a mapping strategy', $this->name));
     }
 
     public function mapManyToOne($mapping, ClassMetadata $inherited = null)
@@ -961,7 +993,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isIdGeneratorRepository()
     {
-        return $this->idGenerator == self::GENERATOR_TYPE_REPOSITORY;
+        return $this->idGenerator === self::GENERATOR_TYPE_REPOSITORY;
     }
 
     /**
@@ -971,7 +1003,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isIdGeneratorNone()
     {
-        return $this->idGenerator == self::GENERATOR_TYPE_NONE;
+        return $this->idGenerator === self::GENERATOR_TYPE_NONE;
     }
 
     /**
