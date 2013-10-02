@@ -62,7 +62,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->parentNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractNode')
             ->disableOriginalConstructor()
             ->getMock();
-    
+
         $this->converter = new BuilderConverterPhpcr($dm, $this->qomf);
 
         $this->qb = new QueryBuilder();
@@ -82,7 +82,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     protected function createNode($class, $constructorArgs)
     {
         array_unshift($constructorArgs, $this->parentNode);
-        
+
         $ns = 'Doctrine\\ODM\\PHPCR\\Query\\Builder';
         $refl = new \ReflectionClass($ns.'\\'.$class);
         $node = $refl->newInstanceArgs($constructorArgs);
@@ -125,20 +125,21 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->primeBuilder();
 
         if ($skipOriginalWhere) {
-            $this->setExpectedException('\BadMethodCallException', 'call where() first');
+            $where = $this->createNode('Where'.$logicalOp, array());
         } else {
             $where = $this->createNode('Where', array());
-            $constraint = $this->createNode('ConstraintFieldIsset', array(
-                'alias_1.foobar',
-            ));
-            $where->addChild($constraint);
-
-            $res = $this->converter->dispatch($where);
-
-            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
-            $this->assertEquals('alias_1', $res->getSelectorName());
-            $this->assertEquals('foobar_phpcr', $res->getPropertyName());
         }
+
+        $constraint = $this->createNode('ConstraintFieldIsset', array(
+            'alias_1.foobar',
+        ));
+        $where->addChild($constraint);
+
+        $res = $this->converter->dispatch($where);
+
+        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
+        $this->assertEquals('alias_1', $res->getSelectorName());
+        $this->assertEquals('foobar_phpcr', $res->getPropertyName());
 
         // test add / or where (see dataProvider)
         $whereCon = $this->createNode('Where'.$logicalOp, array());
@@ -282,11 +283,11 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                'ConstraintFieldIsset', array('alias_1.rop_1'), 
+                'ConstraintFieldIsset', array('alias_1.rop_1'),
                 'PropertyExistenceInterface'
             ),
             array(
-                'ConstraintFullTextSearch', array('alias_1.prop_1', 'search_expr'), 
+                'ConstraintFullTextSearch', array('alias_1.prop_1', 'search_expr'),
                 'FullTextSearchInterface'
             ),
             array(
