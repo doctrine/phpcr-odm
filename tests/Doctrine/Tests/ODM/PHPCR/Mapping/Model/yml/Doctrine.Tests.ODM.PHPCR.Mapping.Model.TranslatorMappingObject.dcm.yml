@@ -1,5 +1,6 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject:
   translator: attribute
+  id: id
   locale: doclocale
   fields:
     publishDate:

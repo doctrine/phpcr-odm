@@ -21,7 +21,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     public function testClassName()
     {
-
         $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
         $cm->initializeReflection(new RuntimeReflectionService());
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $cm->name);

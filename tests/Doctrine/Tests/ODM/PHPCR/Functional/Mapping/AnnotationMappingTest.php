@@ -93,12 +93,12 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->assertEquals(ClassMetadata::GENERATOR_TYPE_PARENT, $metadata->idGenerator, 'parentId');
         $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategyDifferentOrder');
         $this->assertEquals(ClassMetadata::GENERATOR_TYPE_PARENT, $metadata->idGenerator, 'parentId2');
+        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdStrategy');
+        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_AUTO, $metadata->idGenerator, 'autoname as only has parent but not nodename');
         $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AssignedIdStrategy');
         $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'assigned');
         $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\RepositoryIdStrategy');
         $this->assertEquals(ClassMetadata::GENERATOR_TYPE_REPOSITORY, $metadata->idGenerator, 'repository');
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoAssignedIdStrategy');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'autoassigned');
         $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\StandardCase');
         $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'standardcase');
     }
@@ -210,6 +210,18 @@ class ParentIdStrategyDifferentOrder
 /**
  * @PHPCRODM\Document
  */
+class AutoNameIdStrategy
+{
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+
+    /** @PHPCRODM\Id() */
+    public $id;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
 class AssignedIdStrategy
 {
     /** @PHPCRODM\Id(strategy="assigned") */
@@ -234,18 +246,6 @@ class RepositoryIdStrategy
     public $parent;
 
     /** @PHPCRODM\Id(strategy="repository") */
-    public $id;
-}
-
-/**
-* @PHPCRODM\Document
-*/
-class AutoAssignedIdStrategy
-{
-    /** @PHPCRODM\ParentDocument */
-    public $parent;
-
-    /** @PHPCRODM\Id() */
     public $id;
 }
 
