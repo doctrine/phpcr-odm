@@ -284,9 +284,7 @@ class BuilderConverterPhpcr
     public function walkWhereAnd(WhereAnd $whereAnd)
     {
         if (!$this->constraint) {
-            throw new \BadMethodCallException(
-                'No initial constraint found when dispatching whereAnd - call where() first'
-            );
+            return $this->walkWhere($whereAnd);
         }
 
         $constraint = $whereAnd->getChild();
@@ -303,9 +301,7 @@ class BuilderConverterPhpcr
     public function walkWhereOr(WhereOr $whereOr)
     {
         if (!$this->constraint) {
-            throw new \BadMethodCallException(
-                'No initial constraint found when dispatching whereOr - call where() first'
-            );
+            return $this->walkWhere($whereOr);
         }
 
         $constraint = $whereOr->getChild();
