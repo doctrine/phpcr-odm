@@ -69,17 +69,17 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $node_en = $this->session->getNode($this->nodeNameForLocale('en'));
         $node_fr = $this->session->getNode($this->nodeNameForLocale('fr'));
 
-        $this->assertTrue($node_en->hasProperty('topic'));
-        $this->assertTrue($node_fr->hasProperty('topic'));
-        $this->assertTrue($node_en->hasProperty('text'));
-        $this->assertTrue($node_fr->hasProperty('text'));
-        $this->assertFalse($node_fr->hasProperty('author'));
-        $this->assertFalse($node_en->hasProperty('author'));
+        $this->assertTrue($node_en->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node_fr->hasProperty(self::propertyNameForLocale('fr', 'topic')));
+        $this->assertTrue($node_en->hasProperty(self::propertyNameForLocale('en', 'text')));
+        $this->assertTrue($node_fr->hasProperty(self::propertyNameForLocale('fr', 'text')));
+        $this->assertFalse($node_fr->hasProperty(self::propertyNameForLocale('fr', 'author')));
+        $this->assertFalse($node_en->hasProperty(self::propertyNameForLocale('en', 'author')));
 
-        $this->assertEquals('Some interesting subject', $node_en->getPropertyValue('topic'));
-        $this->assertEquals('Un sujet intéressant', $node_fr->getPropertyValue('topic'));
-        $this->assertEquals('Lorem ipsum...', $node_en->getPropertyValue('text'));
-        $this->assertEquals('Lorem ipsum...', $node_fr->getPropertyValue('text'));
+        $this->assertEquals('Some interesting subject', $node_en->getPropertyValue(self::propertyNameForLocale('en', 'topic')));
+        $this->assertEquals('Un sujet intéressant', $node_fr->getPropertyValue(self::propertyNameForLocale('fr', 'topic')));
+        $this->assertEquals('Lorem ipsum...', $node_en->getPropertyValue(self::propertyNameForLocale('en', 'text')));
+        $this->assertEquals('Lorem ipsum...', $node_fr->getPropertyValue(self::propertyNameForLocale('fr', 'text')));
     }
 
     public function testLoadTranslation()
@@ -162,8 +162,8 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $strategy->removeTranslation($doc, $node, $this->metadata, 'en');
 
         $this->assertTrue($subNode_en->isDeleted());
-        $this->assertTrue($subNode_fr->hasProperty('topic'));
-        $this->assertTrue($subNode_fr->hasProperty('text'));
+        $this->assertTrue($subNode_fr->hasProperty(self::propertyNameForLocale('fr', 'topic')));
+        $this->assertTrue($subNode_fr->hasProperty(self::propertyNameForLocale('fr', 'text')));
     }
 
     public function testRemoveAllTranslations()
@@ -242,20 +242,20 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $node->setProperty('author', 'John Doe');
 
         $subNode = $this->getTranslationNode($node, 'en');
-        $subNode->setProperty('topic', 'English topic');
-        $subNode->setProperty('text', 'English text');
-        $subNode->setProperty('settings', array());
-        $subNode->setProperty('nullable', 'English is not null');
+        $subNode->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
+        $subNode->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
+        $subNode->setProperty(self::propertyNameForLocale('en', 'settings'), array());
+        $subNode->setProperty(self::propertyNameForLocale('en', 'nullable'), 'English is not null');
 
         $subNode = $this->getTranslationNode($node, 'fr');
-        $subNode->setProperty('topic', 'Sujet français');
-        $subNode->setProperty('text', 'Texte français');
-        $subNode->setProperty('settings', array());
+        $subNode->setProperty(self::propertyNameForLocale('fr', 'topic'), 'Sujet français');
+        $subNode->setProperty(self::propertyNameForLocale('fr', 'text'), 'Texte français');
+        $subNode->setProperty(self::propertyNameForLocale('fr', 'settings'), array());
 
         $subNode = $this->getTranslationNode($node, 'de');
-        $subNode->setProperty('topic', 'Deutscher Betreff');
-        $subNode->setProperty('text', 'Deutscher Text');
-        $subNode->setProperty('settings', array());
+        $subNode->setProperty(self::propertyNameForLocale('de', 'topic'), 'Deutscher Betreff');
+        $subNode->setProperty(self::propertyNameForLocale('de', 'text'), 'Deutscher Text');
+        $subNode->setProperty(self::propertyNameForLocale('de', 'settings'), array());
         $this->session->save();
 
         return $node;
@@ -291,7 +291,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
     static function propertyNameForLocale($locale, $property)
     {
-        return Translation::LOCALE_NAMESPACE . '-' . $locale . '-' . $property;
+        return Translation::LOCALE_NAMESPACE . ':' . $locale . '-' . $property;
     }
 
     protected function nodeNameForLocale($locale)
