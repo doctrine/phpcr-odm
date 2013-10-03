@@ -41,6 +41,14 @@ class BuilderConverterPhpcr
     protected $selectorMetadata = array();
 
     /**
+     * When document sources are registered we put the translator
+     * here in case the document is translatable.
+     *
+     * @var array
+     */
+    protected $translator = array();
+
+    /**
      * Ugly: We need to store the document source types so that we
      * can append constraints to match the phpcr:class and phpcr:classparents
      * later on.
@@ -48,6 +56,11 @@ class BuilderConverterPhpcr
      * @var SourceDocument[]
      */
     protected $sourceDocumentNodes;
+
+    /**
+     * @var string|null
+     */
+    protected $locale;
 
     protected $from = null;
     protected $columns = array();
@@ -77,14 +90,6 @@ class BuilderConverterPhpcr
         return $this->selectorMetadata[$alias];
     }
 
-    protected function getFieldMapping($alias, $field)
-    {
-        $fieldMeta = $this->getMetadata($alias)
-            ->getField($field);
-
-        return $fieldMeta;
-    }
-
     /**
      * Return the PHPCR property name for the given ODM document property name
      *
@@ -95,8 +100,14 @@ class BuilderConverterPhpcr
      */
     protected function getPhpcrProperty($alias, $odmField)
     {
-        $fieldMeta = $this->getFieldMapping($alias, $odmField);
-        return $fieldMeta['property'];
+        $fieldMeta = $this->getMetadata($alias)->getField($odmField);
+        $property = $fieldMeta['property'];
+
+        if (!empty($this->translator[$alias]) && !empty($fieldMeta['translated'])) {
+            $property = $this->translator[$alias]->getTranslatedPropertyName($this->locale, $fieldMeta['property']);
+        }
+
+        return $property;
     }
 
     /**
@@ -105,14 +116,19 @@ class BuilderConverterPhpcr
      * Dispatches the From, Select, Where and OrderBy nodes. Each of these
      * "root" nodes append or set PHPCR QOM objects to corresponding properties 
      * in this class, which are subsequently used to create a PHPCR QOM object which
-     * is embeded in an ODM Query object.
+     * is embedded in an ODM Query object.
      *
-     * @param Builder $builder
+     * @param QueryBuilder $builder
      *
      * @return Doctrine\ODM\PHPCR\Query\Query
      */
     public function getQuery(QueryBuilder $builder)
     {
+        $this->locale = $builder->getLocale();
+        if (null === $this->locale && $this->dm->hasLocaleChooserStrategy()) {
+            $this->locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+        }
+
         $from = $builder->getChildrenOfType(
             QBConstants::NT_FROM
         );
@@ -326,6 +342,9 @@ class BuilderConverterPhpcr
         // index the metadata for this document
         $meta = $this->mdf->getMetadataFor($node->getDocumentFqn());
         $this->selectorMetadata[$alias] = $meta;
+        if ($this->locale && 'attribute' === $meta->translator) {
+            $this->translator[$alias] = $this->dm->getTranslationStrategy($meta->translator);
+        }
 
         // get the PHPCR Selector
         $selector = $this->qomf->selector(
