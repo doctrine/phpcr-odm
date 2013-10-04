@@ -26,7 +26,7 @@ use PHPCR\Util\NodeHelper;
 /**
  * Generate the id using the auto naming strategy
  */
-class AutoIdGenerator extends IdGenerator
+class AutoIdGenerator extends ParentIdGenerator
 {
     /**
      * Use the parent field together with an auto generated name to generate the id
@@ -38,13 +38,24 @@ class AutoIdGenerator extends IdGenerator
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
-        $parentNode = $dm->getNodeForDocument($parent);
 
-        return $parentNode->getPath().'/'.NodeHelper::generateAutoNodeName(
+        $id = $class->getFieldValue($document, $class->identifier);
+        if (empty($id) && null === $parent) {
+            throw IdException::noIdNoParent($document, $class->parentMapping);
+        }
+
+        if (empty($parent)) {
+            return $id;
+        }
+
+        $parentNode = $dm->getNodeForDocument($parent);
+        $name = NodeHelper::generateAutoNodeName(
             (array) $parentNode->getNodeNames(),
             $dm->getPhpcrSession()->getWorkspace()->getNamespaceRegistry()->getNamespaces(),
             '',
             ''
         );
+
+        return $this->buildName($document ,$class, $dm, $parent, $name);
     }
 }
