@@ -2,10 +2,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
+use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
 
 /**
  * The Query Builder root node.
@@ -33,6 +35,19 @@ class QueryBuilder extends AbstractNode
     protected $converter;
     protected $firstResult;
     protected $maxResults;
+    protected $locale;
+
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
 
     public function getNodeType()
     {

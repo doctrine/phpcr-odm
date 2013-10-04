@@ -81,4 +81,14 @@ interface TranslationStrategyInterface
      * @return array with the locales strings
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata);
+
+    /**
+     * Get the name of the property where to store the translations of a given property in a given language
+     *
+     * @param string $locale    The language to store
+     * @param string $fieldName The name of the field to translate
+     *
+     * @return string The name of the property where to store the translation
+     */
+    public function getTranslatedPropertyName($locale, $fieldName);
 }
