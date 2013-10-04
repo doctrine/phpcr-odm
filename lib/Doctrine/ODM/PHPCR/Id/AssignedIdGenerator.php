@@ -37,7 +37,7 @@ class AssignedIdGenerator extends IdGenerator
     {
         $id = $cm->getFieldValue($document, $cm->identifier);
         if (!$id) {
-            throw new IdException('ID could not be determined. Make sure the document has a property with Doctrine\ODM\PHPCR\Mapping\Annotations\Id annotation and that the property is set to the path where the document is to be stored.');
+            throw new IdException('ID could not be read from the document instance using the AssignedIdGenerator.');
         }
 
         return $id;

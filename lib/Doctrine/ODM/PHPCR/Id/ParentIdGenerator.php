@@ -38,6 +38,7 @@ class ParentIdGenerator extends IdGenerator
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
+
         $name = $class->nodename ? $class->getFieldValue($document, $class->nodename) : null;
         $id = $class->getFieldValue($document, $class->identifier);
 

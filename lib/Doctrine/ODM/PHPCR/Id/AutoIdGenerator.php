@@ -38,13 +38,12 @@ class AutoIdGenerator extends ParentIdGenerator
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
-        $id = $class->getFieldValue($document, $class->identifier);
 
-        if (empty($id)) {
-            if (null === $parent) {
-                throw IdException::noIdNoParent($document, $class->parentMapping);
-            }
+        $id = $class->getFieldValue($document, $class->identifier);
+        if (empty($id) && null === $parent) {
+            throw IdException::noIdNoParent($document, $class->parentMapping);
         }
+
         if (empty($parent)) {
             return $id;
         }
