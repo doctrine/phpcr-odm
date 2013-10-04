@@ -2,13 +2,14 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
@@ -68,7 +69,7 @@ class BuilderConverterPhpcr
     protected $constraint = null;
 
     public function __construct(
-        DocumentManager $dm, 
+        DocumentManager $dm,
         QueryObjectModelFactoryInterface $qomf
     ) {
         $this->qomf = $qomf;
@@ -79,7 +80,7 @@ class BuilderConverterPhpcr
     protected function getMetadata($alias)
     {
         if (!isset($this->selectorMetadata[$alias])) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Selector name "%s" has not known. The following selectors '.
                 'are valid: "%s"',
                 $alias,
@@ -114,7 +115,7 @@ class BuilderConverterPhpcr
      * Returns an ODM Query object from the given ODM (query) Builder.
      *
      * Dispatches the From, Select, Where and OrderBy nodes. Each of these
-     * "root" nodes append or set PHPCR QOM objects to corresponding properties 
+     * "root" nodes append or set PHPCR QOM objects to corresponding properties
      * in this class, which are subsequently used to create a PHPCR QOM object which
      * is embedded in an ODM Query object.
      *
@@ -134,7 +135,7 @@ class BuilderConverterPhpcr
         );
 
         if (!$from) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'No From (source) node in query'
             );
         }
@@ -216,7 +217,7 @@ class BuilderConverterPhpcr
     /**
      * Dispatch a node.
      *
-     * This method will look for a method of the form 
+     * This method will look for a method of the form
      * "walk{NodeType}" in this class and then use that
      * to build the PHPCR QOM counterpart of the given node.
      *
@@ -229,7 +230,7 @@ class BuilderConverterPhpcr
         $methodName = sprintf('walk%s', $node->getName());
 
         if (!method_exists($this, $methodName)) {
-            throw new PHPCRInvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Do not know how to walk node of type "%s"',
                 $node->getName()
             ));
@@ -395,7 +396,7 @@ class BuilderConverterPhpcr
         );
 
         $equi = $this->qomf->equiJoinCondition(
-            $node->getSelector1(), $phpcrProperty1, 
+            $node->getSelector1(), $phpcrProperty1,
             $node->getSelector2(), $phpcrProperty2
         );
 

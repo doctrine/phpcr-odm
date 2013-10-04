@@ -1,6 +1,13 @@
 Changelog
 =========
 
+* **2013-10-04**: Exception cleanup: Added a PHPCRExceptionInterface that all
+  Exceptions implement. Standard exceptions now extend their base Exceptions.
+
+  - Moved MissingTranslationException from Exception to Translation namespace
+  - Removed Phpcr prefix from standard exceptions BadMethodCall and InvalidArgument
+  - Added OutOfBounds and Runtime exceptions
+
 1.0.0-RC2
 ---------
 

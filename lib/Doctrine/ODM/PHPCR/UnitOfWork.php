@@ -23,6 +23,7 @@ use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
@@ -32,7 +33,7 @@ use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
-use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 
 use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
@@ -377,7 +378,7 @@ class UnitOfWork
                         // a weak reference or an old version can have lost references
                         $proxy = null;
                     } else {
-                        throw $e;
+                        throw new PHPCRException($e->getMessage(), 0, $e);
                     }
                 }
 
@@ -552,7 +553,7 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new PHPCRInvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
+            throw new InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
         }
 
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -601,7 +602,7 @@ class UnitOfWork
 
         $class = $this->dm->getClassMetadata(get_class($document));
         if ($class->isMappedSuperclass) {
-            throw new PHPCRInvalidArgumentException('Cannot persist a mapped super class instance: '.$class->name);
+            throw new InvalidArgumentException('Cannot persist a mapped super class instance: '.$class->name);
         }
 
         $this->cascadeScheduleParentInsert($class, $document, $visited);
@@ -619,7 +620,7 @@ class UnitOfWork
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
+                throw new InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -803,7 +804,7 @@ class UnitOfWork
                 unset($this->scheduledRemovals[$oid]);
                 break;
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
+                throw new InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
         }
 
         $this->scheduledMoves[$oid] = array($document, $targetPath);
@@ -817,9 +818,9 @@ class UnitOfWork
         $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_REMOVED:
-                throw new PHPCRInvalidArgumentException('Removed document passed to reorder(): '.self::objToStr($document, $this->dm));
+                throw new InvalidArgumentException('Removed document passed to reorder(): '.self::objToStr($document, $this->dm));
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('Detached document passed to reorder(): '.self::objToStr($document, $this->dm));
+                throw new InvalidArgumentException('Detached document passed to reorder(): '.self::objToStr($document, $this->dm));
         }
 
         if (! isset($this->scheduledReorders[$oid])) {
@@ -852,7 +853,7 @@ class UnitOfWork
                 unset($this->scheduledReorders[$oid]);
                 break;
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
+                throw new InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
         }
 
         $this->scheduledRemovals[$oid] = $document;
@@ -979,7 +980,7 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
         if ($state !== self::STATE_MANAGED) {
-            throw new PHPCRInvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
+            throw new InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
         foreach ($this->scheduledInserts as $insertedDocument) {
@@ -1070,7 +1071,7 @@ class UnitOfWork
                 $computeMethod = 'computeReferrerChanges';
                 break;
             default:
-                throw new PHPCRInvalidArgumentException('Unsupported association type used: '.$assocType);
+                throw new InvalidArgumentException('Unsupported association type used: '.$assocType);
         }
 
         foreach ($mappings as $fieldName) {
@@ -1352,7 +1353,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $child);
                 break;
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
+                throw new InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
             default:
                 if (PathHelper::getParentPath($this->getDocumentId($child)) !== $parentId) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
@@ -1382,7 +1383,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $reference);
                 break;
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
+                throw new InvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
         }
     }
 
@@ -1406,7 +1407,7 @@ class UnitOfWork
                 $this->computeChangeSet($targetClass, $referrer);
                 break;
             case self::STATE_DETACHED:
-                throw new PHPCRInvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
+                throw new InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
         }
     }
 
@@ -1452,7 +1453,7 @@ class UnitOfWork
         $visited[$oid] = true;
 
         if ($this->getDocumentState($document) !== self::STATE_MANAGED) {
-            throw new PHPCRInvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
+            throw new InvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
         }
 
         $this->session->refresh(true);
@@ -1536,11 +1537,11 @@ class UnitOfWork
                 if ($managedCopy) {
                     // We have the document in-memory already, just make sure its not removed.
                     if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
-                        throw new PHPCRInvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
+                        throw new InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
                     }
 
                     if (ClassUtils::getClass($managedCopy) != ClassUtils::getClass($document)) {
-                        throw new PHPCRInvalidArgumentException('Can not merge documents of different classes.');
+                        throw new InvalidArgumentException('Can not merge documents of different classes.');
                     }
 
                     if ($this->getCurrentLocale($managedCopy, $class) !== $locale) {
@@ -1558,7 +1559,7 @@ class UnitOfWork
                     // If the identifier is ASSIGNED, it is NEW, otherwise an error
                     // since the managed document was not found.
                     if ($class->idGenerator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
-                        throw new PHPCRInvalidArgumentException("Document not found in merge operation: $id");
+                        throw new InvalidArgumentException("Document not found in merge operation: $id");
                     }
 
                     $managedCopy = $class->newInstance();
@@ -2495,14 +2496,14 @@ class UnitOfWork
             // there is no document with $id
             return null;
         } catch (UnsupportedRepositoryOperationException $e) {
-            throw new PHPCRInvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
+            throw new InvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
         }
 
         try {
             $version = $history->getVersion($versionName);
             $node = $version->getFrozenNode();
         } catch (RepositoryException $e) {
-            throw new PHPCRInvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
+            throw new InvalidArgumentException("No version $versionName on document $id", $e->getCode(), $e);
         }
 
         $hints = array('versionName' => $versionName, 'ignoreHardReferenceNotFound' => true);
@@ -2575,7 +2576,7 @@ class UnitOfWork
         $metadata = $this->dm->getClassMetadata(get_class($document));
 
         if (!$metadata->versionable) {
-            throw new PHPCRInvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
+            throw new InvalidArgumentException(sprintf("The document of type '%s' is not versionable", $metadata->getName()));
         }
 
         $versions = $this->session
@@ -3123,7 +3124,7 @@ class UnitOfWork
         $path = $this->getDocumentId($document);
         $metadata = $this->dm->getClassMetadata(get_class($document));
         if ($metadata->versionable !== 'full') {
-            throw new PHPCRInvalidArgumentException(sprintf("The document at '%s' is not full versionable", $path));
+            throw new InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $path));
         }
 
         $node = $this->session->getNode($path);

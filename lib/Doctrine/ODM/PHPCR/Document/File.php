@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
@@ -46,7 +47,7 @@ class File extends AbstractFile
         $this->getContent();
         $stream = fopen($filename, 'rb');
         if (! $stream) {
-            throw new \RuntimeException("File '$filename' not found");
+            throw new RuntimeException("File '$filename' not found");
         }
 
         $this->content->setData($stream);

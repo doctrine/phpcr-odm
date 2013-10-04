@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Query;
+
 use Doctrine\ODM\PHPCR\PHPCRException;
 
 /**

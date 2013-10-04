@@ -1,6 +1,9 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 
 /**
  * All QueryBuilder nodes extend this class.
@@ -126,10 +129,10 @@ abstract class AbstractNode
      * permitted number of nodes would be exceeded by adding
      * the given child node.
      *
-     * The given node will be returned EXCEPT when the current 
+     * The given node will be returned EXCEPT when the current
      * node is a leaf node, in which case we return the parent.
      *
-     * @throws \OutOfBoundsException
+     * @throws OutOfBoundsException
      *
      * @return AbstractNode
      */
@@ -143,7 +146,7 @@ abstract class AbstractNode
 
         // if proposed child node is of an invalid type
         if (!isset($cardinalityMap[$nodeType])) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'QueryBuilder node "%s" of type "%s" cannot be appended to "%s". '.
                 'Must be one type of "%s"',
                 $node->getName(),
@@ -153,14 +156,14 @@ abstract class AbstractNode
             ));
         }
 
-        $currentCardinality = isset($this->children[$node->getName()]) ? 
+        $currentCardinality = isset($this->children[$node->getName()]) ?
             count($this->children[$node->getName()]) : 0;
 
         list($min, $max) = $cardinalityMap[$nodeType];
 
         // if bounded and cardinality will exceed max
         if (null !== $max && $currentCardinality + 1 > $max) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'QueryBuilder node "%s" cannot be appended to "%s". '.
                 'Number of "%s" nodes cannot exceed "%s"',
                 $node->getName(),
@@ -212,7 +215,7 @@ abstract class AbstractNode
      *
      * @return array AbstractNode[]
      */
-    public function getChildrenOfType($type) 
+    public function getChildrenOfType($type)
     {
         if (!isset($this->children[$type])) {
             return array();
@@ -229,22 +232,22 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
-     * @throws \OutOfBoundsException if there are more than one or none
+     * @throws OutOfBoundsException if there are more than one or none
      * @return array AbstractNode[]
      */
-    public function getChild() 
+    public function getChild()
     {
         $children = $this->getChildren();
 
         if (!$children) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'Expected exactly one child, got "%s"',
                 count($children)
             ));
         }
 
         if (count($children) > 1) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'More than one child node but getChild will only ever return one. "%d" returned.',
                 count($children)
             ));
@@ -257,23 +260,23 @@ abstract class AbstractNode
      * Return child of specified type.
      *
      * Note: This does not take inheritance into account.
-     * 
-     * @throws \OutOfBoundsException if there are more than one or none
+     *
+     * @throws OutOfBoundsException if there are more than one or none
      * @return array AbstractNode[]
      */
-    public function getChildOfType($type) 
+    public function getChildOfType($type)
     {
         $children = $this->getChildrenOfType($type);
 
         if (!$children) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'Expected exactly one child of type "%s", got "%s"',
                 $type, count($children)
             ));
         }
 
         if (count($children) > 1) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'More than one node of type "%s" but getChildOfType will only ever return one.',
                 $type
             ));
@@ -292,7 +295,7 @@ abstract class AbstractNode
      * the addChild() method already validates maximum boundries and
      * types.
      *
-     * @throws \OutOfBoundsException
+     * @throws OutOfBoundsException
      * @return void
      */
     public function validate()
@@ -311,7 +314,7 @@ abstract class AbstractNode
         foreach ($typeCount as $type => $count) {
             list($min, $max) = $cardinalityMap[$type];
             if (null !== $min && $count < $min) {
-                throw new \OutOfBoundsException(sprintf(
+                throw new OutOfBoundsException(sprintf(
                     'QueryBuilder node "%s" must have at least "%s" '.
                     'child nodes of type "%s". "%s" given.',
                     $this->getName(),
@@ -340,11 +343,11 @@ abstract class AbstractNode
      * Catch any undefined method calls and tell the developer what
      * methods can be called.
      *
-     * @throws \RuntimeException
+     * @throws BadMethodCallException if an unknown method is called.
      */
     public function __call($methodName, $args)
     {
-        throw new \BadMethodCallException(sprintf(
+        throw new BadMethodCallException(sprintf(
             'Unknown method "%s" called on node "%s", did you mean one of: "%s"',
             $methodName,
             $this->getName(),
@@ -355,7 +358,7 @@ abstract class AbstractNode
     public function ensureNoArguments($method, $void)
     {
         if ($void) {
-            throw new \Exception(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Method "%s" is a factory method and accepts no arguments',
                 $method
             ));
