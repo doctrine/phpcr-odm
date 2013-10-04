@@ -179,7 +179,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @param array $criteria
      *
-     * @return object|null The first document matching the criterias or null if
+     * @return object|null The first document matching the criteria or null if
      *      none found
      */
     public function findOneBy(array $criteria)
@@ -267,7 +267,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @param string $statement             the SQL2 statement
      * @param string $language              (see QueryInterface for list of supported types)
-     * @param bool   $replaceWithFieldnames if * should be replaced with Fieldnames automatically
+     * @param bool   $replaceWithFieldnames if * should be replaced with field names automatically
      *
      * @return Query
      */
@@ -282,7 +282,7 @@ class DocumentRepository implements ObjectRepository
                 if ('*' === $column->getColumnName() && null == $column->getPropertyName()) {
                     $qb->setColumns(array());
                     foreach ($this->class->getFieldNames() as $name) {
-                        $qb->addSelect($name);
+                        $qb->addSelect('a', $name);
                     }
                 }
             }
@@ -300,14 +300,16 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Create a QueryBuilder that is prepopulated for this repositories document
+     * Create a QueryBuilder that is pre-populated for this repositories document
      *
-     * The returned query builder will be prepopulated with the criteria
+     * The returned query builder will be pre-populated with the criteria
      * required to search for this repositories document class.
      *
      * NOTE: When adding criteria to the query builder you should
      *       use ->andWhere(...) as ->where(...) will overwrite
      *       the class criteria.
+     *
+     * @param string $selectorName     name of the selector, defaults to 'a'
      *
      * @return \Doctrine\ODM\PHPCR\Query\Builder
      */
