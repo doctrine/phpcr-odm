@@ -159,6 +159,16 @@ class DocumentManager implements ObjectManager
     }
 
     /**
+     * Check if a language chooser strategy is set
+     *
+     * @return bool
+     */
+    public function hasLocaleChooserStrategy()
+    {
+        return isset($this->localeChooserStrategy);
+    }
+
+    /**
      * Get the assigned language chooser strategy previously set with
      * setLocaleChooserStrategy
      *
@@ -539,11 +549,12 @@ class DocumentManager implements ObjectManager
      */
     public function createQueryBuilder()
     {
-        $builder =  new QueryBuilder();
-
         $qm = $this->session->getWorkspace()->getQueryManager();
         $qomf = $qm->getQOMFactory();
+
         $converter = new BuilderConverterPhpcr($this, $qomf);
+
+        $builder = new QueryBuilder();
         $builder->setConverter($converter);
 
         return $builder;

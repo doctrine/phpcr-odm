@@ -118,7 +118,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
         return $node;
     }
 
-    protected function getTranslatedPropertyName($locale, $fieldName)
+    public function getTranslatedPropertyName($locale, $fieldName)
     {
         return $fieldName;
     }

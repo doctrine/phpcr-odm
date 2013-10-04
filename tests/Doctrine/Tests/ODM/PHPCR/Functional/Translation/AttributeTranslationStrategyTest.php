@@ -5,6 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 use Doctrine\Tests\Models\Translation\Article;
 
@@ -139,20 +140,19 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     {
         // First save some translations
         $data = array();
-        $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
         $data['nullable'] = 'not null';
         $data['settings'] = array('key' => 'value');
 
         $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
 
         $strategy = new AttributeTranslationStrategy();
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
         $data = array();
-        $data['author'] = 'John Doe';
         $data['topic'] = 'Un sujet intéressant';
         $data['text'] = 'Lorem français';
 
@@ -160,7 +160,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->dm->flush();
 
         $doc = new Article;
-        $doc->author = $data['author'];
+        $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
@@ -180,12 +180,12 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     {
         // First save some translations
         $data = array();
-        $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
         $data['settings'] = array('setting-1' => 'one-setting');
 
         $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
 
         $strategy = new AttributeTranslationStrategy();
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
@@ -199,7 +199,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         // Then remove the french translation
         $doc = new Article;
-        $doc->author = $data['author'];
+        $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
         $strategy->removeTranslation($doc, $node, $this->metadata, 'fr');
@@ -270,7 +270,6 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     {
         // First save some translations
         $data = array();
-        $data['author'] = 'John Doe';
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
         $data['settings'] = array(
@@ -279,6 +278,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         );
 
         $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
 
         $strategy = new AttributeTranslationStrategy();
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
@@ -295,7 +295,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->dm->flush();
 
         $doc = new Article;
-        $doc->author = $data['author'];
+        $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
@@ -312,5 +312,95 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
             'is-active' => 'true',
             'url'       => 'super-article-en-francais.html'
         ), $doc->getSettings());
+    }
+
+    public function testQueryBuilder()
+    {
+        $strategy = new AttributeTranslationStrategy();
+        $this->dm->setTranslationStrategy('attribute', $strategy);
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
+
+        // First save some translations
+        $data = array();
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
+        $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'great-article-in-english.html'
+        );
+
+        $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
+        $node->setProperty('phpcr:class', 'Doctrine\Tests\Models\Translation\Article');
+
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
+
+        // Save translation in another language
+
+        $data['topic'] = 'Un sujet intéressant';
+        $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'super-article-en-francais.html'
+        );
+
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
+        $this->dm->flush();
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Not Exist')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Un sujet intéressant')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->setLocale(false);
+        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Un sujet intéressant')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Some interesting subject')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(1, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->setLocale('fr');
+        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Un sujet intéressant')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(1, $res);
     }
 }

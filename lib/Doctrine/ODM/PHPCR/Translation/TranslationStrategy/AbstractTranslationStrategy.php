@@ -53,7 +53,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
      *
      * @return string The name of the property where to store the translation
      */
-    protected function getTranslatedPropertyName($locale, $fieldName)
+    public function getTranslatedPropertyName($locale, $fieldName)
     {
         return sprintf('%s:%s-%s', $this->prefix, $locale, $fieldName);
     }
