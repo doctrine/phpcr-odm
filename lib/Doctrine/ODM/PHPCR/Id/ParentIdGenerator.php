@@ -44,11 +44,11 @@ class ParentIdGenerator extends IdGenerator
                 throw IdException::noIdentificationParameters($document, $class->parentMapping, $class->nodename);
             }
 
-            if ($name && empty($parent)) {
+            if (empty($parent)) {
                 throw IdException::noIdNoParent($document, $class->parentMapping);
             }
 
-            if (empty($name) && $parent) {
+            if (empty($name)) {
                 throw IdException::noIdNoName($document, $class->nodename);
             }
         }

@@ -38,6 +38,9 @@ class AutoIdGenerator extends IdGenerator
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
+        if (null === $parent) {
+            throw IdException::noIdNoParent($document, $class->parentMapping);
+        }
         $parentNode = $dm->getNodeForDocument($parent);
 
         return $parentNode->getPath().'/'.NodeHelper::generateAutoNodeName(
