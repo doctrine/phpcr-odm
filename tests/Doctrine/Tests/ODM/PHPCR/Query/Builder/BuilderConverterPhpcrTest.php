@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Jackalope\Query\QOM\QueryObjectModelFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\BuilderConverterPhpcr;
@@ -62,7 +62,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
         $dm->expects($this->any())
             ->method('getLocaleChooserStrategy')
-            ->will($this->throwException(new PHPCRInvalidArgumentException('')));
+            ->will($this->throwException(new InvalidArgumentException('')));
 
         $this->parentNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractNode')
             ->disableOriginalConstructor()

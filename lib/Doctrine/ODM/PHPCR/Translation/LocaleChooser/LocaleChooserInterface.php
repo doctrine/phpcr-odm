@@ -20,7 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 
 /**
  * Interface to get the list of preferred locales.

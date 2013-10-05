@@ -19,20 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR\Exception;
 
-use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 
 /**
- * Missing translation exception class
- *
- * @author Lukas Kahwe Smith <smith@pooteeweet.org>
+ * InvalidArgumentException for the PHPCR-ODM
  */
-class CascadeException extends PHPCRException
+class BadMethodCallException extends \BadMethodCallException implements PHPCRExceptionInterface
 {
-    public static function newDocumentFound($documentString)
-    {
-        return new self("A new document was found through a relationship that was not"
-                        . " configured to cascade persist operations: $documentString."
-                        . " Explicitly persist the new document or configure cascading persist operations"
-                        . " on the relationship.");
-    }
 }

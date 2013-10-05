@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\Persistence\Mapping\MappingException as BaseMappingException;
+use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 
 /**
  * Mapping exception class
@@ -30,7 +31,7 @@ use Doctrine\Common\Persistence\Mapping\MappingException as BaseMappingException
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class MappingException extends BaseMappingException
+class MappingException extends BaseMappingException implements PHPCRExceptionInterface
 {
     public static function classNotFound($className)
     {

@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
-use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use PHPCR\PropertyType;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -82,7 +82,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testInsertTwice()
     {
@@ -268,7 +268,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testRemoveAndInsertBeforeFlush()
     {

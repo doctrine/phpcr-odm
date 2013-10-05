@@ -20,13 +20,9 @@
 namespace Doctrine\ODM\PHPCR;
 
 /**
- * Base exception class for package Doctrine\ODM\PHPCR
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
- * @since       1.0
+ * Basic exception class for Doctrine PHPCR-ODM.
  */
-class PHPCRException extends \Exception
+class PHPCRException extends \Exception implements PHPCRExceptionInterface
 {
     public static function unknownDocumentNamespace($documentNamespaceAlias)
     {

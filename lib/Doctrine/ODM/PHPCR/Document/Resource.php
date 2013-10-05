@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use PHPCR\NodeInterface;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -159,7 +159,7 @@ class Resource
     public function getSize()
     {
         if (null === $this->node) {
-            throw new PHPCRBadMethodCallException('Do not call Resource::getSize on unsaved objects, as it only reads the stored size.');
+            throw new BadMethodCallException('Do not call Resource::getSize on unsaved objects, as it only reads the stored size.');
         }
 
         return $this->node->getProperty('jcr:data')->getLength();

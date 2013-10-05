@@ -28,7 +28,7 @@ class AbstractLeafNodeTest extends \PHPUnit_Framework_TestCase
     public function testExplodeField($fieldSpec, $xpctdExceptionMessage, $xpctdRes = array())
     {
         if ($xpctdExceptionMessage) {
-            $this->setExpectedException('RuntimeException', $xpctdExceptionMessage);
+            $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\RuntimeException', $xpctdExceptionMessage);
         }
 
         $method = $this->refl->getMethod('explodeField');

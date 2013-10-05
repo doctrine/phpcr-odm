@@ -102,7 +102,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testReorderNoObject()
     {
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException');
+        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
         $this->dm->reorder('parent', 'first', 'second', false);
         $this->dm->flush();
     }
@@ -180,7 +180,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testReorderAfterRemove()
     {

@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Event;
 use ReflectionProperty;
@@ -1203,7 +1204,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationMappedByTargetField($assocName)
     {
-        throw new \BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
+        throw new BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
     }
 
     /**
@@ -1211,7 +1212,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isAssociationInverseSide($assocName)
     {
-        throw new \BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
+        throw new BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
     }
 
     /**
