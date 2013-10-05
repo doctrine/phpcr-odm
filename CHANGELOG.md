@@ -1,6 +1,10 @@
 Changelog
 =========
 
+
+1.0.0-RC3
+---------
+
 * **2013-10-04**: Exception cleanup: Added a PHPCRExceptionInterface that all
   Exceptions implement. Standard exceptions now extend their base Exceptions.
 
