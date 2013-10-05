@@ -17,15 +17,13 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR;
+namespace Doctrine\ODM\PHPCR\Exception;
+
+use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 
 /**
  * InvalidArgumentException for the PHPCR-ODM
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
- * @since       1.0
  */
-class PHPCRBadMethodCallException extends PHPCRException
+class InvalidArgumentException extends \InvalidArgumentException implements PHPCRExceptionInterface
 {
 }

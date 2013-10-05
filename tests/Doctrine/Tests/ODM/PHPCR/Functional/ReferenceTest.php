@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefCascadeManyTestObj;
 use Doctrine\Tests\Models\References\RefCascadeTestObj;
@@ -20,8 +21,6 @@ use Doctrine\Tests\Models\References\RefManyTestObj;
 use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
 use Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade;
 use Doctrine\Tests\Models\References\ParentTestObj;
-
-use Doctrine\ODM\PHPCR\PHPCRException;
 
 use PHPCR\Util\UUIDHelper;
 

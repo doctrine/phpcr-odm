@@ -217,7 +217,7 @@ class Configuration
     public function getProxyDir()
     {
         if (!isset($this->attributes['proxyDir'])) {
-            $this->attributes['proxyDir'] = \sys_get_temp_dir();
+            $this->attributes['proxyDir'] = sys_get_temp_dir();
         }
 
         return $this->attributes['proxyDir'];

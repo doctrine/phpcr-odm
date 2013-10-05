@@ -38,7 +38,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         // user
         NodeHelper::createPath($session, '/functional/user');
         NodeHelper::createPath($session, '/functional/post');
-        
+
         $user = new BlogUser;
         $user->id = '/functional/user/dtl';
         $user->name = 'daniel';
@@ -288,8 +288,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
             case 'JCR-SQL2':
                 $this->assertEquals(array('a'), $result->getSelectorNames());
                 $this->assertEquals(array(
-                    'a.username' => 'dtl', 
-                    'a.name' => 'daniel', 
+                    'a.username' => 'dtl',
+                    'a.name' => 'daniel',
                 ), $values);
                 break;
             case 'sql':
@@ -308,7 +308,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
                 $this->assertEquals(array(
-                    'a.status' => 'query_builder', 
+                    'a.status' => 'query_builder',
                 ), $values);
                 break;
             case 'sql':
@@ -374,7 +374,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinChildInner()
     {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->from()
@@ -394,7 +394,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinChildInnerAdd()
     {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
@@ -415,7 +415,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     public function testJoinChildOuterLeft()
     {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
@@ -437,7 +437,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     public function testJoinChildOuterRight()
     {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
@@ -455,7 +455,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     public function testJoinEqui()
     {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRBadMethodCallException', 'not supported yet');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
 
         $qb = $this->createQb();
         $qb->fromDocument('Doctrine\Tests\Models\Blog\Post', 'post');

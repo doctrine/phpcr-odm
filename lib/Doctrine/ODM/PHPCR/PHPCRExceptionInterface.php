@@ -20,12 +20,8 @@
 namespace Doctrine\ODM\PHPCR;
 
 /**
- * InvalidArgumentException for the PHPCR-ODM
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
- * @since       1.0
+ * Marker interface that all Doctrine PHPCR-ODM exceptions implement.
  */
-class PHPCRRuntimeException extends PHPCRException
+interface PHPCRExceptionInterface
 {
 }

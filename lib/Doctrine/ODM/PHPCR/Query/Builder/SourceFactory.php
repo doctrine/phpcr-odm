@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 
 /**
  * Abstract factory node class for Sources.
@@ -62,7 +62,7 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinInner()
     {
-        throw new PHPCRBadMethodCallException(__METHOD__.' not supported yet');
+        throw new BadMethodCallException(__METHOD__.' not supported yet');
 
         return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_INNER
@@ -87,9 +87,9 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinLeftOuter()
     {
-        throw new PHPCRBadMethodCallException(__METHOD__.' not supported yet');
+        throw new BadMethodCallException(__METHOD__.' not supported yet');
 
-        return $this->addChild(new SourceJoin($this, 
+        return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER
         ));
     }
@@ -112,9 +112,9 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinRightOuter()
     {
-        throw new PHPCRBadMethodCallException(__METHOD__.' not supported yet');
+        throw new BadMethodCallException(__METHOD__.' not supported yet');
 
-        return $this->addChild(new SourceJoin($this, 
+        return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER
         ));
     }

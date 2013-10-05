@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\Models\Translation\InvalidMapping;
@@ -10,10 +9,9 @@ use Doctrine\Tests\Models\Translation\DerivedArticle;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
-
+use Doctrine\ODM\PHPCR\PHPCRException;
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
@@ -439,7 +437,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\MissingTranslationException
+     * @expectedException \Doctrine\ODM\PHPCR\Translation\MissingTranslationException
      */
     public function testFindTranslationWithInvalidLanguageFallback()
     {
@@ -464,7 +462,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('John Doe', $doc->author);
         $this->assertEquals('en', $doc->locale);
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\MissingTranslationException');
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Translation\MissingTranslationException');
         $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'it', false);
     }
 
@@ -620,7 +618,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testInvalidTranslationStrategy()
     {
@@ -635,7 +633,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * bindTranslation with a document that is not persisted should fail
      *
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testBindTranslationWithoutPersist()
     {

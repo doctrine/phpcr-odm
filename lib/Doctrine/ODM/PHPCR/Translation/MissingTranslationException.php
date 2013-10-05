@@ -17,22 +17,18 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR\Exception;
+namespace Doctrine\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\PHPCRException;
 
 /**
  * Missing translation exception class
  *
- * @author Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
+ * @link        www.doctrine-project.com
+ * @since       1.0
+ * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
-class CascadeException extends PHPCRException
+class MissingTranslationException extends PHPCRException
 {
-    public static function newDocumentFound($documentString)
-    {
-        return new self("A new document was found through a relationship that was not"
-                        . " configured to cascade persist operations: $documentString."
-                        . " Explicitly persist the new document or configure cascading persist operations"
-                        . " on the relationship.");
-    }
 }

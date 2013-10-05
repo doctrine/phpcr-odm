@@ -20,7 +20,8 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ODM\PHPCR\Exception\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
@@ -147,12 +148,12 @@ class DocumentManager implements ObjectManager
      *
      * @return Translation\TranslationStrategy\TranslationStrategyInterface
      *
-     * @throws PHPCRInvalidArgumentException if there is no strategy registered with the given key
+     * @throws InvalidArgumentException if there is no strategy registered with the given key
      */
     public function getTranslationStrategy($key)
     {
         if (!isset($this->translationStrategy[$key])) {
-            throw new PHPCRInvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
+            throw new InvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
         }
 
         return $this->translationStrategy[$key];
@@ -177,7 +178,7 @@ class DocumentManager implements ObjectManager
     public function getLocaleChooserStrategy()
     {
         if (!isset($this->localeChooserStrategy)) {
-            throw new PHPCRInvalidArgumentException("You must configure a language chooser strategy when having documents with the translatable annotation");
+            throw new InvalidArgumentException("You must configure a language chooser strategy when having documents with the translatable annotation");
         }
 
         return $this->localeChooserStrategy;
@@ -545,7 +546,7 @@ class DocumentManager implements ObjectManager
      *
      * Query returned by QueryBuilder::getQuery()
      *
-     * @return Builder\QueryBuilder
+     * @return QueryBuilder
      */
     public function createQueryBuilder()
     {
@@ -615,12 +616,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document the document to persist
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function persist($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -635,13 +636,13 @@ class DocumentManager implements ObjectManager
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object or not managed.
+     * @throws InvalidArgumentException if $document is not an object or not managed.
      * @throws PHPCRException if the document is not translatable
      */
     public function bindTranslation($document, $locale)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -654,12 +655,12 @@ class DocumentManager implements ObjectManager
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function removeTranslation($document, $locale)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -675,13 +676,13 @@ class DocumentManager implements ObjectManager
      *
      * @return array of strings with all locales existing for this particular document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      * @throws MissingTranslationException   if the document is not translatable
      */
     public function getLocalesFor($document, $includeFallbacks = false)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -728,12 +729,12 @@ class DocumentManager implements ObjectManager
      * @param object $document   an already registered document
      * @param string $targetPath the target path including the nodename
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function move($document, $targetPath)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         if (strpos($targetPath, '/') !== 0) {
@@ -756,12 +757,12 @@ class DocumentManager implements ObjectManager
      * @param string  $targetName the nodename of the target of the reordering
      * @param boolean $before     whether to move before or after the target
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function reorder($document, $srcName, $targetName, $before)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -777,12 +778,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function remove($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -805,12 +806,12 @@ class DocumentManager implements ObjectManager
      * @return object The managed document where $document has been merged
      *      into. This is *not* the same instance as the parameter.
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function merge($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -828,12 +829,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document The object to detach.
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function detach($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -845,12 +846,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function refresh($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -872,12 +873,12 @@ class DocumentManager implements ObjectManager
      *
      * @return ChildrenCollection collection of child documents
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -908,12 +909,12 @@ class DocumentManager implements ObjectManager
      *
      * @return ReferrersCollection collection of referrer documents
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -928,13 +929,13 @@ class DocumentManager implements ObjectManager
      * @param object|array|null $document optionally limit to a specific
      *      document or an array of documents
      *
-     * @throws PHPCRInvalidArgumentException if $document is neither null nor a
+     * @throws InvalidArgumentException if $document is neither null nor a
      *      document or an array of documents
      */
     public function flush($document = null)
     {
         if (null !== $document && !is_object($document) && !is_array($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -972,12 +973,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function checkin($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -989,12 +990,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function checkout($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -1008,12 +1009,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document The document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function checkpoint($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -1068,12 +1069,12 @@ class DocumentManager implements ObjectManager
      * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
      *         oldest version first
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function getAllLinearVersions($document, $limit = -1)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->errorIfClosed();
@@ -1094,7 +1095,7 @@ class DocumentManager implements ObjectManager
      *
      * @return object the detached document or null if the document is not found
      *
-     * @throws PHPCRInvalidArgumentException if there is a document with $id but no
+     * @throws InvalidArgumentException if there is a document with $id but no
      *      version with $name
      * @throws \PHPCR\UnsupportedRepositoryOperationException if the implementation
      *      does not support versioning
@@ -1113,12 +1114,12 @@ class DocumentManager implements ObjectManager
      *
      * @return boolean true if the repository contains the object, false otherwise
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function contains($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         return $this->unitOfWork->contains($document);
@@ -1170,12 +1171,12 @@ class DocumentManager implements ObjectManager
      *
      * @param object $document
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      */
     public function initializeObject($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $this->unitOfWork->initializeObject($document);
@@ -1188,13 +1189,13 @@ class DocumentManager implements ObjectManager
      *
      * @return \PHPCR\NodeInterface
      *
-     * @throws PHPCRInvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object.
      * @throws PHPCRException                if $document is not managed
      */
     public function getNodeForDocument($document)
     {
         if (!is_object($document)) {
-            throw new PHPCRInvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
         $path = $this->unitOfWork->getDocumentId($document);

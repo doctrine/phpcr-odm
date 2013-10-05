@@ -5,9 +5,10 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use Doctrine\ODM\PHPCR\PHPCRBadMethodCallException;
-use Doctrine\ODM\PHPCR\PHPCRInvalidArgumentException;
+
 
 /**
  * The Query Builder root node.
@@ -67,7 +68,7 @@ class QueryBuilder extends AbstractNode
     protected function getConverter()
     {
         if (!$this->converter) {
-            throw new \RuntimeException('No query converter has been set on Builder node.');
+            throw new RuntimeException('No query converter has been set on Builder node.');
         }
 
         return $this->converter;
@@ -112,7 +113,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Add additional selection criteria using the OR operator. 
+     * Add additional selection criteria using the OR operator.
      *
      * @factoryMethod WhereOr
      * @return WhereOr
@@ -182,7 +183,7 @@ class QueryBuilder extends AbstractNode
      */
     private function addJoin($joinType)
     {
-        throw new PHPCRBadMethodCallException(__METHOD__.' not supported yet');
+        throw new BadMethodCallException(__METHOD__.' not supported yet');
 
         $from = $this->getChildOfType(QBConstants::NT_FROM);
         $curSource = $from->getChild(QBConstants::NT_SOURCE);
@@ -206,7 +207,7 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * Note that this method is currently not implemented until we can decide 
+     * Note that this method is currently not implemented until we can decide
      * on how it should work.
      *
      * @factoryMethod Select
@@ -229,7 +230,7 @@ class QueryBuilder extends AbstractNode
      *     ->condition()->equi('a.prop_1', 'b.prop_2');
      * </code>
      *
-     * Note that this method is currently not implemented until we can decide 
+     * Note that this method is currently not implemented until we can decide
      * on how it should work.
      *
      * @factoryMethod Select
@@ -253,7 +254,7 @@ class QueryBuilder extends AbstractNode
      * ->end()
      * </code>
      *
-     * Note that this method is currently not implemented until we can decide 
+     * Note that this method is currently not implemented until we can decide
      * on how it should work.
      *
      * @factoryMethod Select
@@ -266,7 +267,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Method to add properties for selection to builder tree, replaces any 
+     * Method to add properties for selection to builder tree, replaces any
      * existing select.
      *
      * Number of property nodes is unbounded.
@@ -346,7 +347,7 @@ class QueryBuilder extends AbstractNode
      *
      * @return integer
      */
-    public function getFirstResult() 
+    public function getFirstResult()
     {
         return $this->firstResult;
     }
@@ -366,7 +367,7 @@ class QueryBuilder extends AbstractNode
      *
      * @return integer
      */
-    public function getMaxResults() 
+    public function getMaxResults()
     {
         return $this->maxResults;
     }

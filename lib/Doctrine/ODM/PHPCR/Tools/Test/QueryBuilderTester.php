@@ -2,6 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Test;
 
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
@@ -60,15 +61,15 @@ class QueryBuilderTester
             $children = $currentNode->getChildrenOfType($nodeType);
 
             if (!$children) {
-                throw new \BadMethodCallException(sprintf("No children at path \"%s\". Node has following paths: \n%s",
+                throw new BadMethodCallException(sprintf("No children at path \"%s\". Node has following paths: \n%s",
                     implode('.', $currentPath),
                     $this->dumpPaths($node)
                 ));
             }
 
             if (!isset($children[$index])) {
-                throw new \BadMethodCallException(sprintf(
-                    "No node at path \"%s\". Node has following paths: \n%s", 
+                throw new BadMethodCallException(sprintf(
+                    "No node at path \"%s\". Node has following paths: \n%s",
                     implode('.', $currentPath),
                     $this->dumpPaths($node)
                 ));

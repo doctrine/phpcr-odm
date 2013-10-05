@@ -20,8 +20,8 @@
 namespace Doctrine\ODM\PHPCR\Id;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
  * Generator to handle explicitly assigned repository paths.

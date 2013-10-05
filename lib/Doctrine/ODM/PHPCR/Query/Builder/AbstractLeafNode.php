@@ -2,6 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 
 /**
@@ -19,7 +20,7 @@ abstract class AbstractLeafNode extends AbstractNode
 
     public function getChildren()
     {
-        throw new \RuntimeException(sprintf(
+        throw new RuntimeException(sprintf(
             'Cannot call getChildren on leaf node "%s"',
             $this->getName()
         ));
@@ -27,7 +28,7 @@ abstract class AbstractLeafNode extends AbstractNode
 
     public function addChild(AbstractNode $node)
     {
-        throw new \RuntimeException(sprintf(
+        throw new RuntimeException(sprintf(
             'Cannot call addChild to leaf node "%s"',
             $this->getName()
         ));
@@ -59,7 +60,7 @@ abstract class AbstractLeafNode extends AbstractNode
             return $parts;
         }
 
-        throw new \RuntimeException(sprintf(
+        throw new RuntimeException(sprintf(
             'Invalid field specification, '.
             'expected string like "[alias].[field_name]", got "%s"',
             $field
