@@ -14,7 +14,6 @@ env:
 before_script:
   - composer self-update
   - ./tests/travis_${TRANSPORT}.sh
-  - composer update --prefer-source
 
 script: phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
 
