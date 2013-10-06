@@ -263,7 +263,6 @@
             <h2>Search via the QueryBuilder</h2>
             <pre class="brush: php">
                 $qb = $dm->createQueryBuilder();
-                $factory = $qb->getQOMFactory();
 
                 // SELECT * FROM [nt:unstructured] WHERE text = 'foo' ORDER BY title
                 $qb = $conn->createQueryBuilder()
