@@ -62,7 +62,7 @@ class ReferenceManyCollection extends PersistentCollection
 
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
-                if (isset($targetDocument) && !$proxy instanceOf $this->targetDocument) {
+                if (isset($targetDocument) && !$proxy instanceof $this->targetDocument) {
                     throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$this->targetDocument}' but got '".ClassUtils::getClass($proxy)."'.");
                 }
                 $referencedDocs[] = $proxy;

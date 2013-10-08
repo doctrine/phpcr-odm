@@ -370,7 +370,7 @@ class UnitOfWork
                 try {
                     $referencedNode = $node->getProperty($mapping['property'])->getNode();
                     $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
-                    if (isset($mapping['targetDocument']) && !$proxy instanceOf $mapping['targetDocument']) {
+                    if (isset($mapping['targetDocument']) && !$proxy instanceof $mapping['targetDocument']) {
                         throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$mapping['targetDocument']}' but got '".ClassUtils::getClass($proxy)."'.");
                     }
                 } catch (RepositoryException $e) {
@@ -2944,7 +2944,7 @@ class UnitOfWork
                 if ($reference instanceof ReferenceManyCollection && !$reference->isInitialized()) {
                     $reference->setLocale($locale);
                 } else {
-                    if ($reference instanceOf \Traversable || is_array($reference)) {
+                    if ($reference instanceof \Traversable || is_array($reference)) {
                         foreach ($reference as $ref) {
                             $this->cascadeDoLoadTranslation($ref, $metadata->mappings[$fieldName], $locale);
                         }
@@ -2976,7 +2976,7 @@ class UnitOfWork
         }
 
         $class = $this->dm->getClassMetadata(get_class($document));
-        if ($document instanceOf Proxy && !$document->__isInitialized()) {
+        if ($document instanceof Proxy && !$document->__isInitialized()) {
             $this->setLocale($document, $class, $locale);
         } elseif ($this->isDocumentTranslatable($class)
             && $this->getCurrentLocale($document, $class) !== $locale
