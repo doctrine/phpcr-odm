@@ -1,6 +1,6 @@
 #!/bin/bash
 
-composer require jackalope/jackalope-doctrine-dbal:1.0.0-RC3 --no-update
+composer require jackalope/jackalope-doctrine-dbal:1.0.0-RC4 --no-update
 composer update --prefer-source
 
 SCRIPT_NAME="${0##*/}"
