@@ -14,17 +14,16 @@
     "require": {
         "php": ">=5.3.3",
         "doctrine/common": "~2.4.0",
-        "phpcr/phpcr-implementation": "~2.1.0-RC1",
-        "phpcr/phpcr-utils": "~1.0.0-RC1"
+        "phpcr/phpcr-implementation": "~2.1.0",
+        "phpcr/phpcr-utils": "~1.0.0"
     },
     "require-dev": {
         "symfony/yaml": "~2.0"
     },
     "suggest":{
         "symfony/yaml": "~2.0",
-        "jackalope/jackalope-doctrine-dbal": "~1.0.0-RC1",
-        "jackalope/jackalope-jackrabbit": "~1.0.0-RC1",
-        "midgard/phpcr": ">=1.3"
+        "jackalope/jackalope-doctrine-dbal": "~1.0.0",
+        "jackalope/jackalope-jackrabbit": "~1.0.0"
     },
     "autoload": {
         "psr-0": { "Doctrine\\ODM\\PHPCR": "lib/" }
