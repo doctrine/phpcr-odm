@@ -1,0 +1,14 @@
+vcs: git
+version-generator: semantic
+version-persister: vcs-tag
+prerequisites:
+    - working-copy-check
+    - display-last-changes
+pre-release-actions:
+    changelog-update:
+        format: addTop
+        file: CHANGELOG.md
+        insert-at: 3
+    update-version-class:
+        class: Doctrine\ODM\PHPCR\Version
+    vcs-commit: ~

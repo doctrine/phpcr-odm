@@ -18,7 +18,8 @@
         "phpcr/phpcr-utils": "~1.0.0"
     },
     "require-dev": {
-        "symfony/yaml": "~2.0"
+        "symfony/yaml": "~2.0",
+        "liip/rmt": "dev-master"
     },
     "suggest":{
         "symfony/yaml": "~2.0",

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.0
+-----
+
+* **2013-10-10**: Depend on stable version of PHPCR
 
 1.0.0-RC3
 ---------
@@ -125,4 +129,3 @@ Changelog
  * CreateQuery($statement, $language) has NOT been implemented in the new query builder.
    It is, however, still available in the DocumentManager.
  * DocumentManager->getDocumentsByQuery renamed to getDocumentsByPhpcrQuery()
-
