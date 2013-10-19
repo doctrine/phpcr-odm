@@ -48,10 +48,10 @@ $cli->addCommands(array(
     new \PHPCR\Util\Console\Command\WorkspaceQueryCommand(),
     new \PHPCR\Util\Console\Command\NodeTypeRegisterCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\InfoDoctrineCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand(),
 ));
 if (isset($extraCommands) && ! empty($extraCommands)) {
     $cli->addCommands($extraCommands);
 }
 $cli->run();
-
