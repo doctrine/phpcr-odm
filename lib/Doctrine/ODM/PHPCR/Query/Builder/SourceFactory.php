@@ -3,7 +3,6 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 
 /**
  * Abstract factory node class for Sources.
@@ -32,7 +31,7 @@ abstract class SourceFactory extends AbstractNode
      * and will be used to reference documents selected from this source.
      *
      * <code>
-     * $qb->from()->document('My/Document/Class', 'my_selector_name')
+     * $qb->from('my_selector_name')->document('My/Document/Class', 'my_selector_name')
      * </code>
      *
      * @param string $documentFqn - Fully qualified class name for document.
@@ -50,7 +49,7 @@ abstract class SourceFactory extends AbstractNode
      * Note that his is currently disabled due to API uncertainty.
      *
      * <code>
-     * $qb->from()
+     * $qb->from('sel_1')
      *   ->joinInner()
      *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
      *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
@@ -62,8 +61,6 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinInner()
     {
-        throw new BadMethodCallException(__METHOD__.' not supported yet');
-
         return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_INNER
         ));
@@ -75,7 +72,7 @@ abstract class SourceFactory extends AbstractNode
      * Note that his is currently disabled due to API uncertainty.
      *
      * <code>
-     * $qb->from()
+     * $qb->from('sel_2')
      *   ->joinLeftOuter()
      *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
      *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
@@ -87,8 +84,6 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinLeftOuter()
     {
-        throw new BadMethodCallException(__METHOD__.' not supported yet');
-
         return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER
         ));
@@ -100,7 +95,7 @@ abstract class SourceFactory extends AbstractNode
      * Note that his is currently disabled due to API uncertainty.
      *
      * <code>
-     * $qb->from()
+     * $qb->from('sel_1')
      *   ->joinRightOuter()
      *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
      *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
@@ -112,8 +107,6 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinRightOuter()
     {
-        throw new BadMethodCallException(__METHOD__.' not supported yet');
-
         return $this->addChild(new SourceJoin($this,
             QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER
         ));

@@ -316,7 +316,7 @@ class DocumentRepository implements ObjectRepository
     public function createQueryBuilder($selectorName)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document($this->className, $selectorName);
+        $qb->from($selectorName)->document($this->className, $selectorName);
 
         return $qb;
     }

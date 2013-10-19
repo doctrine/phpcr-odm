@@ -12,7 +12,7 @@ class QueryBuilderTest extends NodeTestCase
             array('where', 'Where'),
             array('andWhere', 'WhereAnd'), // andWhere adds Where if no existing Where
             array('orWhere', 'WhereOr'), // andWhere adds Where if no existing Where
-            array('from', 'From'),
+            array('from', 'From', array('a')),
             array('orderBy', 'OrderBy'),
             array('select', 'Select'),
         );
@@ -40,25 +40,25 @@ class QueryBuilderTest extends NodeTestCase
                 ->field('a.prop_4')
             ->end()
             ->fromDocument('foobar', 'a')
-            // ->from()
-            //     ->joinInner()
-            //         ->left()->document('foobar', 'a')->end()
-            //         ->right()->document('barfoo', 'b')->end()
-            //         ->condition()->equi('a.prop_1', 'b.prop_2')->end()
-            //     ->end()
-            // ->end()
-            // ->addJoinInner()
-            //     ->right()->document('foobar', 'a')->end()
-            //     ->condition()->equi('a.prop_1', 'b.prop_2')->end()
-            // ->end()
-            // ->addJoinLeftOuter()
-            //     ->right()->document('foobar', 'a')->end()
-            //     ->condition()->equi('a.prop_1', 'b.prop_2')->end()
-            // ->end()
-            // ->addJoinRightOuter()
-            //     ->right()->document('foobar', 'a')->end()
-            //     ->condition()->equi('a.prop_1', 'b.prop_2')->end()
-            // ->end()
+            ->from('a')
+                ->joinInner()
+                    ->left()->document('foobar', 'a')->end()
+                    ->right()->document('barfoo', 'b')->end()
+                    ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+                ->end()
+            ->end()
+            ->addJoinInner()
+                ->right()->document('foobar', 'a')->end()
+                ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+            ->end()
+            ->addJoinLeftOuter()
+                ->right()->document('foobar', 'a')->end()
+                ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+            ->end()
+            ->addJoinRightOuter()
+                ->right()->document('foobar', 'a')->end()
+                ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+            ->end()
             ->where()
                 ->andX()
                     ->eq()
@@ -90,5 +90,14 @@ class QueryBuilderTest extends NodeTestCase
                 ->asc()->name('c')->end()
             ->end()
         ;
+    }
+
+    public function testPrimarySelector()
+    {
+        $this->node->from('f');
+        $this->assertEquals('f', $this->node->getPrimarySelector());
+
+        $this->node->fromDocument('Foobar', 'f');
+        $this->assertEquals('f', $this->node->getPrimarySelector());
     }
 }

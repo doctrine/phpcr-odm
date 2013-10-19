@@ -585,7 +585,7 @@ class DocumentManager implements ObjectManager
      *
      * @return array of document instances
      */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null)
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
     {
         $this->errorIfClosed();
 
@@ -594,7 +594,7 @@ class DocumentManager implements ObjectManager
         $ids = array();
         foreach ($result->getRows() as $row) {
             /** @var $row \PHPCR\Query\RowInterface */
-            $ids[] = $row->getPath();
+            $ids[] = $row->getPath($primarySelector);
         }
 
         return $this->findMany($className, $ids);

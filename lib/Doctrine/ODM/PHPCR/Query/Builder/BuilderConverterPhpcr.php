@@ -151,6 +151,13 @@ class BuilderConverterPhpcr
             $this->dispatchMany($builder->getChildrenOfType($dispatchType));
         }
 
+        if (count($this->sourceDocumentNodes) > 1 && null === $builder->getPrimarySelector()) {
+            throw new InvalidArgumentException(
+                'You must specify a primary selector when selecting from multiple document sources'.
+                'e.g. $qb->from(\'a\') ...'
+            );
+        }
+
         // for each document source add phpcr:{class,classparents} restrictions
         foreach ($this->sourceDocumentNodes as $sourceNode) {
             $odmClassConstraints = $this->qomf->orConstraint(
@@ -189,7 +196,7 @@ class BuilderConverterPhpcr
             $this->columns
         );
 
-        $this->query = new Query($phpcrQuery, $this->dm);
+        $this->query = new Query($phpcrQuery, $this->dm, $builder->getPrimarySelector());
 
         if ($firstResult = $builder->getFirstResult()) {
             $this->query->setFirstResult($firstResult);

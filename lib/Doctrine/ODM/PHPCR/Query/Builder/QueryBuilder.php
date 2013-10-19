@@ -8,6 +8,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 
 /**
@@ -37,6 +38,7 @@ class QueryBuilder extends AbstractNode
     protected $firstResult;
     protected $maxResults;
     protected $locale;
+    protected $primarySelector;
 
     public function getLocale()
     {
@@ -128,22 +130,25 @@ class QueryBuilder extends AbstractNode
      * Set the from source for the query.
      *
      * <code>
-     *  $qb->from()->document('Foobar', 'a')
+     *  $qb->from('a')->document('Foobar', 'a')
      *
      *  // or with a join ...
      *
-     *  -$qb->from()->joinInner()
+     *  -$qb->from('a')->joinInner()
      *    ->left()->document('Foobar', 'a')->end()
      *    ->right()->document('Barfoo', 'b')->end()
      *    ->condition()->equi('a.prop_1', 'b.prop_1');
      * </code>
      *
+     * @param string $primarySelector - Specify document set from which to select
+     *
      * @factoryMethod From
      * @return From
      */
-    public function from($void = null)
+    public function from($primarySelector = null)
     {
-        $this->ensureNoArguments(__METHOD__, $void);
+        $this->primarySelector = $primarySelector;
+
         return $this->setChild(new From($this));
     }
 
@@ -168,10 +173,12 @@ class QueryBuilder extends AbstractNode
      * @factoryMethod From
      * @return QueryBuilder
      */
-    public function fromDocument($documentFqn, $alias)
+    public function fromDocument($documentFqn, $primarySelector)
     {
+        $this->primarySelector = $primarySelector;
+
         $from = new From($this);
-        $from->document($documentFqn, $alias);
+        $from->document($documentFqn, $primarySelector);
         $this->setChild($from);
         return $from->end();
     }
@@ -183,8 +190,6 @@ class QueryBuilder extends AbstractNode
      */
     private function addJoin($joinType)
     {
-        throw new BadMethodCallException(__METHOD__.' not supported yet');
-
         $from = $this->getChildOfType(QBConstants::NT_FROM);
         $curSource = $from->getChild(QBConstants::NT_SOURCE);
 
@@ -385,5 +390,10 @@ class QueryBuilder extends AbstractNode
     public function __toString()
     {
         return (string) $this->getQuery()->getStatement();
+    }
+
+    public function getPrimarySelector()
+    {
+        return $this->primarySelector;
     }
 }

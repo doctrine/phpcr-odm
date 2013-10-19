@@ -21,16 +21,18 @@ class Query
 
     protected $hydrationMode = self::HYDRATE_DOCUMENT;
     protected $parameters = array();
+    protected $primarySelector;
     protected $firstResult;
     protected $maxResults;
     protected $documentClass;
     protected $query;
     protected $dm;
 
-    public function __construct(QueryInterface $query, DocumentManager $dm)
+    public function __construct(QueryInterface $query, DocumentManager $dm, $primarySelector = null)
     {
         $this->dm = $dm;
         $this->query = $query;
+        $this->primarySelector = $primarySelector;
     }
 
     /**
@@ -170,7 +172,7 @@ class Query
                 $data = $this->query->execute();
                 break;
             case self::HYDRATE_DOCUMENT:
-                $data = $this->dm->getDocumentsByPhpcrQuery($this->query, $this->documentClass);
+                $data = $this->dm->getDocumentsByPhpcrQuery($this->query, $this->documentClass, $this->primarySelector);
                 break;
             default:
                 throw QueryException::hydrationModeNotKnown($this->hydrationMode);

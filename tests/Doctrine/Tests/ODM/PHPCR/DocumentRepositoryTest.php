@@ -27,6 +27,9 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\From', $from);
         $source = $from->getChildOfType(QBConstants::NT_SOURCE);
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\SourceDocument', $source);
+
+        $this->assertEquals('a', $source->getAlias());
+        $this->assertEquals('a', $qb->getPrimarySelector());
         
         $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $source->getDocumentFqn());
     }
