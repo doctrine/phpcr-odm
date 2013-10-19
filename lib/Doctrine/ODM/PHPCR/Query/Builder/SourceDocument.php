@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Source;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 class SourceDocument extends AbstractLeafNode
 {
@@ -11,6 +11,13 @@ class SourceDocument extends AbstractLeafNode
 
     public function __construct(AbstractNode $parent, $documentFqn, $alias)
     {
+        if (!is_string($alias) || empty($alias)) {
+            throw new InvalidArgumentException(sprintf(
+                'The alias for %s must be a non-empty string.',
+                $documentFqn
+            ));
+        }
+
         $this->documentFqn = $documentFqn;
         $this->alias = $alias;
         parent::__construct($parent);
