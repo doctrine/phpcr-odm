@@ -87,7 +87,7 @@ class UnitOfWork
     const STATE_FROZEN = 5;
 
     /**
-     * @var DocumentManager
+     * @var DocumentManagerInterface
      */
     private $dm = null;
 
@@ -261,9 +261,9 @@ class UnitOfWork
     private $useFetchDepth;
 
     /**
-     * @param DocumentManager $dm
+     * @param DocumentManagerInterface $dm
      */
-    public function __construct(DocumentManager $dm)
+    public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;
         $this->session = $dm->getPhpcrSession();
@@ -3672,7 +3672,7 @@ class UnitOfWork
             && count($metadata->translatableFields) !== 0;
     }
 
-    private static function objToStr($obj, DocumentManager $dm = null)
+    private static function objToStr($obj, DocumentManagerInterface $dm = null)
     {
         $string = method_exists($obj, '__toString')
             ? (string) $obj

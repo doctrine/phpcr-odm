@@ -21,7 +21,7 @@
 namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 
 class MoveEventArgs extends LifecycleEventArgs
 {
@@ -38,12 +38,12 @@ class MoveEventArgs extends LifecycleEventArgs
     /**
      * Constructor
      *
-     * @param object          $document
-     * @param DocumentManager $dm
-     * @param string          $sourcePath Path the document is moved from
-     * @param string          $targetPath Path the document is moved to, including target name
+     * @param object                   $document
+     * @param DocumentManagerInterface $dm
+     * @param string                   $sourcePath Path the document is moved from
+     * @param string                   $targetPath Path the document is moved to, including target name
      */
-    public function __construct($document, DocumentManager $dm, $sourcePath, $targetPath)
+    public function __construct($document, DocumentManagerInterface $dm, $sourcePath, $targetPath)
     {
         parent::__construct($document, $dm);
         $this->sourcePath = $sourcePath;

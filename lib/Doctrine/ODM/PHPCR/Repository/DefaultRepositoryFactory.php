@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Repository;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 
 /**
  * This factory is used to create default repository objects for entities at runtime.
@@ -39,7 +39,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
     /**
      * {@inheritdoc}
      */
-    public function getRepository(DocumentManager $documentManager, $documentName)
+    public function getRepository(DocumentManagerInterface $dm, $documentName)
     {
         $documentName = ltrim($documentName, '\\');
 
@@ -47,7 +47,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
             return $this->repositoryList[$documentName];
         }
 
-        $repository = $this->createRepository($documentManager, $documentName);
+        $repository = $this->createRepository($dm, $documentName);
 
         $this->repositoryList[$documentName] = $repository;
 
@@ -57,21 +57,21 @@ class DefaultRepositoryFactory implements RepositoryFactory
     /**
      * Create a new repository instance for a document class.
      *
-     * @param DocumentManager $documentManager The DocumentManager instance.
-     * @param string          $documentName    The name of the document.
+     * @param DocumentManagerInterface  $dm             The DocumentManager instance.
+     * @param string                    $documentName   The name of the document.
      *
      * @return \Doctrine\Common\Persistence\ObjectRepository
      */
-    protected function createRepository(DocumentManager $documentManager, $documentName)
+    protected function createRepository(DocumentManagerInterface $dm, $documentName)
     {
-        $metadata            = $documentManager->getClassMetadata($documentName);
+        $metadata            = $dm->getClassMetadata($documentName);
         $repositoryClassName = $metadata->customRepositoryClassName;
 
         if ($repositoryClassName === null) {
-            $configuration       = $documentManager->getConfiguration();
+            $configuration       = $dm->getConfiguration();
             $repositoryClassName = $configuration->getDefaultRepositoryClassName();
         }
 
-        return new $repositoryClassName($documentManager, $metadata);
+        return new $repositoryClassName($dm, $metadata);
     }
 }

@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
 /**
@@ -31,7 +31,7 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
 abstract class AbstractTranslationStrategy implements TranslationStrategyInterface
 {
     /**
-     * @var DocumentManager
+     * @var DocumentManagerInterface
      */
     protected $dm;
 
@@ -41,7 +41,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
      */
     protected $prefix = Translation::LOCALE_NAMESPACE;
 
-    public function __construct(DocumentManager $dm)
+    public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;
     }

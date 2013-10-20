@@ -302,7 +302,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * READ-ONLY: Strategy key to find field translations.
-     * This is the key used for DocumentManager::getTranslationStrategy
+     * This is the key used for DocumentManagerInterface::getTranslationStrategy
      *
      * @var string
      */

@@ -3,6 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;

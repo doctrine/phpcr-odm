@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
@@ -33,7 +33,7 @@ class AssignedIdGenerator extends IdGenerator
      *
      * {@inheritDoc}
      */
-    public function generate($document, ClassMetadata $cm, DocumentManager $dm, $parent = null)
+    public function generate($document, ClassMetadata $cm, DocumentManagerInterface $dm, $parent = null)
     {
         $id = $cm->getFieldValue($document, $cm->identifier);
         if (!$id) {

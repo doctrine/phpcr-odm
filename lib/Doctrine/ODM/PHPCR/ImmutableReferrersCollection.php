@@ -29,7 +29,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ImmutableReferrersCollection extends ReferrersCollection
 {
-    public function __construct(DocumentManager $dm, $document, $type = null, $locale = null)
+    public function __construct(DocumentManagerInterface $dm, $document, $type = null, $locale = null)
     {
         parent::__construct($dm, $document, $type, null, $locale);
     }

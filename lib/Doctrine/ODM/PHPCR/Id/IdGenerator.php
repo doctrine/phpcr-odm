@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
@@ -67,12 +67,12 @@ abstract class IdGenerator
     /**
      * Generate the actual id, to be overwritten by extending classes
      *
-     * @param object          $document the object to create the id for
-     * @param ClassMetadata   $class    class metadata of this object
-     * @param DocumentManager $dm
-     * @param object          $parent
+     * @param object                   $document the object to create the id for
+     * @param ClassMetadata            $class    class metadata of this object
+     * @param DocumentManagerInterface $dm
+     * @param object                   $parent
      *
      * @return string the id for this document
      */
-    abstract public function generate($document, ClassMetadata $class, DocumentManager $dm, $parent = null);
+    abstract public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null);
 }

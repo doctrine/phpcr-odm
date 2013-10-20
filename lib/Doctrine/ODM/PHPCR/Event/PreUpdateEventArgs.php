@@ -22,7 +22,7 @@ namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\Persistence\Event\PreUpdateEventArgs as BasePreUpdateEventArgs;
 use Doctrine\Common\Util\ClassUtils;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 
 class PreUpdateEventArgs extends BasePreUpdateEventArgs
 {
@@ -34,11 +34,11 @@ class PreUpdateEventArgs extends BasePreUpdateEventArgs
     /**
      * Constructor.
      *
-     * @param object          $document
-     * @param DocumentManager $objectManager
-     * @param array           $changeSet
+     * @param object                    $document
+     * @param DocumentManagerInterface  $objectManager
+     * @param array                     $changeSet
      */
-    public function __construct($document, DocumentManager $documentManager, array &$changeSet)
+    public function __construct($document, DocumentManagerInterface $documentManager, array &$changeSet)
     {
         $fieldChangeSet = array();
         if (isset($changeSet['fields'])) {

@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
+
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 
@@ -30,7 +31,7 @@ use PHPCR\PropertyType;
  */
 class DocumentClassMapper implements DocumentClassMapperInterface
 {
-    private function expandClassName(DocumentManager $dm, $className = null)
+    private function expandClassName(DocumentManagerInterface $dm, $className = null)
     {
         if (null === $className) {
             return null;
@@ -46,7 +47,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     /**
      * {@inheritDoc}
      */
-    public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null)
+    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, $className = null)
     {
         $className = $this->expandClassName($dm, $className);
 
@@ -73,7 +74,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     /**
      * {@inheritDoc}
      */
-    public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className)
+    public function writeMetadata(DocumentManagerInterface $dm, NodeInterface $node, $className)
     {
         $className = $this->expandClassName($dm, $className);
 
@@ -91,7 +92,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     /**
      * {@inheritDoc}
      */
-    public function validateClassName(DocumentManager $dm, $document, $className)
+    public function validateClassName(DocumentManagerInterface $dm, $document, $className)
     {
         $className = $this->expandClassName($dm, $className);
 
