@@ -24,6 +24,8 @@ use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
 use Doctrine\ODM\PHPCR\DocumentClassMapper;
+use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
+use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
 
 /**
  * Configuration class
@@ -263,5 +265,93 @@ class Configuration
     public function getAutoGenerateProxyClasses()
     {
         return $this->attributes['autoGenerateProxyClasses'];
+    }
+
+    /**
+     * Sets a class metadata factory.
+     *
+     * @since 1.1
+     *
+     * @param string $cmfName
+     *
+     * @return void
+     */
+    public function setClassMetadataFactoryName($cmfName)
+    {
+        $this->attributes['classMetadataFactoryName'] = $cmfName;
+    }
+
+    /**
+     * @since 1.1
+     *
+     * @return string
+     */
+    public function getClassMetadataFactoryName()
+    {
+        if ( ! isset($this->attributes['classMetadataFactoryName'])) {
+            $this->attributes['classMetadataFactoryName'] = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory';
+        }
+
+        return $this->attributes['classMetadataFactoryName'];
+    }
+
+    /**
+     * Sets default repository class.
+     *
+     * @since 1.1
+     *
+     * @param string $className
+     *
+     * @return void
+     *
+     * @throws PHPCRException If not is a ObjectRepository
+     */
+    public function setDefaultRepositoryClassName($className)
+    {
+        $reflectionClass = new \ReflectionClass($className);
+
+        if ( ! $reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
+            throw PHPCRException::invalidDocumentRepository($className);
+        }
+
+        $this->attributes['defaultRepositoryClassName'] = $className;
+    }
+
+    /**
+     * Get default repository class.
+     *
+     * @since 1.1
+     *
+     * @return string
+     */
+    public function getDefaultRepositoryClassName()
+    {
+        return isset($this->attributes['defaultRepositoryClassName'])
+            ? $this->attributes['defaultRepositoryClassName']
+            : 'Doctrine\ODM\PHPCR\DocumentRepository';
+    }
+
+    /**
+     * Set the document repository factory.
+     *
+     * @since 1.1
+     * @param RepositoryFactory $repositoryFactory
+     */
+    public function setRepositoryFactory(RepositoryFactory $repositoryFactory)
+    {
+        $this->attributes['repositoryFactory'] = $repositoryFactory;
+    }
+
+    /**
+     * Get the document repository factory.
+     *
+     * @since 1.1
+     * @return RepositoryFactory
+     */
+    public function getRepositoryFactory()
+    {
+        return isset($this->attributes['repositoryFactory'])
+            ? $this->attributes['repositoryFactory']
+            : new DefaultRepositoryFactory();
     }
 }
