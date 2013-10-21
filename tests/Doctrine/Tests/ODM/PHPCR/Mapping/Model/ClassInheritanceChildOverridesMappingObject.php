@@ -12,7 +12,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *   nodeType="nt:test-override",
  *   mixins="mix:baz",
  *   translator="bar",
- *   repositoryClass="Barfoo",
+ *   repositoryClass="BarfooRepository",
  *   versionable="full"
  * )
  */

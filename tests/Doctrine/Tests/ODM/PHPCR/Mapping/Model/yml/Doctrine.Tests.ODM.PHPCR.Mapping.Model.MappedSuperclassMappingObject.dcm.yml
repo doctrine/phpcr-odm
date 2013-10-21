@@ -1,7 +1,7 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject:
   type: mappedSuperclass
   nodeType: phpcr:test
-  repositoryClass: Fqn\Class
+  repositoryClass: Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository
   translator: children
   mixins: [mix:one, mix:two]
   versionable: simple

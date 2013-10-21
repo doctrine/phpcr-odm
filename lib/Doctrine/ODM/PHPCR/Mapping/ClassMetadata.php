@@ -369,13 +369,32 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function validateIdentifier()
     {
-        // Verify & complete identifier mapping
         if (! $this->isMappedSuperclass) {
-            if (! $this->identifier
-                && !($this->parentMapping && $this->nodename)
-                && !(self::GENERATOR_TYPE_AUTO === $this->idGenerator && $this->parentMapping)
-            ) {
-                throw MappingException::identifierRequired($this->name);
+            if ($this->isIdGeneratorNone()) {
+                $this->determineIdStrategy();
+            }
+            
+            switch($this->idGenerator) {
+                case self::GENERATOR_TYPE_PARENT:
+                    if (!($this->parentMapping && $this->nodename)) {
+                        throw MappingException::identifierRequired($this->name, 'parent and nodename');
+                    }
+                    break;
+                case self::GENERATOR_TYPE_AUTO:
+                    if (!$this->parentMapping) {
+                        throw MappingException::identifierRequired($this->name, 'parent');
+                    }
+                    break;
+                case self::GENERATOR_TYPE_REPOSITORY:
+                    if (!$this->customRepositoryClassName) {
+                        throw MappingException::repositoryRequired($this->name, $this->customRepositoryClassName);
+                    }
+                    break;
+                default:
+                    if (!$this->identifier) {
+                        throw MappingException::identifierRequired($this->name, 'identifier');
+                    }
+                    break;
             }
         }
     }
@@ -451,6 +470,9 @@ class ClassMetadata implements ClassMetadataInterface
     public function setCustomRepositoryClassName($repositoryClassName)
     {
         $this->customRepositoryClassName = $this->fullyQualifiedClassName($repositoryClassName);
+        if ($this->customRepositoryClassName && !class_exists($this->customRepositoryClassName)) {
+            throw MappingException::repositoryNotExisting($this->name, $this->customRepositoryClassName);
+        }
     }
 
     /**
@@ -892,24 +914,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if (!$this->isMappedSuperclass) {
-            if ($this->isIdGeneratorNone()) {
-                $this->determineIdStrategy();
-            } else {
-                // if we assigned the strategy, we need to check if we have the needed fields
-
-                if (self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->parentMapping) {
-                    throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a parent mapping', $this->name));
-                }
-                if (self::GENERATOR_TYPE_PARENT === $this->idGenerator && !$this->nodename) {
-                    throw new MappingException(sprintf('Using the parent id generator strategy in "%s" without a nodename mapping', $this->name));
-                }
-
-                if (self::GENERATOR_TYPE_AUTO === $this->idGenerator && !$this->parentMapping) {
-                    throw new MappingException(sprintf('Using the auto node name id generator strategy in "%s" without a parent mapping', $this->name));
-                }
-            }
-        }
+        $this->validateIdentifier();
     }
 
     /**

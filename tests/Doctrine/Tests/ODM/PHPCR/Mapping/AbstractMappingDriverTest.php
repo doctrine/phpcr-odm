@@ -468,7 +468,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue($class->isMappedSuperclass);
         $this->assertEquals("phpcr:test", $class->nodeType);
-        $this->assertEquals('Fqn\Class', $class->customRepositoryClassName);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $class->customRepositoryClassName);
         $this->assertEquals("children", $class->translator);
         $this->assertEquals(array('mix:one', 'mix:two'), $class->mixins);
         $this->assertEquals("simple", $class->versionable);

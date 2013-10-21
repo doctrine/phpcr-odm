@@ -2,10 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Mapping;
 
-use Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM,
-    Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @group functional
@@ -87,20 +89,109 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->assertEquals($tmpDocEn->text, 'english');
     }
 
-    public function testIdStrategy()
+    /**
+     * @dataProvider generatorTypeProvider
+     *
+     * @param string $class       the fqn class name to load
+     * @param int    $type        the generator type constant
+     * @param string $description to be used in case of failure
+     */
+    public function testIdStrategy($class, $type, $description)
     {
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategy');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_PARENT, $metadata->idGenerator, 'parentId');
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategyDifferentOrder');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_PARENT, $metadata->idGenerator, 'parentId2');
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdStrategy');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_AUTO, $metadata->idGenerator, 'autoname as only has parent but not nodename');
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AssignedIdStrategy');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'assigned');
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\RepositoryIdStrategy');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_REPOSITORY, $metadata->idGenerator, 'repository');
-        $metadata = $this->dm->getClassMetadata('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\StandardCase');
-        $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $metadata->idGenerator, 'standardcase');
+        $metadata = $this->dm->getClassMetadata($class);
+        $this->assertEquals($type, $metadata->idGenerator, $description);
+    }
+
+    public function generatorTypeProvider()
+    {
+        return array(
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategy',
+                ClassMetadata::GENERATOR_TYPE_PARENT,
+                'parentId',
+            ),
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategyDifferentOrder',
+                ClassMetadata::GENERATOR_TYPE_PARENT,
+                'parentId2',
+            ),
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdStrategy',
+                ClassMetadata::GENERATOR_TYPE_AUTO,
+                'autoname as only has parent but not nodename',
+            ),
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AssignedIdStrategy',
+                ClassMetadata::GENERATOR_TYPE_ASSIGNED,
+                'assigned',
+            ),
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\RepositoryIdStrategy',
+                ClassMetadata::GENERATOR_TYPE_REPOSITORY,
+                'repository'
+            ),
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\StandardCase',
+                ClassMetadata::GENERATOR_TYPE_ASSIGNED,
+                'standardcase',
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider invalidIdProvider
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     *
+     * @param string $class fqn of a class with invalid mapping
+     */
+    public function testInvalidId($class)
+    {
+        $this->dm->getClassMetadata($class);
+    }
+
+    public function invalidIdProvider()
+    {
+        return array(
+            array(
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdNoParentStrategy',
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdNoParentStrategy',
+                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\NoId',
+            )
+        );
+    }
+
+    public function testPersistParentId()
+    {
+        $doc = new ParentIdStrategy();
+        $doc->name = 'parent-strategy';
+        $doc->parent = $this->dm->find(null, '/functional');
+        $this->dm->persist($doc);
+        $this->dm->flush();
+        $this->dm->clear();
+        $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategy', $this->dm->find(null, '/functional/parent-strategy'));
+    }
+
+    public function testPersistAutoNameId()
+    {
+        $doc = new AutoNameIdStrategy();
+        $doc->parent = $this->dm->find(null, '/functional');
+        $this->dm->persist($doc);
+        $this->dm->flush();
+        $id = $this->dm->getUnitOfWork()->getDocumentId($doc);
+        $this->dm->clear();
+        $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdStrategy', $this->dm->find(null, $id));
+    }
+
+    public function testPersistRepository()
+    {
+        $doc = new RepositoryIdStrategy();
+        $doc->title = 'repository strategy';
+        $this->dm->persist($doc);
+        $this->dm->flush();
+        $id = $this->dm->getUnitOfWork()->getDocumentId($doc);
+        $this->dm->clear();
+        $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\RepositoryIdStrategy', $this->dm->find(null, $id));
     }
 
     // TODO comprehensive test for all possible mapped fields in an abstract test, trying to persist and check if properly set
@@ -182,9 +273,6 @@ class SecondLevelWithDuplicateOverwrite extends ExtendingClass
  */
 class ParentIdStrategy
 {
-    /** @PHPCRODM\Id */
-    public $id;
-
     /** @PHPCRODM\Nodename */
     public $name;
 
@@ -214,9 +302,6 @@ class AutoNameIdStrategy
 {
     /** @PHPCRODM\ParentDocument */
     public $parent;
-
-    /** @PHPCRODM\Id() */
-    public $id;
 }
 
 /**
@@ -235,18 +320,54 @@ class AssignedIdStrategy
 }
 
 /**
- * @PHPCRODM\Document
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\Mapping\Repository")
  */
 class RepositoryIdStrategy
 {
-    /** @PHPCRODM\Nodename */
-    public $name;
-
-    /** @PHPCRODM\ParentDocument */
-    public $parent;
+    public $title;
 
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+}
+class Repository extends DocumentRepository implements RepositoryIdInterface
+{
+    public function generateId($document, $parent = null)
+    {
+        return '/functional/' . str_replace(' ', '-', $document->title);
+    }
+}
+
+/**
+ * @PHPCRODM\Document
+ *
+ * Invalid document missing a parent mapping for the id strategy
+ */
+class ParentIdNoParentStrategy
+{
+    /** @PHPCRODM\Id(strategy="parent") */
+    public $id;
+    /** @PHPCRODM\Nodename */
+    public $name;
+}
+
+/**
+ * @PHPCRODM\Document
+ *
+ * Invalid document not having a parent mapping.
+ */
+class AutoNameIdNoParentStrategy
+{
+    /** @PHPCRODM\Id(strategy="auto") */
+    public $id;
+}
+
+/**
+ * @PHPCRODM\Document
+ *
+ * Invalid document not having an id at all.
+ */
+class NoId
+{
 }
 
 /**
