@@ -960,7 +960,7 @@ class UnitOfWork
     }
 
     /**
-     * Checks whether an document is scheduled for insertion.
+     * Checks whether a document is scheduled for insertion.
      *
      * @param object $document
      *
@@ -2636,7 +2636,7 @@ class UnitOfWork
     }
 
     /**
-     * Removes an document from the identity map. This effectively detaches the
+     * Removes a document from the identity map. This effectively detaches the
      * document from the persistence management of Doctrine.
      *
      * @param object $document
@@ -2697,7 +2697,7 @@ class UnitOfWork
     }
 
     /**
-     * Tries to find an document with the given id in the identity map of
+     * Tries to find a document with the given id in the identity map of
      * this UnitOfWork.
      *
      * @param string $id            The document id to look for.
