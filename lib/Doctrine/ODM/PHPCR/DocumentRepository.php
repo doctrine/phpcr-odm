@@ -311,7 +311,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @param string $selectorName     name of the selector, defaults to 'a'
      *
-     * @return \Doctrine\ODM\PHPCR\Query\Builder
+     * @return \Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder
      */
     public function createQueryBuilder($selectorName)
     {
