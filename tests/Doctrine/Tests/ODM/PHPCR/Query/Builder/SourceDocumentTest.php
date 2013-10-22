@@ -2,8 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Builder;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
+use Doctrine\ODM\PHPCR\Query\Builder\SourceDocument;
 
 class SourceDocumentTest extends LeafNodeTestCase
 {
@@ -15,5 +14,13 @@ class SourceDocumentTest extends LeafNodeTestCase
                 'getAlias' => 'a',
             )),
         );
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     */
+    public function testEmptyAlias()
+    {
+        new SourceDocument($this->parent, 'My\Fqn', '');
     }
 }
