@@ -158,7 +158,6 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $cm->setVersioned(true);
         $cm->addLifecycleCallback('callback', 'postLoad');
         $cm->isMappedSuperclass = true;
-        file_put_contents(__DIR__ . '/../../../../../../metaser.txt', serialize($cm));
         $this->assertEquals($expected, serialize($cm));
     }
 
