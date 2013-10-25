@@ -1387,15 +1387,15 @@ class ClassMetadata implements ClassMetadataInterface
             $serialized[] = 'mixins';
         }
 
-        if($this->localeMapping) {
+        if ($this->localeMapping) {
             $serialized[] = 'localeMapping';
         }
 
-        if($this->translator) {
+        if ($this->translator) {
             $serialized[] = 'translator';
         }
 
-        if($this->translatableFields) {
+        if ($this->translatableFields) {
             $serialized[] = 'translatableFields';
         }
 

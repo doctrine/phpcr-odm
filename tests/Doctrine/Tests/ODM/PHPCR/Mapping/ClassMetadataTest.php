@@ -232,6 +232,24 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($cm->hasAssociation('address'));
         $this->assertEquals('Doctrine\Tests\Models\CMS\CmsAddress', $cm->getAssociationTargetClass('address'));
     }
+
+    /**
+     * @param ClassMetadata $cm
+     * @depends testMapField
+     */
+    public function testClassMetadataInstanceSerializationTranslationProperties($cm)
+    {
+
+        $serialized = serialize($cm);
+        /** @var ClassMetadata $cm */
+        $cm = unserialize($serialized);
+        $cm->wakeupReflection(new \Doctrine\Common\Persistence\Mapping\RuntimeReflectionService);
+
+        // Check properties needed for translations
+        $this->assertEquals('attribute', $cm->translator);
+        $this->assertTrue(in_array('translatedField', $cm->translatableFields));
+        $this->assertEquals('locale', $cm->localeMapping);
+    }
 }
 
 class Customer extends Person {}
