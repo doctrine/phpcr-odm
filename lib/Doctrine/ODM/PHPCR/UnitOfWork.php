@@ -2803,8 +2803,12 @@ class UnitOfWork
 
         $oid = spl_object_hash($document);
         if ($this->contains($oid)) {
-            $node = $this->session->getNode($this->getDocumentId($document));
-            $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+            try {
+                $node = $this->session->getNode($this->getDocumentId($document));
+                $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
+            } catch (PathNotFoundException $e) {
+                $locales = array();
+            }
         } else {
             $locales = array();
         }
