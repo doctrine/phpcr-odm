@@ -153,14 +153,14 @@ class ClassMetadata implements ClassMetadataInterface
     public $node;
 
     /**
-     * READ-ONLY except on document creation: The name of the node
+     * READ-ONLY except on document creation: The field name for the name of the node.
      *
      * @var string
      */
     public $nodename;
 
     /**
-     * READ-ONLY except on document creation: The name of the node
+     * READ-ONLY except on document creation: The field name for the parent document.
      *
      * @var string
      */
