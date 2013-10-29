@@ -104,7 +104,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
      *
-     * @var \Doctrine\ODM\PHPCR\Id\IdGenerator
+     * @var int constant for the id generator to use for this class
      */
     public $idGenerator = self::GENERATOR_TYPE_NONE;
 
@@ -362,7 +362,8 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Validate Identifier
+     * Validate Identifier mapping, determine the strategy if none is
+     * explicitly set.
      *
      * @throws MappingException if no identifiers are mapped
      */
@@ -372,6 +373,7 @@ class ClassMetadata implements ClassMetadataInterface
         if (! $this->isMappedSuperclass) {
             if (! $this->identifier
                 && !($this->parentMapping && $this->nodename)
+                && !(self::GENERATOR_TYPE_AUTO === $this->idGenerator && $this->parentMapping)
             ) {
                 throw MappingException::identifierRequired($this->name);
             }
