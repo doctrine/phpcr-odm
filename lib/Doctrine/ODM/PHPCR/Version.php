@@ -24,8 +24,8 @@ namespace Doctrine\ODM\PHPCR;
  */
 class Version
 {
-  /**
-   * Current version of PHPCR ODM
-   */
-  const VERSION = '1.0.0-beta-4';
+    /**
+     * Current version of PHPCR ODM
+     */
+    const VERSION = '1.0.0';
 }

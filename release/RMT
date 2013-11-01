@@ -1,0 +1,4 @@
+#!/usr/bin/env php
+<?php
+define('RMT_ROOT_DIR', __DIR__ . '/..');
+require RMT_ROOT_DIR . '/vendor/liip/rmt/command.php';
