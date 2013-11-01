@@ -1,6 +1,15 @@
 Changelog
 =========
 
+* **2013-11-01**: Enabled the doctrine:phpcr:mapping:info command. To actually
+  use it, you need to update your cli-config.php file and add:
+
+    $driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver(
+        new \Doctrine\Common\Annotations\AnnotationReader(),
+         __DIR__ . '/lib/Doctrine/ODM/PHPCR/Document'
+    );
+    $config->setMetadataDriverImpl($driver);
+
 1.0.0
 -----
 

@@ -35,6 +35,11 @@ $session = $repository->login($credentials, $workspace);
 
 /* prepare the doctrine configuration */
 $config = new \Doctrine\ODM\PHPCR\Configuration();
+$driver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver(
+    new \Doctrine\Common\Annotations\AnnotationReader(),
+    __DIR__ . '/lib/Doctrine/ODM/PHPCR/Document'
+);
+$config->setMetadataDriverImpl($driver);
 
 $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
 
