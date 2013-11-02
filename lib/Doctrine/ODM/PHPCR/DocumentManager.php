@@ -427,6 +427,7 @@ class DocumentManager implements ObjectManager
             }
 
             $document = $this->unitOfWork->getDocumentById($id);
+
             if ($document) {
                 $this->unitOfWork->validateClassName($document, $className);
                 $class = $this->getClassMetadata(get_class($document));
