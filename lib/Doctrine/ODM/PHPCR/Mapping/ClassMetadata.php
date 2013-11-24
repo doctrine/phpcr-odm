@@ -1194,7 +1194,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationTargetClass($fieldName)
     {
-        if (!in_array($fieldName, $this->referenceMappings)) {
+        if (empty($this->mappings[$fieldName]['targetDocument'])) {
             throw new MappingException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
         }
 
