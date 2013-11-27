@@ -38,4 +38,9 @@ class PHPCRException extends \Exception implements PHPCRExceptionInterface
     {
         return new self('Cannot move/copy children by assignment as it would be ambiguous. Please use the DocumentManager::move() or PHPCR\Session::copy() operations for this: '.$objInfo);
     }
+
+    public static function invalidDocumentRepository($className)
+    {
+        return new self("Invalid repository class '".$className."'. It must be a Doctrine\Common\Persistence\ObjectRepository.");
+    }
 }

@@ -17,15 +17,24 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR;
+namespace Doctrine\ODM\PHPCR\Repository;
+
+use Doctrine\ODM\PHPCR\DocumentManager;
 
 /**
- * Class to mark the current version of the PHPCR ODM
+ * Interface for document repository factory.
+ *
+ * @since 1.1
  */
-class Version
+interface RepositoryFactory
 {
     /**
-     * Current version of PHPCR ODM
+     * Gets the repository for a document class.
+     *
+     * @param DocumentManager $documentManager The DocumentManager instance.
+     * @param string          $documentName    The name of the document.
+     *
+     * @return \Doctrine\Common\Persistence\ObjectRepository
      */
-    const VERSION = '1.1.0-dev';
+    public function getRepository(DocumentManager $documentManager, $documentName);
 }

@@ -26,6 +26,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
@@ -79,9 +80,11 @@ class DocumentManager implements ObjectManager
     private $proxyFactory = null;
 
     /**
-     * @var array
+     * The repository factory used to create dynamic repositories.
+     *
+     * @var RepositoryFactory
      */
-    private $repositories = array();
+    private $repositoryFactory;
 
     /**
      * @var EventManager
@@ -110,7 +113,8 @@ class DocumentManager implements ObjectManager
         $this->session = $session;
         $this->config = $config ?: new Configuration();
         $this->evm = $evm ?: new EventManager();
-        $this->metadataFactory = new ClassMetadataFactory($this);
+        $metadataFactoryClassName = $this->config->getClassMetadataFactoryName();
+        $this->metadataFactory = new $metadataFactoryClassName($this);
         $this->unitOfWork = new UnitOfWork($this);
         $this->valueConverter = new ValueConverter();
         $this->proxyFactory = new ProxyFactory($this,
@@ -118,6 +122,7 @@ class DocumentManager implements ObjectManager
             $this->config->getProxyNamespace(),
             $this->config->getAutoGenerateProxyClasses()
         );
+        $this->repositoryFactory = $this->config->getRepositoryFactory();
 
         // initialize default translation strategies
         $this->translationStrategy = array(
@@ -449,14 +454,7 @@ class DocumentManager implements ObjectManager
      */
     public function getRepository($className)
     {
-        $className  = ltrim($className, '\\');
-        if (empty($this->repositories[$className])) {
-            $class = $this->getClassMetadata($className);
-            $repositoryClass = $class->customRepositoryClassName ?: 'Doctrine\ODM\PHPCR\DocumentRepository';
-            $this->repositories[$className] = new $repositoryClass($this, $class);
-        }
-
-        return $this->repositories[$className];
+        return $this->repositoryFactory->getRepository($this, $className);
     }
 
     /**
