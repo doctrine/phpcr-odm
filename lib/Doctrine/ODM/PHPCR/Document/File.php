@@ -44,10 +44,16 @@ class File extends AbstractFile
      */
     public function setFileContentFromFilesystem($filename)
     {
+        if (!$filename) {
+            throw new RuntimeException('The filename may not be empty');
+        }
+        if (!is_readable($filename)) {
+            throw new RuntimeException(sprintf('File "%s" not found or not readable', $filename));
+        }
         $this->getContent();
         $stream = fopen($filename, 'rb');
         if (! $stream) {
-            throw new RuntimeException("File '$filename' not found");
+            throw new RuntimeException(sprintf('Failed to open file "%s"', $filename));
         }
 
         $this->content->setData($stream);
