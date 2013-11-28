@@ -112,7 +112,7 @@ class ReferrersCollection extends PersistentCollection
     public function getOriginalPaths()
     {
         if (null === $this->originalReferrerPaths) {
-            $this->originalPaths = array();
+            $this->originalReferrerPaths = array();
             $nodes = $this->getReferrerNodes();
             foreach ($nodes as $node) {
                 $this->originalReferrerPaths[] = $node->getPath();
