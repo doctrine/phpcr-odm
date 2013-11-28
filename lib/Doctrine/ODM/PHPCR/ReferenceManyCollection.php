@@ -102,7 +102,7 @@ class ReferenceManyCollection extends PersistentCollection
     public function getOriginalPaths()
     {
         if (null === $this->originalReferencePaths) {
-            $this->originalPaths = array();
+            $this->originalReferencePaths = array();
             $nodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
             foreach ($nodes as $node) {
                 $this->originalReferencePaths[] = $node->getPath();
