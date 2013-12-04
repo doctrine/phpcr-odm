@@ -1115,6 +1115,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return isset($this->childMappings[$fieldName])
             || $fieldName === $this->parentMapping
+            || (in_array($fieldName, $this->referenceMappings) && self::MANY_TO_ONE === $this->mappings[$fieldName]['type'])
         ;
     }
 
