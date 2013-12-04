@@ -1124,10 +1124,10 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isCollectionValuedAssociation($fieldName)
     {
-        return isset($this->referenceMappings[$fieldName])
-            || isset($this->referrersMappings[$fieldName])
-            || isset($this->mixedReferrersMappings[$fieldName])
-            || isset($this->childrenMappings[$fieldName])
+        return (in_array($fieldName, $this->referenceMappings) && self::MANY_TO_MANY === $this->mappings[$fieldName]['type'])
+            || in_array($fieldName, $this->referrersMappings)
+            || in_array($fieldName, $this->mixedReferrersMappings)
+            || in_array($fieldName, $this->childrenMappings)
         ;
     }
 
