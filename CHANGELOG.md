@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.1
+-----
+
+maintenance release of the 1.0 family with bugfixes
+
 * **2013-11-01**: Enabled the doctrine:phpcr:mapping:info command. To actually
   use it, you need to update your cli-config.php file and add:
 
