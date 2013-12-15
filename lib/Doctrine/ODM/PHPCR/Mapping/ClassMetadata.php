@@ -651,6 +651,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
         $mapping['type'] = 'children';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
+        if (!is_numeric($mapping['fetchDepth'])) {
+            throw new MappingException(
+                sprintf('fetchDepth option must be numeric (is "%s") on children mapping %s of document %s', $mapping['fetchDepth'], $mapping['fieldName'], $this->name)
+            );
+        }
         unset($mapping['property']);
         $this->childrenMappings[] = $mapping['fieldName'];
     }

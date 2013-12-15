@@ -866,14 +866,14 @@ class DocumentManager implements ObjectManager
      *
      * @param object       $document           document instance which children should be loaded
      * @param string|array $filter             optional filter to filter on children names
-     * @param integer      $fetchDepth         optional fetch depth
+     * @param integer      $fetchDepth         optional fetch depth, -1 to leave at default.
      * @param string       $locale             the locale to use during the loading of this collection
      *
      * @return ChildrenCollection collection of child documents
      *
      * @throws InvalidArgumentException if $document is not an object.
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
+    public function getChildren($document, $filter = null, $fetchDepth = -1, $locale = null)
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');

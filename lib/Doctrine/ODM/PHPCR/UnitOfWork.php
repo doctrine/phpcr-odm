@@ -397,6 +397,20 @@ class UnitOfWork
             }
         }
 
+        // Gather the parent and all child mappings to fetch in one go so they
+        // get cached. Once cached we can use the PHPCR calls to access them.
+        $prefetch = array();
+        if ($class->parentMapping && $node->getDepth() > 0) {
+            $prefetch[] = PathHelper::getParentPath($node->getPath());
+        }
+        foreach ($class->childMappings as $fieldName) {
+            $childName = $class->mappings[$fieldName]['nodeName'];
+            $prefetch[] = PathHelper::absolutizePath($childName, $node->getPath());
+        }
+        if (count($prefetch)) {
+            $prefetch = $this->session->getNodes($prefetch);
+        }
+
         if ($class->parentMapping && $node->getDepth() > 0) {
             // do not map parent to self if we are at root
             $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent(), $locale);
