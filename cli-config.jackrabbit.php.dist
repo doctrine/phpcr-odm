@@ -22,10 +22,19 @@ if (! isset($argv[1])
 $params = array(
     'jackalope.jackrabbit_uri'  => 'http://localhost:8080/server/',
 );
-
 $workspace = 'default';
 $user = 'admin';
 $pass = 'admin';
+
+/// --- end configuration options --- ///
+
+/* when creating a new workspace, be sure to use default workspace in
+ * connection in case the workspace to create is the one configured
+ * here.
+ */
+if ('phpcr:workspace:create' == $argv[1]) {
+    $workspace = 'default';
+}
 
 /* bootstrapping the repository implementation. for jackalope, do this: */
 $factory = new \Jackalope\RepositoryFactoryJackrabbit();
