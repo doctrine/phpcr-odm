@@ -33,6 +33,7 @@ use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
+use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 
 use PHPCR\RepositoryInterface;
@@ -209,6 +210,8 @@ class UnitOfWork
      */
     private $documentClassMapper;
 
+    private $prefetchHelper;
+
     /**
      * @var boolean
      */
@@ -243,6 +246,20 @@ class UnitOfWork
         }
     }
 
+    public function setPrefetchHelper($helper)
+    {
+        $this->prefetchHelper = $helper;
+    }
+
+    public function getPrefetchHelper()
+    {
+        if (!$this->prefetchHelper) {
+            $this->prefetchHelper = new PrefetchHelper();
+        }
+
+        return $this->prefetchHelper;
+    }
+
     /**
      * Validate if a document is of the specified class, if the global setting
      * to validate is activated.
@@ -270,6 +287,8 @@ class UnitOfWork
      * - fallback: whether to try other languages or throw a not found
      *      exception if the desired locale is not found. defaults to true if
      *      not set and locale is not given either.
+     * - prefetch: if set to false, do not attempt to prefetch related data.
+     *      (This makes sense when the caller already did this beforehand.)
      *
      * @param null|string   $className
      * @param NodeInterface $node
@@ -340,23 +359,8 @@ class UnitOfWork
             $documentState[$class->identifier] = $node->getPath();
         }
 
-        // pre-fetch all nodes for MANY_TO_ONE references
-        $refNodeUUIDs = array();
-        foreach ($class->referenceMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            if (!$node->hasProperty($mapping['property'])) {
-                continue;
-            }
-
-            if ($mapping['type'] & ClassMetadata::MANY_TO_ONE
-                && $mapping['strategy'] !== 'path'
-            ) {
-                $refNodeUUIDs[] = $node->getProperty($mapping['property'])->getString();
-            }
-        }
-
-        if (count($refNodeUUIDs)) {
-            $this->session->getNodesByIdentifier($refNodeUUIDs);
+        if (! isset($hints['prefetch']) || $hints['prefetch']) {
+            $this->getPrefetchHelper()->prefetchReferences($class, $node);
         }
 
         // initialize inverse side collections
@@ -397,18 +401,13 @@ class UnitOfWork
             }
         }
 
-        // Gather the parent and all child mappings to fetch in one go so they
-        // get cached. Once cached we can use the PHPCR calls to access them.
-        $prefetch = array();
-        if ($class->parentMapping && $node->getDepth() > 0) {
-            $prefetch[] = PathHelper::getParentPath($node->getPath());
-        }
-        foreach ($class->childMappings as $fieldName) {
-            $childName = $class->mappings[$fieldName]['nodeName'];
-            $prefetch[] = PathHelper::absolutizePath($childName, $node->getPath());
-        }
-        if (count($prefetch)) {
-            $prefetch = $this->session->getNodes($prefetch);
+        if (! isset($hints['prefetch']) || $hints['prefetch']) {
+            if ($class->translator) {
+                $prefetchLocale = $locale ?: $this->dm->getLocaleChooserStrategy()->getLocale();
+            } else {
+                $prefetchLocale = null;
+            }
+            $this->getPrefetchHelper()->prefetchHierarchy($class, $node, $prefetchLocale);
         }
 
         if ($class->parentMapping && $node->getDepth() > 0) {

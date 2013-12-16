@@ -59,6 +59,7 @@ class ReferenceManyCollection extends PersistentCollection
             $referencedDocs = array();
             $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
             $uow = $this->dm->getUnitOfWork();
+            $uow->getPrefetchHelper()->prefetch($this->dm, $referencedNodes, $this->locale);
 
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);

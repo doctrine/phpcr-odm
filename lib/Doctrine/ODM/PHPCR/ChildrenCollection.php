@@ -69,6 +69,7 @@ class ChildrenCollection extends PersistentCollection
     {
         $uow = $this->dm->getUnitOfWork();
         $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
+        $uow->getPrefetchHelper()->prefetch($this->dm, $childNodes, $locale);
 
         $childDocuments = array();
         foreach ($childNodes as $childNode) {
