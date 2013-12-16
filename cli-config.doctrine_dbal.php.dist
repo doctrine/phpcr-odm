@@ -24,6 +24,18 @@ $workspace = 'default';
 $user = 'admin';
 $pass = 'admin';
 
+/// --- end configuration options --- ///
+
+/* when creating a new workspace, be sure to use default workspace in
+ * connection in case the workspace to create is the one configured
+ * here.
+ */
+if (! isset($argv[1])
+    || 'phpcr:workspace:create' == $argv[1]
+) {
+    $workspace = 'default';
+}
+
 /* only create a session if this is not about the server control command */
 if (isset($argv[1])
     && $argv[1] != 'jackalope:init:dbal'
