@@ -1146,9 +1146,12 @@ class UnitOfWork
             foreach ($class->childrenMappings as $fieldName) {
                 if ($actualData[$fieldName]) {
                     $mapping = $class->mappings[$fieldName];
-                    foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
+                    foreach ($actualData[$fieldName] as $originalNodename => $child) {
+                        $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        if (0 !== strcmp($originalNodename, $nodename)) {
+                            unset($actualData[$fieldName][$originalNodename]);
+                        }
                         $childNames[] = $nodename;
                     }
                 }
@@ -1239,9 +1242,12 @@ class UnitOfWork
 
                 $childNames = array();
                 if ($actualData[$fieldName]) {
-                    foreach ($actualData[$fieldName] as $nodename => $child) {
-                        $nodename = $this->getChildNodename($id, $nodename, $child, $document);
+                    foreach ($actualData[$fieldName] as $originalNodename => $child) {
+                        $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        if (0 !== strcmp($originalNodename, $nodename)) {
+                            unset($actualData[$fieldName][$originalNodename]);
+                        }
                         $childNames[] = $nodename;
                     }
                 }
