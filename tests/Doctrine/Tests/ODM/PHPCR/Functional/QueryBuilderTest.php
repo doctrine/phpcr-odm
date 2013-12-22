@@ -125,7 +125,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComparison()
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()
             ->eq()
                 ->field('a.username')
@@ -136,7 +136,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()
             ->eq()
                 ->field('a.username')
@@ -152,7 +152,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComposite()
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()
             ->orX()
                 ->eq()->field('a.username')->literal('dtl')->end()
@@ -218,7 +218,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testOrderBy()
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
         $qb->orderBy()->asc()->field('a.username')->end();
 
@@ -250,7 +250,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         // select one property
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->select()->field('a.username');
         $qb->where()
             ->eq()
@@ -336,7 +336,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testTextSearch($field, $search, $resCount)
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()->fullTextSearch('a.'.$field, $search);
         $q = $qb->getQuery();
 
@@ -351,7 +351,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testDescendant()
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()->descendant('/functional', 'a')->end();
         $q = $qb->getQuery();
         $res = $q->execute();
@@ -364,111 +364,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testSameNode()
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
         $qb->where()->same('/functional/user/dtl', 'a');
         $q = $qb->getQuery();
         $res = $q->execute();
 
         $this->assertCount(1, $res);
-    }
-
-    public function testJoinChildInner()
-    {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
-
-        $qb = $this->createQb();
-        $qb->from()
-            ->joinInner()
-                ->left()->document('Doctrine\Tests\Models\Blog\Comment', 'comment')->end()
-                ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
-                ->condition()->child('comment', 'post')->end()
-                ->end();
-
-        $q = $qb->getQuery();
-        $res = $q->getPhpcrNodeResult();
-        $nodes = $res->getNodes();
-
-        $this->assertCount(3, $nodes);
-        $this->assertEquals('/functional/post/post_1/comment_1', $nodes->current()->getPath());
-    }
-
-    public function testJoinChildInnerAdd()
-    {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
-
-        $qb = $this->createQb();
-        $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
-        $qb->addJoinInner()
-            ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
-            ->condition()->child('comment', 'post');
-
-        $q = $qb->getQuery();
-        $res = $q->getPhpcrNodeResult();
-        $nodes = $res->getNodes();
-
-        $this->assertCount(3, $nodes);
-        $this->assertEquals('/functional/post/post_1/comment_1', $nodes->current()->getPath());
-    }
-
-    /**
-     * @todo: Not sure how to conclusively test this in difference to testJoinInner
-     */
-    public function testJoinChildOuterLeft()
-    {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
-
-        $qb = $this->createQb();
-        $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
-        $qb->addJoinLeftOuter()
-            ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
-            ->condition()->child('comment', 'post');
-
-        $q = $qb->getQuery();
-        $res = $q->getPhpcrNodeResult();
-        $nodes = $res->getNodes();
-
-        $this->assertCount(3, $nodes);
-        $this->assertEquals('/functional/post/post_1/comment_1', $nodes->current()->getPath());
-        $this->assertInstanceOf('Doctrine\Tests\Models\Blog\Comment', $res->current());
-    }
-
-    /**
-     * @todo: Not sure how to conclusively test this in difference to testJoinInner
-     */
-    public function testJoinChildOuterRight()
-    {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
-
-        $qb = $this->createQb();
-        $qb->fromDocument('Doctrine\Tests\Models\Blog\Comment', 'comment');
-        $qb->addJoinRightOuter()
-            ->right()->document('Doctrine\Tests\Models\Blog\Post', 'post')->end()
-            ->condition()->child('comment', 'post');
-
-        $q = $qb->getQuery();
-        $res = $q->execute();
-
-        $this->assertCount(1, $res);
-        $this->assertEquals('/functional/post/post_1/comment_1', $res->current()->id);
-        $this->assertInstanceOf('Doctrine\Tests\Models\Blog\Comment', $res->current());
-    }
-
-    public function testJoinEqui()
-    {
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\BadMethodCallException', 'not supported yet');
-
-        $qb = $this->createQb();
-        $qb->fromDocument('Doctrine\Tests\Models\Blog\Post', 'post');
-        $qb->addJoinInner()
-            ->right()->document('Doctrine\Tests\Models\Blog\User', 'user')->end()
-            ->condition()->equi('post.username', 'user.username');
-
-        $qb->where()->eq()->field('user.name')->literal('daniel');
-
-        $q = $qb->getQuery();
-        $res = $q->execute();
-
-        $this->assertCount(1, $res);
-        $this->assertInstanceOf('Doctrine\Tests\Models\Blog\Post', $res->current());
     }
 }

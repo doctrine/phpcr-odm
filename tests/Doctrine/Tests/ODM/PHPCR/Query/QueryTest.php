@@ -17,6 +17,7 @@ class QueryTest extends \PHPUnit_Framework_Testcase
             ->getMock();
         $this->arrayCollection = $this->getMock('Doctrine\Common\Collections\ArrayCollection');
         $this->query = new Query($this->phpcrQuery, $this->dm);
+        $this->selectorQuery = new Query($this->phpcrQuery, $this->dm, 'a');
     }
 
     public function testGetSetHydrationMode()
@@ -68,6 +69,20 @@ class QueryTest extends \PHPUnit_Framework_Testcase
         $this->assertEquals('ok', $res->first());
 
         $res = $this->query->execute(null, Query::HYDRATE_DOCUMENT);
+        $this->assertEquals('ok', $res->first());
+    }
+
+    public function testExecute_hydrateDocumentWithSelector()
+    {
+        $this->dm->expects($this->exactly(2))
+            ->method('getDocumentsByPhpcrQuery')
+            ->with($this->phpcrQuery, null, 'a')
+            ->will($this->returnValue(array('ok')));
+
+        $res = $this->selectorQuery->execute();
+        $this->assertEquals('ok', $res->first());
+
+        $res = $this->selectorQuery->execute(null, Query::HYDRATE_DOCUMENT);
         $this->assertEquals('ok', $res->first());
     }
 

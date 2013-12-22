@@ -80,7 +80,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
      */
     protected function primeBuilder()
     {
-        $from = $this->qb->from()->document('foobar', 'alias_1');
+        $from = $this->qb->from('alias_1')->document('foobar', 'alias_1');
         $res = $this->converter->dispatch($from);
     }
 
@@ -183,7 +183,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $this->markTestSkipped('Joins temporarily disabled');
 
-        $n = $this->qb->from()
+        $n = $this->qb->from('selector_1')
             ->$method()
                 ->left()->document('foobar', 'selector_1')->end()
                 ->right()->document('barfoo', 'selector_2')->end();
@@ -525,7 +525,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->qb->select()
             ->field('alias_1.foobar');
 
-        $this->qb->from()->document('Fooar', 'alias_1');
+        $this->qb->from('alias_1')->document('Fooar', 'alias_1');
         $this->qb->where()->fieldIsset('alias_1.foobar');
         $this->qb->orderBy()->asc()->name('alias_1');
 
@@ -588,5 +588,20 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(
             'Doctrine\ODM\PHPCR\Query\Query', $phpcrQuery
         );
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     * @expectedExceptionMessage You must specify a primary selector
+     */
+    public function testGetQueryMoreThanOneSourceNoPrimarySelector()
+    {
+        $this->qb->from()
+            ->joinInner()
+                ->left()->document('foobar', 'selector_1')->end()
+                ->right()->document('barfoo', 'selector_2')->end()
+                ->condition()->child('child_alias', 'parent_alias')->end();
+
+        $this->qb->getQuery();
     }
 }
