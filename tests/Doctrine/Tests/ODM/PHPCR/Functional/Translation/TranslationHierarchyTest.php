@@ -61,7 +61,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         return $doc;
     }
 
-    public function testInsertChild()
+    public function testBindTranslation()
     {
         $parent = $this->dm->find($this->type, '/functional/thename');
 
@@ -87,7 +87,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->assertEquals('fr', $child->locale);
     }
 
-    function testFindPropagateLocale()
+    function testFindTranslationPropagateLocale()
     {
         $child = new Article();
         $child->id = '/functional/thename/child';
@@ -168,9 +168,8 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
-        $this->dm->bindTranslation($doc, 'en');
         $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
-        $this->assertEquals('en', $doc->locale);
+        $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('Sujet interessant', $doc->child->topic);
     }

@@ -9,7 +9,6 @@ use Doctrine\Tests\Models\Translation\DerivedArticle;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\PHPCRException;
 
@@ -194,7 +193,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * changing the locale and flushing should pick up changes automatically
      */
-    public function testUpdateLocalAndFlush()
+    public function testUpdateLocaleAndFlush()
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -282,6 +281,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc = $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'fr');
         $this->assertEquals('en', $this->doc->locale);
         $children = $this->doc->getChildren();
+
         foreach ($children as $comment) {
             $this->assertEquals('fr', $comment->locale);
             $this->assertEquals('Très bon article', $comment->getText());
@@ -659,11 +659,168 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * bindTranslation with a document inheriting from a translatable document
      * should not fail
      */
-    public function testBindTranslationInherited() {
+    public function testBindTranslationInherited()
+    {
         $this->doc = new DerivedArticle();
         $this->doc->id = '/functional/' . $this->testNodeName;
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
         $this->assertEquals('en', $this->doc->locale);
+    }
+
+    public function testFindTranslationNonPersisted()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->title = 'Hello';
+        $this->dm->persist($a);
+
+        $translations = array(
+            'en' => 'Welcome',
+            'fr' => 'Bienvenue',
+            'de' => 'Wilkommen',
+        );
+
+        foreach ($translations as $locale => $topic) {
+            $a->topic = $topic;
+            $this->dm->bindTranslation($a, $locale);
+        }
+
+        foreach ($translations as $locale => $topic) {
+            $trans = $this->dm->findTranslation(
+                'Doctrine\Tests\Models\Translation\Article',
+                '/functional/' . $this->testNodeName,
+                $locale
+            );
+
+            $this->assertNotNull($trans, 'Finding translation with locale "'.$locale.'"');
+            $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Article', $trans);
+            $this->assertEquals($topic, $trans->topic);
+            $this->assertEquals($locale, $trans->locale);
+        }
+
+        $locales = $this->dm->getLocalesFor($a);
+        $this->assertEquals(array('en', 'fr', 'de'), $locales);
+    }
+
+    /**
+     * When loading the "it" locale, the fallback is "de" and we have a not yet
+     * flushed translation for that.
+     */
+    public function testFindTranslationNonPersistedFallback()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'Some text';
+        $this->dm->persist($a);
+        $this->dm->flush();
+
+        $a->topic = 'Guten tag';
+        $this->dm->bindTranslation($a, 'de');
+
+        // find the italian translation
+        $trans = $this->dm->findTranslation(
+            null,
+            '/functional/' . $this->testNodeName,
+            'it'
+        );
+
+        $this->assertNotNull($trans);
+        $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Article', $trans);
+        $this->assertEquals('Guten tag', $trans->topic);
+        $this->assertEquals('de', $trans->locale);
+    }
+
+    /*
+     * A series of edge cases:
+     *
+     * We already have a translation for a locale (de), load the document in a
+     * different locale (en) and set some value, then try to bind it in the
+     * first locale (de). This would result in overwriting fields of the german
+     * translation.
+     *
+     * Rather than allow this confusing behavior we throw an exception.
+     */
+
+    /**
+     * The locale is only in memory.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\RuntimeException
+     * @expectedExceptionMessage Translation "de" already exists
+     */
+    public function testBindTranslationMemoryOverwrite()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'This is an article in English';
+        $this->dm->persist($a);
+        $this->dm->flush();
+
+        $a->topic = 'Guten tag';
+        $a->text = 'Dies ist ein Artikel Deutsch';
+        $this->dm->persist($a);
+        $this->dm->bindTranslation($a, 'de');
+
+        $a = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'en');
+        $a->topic = 'Hallo';
+        // this would kill the $a->text and set it back to the english text
+        $this->dm->bindTranslation($a, 'de');
+    }
+
+    /**
+     * The locale is flushed.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\RuntimeException
+     * @expectedExceptionMessage Translation "de" already exists
+     */
+    public function testBindTranslationFlushedOverwrite()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'This is an article in English';
+        $this->dm->persist($a);
+        $this->dm->flush();
+
+        $a->topic = 'Guten tag';
+        $a->text = 'Dies ist ein Artikel Deutsch';
+        $this->dm->persist($a);
+        $this->dm->bindTranslation($a, 'de');
+        $this->dm->flush();
+
+        $a = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'en');
+        $a->topic = 'Hallo';
+        // this would kill the $a->text and set it back to the english text
+        $this->dm->bindTranslation($a, 'de');
+    }
+
+    /**
+     * The locale is not even currently loaded
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\RuntimeException
+     * @expectedExceptionMessage Translation "de" already exists
+     */
+    public function testBindTranslationOverwrite()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'This is an article in English';
+        $this->dm->persist($a);
+        $this->dm->flush();
+
+        $a->topic = 'Guten tag';
+        $a->text = 'Dies ist ein Artikel Deutsch';
+        $this->dm->persist($a);
+        $this->dm->bindTranslation($a, 'de');
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $a = $this->dm->find(null, '/functional/' . $this->testNodeName);
+        $a->topic = 'Hallo';
+        // this would kill the $a->text and set it back to the english text
+        $this->dm->bindTranslation($a, 'de');
     }
 }
