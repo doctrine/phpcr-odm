@@ -130,7 +130,7 @@ class QueryBuilder extends AbstractNode
      * Set the from source for the query.
      *
      * <code>
-     *  $qb->from('a')->document('Foobar', 'a')
+     *  $qb->from()->document('Foobar', 'a')
      *
      *  // or with a join ...
      *
@@ -140,7 +140,7 @@ class QueryBuilder extends AbstractNode
      *    ->condition()->equi('a.prop_1', 'b.prop_1');
      * </code>
      *
-     * @param string $primarySelector - Specify document set from which to select
+     * @param string $primarySelector - Alias to use as primary source (optional for single sources)
      *
      * @factoryMethod From
      * @return From
@@ -168,7 +168,7 @@ class QueryBuilder extends AbstractNode
      * Replaces any existing from source.
      *
      * @param string $documentFqn - Fully qualified class name for document.
-     * @param string $alias - Selector name.
+     * @param string $primarySelector - Alias for document source and primary selector when using multiple sources.
      *
      * @factoryMethod From
      * @return QueryBuilder
