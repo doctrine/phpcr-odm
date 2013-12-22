@@ -1094,6 +1094,7 @@ class UnitOfWork
         $id = $this->getDocumentId($document, false);
 
         $isNew = !isset($this->originalData[$oid]);
+
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
@@ -1807,13 +1808,12 @@ class UnitOfWork
         }
 
         try {
-            while ($this->operationQueue->valid() && $operation = $this->operationQueue->dequeue()) {
+            while ($operation = $this->operationQueue->dequeue()) {
                 list($operationType, $document, $data) = $operation;
 
                 if (!$this->contains($document)) {
                     continue;
                 }
-
 
                 switch ($operationType) {
                     case self::OP_INSERT:
@@ -1836,6 +1836,10 @@ class UnitOfWork
                         break;
                     default:
                         throw new RuntimeException('Unknown operation');
+                }
+
+                if (false === $this->operationQueue->valid()) {
+                    break;
                 }
             }
 
