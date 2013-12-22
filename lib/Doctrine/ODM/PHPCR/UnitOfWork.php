@@ -75,7 +75,6 @@ class UnitOfWork
     const OP_INSERT = 'INSERT';
     const OP_MOVE = 'MOVE';
     const OP_REMOVE = 'REMOVE';
-    const OP_UNREMOVE = 'UNREMOVE';
     const OP_REORDER = 'REORDER';
 
     /**
@@ -592,7 +591,7 @@ class UnitOfWork
                 // TODO: Change Tracking Deferred Explicit
                 break;
             case self::STATE_REMOVED:
-                $this->operationQueue->push(self::OP_UNREMOVE, $document);
+                $this->operationQueue->removeOperationsForDocument($document, self::OP_REMOVE);
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
@@ -951,6 +950,7 @@ class UnitOfWork
             return;
         }
 
+            die('asd');
         if (!$this->operationQueue->hasDocumentForOperation($document, self::OP_INSERT)) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
@@ -1808,12 +1808,12 @@ class UnitOfWork
         }
 
         try {
-            while ($operation = $this->operationQueue->dequeue()) {
+            $res = fopen('test', 'a');
+            while (false === $this->operationQueue->isEmpty()) {
+                $operation = $this->operationQueue->dequeue();
                 list($operationType, $document, $data) = $operation;
 
-                if (!$this->contains($document)) {
-                    continue;
-                }
+                fwrite($res, $operationType."\n");
 
                 switch ($operationType) {
                     case self::OP_INSERT:
@@ -1825,9 +1825,6 @@ class UnitOfWork
                     case self::OP_REMOVE:
                         $this->executeRemoval($document);
                         break;
-                    case self::OP_UNREMOVE:
-                        $this->executeInsert($document);
-                        break;
                     case self::OP_REORDER:
                         $this->executeReorder($document, $data);
                         break;
@@ -1838,10 +1835,8 @@ class UnitOfWork
                         throw new RuntimeException('Unknown operation');
                 }
 
-                if (false === $this->operationQueue->valid()) {
-                    break;
-                }
             }
+            fclose($res);
 
             $this->session->save();
 
@@ -2124,15 +2119,15 @@ class UnitOfWork
                 }
 
                 switch ($mapping['strategy']) {
-                case 'hard':
-                    $strategy = PropertyType::REFERENCE;
-                    break;
-                case 'path':
-                    $strategy = PropertyType::PATH;
-                    break;
-                default:
-                    $strategy = PropertyType::WEAKREFERENCE;
-                    break;
+                    case 'hard':
+                        $strategy = PropertyType::REFERENCE;
+                        break;
+                    case 'path':
+                        $strategy = PropertyType::PATH;
+                        break;
+                    default:
+                        $strategy = PropertyType::WEAKREFERENCE;
+                        break;
                 }
 
                 if ($mapping['type'] === $class::MANY_TO_MANY) {

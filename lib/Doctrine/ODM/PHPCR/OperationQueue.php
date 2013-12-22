@@ -18,6 +18,20 @@ class OperationQueue extends \SplQueue
         return false;
     }
 
+    public function removeOperationsForDocument($document, $type)
+    {
+        foreach ($this as $i => $operation) {
+            list($opType, $opDocument, $data) = $operation;
+
+            if ($document === $opDocument && $type === $opType) {
+                $this->offsetUnset($i);
+            }
+        }
+    }
+
+
+
+
     public function filterByOperationType($targetOperationType)
     {
         $res = array();

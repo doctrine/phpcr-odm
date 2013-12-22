@@ -296,6 +296,9 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $userNew = $this->dm->find($this->type, '/functional/user2');
+
+        $this->assertNotNull($userNew);
+
         $userNew->username = "test2";
         $userNew->numbers = array(4, 5, 6);
         $userNew->id = '/functional/user2';
