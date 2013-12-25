@@ -56,7 +56,7 @@ class ReferrersCollection extends PersistentCollection
         $this->refClass = $refClass;
     }
 
-    private function getReferrerNodes()
+    private function getReferrerProperties()
     {
         $uow = $this->dm->getUnitOfWork();
         $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($this->document));
@@ -86,9 +86,14 @@ class ReferrersCollection extends PersistentCollection
             $uow = $this->dm->getUnitOfWork();
 
             $referrerDocuments = array();
-            $referrerProperties = $this->getReferrerNodes();
-
+            $referrerProperties = $this->getReferrerProperties();
+            $referringNodes = array();
+            foreach($referrerProperties as $prop) {
+                $referringNodes[] = $prop->getParent();
+            }
             $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
+
+            $uow->getPrefetchHelper()->prefetch($this->dm, $referringNodes, $locale);
 
             foreach ($referrerProperties as $referrerProperty) {
                 $referrerNode = $referrerProperty->getParent();
@@ -105,17 +110,18 @@ class ReferrersCollection extends PersistentCollection
     }
 
     /**
-     * Return the ordered list of referrer that existed when the collection was initialized
+     * Return the ordered list of referrer properties that existed when the
+     * collection was initialized.
      *
-     * @return array
+     * @return array absolute paths to the properties of this collection.
      */
     public function getOriginalPaths()
     {
         if (null === $this->originalReferrerPaths) {
             $this->originalReferrerPaths = array();
-            $nodes = $this->getReferrerNodes();
-            foreach ($nodes as $node) {
-                $this->originalReferrerPaths[] = $node->getPath();
+            $properties = $this->getReferrerProperties();
+            foreach ($properties as $property) {
+                $this->originalReferrerPaths[] = $property->getPath();
             }
         }
 

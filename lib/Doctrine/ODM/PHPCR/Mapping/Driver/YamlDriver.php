@@ -169,7 +169,7 @@ class YamlDriver extends FileDriver
                     $mapping['filter'] = (array) $mapping['filter'];
                 }
                 if (!isset($mapping['fetchDepth'])) {
-                    $mapping['fetchDepth'] = null;
+                    $mapping['fetchDepth'] = -1;
                 }
                 if (!isset($mapping['ignoreUntranslated'])) {
                     $mapping['ignoreUntranslated'] = false;

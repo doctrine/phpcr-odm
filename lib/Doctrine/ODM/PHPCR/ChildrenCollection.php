@@ -43,10 +43,10 @@ class ChildrenCollection extends PersistentCollection
      * @param DocumentManager $dm                 The DocumentManager the collection will be associated with.
      * @param object          $document           The parent document instance
      * @param string|array    $filter             filter string or array of filter string
-     * @param null|int        $fetchDepth         optional fetch depth
+     * @param int             $fetchDepth         Optional fetch depth, -1 to not override.
      * @param string          $locale             the locale to use during the loading of this collection
      */
-    public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = null, $locale = null)
+    public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
     {
         $this->dm = $dm;
         $this->document = $document;
@@ -69,6 +69,7 @@ class ChildrenCollection extends PersistentCollection
     {
         $uow = $this->dm->getUnitOfWork();
         $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
+        $uow->getPrefetchHelper()->prefetch($this->dm, $childNodes, $locale);
 
         $childDocuments = array();
         foreach ($childNodes as $childNode) {
@@ -86,7 +87,7 @@ class ChildrenCollection extends PersistentCollection
     {
         if (!$this->initialized) {
             $this->getOriginalNodeNames();
-            $fetchDepth = $this->fetchDepth > 0 ? $this->fetchDepth + 1 : null;
+            $fetchDepth = $this->fetchDepth > 0 ? $this->fetchDepth + 1 : -1;
             $childNodes = $this->getNode($fetchDepth)->getNodes($this->filter);
             $this->collection = new ArrayCollection($this->getChildren($childNodes));
             $this->initialized = true;

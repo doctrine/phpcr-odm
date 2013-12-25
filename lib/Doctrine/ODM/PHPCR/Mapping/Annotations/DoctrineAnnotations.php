@@ -281,7 +281,7 @@ final class Children
     /** @var array */
     public $filter;
     /** @var integer */
-    public $fetchDepth;
+    public $fetchDepth = -1;
     /** @var boolean */
     public $ignoreUntranslated = true;
     /** @var array */
