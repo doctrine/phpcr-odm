@@ -775,7 +775,7 @@ class UnitOfWork
             throw new InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
         }
 
-        $this->operationQueue->push(self::OP_MOVE, $document);
+        $this->operationQueue->push(self::OP_MOVE, $document, array($targetPath));
         $this->setDocumentState($oid, self::STATE_MANAGED);
     }
 
@@ -925,7 +925,7 @@ class UnitOfWork
      */
     public function isScheduledForInsert($document)
     {
-        return $this->operationQueue->hasDocumentForOperation($document, self::OP_INSERT);
+        return $this->operationQueue->hasOperationForDocument($document, self::OP_INSERT);
     }
 
     /**
@@ -950,8 +950,7 @@ class UnitOfWork
             return;
         }
 
-            die('asd');
-        if (!$this->operationQueue->hasDocumentForOperation($document, self::OP_INSERT)) {
+        if (!$this->operationQueue->hasOperationForDocument($document, self::OP_INSERT)) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
         }
@@ -1264,11 +1263,13 @@ class UnitOfWork
             if (count($actualData)) {
                 if (empty($this->documentChangesets[$oid])) {
                     $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
-                } else {
+                    $this->operationQueue->push(self::OP_UPDATE, $document);
+                } elseif ($this->documentChangesets[$oid]['fields'] != $actualData) {
                     $this->documentChangesets[$oid]['fields'] = $actualData;
+                    $this->operationQueue->push(self::OP_UPDATE, $document);
                 }
 
-                $this->operationQueue->push(self::OP_UPDATE, $document);
+
             } elseif (isset($this->documentChangesets[$oid])) {
                 // make sure we don't keep an old changeset if an event changed
                 // the document and no field changeset remains.
@@ -1808,12 +1809,9 @@ class UnitOfWork
         }
 
         try {
-            $res = fopen('test', 'a');
-            while (false === $this->operationQueue->isEmpty()) {
+            while (!$this->operationQueue->isEmpty()) {
                 $operation = $this->operationQueue->dequeue();
                 list($operationType, $document, $data) = $operation;
-
-                fwrite($res, $operationType."\n");
 
                 switch ($operationType) {
                     case self::OP_INSERT:
@@ -1836,7 +1834,6 @@ class UnitOfWork
                 }
 
             }
-            fclose($res);
 
             $this->session->save();
 
@@ -2280,6 +2277,7 @@ class UnitOfWork
     private function executeMove($document, $data)
     {
         list($targetPath) = $data;
+        $oid = spl_object_hash($document);
 
         $sourcePath = $this->getDocumentId($document);
         if ($sourcePath === $targetPath) {
@@ -2347,37 +2345,34 @@ class UnitOfWork
      *
      * @param $documents
      */
-    private function executeReorder($data)
+    private function executeReorder($parent, $data)
     {
-        list($document, $list) = $data;
-        foreach ($list as $value) {
-            list($parent, $src, $target, $before) = $value;
-            $parentNode = $this->session->getNode($this->getDocumentId($parent));
+        list($src, $target, $before) = $data;
+        $parentNode = $this->session->getNode($this->getDocumentId($parent));
 
-            // check for src and target ...
-            $dest = $target;
-            if ($parentNode->hasNode($src) && $parentNode->hasNode($target)) {
-                // there is no orderAfter, so we need to find the child after target to use it in orderBefore
-                if (!$before) {
-                    $dest = null;
-                    $found = false;
-                    foreach ($parentNode->getNodes() as $name => $child) {
-                        if ($name === $target) {
-                            $found = true;
-                        } elseif ($found) {
-                            $dest = $name;
-                            break;
-                        }
+        // check for src and target ...
+        $dest = $target;
+        if ($parentNode->hasNode($src) && $parentNode->hasNode($target)) {
+            // there is no orderAfter, so we need to find the child after target to use it in orderBefore
+            if (!$before) {
+                $dest = null;
+                $found = false;
+                foreach ($parentNode->getNodes() as $name => $child) {
+                    if ($name === $target) {
+                        $found = true;
+                    } elseif ($found) {
+                        $dest = $name;
+                        break;
                     }
                 }
+            }
 
-                $parentNode->orderBefore($src, $dest);
-                // set all children collection to initialized = false to force reload after reordering
-                $class = $this->dm->getClassMetadata(get_class($parent));
-                foreach ($class->childrenMappings as $fieldName) {
-                    $children = $class->reflFields[$fieldName]->getValue($parent);
-                    $children->setInitialized(false);
-                }
+            $parentNode->orderBefore($src, $dest);
+            // set all children collection to initialized = false to force reload after reordering
+            $class = $this->dm->getClassMetadata(get_class($parent));
+            foreach ($class->childrenMappings as $fieldName) {
+                $children = $class->reflFields[$fieldName]->getValue($parent);
+                $children->setInitialized(false);
             }
         }
     }
@@ -2618,7 +2613,7 @@ class UnitOfWork
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
 
-        return isset($this->documentIds[$oid]) && !$this->operationQueue->hasDocumentForOperation($document, self::OP_REMOVE);
+        return isset($this->documentIds[$oid]) && !$this->operationQueue->hasOperationForDocument($document, self::OP_REMOVE);
     }
 
     /**

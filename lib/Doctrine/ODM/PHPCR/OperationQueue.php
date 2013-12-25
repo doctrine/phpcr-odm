@@ -4,13 +4,11 @@ namespace Doctrine\ODM\PHPCR;
 
 class OperationQueue extends \SplQueue
 {
-    public function hasDocumentForOperation($document, $type)
+    public function hasOperationForDocument($document, $type)
     {
-        $documentOid = spl_object_hash($document);
-
         foreach ($this as $operation) {
-            list($oid, $document, $data) = $operation;
-            if ($oid === $documentOid) {
+            list($opType, $opDocument, $data) = $operation;
+            if ($document === $opDocument) {
                 return true;
             }
         }
@@ -28,9 +26,6 @@ class OperationQueue extends \SplQueue
             }
         }
     }
-
-
-
 
     public function filterByOperationType($targetOperationType)
     {
