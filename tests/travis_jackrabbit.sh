@@ -1,6 +1,6 @@
 #!/bin/bash
 
-composer require jackalope/jackalope-jackrabbit:1.0.0-RC3 --no-update
+composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
 composer update --prefer-source
 
 SCRIPT_NAME="${0##*/}"
