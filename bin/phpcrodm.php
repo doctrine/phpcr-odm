@@ -39,17 +39,23 @@ $cli = new \Symfony\Component\Console\Application('Doctrine ODM PHPCR Command Li
 $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(
-    new \PHPCR\Util\Console\Command\WorkspaceCreateCommand(),
     new \PHPCR\Util\Console\Command\NodeDumpCommand(),
+    new \PHPCR\Util\Console\Command\NodeMoveCommand(),
+    new \PHPCR\Util\Console\Command\NodeRemoveCommand(),
+    new \PHPCR\Util\Console\Command\NodesUpdateCommand(),
+    new \PHPCR\Util\Console\Command\NodeTouchCommand(),
+    new \PHPCR\Util\Console\Command\NodeTypeListCommand(),
+    new \PHPCR\Util\Console\Command\NodeTypeRegisterCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceCreateCommand(),
+    new \PHPCR\Util\Console\Command\WorkspaceDeleteCommand(),
     new \PHPCR\Util\Console\Command\WorkspaceExportCommand(),
     new \PHPCR\Util\Console\Command\WorkspaceImportCommand(),
     new \PHPCR\Util\Console\Command\WorkspaceListCommand(),
     new \PHPCR\Util\Console\Command\WorkspacePurgeCommand(),
     new \PHPCR\Util\Console\Command\WorkspaceQueryCommand(),
-    new \PHPCR\Util\Console\Command\NodeTypeRegisterCommand(),
-    new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
-    new \Doctrine\ODM\PHPCR\Tools\Console\Command\InfoDoctrineCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\InfoDoctrineCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
 ));
 if (isset($extraCommands) && ! empty($extraCommands)) {
     $cli->addCommands($extraCommands);
