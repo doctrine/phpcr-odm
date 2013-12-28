@@ -23,4 +23,6 @@ class MixinMappingObject
     /** @PHPCRODM\String(property="jcr:lastModifiedBy") */
     public $lastModifiedBy;
 
+    /** @PHPCRODM\String(nullable=true) */
+    public $title;
 }
