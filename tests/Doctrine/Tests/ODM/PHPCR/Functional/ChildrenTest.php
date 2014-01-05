@@ -588,6 +588,9 @@ class TestResetReorderingListener
             $expectedOrder = array('Child A', 'Child B', 'Child C', 'Child D');
 
             foreach ($expectedOrder as $name) {
+                if (!isset($children[$name])) {
+                    throw new \PHPUnit_Framework_AssertionFailedError("Missing index '$name' in " . implode(', ', array_keys($children)));
+                }
                 $childrenCollection->set($name, $children[$name]);
             }
 

@@ -374,8 +374,8 @@ class ClassMetadata implements ClassMetadataInterface
             if ($this->isIdGeneratorNone()) {
                 $this->determineIdStrategy();
             }
-            
-            switch($this->idGenerator) {
+
+            switch ($this->idGenerator) {
                 case self::GENERATOR_TYPE_PARENT:
                     if (!($this->parentMapping && $this->nodename)) {
                         throw MappingException::identifierRequired($this->name, 'parent and nodename');

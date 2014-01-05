@@ -540,8 +540,7 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $metadata = $this->dm->getClassMetadata($className);
-        $node     = $this->session->getNode($metadata->getIdentifierValue($document));
+        $node = $this->session->getNode($this->determineDocumentId($document));
 
         $hints = array('refresh' => true, 'fallback' => true);
 
@@ -771,6 +770,8 @@ class UnitOfWork
                     $childClass = $this->dm->getClassMetadata(get_class($child));
                     $nodename = $childClass->nodename
                         ? $childClass->reflFields[$childClass->nodename]->getValue($child)
+                        // fixme: the following line only works when the id is mapped on the child
+                        // the child is not persisted yet, no need to call determineDocumentId
                         : PathHelper::getNodeName($childClass->getIdentifierValue($child));
                     if (empty($nodename)) {
                         throw IdException::noIdNoName($child, $childClass->nodename);
@@ -966,8 +967,8 @@ class UnitOfWork
     {
         $oid = spl_object_hash($document);
         if (!isset($this->documentState[$oid])) {
-            $class = $this->dm->getClassMetadata(get_class($document));
-            $id = $class->getIdentifierValue($document);
+            // this will only use the metadata if id is mapped
+            $id = $this->determineDocumentId($document);
 
             if (!$id) {
                 return self::STATE_NEW;
@@ -1070,9 +1071,15 @@ class UnitOfWork
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
         } else {
-            $generator = $this->getIdGenerator($childClass->idGenerator);
-            $childId = $childClass->getIdentifierValue($child)
-                ?: $generator->generate($child, $childClass, $this->dm, $parent);
+            $childId = '';
+            if ($childClass->identifier) {
+                $childId = $childClass->getIdentifierValue($child);
+            }
+            if (!$childId) {
+                $generator = $this->getIdGenerator($childClass->idGenerator);
+                $childId = $generator->generate($child, $childClass, $this->dm, $parent);
+            }
+
             if ('' !== $childId) {
                 if ($childId !== $id.'/'.PathHelper::getNodeName($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
@@ -1513,7 +1520,7 @@ class UnitOfWork
                 $prop->setValue($managedCopy, $document);
             } else {
                 $targetClass = $this->dm->getClassMetadata(get_class($document));
-                $id = $targetClass->getIdentifierValues($document);
+                $id = $this->determineDocumentId($document, $targetClass);
                 $proxy = $this->getOrCreateProxy($id, $targetClass->name);
                 $prop->setValue($managedCopy, $proxy);
                 $this->registerDocument($proxy, $id);
@@ -1556,7 +1563,7 @@ class UnitOfWork
         if ($this->getDocumentState($document) == self::STATE_MANAGED) {
             $managedCopy = $document;
         } else {
-            $id = $class->getIdentifierValue($document);
+            $id = $this->determineDocumentId($document, $class);
             $persist = false;
 
             if (!$id) {
@@ -2773,6 +2780,30 @@ class UnitOfWork
     }
 
     /**
+     * Try to determine the document id first by looking into the document,
+     * but if not mapped, look into the document id cache.
+     *
+     * @param object        $document
+     * @param ClassMetadata $metadata
+     *
+     * @return string|null the current or stored id, or null if nothing can be found.
+     */
+    public function determineDocumentId($document, ClassMetadata $metadata = null)
+    {
+        if (!$metadata) {
+            $metadata = $this->dm->getClassMetadata(get_class($document));
+        }
+        if ($metadata->identifier) {
+            $id = $metadata->getIdentifierValue($document);
+            if ($id) {
+                return $id;
+            }
+        }
+
+        return $this->getDocumentId($document, false);
+    }
+
+    /**
      * Helper method to initialize a lazy loading proxy or persistent collection.
      *
      * @param object
@@ -3216,11 +3247,13 @@ class UnitOfWork
 
         if ($dm) {
             try {
-                $id = $dm->getUnitOfWork()->getDocumentId($obj);
+                $id = $dm->getUnitOfWork()->determineDocumentId($obj);
+                if (!$id) {
+                    $id = 'unmanaged or new document without id';
+                }
                 $string .= " ($id)";
             } catch (\Exception $e) {
-                $class = $dm->getClassMetadata(get_class($obj));
-                $id = $class->getIdentifierValue($obj);
+                $id = 'failed to determine id';
                 $string .= " ($id)";
             }
         }

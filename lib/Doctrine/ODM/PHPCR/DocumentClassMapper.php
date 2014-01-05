@@ -73,8 +73,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     public function validateClassName(DocumentManager $dm, $document, $className)
     {
         if (!$document instanceof $className) {
-            $class = $dm->getClassMetadata(get_class($document));
-            $path = $class->getIdentifierValue($document);
+            $path = $dm->getUnitOfWork()->determineDocumentId($document);
             $msg = "Doctrine metadata mismatch! Requested type '$className' type does not match type '".get_class($document)."' stored in the metadata at path '$path'";
 
             throw new PHPCRException($msg);
