@@ -127,7 +127,7 @@ class BuilderConverterPhpcr
     {
         $this->locale = $builder->getLocale();
         if (null === $this->locale && $this->dm->hasLocaleChooserStrategy()) {
-            $this->locale = $this->dm->getLocaleChooserStrategy()->getDefaultLocale();
+            $this->locale = $this->dm->getLocaleChooserStrategy()->getLocale();
         }
 
         $from = $builder->getChildrenOfType(
