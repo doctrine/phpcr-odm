@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* **2014-01-05**: The Configuration class now supports setting a closure for
+  the `UuidGenerator` to generate unique ids. If nothing is configured, the
+  phpcr-utils UUIDHelper is used as before.
+
 1.0.1
 -----
 

@@ -26,6 +26,7 @@ use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
 use Doctrine\ODM\PHPCR\DocumentClassMapper;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
+use PHPCR\Util\UUIDHelper;
 
 /**
  * Configuration class
@@ -353,5 +354,32 @@ class Configuration
         return isset($this->attributes['repositoryFactory'])
             ? $this->attributes['repositoryFactory']
             : new DefaultRepositoryFactory();
+    }
+
+    /**
+     * Set the closure for the UUID generation.
+     *
+     * @since 1.1
+     * @param callable $generator
+     */
+    public function setUuidGenerator(\Closure $generator)
+    {
+        $this->attributes['uuidGenerator'] = $generator;
+    }
+
+    /**
+     * Get the closure for the UUID generation.
+     *
+     * @since 1.1
+     * @return callable a UUID generator
+     */
+    public function getUuidGenerator()
+    {
+        return (isset($this->attributes['uuidGenerator']))
+            ? $this->attributes['uuidGenerator']
+            : function () {
+                return UUIDHelper::generateUUID();
+            }
+        ;
     }
 }

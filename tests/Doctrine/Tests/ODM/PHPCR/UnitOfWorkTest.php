@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
@@ -142,6 +143,23 @@ class UnitOfWorkTest extends PHPCRTestCase
         $method->setAccessible(false);
 
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $state);
+    }
+
+    public function testUuid()
+    {
+        $class = new \ReflectionClass('Doctrine\ODM\PHPCR\UnitOfWork');
+        $method = $class->getMethod('generateUuid');
+        $method->setAccessible(true);
+
+        $this->assertInternalType('string', $method->invoke($this->uow));
+
+        $config = new Configuration();
+        $config->setUuidGenerator(function () {
+            return 'like-a-uuid';
+        });
+        $dm = DocumentManager::create($this->session, $config);
+        $uow = new UnitOfWork($dm);
+        $this->assertEquals('like-a-uuid', $method->invoke($uow));
     }
 }
 

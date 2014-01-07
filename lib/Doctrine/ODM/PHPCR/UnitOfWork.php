@@ -47,7 +47,6 @@ use PHPCR\ItemNotFoundException;
 use PHPCR\NodeType\NoSuchNodeTypeException;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
-use PHPCR\Util\UUIDHelper;
 
 use Jackalope\Session as JackalopeSession;
 
@@ -197,6 +196,13 @@ class UnitOfWork
     private $idGenerators = array();
 
     /**
+     * Used to generate uuid when we need to build references before flushing.
+     *
+     * @var \Closure
+     */
+    private $uuidGenerator;
+
+    /**
      * \PHPCR\SessionInterface
      */
     private $session;
@@ -241,6 +247,7 @@ class UnitOfWork
         $this->documentClassMapper = $config->getDocumentClassMapper();
         $this->validateDocumentName = $config->getValidateDoctrineMetadata();
         $this->writeMetadata = $config->getWriteDoctrineMetadata();
+        $this->uuidGenerator = $config->getUuidGenerator();
 
         if ($this->session instanceof JackalopeSession) {
             $this->useFetchDepth = 'jackalope.fetch_depth';
@@ -3263,10 +3270,22 @@ class UnitOfWork
 
         // we manually set the uuid to allow creating referenced and referencing document without flush in between.
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
-            // TODO do we need to check with the storage backend if the generated id really is unique?
-            $node->setProperty('jcr:uuid', UUIDHelper::generateUUID());
+            $node->setProperty('jcr:uuid', $this->generateUuid());
         }
     }
+
+    /**
+     * @return string a universally unique id.
+     */
+    private function generateUuid()
+    {
+        // php 5.3 compatibility, no direct execution of this closure.
+        $g = $this->uuidGenerator;
+
+        // TODO do we need to check with the storage backend if the generated id really is unique?
+        return $g();
+    }
+
 
     /**
      * Sets the fetch depth on the session if the PHPCR session instance supports it
