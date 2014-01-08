@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.0-beta1
+-----------
+
+Beta release for the new features, still pending important fixes.
+
 * **2014-01-08**: The identifier mapping got cleaned up. If you have documents
   with invalid mappings in your codebase, this will now be reported when you
   build the proxies. Before, you would have gotten an error later at runtime,
