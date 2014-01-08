@@ -13,7 +13,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *   nodeType="nt:test",
  *   mixins={"mix:foo","mix:bar"},
  *   translator="foo",
- *   repositoryClass="Foobar",
+ *   repositoryClass="DocumentRepository",
  *   versionable="simple"
  * )
  */

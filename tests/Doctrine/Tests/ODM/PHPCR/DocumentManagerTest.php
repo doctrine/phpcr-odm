@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
  * @group unit
@@ -110,7 +111,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $queryManager = $this->getMock('PHPCR\Query\QueryManagerInterface');
         $qomf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface');
         $baseQuery = $this->getMock('PHPCR\Query\QueryInterface');
-        
+
         $session->expects($this->once())
             ->method('getWorkspace')
             ->will($this->returnValue($workspace));

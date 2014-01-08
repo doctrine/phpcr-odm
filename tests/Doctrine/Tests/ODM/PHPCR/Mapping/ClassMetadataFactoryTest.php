@@ -104,7 +104,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('nt:test', $meta->nodeType);
         $this->assertEquals(array('mix:foo', 'mix:bar'), $meta->mixins);
         $this->assertEquals('simple', $meta->versionable);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\Foobar', $meta->customRepositoryClassName);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $meta->customRepositoryClassName);
     }
 
     public function testLoadMetadataClassInheritanceChildCanOverride()
@@ -115,7 +115,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('nt:test-override', $meta->nodeType);
         $this->assertEquals(array('mix:baz'), $meta->mixins);
         $this->assertEquals('full', $meta->versionable);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\Barfoo', $meta->customRepositoryClassName);
+        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\BarfooRepository', $meta->customRepositoryClassName);
     }
 
     /**

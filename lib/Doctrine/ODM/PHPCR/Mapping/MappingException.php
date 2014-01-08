@@ -111,20 +111,35 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
         return new self("No mapping found for field '$fieldName' in class '$className'.");
     }
 
-    public static function identifierRequired($entityName)
+    public static function identifierRequired($entityName, $what)
     {
         if (false !== ($parent = get_parent_class($entityName))) {
             return new self(sprintf(
-                'No identifier/path specified for Document "%s" sub class of "%s". Every Document must have an identifier/path.',
-                $entityName, $parent
+                'No %s specified for Document "%s" sub class of "%s". Every Document must have an identifier/path.',
+                $what, $entityName, $parent
             ));
         }
 
         return new self(sprintf(
-            'No identifier/path specified for Document "%s". Every Document must have an identifier/path.',
+            'No %s specified for Document "%s". Every Document must have an identifier/path.',
+            $what, $entityName
+        ));
+    }
+
+    public static function repositoryRequired($entityName)
+    {
+        return new self(sprintf(
+            'Class %s is configured to have the REPOSITORY id strategy, but no repository class is configured',
             $entityName
         ));
+    }
 
+    public static function repositoryNotExisting($entityName, $repositoryClass)
+    {
+        return new self(sprintf(
+            'Repository class "%s" configured on class %s does not exist',
+            $repositoryClass, $entityName
+        ));
     }
 
     public static function invalidTargetDocumentClass($targetDocument, $sourceDocument, $associationName)

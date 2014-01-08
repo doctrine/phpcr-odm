@@ -8,7 +8,7 @@
         translator="children"
         versionable="SIMPLE"
         node-type="phpcr:test"
-        repository-class="Fqn\Class"
+        repository-class="Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository"
         referenceable="true"
     >
         <mixins>
