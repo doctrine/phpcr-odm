@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* **2014-01-08**: The identifier mapping got cleaned up. If you have documents
+  with invalid mappings in your codebase, this will now be reported when you
+  build the proxies. Before, you would have gotten an error later at runtime,
+  when you try to actually use the invalid documents.
+
 * **2014-01-05**: The Configuration class now supports setting a closure for
   the `UuidGenerator` to generate unique ids. If nothing is configured, the
   phpcr-utils UUIDHelper is used as before.
