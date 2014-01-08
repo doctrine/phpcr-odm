@@ -27,15 +27,15 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Select documents of specified class. The selector name is mandatory
+     * Select documents of specified class. The alias name is mandatory
      * and will be used to reference documents selected from this source.
      *
      * <code>
-     * $qb->from('my_selector_name')->document('My/Document/Class', 'my_selector_name')
+     * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')
      * </code>
      *
      * @param string $documentFqn - Fully qualified class name for document.
-     * @param string $selectorName - Selector name.
+     * @param string $alias - Alias name.
      *
      * @factoryMethod SourceDocument
      * @return SourceDocument

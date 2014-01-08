@@ -7,19 +7,19 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 class SourceJoinConditionEqui extends AbstractLeafNode
 {
     protected $property1;
-    protected $selector1;
+    protected $alias1;
     protected $property2;
-    protected $selector2;
+    protected $alias2;
 
     public function __construct($parent, $field1, $field2)
     {
-        list($selector1, $property1) = $this->explodeField($field1);
-        list($selector2, $property2) = $this->explodeField($field2);
+        list($alias1, $property1) = $this->explodeField($field1);
+        list($alias2, $property2) = $this->explodeField($field2);
         parent::__construct($parent);
         $this->property1 = $property1;
-        $this->selector1 = $selector1;
+        $this->alias1 = $alias1;
         $this->property2 = $property2;
-        $this->selector2 = $selector2;
+        $this->alias2 = $alias2;
     }
 
     public function getNodeType()
@@ -32,9 +32,9 @@ class SourceJoinConditionEqui extends AbstractLeafNode
         return $this->property1;
     }
 
-    public function getSelector1() 
+    public function getAlias1() 
     {
-        return $this->selector1;
+        return $this->alias1;
     }
 
     public function getProperty2() 
@@ -42,9 +42,9 @@ class SourceJoinConditionEqui extends AbstractLeafNode
         return $this->property2;
     }
 
-    public function getSelector2() 
+    public function getAlias2() 
     {
-        return $this->selector2;
+        return $this->alias2;
     }
 }
 

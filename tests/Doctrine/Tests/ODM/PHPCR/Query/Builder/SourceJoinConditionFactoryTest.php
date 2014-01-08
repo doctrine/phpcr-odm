@@ -12,16 +12,16 @@ class SourceJoinConditionFactoryTest extends NodeTestCase
     {
         return array(
             array('descendant', 'SourceJoinConditionDescendant', array(
-                'selector_1', 'selector_2',
+                'alias_1', 'alias_2',
             )),
             array('equi', 'SourceJoinConditionEqui', array(
-                'selector1.property1', 'selector2.property2',
+                'alias1.property1', 'alias2.property2',
             )),
             array('child', 'SourceJoinConditionChildDocument', array(
-                'child_selector', 'parent_selector',
+                'child_alias', 'parent_alias',
             )),
             array('same', 'SourceJoinConditionSameDocument', array(
-                'selector_1', 'selector_2', '/path/to/doc',
+                'alias_1', 'alias_2', '/path/to/doc',
             )),
         );
     }

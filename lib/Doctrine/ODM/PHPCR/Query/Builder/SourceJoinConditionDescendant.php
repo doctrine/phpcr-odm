@@ -9,7 +9,7 @@ class SourceJoinConditionDescendant extends AbstractLeafNode
 {
     protected $path;
     protected $descendantAlias;
-    protected $ancestorSelectorNode;
+    protected $ancestorAliasNode;
 
     /**
      * Constructor
@@ -19,7 +19,7 @@ class SourceJoinConditionDescendant extends AbstractLeafNode
      */
     public function __construct($parent, $descendantAlias, $ancestorAlias)
     {
-        $this->ancestorSelectorNode = (string) $ancestorAlias;
+        $this->ancestorAliasNode = (string) $ancestorAlias;
         $this->descendantAlias = (string) $descendantAlias;
         parent::__construct($parent);
     }
@@ -36,6 +36,6 @@ class SourceJoinConditionDescendant extends AbstractLeafNode
 
     public function getAncestorAlias()
     {
-        return $this->ancestorSelectorNode;
+        return $this->ancestorAliasNode;
     }
 }

@@ -39,7 +39,7 @@ class BuilderConverterPhpcr
      *
      * @var array
      */
-    protected $selectorMetadata = array();
+    protected $aliasMetadata = array();
 
     /**
      * When document sources are registered we put the translator
@@ -79,22 +79,22 @@ class BuilderConverterPhpcr
 
     protected function getMetadata($alias)
     {
-        if (!isset($this->selectorMetadata[$alias])) {
+        if (!isset($this->aliasMetadata[$alias])) {
             throw new RuntimeException(sprintf(
-                'Selector name "%s" has not known. The following selectors '.
+                'Alias name "%s" has not known. The following aliases '.
                 'are valid: "%s"',
                 $alias,
-                implode(', ', array_keys($this->selectorMetadata))
+                implode(', ', array_keys($this->aliasMetadata))
             ));
         }
 
-        return $this->selectorMetadata[$alias];
+        return $this->aliasMetadata[$alias];
     }
 
     /**
      * Return the PHPCR property name for the given ODM document property name
      *
-     * @param string $alias - Name of selector (corresponds to document source)
+     * @param string $alias - Name of alias (corresponds to document source)
      * @param string $odmField - Name of ODM document property
      *
      * @return string
@@ -151,9 +151,9 @@ class BuilderConverterPhpcr
             $this->dispatchMany($builder->getChildrenOfType($dispatchType));
         }
 
-        if (count($this->sourceDocumentNodes) > 1 && null === $builder->getPrimarySelector()) {
+        if (count($this->sourceDocumentNodes) > 1 && null === $builder->getPrimaryAlias()) {
             throw new InvalidArgumentException(
-                'You must specify a primary selector when selecting from multiple document sources'.
+                'You must specify a primary alias when selecting from multiple document sources'.
                 'e.g. $qb->from(\'a\') ...'
             );
         }
@@ -196,7 +196,7 @@ class BuilderConverterPhpcr
             $this->columns
         );
 
-        $this->query = new Query($phpcrQuery, $this->dm, $builder->getPrimarySelector());
+        $this->query = new Query($phpcrQuery, $this->dm, $builder->getPrimaryAlias());
 
         if ($firstResult = $builder->getFirstResult()) {
             $this->query->setFirstResult($firstResult);
@@ -349,18 +349,18 @@ class BuilderConverterPhpcr
 
         // index the metadata for this document
         $meta = $this->mdf->getMetadataFor($node->getDocumentFqn());
-        $this->selectorMetadata[$alias] = $meta;
+        $this->aliasMetadata[$alias] = $meta;
         if ($this->locale && 'attribute' === $meta->translator) {
             $this->translator[$alias] = $this->dm->getTranslationStrategy($meta->translator);
         }
 
-        // get the PHPCR Selector
-        $selector = $this->qomf->selector(
+        // get the PHPCR Alias
+        $alias = $this->qomf->selector(
             $alias,
             $meta->getNodeType()
         );
 
-        return $selector;
+        return $alias;
     }
 
     protected function walkSourceJoin(SourceJoin $node)
@@ -396,15 +396,15 @@ class BuilderConverterPhpcr
     protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
     {
         $phpcrProperty1 = $this->getPhpcrProperty(
-            $node->getSelector1(), $node->getProperty1()
+            $node->getAlias1(), $node->getProperty1()
         );
         $phpcrProperty2 = $this->getPhpcrProperty(
-            $node->getSelector2(), $node->getProperty2()
+            $node->getAlias2(), $node->getProperty2()
         );
 
         $equi = $this->qomf->equiJoinCondition(
-            $node->getSelector1(), $phpcrProperty1,
-            $node->getSelector2(), $phpcrProperty2
+            $node->getAlias1(), $phpcrProperty1,
+            $node->getAlias2(), $phpcrProperty2
         );
 
         return $equi;
@@ -432,9 +432,9 @@ class BuilderConverterPhpcr
     protected function walkSourceJoinConditionSameDocument(SourceJoinConditionSameDocument $node)
     {
         $joinCon = $this->qomf->childNodeJoinCondition(
-            $node->getSelector1Name(),
-            $node->getSelector2Name(),
-            $node->getSelector2Path()
+            $node->getAlias1Name(),
+            $node->getAlias2Name(),
+            $node->getAlias2Path()
         );
         return $joinCon;
     }

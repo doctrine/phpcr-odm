@@ -7,15 +7,15 @@ use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
 class SourceJoinConditionSameDocument extends AbstractLeafNode
 {
-    protected $selector1Name;
-    protected $selector2Name;
-    protected $selector2Path;
+    protected $alias1Name;
+    protected $alias2Name;
+    protected $alias2Path;
 
-    public function __construct($parent, $selector1Name, $selector2Name, $selector2Path)
+    public function __construct($parent, $alias1Name, $alias2Name, $alias2Path)
     {
-        $this->selector1Name = $selector1Name;
-        $this->selector2Name = $selector2Name;
-        $this->selector2Path = $selector2Path;
+        $this->alias1Name = $alias1Name;
+        $this->alias2Name = $alias2Name;
+        $this->alias2Path = $alias2Path;
         parent::__construct($parent);
     }
 
@@ -24,19 +24,19 @@ class SourceJoinConditionSameDocument extends AbstractLeafNode
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getSelector1Name() 
+    public function getAlias1Name() 
     {
-        return $this->selector1Name;
+        return $this->alias1Name;
     }
 
-    public function getSelector2Name() 
+    public function getAlias2Name() 
     {
-        return $this->selector2Name;
+        return $this->alias2Name;
     }
 
-    public function getSelector2Path() 
+    public function getAlias2Path() 
     {
-        return $this->selector2Path;
+        return $this->alias2Path;
     }
     
 }

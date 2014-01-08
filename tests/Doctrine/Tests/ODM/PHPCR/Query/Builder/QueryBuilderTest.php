@@ -92,12 +92,12 @@ class QueryBuilderTest extends NodeTestCase
         ;
     }
 
-    public function testPrimarySelector()
+    public function testPrimaryAlias()
     {
         $this->node->from('f');
-        $this->assertEquals('f', $this->node->getPrimarySelector());
+        $this->assertEquals('f', $this->node->getPrimaryAlias());
 
         $this->node->fromDocument('Foobar', 'f');
-        $this->assertEquals('f', $this->node->getPrimarySelector());
+        $this->assertEquals('f', $this->node->getPrimaryAlias());
     }
 }
