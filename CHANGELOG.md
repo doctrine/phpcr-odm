@@ -5,6 +5,11 @@ Changelog
   the `UuidGenerator` to generate unique ids. If nothing is configured, the
   phpcr-utils UUIDHelper is used as before.
 
+* **2013-12-21**: Document translations can be loaded even before the document
+  is flushed. And a couple of bugfixes around loading translations.
+
+* Lots of performance optimizations when loading collections.
+
 1.0.1
 -----
 
