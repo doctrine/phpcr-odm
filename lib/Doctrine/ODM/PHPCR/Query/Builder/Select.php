@@ -27,7 +27,7 @@ class Select extends AbstractNode
      *   ->field('sel_1.barfoo');
      * </code>
      *
-     * @param string $field - name of field to check, including selector name
+     * @param string $field - name of field to check, including alias name
      *
      * @factoryMethod
      * @return Select

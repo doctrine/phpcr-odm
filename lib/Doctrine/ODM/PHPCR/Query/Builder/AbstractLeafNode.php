@@ -41,12 +41,12 @@ abstract class AbstractLeafNode extends AbstractNode
     }
 
     /**
-     * Return the selector name and field name
+     * Return the alias name and field name
      * from the given string of form
      *
      *     [alias].[field_name]
      *
-     * e.g. my_selector.first_name
+     * e.g. my_alias.first_name
      *
      * @param string $field
      *

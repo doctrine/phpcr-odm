@@ -38,8 +38,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *   ->end()
      * </code>
      *
-     * @param string $descendantAlias - Name of selector for descendant documents.
-     * @param string $ancestorAlias - Name of selector to match for ancestor documents.
+     * @param string $descendantAlias - Name of alias for descendant documents.
+     * @param string $ancestorAlias - Name of alias to match for ancestor documents.
      *
      * @factoryMethod SourceJoinConditionDescendant
      * @return SourceJoinConditionFactory
@@ -88,8 +88,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->condition()->child('alias_1', 'alias_2');
      * </code>
      *
-     * @param string $childAlias - Name of selector for child documents.
-     * @param string $parentAlias - Name of selector to match for parent documents.
+     * @param string $childAlias - Name of alias for child documents.
+     * @param string $parentAlias - Name of alias to match for parent documents.
      *
      * @factoryMethod SourceJoinConditionChildDocument
      * @return SourceJoinConditionFactory
@@ -117,7 +117,7 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      * @param string $alias1 - Name of first alias.
      * @param string $alias2 - Name of first alias.
-     * @param string $alias2Path - Path for documents of second selector.
+     * @param string $alias2Path - Path for documents of second alias.
      *
      * @factoryMethod SourceJoinConditionSameDocument
      * @return SourceJoinConditionFactory

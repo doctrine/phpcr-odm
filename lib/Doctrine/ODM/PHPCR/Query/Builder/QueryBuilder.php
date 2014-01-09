@@ -38,7 +38,7 @@ class QueryBuilder extends AbstractNode
     protected $firstResult;
     protected $maxResults;
     protected $locale;
-    protected $primarySelector;
+    protected $primaryAlias;
 
     public function getLocale()
     {
@@ -140,14 +140,14 @@ class QueryBuilder extends AbstractNode
      *    ->condition()->equi('a.prop_1', 'b.prop_1');
      * </code>
      *
-     * @param string $primarySelector - Alias to use as primary source (optional for single sources)
+     * @param string $primaryAlias - Alias to use as primary source (optional for single sources)
      *
      * @factoryMethod From
      * @return From
      */
-    public function from($primarySelector = null)
+    public function from($primaryAlias = null)
     {
-        $this->primarySelector = $primarySelector;
+        $this->primaryAlias = $primaryAlias;
 
         return $this->setChild(new From($this));
     }
@@ -168,17 +168,17 @@ class QueryBuilder extends AbstractNode
      * Replaces any existing from source.
      *
      * @param string $documentFqn - Fully qualified class name for document.
-     * @param string $primarySelector - Alias for document source and primary selector when using multiple sources.
+     * @param string $primaryAlias - Alias for document source and primary alias when using multiple sources.
      *
      * @factoryMethod From
      * @return QueryBuilder
      */
-    public function fromDocument($documentFqn, $primarySelector)
+    public function fromDocument($documentFqn, $primaryAlias)
     {
-        $this->primarySelector = $primarySelector;
+        $this->primaryAlias = $primaryAlias;
 
         $from = new From($this);
-        $from->document($documentFqn, $primarySelector);
+        $from->document($documentFqn, $primaryAlias);
         $this->setChild($from);
         return $from->end();
     }
@@ -392,8 +392,8 @@ class QueryBuilder extends AbstractNode
         return (string) $this->getQuery()->getStatement();
     }
 
-    public function getPrimarySelector()
+    public function getPrimaryAlias()
     {
-        return $this->primarySelector;
+        return $this->primaryAlias;
     }
 }

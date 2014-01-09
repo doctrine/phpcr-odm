@@ -29,7 +29,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\SourceDocument', $source);
 
         $this->assertEquals('a', $source->getAlias());
-        $this->assertEquals('a', $qb->getPrimarySelector());
+        $this->assertEquals('a', $qb->getPrimaryAlias());
         
         $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $source->getDocumentFqn());
     }

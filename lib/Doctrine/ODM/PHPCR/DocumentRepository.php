@@ -309,14 +309,14 @@ class DocumentRepository implements ObjectRepository
      *       use ->andWhere(...) as ->where(...) will overwrite
      *       the class criteria.
      *
-     * @param string $selectorName     name of the selector, defaults to 'a'
+     * @param string $alias name of the alias to use, defaults to 'a'
      *
      * @return \Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder
      */
-    public function createQueryBuilder($selectorName)
+    public function createQueryBuilder($alias)
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->from($selectorName)->document($this->className, $selectorName);
+        $qb->from($alias)->document($this->className, $alias);
 
         return $qb;
     }

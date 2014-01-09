@@ -75,7 +75,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Return a builder with a source, as a selector is required for
+     * Return a builder with a source, as a alias is required for
      * all methods
      */
     protected function primeBuilder()
@@ -183,10 +183,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     {
         $this->markTestSkipped('Joins temporarily disabled');
 
-        $n = $this->qb->from('selector_1')
+        $n = $this->qb->from('alias_1')
             ->$method()
-                ->left()->document('foobar', 'selector_1')->end()
-                ->right()->document('barfoo', 'selector_2')->end();
+                ->left()->document('foobar', 'alias_1')->end()
+                ->right()->document('barfoo', 'alias_2')->end();
 
         switch ($joinCond) {
             case 'child':
@@ -196,11 +196,11 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 $n->condition()->descendant('descendant_alias', 'ancestor_alias')->end();
                 break;
             case 'sameDocument':
-                $n->condition()->sameDocument('selector_1_name', 'selector_2_name', '/selector2/path')->end();
+                $n->condition()->sameDocument('alias_1_name', 'alias_2_name', '/alias2/path')->end();
                 break;
             case 'equi':
             default:
-                $n->condition()->equi('selector_1.prop_1', 'selector_2.prop_2')->end();
+                $n->condition()->equi('alias_1.prop_1', 'alias_2.prop_2')->end();
         }
 
         $n->end();
@@ -592,14 +592,14 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     * @expectedExceptionMessage You must specify a primary selector
+     * @expectedExceptionMessage You must specify a primary alias
      */
-    public function testGetQueryMoreThanOneSourceNoPrimarySelector()
+    public function testGetQueryMoreThanOneSourceNoPrimaryAlias()
     {
         $this->qb->from()
             ->joinInner()
-                ->left()->document('foobar', 'selector_1')->end()
-                ->right()->document('barfoo', 'selector_2')->end()
+                ->left()->document('foobar', 'alias_1')->end()
+                ->right()->document('barfoo', 'alias_2')->end()
                 ->condition()->child('child_alias', 'parent_alias')->end();
 
         $this->qb->getQuery();
