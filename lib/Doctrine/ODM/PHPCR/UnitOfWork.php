@@ -411,7 +411,11 @@ class UnitOfWork
 
         if (! isset($hints['prefetch']) || $hints['prefetch']) {
             if ($class->translator) {
-                $prefetchLocale = $locale ?: $this->dm->getLocaleChooserStrategy()->getLocale();
+                try {
+                    $prefetchLocale = $locale ?: $this->dm->getLocaleChooserStrategy()->getLocale();
+                } catch (InvalidArgumentException $e) {
+                    throw new InvalidArgumentException($e->getMessage() . ' but document ' . $class->name . ' is mapped with translations.');
+                }
             } else {
                 $prefetchLocale = null;
             }
