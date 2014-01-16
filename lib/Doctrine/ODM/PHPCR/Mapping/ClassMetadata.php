@@ -664,7 +664,7 @@ class ClassMetadata implements ClassMetadataInterface
         }
         $mapping['type'] = 'child';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, 'nodeName');
-        $this->childMappings[] = $mapping['fieldName'];
+        $this->childMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
     public function mapChildren(array $mapping, ClassMetadata $inherited = null)
@@ -680,7 +680,7 @@ class ClassMetadata implements ClassMetadataInterface
             );
         }
         unset($mapping['property']);
-        $this->childrenMappings[] = $mapping['fieldName'];
+        $this->childrenMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
     public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
@@ -703,7 +703,7 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping['type'] = 'referrers';
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited, false);
         unset($mapping['strategy']); // this would be a lie, we want the strategy of the referring field
-        $this->referrersMappings[] = $mapping['fieldName'];
+        $this->referrersMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
     public function mapMixedReferrers(array $mapping, ClassMetadata $inherited = null)
@@ -721,7 +721,7 @@ class ClassMetadata implements ClassMetadataInterface
 
         $mapping['type'] = 'mixedreferrers';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
-        $this->mixedReferrersMappings[] = $mapping['fieldName'];
+        $this->mixedReferrersMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
     public function mapLocale(array $mapping, ClassMetadata $inherited = null)
@@ -949,14 +949,14 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $mapping['type'] = self::MANY_TO_ONE;
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
-        $this->referenceMappings[] = $mapping['fieldName'];
+        $this->referenceMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
     public function mapManyToMany($mapping, ClassMetadata $inherited = null)
     {
         $mapping['type'] = self::MANY_TO_MANY;
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
-        $this->referenceMappings[] = $mapping['fieldName'];
+        $this->referenceMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
     /**
@@ -1126,7 +1126,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return isset($this->childMappings[$fieldName])
             || $fieldName === $this->parentMapping
-            || (in_array($fieldName, $this->referenceMappings) && self::MANY_TO_ONE === $this->mappings[$fieldName]['type'])
+            || isset($this->referenceMappings[$fieldName]) && self::MANY_TO_ONE === $this->mappings[$fieldName]['type']
         ;
     }
 
@@ -1135,7 +1135,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isCollectionValuedAssociation($fieldName)
     {
-        return isset($this->referenceMappings[$fieldName])
+        return isset($this->referenceMappings[$fieldName]) && self::MANY_TO_MANY === $this->mappings[$fieldName]['type']
             || isset($this->referrersMappings[$fieldName])
             || isset($this->mixedReferrersMappings[$fieldName])
             || isset($this->childrenMappings[$fieldName])
@@ -1537,6 +1537,18 @@ class ClassMetadata implements ClassMetadataInterface
     public function getUuidFieldName()
     {
         return $this->uuidFieldName;
+    }
+
+    /**
+     * Whether $fieldName is the universally unique identifier of the document.
+     *
+     * @param string $fieldName
+     *
+     * @return boolean True if $fieldName is mapped as the uuid, false otherwise.
+     */
+    public function isUuid($fieldName)
+    {
+       return $this->uuidFieldName === $fieldName;
     }
 
     /**
