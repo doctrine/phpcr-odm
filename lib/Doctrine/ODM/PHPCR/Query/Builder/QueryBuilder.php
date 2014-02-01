@@ -57,6 +57,9 @@ class QueryBuilder extends AbstractNode
         return self::NT_BUILDER;
     }
 
+    /**
+     * @return \Doctrine\ODM\PHPCR\Query\Query
+     */
     public function getQuery()
     {
         return $this->getConverter()->getQuery($this);
@@ -67,6 +70,9 @@ class QueryBuilder extends AbstractNode
         $this->converter = $converter;
     }
 
+    /**
+     * @return BuilderConverterPhpcr
+     */
     protected function getConverter()
     {
         if (!$this->converter) {

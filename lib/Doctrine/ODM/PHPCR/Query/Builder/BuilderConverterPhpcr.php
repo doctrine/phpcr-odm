@@ -3,6 +3,9 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use PHPCR\Query\QOM\EquiJoinConditionInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
@@ -19,17 +22,17 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 class BuilderConverterPhpcr
 {
     /**
-     * @var PHPCR\Query\QOM\QueryObjectModelFactoryInterface
+     * @var QueryObjectModelFactoryInterface
      */
     protected $qomf;
 
     /**
-     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory
+     * @var ClassMetadataFactory
      */
     protected $mdf;
 
     /**
-     * @var Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     protected $dm;
 
@@ -37,7 +40,7 @@ class BuilderConverterPhpcr
      * When document sources are registered we put the document
      * metadata here.
      *
-     * @var array
+     * @var ClassMetadata[]
      */
     protected $aliasMetadata = array();
 
@@ -45,7 +48,7 @@ class BuilderConverterPhpcr
      * When document sources are registered we put the translator
      * here in case the document is translatable.
      *
-     * @var array
+     * @var TranslationStrategyInterface[]
      */
     protected $translator = array();
 
@@ -77,6 +80,11 @@ class BuilderConverterPhpcr
         $this->dm = $dm;
     }
 
+    /**
+     * @param string $alias
+     *
+     * @return ClassMetadata
+     */
     protected function getMetadata($alias)
     {
         if (!isset($this->aliasMetadata[$alias])) {
@@ -121,7 +129,7 @@ class BuilderConverterPhpcr
      *
      * @param QueryBuilder $builder
      *
-     * @return Doctrine\ODM\PHPCR\Query\Query
+     * @return Query
      */
     public function getQuery(QueryBuilder $builder)
     {
@@ -196,17 +204,17 @@ class BuilderConverterPhpcr
             $this->columns
         );
 
-        $this->query = new Query($phpcrQuery, $this->dm, $builder->getPrimaryAlias());
+        $query = new Query($phpcrQuery, $this->dm, $builder->getPrimaryAlias());
 
         if ($firstResult = $builder->getFirstResult()) {
-            $this->query->setFirstResult($firstResult);
+            $query->setFirstResult($firstResult);
         }
 
         if ($maxResults = $builder->getMaxResults()) {
-            $this->query->setMaxResults($maxResults);
+            $query->setMaxResults($maxResults);
         }
 
-        return $this->query;
+        return $query;
     }
 
     /**
@@ -393,6 +401,11 @@ class BuilderConverterPhpcr
         return $res;
     }
 
+    /**
+     * @param SourceJoinConditionEqui $node
+     *
+     * @return EquiJoinConditionInterface
+     */
     protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
     {
         $phpcrProperty1 = $this->getPhpcrProperty(
