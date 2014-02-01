@@ -62,6 +62,14 @@ class BuilderConverterPhpcr
     protected $sourceDocumentNodes;
 
     /**
+     * Used to keep track of which sources are used with translated fields, to
+     * tell the translation strategy to update if needed.
+     *
+     * @var array keys are the alias, value is true
+     */
+    protected $aliasWithTranslatedFields;
+
+    /**
      * @var string|null
      */
     protected $locale;
@@ -100,23 +108,34 @@ class BuilderConverterPhpcr
     }
 
     /**
-     * Return the PHPCR property name for the given ODM document property name
+     * Return the PHPCR property name and alias for the given ODM document
+     * property name and query alias.
      *
-     * @param string $alias - Name of alias (corresponds to document source)
-     * @param string $odmField - Name of ODM document property
+     * The alias might change if this is a translated field and the strategy
+     * needs to do a join to get in the translation.
      *
-     * @return string
+     * @param string $originalAlias As specified in the query source.
+     * @param string $odmField      Name of ODM document property.
+     *
+     * @return array first element is the real alias to use, second element is
+     *      the property name
      */
-    protected function getPhpcrProperty($alias, $odmField)
+    protected function getPhpcrProperty($originalAlias, $odmField)
     {
-        $fieldMeta = $this->getMetadata($alias)->getField($odmField);
-        $property = $fieldMeta['property'];
+        $fieldMeta = $this->getMetadata($originalAlias)->getField($odmField);
+        $propertyName = $fieldMeta['property'];
 
-        if (!empty($this->translator[$alias]) && !empty($fieldMeta['translated'])) {
-            $property = $this->translator[$alias]->getTranslatedPropertyName($this->locale, $fieldMeta['property']);
+        if (empty($fieldMeta['translated'])
+            || empty($this->translator[$originalAlias])
+        ) {
+            return array($originalAlias, $propertyName);
         }
 
-        return $property;
+        $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $fieldMeta['property'], $this->locale);
+
+        $this->aliasWithTranslatedFields[$originalAlias] = true;
+
+        return $propertyPath;
     }
 
     /**
@@ -133,6 +152,7 @@ class BuilderConverterPhpcr
      */
     public function getQuery(QueryBuilder $builder)
     {
+        $this->aliasWithTranslatedFields = array();
         $this->locale = $builder->getLocale();
         if (null === $this->locale && $this->dm->hasLocaleChooserStrategy()) {
             $this->locale = $this->dm->getLocaleChooserStrategy()->getLocale();
@@ -199,6 +219,10 @@ class BuilderConverterPhpcr
             }
         }
 
+        foreach (array_keys($this->aliasWithTranslatedFields) as $alias) {
+            $this->translator[$alias]->alterQueryForTranslation($this->qomf, $this->from, $this->constraint, $alias, $this->locale);
+        }
+
         $phpcrQuery = $this->qomf->createQuery(
             $this->from,
             $this->constraint,
@@ -258,21 +282,21 @@ class BuilderConverterPhpcr
         return $res;
     }
 
-    public function walkSelect($node)
+    public function walkSelect(AbstractNode $node)
     {
         $columns = array();
 
+        /** @var $property Field */
         foreach ($node->getChildren() as $property) {
-            $phpcrName = $this->getPhpcrProperty(
+            list($alias, $phpcrName) = $this->getPhpcrProperty(
                 $property->getAlias(),
                 $property->getField()
             );
 
             $column = $this->qomf->column(
-                $property->getAlias(),
-                // do we want to support custom column names in ODM?
-                // what do columns get used for in an ODM in anycase?
+                $alias,
                 $phpcrName,
+                // do we want to support custom column names in ODM?
                 $phpcrName
             );
 
@@ -359,7 +383,8 @@ class BuilderConverterPhpcr
         // constraints.
         $this->sourceDocumentNodes[$alias] = $node;
 
-        // index the metadata for this document
+        // cache the metadata for this document
+        /** @var $meta ClassMetadata */
         $meta = $this->mdf->getMetadataFor($documentFqn);
 
         if (null === $meta->getName()) {
@@ -369,14 +394,15 @@ class BuilderConverterPhpcr
         }
 
         $this->aliasMetadata[$alias] = $meta;
-        if ($this->locale && 'attribute' === $meta->translator) {
+        if ($this->locale && $meta->translator) {
             $this->translator[$alias] = $this->dm->getTranslationStrategy($meta->translator);
         }
+        $nodeType = $meta->getNodeType();
 
         // get the PHPCR Alias
         $alias = $this->qomf->selector(
             $alias,
-            $meta->getNodeType()
+            $nodeType
         );
 
         return $alias;
@@ -419,16 +445,16 @@ class BuilderConverterPhpcr
      */
     protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
     {
-        $phpcrProperty1 = $this->getPhpcrProperty(
+        list($alias1, $phpcrProperty1) = $this->getPhpcrProperty(
             $node->getAlias1(), $node->getProperty1()
         );
-        $phpcrProperty2 = $this->getPhpcrProperty(
+        list($alias2, $phpcrProperty2) = $this->getPhpcrProperty(
             $node->getAlias2(), $node->getProperty2()
         );
 
         $equi = $this->qomf->equiJoinCondition(
-            $node->getAlias1(), $phpcrProperty1,
-            $node->getAlias2(), $phpcrProperty2
+            $alias1, $phpcrProperty1,
+            $alias2, $phpcrProperty2
         );
 
         return $equi;
@@ -463,7 +489,7 @@ class BuilderConverterPhpcr
         return $joinCon;
     }
 
-    protected function doWalkConstraintComposite($node, $method)
+    protected function doWalkConstraintComposite(AbstractNode $node, $method)
     {
         $children = $node->getChildren();
 
@@ -497,12 +523,12 @@ class BuilderConverterPhpcr
 
     protected function walkConstraintFieldIsset(ConstraintFieldIsset $node)
     {
-        $phpcrProperty = $this->getPhpcrProperty(
+        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
             $node->getAlias(), $node->getField()
         );
 
         $con = $this->qomf->propertyExistence(
-            $node->getAlias(),
+            $alias,
             $phpcrProperty
         );
 
@@ -511,12 +537,12 @@ class BuilderConverterPhpcr
 
     protected function walkConstraintFullTextSearch(ConstraintFullTextSearch $node)
     {
-        $phpcrProperty = $this->getPhpcrProperty(
+        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
             $node->getAlias(), $node->getField()
         );
 
         $con = $this->qomf->fullTextSearch(
-            $node->getAlias(),
+            $alias,
             $phpcrProperty,
             $node->getFullTextSearchExpression()
         );
@@ -590,13 +616,13 @@ class BuilderConverterPhpcr
 
     protected function walkOperandDynamicField(OperandDynamicField $node)
     {
-        $phpcrProperty = $this->getPhpcrProperty(
+        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
             $node->getAlias(),
             $node->getField()
         );
 
         $op = $this->qomf->propertyValue(
-            $node->getAlias(),
+            $alias,
             $phpcrProperty
         );
 
@@ -623,13 +649,13 @@ class BuilderConverterPhpcr
 
     protected function walkOperandDynamicLength(OperandDynamicLength $node)
     {
-        $phpcrProperty = $this->getPhpcrProperty(
+        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
             $node->getAlias(),
             $node->getField()
         );
 
         $propertyValue = $this->qomf->propertyValue(
-            $node->getAlias(),
+            $alias,
             $phpcrProperty
         );
 
@@ -698,6 +724,7 @@ class BuilderConverterPhpcr
 
         $orderings = $node->getChildren();
 
+        /** @var $ordering Ordering */
         foreach ($orderings as $ordering) {
             $dynOp = $ordering->getChildOfType(
                 QBConstants::NT_OPERAND_DYNAMIC

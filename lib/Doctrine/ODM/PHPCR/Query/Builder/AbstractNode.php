@@ -113,6 +113,7 @@ abstract class AbstractNode
      * @see addChild
      *
      * @param AbstractNode $node
+     *
      * @return AbstractNode
      */
     public function setChild(AbstractNode $node)
@@ -196,7 +197,7 @@ abstract class AbstractNode
      * Note that this will returned a flattened version
      * of the classes type => children map.
      *
-     * @return array AbstractNode[]
+     * @return AbstractNode[]
      */
     public function getChildren()
     {
@@ -213,7 +214,7 @@ abstract class AbstractNode
     /**
      * Return children of specified type.
      *
-     * @return array AbstractNode[]
+     * @return AbstractNode[]
      */
     public function getChildrenOfType($type)
     {
@@ -232,8 +233,9 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
+     * @return AbstractNode[]
+     *
      * @throws OutOfBoundsException if there are more than one or none
-     * @return array AbstractNode[]
      */
     public function getChild()
     {
@@ -261,8 +263,9 @@ abstract class AbstractNode
      *
      * Note: This does not take inheritance into account.
      *
+     * @return AbstractNode[]
+     *
      * @throws OutOfBoundsException if there are more than one or none
-     * @return array AbstractNode[]
      */
     public function getChildOfType($type)
     {
@@ -296,7 +299,6 @@ abstract class AbstractNode
      * types.
      *
      * @throws OutOfBoundsException
-     * @return void
      */
     public function validate()
     {

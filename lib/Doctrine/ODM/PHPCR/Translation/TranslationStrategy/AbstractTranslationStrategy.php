@@ -46,15 +46,15 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     }
 
     /**
-     * Get the name of the property where to store the translations of a given property in a given language
+     * Determine the locale specific property name.
      *
-     * @param string $locale    The language to store
-     * @param string $fieldName The name of the field to translate
+     * @param string $locale
+     * @param string $propertyName the untranslated property name
      *
-     * @return string The name of the property where to store the translation
+     * @return string the property name with the translation namespace.
      */
-    public function getTranslatedPropertyName($locale, $fieldName)
+    public function getTranslatedPropertyName($locale, $propertyName)
     {
-        return sprintf('%s:%s-%s', $this->prefix, $locale, $fieldName);
+        return sprintf('%s:%s-%s', $this->prefix, $locale, $propertyName);
     }
 }

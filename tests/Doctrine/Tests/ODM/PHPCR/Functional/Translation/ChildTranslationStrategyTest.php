@@ -6,6 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
     Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
@@ -348,5 +349,95 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
             'is-active' => 'true',
             'url'       => 'super-article-en-francais.html'
         ), $doc->getSettings());
+    }
+
+    public function testQueryBuilder()
+    {
+        $strategy = new ChildTranslationStrategy();
+        $this->dm->setTranslationStrategy('children', $strategy);
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
+
+        // First save some translations
+        $data = array();
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
+        $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'great-article-in-english.html'
+        );
+
+        $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
+        $node->setProperty('phpcr:class', 'Doctrine\Tests\Models\Translation\ChildTranslationArticle');
+
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
+
+        // Save translation in another language
+
+        $data['topic'] = 'Un sujet intéressant';
+        $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'super-article-en-francais.html'
+        );
+
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
+        $this->dm->flush();
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Not Exist')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Un sujet intéressant')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->setLocale(false);
+        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Un sujet intéressant')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(0, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Some interesting subject')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(1, $res);
+
+        $qb = $this->dm->createQueryBuilder();
+        $qb->setLocale('fr');
+        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->where()
+            ->eq()
+            ->field('a.topic')
+            ->literal('Un sujet intéressant')
+            ->end();
+
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(1, $res);
     }
 }
