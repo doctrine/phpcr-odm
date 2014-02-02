@@ -304,7 +304,7 @@ class UnitOfWork
      *
      * @return object
      *
-     * @throws PHPCRException if $className was specified and does not match
+     * @throws PHPCRExceptionInterface if $className was specified and does not match
      *      the class of the document corresponding to $node.
      */
     public function getOrCreateDocument($className, NodeInterface $node, array &$hints = array())
@@ -2752,7 +2752,7 @@ class UnitOfWork
      * @param string $id            The document id to look for.
      * @param string $rootClassName The name of the root class of the mapped document hierarchy.
      *
-     * @return mixed Returns the document with the specified id if it exists in
+     * @return object|false Returns the document with the specified id if it exists in
      *               this UnitOfWork, FALSE otherwise.
      */
     public function getDocumentById($id)

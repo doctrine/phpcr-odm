@@ -1,6 +1,15 @@
 Changelog
 =========
 
+* **2014-02-02**: DocumentManager::find()/findMany now actually validate the
+  requested class name. If the class name determined by the DocumentClassMapper
+  is not instance of the requested class name, null is returned. As previously,
+  you can pass `null` as first argument to find content regardless of its
+  class.
+  Previously, you sometimes got the content mapped into the requested class
+  regardless of the content at $id, while in other situations you got a
+  PHPCRException.
+
 1.1.0-beta1
 -----------
 

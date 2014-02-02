@@ -19,8 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
-
+use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use PHPCR\NodeInterface;
 
 interface DocumentClassMapperInterface
@@ -31,12 +30,15 @@ interface DocumentClassMapperInterface
      * @param DocumentManager $dm
      * @param NodeInterface   $node
      * @param string          $className explicit class to use. If set, this
-     *      class will be used unless the declared document class is a subclass
-     *      of this class. In that case the document class is used
+     *      class or a subclass of it has to be used. If this is not possible,
+     *      an InvalidArgumentException has to be thrown.
      *
      * @return string $className if not null, the class configured for this
      *      node if defined and the Generic document if no better class can be
      *      found
+     *
+     * @throws ClassMismatchException if $node represents a class that is not
+     *      a descendant of $className.
      */
     public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null);
 
@@ -50,14 +52,14 @@ interface DocumentClassMapperInterface
     public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className);
 
     /**
-     * Determine if the document is instance of the specified $className and
+     * Check if the document is instance of the specified $className and
      * throw exception if not.
      *
      * @param DocumentManager $dm
      * @param object          $document
      * @param string          $className
      *
-     * @throws PHPCRException if document is not of type $className
+     * @throws ClassMismatchException if document is not of type $className
      */
     public function validateClassName(DocumentManager $dm, $document, $className);
 }
