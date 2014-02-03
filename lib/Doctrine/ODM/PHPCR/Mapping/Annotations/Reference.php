@@ -31,11 +31,20 @@ class Reference
      * @var string
      */
     public $property;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $targetDocument;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $strategy = 'weak';
-    /** @var array */
+
+    /**
+     * @var array
+     */
     public $cascade = array();
 }
 

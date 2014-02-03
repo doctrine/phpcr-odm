@@ -27,6 +27,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Boolean extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'boolean';
 }
 

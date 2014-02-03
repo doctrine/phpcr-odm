@@ -28,5 +28,8 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Uri extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'uri';
 }

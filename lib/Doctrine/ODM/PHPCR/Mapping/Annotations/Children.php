@@ -27,12 +27,23 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Children
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     public $filter;
-    /** @var integer */
+
+    /**
+     *@var integer
+     */
     public $fetchDepth = -1;
-    /** @var boolean */
+
+    /**
+     * @var boolean
+     */
     public $ignoreUntranslated = true;
-    /** @var array */
+
+    /**
+     * @var array
+     */
     public $cascade = array();
 }

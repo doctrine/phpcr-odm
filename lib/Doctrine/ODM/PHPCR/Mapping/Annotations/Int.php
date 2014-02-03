@@ -28,5 +28,8 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Int extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'long';
 }

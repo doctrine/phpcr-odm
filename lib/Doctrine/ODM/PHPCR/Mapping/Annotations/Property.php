@@ -31,12 +31,24 @@ class Property
      * @var string
      */
     public $property;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $type = 'undefined';
-    /** @var boolean */
+
+    /**
+     * @var boolean
+     */
     public $multivalue = false;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $assoc;
-    /** @var boolean */
+
+    /**
+     * @var boolean
+     */
     public $nullable = false;
 }

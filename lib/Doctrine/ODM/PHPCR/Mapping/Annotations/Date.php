@@ -27,6 +27,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Date extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'date';
 }
 

@@ -27,16 +27,33 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Document
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     public $nodeType;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $repositoryClass;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $translator;
-    /** @var array */
+
+    /**
+     * @var array
+     */
     public $mixins;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $versionable;
-    /** @var boolean */
+
+    /**
+     * @var boolean
+     */
     public $referenceable;
 }

@@ -26,7 +26,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class TranslatableProperty extends Property
 {
-    /** @var boolean */
+    /**
+     * @var boolean
+     */
     public $translated = false;
 }
 

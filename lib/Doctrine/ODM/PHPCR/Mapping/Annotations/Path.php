@@ -28,5 +28,8 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Path extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'path';
 }

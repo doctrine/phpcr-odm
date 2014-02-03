@@ -27,5 +27,8 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Long extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'long';
 }

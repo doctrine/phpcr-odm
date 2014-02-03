@@ -27,7 +27,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class MixedReferrers
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     public $referenceType;
 }
 

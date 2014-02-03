@@ -30,7 +30,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class ParentDocument
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     public $cascade = array();
 }
 

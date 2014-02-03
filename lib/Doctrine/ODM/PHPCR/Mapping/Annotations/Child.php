@@ -32,7 +32,10 @@ final class Child
      * @var string
      */
     public $nodeName;
-    /** @var array */
+
+    /**
+     * @var array
+     */
     public $cascade = array();
 }
 

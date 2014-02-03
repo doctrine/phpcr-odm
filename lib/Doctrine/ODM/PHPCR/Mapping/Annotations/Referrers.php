@@ -32,9 +32,15 @@ final class Referrers
      * @var string
      */
     public $referencedBy;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $referringDocument;
-    /** @var array */
+
+    /**
+     * @var array
+     */
     public $cascade = array();
 }
 

@@ -28,6 +28,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Name extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'name';
 }
 

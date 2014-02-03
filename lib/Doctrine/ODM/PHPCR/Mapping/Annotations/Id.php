@@ -27,8 +27,18 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Id
 {
+    /**
+     * @var boolean
+     */
     public $id = true;
+
+    /**
+     * @var string
+     */
     public $type = 'string';
-    /** @var string */
+
+    /**
+     * @var string
+     */
     public $strategy;
 }

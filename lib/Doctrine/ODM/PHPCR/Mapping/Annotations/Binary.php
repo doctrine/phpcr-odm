@@ -27,5 +27,8 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Binary extends TranslatableProperty
 {
+    /**
+     * @var string
+     */
     public $type = 'binary';
 }
