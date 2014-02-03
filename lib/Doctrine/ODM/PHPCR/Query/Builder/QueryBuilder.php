@@ -4,12 +4,12 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
+use PHPCR\Query\QueryInterface;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-
 
 /**
  * The Query Builder root node.
@@ -40,11 +40,21 @@ class QueryBuilder extends AbstractNode
     protected $locale;
     protected $primaryAlias;
 
+    /**
+     * @return string the locale for this query.
+     */
     public function getLocale()
     {
         return $this->locale;
     }
 
+    /**
+     * Set the locale to use in this query.
+     *
+     * @param string $locale
+     *
+     * @return $this
+     */
     public function setLocale($locale)
     {
         $this->locale = $locale;
@@ -52,19 +62,27 @@ class QueryBuilder extends AbstractNode
         return $this;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * This is an NT_BUILDER
+     */
     public function getNodeType()
     {
         return self::NT_BUILDER;
     }
 
     /**
-     * @return \Doctrine\ODM\PHPCR\Query\Query
+     * @return QueryInterface
      */
     public function getQuery()
     {
         return $this->getConverter()->getQuery($this);
     }
 
+    /**
+     * @param BuilderConverterPhpcr $converter
+     */
     public function setConverter(BuilderConverterPhpcr $converter)
     {
         $this->converter = $converter;
@@ -82,6 +100,9 @@ class QueryBuilder extends AbstractNode
         return $this->converter;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCardinalityMap()
     {
         return array(
@@ -393,6 +414,11 @@ class QueryBuilder extends AbstractNode
         $this->maxResults = $maxResults;
     }
 
+    /**
+     * Creates an SQL2 representation of the PHPCR query built by this builder.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return (string) $this->getQuery()->getStatement();
