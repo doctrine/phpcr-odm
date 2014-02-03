@@ -35,4 +35,3 @@ final class ParentDocument
      */
     public $cascade = array();
 }
-

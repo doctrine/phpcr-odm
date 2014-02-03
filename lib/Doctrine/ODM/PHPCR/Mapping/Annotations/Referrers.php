@@ -43,4 +43,3 @@ final class Referrers
      */
     public $cascade = array();
 }
-

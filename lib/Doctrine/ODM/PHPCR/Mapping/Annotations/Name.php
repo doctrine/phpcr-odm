@@ -33,4 +33,3 @@ final class Name extends TranslatableProperty
      */
     public $type = 'name';
 }
-

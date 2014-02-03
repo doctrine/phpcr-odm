@@ -32,4 +32,3 @@ final class Boolean extends TranslatableProperty
      */
     public $type = 'boolean';
 }
-

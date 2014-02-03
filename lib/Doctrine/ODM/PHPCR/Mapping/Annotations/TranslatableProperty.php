@@ -31,4 +31,3 @@ class TranslatableProperty extends Property
      */
     public $translated = false;
 }
-

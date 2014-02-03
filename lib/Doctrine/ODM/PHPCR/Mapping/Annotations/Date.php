@@ -32,4 +32,3 @@ final class Date extends TranslatableProperty
      */
     public $type = 'date';
 }
-

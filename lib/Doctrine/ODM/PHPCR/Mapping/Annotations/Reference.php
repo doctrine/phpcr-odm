@@ -47,4 +47,3 @@ class Reference
      */
     public $cascade = array();
 }
-

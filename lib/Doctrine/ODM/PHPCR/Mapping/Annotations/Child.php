@@ -38,4 +38,3 @@ final class Child
      */
     public $cascade = array();
 }
-
