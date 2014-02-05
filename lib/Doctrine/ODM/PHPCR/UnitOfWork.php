@@ -49,6 +49,8 @@ use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 
 use Jackalope\Session as JackalopeSession;
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
+use Doctrine\ODM\PHPCR\OperationQueue;
 
 /**
  * Unit of work class
@@ -69,6 +71,12 @@ class UnitOfWork
     const STATE_MANAGED = 2;
     const STATE_REMOVED = 3;
     const STATE_DETACHED = 4;
+
+    const OP_UPDATE = 'UPDATE';
+    const OP_INSERT = 'INSERT';
+    const OP_MOVE = 'MOVE';
+    const OP_REMOVE = 'REMOVE';
+    const OP_REORDER = 'REORDER';
 
     /**
      * @var DocumentManager
@@ -141,44 +149,9 @@ class UnitOfWork
     private $documentChangesets = array();
 
     /**
-     * List of documents that have a changed field to be updated on next flush
-     * oid => document
-     * @var array
+     * @var OperationStack
      */
-    private $scheduledUpdates = array();
-
-    /**
-     * List of documents that will be inserted on next flush
-     * oid => document
-     * @var array
-     */
-    private $scheduledInserts = array();
-
-    /**
-     * List of documents that will be moved on next flush
-     * oid => array(document, target path)
-     * @var array
-     */
-    private $scheduledMoves = array();
-
-    /**
-     * List of parent documents that have children that will be reordered on next flush
-     * parent oid => list of array with records array(parent document, srcName, targetName, before) with
-     * - parent document the document of the child to be reordered
-     * - srcName the Nodename of the document to be moved,
-     * - targetName the Nodename of the document to move srcName to
-     * - before a boolean telling whether to move srcName before or after targetName
-     *
-     * @var array
-     */
-    private $scheduledReorders = array();
-
-    /**
-     * List of documents that will be removed on next flush
-     * oid => document
-     * @var array
-     */
-    private $scheduledRemovals = array();
+    private $operationQueue;
 
     /**
      * @var array
@@ -252,6 +225,8 @@ class UnitOfWork
         if ($this->session instanceof JackalopeSession) {
             $this->useFetchDepth = 'jackalope.fetch_depth';
         }
+
+        $this->operationQueue = new OperationQueue();
     }
 
     public function setPrefetchHelper($helper)
@@ -651,7 +626,7 @@ class UnitOfWork
                 // TODO: Change Tracking Deferred Explicit
                 break;
             case self::STATE_REMOVED:
-                unset($this->scheduledRemovals[$oid]);
+                $this->operationQueue->removeOperationsForDocument($document, self::OP_REMOVE);
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
@@ -833,25 +808,16 @@ class UnitOfWork
 
         $state = $this->getDocumentState($document);
 
-        switch ($state) {
-            case self::STATE_NEW:
-                unset($this->scheduledInserts[$oid]);
-                break;
-            case self::STATE_REMOVED:
-                unset($this->scheduledRemovals[$oid]);
-                break;
-            case self::STATE_DETACHED:
-                throw new InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
+        if ($state === self::STATE_DETACHED) {
+            throw new InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
         }
 
-        $this->scheduledMoves[$oid] = array($document, $targetPath);
+        $this->operationQueue->push(self::OP_MOVE, $document, array($targetPath));
         $this->setDocumentState($oid, self::STATE_MANAGED);
     }
 
     public function scheduleReorder($document, $srcName, $targetName, $before)
     {
-        $oid = spl_object_hash($document);
-
         $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_REMOVED:
@@ -860,10 +826,7 @@ class UnitOfWork
                 throw new InvalidArgumentException('Detached document passed to reorder(): '.self::objToStr($document, $this->dm));
         }
 
-        if (! isset($this->scheduledReorders[$oid])) {
-            $this->scheduledReorders[$oid] = array();
-        }
-        $this->scheduledReorders[$oid][] = array($document, $srcName, $targetName, $before);
+        $this->operationQueue->push(self::OP_REORDER, $document, array($srcName, $targetName, $before));
     }
 
     public function scheduleRemove($document)
@@ -878,22 +841,16 @@ class UnitOfWork
         if (isset($visited[$oid])) {
             return;
         }
+
         $visited[$oid] = true;
 
         $state = $this->getDocumentState($document);
-        switch ($state) {
-            case self::STATE_NEW:
-                unset($this->scheduledInserts[$oid]);
-                break;
-            case self::STATE_MANAGED:
-                unset($this->scheduledMoves[$oid]);
-                unset($this->scheduledReorders[$oid]);
-                break;
-            case self::STATE_DETACHED:
-                throw new InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
+
+        if ($state === self::STATE_DETACHED) {
+            throw new InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
         }
 
-        $this->scheduledRemovals[$oid] = $document;
+        $this->operationQueue->push(self::OP_REMOVE, $document);
         $this->setDocumentState($oid, self::STATE_REMOVED);
 
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -1005,7 +962,7 @@ class UnitOfWork
      */
     public function isScheduledForInsert($document)
     {
-        return isset($this->scheduledInserts[spl_object_hash($document)]);
+        return $this->operationQueue->hasOperationForDocument($document, self::OP_INSERT);
     }
 
     /**
@@ -1020,7 +977,7 @@ class UnitOfWork
             throw new InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
-        foreach ($this->scheduledInserts as $insertedDocument) {
+        foreach ($this->getScheduledInserts() as $insertedDocument) {
             $class = $this->dm->getClassMetadata(get_class($insertedDocument));
             $this->computeChangeSet($class, $insertedDocument);
         }
@@ -1030,8 +987,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
-        if (!isset($this->scheduledInserts[$oid])) {
+        if (!$this->operationQueue->hasOperationForDocument($document, self::OP_INSERT)) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
         }
@@ -1105,16 +1061,16 @@ class UnitOfWork
     private function computeAssociationChanges($class, $oid, $isNew, $actualData, $assocType)
     {
         switch ($assocType) {
-            case 'reference':
-                $mappings = $class->referenceMappings;
-                $computeMethod = 'computeReferenceChanges';
-                break;
-            case 'referrer':
-                $mappings = $class->referrersMappings;
-                $computeMethod = 'computeReferrerChanges';
-                break;
-            default:
-                throw new InvalidArgumentException('Unsupported association type used: '.$assocType);
+        case 'reference':
+            $mappings = $class->referenceMappings;
+            $computeMethod = 'computeReferenceChanges';
+            break;
+        case 'referrer':
+            $mappings = $class->referrersMappings;
+            $computeMethod = 'computeReferrerChanges';
+            break;
+        default:
+            throw new InvalidArgumentException('Unsupported association type used: '.$assocType);
         }
 
         foreach ($mappings as $fieldName) {
@@ -1138,8 +1094,8 @@ class UnitOfWork
 
                     if (!$isNew && $mapping['cascade'] & ClassMetadata::CASCADE_REMOVE
                         && (is_array($this->originalData[$oid][$fieldName])
-                            || $this->originalData[$oid][$fieldName] instanceof Collection
-                        )
+                        || $this->originalData[$oid][$fieldName] instanceof Collection
+                    )
                     ) {
                         $associations = $this->originalData[$oid][$fieldName]->getOriginalPaths();
                         foreach ($associations as $association) {
@@ -1180,11 +1136,12 @@ class UnitOfWork
         $id = $this->getDocumentId($document, false);
 
         $isNew = !isset($this->originalData[$oid]);
+
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
-            $this->scheduledInserts[$oid] = $document;
+            $this->operationQueue->push(self::OP_INSERT, $document);
 
             foreach ($class->childrenMappings as $fieldName) {
                 if ($actualData[$fieldName]) {
@@ -1321,7 +1278,7 @@ class UnitOfWork
                             $this->documentChangesets[$oid]['reorderings'][] = $reordering;
                         }
 
-                        $this->scheduledUpdates[$oid] = $document;
+                        $this->operationQueue->push(self::OP_UPDATE, $document);
                     } elseif (isset($this->documentChangesets[$oid])) {
                         // make sure we don't keep an old changeset if an event changed
                         // the document and no reoderings changeset remain.
@@ -1340,9 +1297,9 @@ class UnitOfWork
                             continue;
                         }
                         if (($fieldValue instanceof ReferenceManyCollection
-                                || $fieldValue instanceof ReferrersCollection
-                            )
-                            && $fieldValue->changed()
+                            || $fieldValue instanceof ReferrersCollection
+                        )
+                        && $fieldValue->changed()
                         ) {
                             continue;
                         }
@@ -1355,11 +1312,13 @@ class UnitOfWork
             if (count($actualData)) {
                 if (empty($this->documentChangesets[$oid])) {
                     $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
-                } else {
+                    $this->operationQueue->push(self::OP_UPDATE, $document);
+                } elseif ($this->documentChangesets[$oid]['fields'] != $actualData) {
                     $this->documentChangesets[$oid]['fields'] = $actualData;
+                    $this->operationQueue->push(self::OP_UPDATE, $document);
                 }
 
-                $this->scheduledUpdates[$oid] = $document;
+
             } elseif (isset($this->documentChangesets[$oid])) {
                 // make sure we don't keep an old changeset if an event changed
                 // the document and no field changeset remains.
@@ -1385,28 +1344,28 @@ class UnitOfWork
         $state = $this->getDocumentState($child);
 
         switch ($state) {
-            case self::STATE_NEW:
-                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw CascadeException::newDocumentFound(self::objToStr($child));
-                }
+        case self::STATE_NEW:
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                throw CascadeException::newDocumentFound(self::objToStr($child));
+            }
 
-                $childId = $parentId.'/'.$nodename;
-                $targetClass->setIdentifierValue($child, $childId);
+            $childId = $parentId.'/'.$nodename;
+            $targetClass->setIdentifierValue($child, $childId);
 
-                if ($this->getDocumentById($childId)) {
-                    $child = $this->merge($child);
-                } else {
-                    $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
-                }
+            if ($this->getDocumentById($childId)) {
+                $child = $this->merge($child);
+            } else {
+                $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
+            }
 
-                $this->computeChangeSet($targetClass, $child);
-                break;
-            case self::STATE_DETACHED:
-                throw new InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
-            default:
-                if (PathHelper::getParentPath($this->getDocumentId($child)) !== $parentId) {
-                    throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
-                }
+            $this->computeChangeSet($targetClass, $child);
+            break;
+        case self::STATE_DETACHED:
+            throw new InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
+        default:
+            if (PathHelper::getParentPath($this->getDocumentId($child)) !== $parentId) {
+                throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
+            }
         }
 
         return $child;
@@ -1424,15 +1383,15 @@ class UnitOfWork
         $state = $this->getDocumentState($reference);
 
         switch ($state) {
-            case self::STATE_NEW:
-                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw CascadeException::newDocumentFound(self::objToStr($reference));
-                }
-                $this->persistNew($targetClass, $reference);
-                $this->computeChangeSet($targetClass, $reference);
-                break;
-            case self::STATE_DETACHED:
-                throw new InvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
+        case self::STATE_NEW:
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                throw CascadeException::newDocumentFound(self::objToStr($reference));
+            }
+            $this->persistNew($targetClass, $reference);
+            $this->computeChangeSet($targetClass, $reference);
+            break;
+        case self::STATE_DETACHED:
+            throw new InvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
         }
     }
 
@@ -1448,15 +1407,15 @@ class UnitOfWork
         $state = $this->getDocumentState($referrer);
 
         switch ($state) {
-            case self::STATE_NEW:
-                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw CascadeException::newDocumentFound(self::objToStr($referrer));
-                }
-                $this->persistNew($targetClass, $referrer);
-                $this->computeChangeSet($targetClass, $referrer);
-                break;
-            case self::STATE_DETACHED:
-                throw new InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
+        case self::STATE_NEW:
+            if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                throw CascadeException::newDocumentFound(self::objToStr($referrer));
+            }
+            $this->persistNew($targetClass, $referrer);
+            $this->computeChangeSet($targetClass, $referrer);
+            break;
+        case self::STATE_DETACHED:
+            throw new InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
         }
     }
 
@@ -1787,12 +1746,12 @@ class UnitOfWork
 
         $state = $this->getDocumentState($document);
         switch ($state) {
-            case self::STATE_MANAGED:
-                $this->unregisterDocument($document);
-                break;
-            case self::STATE_NEW:
-            case self::STATE_DETACHED:
-                return;
+        case self::STATE_MANAGED:
+            $this->unregisterDocument($document);
+            break;
+        case self::STATE_NEW:
+        case self::STATE_DETACHED:
+            return;
         }
     }
 
@@ -1899,15 +1858,31 @@ class UnitOfWork
         }
 
         try {
-            $this->executeInserts($this->scheduledInserts);
+            while (!$this->operationQueue->isEmpty()) {
+                $operation = $this->operationQueue->dequeue();
+                list($operationType, $document, $data) = $operation;
 
-            $this->executeUpdates($this->scheduledUpdates);
+                switch ($operationType) {
+                    case self::OP_INSERT:
+                        $this->executeInsert($document);
+                        break;
+                    case self::OP_UPDATE:
+                        $this->executeUpdate($document);
+                        break;
+                    case self::OP_REMOVE:
+                        $this->executeRemoval($document);
+                        break;
+                    case self::OP_REORDER:
+                        $this->executeReorder($document, $data);
+                        break;
+                    case self::OP_MOVE:
+                        $this->executeMove($document, $data);
+                        break;
+                    default:
+                        throw new RuntimeException('Unknown operation');
+                }
 
-            $this->executeRemovals($this->scheduledRemovals);
-
-            $this->executeReorders($this->scheduledReorders);
-
-            $this->executeMoves($this->scheduledMoves);
+            }
 
             $this->session->save();
 
@@ -1924,6 +1899,7 @@ class UnitOfWork
             } catch (\Exception $innerException) {
                 //TODO: log error while closing dm after error: $innerException->getMessage
             }
+
             throw $e;
         }
 
@@ -1952,14 +1928,9 @@ class UnitOfWork
             }
         }
 
-        $this->scheduledUpdates =
-        $this->scheduledRemovals =
-        $this->scheduledMoves =
-        $this->scheduledReorders =
-        $this->scheduledInserts =
         $this->visitedCollections =
-        $this->documentChangesets =
-        $this->changesetComputed = array();
+            $this->documentChangesets =
+            $this->changesetComputed = array();
     }
 
     /**
@@ -1967,146 +1938,122 @@ class UnitOfWork
      *
      * @param array $documents array of all to be inserted documents
      */
-    private function executeInserts($documents)
+    private function executeInsert($document)
     {
-        // sort the documents to insert parents first but maintain child order
-        $oids = array();
-        foreach ($documents as $oid => $document) {
-            if (!$this->contains($oid)) {
+        $oid = spl_object_hash($document);
+        $associationChangesets = $associationUpdates = array();
+
+        $class = $this->dm->getClassMetadata(get_class($document));
+
+        // PHPCR does not validate nullable unless we would start to
+        // generate custom node types, which we at the moment don't.
+        // the ORM can delegate this validation to the relational database
+        // that is using a strict schema
+        foreach ($class->fieldMappings as $fieldName) {
+            if (!isset($this->documentChangesets[$oid]['fields'][$fieldName]) // empty string is ok
+                && !$class->isNullable($fieldName)
+                && !$this->isAutocreatedProperty($class, $fieldName)
+            ) {
+                throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
+            }
+        }
+
+        $id = $this->getDocumentId($document);
+        $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
+        $nodename = PathHelper::getNodeName($id);
+        $node = $parentNode->addNode($nodename, $class->nodeType);
+        if ($class->node) {
+            $this->originalData[$oid][$class->node] = $node;
+        }
+        if ($class->nodename) {
+            $this->originalData[$oid][$class->nodename] = $nodename;
+        }
+
+        try {
+            $node->addMixin('phpcr:managed');
+        } catch (NoSuchNodeTypeException $e) {
+            throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
+        }
+
+        foreach ($class->mixins as $mixin) {
+            $node->addMixin($mixin);
+        }
+
+        if ($class->identifier) {
+            $class->setIdentifierValue($document, $id);
+        }
+        if ($class->node) {
+            $class->reflFields[$class->node]->setValue($document, $node);
+        }
+        if ($class->nodename) {
+            // make sure this reflects the id generator strategy generated id
+            $class->reflFields[$class->nodename]->setValue($document, $node->getName());
+        }
+        // make sure this reflects the id generator strategy generated id
+        if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
+            $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateProxyFromNode($parentNode, $this->getCurrentLocale($document, $class)));
+        }
+
+        if ($this->writeMetadata) {
+            $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
+        }
+
+        $this->setMixins($class, $node);
+
+        // set the uuid value if it needs to be set
+        $uuidFieldName = $class->getUuidFieldName();
+        if ($uuidFieldName && $node->hasProperty('jcr:uuid')) {
+            $uuidValue = $node->getProperty('jcr:uuid')->getValue();
+            $class->setFieldValue($document, $uuidFieldName, $uuidValue);
+        }
+
+        foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
+            // Ignore translatable fields (they will be persisted by the translation strategy)
+            if (in_array($fieldName, $class->translatableFields)) {
                 continue;
             }
 
-            $oids[$oid] = $this->getDocumentId($document);
-        }
-
-        $order = array_flip(array_values($oids));
-        uasort($oids, function ($a, $b) use ($order) {
-                // compute the node depths
-                $aCount = substr_count($a, '/');
-                $bCount = substr_count($b, '/');
-
-                // ensure that the original order is maintained for nodes with the same depth
-                if ($aCount === $bCount) {
-                    return ($order[$a] < $order[$b]) ? -1 : 1;
-                }
-
-                return ($aCount < $bCount) ? -1 : 1;
-            }
-        );
-
-        $associationChangesets = $associationUpdates = array();
-
-        foreach ($oids as $oid => $id) {
-            $document = $documents[$oid];
-            $class = $this->dm->getClassMetadata(get_class($document));
-
-            // PHPCR does not validate nullable unless we would start to
-            // generate custom node types, which we at the moment don't.
-            // the ORM can delegate this validation to the relational database
-            // that is using a strict schema
-            foreach ($class->fieldMappings as $fieldName) {
-                if (!isset($this->documentChangesets[$oid]['fields'][$fieldName]) // empty string is ok
-                    && !$class->isNullable($fieldName)
-                    && !$this->isAutocreatedProperty($class, $fieldName)
-                ) {
-                    throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
-                }
-            }
-
-            $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
-            $nodename = PathHelper::getNodeName($id);
-            $node = $parentNode->addNode($nodename, $class->nodeType);
-            if ($class->node) {
-                $this->originalData[$oid][$class->node] = $node;
-            }
-            if ($class->nodename) {
-                $this->originalData[$oid][$class->nodename] = $nodename;
-            }
-
-            try {
-                $node->addMixin('phpcr:managed');
-            } catch (NoSuchNodeTypeException $e) {
-                throw new PHPCRException('Register phpcr:managed node type first. See https://github.com/doctrine/phpcr-odm/wiki/Custom-node-type-phpcr:managed');
-            }
-
-            foreach ($class->mixins as $mixin) {
-                $node->addMixin($mixin);
-            }
-
-            if ($class->identifier) {
-                $class->setIdentifierValue($document, $id);
-            }
-            if ($class->node) {
-                $class->reflFields[$class->node]->setValue($document, $node);
-            }
-            if ($class->nodename) {
-                // make sure this reflects the id generator strategy generated id
-                $class->reflFields[$class->nodename]->setValue($document, $node->getName());
-            }
-            // make sure this reflects the id generator strategy generated id
-            if ($class->parentMapping && !$class->reflFields[$class->parentMapping]->getValue($document)) {
-                $class->reflFields[$class->parentMapping]->setValue($document, $this->getOrCreateProxyFromNode($parentNode, $this->getCurrentLocale($document, $class)));
-            }
-
-            if ($this->writeMetadata) {
-                $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
-            }
-
-            $this->setMixins($class, $node);
-
-            // set the uuid value if it needs to be set
-            $uuidFieldName = $class->getUuidFieldName();
-            if ($uuidFieldName && $node->hasProperty('jcr:uuid')) {
-                $uuidValue = $node->getProperty('jcr:uuid')->getValue();
-                $class->setFieldValue($document, $uuidFieldName, $uuidValue);
-            }
-
-            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
-                // Ignore translatable fields (they will be persisted by the translation strategy)
-                if (in_array($fieldName, $class->translatableFields)) {
+            if (in_array($fieldName, $class->fieldMappings)) {
+                $mapping = $class->mappings[$fieldName];
+                $type = PropertyType::valueFromName($mapping['type']);
+                if (null === $fieldValue) {
                     continue;
                 }
 
-                if (in_array($fieldName, $class->fieldMappings)) {
-                    $mapping = $class->mappings[$fieldName];
-                    $type = PropertyType::valueFromName($mapping['type']);
-                    if (null === $fieldValue) {
-                        continue;
+                if ($mapping['multivalue'] && $fieldValue) {
+                    $fieldValue = (array) $fieldValue;
+                    if (isset($mapping['assoc'])) {
+                        $node->setProperty($mapping['assoc'], array_keys($fieldValue), PropertyType::STRING);
+                        $fieldValue = array_values($fieldValue);
                     }
-
-                    if ($mapping['multivalue'] && $fieldValue) {
-                        $fieldValue = (array) $fieldValue;
-                        if (isset($mapping['assoc'])) {
-                            $node->setProperty($mapping['assoc'], array_keys($fieldValue), PropertyType::STRING);
-                            $fieldValue = array_values($fieldValue);
-                        }
-                    }
-
-                    $node->setProperty($mapping['property'], $fieldValue, $type);
-                } elseif (in_array($fieldName, $class->referenceMappings) || in_array($fieldName, $class->referrersMappings)) {
-                    $associationUpdates[$oid] = $document;
-
-                    //populate $associationChangesets to force executeUpdates($associationUpdates)
-                    //to only update association fields
-                    $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
-                    $data[$fieldName] = $fieldValue;
-                    $associationChangesets[$oid] = array('fields' => $data, 'reorderings' => array());
                 }
-            }
 
-            $this->doSaveTranslation($document, $node, $class);
+                $node->setProperty($mapping['property'], $fieldValue, $type);
+            } elseif (in_array($fieldName, $class->referenceMappings) || in_array($fieldName, $class->referrersMappings)) {
+                $associationUpdates[$oid] = $document;
 
-            if (isset($class->lifecycleCallbacks[Event::postPersist])) {
-                $class->invokeLifecycleCallbacks(Event::postPersist, $document);
+                //populate $associationChangesets to force executeUpdates($associationUpdates)
+                //to only update association fields
+                $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
+                $data[$fieldName] = $fieldValue;
+                $associationChangesets[$oid] = array('fields' => $data, 'reorderings' => array());
             }
-            if ($this->evm->hasListeners(Event::postPersist)) {
-                $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
-            }
+        }
+
+        $this->doSaveTranslation($document, $node, $class);
+
+        if (isset($class->lifecycleCallbacks[Event::postPersist])) {
+            $class->invokeLifecycleCallbacks(Event::postPersist, $document);
+        }
+        if ($this->evm->hasListeners(Event::postPersist)) {
+            $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
         }
 
         $this->documentChangesets = array_merge($this->documentChangesets, $associationChangesets);
 
-        $this->executeUpdates($associationUpdates, false);
+        foreach ($associationUpdates as $associationUpdate) {
+            $this->executeUpdate($associationUpdate, false);
+        }
     }
 
     /**
@@ -2145,233 +2092,228 @@ class UnitOfWork
     }
 
     /**
-     * Executes all document updates
+     * Executes a document update
      *
      * @param array   $documents      array of all to be updated documents
      * @param boolean $dispatchEvents if to dispatch events
      */
-    private function executeUpdates($documents, $dispatchEvents = true)
+    private function executeUpdate($document, $dispatchEvents = true)
     {
-        foreach ($documents as $oid => $document) {
-            if (!$this->contains($oid)) {
+        $oid = spl_object_hash($document);
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $node = $this->session->getNode($this->getDocumentId($document));
+
+        if ($this->writeMetadata) {
+            $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
+        }
+
+        if ($dispatchEvents) {
+            if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
+                $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
+                $this->computeChangeSet($class, $document);
+            }
+            if ($this->evm->hasListeners(Event::preUpdate)) {
+                $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
+                $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
+                $this->computeChangeSet($class, $document);
+            }
+        }
+
+        foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
+            // PHPCR does not validate nullable unless we would start to
+            // generate custom node types, which we at the moment don't.
+            // the ORM can delegate this validation to the relational database
+            // that is using a strict schema.
+            // do this after the preUpdate events to give listener a last
+            // chance to provide values
+            if (null === $fieldValue
+                && in_array($fieldName, $class->fieldMappings) // only care about non-virtual fields
+                && !$class->isNullable($fieldName)
+                && !$this->isAutocreatedProperty($class, $fieldName)
+            ) {
+                throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
+            }
+
+            // Ignore translatable fields (they will be persisted by the translation strategy)
+            if (in_array($fieldName, $class->translatableFields)) {
                 continue;
             }
 
-            $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $this->session->getNode($this->getDocumentId($document));
-
-            if ($this->writeMetadata) {
-                $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
-            }
-
-            if ($dispatchEvents) {
-                if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
-                    $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
-                    $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
-                    $this->computeChangeSet($class, $document);
+            $mapping = $class->mappings[$fieldName];
+            if (in_array($fieldName, $class->fieldMappings)) {
+                $type = PropertyType::valueFromName($mapping['type']);
+                if ($mapping['multivalue']) {
+                    $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
+                    if ($value && isset($mapping['assoc'])) {
+                        $node->setProperty($mapping['assoc'], array_keys($value), PropertyType::STRING);
+                        $value = array_values($value);
+                    }
+                } else {
+                    $value = $fieldValue;
                 }
-                if ($this->evm->hasListeners(Event::preUpdate)) {
-                    $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
-                    $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
-                    $this->computeChangeSet($class, $document);
+                $node->setProperty($mapping['property'], $value, $type);
+            } elseif ($mapping['type'] === $class::MANY_TO_ONE
+                || $mapping['type'] === $class::MANY_TO_MANY
+            ) {
+                if (!$this->writeMetadata) {
+                    continue;
                 }
-            }
-
-            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
-                // PHPCR does not validate nullable unless we would start to
-                // generate custom node types, which we at the moment don't.
-                // the ORM can delegate this validation to the relational database
-                // that is using a strict schema.
-                // do this after the preUpdate events to give listener a last
-                // chance to provide values
-                if (null === $fieldValue
-                    && in_array($fieldName, $class->fieldMappings) // only care about non-virtual fields
-                    && !$class->isNullable($fieldName)
-                    && !$this->isAutocreatedProperty($class, $fieldName)
-                ) {
-                    throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
-                }
-
-                // Ignore translatable fields (they will be persisted by the translation strategy)
-                if (in_array($fieldName, $class->translatableFields)) {
+                if ($node->hasProperty($mapping['property']) && is_null($fieldValue)) {
+                    $node->getProperty($mapping['property'])->remove();
                     continue;
                 }
 
-                $mapping = $class->mappings[$fieldName];
-                if (in_array($fieldName, $class->fieldMappings)) {
-                    $type = PropertyType::valueFromName($mapping['type']);
-                    if ($mapping['multivalue']) {
-                        $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
-                        if ($value && isset($mapping['assoc'])) {
-                            $node->setProperty($mapping['assoc'], array_keys($value), PropertyType::STRING);
-                            $value = array_values($value);
-                        }
-                    } else {
-                        $value = $fieldValue;
-                    }
-                    $node->setProperty($mapping['property'], $value, $type);
-                } elseif ($mapping['type'] === $class::MANY_TO_ONE
-                    || $mapping['type'] === $class::MANY_TO_MANY
-                ) {
-                    if (!$this->writeMetadata) {
-                        continue;
-                    }
-                    if ($node->hasProperty($mapping['property']) && is_null($fieldValue)) {
-                        $node->getProperty($mapping['property'])->remove();
-                        continue;
-                    }
+                switch ($mapping['strategy']) {
+                    case 'hard':
+                        $strategy = PropertyType::REFERENCE;
+                        break;
+                    case 'path':
+                        $strategy = PropertyType::PATH;
+                        break;
+                    default:
+                        $strategy = PropertyType::WEAKREFERENCE;
+                        break;
+                }
 
-                    switch ($mapping['strategy']) {
-                        case 'hard':
-                            $strategy = PropertyType::REFERENCE;
-                            break;
-                        case 'path':
-                            $strategy = PropertyType::PATH;
-                            break;
-                        default:
-                            $strategy = PropertyType::WEAKREFERENCE;
-                            break;
-                    }
-
-                    if ($mapping['type'] === $class::MANY_TO_MANY) {
-                        if (isset($fieldValue)) {
-                            $refNodesIds = array();
-                            foreach ($fieldValue as $fv) {
-                                if ($fv === null) {
-                                    continue;
-                                }
-
-                                $associatedNode = $this->session->getNode($this->getDocumentId($fv));
-                                if ($strategy === PropertyType::PATH) {
-                                    $refNodesIds[] = $associatedNode->getPath();
-                                } else {
-                                    $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                    $this->setMixins($refClass, $associatedNode);
-                                    if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                        throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
-                                    }
-                                    $refNodesIds[] = $associatedNode->getIdentifier();
-                                }
-                            }
-
-                            $refNodesIds = empty($refNodesIds) ? null : $refNodesIds;
-                            $node->setProperty($mapping['property'], $refNodesIds, $strategy);
-                        }
-                    } elseif ($mapping['type'] === $class::MANY_TO_ONE) {
-                        if (isset($fieldValue)) {
-                            $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
-
-                            if ($strategy === PropertyType::PATH) {
-                                $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
-                            } else {
-                                $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                                $this->setMixins($refClass, $associatedNode);
-                                if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
-                                }
-                                $node->setProperty($mapping['property'], $associatedNode->getIdentifier(), $strategy);
-                            }
-                        }
-                    }
-                } elseif ('referrers' === $mapping['type']) {
+                if ($mapping['type'] === $class::MANY_TO_MANY) {
                     if (isset($fieldValue)) {
-
-                        /*
-                         * each document in referrers field is supposed to
-                         * reference this document, so we have to update its
-                         * referencing property to contain the uuid of this
-                         * document
-                         */
+                        $refNodesIds = array();
                         foreach ($fieldValue as $fv) {
                             if ($fv === null) {
                                 continue;
                             }
 
-                            if (! $fv instanceof $mapping['referringDocument']) {
-                                throw new PHPCRException(sprintf("%s is not an instance of %s for document %s field %s", self::objToStr($fv, $this->dm), $mapping['referencedBy'], self::objToStr($document, $this->dm), $mapping['fieldName']));
-                            }
-
-                            $referencingNode = $this->session->getNode($this->getDocumentId($fv));
-                            $referencingMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
-                            $referencingField = $referencingMeta->getAssociation($mapping['referencedBy']);
-
-                            $uuid = $node->getIdentifier();
-                            $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
-                            switch ($referencingField['type']) {
-                                case ClassMetadata::MANY_TO_ONE:
-                                    $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                    if ($ref !== null && $ref !== $document) {
-                                        throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
-                                    }
-                                    // update the referencing document field to point to this document
-                                    $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
-                                    // and make sure the reference is not deleted in this change because the field could be null
-                                    unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
-                                    // store the change in PHPCR
-                                    $referencingNode->setProperty($referencingField['property'], $uuid, $strategy);
-                                    break;
-                                case ClassMetadata::MANY_TO_MANY:
-                                    /** @var $collection ReferenceManyCollection */
-                                    $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                    if ($collection && $collection->isDirty()) {
-                                        throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambiguous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
-                                    }
-                                    if ($collection) {
-                                        // make sure the reference is not deleted in this change because the field could be null
-                                        unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
-                                    } else {
-                                        $collection = new ReferenceManyCollection($this->dm, array($node), $class->name);
-                                        $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
-                                    }
-
-                                    if ($referencingNode->hasProperty($referencingField['property'])) {
-                                        if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['property']), PropertyType::STRING)) {
-                                            if (! $collection->isDirty()) {
-                                                // update the reference collection: add us to it
-                                                $collection->add($document);
-                                            }
-                                            // store the change in PHPCR
-                                            $referencingNode->getProperty($referencingField['property'])->addValue($uuid); // property should be correct type already
-                                        }
-                                    } else {
-                                        // store the change in PHPCR
-                                        $referencingNode->setProperty($referencingField['property'], array($uuid), $strategy);
-                                    }
-
-                                    // avoid confusion later, this change to the reference collection is already saved
-                                    $collection->setDirty(false);
-                                    break;
-                                default:
-                                    // in class metadata we only did a santiy check but not look at the actual mapping
-                                    throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
+                            $associatedNode = $this->session->getNode($this->getDocumentId($fv));
+                            if ($strategy === PropertyType::PATH) {
+                                $refNodesIds[] = $associatedNode->getPath();
+                            } else {
+                                $refClass = $this->dm->getClassMetadata(get_class($fv));
+                                $this->setMixins($refClass, $associatedNode);
+                                if (!$associatedNode->isNodeType('mix:referenceable')) {
+                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
+                                }
+                                $refNodesIds[] = $associatedNode->getIdentifier();
                             }
                         }
+
+                        $refNodesIds = empty($refNodesIds) ? null : $refNodesIds;
+                        $node->setProperty($mapping['property'], $refNodesIds, $strategy);
                     }
-                } elseif ('child' === $mapping['type']) {
-                    if ($fieldValue === null && $node->hasNode($mapping['nodeName'])) {
-                        $child = $node->getNode($mapping['nodeName']);
-                        $childDocument = $this->getOrCreateDocument(null, $child);
-                        $this->purgeChildren($childDocument);
-                        $child->remove();
+                } elseif ($mapping['type'] === $class::MANY_TO_ONE) {
+                    if (isset($fieldValue)) {
+                        $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
+
+                        if ($strategy === PropertyType::PATH) {
+                            $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
+                        } else {
+                            $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
+                            $this->setMixins($refClass, $associatedNode);
+                            if (!$associatedNode->isNodeType('mix:referenceable')) {
+                                throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
+                            }
+                            $node->setProperty($mapping['property'], $associatedNode->getIdentifier(), $strategy);
+                        }
                     }
+                }
+            } elseif ('referrers' === $mapping['type']) {
+                if (isset($fieldValue)) {
+
+                    /*
+                     * each document in referrers field is supposed to
+                     * reference this document, so we have to update its
+                     * referencing property to contain the uuid of this
+                     * document
+                     */
+                    foreach ($fieldValue as $fv) {
+                        if ($fv === null) {
+                            continue;
+                        }
+
+                        if (! $fv instanceof $mapping['referringDocument']) {
+                            throw new PHPCRException(sprintf("%s is not an instance of %s for document %s field %s", self::objToStr($fv, $this->dm), $mapping['referencedBy'], self::objToStr($document, $this->dm), $mapping['fieldName']));
+                        }
+
+                        $referencingNode = $this->session->getNode($this->getDocumentId($fv));
+                        $referencingMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
+                        $referencingField = $referencingMeta->getAssociation($mapping['referencedBy']);
+
+                        $uuid = $node->getIdentifier();
+                        $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
+                        switch ($referencingField['type']) {
+                        case ClassMetadata::MANY_TO_ONE:
+                            $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                            if ($ref !== null && $ref !== $document) {
+                                throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
+                            }
+                            // update the referencing document field to point to this document
+                            $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
+                            // and make sure the reference is not deleted in this change because the field could be null
+                            unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                            // store the change in PHPCR
+                            $referencingNode->setProperty($referencingField['property'], $uuid, $strategy);
+                            break;
+                        case ClassMetadata::MANY_TO_MANY:
+                            /** @var $collection ReferenceManyCollection */
+                            $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
+                            if ($collection && $collection->isDirty()) {
+                                throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambiguous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
+                            }
+                            if ($collection) {
+                                // make sure the reference is not deleted in this change because the field could be null
+                                unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                            } else {
+                                $collection = new ReferenceManyCollection($this->dm, array($node), $class->name);
+                                $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
+                            }
+
+                            if ($referencingNode->hasProperty($referencingField['property'])) {
+                                if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['property']), PropertyType::STRING)) {
+                                    if (! $collection->isDirty()) {
+                                        // update the reference collection: add us to it
+                                        $collection->add($document);
+                                    }
+                                    // store the change in PHPCR
+                                    $referencingNode->getProperty($referencingField['property'])->addValue($uuid); // property should be correct type already
+                                }
+                            } else {
+                                // store the change in PHPCR
+                                $referencingNode->setProperty($referencingField['property'], array($uuid), $strategy);
+                            }
+
+                            // avoid confusion later, this change to the reference collection is already saved
+                            $collection->setDirty(false);
+                            break;
+                        default:
+                            // in class metadata we only did a santiy check but not look at the actual mapping
+                            throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
+                        }
+                    }
+                }
+            } elseif ('child' === $mapping['type']) {
+                if ($fieldValue === null && $node->hasNode($mapping['nodeName'])) {
+                    $child = $node->getNode($mapping['nodeName']);
+                    $childDocument = $this->getOrCreateDocument(null, $child);
+                    $this->purgeChildren($childDocument);
+                    $child->remove();
                 }
             }
+        }
 
-            foreach ($this->documentChangesets[$oid]['reorderings'] as $reorderings) {
-                foreach ($reorderings as $srcChildRelPath => $destChildRelPath) {
-                    $node->orderBefore($srcChildRelPath, $destChildRelPath);
-                }
+        foreach ($this->documentChangesets[$oid]['reorderings'] as $reorderings) {
+            foreach ($reorderings as $srcChildRelPath => $destChildRelPath) {
+                $node->orderBefore($srcChildRelPath, $destChildRelPath);
             }
+        }
 
-            $this->doSaveTranslation($document, $node, $class);
+        $this->doSaveTranslation($document, $node, $class);
 
-            if ($dispatchEvents) {
-                if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
-                    $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
-                }
-                if ($this->evm->hasListeners(Event::postUpdate)) {
-                    $this->evm->dispatchEvent(Event::postUpdate, new LifecycleEventArgs($document, $this->dm));
-                }
+        if ($dispatchEvents) {
+            if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
+                $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
+            }
+            if ($this->evm->hasListeners(Event::postUpdate)) {
+                $this->evm->dispatchEvent(Event::postUpdate, new LifecycleEventArgs($document, $this->dm));
             }
         }
     }
@@ -2381,74 +2323,69 @@ class UnitOfWork
      *
      * @param array $documents array of all to be moved documents
      */
-    private function executeMoves($documents)
+    private function executeMove($document, $data)
     {
-        foreach ($documents as $oid => $value) {
-            if (!$this->contains($oid)) {
+        list($targetPath) = $data;
+        $oid = spl_object_hash($document);
+
+        $sourcePath = $this->getDocumentId($document);
+        if ($sourcePath === $targetPath) {
+            continue;
+        }
+
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if (isset($class->lifecycleCallbacks[Event::preMove])) {
+            $class->invokeLifecycleCallbacks(Event::preMove, $document);
+        }
+
+        if ($this->evm->hasListeners(Event::preMove)) {
+            $this->evm->dispatchEvent(Event::preMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
+        }
+
+        $this->session->move($sourcePath, $targetPath);
+
+        // update fields nodename and parentMapping if they exist in this type
+        $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
+        if ($class->nodename) {
+            $class->setFieldValue($document, $class->nodename, $node->getName());
+        }
+
+        if ($class->parentMapping) {
+            $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent(), $this->getCurrentLocale($document, $class)));
+        }
+
+        // update all cached children of the document to reflect the move (path id changes)
+        foreach ($this->documentIds as $childOid => $id) {
+            if (0 !== strpos($id, $sourcePath)) {
                 continue;
             }
 
-            list($document, $targetPath) = $value;
+            $newId = $targetPath.substr($id, strlen($sourcePath));
+            $this->documentIds[$childOid] = $newId;
 
-            $sourcePath = $this->getDocumentId($document);
-            if ($sourcePath === $targetPath) {
+            $child = $this->getDocumentById($id);
+            if (!$child) {
                 continue;
             }
 
-            $class = $this->dm->getClassMetadata(get_class($document));
-            if (isset($class->lifecycleCallbacks[Event::preMove])) {
-                $class->invokeLifecycleCallbacks(Event::preMove, $document);
-            }
+            unset($this->identityMap[$id]);
+            $this->identityMap[$newId] = $child;
 
-            if ($this->evm->hasListeners(Event::preMove)) {
-                $this->evm->dispatchEvent(Event::preMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
-            }
-
-            $this->session->move($sourcePath, $targetPath);
-
-            // update fields nodename and parentMapping if they exist in this type
-            $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
-            if ($class->nodename) {
-                $class->setFieldValue($document, $class->nodename, $node->getName());
-            }
-
-            if ($class->parentMapping) {
-                $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent(), $this->getCurrentLocale($document, $class)));
-            }
-
-            // update all cached children of the document to reflect the move (path id changes)
-            foreach ($this->documentIds as $childOid => $id) {
-                if (0 !== strpos($id, $sourcePath)) {
-                    continue;
-                }
-
-                $newId = $targetPath.substr($id, strlen($sourcePath));
-                $this->documentIds[$childOid] = $newId;
-
-                $child = $this->getDocumentById($id);
-                if (!$child) {
-                    continue;
-                }
-
-                unset($this->identityMap[$id]);
-                $this->identityMap[$newId] = $child;
-
-                $childClass = $this->dm->getClassMetadata(get_class($child));
-                if ($childClass->identifier) {
-                    $childClass->setIdentifierValue($child, $newId);
-                    if (! $child instanceof Proxy || $child->__isInitialized()) {
-                        $this->originalData[$oid][$childClass->identifier] = $newId;
-                    }
+            $childClass = $this->dm->getClassMetadata(get_class($child));
+            if ($childClass->identifier) {
+                $childClass->setIdentifierValue($child, $newId);
+                if (! $child instanceof Proxy || $child->__isInitialized()) {
+                    $this->originalData[$oid][$childClass->identifier] = $newId;
                 }
             }
+        }
 
-            if (isset($class->lifecycleCallbacks[Event::postMove])) {
-                $class->invokeLifecycleCallbacks(Event::postMove, $document);
-            }
+        if (isset($class->lifecycleCallbacks[Event::postMove])) {
+            $class->invokeLifecycleCallbacks(Event::postMove, $document);
+        }
 
-            if ($this->evm->hasListeners(Event::postMove)) {
-                $this->evm->dispatchEvent(Event::postMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
-            }
+        if ($this->evm->hasListeners(Event::postMove)) {
+            $this->evm->dispatchEvent(Event::postMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
         }
     }
 
@@ -2457,41 +2394,34 @@ class UnitOfWork
      *
      * @param $documents
      */
-    private function executeReorders($documents)
+    private function executeReorder($parent, $data)
     {
-        foreach ($documents as $oid => $list) {
-            if (!$this->contains($oid)) {
-                continue;
-            }
-            foreach ($list as $value) {
-                list($parent, $src, $target, $before) = $value;
-                $parentNode = $this->session->getNode($this->getDocumentId($parent));
+        list($src, $target, $before) = $data;
+        $parentNode = $this->session->getNode($this->getDocumentId($parent));
 
-                // check for src and target ...
-                $dest = $target;
-                if ($parentNode->hasNode($src) && $parentNode->hasNode($target)) {
-                    // there is no orderAfter, so we need to find the child after target to use it in orderBefore
-                    if (!$before) {
-                        $dest = null;
-                        $found = false;
-                        foreach ($parentNode->getNodes() as $name => $child) {
-                            if ($name === $target) {
-                                $found = true;
-                            } elseif ($found) {
-                                $dest = $name;
-                                break;
-                            }
-                        }
-                    }
-
-                    $parentNode->orderBefore($src, $dest);
-                    // set all children collection to initialized = false to force reload after reordering
-                    $class = $this->dm->getClassMetadata(get_class($parent));
-                    foreach ($class->childrenMappings as $fieldName) {
-                        $children = $class->reflFields[$fieldName]->getValue($parent);
-                        $children->setInitialized(false);
+        // check for src and target ...
+        $dest = $target;
+        if ($parentNode->hasNode($src) && $parentNode->hasNode($target)) {
+            // there is no orderAfter, so we need to find the child after target to use it in orderBefore
+            if (!$before) {
+                $dest = null;
+                $found = false;
+                foreach ($parentNode->getNodes() as $name => $child) {
+                    if ($name === $target) {
+                        $found = true;
+                    } elseif ($found) {
+                        $dest = $name;
+                        break;
                     }
                 }
+            }
+
+            $parentNode->orderBefore($src, $dest);
+            // set all children collection to initialized = false to force reload after reordering
+            $class = $this->dm->getClassMetadata(get_class($parent));
+            foreach ($class->childrenMappings as $fieldName) {
+                $children = $class->reflFields[$fieldName]->getValue($parent);
+                $children->setInitialized(false);
             }
         }
     }
@@ -2501,32 +2431,26 @@ class UnitOfWork
      *
      * @param array $documents array of all to be removed documents
      */
-    private function executeRemovals($documents)
+    private function executeRemoval($document)
     {
-        foreach ($documents as $oid => $document) {
-            if (empty($this->documentIds[$oid])) {
-                continue;
-            }
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $id = $this->getDocumentId($document);
 
-            $class = $this->dm->getClassMetadata(get_class($document));
-            $id = $this->getDocumentId($document);
+        try {
+            $node = $this->session->getNode($id);
+            $this->doRemoveAllTranslations($document, $class);
+            $node->remove();
+        } catch (PathNotFoundException $e) {
+        }
 
-            try {
-                $node = $this->session->getNode($id);
-                $this->doRemoveAllTranslations($document, $class);
-                $node->remove();
-            } catch (PathNotFoundException $e) {
-            }
+        $this->unregisterDocument($document);
+        $this->purgeChildren($document);
 
-            $this->unregisterDocument($document);
-            $this->purgeChildren($document);
-
-            if (isset($class->lifecycleCallbacks[Event::postRemove])) {
-                $class->invokeLifecycleCallbacks(Event::postRemove, $document);
-            }
-            if ($this->evm->hasListeners(Event::postRemove)) {
-                $this->evm->dispatchEvent(Event::postRemove, new LifecycleEventArgs($document, $this->dm));
-            }
+        if (isset($class->lifecycleCallbacks[Event::postRemove])) {
+            $class->invokeLifecycleCallbacks(Event::postRemove, $document);
+        }
+        if ($this->evm->hasListeners(Event::postRemove)) {
+            $this->evm->dispatchEvent(Event::postRemove, new LifecycleEventArgs($document, $this->dm));
         }
     }
 
@@ -2698,11 +2622,7 @@ class UnitOfWork
             unset($this->identityMap[$this->documentIds[$oid]]);
         }
 
-        unset($this->scheduledRemovals[$oid],
-            $this->scheduledUpdates[$oid],
-            $this->scheduledMoves[$oid],
-            $this->scheduledReorders[$oid],
-            $this->scheduledInserts[$oid],
+        unset(
             $this->originalData[$oid],
             $this->documentIds[$oid],
             $this->documentState[$oid],
@@ -2742,7 +2662,7 @@ class UnitOfWork
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
 
-        return isset($this->documentIds[$oid]) && !isset($this->scheduledRemovals[$oid]);
+        return isset($this->documentIds[$oid]) && !$this->operationQueue->hasOperationForDocument($document, self::OP_REMOVE);
     }
 
     /**
@@ -2834,22 +2754,17 @@ class UnitOfWork
     public function clear()
     {
         $this->identityMap =
-        $this->documentIds =
-        $this->documentState =
-        $this->documentTranslations =
-        $this->documentLocales =
-        $this->nonMappedData =
-        $this->originalData =
-        $this->documentChangesets =
-        $this->changesetComputed =
-        $this->scheduledUpdates =
-        $this->scheduledInserts =
-        $this->scheduledMoves =
-        $this->scheduledReorders =
-        $this->scheduledRemovals =
-        $this->visitedCollections =
-        $this->documentHistory =
-        $this->documentVersion = array();
+            $this->documentIds =
+            $this->documentState =
+            $this->documentTranslations =
+            $this->documentLocales =
+            $this->nonMappedData =
+            $this->originalData =
+            $this->documentChangesets =
+            $this->changesetComputed =
+            $this->visitedCollections =
+            $this->documentHistory =
+            $this->documentVersion = array();
 
         if ($this->evm->hasListeners(Event::onClear)) {
             $this->evm->dispatchEvent(Event::onClear, new ManagerEventArgs($this->dm));
@@ -2916,7 +2831,7 @@ class UnitOfWork
         // handle case for initial persisting
         if (empty($this->documentTranslations[$oid])) {
             $this->bindTranslation($document, $locale);
-        // handle case when locale in the mapped property changed
+            // handle case when locale in the mapped property changed
         } elseif (isset($this->documentLocales[$oid]['current'])
             && $locale !== $this->documentLocales[$oid]['current']
         ) {
@@ -3354,7 +3269,7 @@ class UnitOfWork
      */
     public function getScheduledUpdates()
     {
-        return $this->scheduledUpdates;
+        return $this->operationQueue->filterByOperationType(self::OP_UPDATE);
     }
 
     /**
@@ -3364,7 +3279,7 @@ class UnitOfWork
      */
     public function getScheduledInserts()
     {
-        return $this->scheduledInserts;
+        return $this->operationQueue->filterByOperationType(self::OP_INSERT);
     }
 
     /**
@@ -3374,7 +3289,7 @@ class UnitOfWork
      */
     public function getScheduledMoves()
     {
-        return $this->scheduledMoves;
+        return $this->operationQueue->filterByOperationType(self::OP_REMOVE);;
     }
 
     /**
@@ -3384,7 +3299,7 @@ class UnitOfWork
      */
     public function getScheduledReorders()
     {
-        return $this->scheduledReorders;
+        return $this->operationQueue->filterByOperationType(self::OP_REORDER);
     }
 
     /**
@@ -3394,6 +3309,6 @@ class UnitOfWork
      */
     public function getScheduledRemovals()
     {
-        return $this->scheduledRemovals;
+        return $this->operationQueue->filterByOperationType(self::OP_REMOVAL);
     }
 }
