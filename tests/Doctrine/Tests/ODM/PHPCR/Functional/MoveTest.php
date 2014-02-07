@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 use PHPCR\PropertyType;
 
-use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 
 /**
@@ -38,8 +37,8 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         // remove node for root tests
         $session = $this->dm->getPhpcrSession();
         $root = $session->getNode('/');
-        if ($root->hasNode('lsmith')) {
-            $root->getNode('lsmith')->remove();
+        if ($root->hasNode('dbu')) {
+            $root->getNode('dbu')->remove();
             $session->save();
         }
     }
@@ -225,12 +224,22 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testMoveToRootByParent()
     {
+        $user2 = new CmsTeamUser();
+        $user2->username = 'dbu';
+        $user2->parent = $this->dm->find(null, '/functional/lsmith');
+        $this->dm->persist($user2);
+        $this->dm->flush();
         $this->dm->clear();
-        $user = $this->dm->find('Doctrine\ODM\PHPCR\Document\Generic', '/functional/lsmith');
-        $this->assertNotNull($user, 'User must exist');
+
+        $user = $this->dm->find(null, '/functional/lsmith/dbu');
+        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsTeamUser', $user);
         $root = $this->dm->find(null, '/');
         $user->setParent($root);
         $this->dm->persist($user);
         $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/dbu');
+        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsTeamUser', $user);
     }
 }

@@ -46,23 +46,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testFind()
-    {
-        $user = $this->dm->find($this->type, '/functional/user');
-
-        $this->assertInstanceOf($this->type, $user);
-        $this->assertEquals('/functional/user', $user->id);
-
-        $this->assertEquals('lsmith', $user->username);
-        $this->assertEquals(array(3, 1, 2), $user->numbers);
-
-        $user = $this->dm->find($this->type, 'functional/user');
-        $this->assertInstanceOf($this->type, $user);
-
-        $user = $this->dm->find($this->type, 'functional/user');
-        $this->assertInstanceOf($this->type, $user);
-    }
-
     public function testInsert()
     {
         $user = new User();
@@ -261,7 +244,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User2', '/functional/user');
+        $userNew = $this->dm->find($this->type, '/functional/user');
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
@@ -371,22 +354,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('test3', $pUser3->username);
     }
 
-    public function testFindTypeValidation()
-    {
-        // hackish: forcing the class metadata to be loaded for those two classes so that the alias mapper finds them
-        $this->dm->getRepository($this->type);
-        $this->dm->getRepository($this->type.'2');
-        // --
-
-        $this->dm->getConfiguration()->setValidateDoctrineMetadata(false);
-        $user = $this->dm->find($this->type.'2', '/functional/user');
-        $this->assertNotInstanceOf($this->type, $user);
-
-        $this->dm->getConfiguration()->setValidateDoctrineMetadata(true);
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\PHPCRException');
-        $this->dm->find($this->type, '/functional/user');
-    }
-
     public function testNullRemovesTheProperty()
     {
         $user1 = $this->dm->find($this->type, '/functional/user');
@@ -399,25 +366,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($user2->note);
     }
 
-    public function testInheritance()
-    {
-        $user = new User4();
-        $user->username = "test";
-        $user->numbers = array(1, 2, 3);
-        $user->id = '/functional/test';
-        $user->name = 'inheritance';
-
-        $this->dm->persist($user);
-        $this->dm->flush();
-        $this->dm->clear();
-
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User4', '/functional/test');
-
-        $this->assertNotNull($userNew, "Have to hydrate user object!");
-        $this->assertEquals($user->username, $userNew->username);
-        $this->assertEquals($user->numbers, $userNew->numbers);
-        $this->assertEquals($user->name, $userNew->name);
-    }
 
     public function testNoIdProperty()
     {
@@ -535,8 +483,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find($this->type, '/functional/test');
-
+        $userNew = $this->dm->find(null, '/functional/test');
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
@@ -584,15 +531,6 @@ class User3
     public $id;
     /** @PHPCRODM\String */
     public $username;
-}
-
-/**
- * @PHPCRODM\Document()
- */
-class User4 extends User
-{
-    /** @PHPCRODM\String */
-    public $name;
 }
 
 /**

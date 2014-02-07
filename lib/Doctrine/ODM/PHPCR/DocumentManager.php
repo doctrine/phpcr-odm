@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
@@ -297,7 +298,9 @@ class DocumentManager implements ObjectManager
     /**
      * Find the Document with the given id.
      *
-     * Will return null if the document was not found.
+     * Will return null if the document was not found. A document is considered
+     * not found if the data at $id is not instance of of the specified
+     * $className. To get the document regardless of its class, pass null.
      *
      * If the document is translatable, then the language chooser strategy is
      * used to load the best suited language for the translatable fields.
@@ -306,9 +309,6 @@ class DocumentManager implements ObjectManager
      * @param string      $id        the path or uuid of the document to find
      *
      * @return object|null the document if found, otherwise null
-     *
-     * @throws PHPCRException if $className is specified and does not match
-     *      the class of the document that was found at $id.
      */
     public function find($className, $id)
     {
@@ -321,11 +321,15 @@ class DocumentManager implements ObjectManager
 
             $document = $this->unitOfWork->getDocumentById($id);
             if ($document) {
-                $this->unitOfWork->validateClassName($document, $className);
+                try {
+                    $this->unitOfWork->validateClassName($document, $className);
 
-                return $document;
+                    return $document;
+                } catch(ClassMismatchException $e) {
+                    return null;
+                }
+
             }
-
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
             return null;
@@ -333,7 +337,11 @@ class DocumentManager implements ObjectManager
 
         $hints = array('fallback' => true);
 
-        return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
+        try {
+            return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
+        } catch (ClassMismatchException $e) {
+            return null;
+        }
     }
 
     /**
@@ -379,11 +387,15 @@ class DocumentManager implements ObjectManager
                 try {
                     $this->unitOfWork->validateClassName($document, $className);
                     $documents[$id] = $document;
-                } catch (PHPCRException $e) {
+                } catch (ClassMismatchException $e) {
                     // ignore on class mismatch
                 }
             } elseif (isset($nodes[$id])) {
-                $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
+                try {
+                    $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
+                } catch (ClassMismatchException $e) {
+                    // ignore on class mismatch
+                }
             }
         }
 
