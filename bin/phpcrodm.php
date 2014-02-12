@@ -1,13 +1,27 @@
 <?php
 
-($autoload = @include_once __DIR__ . '/../vendor/autoload.php') || $autoload = @include_once __DIR__ . '/../../../autoload.php';
+$up = DIRECTORY_SEPARATOR . '..';
+$file = DIRECTORY_SEPARATOR . 'autoload.php';
+$candiates = array(
+    __DIR__ . $up . $file,
+    __DIR__ . $up . DIRECTORY_SEPARATOR . 'vendor' . $file,
+    __DIR__ . $up . $up . $up . $file,
+);
+
+foreach ($candiates as $path) {
+    echo $path;
+    $autoload = @include_once $path;
+    if ($autoload) {
+        break;
+    }
+}
+
 if (!$autoload) {
-    throw new RuntimeException('Install dependencies to run phpcr.');
+    throw new RuntimeException('Install dependencies to run the console.');
 }
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
 AnnotationRegistry::registerLoader(array($autoload, 'loadClass'));
-AnnotationRegistry::registerFile(__DIR__.'/../lib/Doctrine/ODM/PHPCR/Mapping/Annotations/DoctrineAnnotations.php');
 
 $configFile = getcwd() . DIRECTORY_SEPARATOR . 'cli-config.php';
 
@@ -53,6 +67,8 @@ $cli->addCommands(array(
     new \PHPCR\Util\Console\Command\WorkspaceListCommand(),
     new \PHPCR\Util\Console\Command\WorkspacePurgeCommand(),
     new \PHPCR\Util\Console\Command\WorkspaceQueryCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentMigrateClassCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\GenerateProxiesCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\InfoDoctrineCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
