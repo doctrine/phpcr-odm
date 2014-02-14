@@ -2313,7 +2313,7 @@ class UnitOfWork
                                 case ClassMetadata::MANY_TO_MANY:
                                     /** @var $collection ReferenceManyCollection */
                                     $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                    if ($collection && $collection->isDirty()) {
+                                    if ($collection instanceof PersistentCollection && $collection->isDirty()) {
                                         throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambiguous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
                                     }
                                     if ($collection) {
@@ -2326,7 +2326,7 @@ class UnitOfWork
 
                                     if ($referencingNode->hasProperty($referencingField['property'])) {
                                         if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['property']), PropertyType::STRING)) {
-                                            if (! $collection->isDirty()) {
+                                            if (!$collection instanceof PersistentCollection || !$collection->isDirty()) {
                                                 // update the reference collection: add us to it
                                                 $collection->add($document);
                                             }
