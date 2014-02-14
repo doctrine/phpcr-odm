@@ -97,6 +97,45 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('dbu', $userWithAlias->username);
     }
 
+    public function testFindById()
+    {
+        $user = $this->dm->find(null, '/functional/bogus');
+        $this->assertNull($user);
+
+        $newUser = new User();
+        $newUser->username = 'test';
+        $newUser->id = '/functional/test';
+
+        $this->dm->persist($newUser);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $foundUser = $this->dm->find(null, '/functional/test');
+        $this->assertNotNull($foundUser);
+        $this->assertEquals($newUser->username, $foundUser->username);
+    }
+
+    public function testFindByUuid()
+    {
+        $generator = $this->dm->getConfiguration()->getUuidGenerator();
+
+        $user = $this->dm->find(null, $generator());
+        $this->assertNull($user);
+
+        $newUser = new UserWithUuid();
+        $newUser->username = 'test';
+        $newUser->id = '/functional/test';
+
+        $this->dm->persist($newUser);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $foundUser = $this->dm->find(null, $newUser->uuid);
+        $this->assertNotNull($foundUser);
+        $this->assertEquals($newUser->username, $foundUser->username);
+        $this->assertEquals($newUser->id, '/functional/test');
+    }
+
     public function testFindNonFlushed()
     {
         $user = new User();
@@ -488,30 +527,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
-
-    public function testFindByUuid()
-    {
-        $generator = $this->dm->getConfiguration()->getUuidGenerator();
-
-        $user = $this->dm->find(null, $generator());
-        $this->assertNull($user);
-
-        $user = new UserWithUuid();
-        $user->username = 'test';
-        $user->id = '/functional/test';
-
-        $this->dm->persist($user);
-        $this->dm->flush();
-        $this->dm->clear();
-
-        $foundUser = $this->dm->find(null, '/functional/test');
-        $this->assertNotNull($foundUser);
-        $this->assertEquals($user->username, $foundUser->username);
-        $this->assertEquals($user->uuid, $foundUser->uuid);
-
-        $foundUser = $this->dm->find(null, '/functional/bogus');
-        $this->assertNull($foundUser);
-    }
 }
 
 /**
@@ -628,7 +643,7 @@ class VersionTestObj
 }
 
 /**
- * @PHPCRODM\Document()
+ * @PHPCRODM\Document(referenceable=true)
  */
 class UserWithUuid extends User
 {
