@@ -40,6 +40,7 @@ use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
+use PHPCR\ItemNotFoundException;
 use PHPCR\PathNotFoundException;
 use PHPCR\Util\ValueConverter;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
@@ -332,6 +333,8 @@ class DocumentManager implements ObjectManager
             }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
+            return null;
+        } catch (ItemNotFoundException $e) {
             return null;
         }
 

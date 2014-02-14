@@ -488,6 +488,30 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
+
+    public function testFindByUuid()
+    {
+        $generator = $this->dm->getConfiguration()->getUuidGenerator();
+
+        $user = $this->dm->find(null, $generator());
+        $this->assertNull($user);
+
+        $user = new UserWithUuid();
+        $user->username = 'test';
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $foundUser = $this->dm->find(null, '/functional/test');
+        $this->assertNotNull($foundUser);
+        $this->assertEquals($user->username, $foundUser->username);
+        $this->assertEquals($user->uuid, $foundUser->uuid);
+
+        $foundUser = $this->dm->find(null, '/functional/bogus');
+        $this->assertNull($foundUser);
+    }
 }
 
 /**
@@ -601,4 +625,13 @@ class VersionTestObj
 
     /** @PHPCRODM\Int(multivalue=true,nullable=true) */
     public $numbers;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class UserWithUuid extends User
+{
+    /** @PHPCRODM\Uuid */
+    public $uuid;
 }
