@@ -3,9 +3,6 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
-use PHPCR\Query\QOM\EquiJoinConditionInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
@@ -22,17 +19,17 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 class BuilderConverterPhpcr
 {
     /**
-     * @var QueryObjectModelFactoryInterface
+     * @var PHPCR\Query\QOM\QueryObjectModelFactoryInterface
      */
     protected $qomf;
 
     /**
-     * @var ClassMetadataFactory
+     * @var Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory
      */
     protected $mdf;
 
     /**
-     * @var DocumentManager
+     * @var Doctrine\ODM\PHPCR\DocumentManager
      */
     protected $dm;
 
@@ -40,7 +37,7 @@ class BuilderConverterPhpcr
      * When document sources are registered we put the document
      * metadata here.
      *
-     * @var ClassMetadata[]
+     * @var array
      */
     protected $aliasMetadata = array();
 
@@ -48,7 +45,7 @@ class BuilderConverterPhpcr
      * When document sources are registered we put the translator
      * here in case the document is translatable.
      *
-     * @var TranslationStrategyInterface[]
+     * @var array
      */
     protected $translator = array();
 
@@ -80,11 +77,6 @@ class BuilderConverterPhpcr
         $this->dm = $dm;
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return ClassMetadata
-     */
     protected function getMetadata($alias)
     {
         if (!isset($this->aliasMetadata[$alias])) {
@@ -129,7 +121,7 @@ class BuilderConverterPhpcr
      *
      * @param QueryBuilder $builder
      *
-     * @return Query
+     * @return Doctrine\ODM\PHPCR\Query\Query
      */
     public function getQuery(QueryBuilder $builder)
     {
@@ -175,7 +167,7 @@ class BuilderConverterPhpcr
                         'phpcr:class'
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                    $this->qomf->literal($sourceNode->getDocumentFqn())
+                    $this->qomf->literal($this->aliasMetadata[$sourceNode->getAlias()]->name)
                 ),
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
@@ -183,7 +175,7 @@ class BuilderConverterPhpcr
                         'phpcr:classparents'
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                    $this->qomf->literal($sourceNode->getDocumentFqn())
+                    $this->qomf->literal($this->aliasMetadata[$sourceNode->getAlias()]->name)
                 )
             );
 
@@ -204,17 +196,17 @@ class BuilderConverterPhpcr
             $this->columns
         );
 
-        $query = new Query($phpcrQuery, $this->dm, $builder->getPrimaryAlias());
+        $this->query = new Query($phpcrQuery, $this->dm, $builder->getPrimaryAlias());
 
         if ($firstResult = $builder->getFirstResult()) {
-            $query->setFirstResult($firstResult);
+            $this->query->setFirstResult($firstResult);
         }
 
         if ($maxResults = $builder->getMaxResults()) {
-            $query->setMaxResults($maxResults);
+            $this->query->setMaxResults($maxResults);
         }
 
-        return $query;
+        return $this->query;
     }
 
     /**
@@ -401,11 +393,6 @@ class BuilderConverterPhpcr
         return $res;
     }
 
-    /**
-     * @param SourceJoinConditionEqui $node
-     *
-     * @return EquiJoinConditionInterface
-     */
     protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
     {
         $phpcrProperty1 = $this->getPhpcrProperty(
