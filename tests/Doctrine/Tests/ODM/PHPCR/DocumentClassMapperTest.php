@@ -211,6 +211,37 @@ class DocumentClassMapperTest extends \PHPUnit_Framework_Testcase
         ;
         $this->mapper->validateClassName($this->dm, $generic, 'Other\Class');
     }
+
+    public function provideExpandClassName()
+    {
+        return array(
+            array('Foobar/BarFoo/Document/Foobar', 'Foobar/BarFoo/Document/Foobar', false),
+            array('Foobar:Barfoo', 'Foobar\Barfoo', true),
+        );
+    }
+
+    /**
+     * @dataProvider provideExpandClassName
+     */
+    public function testExpandClassName($className, $fqClassName, $isAlias)
+    {
+        if ($isAlias) {
+            $this->dm->expects($this->once())
+                ->method('getClassMetadata')
+                ->with($className)
+                ->will($this->returnValue($this->metadata));
+            $this->metadata->expects($this->once())
+                ->method('getName')
+                ->will($this->returnValue($fqClassName));
+        }
+
+        $refl = new \ReflectionClass($this->mapper);
+        $method = $refl->getMethod('expandClassName');
+        $method->setAccessible(true);
+        $res = $method->invoke($this->mapper, $this->dm, $className);
+
+        $this->assertEquals($fqClassName, $res);
+    }
 }
 
 class BaseClass {}

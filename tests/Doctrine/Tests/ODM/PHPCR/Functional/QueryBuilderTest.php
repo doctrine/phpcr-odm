@@ -119,6 +119,19 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $res);
     }
 
+    public function testFromWithAlias()
+    {
+        $config = $this->dm->getConfiguration();
+        $config->addDocumentNamespace('Foobar', 'Doctrine\Tests\Models\Blog');
+
+        $qb = $this->createQb();
+        $qb->from()->document('Foobar:User', 'a');
+        // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
+        $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
+        $res = $qb->getQuery()->execute();
+        $this->assertCount(2, $res);
+    }
+
     /**
      * @depends testFrom
      */
