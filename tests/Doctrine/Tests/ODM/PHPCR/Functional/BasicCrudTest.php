@@ -132,8 +132,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $foundUser = $this->dm->find(null, $newUser->uuid);
         $this->assertNotNull($foundUser);
-        $this->assertEquals($newUser->username, $foundUser->username);
-        $this->assertEquals($newUser->id, '/functional/test');
+        $this->assertEquals('test', $foundUser->username);
+        $this->assertEquals('/functional/test', $foundUser->id);
     }
 
     public function testFindNonFlushed()
