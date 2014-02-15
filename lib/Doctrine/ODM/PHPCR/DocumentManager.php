@@ -40,6 +40,7 @@ use PHPCR\Query\QueryInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
+use PHPCR\ItemNotFoundException;
 use PHPCR\PathNotFoundException;
 use PHPCR\Util\ValueConverter;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
@@ -314,7 +315,11 @@ class DocumentManager implements ObjectManager
     {
         try {
             if (UUIDHelper::isUUID($id)) {
-                $id = $this->session->getNodeByIdentifier($id)->getPath();
+                try {
+                    $id = $this->session->getNodeByIdentifier($id)->getPath();
+                } catch (ItemNotFoundException $e) {
+                    return null;
+                }
             } elseif (strpos($id, '/') !== 0) {
                 $id = '/'.$id;
             }
