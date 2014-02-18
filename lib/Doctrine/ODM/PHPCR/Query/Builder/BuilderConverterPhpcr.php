@@ -168,6 +168,8 @@ class BuilderConverterPhpcr
 
         // for each document source add phpcr:{class,classparents} restrictions
         foreach ($this->sourceDocumentNodes as $sourceNode) {
+            $documentFqn = $this->aliasMetadata[$sourceNode->getAlias()]->getName();
+
             $odmClassConstraints = $this->qomf->orConstraint(
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
@@ -175,7 +177,7 @@ class BuilderConverterPhpcr
                         'phpcr:class'
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                    $this->qomf->literal($sourceNode->getDocumentFqn())
+                    $this->qomf->literal($documentFqn)
                 ),
                 $this->qomf->comparison(
                     $this->qomf->propertyValue(
@@ -183,7 +185,7 @@ class BuilderConverterPhpcr
                         'phpcr:classparents'
                     ),
                     QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                    $this->qomf->literal($sourceNode->getDocumentFqn())
+                    $this->qomf->literal($documentFqn)
                 )
             );
 
@@ -350,13 +352,22 @@ class BuilderConverterPhpcr
     protected function walkSourceDocument(SourceDocument $node)
     {
         $alias = $node->getAlias();
+        $documentFqn = $node->getDocumentFqn();
+
         // make sure we add the phpcr:{class,classparents} constraints
         // From is dispatched first, so these will always be the primary
         // constraints.
         $this->sourceDocumentNodes[$alias] = $node;
 
         // index the metadata for this document
-        $meta = $this->mdf->getMetadataFor($node->getDocumentFqn());
+        $meta = $this->mdf->getMetadataFor($documentFqn);
+
+        if (null === $meta->getName()) {
+            throw new \RuntimeException(sprintf(
+                '%s is not a mapped document', $documentFqn
+            ));
+        }
+
         $this->aliasMetadata[$alias] = $meta;
         if ($this->locale && 'attribute' === $meta->translator) {
             $this->translator[$alias] = $this->dm->getTranslationStrategy($meta->translator);

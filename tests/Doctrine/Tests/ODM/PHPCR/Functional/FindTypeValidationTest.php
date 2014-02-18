@@ -69,6 +69,15 @@ class FindTypeValidationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $this->assertSame($user, $userAgain);
     }
 
+    public function testFindWithNamespace()
+    {
+        $config = $this->dm->getConfiguration();
+        $config->addDocumentNamespace('Foobar', 'Doctrine\Tests\ODM\PHPCR\Functional');
+
+        $user = $this->dm->find('Foobar:TypeUser', 'functional/user');
+        $this->assertNotNull($user);
+    }
+
     public function testFindAutoclass()
     {
         $user = $this->dm->find(null, '/functional/user');

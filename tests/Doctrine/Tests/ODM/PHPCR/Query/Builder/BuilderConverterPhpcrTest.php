@@ -30,13 +30,20 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $mdf->expects($this->any())
             ->method('getMetadataFor')
             ->will($this->returnCallback(function ($documentFqn) use ($me) {
+
                 $meta = $me->getMockBuilder(
                     'Doctrine\ODM\PHPCR\Mapping\ClassMetadata'
                 )->disableOriginalConstructor()->getMock();
 
+                if ($documentFqn == '_document_not_mapped_') {
+                    return $meta;
+                }
+
+
                 $meta->expects($me->any())
                     ->method('getField')
                     ->will($me->returnCallback(function ($name) {
+
                         $res = array(
                             'fieldName' => $name,
                             'property' => $name.'_phpcr',
@@ -48,6 +55,10 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 $meta->expects($me->any())
                     ->method('getNodeType')
                     ->will($me->returnValue('nt:unstructured'));
+
+                $meta->expects($me->any())
+                    ->method('getName')
+                    ->will($me->returnValue($documentFqn));
 
                 return $meta;
             }));
@@ -109,6 +120,22 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res);
         $this->assertEquals('nt:unstructured', $res->getNodeTypeName());
         $this->assertEquals('alias', $res->getSelectorName());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage _document_not_mapped_ is not a mapped document
+     */
+    public function testDispatchFromNonMapped()
+    {
+        $from = $this->createNode('From', array());
+        $source = $this->createNode('SourceDocument', array(
+            '_document_not_mapped_',
+            'alias',
+        ));
+        $from->addChild($source);
+
+        $res = $this->converter->dispatch($from);
     }
 
     public function provideDispatchWheres()

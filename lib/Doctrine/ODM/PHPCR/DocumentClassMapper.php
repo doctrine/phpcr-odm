@@ -30,11 +30,26 @@ use PHPCR\PropertyType;
  */
 class DocumentClassMapper implements DocumentClassMapperInterface
 {
+    private function expandClassName($dm, $className = null)
+    {
+        if (null === $className) {
+            return null;
+        }
+
+        if (false !== strstr($className, ':')) {
+            $className = $dm->getClassMetadata($className)->getName();
+        }
+
+        return $className;
+    }
+
     /**
      * {@inheritDoc}
      */
     public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null)
     {
+        $className = $this->expandClassName($dm, $className);
+
         if ($node->hasProperty('phpcr:class')) {
             $nodeClassName = $node->getProperty('phpcr:class')->getString();
 
@@ -46,7 +61,8 @@ class DocumentClassMapper implements DocumentClassMapperInterface
             }
             $className = $nodeClassName;
         }
-            // default to the built in generic document class
+
+        // default to the built in generic document class
         if (empty($className)) {
             $className = 'Doctrine\\ODM\\PHPCR\\Document\\Generic';
         }
@@ -59,6 +75,8 @@ class DocumentClassMapper implements DocumentClassMapperInterface
      */
     public function writeMetadata(DocumentManager $dm, NodeInterface $node, $className)
     {
+        $className = $this->expandClassName($dm, $className);
+
         if ('Doctrine\\ODM\\PHPCR\\Document\\Generic' !== $className) {
             $node->setProperty('phpcr:class', $className, PropertyType::STRING);
 
@@ -75,6 +93,8 @@ class DocumentClassMapper implements DocumentClassMapperInterface
      */
     public function validateClassName(DocumentManager $dm, $document, $className)
     {
+        $className = $this->expandClassName($dm, $className);
+
         if (!$document instanceof $className) {
             throw ClassMismatchException::incompatibleClasses(
                 $dm->getUnitOfWork()->determineDocumentId($document),
