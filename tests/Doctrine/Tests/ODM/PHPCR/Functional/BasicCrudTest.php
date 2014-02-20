@@ -527,6 +527,46 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
+
+    /**
+     * Create a node with a bad name and explicitly persist it without
+     * adding it to any parent's children collection.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testIllegalNodename()
+    {
+        $functional = $this->dm->find(null, '/functional');
+
+        $user = new User5();
+        $user->username = 'test';
+        $user->nodename = 'bad/name';
+        $user->parent = $functional;
+        $this->dm->persist($user);
+
+        $this->dm->flush();
+    }
+
+    /**
+     * Retrieve an existing node and try to move it by assigning it
+     * an illegal name.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testIllegalNodenameMove()
+    {
+        $functional = $this->dm->find(null, '/functional');
+
+        $user = new User5();
+        $user->username = 'test';
+        $user->parent = $functional;
+        $user->nodename = 'goodname';
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $user->nodename = 'bad/name';
+        $this->dm->flush();
+    }
 }
 
 /**

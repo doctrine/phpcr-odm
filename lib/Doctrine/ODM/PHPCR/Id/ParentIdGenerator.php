@@ -61,6 +61,10 @@ class ParentIdGenerator extends IdGenerator
             return $id;
         }
 
+        if ($exception = $class->isValidNodename($name)) {
+            throw IdException::illegalName($document, $class->nodename, $name);
+        }
+
         // determine ID based on the path and the node name
         return $this->buildName($document, $class, $dm, $parent, $name);
     }

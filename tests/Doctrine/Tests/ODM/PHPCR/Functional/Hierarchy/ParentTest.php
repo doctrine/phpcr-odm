@@ -231,6 +231,44 @@ class ParentTest extends PHPCRFunctionalTestCase
         $referrer = $this->dm->find(null, '/functional/referrer');
         $this->assertInstanceOf('\Doctrine\ODM\PHPCR\Document\Generic', $referrer->ref->parent);
     }
+
+    /**
+     * Create a node with a bad name and allow it to be discovered
+     * among its parent node's children without explicity persisting it.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testIllegalNameNewChild()
+    {
+        $parent = $this->dm->find($this->type, '/functional/thename');
+
+        $child = new NameDoc();
+        $child->nodename = 'bad/name';
+        $child->parent = $parent;
+        $parent->children->add($child);
+
+        $this->dm->flush();
+    }
+
+    /**
+     * Create a node with a bad name and allow it to be discovered
+     * among its parent node's children while also explicitly
+     * persisting it.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testIllegalNameManagedChild()
+    {
+        $parent = $this->dm->find($this->type, '/functional/thename');
+
+        $child = new NameDoc();
+        $child->nodename = 'bad/name';
+        $child->parent = $parent;
+        $parent->children->add($child);
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+    }
 }
 
 /**
