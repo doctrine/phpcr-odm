@@ -500,6 +500,38 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
         $this->assertCount(2, $parent->allChildren);
     }
+
+    public function testChildrenAutoname()
+    {
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find(null, '/functional/parent');
+        $parent->allChildren->clear();
+        $parent->allChildren->add(new ChildrenIdTestObj());
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/parent');
+        $this->assertCount(1, $parent->allChildren);
+    }
+
+    public function testChildrenAutonameInsert()
+    {
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find(null, '/functional/parent');
+        $parent->allChildren->clear();
+        $new = new ChildrenTestObj();
+        $new->id = '/functional/parent/new';
+        $new->allChildren->add(new ChildrenIdTestObj());
+
+        $this->dm->persist($new);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/parent/new');
+        $this->assertCount(1, $parent->allChildren);
+    }
 }
 
 /**
@@ -603,4 +635,16 @@ class TestResetReorderingListener
             $document->allChildren = $childrenCollection;
         }
     }
+}
+
+/**
+ * @PHPCR\Document()
+ */
+class ChildrenIdTestObj
+{
+    /** @PHPCR\Id(strategy="auto") */
+    public $id;
+
+    /** @PHPCR\ParentDocument() */
+    public $parent;
 }
