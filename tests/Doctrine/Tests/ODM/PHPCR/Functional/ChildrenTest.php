@@ -2,29 +2,29 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface,
-    Doctrine\ODM\PHPCR\DocumentRepository,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-use Doctrine\ODM\PHPCR\ChildrenCollection;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 
-use PHPCR\UnsupportedRepositoryOperationException;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 
 /**
  * @group functional
  */
 class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
-  /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+    /**
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
@@ -503,24 +503,30 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObjRepository")
+ * @PHPCR\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObjRepository")
  */
 class ChildrenTestObj
 {
-  /** @PHPCRODM\Id(strategy="repository") */
-  public $id;
+    public function __construct()
+    {
+        $this->aChildren = new ArrayCollection();
+        $this->allChildren = new ArrayCollection();
+    }
 
-  /** @PHPCRODM\String(nullable=true) */
-  public $name;
+    /** @PHPCR\Id(strategy="repository") */
+    public $id;
 
-  /** @PHPCRODM\Children(filter="*A", fetchDepth=1, cascade="persist") */
-  public $aChildren;
+    /** @PHPCR\String(nullable=true) */
+    public $name;
 
-  /**
-   * @var \Doctrine\ODM\PHPCR\ChildrenCollection
-   * @PHPCRODM\Children(fetchDepth=2, cascade="persist")
-   */
-  public $allChildren;
+    /** @PHPCR\Children(filter="*A", fetchDepth=1, cascade="persist") */
+    public $aChildren;
+
+    /**
+    * @var \Doctrine\ODM\PHPCR\ChildrenCollection
+    * @PHPCR\Children(fetchDepth=2, cascade="persist")
+    */
+    public $allChildren;
 }
 
 class ChildrenTestObjRepository extends DocumentRepository implements RepositoryIdInterface
@@ -543,32 +549,32 @@ class ChildrenTestObjRepository extends DocumentRepository implements Repository
 }
 
 /**
-  * @PHPCRODM\Document()
+  * @PHPCR\Document()
   */
 class ChildrenReferrerTestObj
 {
-  /** @PHPCRODM\Id */
+  /** @PHPCR\Id */
   public $id;
 
-  /** @PHPCRODM\String */
+  /** @PHPCR\String */
   public $name;
 
-  /** @PHPCRODM\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
+  /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
   public $reference;
 }
 
 /**
-  * @PHPCRODM\Document(referenceable=true)
+  * @PHPCR\Document(referenceable=true)
   */
 class ChildrenReferenceableTestObj
 {
-  /** @PHPCRODM\Id */
+  /** @PHPCR\Id */
   public $id;
 
-  /** @PHPCRODM\String */
+  /** @PHPCR\String */
   public $name;
 
-  /** @PHPCRODM\Children(cascade="persist") */
+  /** @PHPCR\Children(cascade="persist") */
   public $allChildren;
 }
 
