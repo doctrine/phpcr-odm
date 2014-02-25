@@ -232,6 +232,22 @@ class XmlDriver extends FileDriver
             }
         }
 
+        if (isset($xmlRoot->uuid)) {
+            $mapping = array();
+            $attributes = $xmlRoot->uuid->attributes();
+
+            foreach ($attributes as $key => $value) {
+                $mapping[$key] = (string) $value;
+            }
+
+            if (!array_key_exists('name', $mapping)) {
+                throw new MappingException(sprintf('Missing name attribute for field of %s', $className));
+            }
+
+            $mapping['uuid'] = true;
+            $class->mapField($mapping);
+        }
+
         $class->validateClassMapping();
     }
 
