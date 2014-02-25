@@ -1,0 +1,4 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject:
+  referenceable: true
+  uuid: uuid
+  id: id
