@@ -111,14 +111,10 @@ class YamlDriver extends FileDriver
         }
 
         if (isset($element['uuid'])) {
-            if (!isset($element['uuid']['fieldName'])) {
-                throw new MappingException("Missing fieldName property for uuid field");
-            }
-
-            $mapping = array();
-            $mapping['fieldName'] = $element['uuid']['fieldName'];
-            $mapping['uuid'] = true;
-
+            $mapping = array(
+                'fieldName' => $element['uuid'],
+                'uuid'      => true,
+            );
             $class->mapField($mapping);
         }
         if (isset($element['id'])) {
