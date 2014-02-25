@@ -55,7 +55,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
 
             if (!empty($className)
                 && $nodeClassName !== $className
-                && !is_subclass_of($nodeClassName, $className)
+                && !is_subclass_of($className, $nodeClassName)
             ) {
                 throw ClassMismatchException::incompatibleClasses($node->getPath(), $nodeClassName, $className);
             }
