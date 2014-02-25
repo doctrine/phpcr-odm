@@ -109,6 +109,14 @@ class YamlDriver extends FileDriver
                 $class->mapField($mapping);
             }
         }
+
+        if (isset($element['uuid'])) {
+            $mapping = array(
+                'fieldName' => $element['uuid'],
+                'uuid'      => true,
+            );
+            $class->mapField($mapping);
+        }
         if (isset($element['id'])) {
             if (is_array($element['id'])) {
                 if (!isset($element['id']['fieldName'])) {
