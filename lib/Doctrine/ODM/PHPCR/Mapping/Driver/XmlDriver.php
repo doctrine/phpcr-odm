@@ -245,6 +245,7 @@ class XmlDriver extends FileDriver
             }
 
             $mapping['uuid'] = true;
+            $mapping['fieldName'] = $mapping['name'];
             $class->mapField($mapping);
         }
 
