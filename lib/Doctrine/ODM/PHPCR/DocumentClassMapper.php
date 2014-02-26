@@ -40,6 +40,8 @@ class DocumentClassMapper implements DocumentClassMapperInterface
             $className = $dm->getClassMetadata($className)->getName();
         }
 
+        $className = \Doctrine\Common\Util\ClassUtils::getRealClass($className);
+
         return $className;
     }
 
