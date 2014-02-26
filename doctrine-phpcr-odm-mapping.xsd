@@ -137,7 +137,7 @@
             <xs:element name="document-listeners" type="phpcr:document-listeners" minOccurs="0" maxOccurs="1" />
             -->
             <xs:element name="id" type="phpcr:id" minOccurs="0" maxOccurs="1" />
-            <xs:element name="id" type="phpcr:uuid" minOccurs="0" maxOccurs="1" />
+            <xs:element name="uuid" type="phpcr:uuid" minOccurs="0" maxOccurs="1" />
             <xs:element name="locale" type="phpcr:locale" minOccurs="0" maxOccurs="1" />
             <xs:element name="field" type="phpcr:field" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="node" type="phpcr:node" minOccurs="0" maxOccurs="1"/>
