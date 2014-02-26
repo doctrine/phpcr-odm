@@ -683,8 +683,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testLoadUuidMapping
      * @param   $class
-     *
-     * @todo get to know the key for the uuid in the mappings
      */
     public function testUuidMapping($class)
     {
