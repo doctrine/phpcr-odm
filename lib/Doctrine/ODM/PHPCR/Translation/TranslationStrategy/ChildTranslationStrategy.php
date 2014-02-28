@@ -19,9 +19,13 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\Translation\Translation,
-    PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\Translation;
+use PHPCR\NodeInterface;
+use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\SelectorInterface;
 
 /**
  * Translation strategy that stores the translations in a child nodes of the current node.
@@ -118,8 +122,64 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
         return $node;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * We namespace the property by putting it in a different node, the name
+     * itself does not change.
+     */
     public function getTranslatedPropertyName($locale, $fieldName)
     {
         return $fieldName;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * We need to select the field on the joined child node.
+     */
+    public function getTranslatedPropertyPath($alias, $propertyName, $locale)
+    {
+        $childAlias = sprintf('_%s_%s', $locale, $alias);
+
+        return array($childAlias, $this->getTranslatedPropertyName($locale, $propertyName));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Join document with translation children, and filter on the right child
+     * node.
+     */
+    public function alterQueryForTranslation(
+        QueryObjectModelFactoryInterface $qomf,
+        SelectorInterface &$selector,
+        ConstraintInterface &$constraint = null,
+        $alias,
+        $locale
+    ) {
+        $childAlias = "_{$locale}_{$alias}";
+
+        $selector = $qomf->join(
+            $selector,
+            $qomf->selector($childAlias, 'nt:base'),
+            QueryObjectModelConstantsInterface::JCR_JOIN_TYPE_RIGHT_OUTER,
+            $qomf->childNodeJoinCondition($childAlias, $alias)
+        );
+
+        $languageConstraint = $qomf->comparison(
+            $qomf->nodeName($childAlias),
+            QueryObjectModelConstantsInterface::JCR_OPERATOR_EQUAL_TO,
+            $qomf->literal(Translation::LOCALE_NAMESPACE . ":$locale")
+        );
+
+        if ($constraint) {
+            $constraint = $qomf->andConstraint(
+                $constraint,
+                $languageConstraint
+            );
+        } else {
+            $constraint = $languageConstraint;
+        }
     }
 }

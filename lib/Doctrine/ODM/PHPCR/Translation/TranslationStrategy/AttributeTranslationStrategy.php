@@ -22,7 +22,11 @@ namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
     PHPCR\NodeInterface;
 
+use Doctrine\ODM\PHPCR\Query\Builder\SourceFactory;
 use Doctrine\ODM\PHPCR\Translation\Translation;
+use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\SelectorInterface;
 
 /**
  * Translation strategy that stores the translations in attributes of the same node.
@@ -157,5 +161,30 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         }
 
         return $locales;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Translated properties are on the same node, but have a different name.
+     */
+    public function getTranslatedPropertyPath($alias, $propertyName, $locale)
+    {
+        return array($alias, $this->getTranslatedPropertyName($locale, $propertyName));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Nothing to do, the properties are on the same node.
+     */
+    public function alterQueryForTranslation(
+        QueryObjectModelFactoryInterface $qomf,
+        SelectorInterface &$selector,
+        ConstraintInterface &$constraint = null,
+        $alias,
+        $locale
+    ) {
+        // do nothing
     }
 }

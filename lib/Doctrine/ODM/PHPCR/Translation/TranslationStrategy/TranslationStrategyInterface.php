@@ -19,9 +19,18 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\NodeInterface;
+use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\SelectorInterface;
 
+/**
+ * Operations that a translation strategy must support.
+ *
+ * A translation strategy is responsible for storing translations to PHPCR and
+ * retrieving them again.
+ */
 interface TranslationStrategyInterface
 {
     /**
@@ -81,14 +90,42 @@ interface TranslationStrategyInterface
      * @return array with the locales strings
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata);
+    /**
+     * Get the location of the property for the base property name in a given
+     * language.
+     *
+     * @param string $alias        The selector alias of the main node.
+     * @param string $propertyName The base name of the translated property.
+     * @param string $locale       The requested locale.
+     *
+     * @return array with first alias, then the real property name.
+     *
+     * @since 1.1
+     */
+    public function getTranslatedPropertyPath($alias, $propertyName, $locale);
 
     /**
-     * Get the name of the property where to store the translations of a given property in a given language
+     * This method allows a translation strategy to alter the query to
+     * integrate translations that are on other nodes.
      *
-     * @param string $locale    The language to store
-     * @param string $fieldName The name of the field to translate
+     * Only called once per alias value. The selector and constraint are passed
+     * by reference, the strategy can alter them to let the BuilderConverterPhpcr
+     * generate a different query.
      *
-     * @return string The name of the property where to store the translation
+     * @param QueryObjectModelFactoryInterface $qomf       The PHPCR query factory.
+     * @param SelectorInterface                $selector   The current selector.
+     * @param ConstraintInterface|null         $constraint The current constraint, may be empty.
+     * @param string                           $alias      The selector alias of the main node.
+     * @param string                           $locale     The language to use.
+     *
+     * @since 1.1
      */
-    public function getTranslatedPropertyName($locale, $fieldName);
+    public function alterQueryForTranslation(
+        QueryObjectModelFactoryInterface $qomf,
+        SelectorInterface &$selector,
+        ConstraintInterface &$constraint = null,
+        $alias,
+        $locale
+    );
+
 }
