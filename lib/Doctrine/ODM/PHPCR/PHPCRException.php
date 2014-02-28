@@ -43,4 +43,42 @@ class PHPCRException extends \Exception implements PHPCRExceptionInterface
     {
         return new self("Invalid repository class '".$className."'. It must be a Doctrine\Common\Persistence\ObjectRepository.");
     }
+
+    public static function childFieldIsArray($className, $fieldName)
+    {
+        return new self(sprintf(
+            'Child document is not stored correctly in a child property. Do not use array notation or a Collection in field "%s" of document "%s"',
+            $fieldName,
+            $className
+        ));
+    }
+
+    public static function childFieldNoObject($className, $fieldName, $type)
+    {
+        return new self(sprintf(
+            'A child field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+            $type,
+            $fieldName,
+            $className
+        ));
+    }
+
+    public static function childrenFieldNoArray($className, $fieldName)
+    {
+        return new self(sprintf(
+            'Children documents are not stored correctly in a children property. Use array notation or a Collection: field "%s" of "%s"',
+            $fieldName,
+            $className
+        ));
+    }
+
+    public static function childrenContainsNonObject($className, $fieldName, $type)
+    {
+        return new self(sprintf(
+            'A children field may only contain mapped documents, found <%s> in field "%s" of "%s"',
+            $type,
+            $fieldName,
+            $className
+        ));
+    }
 }
