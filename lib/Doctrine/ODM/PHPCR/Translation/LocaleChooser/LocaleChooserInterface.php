@@ -33,7 +33,7 @@ use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
  * for getDefaultLocalesOrder. In some situations, you want a fixed order of
  * available languages, regardless of the current users preferences.
  *
- * @author brian () liip.ch
+ * @author Brian King <brian@liip.ch>
  */
 interface LocaleChooserInterface
 {
@@ -55,6 +55,16 @@ interface LocaleChooserInterface
      *      is found in $localePreference
      */
     public function setLocalePreference($localePreference);
+
+    /**
+     * Set or update the order of fallback locales for the selected locale.
+     *
+     * @param string $locale  The locale to update the fallback order for.
+     * @param array  $order   An order of locales to try as fallback.
+     * @param bool   $replace Whether to append existing locales to the end or
+     *                        replace the whole fallback order.
+     */
+    public function setFallbackLocales($locale, array $order, $replace = false);
 
     /**
      * Gets an ordered list of locales to try as fallback for a locale.
