@@ -1,6 +1,9 @@
 Changelog
 =========
 
+* **2014-03-01**: The LocaleChooserInterface got a new method setFallbackLocales
+  which allows to update the fallback for a specific locale.
+
 * **2014-02-02**: DocumentManager::find()/findMany now actually validate the
   requested class name. If the class name determined by the DocumentClassMapper
   is not instance of the requested class name, null is returned. As previously,

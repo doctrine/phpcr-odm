@@ -83,6 +83,22 @@ class LocaleChooser implements LocaleChooserInterface
     /**
      * {@inheritDoc}
      */
+    public function setFallbackLocales($locale, array $order, $replace = false)
+    {
+        if (!$replace && isset($this->localePreference[$locale])) {
+            foreach ($this->localePreference[$locale] as $oldLocale) {
+                if (!in_array($oldLocale, $order)) {
+                    $order[] = $oldLocale;
+                }
+            }
+        }
+
+        $this->localePreference[$locale] = $order;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null)
     {
         if (is_null($forLocale)) {
