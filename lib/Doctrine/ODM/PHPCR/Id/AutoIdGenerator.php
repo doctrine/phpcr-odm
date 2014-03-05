@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Id;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\RepositoryException;
 use PHPCR\Util\NodeHelper;
 
 /**
@@ -48,9 +49,15 @@ class AutoIdGenerator extends ParentIdGenerator
             return $id;
         }
 
-        $parentNode = $dm->getNodeForDocument($parent);
+        try {
+            $parentNode = $dm->getNodeForDocument($parent);
+            $existingNames = (array) $parentNode->getNodeNames();
+        } catch (RepositoryException $e) {
+            // this typically happens while cascading persisting documents
+            $existingNames = array();
+        }
         $name = NodeHelper::generateAutoNodeName(
-            (array) $parentNode->getNodeNames(),
+            $existingNames,
             $dm->getPhpcrSession()->getWorkspace()->getNamespaceRegistry()->getNamespaces(),
             '',
             ''

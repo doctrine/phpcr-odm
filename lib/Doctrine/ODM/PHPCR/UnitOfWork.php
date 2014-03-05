@@ -29,7 +29,6 @@ use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
-use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
@@ -720,78 +719,6 @@ class UnitOfWork
                 }
             }
         }
-
-        // children are inserted unconditionally, cascading is inherent
-        $id = $this->getDocumentId($document);
-        foreach ($class->childMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            $child = $class->reflFields[$fieldName]->getValue($document);
-            if ($child === null) {
-                continue;
-            }
-            if (is_array($child) || $child instanceof Collection) {
-                throw new PHPCRException(sprintf(
-                    'Child document is not stored correctly in a child property. Do not use array notation or a Collection in field "%s" of document "%s"',
-                    $fieldName,
-                    self::objToStr($document, $this->dm)
-                ));
-            }
-            if (!is_object($child)) {
-                throw new PHPCRException(sprintf(
-                    'A child field may only contain mapped documents, found <%s> in field "%s" of "%s"',
-                    gettype($child),
-                    $fieldName,
-                    self::objToStr($document, $this->dm)
-                ));
-            }
-            if ($this->getDocumentState($child) === self::STATE_NEW) {
-                $childClass = $this->dm->getClassMetadata(get_class($child));
-                $childClass->setIdentifierValue($child, $id.'/'.$mapping['nodeName']);
-                $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-            }
-            // TODO check if $childId is managed. if yes, merge. see also https://github.com/doctrine/phpcr-odm/pull/262
-        }
-
-        foreach ($class->childrenMappings as $fieldName) {
-            $children = $class->reflFields[$fieldName]->getValue($document);
-            if (empty($children)) {
-                continue;
-            }
-            if (!is_array($children) && !$children instanceof Collection) {
-                throw new PHPCRException(sprintf(
-                    'Children documents are not stored correctly in a children property. Use array notation or a Collection: field "%s" of "%s"',
-                    $fieldName,
-                    self::objToStr($document, $this->dm)
-                ));
-            }
-
-            foreach ($children as $child) {
-                if ($child === null) {
-                    continue;
-                }
-                if (!is_object($child)) {
-                    throw new PHPCRException(sprintf(
-                        'A children field may only contain mapped documents, found <%s> in field "%s" of "%s"',
-                        gettype($child),
-                        $fieldName,
-                        self::objToStr($document, $this->dm)
-                    ));
-                }
-                if ($this->getDocumentState($child) === self::STATE_NEW) {
-                    $childClass = $this->dm->getClassMetadata(get_class($child));
-                    $nodename = $childClass->nodename
-                        ? $childClass->reflFields[$childClass->nodename]->getValue($child)
-                        // fixme: the following line only works when the id is mapped on the child
-                        // the child is not persisted yet, no need to call determineDocumentId
-                        : PathHelper::getNodeName($childClass->getIdentifierValue($child));
-                    if (empty($nodename)) {
-                        throw IdException::noIdNoName($child, $childClass->nodename);
-                    }
-                    $childClass->setIdentifierValue($child, $id.'/'.$nodename);
-                    $this->doScheduleInsert($child, $visited, ClassMetadata::GENERATOR_TYPE_ASSIGNED);
-                }
-            }
-        }
     }
 
     private function cascadeScheduleParentInsert($class, $document, &$visited)
@@ -1185,20 +1112,6 @@ class UnitOfWork
             $this->originalData[$oid] = $actualData;
             $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
             $this->scheduledInserts[$oid] = $document;
-
-            foreach ($class->childrenMappings as $fieldName) {
-                if ($actualData[$fieldName]) {
-                    $mapping = $class->mappings[$fieldName];
-                    foreach ($actualData[$fieldName] as $originalNodename => $child) {
-                        $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
-                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
-                        if (0 !== strcmp($originalNodename, $nodename)) {
-                            unset($actualData[$fieldName][$originalNodename]);
-                        }
-                        $childNames[] = $nodename;
-                    }
-                }
-            }
         }
 
         if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
@@ -1213,6 +1126,20 @@ class UnitOfWork
 
         foreach ($class->childMappings as $fieldName) {
             if ($actualData[$fieldName]) {
+                if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
+                    throw PHPCRException::childFieldIsArray(
+                        self::objToStr($document, $this->dm),
+                        $fieldName
+                    );
+                }
+                if (!is_object($actualData[$fieldName])) {
+                    throw PHPCRException::childFieldNoObject(
+                        self::objToStr($document, $this->dm),
+                        $fieldName,
+                        gettype($actualData[$fieldName])
+                    );
+                }
+
                 $mapping = $class->mappings[$fieldName];
                 $actualData[$fieldName] = $this->computeChildChanges($mapping, $actualData[$fieldName], $id, $mapping['nodeName']);
             }
@@ -1230,7 +1157,37 @@ class UnitOfWork
             }
         }
 
-        if (!$isNew) {
+        if ($isNew) {
+            // much simpler handling for children
+            foreach ($class->childrenMappings as $fieldName) {
+                if ($actualData[$fieldName]) {
+                    if (!is_array($actualData[$fieldName]) && !$actualData[$fieldName] instanceof Collection) {
+                        throw PHPCRException::childrenFieldNoArray(
+                            self::objToStr($document, $this->dm),
+                            $fieldName
+                        );
+                    }
+
+                    $mapping = $class->mappings[$fieldName];
+                    foreach ($actualData[$fieldName] as $originalNodename => $child) {
+                        if (!is_object($child)) {
+                            throw PHPCRException::childrenContainsNonObject(
+                                self::objToStr($document, $this->dm),
+                                $fieldName,
+                                gettype($child)
+                            );
+                        }
+
+                        $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
+                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        if (0 !== strcmp($originalNodename, $nodename)) {
+                            unset($actualData[$fieldName][$originalNodename]);
+                        }
+                        $childNames[] = $nodename;
+                    }
+                }
+            }
+        } else {
             // collect assignment move operations
             $destPath = $destName = false;
 
@@ -1285,7 +1242,22 @@ class UnitOfWork
 
                 $childNames = array();
                 if ($actualData[$fieldName]) {
+                    if (!is_array($actualData[$fieldName]) && !$actualData[$fieldName] instanceof Collection) {
+                        throw PHPCRException::childrenFieldNoArray(
+                            self::objToStr($document, $this->dm),
+                            $fieldName
+                        );
+                    }
+
                     foreach ($actualData[$fieldName] as $originalNodename => $child) {
+                        if (!is_object($child)) {
+                            throw PHPCRException::childrenContainsNonObject(
+                                self::objToStr($document, $this->dm),
+                                $fieldName,
+                                gettype($child)
+                            );
+                        }
+
                         $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         if (0 !== strcmp($originalNodename, $nodename)) {
@@ -1386,9 +1358,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
-                    throw CascadeException::newDocumentFound(self::objToStr($child));
-                }
+                // cascade persist is implicit on children
 
                 $childId = $parentId.'/'.$nodename;
                 $targetClass->setIdentifierValue($child, $childId);
