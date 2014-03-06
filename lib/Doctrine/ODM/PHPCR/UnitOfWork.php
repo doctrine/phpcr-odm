@@ -26,6 +26,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
@@ -1221,10 +1222,14 @@ class UnitOfWork
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                    $destPath = isset($actualData[$class->parentMapping])
+                        ? $this->getDocumentId($actualData[$class->parentMapping])
+                        : PathHelper::getParentPath($this->getDocumentId($document));
                 }
                 if (false === $destName) {
-                    $destName = $actualData[$class->nodename];
+                    $destName = $actualData[$class->nodename]
+                        ? $actualData[$class->nodename]
+                        : PathHelper::getNodeName($this->getDocumentId($document));
                 }
 
                 // prevent path from becoming "//foobar" when moving to root node.
@@ -1357,9 +1362,9 @@ class UnitOfWork
      *
      * @param array  $mapping  the mapping data
      * @param mixed  $child    the child document.
-     * @param string $parentId
-     * @param string $nodename
-     * @param mixed  $parent
+     * @param string $parentId the id of the parent document
+     * @param string $nodename the name of the node as specified by the mapping
+     * @param mixed  $parent   the parent document
      *
      * @return object the child instance (if we are replacing a child this can be a different instance than was originally provided)
      */
@@ -1370,8 +1375,21 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                // cascade persist is implicit on children
+                // cascade persist is implicit on children, no check for cascading
 
+                // check if we have conflicting nodename information on creation.
+                if ($targetClass->nodename) {
+                    $assignedName = $targetClass->getFieldValue($child, $targetClass->nodename);
+                    if ($assignedName && $assignedName != $nodename) {
+                        throw IdException::conflictingChildName(
+                            $parentId,
+                            $mapping['fieldName'],
+                            $nodename,
+                            $child,
+                            $assignedName
+                        );
+                    }
+                }
                 $childId = $parentId.'/'.$nodename;
                 $targetClass->setIdentifierValue($child, $childId);
 

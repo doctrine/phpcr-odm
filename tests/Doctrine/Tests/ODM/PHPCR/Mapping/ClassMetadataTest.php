@@ -34,6 +34,22 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testClassName
      */
+    public function testIsValidNodename(ClassMetadata $cm)
+    {
+        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(''));
+        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('a:b:c'));
+        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('a:'));
+        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(':a'));
+        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(':'));
+        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('x/y'));
+
+        $this->assertNull($cm->isValidNodename('a:b'));
+        $this->assertNull($cm->isValidNodename('b'));
+    }
+
+    /**
+     * @depends testClassName
+     */
     public function testMapFieldWithId(ClassMetadata $cm)
     {
         $cm->mapField(array('fieldName' => 'id', 'id' => true, 'strategy' => 'assigned'));
@@ -56,6 +72,34 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(ClassMetadata::GENERATOR_TYPE_ASSIGNED, $cm->idGenerator);
 
         return $cm;
+    }
+
+    /**
+     * @depends testClassName
+     */
+    public function testHasFieldNull(ClassMetadata $cm)
+    {
+        $this->assertFalse($cm->hasField(null));
+    }
+
+    /**
+     * @depends testClassName
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testGetAssociationNonexisting(ClassMetadata $cm)
+    {
+        $cm->getAssociation('nonexisting');
+    }
+
+    /**
+     * @depends testMapFieldWithId
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testGetFieldNonexisting(ClassMetadata $cm)
+    {
+        $cm->getField('nonexisting');
     }
 
     /**
@@ -124,6 +168,35 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     public function testMapFieldWithoutNameThrowsException(ClassMetadata $cm)
     {
         $cm->mapField(array());
+    }
+
+    /**
+     * @depends testMapField
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testMapNonExistingField(ClassMetadata $cm)
+    {
+        $cm->mapField(array('fieldName' => 'notexisting'));
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testMapChildInvalidName()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Address');
+        $cm->initializeReflection(new RuntimeReflectionService());
+        $cm->mapChild(array('fieldName' => 'child', 'nodeName' => 'in/valid'));
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     */
+    public function testMapChildrenInvalidFetchDepth()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm->initializeReflection(new RuntimeReflectionService());
+        $cm->mapChildren(array('fieldName' => 'address', 'fetchDepth' => 'invalid'));
     }
 
     /**
@@ -284,6 +357,8 @@ class Person
 class Address
 {
     public $id;
+
+    public $child;
 }
 
 class DocumentRepository extends BaseDocumentRepository

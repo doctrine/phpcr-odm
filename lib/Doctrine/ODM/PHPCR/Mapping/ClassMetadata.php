@@ -20,12 +20,12 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use PHPCR\RepositoryException;
+use PHPCR\Util\PathHelper;
 use ReflectionProperty;
 use ReflectionClass;
-use PHPCR\PropertyType;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
@@ -363,6 +363,38 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
+     * Check if this node name is valid. Returns null if valid, an exception otherwise.
+     *
+     * @param string $nodeName The node local name
+     *
+     * @return RepositoryException|null
+     */
+    public function isValidNodename($nodeName)
+    {
+        try {
+            $parts = explode(':', $nodeName);
+            if (1 > count($parts) || 2 < count($parts)) {
+                return new RepositoryException("Name contains illegal characters: $nodeName");
+            }
+            if (0 === strlen($parts[0])) {
+                return new RepositoryException("Name may not be empty: $nodeName");
+            }
+            PathHelper::assertValidLocalName($parts[0]);
+            if (2 == count($parts)) {
+                // [0] was the namespace prefix, also check the name
+                PathHelper::assertValidLocalName($parts[1]);
+                if (0 === strlen($parts[1])) {
+                    return new RepositoryException("Local name may not be empty: $nodeName");
+                }
+            }
+        } catch (RepositoryException $e) {
+            return $e;
+        }
+
+        return null;
+    }
+
+    /**
      * Validate Identifier mapping, determine the strategy if none is
      * explicitly set.
      *
@@ -664,6 +696,9 @@ class ClassMetadata implements ClassMetadataInterface
         }
         $mapping['type'] = 'child';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, 'nodeName');
+        if ($exception = $this->isValidNodename($mapping['nodeName'])) {
+            throw MappingException::illegalChildName($this->name, $mapping['fieldName'], $mapping['nodeName'], $exception);
+        }
         $this->childMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
@@ -676,7 +711,7 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         if (!is_numeric($mapping['fetchDepth'])) {
             throw new MappingException(
-                sprintf('fetchDepth option must be numeric (is "%s") on children mapping %s of document %s', $mapping['fetchDepth'], $mapping['fieldName'], $this->name)
+                sprintf('fetchDepth option must be a numerical value (is "%s") on children mapping "%s" of document %s', $mapping['fetchDepth'], $mapping['fieldName'], $this->name)
             );
         }
         unset($mapping['property']);
@@ -783,6 +818,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if (!is_string($mapping['fieldName'])) {
             throw new MappingException("Field name must be of type string in '{$this->name}'.");
+        }
+
+        if (!$this->reflClass->hasProperty($mapping['fieldName'])) {
+            throw MappingException::classHasNoField($this->name, $mapping['fieldName']);
         }
 
         if (empty($mapping['property'])) {
