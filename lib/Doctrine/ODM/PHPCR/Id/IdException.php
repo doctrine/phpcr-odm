@@ -54,4 +54,24 @@ class IdException extends PHPCRException
 
         return new self($message);
     }
+
+    public static function conflictingChildName(
+        $parentId,
+        $parentFieldName,
+        $fieldNodeName,
+        $childDocument,
+        $childNodeName)
+    {
+        $message = sprintf(
+            '%s discovered as new child of %s in field "%s" has a node name ' .
+            'mismatch. The mapping says "%s" but the child was assigned "%s".',
+            get_class($childDocument),
+            $parentId,
+            $parentFieldName,
+            $fieldNodeName,
+            $childNodeName
+        );
+
+        return new self($message);
+    }
 }

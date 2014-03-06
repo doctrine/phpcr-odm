@@ -38,9 +38,25 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
         return new self("The class '$className' could not be found");
     }
 
+    /**
+     * Asking for the mapping of a field that does not exist.
+     */
     public static function fieldNotFound($className, $fieldName)
     {
         return new self("The class '$className' does not have a field mapping for '$fieldName'");
+    }
+
+    /**
+     * Non-annotation mappings could specify a fieldName that does not exist on the class.
+     */
+    public static function classHasNoField($className, $fieldName)
+    {
+        return new self("Invalid mapping: The class '$className' does not have a field named '$fieldName'");
+    }
+
+    public static function illegalChildName($className, $fieldName, $nodeName, $previous = null)
+    {
+        return new self("Invalid mapping: The field '$fieldName' of '$className' is configured to the illegal PHPCR node name '$nodeName'.", 0, $previous);
     }
 
     public static function associationNotFound($className, $fieldName)
