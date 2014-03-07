@@ -9,7 +9,6 @@ $candiates = array(
 );
 
 foreach ($candiates as $path) {
-    echo $path;
     $autoload = @include_once $path;
     if ($autoload) {
         break;
