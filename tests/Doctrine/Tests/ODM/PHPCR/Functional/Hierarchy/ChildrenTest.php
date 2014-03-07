@@ -1,10 +1,11 @@
 <?php
 
-namespace Doctrine\Tests\ODM\PHPCR\Functional;
+namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
 
@@ -14,9 +15,11 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 
 /**
+ * Test for the Children mapping.
+ *
  * @group functional
  */
-class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ChildrenTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
@@ -27,6 +30,8 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      * @var NodeInterface
      */
     private $node;
+
+    private $type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildrenTestObj';
 
     /**
      * @var TestResetReorderingListener
@@ -43,6 +48,12 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent->name = 'Parent';
         $this->dm->persist($parent);
 
+        $this->dm->flush();
+        $this->dm->clear();
+    }
+
+    private function createChildren()
+    {
         $child = new ChildrenTestObj();
         $child->id = '/functional/parent/Child A';
         $child->name = 'Child A';
@@ -69,7 +80,9 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testChildrenCollection()
     {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $col = $this->dm->getChildren($parent);
 
         $this->assertCount(4, $col);
@@ -86,21 +99,36 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->clear();
 
-        $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child D');
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->dm->find($this->type, '/functional/parent/Child D');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $col = $this->dm->getChildren($parent);
         $this->assertEquals('Child A', $col->key());
 
         $this->dm->clear();
 
-        $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child D');
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->dm->find($this->type, '/functional/parent/Child D');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertEquals('Child A', $parent->allChildren->key());
+    }
+
+    public function testSliceChildrenCollection()
+    {
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $collection = $parent->allChildren->slice('Child B', 2);
+        $this->assertEquals(array('Child B', 'Child C'), array_keys($collection));
+
+        $parent->allChildren->initialize();
+        $collection = $parent->allChildren->slice('Child B', 2);
+        $this->assertEquals(array('Child B', 'Child C'), array_keys($collection));
     }
 
     public function testNoChildrenInitOnFlush()
     {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->dm->flush();
 
         $this->assertFalse($parent->allChildren->isInitialized());
@@ -108,7 +136,9 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testLazyLoading()
     {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
 
         // lazy loaded
         $this->assertCount(0, $parent->aChildren->unwrap());
@@ -159,42 +189,176 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals("childrenTestObj", $referrer->reference->allChildren->first()->name);
     }
 
-    public function testCreateChildren()
+    /**
+     * New parent, insert an array of children with an assigned id.
+     */
+    public function testInsertNewAssignedId()
     {
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $new = new ChildrenTestObj();
+        $new->id = '/functional/parent/new';
+
         $children = array();
         $child = new ChildrenTestObj();
-        $child->id = '/functional/parent/Child A/Child Create-1';
+        $child->id = '/functional/parent/new/Child Create-1';
         $child->name = 'Child A';
         $children[] = $child;
 
         $child = new ChildrenTestObj();
-        $child->id = '/functional/parent/Child A/Child Create-2';
+        $child->id = '/functional/parent/new/Child Create-2';
         $child->name = 'Child B';
         $children[] = $child;
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
-        $this->assertCount(0, $parent->allChildren);
+        $new->allChildren = $children;
+
+        $this->dm->persist($new);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $new = $this->dm->find($this->type, '/functional/parent/new');
+        $this->assertCount(2, $new->allChildren);
+    }
+
+    /**
+     * Existing parent without children, insert an array of children with an assigned id.
+     */
+    public function testInsertExistingAssignedId()
+    {
+        $parent = $this->dm->find($this->type, '/functional/parent');
+
+        $children = array();
+        $child = new ChildrenTestObj();
+        $child->id = '/functional/parent/Child Create-1';
+        $child->name = 'Child A';
+        $children[] = $child;
+
+        $child = new ChildrenTestObj();
+        $child->id = '/functional/parent/Child Create-2';
+        $child->name = 'Child B';
+        $children[] = $child;
 
         $parent->allChildren = $children;
         $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(2, $parent->allChildren);
     }
 
     /**
+     * Existing parent without children, insert children with parent and name strategy.
+     */
+    public function testInsertExistingNamedChild()
+    {
+        $parent = $this->dm->find(null, '/functional/parent');
+
+        $child = new ChildrenParentAndNameTestObj();
+        $child->name = 'explicit';
+        $parent->allChildren->add($child);
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+
+        $this->assertEquals('/functional/parent/explicit', $child->id);
+
+        $this->dm->clear();
+        $parent = $this->dm->find(null, '/functional/parent');
+        $this->assertCount(1, $parent->allChildren);
+    }
+
+    /**
+     * New parent, insert children with parent and name strategy
+     */
+    public function testInsertNewNamedChild()
+    {
+        $new = new ChildrenTestObj();
+        $new->id = '/functional/parent/new';
+        $child = new ChildrenParentAndNameTestObj();
+        $child->name = 'explicit';
+
+        $new->allChildren->add($child);
+
+        $this->dm->persist($new);
+        $this->dm->flush();
+
+        $this->assertEquals('/functional/parent/new/explicit', $child->id);
+
+        $this->dm->clear();
+        $parent = $this->dm->find(null, '/functional/parent/new');
+        $this->assertCount(1, $parent->allChildren);
+    }
+
+    /**
+     * Insert children at existing parent with custom id strategy.
+     */
+    public function testInsertExistingCustomIdStrategy()
+    {
+        $parent = $this->dm->find($this->type, '/functional/parent');
+
+        $children = array();
+        $child = new ChildrenTestObj();
+        $child->name = 'ChildA';
+        $children[] = $child;
+
+        $child = new ChildrenTestObj();
+        $child->name = 'ChildB';
+        $children[] = $child;
+
+        $parent->allChildren = $children;
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertCount(2, $parent->allChildren);
+    }
+
+    /**
+     * Insert child at existing parent, with autoname strategy.
+     */
+    public function testInsertExistingAutoname()
+    {
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find(null, '/functional/parent');
+        $parent->allChildren->add(new ChildrenAutonameTestObj());
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/parent');
+        $this->assertCount(1, $parent->allChildren);
+    }
+
+    /**
+     * Insert the parent and children at the same time, autoname strategy.
+     */
+    public function testInsertNewAutoname()
+    {
+        $new = new ChildrenTestObj();
+        $new->id = '/functional/parent/new';
+        $new->allChildren->add(new ChildrenAutonameTestObj());
+
+        $this->dm->persist($new);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/parent/new');
+        $this->assertCount(1, $parent->allChildren);
+    }
+
+    /**
+     * A children field must always be a collection/array. It can't be a single document.
+     *
      * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testCreateChildrenNoArray()
+    public function testInsertNoArray()
     {
         $child = new ChildrenTestObj();
-        $child->id = '/functional/parent/Child A/Child Create-1';
+        $child->id = '/functional/parent/Child Create-1';
         $child->name = 'Child A';
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
-        $this->assertCount(0, $parent->allChildren);
+        $parent = $this->dm->find($this->type, '/functional/parent');
 
         $parent->allChildren = $child;
         $this->dm->persist($parent);
@@ -204,43 +368,35 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
-    public function testCreateChildrenNoObject()
+    public function testInsertNoObject()
     {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
-        $this->assertCount(0, $parent->allChildren);
+        $parent = $this->dm->find($this->type, '/functional/parent');
 
         $parent->allChildren = array('This is not an object');
         $this->dm->persist($parent);
         $this->dm->flush();
     }
 
-    public function testSliceChildrenCollection()
-    {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-        $collection = $parent->allChildren->slice('Child B', 2);
-        $this->assertEquals(array('Child B', 'Child C'), array_keys($collection));
-
-        $parent->allChildren->initialize();
-        $collection = $parent->allChildren->slice('Child B', 2);
-        $this->assertEquals(array('Child B', 'Child C'), array_keys($collection));
-    }
-
     public function testRemoveChildParent()
     {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
         $this->dm->remove($parent);
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertNull($parent);
     }
 
     public function testModifyChildren()
     {
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
         $child = $parent->allChildren->first();
@@ -259,7 +415,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertEquals('New name', $parent->allChildren->first()->name);
         $this->assertCount(3, $parent->allChildren);
 
@@ -268,7 +424,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(0, $parent->allChildren);
 
         $child = new ChildrenTestObj();
@@ -285,12 +441,17 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->flush();
         $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertCount(2, $parent->allChildren);
     }
 
     public function testReplaceChildren()
     {
+        $this->createChildren();
+
         /** @var $parent ChildrenTestObj */
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
         $parent->allChildren->remove('Child A');
@@ -303,63 +464,10 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertTrue($parent->allChildren->containsKey('Child A'));
         $this->assertFalse($parent->allChildren->containsKey('0'));
         $this->assertEquals('Child A', $parent->allChildren['Child A']->name);
-    }
-
-    /**
-     * Reorder the children but reset the order in the preUpdate event
-     * Tests that the previously compute document change set gets overwritten
-     */
-    public function testResetResortingChildren()
-    {
-        $this->listener = new TestResetReorderingListener();
-        $this->dm->getEventManager()->addEventListener(array('preUpdate'), $this->listener);
-
-        /** @var $parent ChildrenTestObj */
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-
-        $this->assertEquals("Child A", $parent->allChildren->first()->name);
-
-        $parent->allChildren->remove('Child A');
-
-        $newChild = new ChildrenTestObj();
-        $newChild->name = 'Child A';
-
-        $parent->allChildren->add($newChild);
-
-        $this->dm->flush();
-        $this->dm->clear();
-
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-
-        $this->assertEquals("Child A", $parent->allChildren->first()->name);
-
-        $this->dm->getEventManager()->removeEventListener(array('preUpdate'), $this->listener);
-    }
-
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
-    public function testMoveByAssignment()
-    {
-        $other = new ChildrenTestObj();
-        $other->id = '/functional/other';
-        $this->dm->persist($other);
-        $this->dm->flush();
-        $this->dm->clear();
-
-
-        /** @var $parent ChildrenTestObj */
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
-        $this->assertCount(4, $parent->allChildren);
-
-        $other = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/other');
-        $other->allChildren->add($parent->allChildren['Child A']);
-
-        $this->dm->flush();
     }
 
     /**
@@ -375,9 +483,10 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->markTestSkipped('Reordering of children not supported');
         }
 
+        // run this test again to prepare the database
         $this->testModifyChildren();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(2, $parent->allChildren);
 
         $data = array(
@@ -390,7 +499,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(count($data), $parent->allChildren);
         $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
 
@@ -416,7 +525,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(count($data), $parent->allChildren);
         $this->assertEquals(array_keys($data), $parent->allChildren->getKeys());
 
@@ -438,7 +547,7 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             'Child G',
         );
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(count($keys), $parent->allChildren);
         $this->assertEquals($keys, $parent->allChildren->getKeys());
 
@@ -454,7 +563,9 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->markTestSkipped('Reordering of children not supported');
         }
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $this->createChildren();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
         /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
@@ -474,68 +585,73 @@ class ChildrenTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent');
+        $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
         $this->assertEquals($expectedOrder, $parent->allChildren->getKeys());
     }
 
-    public function testInsertWithCustomIdStrategy()
+    /**
+     * Reorder the children but reset the order in the preUpdate event
+     * Tests that the previously compute document change set gets overwritten
+     *
+     * @depends testReorderChildren
+     */
+    public function testResetReorderChildren()
     {
-        $children = array();
-        $child = new ChildrenTestObj();
-        $child->name = 'ChildA';
-        $children[] = $child;
+        $this->createChildren();
 
-        $child = new ChildrenTestObj();
-        $child->name = 'ChildB';
-        $children[] = $child;
+        $this->listener = new TestResetReorderingListener();
+        $this->dm->getEventManager()->addEventListener(array('preUpdate'), $this->listener);
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
-        $this->assertCount(0, $parent->allChildren);
+        /** @var $parent ChildrenTestObj */
+        $parent = $this->dm->find($this->type, '/functional/parent');
 
-        $parent->allChildren = $children;
+        $this->assertEquals("Child A", $parent->allChildren->first()->name);
+
+        $parent->allChildren->remove('Child A');
+
+        $newChild = new ChildrenTestObj();
+        $newChild->name = 'Child A';
+
+        $parent->allChildren->add($newChild);
+
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObj', '/functional/parent/Child A');
-        $this->assertCount(2, $parent->allChildren);
+        $parent = $this->dm->find($this->type, '/functional/parent');
+
+        $this->assertEquals("Child A", $parent->allChildren->first()->name);
+
+        $this->dm->getEventManager()->removeEventListener(array('preUpdate'), $this->listener);
     }
 
-    public function testChildrenAutoname()
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testMoveByAssignment()
     {
-        /** @var $parent ChildrenTestObj */
-        $parent = $this->dm->find(null, '/functional/parent');
-        $parent->allChildren->clear();
-        $parent->allChildren->add(new ChildrenIdTestObj());
+        $this->createChildren();
 
+        $other = new ChildrenTestObj();
+        $other->id = '/functional/other';
+        $this->dm->persist($other);
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/parent');
-        $this->assertCount(1, $parent->allChildren);
-    }
 
-    public function testChildrenAutonameInsert()
-    {
         /** @var $parent ChildrenTestObj */
-        $parent = $this->dm->find(null, '/functional/parent');
-        $parent->allChildren->clear();
-        $new = new ChildrenTestObj();
-        $new->id = '/functional/parent/new';
-        $new->allChildren->add(new ChildrenIdTestObj());
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertCount(4, $parent->allChildren);
 
-        $this->dm->persist($new);
+        $other = $this->dm->find($this->type, '/functional/other');
+        $other->allChildren->add($parent->allChildren['Child A']);
 
         $this->dm->flush();
-        $this->dm->clear();
-
-        $parent = $this->dm->find(null, '/functional/parent/new');
-        $this->assertCount(1, $parent->allChildren);
     }
 }
 
 /**
- * @PHPCR\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\ChildrenTestObjRepository")
+ * @PHPCR\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildrenTestObjRepository")
  */
 class ChildrenTestObj
 {
@@ -578,6 +694,39 @@ class ChildrenTestObjRepository extends DocumentRepository implements Repository
         $parent = $parent ? $parent->id : '/functional';
         return $parent.'/'.$document->name;
     }
+}
+
+/**
+ * @PHPCR\Document()
+ */
+class ChildrenAutonameTestObj
+{
+    /** @PHPCR\Id(strategy="auto") */
+    public $id;
+
+    /** @PHPCR\ParentDocument() */
+    public $parent;
+}
+
+/**
+ * @PHPCR\Document()
+ */
+class ChildrenParentAndNameTestObj
+{
+    /**
+     * @PHPCR\ParentDocument
+     */
+    public $parent;
+
+    /**
+     * @PHPCR\Id(strategy="parent")
+     */
+    public $id;
+
+    /**
+     * @PHPCR\Nodename
+     */
+    public $name;
 }
 
 /**
@@ -635,16 +784,4 @@ class TestResetReorderingListener
             $document->allChildren = $childrenCollection;
         }
     }
-}
-
-/**
- * @PHPCR\Document()
- */
-class ChildrenIdTestObj
-{
-    /** @PHPCR\Id(strategy="auto") */
-    public $id;
-
-    /** @PHPCR\ParentDocument() */
-    public $parent;
 }
