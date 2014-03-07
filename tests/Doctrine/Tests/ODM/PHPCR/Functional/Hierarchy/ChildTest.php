@@ -1,10 +1,12 @@
 <?php
 
-namespace Doctrine\Tests\ODM\PHPCR\Functional;
+namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
+ * Test for the Child mapping.
+ *
  * @group functional
  */
 class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
@@ -33,13 +35,26 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\ChildTestObj';
-        $this->childType = 'Doctrine\Tests\ODM\PHPCR\Functional\ChildChildTestObj';
+        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildTestObj';
+        $this->childType = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildChildTestObj';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testCreate()
+    public function testInsertWithoutChild()
+    {
+        $parent = new ChildTestObj();
+        $parent->name = 'Parent';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
+    }
+
+    public function testInsertWithUnnamedChild()
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -56,52 +71,28 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
     }
 
-    public function testCreateWithoutChild()
+    /**
+     * @depends testInsertWithUnnamedChild
+     */
+    function testProxyForChildIsUsed()
     {
         $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
         $parent->name = 'Parent';
+        $parent->child = $child;
+        $child->name = 'Child';
         $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
+        $doc = $this->dm->find(null, '/functional/childtest');
+        $this->assertInstanceOf($this->type, $doc);
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
-    public function testCreateArray()
-    {
-        $parent = new ChildTestObj();
-        $child = new ChildChildTestObj();
-        $parent->name = 'Parent';
-        $parent->child = array($child);
-        $child->name = 'Child';
-        $parent->id = '/functional/childtest';
-
-        $this->dm->persist($parent);
-        $this->dm->flush();
-    }
-
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
-    public function testCreateNoObject()
-    {
-        $parent = new ChildTestObj();
-        $child = new ChildChildTestObj();
-        $parent->name = 'Parent';
-        $parent->child = 'This is not an object';
-        $child->name = 'Child';
-        $parent->id = '/functional/childtest';
-
-        $this->dm->persist($parent);
-        $this->dm->flush();
-    }
-
-    public function testCreateAddChildLater()
+    public function testInsertAddUnnamedChildLater()
     {
         $parent = new ChildTestObj();
         $parent->name = 'Parent';
@@ -122,6 +113,38 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testInsertArray()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->child = array($child);
+        $child->name = 'Child';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testInsertNoObject()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->child = 'This is not an object';
+        $child->name = 'Child';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
     }
 
     public function testUpdate()

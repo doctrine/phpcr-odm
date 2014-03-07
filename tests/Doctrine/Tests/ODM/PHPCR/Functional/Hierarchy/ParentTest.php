@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\ODM\PHPCR\Functional;
+namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -8,9 +8,11 @@ use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
+ * Test for the Parent mapping.
+ *
  * @group functional
  */
-class HierarchyTest extends PHPCRFunctionalTestCase
+class ParentTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
@@ -30,7 +32,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\NameDoc';
+        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\NameDoc';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -45,7 +47,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testFind()
+    public function testChildMapsParent()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
 
@@ -53,7 +55,7 @@ class HierarchyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename', $doc->id);
         $this->assertEquals('thename', $doc->nodename);
 
-        $this->assertNotNull($doc->parent);
+        $this->assertTrue($doc->parent instanceof Proxy);
         $this->assertEquals('/functional', $doc->parent->getId());
         return $doc;
     }
@@ -201,24 +203,6 @@ class HierarchyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/child/grandchild', $grandchild->id);
     }
 
-    function testProxyForParentIsUsed()
-    {
-        $doc = $this->dm->find($this->type, '/functional/thename');
-        $this->assertTrue($doc->parent instanceof Proxy);
-    }
-
-    function testProxyForChildIsUsed()
-    {
-        $doc = $this->dm->find($this->type, '/functional/thename');
-        $doc->child = new NameDoc();
-        $this->dm->flush();
-
-        $this->dm->clear();
-
-        $doc = $this->dm->find($this->type, '/functional/thename');
-        $this->assertTrue($doc->child instanceof Proxy);
-    }
-
     function testChildOfRoot()
     {
         $root = $this->dm->find(null, '/');
@@ -247,9 +231,6 @@ class HierarchyTest extends PHPCRFunctionalTestCase
         $referrer = $this->dm->find(null, '/functional/referrer');
         $this->assertInstanceOf('\Doctrine\ODM\PHPCR\Document\Generic', $referrer->ref->parent);
     }
-
-    // TODO: move? is to be done through phpcr session directly
-
 }
 
 /**
