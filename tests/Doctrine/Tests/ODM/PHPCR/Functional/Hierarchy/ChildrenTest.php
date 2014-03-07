@@ -626,6 +626,53 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     }
 
     /**
+     * Rename the nodename of a child
+     */
+    public function testRenameChildren()
+    {
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $child = new ChildrenParentAndNameTestObj();
+        $child->name = 'original';
+        $parent->allChildren->add($child);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $child = $parent->allChildren->first();
+        $this->assertEquals('original', $child->name);
+
+        $child->name = 'different';
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertCount(1, $parent->allChildren);
+        $this->assertEquals('different', $parent->allChildren->first()->name);
+    }
+
+    /**
+     * Move a child out of the children collection
+     */
+    public function testMoveChildren()
+    {
+        $this->createChildren();
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $child = $parent->allChildren->first();
+
+        $this->dm->move($child, '/functional/elsewhere');
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $child = $this->dm->find(null, '/functional/elsewhere');
+        $this->assertInstanceOf($this->type, $child);
+        $parent = $this->dm->find(null, '/functional/parent');
+        $this->assertInstanceOf($this->type, $parent);
+        $this->assertCount(3, $parent->allChildren);
+    }
+
+    /**
      * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testMoveByAssignment()
@@ -638,13 +685,26 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-
         /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
         $other = $this->dm->find($this->type, '/functional/other');
         $other->allChildren->add($parent->allChildren['Child A']);
+
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
+     */
+    public function testMoveByUpdateId()
+    {
+        $this->createChildren();
+        $parent = $this->dm->find($this->type, '/functional/parent');
+        $child = $parent->allChildren->first();
+
+        $child->id = '/functional/elsewhere';
 
         $this->dm->flush();
     }
