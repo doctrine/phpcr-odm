@@ -1253,6 +1253,7 @@ class UnitOfWork
                 $mapping = $class->mappings[$fieldName];
 
                 $childNames = array();
+                $movedChildNames = array();
                 if ($actualData[$fieldName]) {
                     if (!is_array($actualData[$fieldName]) && !$actualData[$fieldName] instanceof Collection) {
                         throw PHPCRException::childrenFieldNoArray(
@@ -1274,6 +1275,7 @@ class UnitOfWork
                         $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         if (0 !== strcmp($originalNodename, $nodename)) {
                             unset($actualData[$fieldName][$originalNodename]);
+                            $movedChildNames[] = (string) $originalNodename;
                         }
                         $childNames[] = $nodename;
                     }
@@ -1283,7 +1285,8 @@ class UnitOfWork
                     $this->originalData[$oid][$fieldName]->initialize();
                     $originalNames = $this->originalData[$oid][$fieldName]->getOriginalNodenames();
                     foreach ($originalNames as $key => $childName) {
-                        if (!in_array($childName, $childNames)) {
+                        // check moved children to not accidentally remove a child that simply moved away.
+                        if (!(in_array($childName, $childNames) || in_array($childName, $movedChildNames))) {
                             $child = $this->getDocumentById($id.'/'.$childName);
                             $this->scheduleRemove($child);
                             unset($originalNames[$key]);
