@@ -1003,7 +1003,19 @@ class UnitOfWork
         return $actualData;
     }
 
-    private function getChildNodename($id, $nodename, $child, $parent)
+    /**
+     * Determine the nodename of a child in a children list.
+     *
+     * @param string $parentId Id of the parent document
+     * @param string $nodename Name to use if we can't determine the node name otherwise.
+     * @param object $child    The child document
+     * @param object $parent   The parent document
+     *
+     * @return mixed|string
+     *
+     * @throws PHPCRException
+     */
+    private function getChildNodename($parentId, $nodename, $child, $parent)
     {
         $childClass = $this->dm->getClassMetadata(get_class($child));
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
@@ -1019,7 +1031,7 @@ class UnitOfWork
             }
 
             if ('' !== $childId) {
-                if ($childId !== $id.'/'.PathHelper::getNodeName($childId)) {
+                if ($childId !== $parentId.'/'.PathHelper::getNodeName($childId)) {
                     throw PHPCRException::cannotMoveByAssignment(self::objToStr($child, $this->dm));
                 }
                 $nodename = PathHelper::getNodeName($childId);
