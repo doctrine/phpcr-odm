@@ -20,13 +20,13 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      * Class name of the document class
      * @var string
      */
-    private $type;
+    private $type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildTestObj';
 
     /**
      * Class name of the child document class
      * @var string
      */
-    private $childType;
+    private $childType = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildChildTestObj';
 
     /**
      * @var \PHPCR\NodeInterface
@@ -35,8 +35,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildTestObj';
-        $this->childType = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildChildTestObj';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -113,6 +111,53 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
+     */
+    public function testCreateConflictingName()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->child = $child;
+        $child->name = 'Child';
+        $child->nodename = 'different';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+    }
+
+    /**
+     * On creation, a conflicting child name is not ok. On update it is
+     * allowed, so that a node can be moved away.
+     */
+    public function testMoveAwayChild()
+    {
+        $parent = new ChildTestObj();
+        $child = new ChildChildTestObj();
+        $parent->name = 'Parent';
+        $parent->child = $child;
+        $child->name = 'Child';
+        $parent->id = '/functional/childtest';
+
+        $this->dm->persist($parent);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/childtest');
+        $this->assertInstanceOf($this->type, $parent);
+        $this->assertInstanceOf($this->childType, $parent->child);
+
+        $parent->child->nodename = 'different';
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/childtest');
+        $this->assertInstanceOf($this->type, $parent);
+        $this->assertNull($parent->child);
     }
 
     /**
@@ -402,6 +447,8 @@ class ChildChildTestObj
     public $node;
     /** @PHPCRODM\String */
     public $name;
+    /** @PHPCRODM\Nodename */
+    public $nodename;
 }
 
 /**
