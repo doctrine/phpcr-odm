@@ -1402,7 +1402,6 @@ class UnitOfWork
                         );
                     }
                 }
-
                 $childId = $parentId.'/'.$nodename;
                 $targetClass->setIdentifierValue($child, $childId);
 
