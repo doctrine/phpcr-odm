@@ -1237,8 +1237,8 @@ class UnitOfWork
                 }
 
                 // make sure destination nodename is okay
-                if ($exception = $class->isValidNodename($actualData[$class->nodename])) {
-                    throw IdException::illegalName($document, $class->nodename, $actualData[$class->nodename]);
+                if ($exception = $class->isValidNodename($destName)) {
+                    throw IdException::illegalName($document, $class->nodename, $destName);
                 }
 
                 // prevent path from becoming "//foobar" when moving to root node.
