@@ -164,4 +164,17 @@ class LocaleChooser implements LocaleChooserInterface
     {
         return $this->defaultLocale;
     }
+
+    /**
+     * Update the localePreferences and the defaultLocale
+     *
+     *  @param array $localePreference array of arrays with a preferred locale order list
+     *      for each locale
+     * @param string $defaultLocale the default locale to be used if locale is not set
+     */
+    public function setLocalePreferencesAndDefaultLocale($localePreference, $defaultLocale)
+    {
+        $this->defaultLocale = $defaultLocale;
+        $this->setLocalePreference($localePreference);
+    }
 }
