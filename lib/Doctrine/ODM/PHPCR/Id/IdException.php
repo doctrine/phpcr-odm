@@ -2,6 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\PHPCRException;
 
 class IdException extends PHPCRException
@@ -13,7 +14,7 @@ class IdException extends PHPCRException
                 'may not be empty in document of class "%s"',
             $parent,
             $nodename,
-            get_class($document)
+            ClassUtils::getClass($document)
         );
 
         return new self($message);
@@ -24,7 +25,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             'Property "%s" mapped as ParentDocument may not be empty in document of class "%s"',
             $parent,
-            get_class($document)
+            ClassUtils::getClass($document)
         );
 
         return new self($message);
@@ -35,7 +36,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             'NodeName property "%s" may not be empty in document of class "%s"',
             $fieldName,
-            get_class($document)
+            ClassUtils::getClass($document)
         );
 
         return new self($message);
@@ -43,12 +44,12 @@ class IdException extends PHPCRException
 
     public static function parentIdCouldNotBeDetermined($document, $parent, $parentObject)
     {
-        $parentType = is_object($parentObject) ? get_class($parentObject) : $parentObject;
+        $parentType = is_object($parentObject) ? ClassUtils::getClass($parentObject) : $parentObject;
         $message = sprintf(
             'ParentDocument property "%s" of document of class "%s" contains an ' .
             'object for which no ID could be found',
             $parent,
-            get_class($document),
+            ClassUtils::getClass($document),
             $parentType
         );
 
@@ -60,7 +61,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             'NodeName property "%s" of document "%s" contains the illegal PHPCR value "%s".',
             $fieldName,
-            get_class($document),
+            ClassUtils::getClass($document),
             $nodeName
         );
 
@@ -77,7 +78,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             '%s discovered as new child of %s in field "%s" has a node name ' .
             'mismatch. The mapping says "%s" but the child was assigned "%s".',
-            get_class($childDocument),
+            ClassUtils::getClass($childDocument),
             $parentId,
             $parentFieldName,
             $fieldNodeName,

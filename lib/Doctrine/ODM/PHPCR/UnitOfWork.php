@@ -1524,7 +1524,7 @@ class UnitOfWork
         $this->cascadeRefresh($class, $document, $visited);
 
         $hints = array('refresh' => true);
-        $this->getOrCreateDocument(get_class($document), $node, $hints);
+        $this->getOrCreateDocument(ClassUtils::getClass($document), $node, $hints);
     }
 
     public function merge($document)
@@ -2260,7 +2260,7 @@ class UnitOfWork
                                     $refClass = $this->dm->getClassMetadata(get_class($fv));
                                     $this->setMixins($refClass, $associatedNode);
                                     if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                        throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fv)));
+                                        throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fv)));
                                     }
                                     $refNodesIds[] = $associatedNode->getIdentifier();
                                 }
@@ -2279,7 +2279,7 @@ class UnitOfWork
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
                                 $this->setMixins($refClass, $associatedNode);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), get_class($fieldValue)));
+                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fieldValue)));
                                 }
                                 $node->setProperty($mapping['property'], $associatedNode->getIdentifier(), $strategy);
                             }
@@ -2355,7 +2355,7 @@ class UnitOfWork
                                     break;
                                 default:
                                     // in class metadata we only did a santiy check but not look at the actual mapping
-                                    throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], get_class($fv)));
+                                    throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], ClassUtils::getClass($fv)));
                             }
                         }
                     }
@@ -3266,7 +3266,7 @@ class UnitOfWork
     {
         $string = method_exists($obj, '__toString')
             ? (string) $obj
-            : get_class($obj).'@'.spl_object_hash($obj);
+            : ClassUtils::getClass($obj).'@'.spl_object_hash($obj);
 
         if ($dm) {
             try {
