@@ -1021,6 +1021,10 @@ class UnitOfWork
         $childClass = $this->dm->getClassMetadata(get_class($child));
         if ($childClass->nodename && $childClass->reflFields[$childClass->nodename]->getValue($child)) {
             $nodename = $childClass->reflFields[$childClass->nodename]->getValue($child);
+
+            if ($exception = $childClass->isValidNodename($nodename)) {
+                throw IdException::illegalName($child, $childClass->nodename, $nodename);
+            }
         } else {
             $childId = '';
             if ($childClass->identifier) {
@@ -1230,6 +1234,11 @@ class UnitOfWork
                     $destName = $actualData[$class->nodename]
                         ? $actualData[$class->nodename]
                         : PathHelper::getNodeName($this->getDocumentId($document));
+                }
+
+                // make sure destination nodename is okay
+                if ($exception = $class->isValidNodename($destName)) {
+                    throw IdException::illegalName($document, $class->nodename, $destName);
                 }
 
                 // prevent path from becoming "//foobar" when moving to root node.

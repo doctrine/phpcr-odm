@@ -55,6 +55,18 @@ class IdException extends PHPCRException
         return new self($message);
     }
 
+    public static function illegalName($document, $fieldName, $nodeName)
+    {
+        $message = sprintf(
+            'NodeName property "%s" of document "%s" contains the illegal PHPCR value "%s".',
+            $fieldName,
+            get_class($document),
+            $nodeName
+        );
+
+        return new self($message);
+    }
+
     public static function conflictingChildName(
         $parentId,
         $parentFieldName,
