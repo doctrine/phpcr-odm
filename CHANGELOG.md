@@ -1,8 +1,19 @@
 Changelog
 =========
 
+1.1.0-RC1
+---------
+
+First release candidate 1.1
+
+* **2014-03-14**: Lots of invalid PHPCR node name situations are now detected
+  and fail early and with a clearer message.
+
 * **2014-03-01**: The LocaleChooserInterface got a new method setFallbackLocales
   which allows to update the fallback for a specific locale.
+
+* **2014-02-28**: Id strategy is also properly used when persisting children
+  during a flush.
 
 * **2014-02-02**: DocumentManager::find()/findMany now actually validate the
   requested class name. If the class name determined by the DocumentClassMapper
