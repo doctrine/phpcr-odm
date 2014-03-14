@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
@@ -36,7 +37,7 @@ class RepositoryIdGenerator extends IdGenerator
         }
         $repository = $dm->getRepository($class->name);
         if (!($repository instanceof RepositoryIdInterface)) {
-            throw new IdException("ID could not be determined. Make sure the that the Repository '".get_class($repository)."' implements RepositoryIdInterface");
+            throw new IdException("ID could not be determined. Make sure the that the Repository '".ClassUtils::getClass($repository)."' implements RepositoryIdInterface");
         }
 
         $id = $repository->generateId($document, $parent);

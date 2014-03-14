@@ -30,7 +30,7 @@ use PHPCR\PropertyType;
  */
 class DocumentClassMapper implements DocumentClassMapperInterface
 {
-    private function expandClassName($dm, $className = null)
+    private function expandClassName(DocumentManager $dm, $className = null)
     {
         if (null === $className) {
             return null;

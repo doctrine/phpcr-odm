@@ -2,11 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\References\ParentTestObj;
 
 class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
+    /**
+     * @var DocumentManager
+     */
     private $dm;
 
     public function setUp()
@@ -60,6 +65,28 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->refresh($user);
 
         $this->assertEquals(1, count($user->groups));
+    }
+
+    public function testRefreshProxy()
+    {
+        $parent = new ParentTestObj();
+        $parent->id = '/functional/parent';
+        $parent->name = 'parent';
+        $child = new ParentTestObj();
+        $child->id = '/functional/parent/child';
+        $child->name = 'child';
+
+        $this->dm->persist($parent);
+        $this->dm->persist($child);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $child = $this->dm->find(null, '/functional/parent/child');
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $child->parent);
+        $child->parent->name = 'x';
+
+        $this->dm->refresh($child->parent);
+        $this->assertEquals('parent', $child->parent->name);
     }
 
     /**
