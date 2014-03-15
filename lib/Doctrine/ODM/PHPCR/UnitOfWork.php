@@ -1497,6 +1497,11 @@ class UnitOfWork
         if (!$generator instanceof AssignedIdGenerator) {
             $class->setIdentifierValue($document, $id);
         }
+
+        //set the uuid if need to be set directly on document
+        if ($uuidFieldName = $class->getUuidFieldName()) {
+            $class->setFieldValue($document, $uuidFieldName, $this->generateUuid());
+        }
     }
 
     public function refresh($document)
@@ -2064,14 +2069,19 @@ class UnitOfWork
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
-            $this->setMixins($class, $node);
-
-            // set the uuid value if it needs to be set
-            $uuidFieldName = $class->getUuidFieldName();
-            if ($uuidFieldName && $node->hasProperty('jcr:uuid')) {
-                $uuidValue = $node->getProperty('jcr:uuid')->getValue();
-                $class->setFieldValue($document, $uuidFieldName, $uuidValue);
+            //set the uuid if need to be set, either the uuid exist on the document or it needs to be created
+            if ($node->isNodeType('mix:referenceable')) {
+                $uuidFieldName = $class->getUuidFieldName();
+                if ($uuidFieldName && null !== $class->getFieldValue($document, $uuidFieldName)) {
+                    $node->setProperty('jcr:uuid', $class->getFieldValue($document, $uuidFieldName));
+                } else {
+                    $uuid = $this->generateUuid();
+                    $node->setProperty('jcr:uuid', $uuid);
+                    $class->setFieldValue($document, $uuidFieldName, $uuid);
+                }
             }
+
+            $this->setMixins($class, $node, $document);
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
@@ -3317,7 +3327,7 @@ class UnitOfWork
             $node->addMixin('mix:referenceable');
         }
 
-        // we manually set the uuid to allow creating referenced and referencing document without flush in between.
+        //when uuid not set and needed do it
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
             $node->setProperty('jcr:uuid', $this->generateUuid());
         }
