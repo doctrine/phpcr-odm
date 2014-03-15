@@ -151,6 +151,25 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
+    public function testGetUuuidAfterPersist()
+    {
+        $newUser = new UserWithUuid();
+        $newUser->username = 'test';
+        $newUser->id = '/functional/test';
+
+        $this->dm->persist($newUser);
+
+        $uuidPostPersist = $newUser->uuid;
+        $this->assertNotNull($uuidPostPersist, 'Have to be not null');
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $flushedUser = $this->dm->find(null, '/functional/test');
+
+        $this->assertEquals($uuidPostPersist, $flushedUser->uuid);
+    }
+
     public function testInsertWithCustomIdStrategy()
     {
         $user = new User3();

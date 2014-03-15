@@ -3316,15 +3316,18 @@ class UnitOfWork
         }
 
         //set the uuid if need to be set, either the uuid exist on the document or it needs to be created
-        if ($node->isNodeType('mix:referenceable')) {
-            $uuidFieldName = $metadata->getUuidFieldName();
-            if ($uuidFieldName && null !== $uuid = $metadata->getFieldValue($document, $uuidFieldName)) {
+        $uuidFieldName = $metadata->getUuidFieldName();
+        if ($node->isNodeType('mix:referenceable') && $uuidFieldName) {
+            if (null !== $uuid = $metadata->getFieldValue($document, $uuidFieldName)) {
                 $node->setProperty('jcr:uuid', $uuid);
             } else {
                 $uuid = $this->generateUuid();
                 $node->setProperty('jcr:uuid', $uuid);
                 $metadata->setFieldValue($document, $uuidFieldName, $uuid);
             }
+        } elseif ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
+            $uuid = $this->generateUuid();
+            $node->setProperty('jcr:uuid', $uuid);
         }
     }
 
