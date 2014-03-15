@@ -2069,7 +2069,14 @@ class UnitOfWork
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
-            $this->setMixins($class, $node, $document);
+            //prepare uuid for the mixins if document needs it
+            $uuid = null;
+            if ($uuidFieldName = $class->getUuidFieldName()) {
+                $uuid = $class->getFieldValue($document, $uuidFieldName);
+            }
+
+            $this->setMixins($class, $node, $uuid);
+
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
@@ -2256,7 +2263,7 @@ class UnitOfWork
                                     $refNodesIds[] = $associatedNode->getPath();
                                 } else {
                                     $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                    $this->setMixins($refClass, $associatedNode, $document);
+                                    $this->setMixins($refClass, $associatedNode);
                                     if (!$associatedNode->isNodeType('mix:referenceable')) {
                                         throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fv)));
                                     }
@@ -2275,7 +2282,7 @@ class UnitOfWork
                                 $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
                             } else {
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                                $this->setMixins($refClass, $associatedNode, $document);
+                                $this->setMixins($refClass, $associatedNode);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fieldValue)));
                                 }
@@ -3296,7 +3303,7 @@ class UnitOfWork
         return $path;
     }
 
-    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document)
+    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $uuid = null)
     {
         $repository = $this->session->getRepository();
         if ($metadata->versionable === 'full') {
@@ -3315,18 +3322,11 @@ class UnitOfWork
             $node->addMixin('mix:referenceable');
         }
 
-        //set the uuid if need to be set, either the uuid exist on the document or it needs to be created
-        $uuidFieldName = $metadata->getUuidFieldName();
-        if ($node->isNodeType('mix:referenceable') && $uuidFieldName) {
-            if (null !== $uuid = $metadata->getFieldValue($document, $uuidFieldName)) {
-                $node->setProperty('jcr:uuid', $uuid);
-            } else {
+        //set the uuid if need to be set, either injected (set on persist) or generated
+        if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
+            if (null === $uuid) {
                 $uuid = $this->generateUuid();
-                $node->setProperty('jcr:uuid', $uuid);
-                $metadata->setFieldValue($document, $uuidFieldName, $uuid);
             }
-        } elseif ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
-            $uuid = $this->generateUuid();
             $node->setProperty('jcr:uuid', $uuid);
         }
     }
