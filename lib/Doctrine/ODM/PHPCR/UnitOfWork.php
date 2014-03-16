@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use PHPCR\Util\UUIDHelper;
 
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
@@ -1500,7 +1501,10 @@ class UnitOfWork
 
         //set the uuid if need to be set directly on document
         if ($uuidFieldName = $class->getUuidFieldName()) {
-            $class->setFieldValue($document, $uuidFieldName, $this->generateUuid());
+            $existingUuid = $class->getFieldValue($document, $uuidFieldName);
+            if (!UUIDHelper::isUUID($existingUuid)) {
+                $class->setFieldValue($document, $uuidFieldName, $this->generateUuid());
+            }
         }
     }
 
@@ -2071,8 +2075,8 @@ class UnitOfWork
 
             //prepare uuid for the mixins if document needs it
             $uuid = $class->getUuidFieldName()
-                        ? $class->getFieldValue($document, $class->getUuidFieldName())
-                        : null;
+                       ? $class->getFieldValue($document, $class->getUuidFieldName())
+                       : null;
 
             $this->setMixins($class, $node, $uuid);
 
@@ -3325,7 +3329,7 @@ class UnitOfWork
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
             $node->setProperty(
                 'jcr:uuid',
-                null === $uuid ? $this->generateUuid() : $uuid
+                $uuid ? : $this->generateUuid()
             );
         }
     }

@@ -6,6 +6,7 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use PHPCR\PropertyType;
+use PHPCR\Util\UUIDHelper;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
@@ -160,7 +161,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($newUser);
 
         $uuidPostPersist = $newUser->uuid;
-        $this->assertNotNull($uuidPostPersist, 'Have to be not null');
+        $this->assertNotNull($uuidPostPersist);
 
         $this->dm->flush();
         $this->dm->clear();
@@ -168,6 +169,29 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $flushedUser = $this->dm->find(null, '/functional/test');
 
         $this->assertEquals($uuidPostPersist, $flushedUser->uuid);
+    }
+
+    public function testExistingUuuid()
+    {
+        $testUuid = UuidHelper::generateUUID();
+
+        $newUser = new UserWithUuid();
+        $newUser->username = 'test';
+        $newUser->id = '/functional/test';
+        $newUser->uuid = $testUuid;
+
+        $this->dm->persist($newUser);
+
+        $uuidPostPersist = $newUser->uuid;
+        $this->assertNotNull($uuidPostPersist);
+        $this->assertEquals($testUuid, $uuidPostPersist);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $flushedUser = $this->dm->find(null, '/functional/test');
+
+        $this->assertEquals($testUuid, $flushedUser->uuid);
     }
 
     public function testInsertWithCustomIdStrategy()
