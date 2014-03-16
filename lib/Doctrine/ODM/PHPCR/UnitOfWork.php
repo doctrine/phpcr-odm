@@ -1499,7 +1499,7 @@ class UnitOfWork
             $class->setIdentifierValue($document, $id);
         }
 
-        //uuid setting or validation
+        //if the uuid is mapped, validate resp generate it early
         if ($uuidFieldName = $class->getUuidFieldName()) {
             if ($existingUuid = $class->getFieldValue($document, $uuidFieldName)) {
                 if (!UUIDHelper::isUUID($existingUuid)) {
