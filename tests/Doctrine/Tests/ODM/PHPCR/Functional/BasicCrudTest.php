@@ -194,6 +194,17 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($testUuid, $flushedUser->uuid);
     }
 
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\RuntimeException
+     */
+    public function testBadUuidSetting()
+    {
+        $newUser = new UserWithUuid();
+        $newUser->uuid = 'bad-uuid';
+
+        $this->dm->persist($newUser);
+    }
+
     public function testInsertWithCustomIdStrategy()
     {
         $user = new User3();

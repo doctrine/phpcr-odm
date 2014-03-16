@@ -48,7 +48,6 @@ use PHPCR\ItemNotFoundException;
 use PHPCR\NodeType\NoSuchNodeTypeException;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
-
 use Jackalope\Session as JackalopeSession;
 
 /**
@@ -1499,11 +1498,18 @@ class UnitOfWork
             $class->setIdentifierValue($document, $id);
         }
 
-        //set the uuid if need to be set directly on document
+        //uuid setting or validation
         if ($uuidFieldName = $class->getUuidFieldName()) {
             $existingUuid = $class->getFieldValue($document, $uuidFieldName);
-            if (!UUIDHelper::isUUID($existingUuid)) {
+
+            //when it does not exist set it by the generator
+            if (!$existingUuid) {
                 $class->setFieldValue($document, $uuidFieldName, $this->generateUuid());
+            }
+
+            //when exsists check if valid
+            if ($existingUuid && !UUIDHelper::isUUID($existingUuid)) {
+                throw new RuntimeException('The uuid field needs to contain a valid uuid');
             }
         }
     }
