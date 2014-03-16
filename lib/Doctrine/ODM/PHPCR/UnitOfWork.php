@@ -2070,10 +2070,9 @@ class UnitOfWork
             }
 
             //prepare uuid for the mixins if document needs it
-            $uuid = null;
-            if ($uuidFieldName = $class->getUuidFieldName()) {
-                $uuid = $class->getFieldValue($document, $uuidFieldName);
-            }
+            $uuid = $class->getUuidFieldName()
+                        ? $class->getFieldValue($document, $class->getUuidFieldName())
+                        : null;
 
             $this->setMixins($class, $node, $uuid);
 
@@ -3324,10 +3323,10 @@ class UnitOfWork
 
         //set the uuid if need to be set, either injected (set on persist) or generated
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
-            if (null === $uuid) {
-                $uuid = $this->generateUuid();
-            }
-            $node->setProperty('jcr:uuid', $uuid);
+            $node->setProperty(
+                'jcr:uuid',
+                null === $uuid ? $this->generateUuid() : $uuid
+            );
         }
     }
 
