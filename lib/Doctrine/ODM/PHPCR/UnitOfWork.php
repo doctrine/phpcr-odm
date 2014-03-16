@@ -1499,6 +1499,7 @@ class UnitOfWork
         }
 
         //uuid setting or validation
+        
         if ($uuidFieldName = $class->getUuidFieldName()) {
             $existingUuid = $class->getFieldValue($document, $uuidFieldName);
 

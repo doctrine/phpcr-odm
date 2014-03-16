@@ -200,6 +200,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testBadUuidSetting()
     {
         $newUser = new UserWithUuid();
+        $newUser->username = 'test';
+        $newUser->id = '/functional/test';
         $newUser->uuid = 'bad-uuid';
 
         $this->dm->persist($newUser);
