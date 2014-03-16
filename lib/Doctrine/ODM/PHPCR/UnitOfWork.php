@@ -1501,16 +1501,12 @@ class UnitOfWork
 
         //uuid setting or validation
         if ($uuidFieldName = $class->getUuidFieldName()) {
-            $existingUuid = $class->getFieldValue($document, $uuidFieldName);
-
-            //when it does not exist set it by the generator
-            if (!$existingUuid) {
+            if ($existingUuid = $class->getFieldValue($document, $uuidFieldName)) {
+                if (!UUIDHelper::isUUID($existingUuid)) {
+                    throw new RuntimeException('The uuid field needs to contain a valid uuid');
+                }
+            } else {
                 $class->setFieldValue($document, $uuidFieldName, $this->generateUuid());
-            }
-
-            //when exsists check if valid
-            if ($existingUuid && !UUIDHelper::isUUID($existingUuid)) {
-                throw new RuntimeException('The uuid field needs to contain a valid uuid');
             }
         }
     }
@@ -2080,12 +2076,7 @@ class UnitOfWork
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
             }
 
-            //prepare uuid for the mixins if document needs it
-            $uuid = $class->getUuidFieldName()
-                       ? $class->getFieldValue($document, $class->getUuidFieldName())
-                       : null;
-
-            $this->setMixins($class, $node, $uuid);
+            $this->setMixins($class, $node, $document);
 
 
             foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
@@ -3313,7 +3304,7 @@ class UnitOfWork
         return $path;
     }
 
-    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $uuid = null)
+    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document = null)
     {
         $repository = $this->session->getRepository();
         if ($metadata->versionable === 'full') {
@@ -3334,10 +3325,19 @@ class UnitOfWork
 
         //set the uuid if need to be set, either injected (set on persist) or generated
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
+            $uuidFieldName = $metadata->getUuidFieldName();
+            $uuid = $uuidFieldName && null !== $document
+                       ? $metadata->getFieldValue($document, $uuidFieldName)
+                       : $this->generateUuid();
+
             $node->setProperty(
                 'jcr:uuid',
-                $uuid ? : $this->generateUuid()
+                $uuid
             );
+
+            if ($uuidFieldName && null !== $document && !$metadata->getFieldValue($document, $uuidFieldName)) {
+                $metadata->setFieldValue($document, $uuidFieldName, $uuid);
+            }
         }
     }
 
