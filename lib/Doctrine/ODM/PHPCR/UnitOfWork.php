@@ -48,6 +48,7 @@ use PHPCR\ItemNotFoundException;
 use PHPCR\NodeType\NoSuchNodeTypeException;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
+
 use Jackalope\Session as JackalopeSession;
 
 /**
@@ -1499,7 +1500,6 @@ class UnitOfWork
         }
 
         //uuid setting or validation
-        
         if ($uuidFieldName = $class->getUuidFieldName()) {
             $existingUuid = $class->getFieldValue($document, $uuidFieldName);
 
