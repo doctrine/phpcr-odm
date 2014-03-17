@@ -2283,7 +2283,7 @@ class UnitOfWork
                                 $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
                             } else {
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                                $this->setMixins($refClass, $associatedNode, $fv);
+                                $this->setMixins($refClass, $associatedNode, $document);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fieldValue)));
                                 }
