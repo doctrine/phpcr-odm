@@ -64,8 +64,7 @@ class LocaleChooser implements LocaleChooserInterface
      */
     public function __construct($localePreference, $defaultLocale)
     {
-        $this->defaultLocale = $defaultLocale;
-        $this->setLocalePreference($localePreference);
+        $this->setLocalePreferenceAndDefaultLocale($localePreference, $defaultLocale);
     }
 
     /**
@@ -78,6 +77,22 @@ class LocaleChooser implements LocaleChooserInterface
         }
 
         $this->localePreference = $localePreference;
+    }
+
+    /**
+     * Update the localePreferences and the defaultLocale at once.
+     *
+     * Update both parameters at once to be able to specify a new defaultLocale that was previously
+     * not contained in the localePreferences.
+     *
+     * @param array $localePreference array of arrays with a preferred locale order list
+     *      for each locale
+     * @param string $defaultLocale the default locale to be used if locale is not set
+     */
+    public function setLocalePreferenceAndDefaultLocale($localePreference, $defaultLocale)
+    {
+        $this->defaultLocale = $defaultLocale;
+        $this->setLocalePreference($localePreference);
     }
 
     /**
@@ -165,16 +180,4 @@ class LocaleChooser implements LocaleChooserInterface
         return $this->defaultLocale;
     }
 
-    /**
-     * Update the localePreferences and the defaultLocale
-     *
-     *  @param array $localePreference array of arrays with a preferred locale order list
-     *      for each locale
-     * @param string $defaultLocale the default locale to be used if locale is not set
-     */
-    public function setLocalePreferencesAndDefaultLocale($localePreference, $defaultLocale)
-    {
-        $this->defaultLocale = $defaultLocale;
-        $this->setLocalePreference($localePreference);
-    }
 }
