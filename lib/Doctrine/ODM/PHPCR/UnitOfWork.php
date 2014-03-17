@@ -2264,7 +2264,7 @@ class UnitOfWork
                                     $refNodesIds[] = $associatedNode->getPath();
                                 } else {
                                     $refClass = $this->dm->getClassMetadata(get_class($fv));
-                                    $this->setMixins($refClass, $associatedNode);
+                                    $this->setMixins($refClass, $associatedNode, $fv);
                                     if (!$associatedNode->isNodeType('mix:referenceable')) {
                                         throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fv)));
                                     }
@@ -2283,7 +2283,7 @@ class UnitOfWork
                                 $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
                             } else {
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
-                                $this->setMixins($refClass, $associatedNode);
+                                $this->setMixins($refClass, $associatedNode, $fv);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
                                     throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fieldValue)));
                                 }
@@ -3304,7 +3304,7 @@ class UnitOfWork
         return $path;
     }
 
-    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document = null)
+    private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document)
     {
         $repository = $this->session->getRepository();
         if ($metadata->versionable === 'full') {
