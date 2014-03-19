@@ -839,6 +839,7 @@ class ClassMetadata implements ClassMetadataInterface
             if (empty($mapping['assoc'])) {
                 $mapping['assoc'] = $mapping['property'].'Keys';
             }
+            $mapping['assocNulls'] = $mapping['property'].'Nulls';
         }
 
         if (isset($this->mappings[$mapping['fieldName']])) {
