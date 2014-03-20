@@ -2,7 +2,7 @@
 
 $file = __DIR__.'/../vendor/autoload.php';
 if (file_exists($file)) {
-    $autoload = require_once $file;
+    $autoload = require $file;
 } else {
     throw new RuntimeException('Install dependencies to run test suite.');
 }

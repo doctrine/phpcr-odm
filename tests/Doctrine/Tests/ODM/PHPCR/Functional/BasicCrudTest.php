@@ -509,7 +509,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $user = new User();
         $user->username = "test";
-        $assocArray = array('foo' => 'bar', 'ding' => 'dong');
+        $assocArray = array('foo' => 'bar', 'ding' => 'dong', 'dong' => null, 'dang' => null);
         $user->parameters = $assocArray;
         $user->id = '/functional/test';
 
