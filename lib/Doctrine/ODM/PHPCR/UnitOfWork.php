@@ -3476,7 +3476,7 @@ class UnitOfWork
     {
         $keys = $properties[$mapping['assoc']];
         $values = $properties[$mapping['property']];
-        $nulls = $properties[$mapping['assocNulls']];
+        $nulls = isset($properties[$mapping['assocNulls']]) ? $properties[$mapping['assocNulls']] : array();
 
         // make sure we start with first value
         reset($values);
