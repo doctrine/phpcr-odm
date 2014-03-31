@@ -438,7 +438,11 @@ class DocumentManager implements ObjectManager
     {
         try {
             if (UUIDHelper::isUUID($id)) {
-                $id = $this->session->getNodeByIdentifier($id)->getPath();
+                try {
+                    $id = $this->session->getNodeByIdentifier($id)->getPath();
+                } catch (ItemNotFoundException $e) {
+                    return null;
+                }
             } elseif (strpos($id, '/') !== 0) {
                 $id = '/'.$id;
             }
