@@ -23,19 +23,26 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
 
         $this->resetFunctionalNode($this->dm);
 
-        $address = new CmsAddress;
-        $address->country = 'France';
-        $address->city = 'Lyon';
-        $address->zip = '65019';
-        $this->dm->persist($address);
+        $address1 = new CmsAddress;
+        $address1->country = 'France';
+        $address1->city = 'Lyon';
+        $address1->zip = '65019';
+        $this->dm->persist($address1);
+
+        $address2 = new CmsAddress;
+        $address2->country = 'England';
+        $address2->city = 'Weymouth';
+        $address2->zip = 'AB1DC2';
+        $this->dm->persist($address2);
 
         $user = new CmsUser;
         $user->username = 'dantleech';
-        $user->address = $address;
+        $user->address = $address1;
         $this->dm->persist($user);
 
         $user = new CmsUser;
         $user->username = 'winstonsmith';
+        $user->address = $address2;
         $this->dm->persist($user);
 
         $user = new CmsUser;
@@ -53,10 +60,6 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    /**
-     * This doesn't work -- I didn't really expect it to, but is it possible
-     * to join a reference?
-     */
     public function testEquiJoinInnerOnReference()
     {
         $qb = $this->dm->createQueryBuilder();
@@ -64,12 +67,12 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $qb->addJoinInner()
             ->right()->document('Doctrine\Tests\Models\CMS\CmsAddress', 'a')->end()
             ->condition()->equi('u.address', 'a.uuid');
-        try {
-            $q = $qb->getQuery();
-            $res = $q->execute();
-        } catch (\Exception $e) {
-            $this->markTestSkipped('How do we join a reference? Exception: '.$e->getMessage());
-        }
+        $qb->where()->eq()->field('a.city')->literal('Lyon');
+        $q = $qb->getQuery();
+        $res = $q->execute();
+
+        $this->assertCount(1, $res);
+        $this->assertEquals('dantleech', $res->current()->username);
     }
 
     public function provideEquiJoinInner()

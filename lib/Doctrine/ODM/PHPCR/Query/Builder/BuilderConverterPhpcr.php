@@ -122,7 +122,19 @@ class BuilderConverterPhpcr
      */
     protected function getPhpcrProperty($originalAlias, $odmField)
     {
-        $fieldMeta = $this->getMetadata($originalAlias)->getField($odmField);
+        $meta = $this->getMetadata($originalAlias);
+
+        if ($meta->hasField($odmField)) {
+            $fieldMeta = $meta->getField($odmField);
+        } elseif ($meta->hasAssociation($odmField)) {
+            $fieldMeta = $meta->getAssociation($odmField);
+        } else {
+            throw new \Exception(sprintf(
+                'Could not find a mapped field or association named "%s" for alias "%s"',
+                $odmField, $originalAlias
+            ));
+        }
+
         $propertyName = $fieldMeta['property'];
 
         if (empty($fieldMeta['translated'])
