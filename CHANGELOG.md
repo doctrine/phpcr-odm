@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.1.0-RC2
+---------
+
+Second release candidate 1.1
+
+* **2014-03-31**: Make findTranslation() consistent with find()
+* **2014-03-17**: Allow setting of the locales dynamically
+* **2014-03-14**: Set UUID on documents on persist already.
+
 1.1.0-RC1
 ---------
 
