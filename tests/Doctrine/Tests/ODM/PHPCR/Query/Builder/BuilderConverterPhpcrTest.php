@@ -39,6 +39,9 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     return $meta;
                 }
 
+                $meta->expects($me->any())
+                    ->method('hasField')
+                    ->will($me->returnValue(true));
 
                 $meta->expects($me->any())
                     ->method('getField')

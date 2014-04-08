@@ -28,6 +28,11 @@ class CmsAddress
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
     public $user;
 
+    /**
+     * @PHPCRODM\Uuid
+     */
+    public $uuid;
+
     public function getId()
     {
         return $this->id;
