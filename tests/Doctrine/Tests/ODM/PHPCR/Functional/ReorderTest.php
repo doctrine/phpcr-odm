@@ -189,6 +189,15 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->reorder($parent, 'first', 'second', false);
     }
 
+    public function testReorderParentProxy()
+    {
+        $first = $this->dm->find(null, '/functional/source/first');
+        $parent = $first->getParent();
+        $this->dm->reorder($parent, 'first', 'second', false);
+        $this->dm->flush();
+        $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
+    }
+
     private function getChildrenNames($children)
     {
         $result = array();
