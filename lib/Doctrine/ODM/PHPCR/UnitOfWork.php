@@ -2505,7 +2505,9 @@ class UnitOfWork
                     $class = $this->dm->getClassMetadata(get_class($parent));
                     foreach ($class->childrenMappings as $fieldName) {
                         $children = $class->reflFields[$fieldName]->getValue($parent);
-                        $children->setInitialized(false);
+                        if ($children instanceof PersistentCollection) {
+                            $children->setInitialized(false);
+                        }
                     }
                 }
             }
