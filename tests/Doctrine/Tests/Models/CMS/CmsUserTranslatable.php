@@ -8,17 +8,19 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 
 /**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserTranslatableRepository", translator="attribute", referenceable=true)
  */
-class CmsUser
+class CmsUserTranslatable
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+    /** @PHPCRODM\Locale */
+    public $locale = 'en';
     /** @PHPCRODM\Node */
     public $node;
     /** @PHPCRODM\String(nullable=true) */
     public $status;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\String(translated=true) */
     public $username;
     /** @PHPCRODM\String(nullable=true) */
     public $name;
@@ -83,7 +85,8 @@ class CmsUser
     }
 }
 
-class CmsUserRepository extends DocumentRepository implements RepositoryIdInterface
+
+class CmsUserTranslatableRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
      * Generate a document id

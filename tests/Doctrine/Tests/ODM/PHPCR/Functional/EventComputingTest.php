@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -17,18 +18,26 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
      */
     private $dm;
 
+    protected $localePrefs = array(
+        'en' => array('de', 'fr'),
+        'fr' => array('de', 'en'),
+        'de' => array('en'),
+        'it' => array('fr', 'de', 'en'),
+    );
+
     public function setUp()
     {
         $this->listener = new TestEventDocumentChanger();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preMove', 'postMove'), $this->listener);
+        $this->dm->getEventManager()->addEventListener(array('prePersist', 'postPersist', 'preUpdate', 'postUpdate', 'preMove', 'postMove', 'bindTranslation'), $this->listener);
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
     }
 
     public function testComputingBetweenEvents()
     {
         // Create initial user
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new \Doctrine\Tests\Models\CMS\CmsUserTranslatable();
         $user->name = 'mdekrijger';
         $user->username = 'mdekrijger';
         $user->status = 'active';
@@ -45,10 +54,10 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->clear();
 
         // Post persist data is not saved to document, so check before reloading document
-        $this->assertEquals('postpersist', $user->username);
+        $this->assertTrue($user->username=='postpersist');
 
         // Be sure that document is really saved by refetching it from ODM
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUserTranslatable', $user->id);
         $this->assertEquals('prepersist', $user->name);
 
         // Change document
@@ -63,7 +72,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertEquals('postupdate', $user->username);
 
         // Be sure that document is really saved by refetching it from ODM
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUserTranslatable', $user->id);
         $this->assertEquals('preupdate', $user->name);
 
         // Move from /functional/preudpate to /functional/moved
@@ -77,7 +86,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->clear();
 
 
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $targetPath);
+        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUserTranslatable', $targetPath);
 
         // the document was moved but the only changes applied in preUpdate are persisted,
         // pre/postMove changes are not persisted in that flush
@@ -101,6 +110,7 @@ class TestEventDocumentChanger
     public $preMove = false;
     public $postMove = false;
     public $onFlush = false;
+    public $bindTranslation = false;
 
     public function prePersist(LifecycleEventArgs $e)
     {
