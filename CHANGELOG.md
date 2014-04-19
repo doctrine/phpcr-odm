@@ -6,7 +6,7 @@ Changelog
 
 Third release candidate 1.1
 
-* **2014-04-19**: add postLoadTranslation event
+* **2014-04-19**: add bindTranslation event
 
 1.1.0-RC2
 ---------
