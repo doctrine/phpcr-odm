@@ -8,12 +8,14 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 
 /**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
+ * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true, translator="attribute")
  */
 class CmsUser
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+    /** @PHPCRODM\Locale */
+    public $locale = 'en';
     /** @PHPCRODM\Node */
     public $node;
     /** @PHPCRODM\String(nullable=true) */
