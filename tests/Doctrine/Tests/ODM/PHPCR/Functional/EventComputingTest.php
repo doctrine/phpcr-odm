@@ -38,7 +38,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->persist($user);
 
         // Post persist data is not saved to document, so check before reloading document
-        $this->assertTrue($user->username=='postpersist');
+        $this->assertEquals('postpersist', $user->username);
 
         // bindTranslation event should change the name to bindTranslation
         $this->dm->bindTranslation($user, 'en');
