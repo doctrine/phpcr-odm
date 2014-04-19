@@ -36,11 +36,16 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         // In prepersist the name will be changed
         // In postpersist the username will be changed
         $this->dm->persist($user);
-        $this->dm->flush();
-        $this->dm->clear();
 
         // Post persist data is not saved to document, so check before reloading document
         $this->assertTrue($user->username=='postpersist');
+
+        // bindTranslation event should change the name to bindTranslation
+        $this->dm->bindTranslation($user, 'en');
+        $this->assertEquals('bindTranslation', $user->username);
+
+        $this->dm->flush();
+        $this->dm->clear();
 
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
@@ -133,5 +138,11 @@ class TestEventDocumentChanger
     {
         $document = $e->getObject();
         $document->username .= '-postmove';
+    }
+
+    public function bindTranslation(LifecycleEventArgs $e)
+    {
+        $document = $e->getObject();
+        $document->username = 'bindTranslation';
     }
 }
