@@ -74,6 +74,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->topic = 'Some interesting subject';
         $this->doc->setText('Lorem ipsum...');
         $this->doc->setSettings(array());
+        $this->doc->assoc = array('key' => 'value');
     }
 
     protected function getTestNode()
