@@ -54,6 +54,9 @@ class Article
     /** @PHPCRODM\String(translated=true, nullable=true) */
     public $nullable;
 
+    /** @PHPCRODM\String(translated=true, assoc="")*/
+    public $assoc;
+
     /**
      * @PHPCRODM\String(assoc="", translated=true, nullable=true)
      */
