@@ -6,7 +6,8 @@ Changelog
 
 Third release candidate 1.1
 
-* **2014-04-19**: add bindTranslation event
+* **2014-04-19**: add events for translation lifecycle: pre-/postBindTranslation,
+    pre-/postRemoveTranslation and postLoadTranslation and its callbacks
 
 1.1.0-RC2
 ---------

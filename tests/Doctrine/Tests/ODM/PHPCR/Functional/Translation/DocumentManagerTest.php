@@ -74,6 +74,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->topic = 'Some interesting subject';
         $this->doc->setText('Lorem ipsum...');
         $this->doc->setSettings(array());
+        $this->doc->assoc = array('key' => 'value');
     }
 
     protected function getTestNode()
@@ -676,17 +677,18 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->persist($a);
 
         $translations = array(
-            'en' => 'Welcome',
-            'fr' => 'Bienvenue',
-            'de' => 'Wilkommen',
+            'en' => array('topic' => 'Welcome', 'assoc_value' => 'in en'),
+            'fr' => array('topic' => 'Bienvenue', 'assoc_value' => 'in fr'),
+            'de' => array('topic' => 'Wilkommen',  'assoc_value' => 'in de'),
         );
 
-        foreach ($translations as $locale => $topic) {
-            $a->topic = $topic;
+        foreach ($translations as $locale => $values) {
+            $a->topic = $values['topic'];
+            $a->assoc = array('key' => $values['assoc_value']);
             $this->dm->bindTranslation($a, $locale);
         }
 
-        foreach ($translations as $locale => $topic) {
+        foreach ($translations as $locale => $values) {
             $trans = $this->dm->findTranslation(
                 'Doctrine\Tests\Models\Translation\Article',
                 '/functional/' . $this->testNodeName,
@@ -695,7 +697,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
             $this->assertNotNull($trans, 'Finding translation with locale "'.$locale.'"');
             $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Article', $trans);
-            $this->assertEquals($topic, $trans->topic);
+            $this->assertEquals($values['topic'], $trans->topic);
+            $this->assertEquals($values['assoc_value'], $trans->assoc['key']);
             $this->assertEquals($locale, $trans->locale);
         }
 

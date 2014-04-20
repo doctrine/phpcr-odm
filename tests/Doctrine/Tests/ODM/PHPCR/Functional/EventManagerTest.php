@@ -6,6 +6,9 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 
+use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\Tests\Models\CMS\CmsPageTranslatable;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\Models\CMS\CmsItem;
@@ -22,20 +25,42 @@ class EventManagerTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
+
+    protected $localePrefs = array(
+        'en' => array('de', 'fr'),
+        'fr' => array('de', 'en'),
+        'de' => array('en'),
+        'it' => array('fr', 'de', 'en'),
+    );
+
     public function setUp()
     {
         $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array(
-            'prePersist', 'postPersist', 'preUpdate', 'postUpdate',
-            'preRemove', 'postRemove', 'onFlush', 'postFlush', 'preFlush',
-            'preMove', 'postMove'
-        ), $this->listener);
     }
 
     public function testTriggerEvents()
     {
+        $this->dm
+            ->getEventManager()
+            ->addEventListener(
+                array(
+                    Event::prePersist,
+                    Event::postPersist,
+                    Event::preUpdate,
+                    Event::postUpdate,
+                    Event::preRemove,
+                    Event::postRemove,
+                    Event::onFlush,
+                    Event::postFlush,
+                    Event::preFlush,
+                    Event::preMove,
+                    Event::postMove,
+                ),
+                $this->listener
+            );
+
         $page = new CmsPage();
         $page->title = "my-page";
         $page->content = "long story";
@@ -76,6 +101,8 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->itemPreMove);
         $this->assertFalse($this->listener->itemPostMove);
 
+        $this->dm->flush();
+
         $item = new CmsItem();
         $item->name = "my-item";
         $item->documentTarget = $page;
@@ -108,6 +135,60 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->listener->pagePostRemove);
         $this->assertTrue($this->listener->itemPostRemove);
     }
+
+    public function testTriggerTranslationEvents()
+    {
+        $this->dm
+            ->getEventManager()
+            ->addEventListener(
+                array(
+                    Event::preBindTranslation,
+                    Event::postBindTranslation,
+                    Event::postLoadTranslation,
+                    Event::preRemoveTranslation,
+                    Event::postRemoveTranslation,
+                ),
+                $this->listener
+            );
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
+
+        $page = new CmsPageTranslatable();
+        $page->title = "my-page";
+        $page->content = "long story";
+
+        $this->dm->persist($page);
+        $this->assertFalse($this->listener->postBindTranslation);
+        $this->assertFalse($this->listener->preBindTranslation);
+        $this->assertFalse($this->listener->postLoadTranslation);
+        $this->assertFalse($this->listener->postRemoveTranslation);
+        $this->assertFalse($this->listener->postRemoveTranslation);
+
+        $this->dm->bindTranslation($page, 'en');
+
+        $this->assertTrue($this->listener->preBindTranslation);
+        $this->assertTrue($this->listener->postBindTranslation);
+        $this->assertFalse($this->listener->postLoadTranslation);
+        $this->assertFalse($this->listener->postRemoveTranslation);
+
+        $this->dm->flush();
+
+        $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsPageTranslatable', $page->id, 'en');
+
+        $this->assertTrue($this->listener->postLoadTranslation);
+
+        $page->title = 'neuer Titel';
+        $this->dm->bindTranslation($page, 'de');
+
+        $this->dm->flush();
+
+        $this->dm->removeTranslation($page, 'en');
+
+        $this->assertFalse($this->listener->postRemoveTranslation);
+        $this->assertTrue($this->listener->preRemoveTranslation);
+        $this->dm->flush();
+
+        $this->assertTrue($this->listener->postRemoveTranslation);
+    }
 }
 
 class TestPersistenceListener
@@ -129,6 +210,12 @@ class TestPersistenceListener
     public $itemPostMove = false;
     public $pagePreMove = false;
     public $pagePostMove = false;
+
+    public $postLoadTranslation = false;
+    public $preBindTranslation = false;
+    public $postBindTranslation = false;
+    public $preRemoveTranslation = false;
+    public $postRemoveTranslation = false;
 
     public function prePersist(LifecycleEventArgs $e)
     {
@@ -222,5 +309,30 @@ class TestPersistenceListener
     public function preFlush(ManagerEventArgs $e)
     {
         $this->preFlush = true;
+    }
+
+    public function preBindTranslation(LifecycleEventArgs $e)
+    {
+        $this->preBindTranslation = true;
+    }
+
+    public function postBindTranslation(LifecycleEventArgs $e)
+    {
+        $this->postBindTranslation = true;
+    }
+
+    public function postLoadTranslation(LifecycleEventArgs $e)
+    {
+        $this->postLoadTranslation = true;
+    }
+
+    public function preRemoveTranslation(LifecycleEventArgs $e)
+    {
+        $this->preRemoveTranslation = true;
+    }
+
+    public function postRemoveTranslation(LifecycleEventArgs $e)
+    {
+        $this->postRemoveTranslation = true;
     }
 }
