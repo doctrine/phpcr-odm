@@ -36,6 +36,7 @@ final class Event
     const onFlush = 'onFlush';
     const onClear = 'onClear';
     const loadClassMetadata = 'loadClassMetadata';
+    const bindTranslation = 'bindTranslation';
 
     public static $lifecycleCallbacks = array(
         self::prePersist => self::prePersist,

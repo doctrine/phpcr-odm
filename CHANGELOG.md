@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.1.0-RC3
+---------
+
+Third release candidate 1.1
+
+* **2014-04-19**: add bindTranslation event
+
 1.1.0-RC2
 ---------
 

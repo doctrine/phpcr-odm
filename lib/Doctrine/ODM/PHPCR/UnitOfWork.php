@@ -607,6 +607,10 @@ class UnitOfWork
         foreach ($class->translatableFields as $field) {
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
+
+        if ($this->evm->hasListeners(Event::bindTranslation)) {
+            $this->evm->dispatchEvent(Event::bindTranslation, new LifecycleEventArgs($document, $this->dm));
+        }
     }
 
     /**
