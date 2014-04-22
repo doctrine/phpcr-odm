@@ -97,4 +97,17 @@ class CascadeRemoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCas
         $this->assertFalse($this->dm->contains($user));
         $this->assertFalse($this->dm->contains($article));
     }
+
+    public function testCascadeRemoveReferrer()
+    {
+        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user->username = "beberlei";
+        $user->name = "Benjamin";
+
+        $this->dm->persist($user);
+
+        $this->dm->flush();
+        // second flush triggers computeChangeSets which then fails
+        $this->dm->flush();
+    }
 }

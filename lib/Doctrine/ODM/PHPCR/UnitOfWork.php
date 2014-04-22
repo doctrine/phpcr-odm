@@ -1085,9 +1085,10 @@ class UnitOfWork
                         }
                     }
 
-                    if (!$isNew && $mapping['cascade'] & ClassMetadata::CASCADE_REMOVE
-                        && (is_array($this->originalData[$oid][$fieldName])
-                            || $this->originalData[$oid][$fieldName] instanceof Collection
+                    if (!$isNew
+                        && $mapping['cascade'] & ClassMetadata::CASCADE_REMOVE
+                        && ($this->originalData[$oid][$fieldName] instanceof ReferenceManyCollection
+                            || $this->originalData[$oid][$fieldName] instanceof ReferrersCollection
                         )
                     ) {
                         $associations = $this->originalData[$oid][$fieldName]->getOriginalPaths();
