@@ -45,6 +45,7 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertFieldMetadataEquals(false, $metadata, 'publishDate', 'translated');
         $this->assertFieldMetadataEquals(true, $metadata, 'topic', 'translated');
         $this->assertFieldMetadataEquals(true, $metadata, 'text', 'translated');
+        $this->assertFieldMetadataEquals(true, $metadata, 'assoc', 'translated');
 
         $this->assertTrue(isset($metadata->translator));
         $this->assertEquals('attribute', $metadata->translator);
