@@ -38,6 +38,7 @@ class CmsUser
     public function __construct()
     {
         $this->articlesReferrers = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId()
