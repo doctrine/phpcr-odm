@@ -71,27 +71,43 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     }
 
     /**
+     * Helper method to detect if there is any translated field at all, to
+     * not null all fields if the locale does not exist.
+     *
+     * @param NodeInterface $node
+     * @param ClassMetadata $metadata
+     * @param string        $locale
+     *
+     * @return bool Whether the node has any attribute of the desired locale.
+     */
+    private function checkHasFields(NodeInterface $node, ClassMetadata $metadata, $locale)
+    {
+        if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
+            return true;
+        }
+        foreach ($metadata->translatableFields as $field) {
+            $propName = $this->getTranslatedPropertyName($locale, $field);
+            if ($node->hasProperty($propName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        $anyTranslatedField = false;
-        $nullFields = array();
-        if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
-            $nullFields = $node->getPropertyValue($this->prefix . ':' . $locale . self::NULLFIELDS);
-            $nullFields = array_flip($nullFields);
-            // we have stored the document in this language at some point, even
-            // if all fields might be null.
-            $anyTranslatedField = true;
+        if (!$this->checkHasFields($node, $metadata, $locale)) {
+            return false;
         }
 
         // we have a translation, now update the document fields
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
-            if (isset($nullFields[$field])) {
-                $value = null;
-            } elseif ($node->hasProperty($propName)) {
-                $anyTranslatedField = true;
+            if ($node->hasProperty($propName)) {
                 $value = $node->getPropertyValue($propName);
                 $mapping = $metadata->mappings[$field];
                 if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
@@ -101,14 +117,13 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                     }
                 }
             } else {
-                // Could not find the translation in the given language
-                // we already returned above if this was a required field
+                // A null field or a missing field
                 $value = ($metadata->mappings[$field]['multivalue']) ? array() : null;
             }
             $metadata->reflFields[$field]->setValue($document, $value);
         }
 
-        return $anyTranslatedField;
+        return true;
     }
 
     /**
