@@ -344,7 +344,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         );
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
-        $this->dm->flush();
+        $this->dm->getPhpcrSession()->save();
 
         $qb = $this->dm->createQueryBuilder();
         $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');

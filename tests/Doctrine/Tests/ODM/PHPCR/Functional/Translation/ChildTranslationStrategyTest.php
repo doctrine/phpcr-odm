@@ -64,7 +64,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $data['topic'] = 'Un sujet intéressant';
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
-        $this->dm->flush();
+        $this->dm->getPhpcrSession()->save();
 
         // Then test we have what we expect in the content repository
         $node_en = $this->session->getNode($this->nodeNameForLocale('en'));
