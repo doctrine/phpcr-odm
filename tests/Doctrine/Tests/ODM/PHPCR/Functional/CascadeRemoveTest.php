@@ -19,6 +19,10 @@ class CascadeRemoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCas
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
         $class->mappings['groups']['cascade'] = ClassMetadata::CASCADE_REMOVE;
 
+        $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
+        $class->mappings['articlesReferrers']['cascade'] = ClassMetadata::CASCADE_REMOVE;
+
+
         $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsGroup');
         $class->mappings['users']['cascade'] = ClassMetadata::CASCADE_REMOVE;
 
