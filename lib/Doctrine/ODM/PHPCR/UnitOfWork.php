@@ -317,8 +317,9 @@ class UnitOfWork
 
         $document = $this->getDocumentById($id);
 
+        $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
         if ($document) {
-            if (empty($hints['refresh'])) {
+            if (!$refresh) {
                 // document already loaded and no need to refresh. return early
                 return $document;
             }
@@ -478,7 +479,7 @@ class UnitOfWork
         }
 
         // Load translations
-        $this->doLoadTranslation($document, $class, $locale, $fallback);
+        $this->doLoadTranslation($document, $class, $locale, $fallback, $refresh);
 
         // Invoke the postLoad lifecycle callbacks and listeners
         if (isset($class->lifecycleCallbacks[Event::postLoad])) {
@@ -1517,6 +1518,7 @@ class UnitOfWork
 
     public function refresh($document)
     {
+        $this->session->refresh(true);
         $visited = array();
         $this->doRefresh($document, $visited);
     }
@@ -1533,7 +1535,6 @@ class UnitOfWork
             throw new InvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
         }
 
-        $this->session->refresh(true);
         $node = $this->session->getNode($this->getDocumentId($document));
 
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -2997,8 +2998,9 @@ class UnitOfWork
      *
      * @param object        $document
      * @param ClassMetadata $metadata
-     * @param string        $locale
-     * @param boolean       $fallback
+     * @param string        $locale   The desired locale.
+     * @param boolean       $fallback Whether to perform language fallback.
+     * @param boolean       $refresh  Whether to force reloading the translation.
      *
      * @return string The locale used
      *
@@ -3007,7 +3009,7 @@ class UnitOfWork
      *
      * @see doLoadTranslation
      */
-    protected function doLoadDatabaseTranslation($document, ClassMetadata $metadata, $locale, $fallback)
+    protected function doLoadDatabaseTranslation($document, ClassMetadata $metadata, $locale, $fallback, $refresh)
     {
         $oid = spl_object_hash($document);
 
@@ -3030,6 +3032,10 @@ class UnitOfWork
         $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales($document, $metadata, $locale);
 
         foreach ($localesToTry as $desiredLocale) {
+            if (!$refresh && isset($this->documentLocales[$oid]['current']) && $desiredLocale == $this->documentLocales[$oid]['current']) {
+                // noop, already the correct locale.
+                return $desiredLocale;
+            }
             // if there is a pending translation, it wins
             if ($this->doLoadPendingTranslation($document, $metadata, $desiredLocale)) {
                 return $desiredLocale;
@@ -3068,7 +3074,7 @@ class UnitOfWork
      * @throws MissingTranslationException if the translation in $locale is not
      *      found and $fallback is false.
      */
-    public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false)
+    public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false, $refresh = false)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -3078,10 +3084,10 @@ class UnitOfWork
         // if no locale is specified, we reset the current translation
         $locale = $locale ?: $currentLocale;
 
-        if ($this->doLoadPendingTranslation($document, $metadata, $locale)) {
+        if (!$refresh && $this->doLoadPendingTranslation($document, $metadata, $locale)) {
             $localeUsed = $locale;
         } else {
-            $localeUsed = $this->doLoadDatabaseTranslation($document, $metadata, $locale, $fallback);
+            $localeUsed = $this->doLoadDatabaseTranslation($document, $metadata, $locale, $fallback, $refresh);
         }
 
         $this->setLocale($document, $metadata, $localeUsed);
