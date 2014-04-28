@@ -36,7 +36,12 @@ final class Event
     const onFlush = 'onFlush';
     const onClear = 'onClear';
     const loadClassMetadata = 'loadClassMetadata';
-    const bindTranslation = 'bindTranslation';
+
+    const postLoadTranslation = 'postLoadTranslation';
+    const preBindTranslation = 'preBindTranslation';
+    const postBindTranslation = 'postBindTranslation';
+    const preRemoveTranslation = 'preRemoveTranslation';
+    const postRemoveTranslation = 'postRemoveTranslation';
 
     public static $lifecycleCallbacks = array(
         self::prePersist => self::prePersist,
@@ -48,6 +53,11 @@ final class Event
         self::postUpdate => self::postUpdate,
         self::postMove => self::postMove,
         self::postLoad => self::postLoad,
+        self::postLoadTranslation => self::postLoadTranslation,
+        self::preBindTranslation => self::preBindTranslation,
+        self::postBindTranslation => self::postBindTranslation,
+        self::preRemoveTranslation => self::preRemoveTranslation,
+        self::postRemoveTranslation => self::postRemoveTranslation,
     );
 
     private function __construct()

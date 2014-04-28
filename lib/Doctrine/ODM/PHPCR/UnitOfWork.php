@@ -19,10 +19,12 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\EventArgs;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 
+use Doctrine\ODM\PHPCR\Event\ListenersInvoker;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
@@ -63,6 +65,7 @@ use Jackalope\Session as JackalopeSession;
  * @author      Brian King <brian@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author      Maximilian Berghoff <Maximilian.Berghoff@gmx.de>
  */
 class UnitOfWork
 {
@@ -209,9 +212,14 @@ class UnitOfWork
     private $session;
 
     /**
+     * @var Event\ListenersInvoker
+     */
+    private $eventListenersInvoker;
+
+    /**
      * @var \Doctrine\Common\EventManager
      */
-    private $evm;
+    private $eventManager;
 
     /**
      * @var DocumentClassMapperInterface
@@ -242,7 +250,8 @@ class UnitOfWork
     {
         $this->dm = $dm;
         $this->session = $dm->getPhpcrSession();
-        $this->evm = $dm->getEventManager();
+        $this->eventListenersInvoker = new ListenersInvoker($dm);
+        $this->eventManager = $dm->getEventManager();
 
         $config = $dm->getConfiguration();
         $this->documentClassMapper = $config->getDocumentClassMapper();
@@ -481,12 +490,14 @@ class UnitOfWork
         // Load translations
         $this->doLoadTranslation($document, $class, $locale, $fallback, $refresh);
 
-        // Invoke the postLoad lifecycle callbacks and listeners
-        if (isset($class->lifecycleCallbacks[Event::postLoad])) {
-            $class->invokeLifecycleCallbacks(Event::postLoad, $document);
-        }
-        if ($this->evm->hasListeners(Event::postLoad)) {
-            $this->evm->dispatchEvent(Event::postLoad, new LifecycleEventArgs($document, $this->dm));
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postLoad)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::postLoad,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
         }
 
         return $document;
@@ -597,6 +608,16 @@ class UnitOfWork
             ));
         }
 
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::preBindTranslation,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
+        }
+
         $this->setLocale($document, $class, $locale);
 
         $oid = spl_object_hash($document);
@@ -609,8 +630,14 @@ class UnitOfWork
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
 
-        if ($this->evm->hasListeners(Event::bindTranslation)) {
-            $this->evm->dispatchEvent(Event::bindTranslation, new LifecycleEventArgs($document, $this->dm));
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::postBindTranslation,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
         }
     }
 
@@ -831,11 +858,14 @@ class UnitOfWork
         $this->setDocumentState($oid, self::STATE_REMOVED);
 
         $class = $this->dm->getClassMetadata(get_class($document));
-        if (isset($class->lifecycleCallbacks[Event::preRemove])) {
-            $class->invokeLifecycleCallbacks(Event::preRemove, $document);
-        }
-        if ($this->evm->hasListeners(Event::preRemove)) {
-            $this->evm->dispatchEvent(Event::preRemove, new LifecycleEventArgs($document, $this->dm));
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preRemove)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::preRemove,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
         }
 
         $this->cascadeRemove($class, $document, $visited);
@@ -1489,11 +1519,14 @@ class UnitOfWork
      */
     public function persistNew(ClassMetadata $class, $document, $overrideIdGenerator = null, $parent = null)
     {
-        if (isset($class->lifecycleCallbacks[Event::prePersist])) {
-            $class->invokeLifecycleCallbacks(Event::prePersist, $document);
-        }
-        if ($this->evm->hasListeners(Event::prePersist)) {
-            $this->evm->dispatchEvent(Event::prePersist, new LifecycleEventArgs($document, $this->dm));
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::prePersist)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::prePersist,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
         }
 
         $generator = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator);
@@ -1897,10 +1930,7 @@ class UnitOfWork
      */
     public function commit($document = null)
     {
-        // Raise preFlush
-        if ($this->evm->hasListeners(Event::preFlush)) {
-            $this->evm->dispatchEvent(Event::preFlush, new ManagerEventArgs($this->dm));
-        }
+        $this->invokeGlobalEvent(Event::preFlush, new ManagerEventArgs($this->dm));
 
         if ($document === null) {
             $this->computeChangeSets();
@@ -1912,9 +1942,7 @@ class UnitOfWork
             }
         }
 
-        if ($this->evm->hasListeners(Event::onFlush)) {
-            $this->evm->dispatchEvent(Event::onFlush, new ManagerEventArgs($this->dm));
-        }
+        $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
 
         try {
             $utx = $this->session->getWorkspace()->getTransactionManager();
@@ -1960,10 +1988,7 @@ class UnitOfWork
             $col->takeSnapshot();
         }
 
-        // Raise postFlush
-        if ($this->evm->hasListeners(Event::postFlush)) {
-            $this->evm->dispatchEvent(Event::postFlush, new ManagerEventArgs($this->dm));
-        }
+        $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
 
         if (null === $document) {
             $this->documentTranslations = array();
@@ -2118,11 +2143,14 @@ class UnitOfWork
 
             $this->doSaveTranslation($document, $node, $class);
 
-            if (isset($class->lifecycleCallbacks[Event::postPersist])) {
-                $class->invokeLifecycleCallbacks(Event::postPersist, $document);
-            }
-            if ($this->evm->hasListeners(Event::postPersist)) {
-                $this->evm->dispatchEvent(Event::postPersist, new LifecycleEventArgs($document, $this->dm));
+            if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postPersist)) {
+                $this->eventListenersInvoker->invoke(
+                    $class,
+                    Event::postPersist,
+                    $document,
+                    new LifecycleEventArgs($document, $this->dm),
+                    $invoke
+                );
             }
         }
 
@@ -2187,13 +2215,14 @@ class UnitOfWork
             }
 
             if ($dispatchEvents) {
-                if (isset($class->lifecycleCallbacks[Event::preUpdate])) {
-                    $class->invokeLifecycleCallbacks(Event::preUpdate, $document);
-                    $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
-                    $this->computeChangeSet($class, $document);
-                }
-                if ($this->evm->hasListeners(Event::preUpdate)) {
-                    $this->evm->dispatchEvent(Event::preUpdate, new LifecycleEventArgs($document, $this->dm));
+                if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preUpdate)) {
+                    $this->eventListenersInvoker->invoke(
+                        $class,
+                        Event::preUpdate,
+                        $document,
+                        new LifecycleEventArgs($document, $this->dm),
+                        $invoke
+                    );
                     $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
                     $this->computeChangeSet($class, $document);
                 }
@@ -2387,11 +2416,14 @@ class UnitOfWork
             $this->doSaveTranslation($document, $node, $class);
 
             if ($dispatchEvents) {
-                if (isset($class->lifecycleCallbacks[Event::postUpdate])) {
-                    $class->invokeLifecycleCallbacks(Event::postUpdate, $document);
-                }
-                if ($this->evm->hasListeners(Event::postUpdate)) {
-                    $this->evm->dispatchEvent(Event::postUpdate, new LifecycleEventArgs($document, $this->dm));
+                if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postUpdate)) {
+                    $this->eventListenersInvoker->invoke(
+                        $class,
+                        Event::postUpdate,
+                        $document,
+                        new LifecycleEventArgs($document, $this->dm),
+                        $invoke
+                    );
                 }
             }
         }
@@ -2417,12 +2449,14 @@ class UnitOfWork
             }
 
             $class = $this->dm->getClassMetadata(get_class($document));
-            if (isset($class->lifecycleCallbacks[Event::preMove])) {
-                $class->invokeLifecycleCallbacks(Event::preMove, $document);
-            }
-
-            if ($this->evm->hasListeners(Event::preMove)) {
-                $this->evm->dispatchEvent(Event::preMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
+            if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preMove)) {
+                $this->eventListenersInvoker->invoke(
+                    $class,
+                    Event::preMove,
+                    $document,
+                    new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath),
+                    $invoke
+                );
             }
 
             $this->session->move($sourcePath, $targetPath);
@@ -2463,12 +2497,14 @@ class UnitOfWork
                 }
             }
 
-            if (isset($class->lifecycleCallbacks[Event::postMove])) {
-                $class->invokeLifecycleCallbacks(Event::postMove, $document);
-            }
-
-            if ($this->evm->hasListeners(Event::postMove)) {
-                $this->evm->dispatchEvent(Event::postMove, new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath));
+            if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postMove)) {
+                $this->eventListenersInvoker->invoke(
+                    $class,
+                    Event::postMove,
+                    $document,
+                    new MoveEventArgs($document, $this->dm, $sourcePath, $targetPath),
+                    $invoke
+                );
             }
         }
     }
@@ -2544,11 +2580,14 @@ class UnitOfWork
             $this->unregisterDocument($document);
             $this->purgeChildren($document);
 
-            if (isset($class->lifecycleCallbacks[Event::postRemove])) {
-                $class->invokeLifecycleCallbacks(Event::postRemove, $document);
-            }
-            if ($this->evm->hasListeners(Event::postRemove)) {
-                $this->evm->dispatchEvent(Event::postRemove, new LifecycleEventArgs($document, $this->dm));
+            if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postRemove)) {
+                $this->eventListenersInvoker->invoke(
+                    $class,
+                    Event::postRemove,
+                    $document,
+                    new LifecycleEventArgs($document, $this->dm),
+                    $invoke
+                );
             }
         }
     }
@@ -2874,9 +2913,7 @@ class UnitOfWork
         $this->documentHistory =
         $this->documentVersion = array();
 
-        if ($this->evm->hasListeners(Event::onClear)) {
-            $this->evm->dispatchEvent(Event::onClear, new ManagerEventArgs($this->dm));
-        }
+        $this->invokeGlobalEvent(Event::onClear, new ManagerEventArgs($this->dm));
 
         $this->session->refresh(false);
     }
@@ -2953,6 +2990,17 @@ class UnitOfWork
                     $strategy->saveTranslation($data, $node, $metadata, $locale);
                 } else {
                     $strategy->removeTranslation($document, $node, $metadata, $locale);
+
+                    $class = $this->dm->getClassMetadata(get_class($document));
+                    if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postRemoveTranslation)) {
+                        $this->eventListenersInvoker->invoke(
+                            $class,
+                            Event::postRemoveTranslation,
+                            $document,
+                            new LifecycleEventArgs($document, $this->dm),
+                            $invoke
+                        );
+                    }
                 }
             }
         }
@@ -3146,6 +3194,17 @@ class UnitOfWork
                 }
             }
         }
+
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postLoadTranslation)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::postLoadTranslation,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
+        }
     }
 
     private function cascadeDoLoadTranslation($document, $mapping, $locale)
@@ -3169,6 +3228,17 @@ class UnitOfWork
 
     public function removeTranslation($document, $locale)
     {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preRemoveTranslation)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::preRemoveTranslation,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
+        }
+
         $metadata = $this->dm->getClassMetadata(get_class($document));
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -3504,4 +3574,16 @@ class UnitOfWork
         return $result;
     }
 
+    /**
+     * To invoke a global invent without using the ListenersInvoker.
+     *
+     * @param $eventName
+     * @param EventArgs $event
+     */
+    public function invokeGlobalEvent($eventName, EventArgs $event)
+    {
+        if ($this->eventManager->hasListeners($eventName)) {
+            $this->eventManager->dispatchEvent($eventName, $event);
+        }
+    }
 }
