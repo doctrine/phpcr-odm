@@ -2334,7 +2334,7 @@ class UnitOfWork
                                     /** @var $collection ReferenceManyCollection */
                                     $collection = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
                                     if ($collection instanceof PersistentCollection && $collection->isDirty()) {
-                                        throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambiguous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName']), self::objToStr($document, $this->dm), $mapping['fieldName']);
+                                        throw new PHPCRException(sprintf('You may not modify the reference and referrer collections of interlinked documents as this is ambiguous. Reference %s on document %s and referrers %s on document %s are both modified', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($document, $this->dm), $mapping['fieldName']));
                                     }
                                     if ($collection) {
                                         // make sure the reference is not deleted in this change because the field could be null
