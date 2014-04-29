@@ -3556,9 +3556,9 @@ class UnitOfWork
      */
     protected function createAssoc(array $properties, array $mapping)
     {
-        $keys = $properties[$mapping['assoc']];
-        $values = $properties[$mapping['property']];
-        $nulls = isset($properties[$mapping['assocNulls']]) ? $properties[$mapping['assocNulls']] : array();
+        $keys = (array) $properties[$mapping['assoc']];
+        $values = (array) $properties[$mapping['property']];
+        $nulls = isset($properties[$mapping['assocNulls']]) ? ((array) $properties[$mapping['assocNulls']]) : array();
 
         // make sure we start with first value
         reset($values);
