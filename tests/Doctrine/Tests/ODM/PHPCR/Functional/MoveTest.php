@@ -234,7 +234,7 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->dm->find(null, '/functional/lsmith/dbu');
         $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsTeamUser', $user);
         $root = $this->dm->find(null, '/');
-        $user->setParent($root);
+        $user->setParentDocument($root);
         $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();

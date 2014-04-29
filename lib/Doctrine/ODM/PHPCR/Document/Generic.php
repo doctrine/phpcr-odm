@@ -91,32 +91,58 @@ class Generic
      * Set the node name of the document. (only mutable on new document before the persist)
      *
      * @param string $name the name of the document
+     *
+     * @return $this
      */
     public function setNodename($name)
     {
         $this->nodename = $name;
+
+        return $this;
     }
 
     /**
-     * The parent Folder document of this document.
+     * The parent document of this document.
      *
      * @return object Folder document that is the parent of this node.
      */
-    public function getParent()
+    public function getParentDocument()
     {
         return $this->parent;
     }
 
     /**
-     * Set the parent document of this document. Only mutable on new document
-     * before the persist.
+     * Kept for BC
      *
-     * @param object $parent Document that is the parent of this node. Must be
-     *      a Folder or otherwise resolve to nt:folder
+     * @deprecated use getParentDocument instead.
+     */
+    public function getParent()
+    {
+        return $this->getParentDocument();
+    }
+
+    /**
+     * Set the parent document of this document.
+     *
+     * @param object $parent Document that is the parent of this node..
+     *
+     * @return $this
+     */
+    public function setParentDocument($parent)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Kept for BC
+     *
+     * @deprecated use setParentDocument instead.
      */
     public function setParent($parent)
     {
-        $this->parent = $parent;
+        return $this->setParentDocument($parent);
     }
 
     /**
@@ -136,16 +162,22 @@ class Generic
      * Sets the children
      *
      * @param $children ArrayCollection
+     *
+     * return $this
      */
     public function setChildren(ArrayCollection $children)
     {
         $this->children = $children;
+
+        return $this;
     }
 
     /**
      * Add a child to this document
      *
      * @param $child
+     *
+     * @return $this
      */
     public function addChild($child)
     {
@@ -154,6 +186,8 @@ class Generic
         }
 
         $this->children->add($child);
+
+        return $this;
     }
 
     /**
@@ -173,16 +207,22 @@ class Generic
      * Sets the referrers
      *
      * @param $referrers ArrayCollection
+     *
+     * @return $this;
      */
     public function setReferrers(ArrayCollection $referrers)
     {
         $this->referrers = $referrers;
+
+        return $this;
     }
 
     /**
      * Add a referrer to this document
      *
      * @param $referrer
+     *
+     * @return $this;
      */
     public function addReferrer($referrer)
     {
@@ -191,8 +231,15 @@ class Generic
         }
 
         $this->referrers->add($referrer);
+
+        return $this;
     }
 
+    /**
+     * String representation
+     *
+     * @return string
+     */
     public function __toString()
     {
         return (string) $this->nodename;

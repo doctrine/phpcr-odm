@@ -6,6 +6,11 @@ Changelog
 
 Third release candidate 1.1
 
+* **2014-04-29**: The provided documents now use getParentDocument and
+  setParentDocument to avoid clashes with domain parent logic and to be
+  consistent with the @ParentDocument annotation. Deprecated the getParent and
+  setParent.
+
 * **2014-04-19**: add events for translation lifecycle: pre-/postBindTranslation,
     pre-/postRemoveTranslation and postLoadTranslation and its callbacks
 

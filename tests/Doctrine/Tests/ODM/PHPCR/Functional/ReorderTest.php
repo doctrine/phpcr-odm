@@ -37,7 +37,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $this->dm->find(null, $this->node->getPath());
 
         $node1 = new Generic();
-        $node1->setParent($parent);
+        $node1->setParentDocument($parent);
         $node1->setNodename('source');
         $this->dm->persist($node1);
 
@@ -45,13 +45,13 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         foreach ($this->childrenNames as $childName) {
             $child = new Generic();
             $child->setNodename($childName);
-            $child->setParent($node1);
+            $child->setParentDocument($node1);
             $this->dm->persist($child);
         }
 
         $node2 = new Generic();
         $node2->setNodename('target');
-        $node2->setParent($parent);
+        $node2->setParentDocument($parent);
         $this->dm->persist($node2);
 
         $this->dm->flush();
@@ -192,7 +192,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testReorderParentProxy()
     {
         $first = $this->dm->find(null, '/functional/source/first');
-        $parent = $first->getParent();
+        $parent = $first->getParentDocument();
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->flush();
         $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));

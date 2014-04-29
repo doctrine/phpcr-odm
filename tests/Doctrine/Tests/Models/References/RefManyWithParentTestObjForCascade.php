@@ -18,7 +18,7 @@ class RefManyWithParentTestObjForCascade
     public function setReferences($references)
     {
         foreach ($references as $reference) {
-            $reference->setParent($this);
+            $reference->setParentDocument($this);
         }
 
         $this->references = $references;
