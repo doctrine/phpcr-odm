@@ -11,13 +11,17 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
  */
 class CmsTeamUser extends CmsUser
 {
-    /** @PHPCRODM\ParentDocument */
+    /**
+     * @PHPCRODM\ParentDocument
+     */
     public $parent;
 
-    /** @PHPCRODM\Nodename */
+    /**
+     * @PHPCRODM\Nodename
+     */
     public $nodename;
 
-    public function setParent($parent)
+    public function setParentDocument($parent)
     {
         $this->parent = $parent;
     }

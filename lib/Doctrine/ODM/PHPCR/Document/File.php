@@ -24,7 +24,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents a JCR file, aka nt:file.
- * @ see http://wiki.apache.org/jackrabbit/nt:file
+ * @see http://wiki.apache.org/jackrabbit/nt:file
  *
  * @PHPCRODM\Document(nodeType="nt:file", mixins={}, referenceable=true)
  */
@@ -41,6 +41,10 @@ class File extends AbstractFile
      * Calls file_get_contents with the given filename
      *
      * @param string $filename name of the file which contents should be used
+     *
+     * @return $this
+     *
+     * @throws RuntimeException If the filename does not point to a file that can be read.
      */
     public function setFileContentFromFilesystem($filename)
     {
@@ -62,16 +66,22 @@ class File extends AbstractFile
         $finfo = new \finfo();
         $this->content->setMimeType($finfo->file($filename,FILEINFO_MIME_TYPE));
         $this->content->setEncoding($finfo->file($filename,FILEINFO_MIME_ENCODING));
+
+        return $this;
     }
 
     /**
      * Set the content for this file from the given Resource.
      *
      * @param Resource $content
+     *
+     * @return $this
      */
     public function setContent(Resource $content)
     {
         $this->content = $content;
+
+        return $this;
     }
 
     /*
@@ -95,6 +105,8 @@ class File extends AbstractFile
      * Set the content for this file from the given resource or string.
      *
      * @param resource|string $content the content for the file
+     *
+     * @return $this
      */
     public function setFileContent($content)
     {
@@ -109,6 +121,8 @@ class File extends AbstractFile
         }
 
         $this->content->setData($stream);
+
+        return $this;
     }
 
     /**

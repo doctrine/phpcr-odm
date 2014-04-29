@@ -97,10 +97,14 @@ class Resource
      * child, this must be "jcr:content".
      *
      * @param string $name the name of the resource
+     *
+     * @return $this
      */
     public function setNodename($name)
     {
         $this->nodename = $name;
+
+        return $this;
     }
 
     /**
@@ -108,29 +112,58 @@ class Resource
      *
      * @return object File document that is the parent of this node.
      */
-    public function getParent()
+    public function getParentDocument()
     {
         return $this->parent;
+    }
+
+    /**
+     * Kept for BC
+     *
+     * @deprecated use getParentDocument instead.
+     */
+    public function getParent()
+    {
+        return $this->getParentDocument();
     }
 
     /**
      * Set the parent document of this resource.
      *
      * @param object $parent Document that is the parent of this node.
+     *
+     * @return $this
+     */
+    public function setParentDocument($parent)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+
+    /**
+     * Kept for BC
+     *
+     * @deprecated use setParentDocument instead.
      */
     public function setParent($parent)
     {
-        $this->parent = $parent;
+        return $this->setParentDocument($parent);
     }
 
     /**
      * Set the data from a binary stream.
      *
      * @param stream $data the contents of this resource
+     *
+     * @return $this
      */
     public function setData($data)
     {
         $this->data = $data;
+
+        return $this;
     }
 
     /**
@@ -169,10 +202,14 @@ class Resource
      * Set the mime type information for this resource.
      *
      * @param string $mimeType
+     *
+     * @return $this
      */
     public function setMimeType($mimeType)
     {
         $this->mimeType = $mimeType;
+
+        return $this;
     }
 
     /**
@@ -189,10 +226,14 @@ class Resource
      * Set the encoding information for the data stream.
      *
      * @param string $encoding
+     *
+     * @return $this
      */
     public function setEncoding($encoding)
     {
         $this->encoding = $encoding;
+
+        return $this;
     }
 
     /**
@@ -212,10 +253,14 @@ class Resource
      * it is not required by the specification.
      *
      * @param \DateTime $lastModified
+     *
+     * @return $this
      */
     public function setLastModified($lastModified)
     {
         $this->lastModified = $lastModified;
+
+        return $this;
     }
 
     /**
@@ -235,10 +280,14 @@ class Resource
      * it is not required by the specification.
      *
      * @param string $lastModifiedBy
+     *
+     * @return $this
      */
     public function setLastModifiedBy($lastModifiedBy)
     {
         $this->lastModifiedBy = $lastModifiedBy;
+
+        return $this;
     }
 
     /**

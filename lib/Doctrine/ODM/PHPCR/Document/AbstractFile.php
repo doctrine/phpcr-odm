@@ -48,19 +48,23 @@ abstract class AbstractFile implements HierarchyInterface
     protected $createdBy;
 
     /**
-     * setter for id
+     * Set the id (the PHPCR path).
      *
      * @param string $id of the node
+     *
+     * @return $this
      */
     public function setId($id)
     {
         $this->id = $id;
+
+        return $this;
     }
 
     /**
-     * getter for id
+     * Get for id (the PHPCR path).
      *
-     * @return string id of the node
+     * @return string id of the document.
      */
     public function getId()
     {
@@ -81,32 +85,59 @@ abstract class AbstractFile implements HierarchyInterface
      * Set the node name of the file. (only mutable on new document before the persist)
      *
      * @param string $name the name of the file
+     *
+     * @return $this
      */
     public function setNodename($name)
     {
         $this->nodename = $name;
+
+        return $this;
     }
 
     /**
-     * The parent Folder document of this document.
+     * The parent document of this document. Could be a Folder.
      *
-     * @return object Folder document that is the parent of this node.
+     * @return object Document that is the parent of this node.
      */
-    public function getParent()
+    public function getParentDocument()
     {
         return $this->parent;
     }
 
     /**
-     * Set the parent document of this document. Only mutable on new document
-     * before the persist.
+     * Kept for BC
      *
-     * @param object $parent Document that is the parent of this node. Must be
-     *      a Folder or otherwise resolve to nt:folder
+     * @deprecated use getParentDocument instead.
+     */
+    public function getParent()
+    {
+        return $this->getParentDocument();
+    }
+
+    /**
+     * Set the parent document of this document.
+     *
+     * @param object $parent Document that is the parent of this node. Could be
+     *                       a Folder or otherwise resolve to nt:folder
+     *
+     * @return $this
+     */
+    public function setParentDocument($parent)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Kept for BC
+     *
+     * @deprecated use setParentDocument instead.
      */
     public function setParent($parent)
     {
-        $this->parent = $parent;
+        return $this->setParentDocument($parent);
     }
 
     /**

@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\PHPCR\HierarchyInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
@@ -49,7 +50,7 @@ class Folder extends AbstractFile
     /**
      * The children File documents of this Folder document
      *
-     * @return \Doctrine\Common\Collections\Collection list of File documents
+     * @return Collection list of File documents
      */
     public function getChildren()
     {
@@ -60,10 +61,14 @@ class Folder extends AbstractFile
      * Sets the children of this Folder document
      *
      * @param $children ArrayCollection
+     *
+     * @return $this
      */
     public function setChildren(ArrayCollection $children)
     {
         $this->children = $children;
+
+        return $this;
     }
 
     /**
@@ -71,6 +76,8 @@ class Folder extends AbstractFile
      * to this document that resolves to nt:folder (like the Folder)
      *
      * @param $child HierarchyInterface
+     *
+     * @return $this
      */
     public function addChild(HierarchyInterface $child)
     {
@@ -79,5 +86,7 @@ class Folder extends AbstractFile
         }
 
         $this->children->add($child);
+
+        return $this;
     }
 }

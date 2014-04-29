@@ -18,12 +18,12 @@ class ParentTestObj
     /** @PHPCRODM\String */
     public $name;
 
-    public function getParent()
+    public function getParentDocument()
     {
         return $this->parent;
     }
 
-    public function setParent($parent)
+    public function setParentDocument($parent)
     {
         $this->parent = $parent;
     }
