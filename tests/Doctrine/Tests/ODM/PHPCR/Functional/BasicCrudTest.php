@@ -195,7 +195,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\RuntimeException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\RuntimeException
      */
     public function testBadUuidSetting()
     {
