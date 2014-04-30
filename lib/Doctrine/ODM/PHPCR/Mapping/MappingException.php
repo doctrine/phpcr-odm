@@ -80,7 +80,7 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
      */
     public static function duplicateFieldMapping($document, $fieldName)
     {
-        return new self("Property '$fieldName'. in .'$document'. was already declared, but it must be declared only once");
+        return new self("Property '$fieldName' in '$document' is declared twice.");
     }
 
     /**
