@@ -29,4 +29,3 @@ class SourceJoinConditionChildDocument extends AbstractLeafNode
         return $this->parentAlias;
     }
 }
-

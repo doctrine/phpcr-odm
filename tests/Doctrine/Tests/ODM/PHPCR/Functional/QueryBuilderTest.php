@@ -384,4 +384,18 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         $this->assertCount(1, $res);
     }
+
+    /**
+     * @expectedException InvalidArgumentException 
+     * @expectedExceptionMessage Alias name "a" is not known
+     */
+    public function testConditionWithNonExistingAlias()
+    {
+        $qb = $this->createQb();
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'b');
+        $qb->where()->descendant('/functional', 'a')->end();
+        $q = $qb->getQuery();
+        $res = $q->execute();
+        $this->assertCount(3, $res);
+    }
 }

@@ -517,6 +517,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 
     public function testOrderBy()
     {
+        $this->primeBuilder();
         $order1 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
         $order2 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
         $order3 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_DESCENDING));
