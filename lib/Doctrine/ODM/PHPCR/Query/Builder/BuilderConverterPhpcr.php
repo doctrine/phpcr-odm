@@ -89,18 +89,6 @@ class BuilderConverterPhpcr
     }
 
     /**
-     * @param string $alias
-     *
-     * @return ClassMetadata
-     */
-    protected function getMetadata($alias)
-    {
-        $this->validateAlias($alias);
-
-        return $this->aliasMetadata[$alias];
-    }
-
-    /**
      * Check that the given alias is valid and return it.
      *
      * This should only be called from the getQuery function AFTER
@@ -108,7 +96,7 @@ class BuilderConverterPhpcr
      *
      * @param string $alias Alias to validate and return
      *
-     * @return string
+     * @return string Return the alias to allow this function to be used inline
      *
      * @throws InvalidArgumentException
      */
@@ -141,7 +129,9 @@ class BuilderConverterPhpcr
      */
     protected function getPhpcrProperty($originalAlias, $odmField)
     {
-        $meta = $this->getMetadata($originalAlias);
+        $this->validateAlias($originalAlias);
+        $meta = $this->aliasMetadata[$originalAlias];;
+
 
         if ($meta->hasField($odmField)) {
             $fieldMeta = $meta->getField($odmField);
@@ -219,7 +209,7 @@ class BuilderConverterPhpcr
 
         // for each document source add phpcr:{class,classparents} restrictions
         foreach ($this->sourceDocumentNodes as $sourceNode) {
-            $documentFqn = $this->getMetadata($sourceNode->getAlias())->getName();
+            $documentFqn = $this->aliasMetadata[$sourceNode->getAlias()]->getName();
 
             $odmClassConstraints = $this->qomf->orConstraint(
                 $this->qomf->comparison(
