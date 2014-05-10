@@ -89,22 +89,29 @@ class BuilderConverterPhpcr
     }
 
     /**
-     * @param string $alias
+     * Check that the given alias is valid and return it.
      *
-     * @return ClassMetadata
+     * This should only be called from the getQuery function AFTER
+     * the document sources are known.
+     *
+     * @param string $alias Alias to validate and return
+     *
+     * @return string Return the alias to allow this function to be used inline
+     *
+     * @throws InvalidArgumentException
      */
-    protected function getMetadata($alias)
+    protected function validateAlias($alias)
     {
         if (!isset($this->aliasMetadata[$alias])) {
-            throw new RuntimeException(sprintf(
-                'Alias name "%s" has not known. The following aliases '.
+            throw new InvalidArgumentException(sprintf(
+                'Alias name "%s" is not known. The following aliases '.
                 'are valid: "%s"',
                 $alias,
                 implode(', ', array_keys($this->aliasMetadata))
             ));
         }
 
-        return $this->aliasMetadata[$alias];
+        return $alias;
     }
 
     /**
@@ -122,7 +129,9 @@ class BuilderConverterPhpcr
      */
     protected function getPhpcrProperty($originalAlias, $odmField)
     {
-        $meta = $this->getMetadata($originalAlias);
+        $this->validateAlias($originalAlias);
+        $meta = $this->aliasMetadata[$originalAlias];;
+
 
         if ($meta->hasField($odmField)) {
             $fieldMeta = $meta->getField($odmField);
@@ -494,8 +503,8 @@ class BuilderConverterPhpcr
     protected function walkSourceJoinConditionSameDocument(SourceJoinConditionSameDocument $node)
     {
         $joinCon = $this->qomf->childNodeJoinCondition(
-            $node->getAlias1Name(),
-            $node->getAlias2Name(),
+            $this->validateAlias($node->getAlias1Name()),
+            $this->validateAlias($node->getAlias2Name()),
             $node->getAlias2Path()
         );
         return $joinCon;
@@ -565,7 +574,7 @@ class BuilderConverterPhpcr
     protected function walkConstraintSame(ConstraintSame $node)
     {
         $con = $this->qomf->sameNode(
-            $node->getAlias(),
+            $this->validateAlias($node->getAlias()),
             $node->getPath()
         );
 
@@ -575,7 +584,7 @@ class BuilderConverterPhpcr
     protected function walkConstraintDescendant(ConstraintDescendant $node)
     {
         $con = $this->qomf->descendantNode(
-            $node->getAlias(),
+            $this->validateAlias($node->getAlias()),
             $node->getAncestorPath()
         );
 
@@ -585,7 +594,7 @@ class BuilderConverterPhpcr
     protected function walkConstraintChild(ConstraintChild $node)
     {
         $con = $this->qomf->childNode(
-            $node->getAlias(),
+            $this->validateAlias($node->getAlias()),
             $node->getParentPath()
         );
 
@@ -644,7 +653,7 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicLocalName(OperandDynamicLocalName $node)
     {
         $op = $this->qomf->nodeLocalName(
-            $node->getAlias()
+            $this->validateAlias($node->getAlias())
         );
 
         return $op;
@@ -653,7 +662,7 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicFullTextSearchScore(OperandDynamicFullTextSearchScore $node)
     {
         $op = $this->qomf->fullTextSearchScore(
-            $node->getAlias()
+            $this->validateAlias($node->getAlias())
         );
 
         return $op;
@@ -681,7 +690,7 @@ class BuilderConverterPhpcr
     protected function walkOperandDynamicName(OperandDynamicName $node)
     {
         $op = $this->qomf->nodeName(
-            $node->getAlias()
+            $this->validateAlias($node->getAlias())
         );
 
         return $op;
