@@ -566,7 +566,12 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $node = $this->session->getNode($this->determineDocumentId($document));
+        $id = $this->determineDocumentId($document);
+        if (UUIDHelper::isUUID($id)) {
+            $node = $this->session->getNodeByIdentifier($id);
+        } else {
+            $node = $this->session->getNode($id);
+        }
 
         $hints = array('refresh' => true, 'fallback' => true);
 
