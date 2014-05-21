@@ -16,8 +16,7 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <file>/home/maximilian/websites/Cmf/phpcr-odm/tests/Doctrine/Tests/ODM/PHPCR/UnitOfWorkTest.php</file>
-            <!-- <directory>./</directory> -->
+            <directory>./</directory>
         </testsuite>
     </testsuites>
 
