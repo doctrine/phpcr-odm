@@ -173,12 +173,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
         $this->assertEquals($userAsReference, $this->uow->getDocumentById($userAsReference->id));
-
-        $this->session
-            ->expects($this->any())
-            ->method('getNode')
-            ->with($this->equalTo('/somepath'))
-            ->will($this->returnValue($this->createNode('/somepath', 'persisted-username')));
     }
 
     public function testGetOrCreateProxyWithUuid()
@@ -189,13 +183,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $userAsReference = $this->uow->getOrCreateProxy($uuid, get_class($user));
 
         $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
-        $this->assertEquals($userAsReference, $this->uow->getDocumentById($userAsReference->id));
-
-        $this->session
-            ->expects($this->any())
-            ->method('getNodeByIdentifier')
-            ->with($this->equalTo($uuid))
-            ->will($this->returnValue($this->createNode('/somepath', 'persisted-username')));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentById($uuid));
     }
 }
 
