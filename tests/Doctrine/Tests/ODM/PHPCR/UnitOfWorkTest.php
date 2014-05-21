@@ -177,13 +177,8 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->session
             ->expects($this->any())
             ->method('getNode')
+            ->with($this->equalTo('/somepath'))
             ->will($this->returnValue($this->createNode('/somepath', 'persisted-username')));
-
-        $userAsReference->username = 'updatedName';
-        $this->uow->scheduleInsert($userAsReference);
-
-        $this->assertCount(0, $this->uow->getScheduledInserts());
-        $this->assertCount(0, $this->uow->getScheduledRemovals());
     }
 
     public function testGetOrCreateProxyWithUuid()
@@ -199,13 +194,8 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->session
             ->expects($this->any())
             ->method('getNodeByIdentifier')
+            ->with($this->equalTo($uuid))
             ->will($this->returnValue($this->createNode('/somepath', 'persisted-username')));
-
-        $userAsReference->username = 'updatedName';
-        $this->uow->scheduleInsert($userAsReference);
-
-        $this->assertCount(0, $this->uow->getScheduledInserts());
-        $this->assertCount(0, $this->uow->getScheduledRemovals());
     }
 }
 

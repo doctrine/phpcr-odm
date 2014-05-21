@@ -566,11 +566,14 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $id = $this->determineDocumentId($document);
-        if (UUIDHelper::isUUID($id)) {
-            $node = $this->session->getNodeByIdentifier($id);
+        $identifier = $this->determineDocumentId($document);
+        if (UUIDHelper::isUUID($identifier)) {
+            $node = $this->session->getNodeByIdentifier($identifier);
+            // switch the registration to come back on the line
+            $this->unregisterDocument($document);
+            $this->registerDocument($document, $node->getPath());
         } else {
-            $node = $this->session->getNode($id);
+            $node = $this->session->getNode($identifier);
         }
 
         $hints = array('refresh' => true, 'fallback' => true);
