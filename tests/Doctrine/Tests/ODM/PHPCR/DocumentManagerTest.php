@@ -2,8 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\ItemNotFoundException;
+use PHPCR\Util\UUIDHelper;
+use PHPCR\PathNotFoundException;
 
 /**
  * @group unit
@@ -11,38 +15,56 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 class DocumentManagerTest extends PHPCRTestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::find
-     */
-    public function testFind()
-    {
-        $fakeUuid = \PHPCR\Util\UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new \PHPCR\ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
 
-        $dm = DocumentManager::create($session, $config);
-
-        $nonExistent = $dm->find(null, $fakeUuid);
-
-        $this->assertNull($nonExistent);
-    }
+	 * @covers Doctrine\ODM\PHPCR\DocumentManager::find
+	 */
+	public function testFindExceptionWhenUuidNotFound()
+	{
+		$fakeUuid = UUIDHelper::generateUUID();
+		$session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
+		$session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+		$config = new Configuration();
+		
+		$dm = DocumentManager::create($session, $config);
+		
+		$nonExistent = $dm->find(null, $fakeUuid);
+	
+		$this->assertNull($nonExistent);
+	}
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::findTranslation
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::find
      */
-    public function testFindTranslation()
+    public function testFindExceptionWhenIdNotFound()
     {
-        $fakeUuid = \PHPCR\Util\UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new \PHPCR\ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $fakeId = 'fakeId';
+        $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNode'));
+        $session->expects($this->once())->method('getNode')->will($this->throwException(new PathNotFoundException(sprintf('403: %s', $fakeId))));
+        $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
 
-        $nonExistent = $dm->findTranslation(null, $fakeUuid, 'en');
+        $nonExistent = $dm->find(null, $fakeId);
 
         $this->assertNull($nonExistent);
     }
+	
+	/**
+	 * @covers Doctrine\ODM\PHPCR\DocumentManager::findTranslation
+	 */
+	public function testFindTranslation()
+	{
+		$fakeUuid = UUIDHelper::generateUUID();
+		$session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
+		$session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+		$config = new Configuration();
+	
+		$dm = DocumentManager::create($session, $config);
+	
+		$nonExistent = $dm->findTranslation(null, $fakeUuid, 'en');
+	
+		$this->assertNull($nonExistent);
+	}
     
     /**
      * @covers Doctrine\ODM\PHPCR\DocumentManager::create
@@ -51,7 +73,7 @@ class DocumentManagerTest extends PHPCRTestCase
     public function testNewInstanceFromConfiguration()
     {
         $session = $this->getMock('PHPCR\SessionInterface');
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
 

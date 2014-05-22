@@ -313,28 +313,30 @@ class DocumentManager implements ObjectManager
      */
     public function find($className, $id)
     {
+        // when there is a document return that on, when it is valid
+        $document = $this->unitOfWork->getDocumentById($id);
+        if ($document) {
+            return $this->documentHasValidClassName($document, $className) ? $document : null;
+        }
+
+        // id can either be an path or an uuid, so we can have a look if one of both does have an entry
+        if (UUIDHelper::isUUID($id)) {
+            try {
+                $id = $this->session->getNodeByIdentifier($id)->getPath();
+            } catch (ItemNotFoundException $e) {
+                return null;
+            }
+        } elseif (strpos($id, '/') !== 0) {
+            $id = '/'.$id;
+        }
+
+        $document = $this->unitOfWork->getDocumentById($id);
+        if ($document) {
+            return $this->documentHasValidClassName($document, $className) ? $document : null;
+        }
+
+        // next try: when it is an absolute path, then fetch it from the session, create a new document for it
         try {
-            if (UUIDHelper::isUUID($id)) {
-                try {
-                    $id = $this->session->getNodeByIdentifier($id)->getPath();
-                } catch (ItemNotFoundException $e) {
-                    return null;
-                }
-            } elseif (strpos($id, '/') !== 0) {
-                $id = '/'.$id;
-            }
-
-            $document = $this->unitOfWork->getDocumentById($id);
-            if ($document) {
-                try {
-                    $this->unitOfWork->validateClassName($document, $className);
-
-                    return $document;
-                } catch(ClassMismatchException $e) {
-                    return null;
-                }
-
-            }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
             return null;
@@ -346,6 +348,25 @@ class DocumentManager implements ObjectManager
             return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
         } catch (ClassMismatchException $e) {
             return null;
+        }
+    }
+
+    /**
+     * Just a little helper to validate the documents class name with a
+     * boolean answer.
+     *
+     * @param  object $document
+     * @param  string $className
+     * @return bool
+     */
+    public function documentHasValidClassName($document, $className)
+    {
+        try {
+            $this->unitOfWork->validateClassName($document, $className);
+
+            return true;
+        } catch(ClassMismatchException $e) {
+            return false;
         }
     }
 
@@ -388,13 +409,8 @@ class DocumentManager implements ObjectManager
 
         foreach ($ids as $id) {
             $document = $this->unitOfWork->getDocumentById($id);
-            if ($document) {
-                try {
-                    $this->unitOfWork->validateClassName($document, $className);
+            if ($document && $this->documentHasValidClassName($document, $className)) {
                     $documents[$id] = $document;
-                } catch (ClassMismatchException $e) {
-                    // ignore on class mismatch
-                }
             } elseif (isset($nodes[$id])) {
                 try {
                     $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
@@ -1203,7 +1219,9 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Return the node of the given object
+     * Return the node of the given object.
+     *
+     * This node is fetched by the objects uuid or its id meants the absolute path.
      *
      * @param object $document
      *
@@ -1218,8 +1236,27 @@ class DocumentManager implements ObjectManager
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
-        $path = $this->unitOfWork->getDocumentId($document);
+        $identifier = $this->unitOfWork->getDocumentId($document);
+        if (null === $identifier) {
+            return null;
+        }
 
-        return $this->session->getNode($path);
+        if (UUIDHelper::isUUID($identifier)) {
+            try {
+                $node =  $this->session->getNodeByIdentifier($identifier);
+
+                return $node;
+            } catch (ItemNotFoundException $e) {
+                return null;
+            }
+        } else {
+            try {
+                $node = $this->session->getNode($identifier);
+
+                return $node;
+            } catch (PathNotFoundException $e) {
+                return null;
+            }
+        }
     }
 }
