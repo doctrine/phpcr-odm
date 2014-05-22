@@ -2666,7 +2666,11 @@ class UnitOfWork
             $id = $this->getDocumentId($document);
 
             try {
-                $node = $this->session->getNode($id);
+                if (UUIDHelper::isUUID($id)) {
+                    $node = $this->session->getNodeByIdentifier($id);
+                } else {
+                    $node = $this->session->getNode($id);
+                }
                 $this->doRemoveAllTranslations($document, $class);
                 $node->remove();
             } catch (PathNotFoundException $e) {
@@ -3466,28 +3470,20 @@ class UnitOfWork
 
     private function getVersionedNodePath($document)
     {
-        $path = $this->getDocumentId($document);
+        $id = $this->getDocumentId($document);
         $metadata = $this->dm->getClassMetadata(get_class($document));
-
-        if (!$metadata->versionable) {
-            throw new InvalidArgumentException(sprintf(
-                "The document at path '%s' is not versionable",
-                $path
-            ));
+        if ($metadata->versionable !== 'full') {
+            throw new InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $id));
         }
 
-        $node = $this->session->getNode($path);
-
-        $mixin = $metadata->versionable === 'simple' ?
-            'mix:simpleVersionable' :
-            'mix:versionable';
-
-        if (!$node->isNodeType($mixin)) {
-            $node->addMixin($mixin);
+        if (UUIDHelper::isUUID($id)) {
+            $node = $this->session->getNodeByIdentifier($id);
+        } else {
+            $node = $this->session->getNode($id);
         }
+        $node->addMixin('mix:versionable');
 
-
-        return $path;
+        return $id;
     }
 
     /**
