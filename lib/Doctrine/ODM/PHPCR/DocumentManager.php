@@ -1219,44 +1219,33 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Return the node of the given object.
+     * Return the node of the given object or its hash.
      *
-     * This node is fetched by the objects uuid or its id meants the absolute path.
+     * This node is fetched by the objects uuid or its id means the absolute path.
      *
-     * @param object $document
+     * @param object|string $document
      *
      * @return \PHPCR\NodeInterface
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document isn't mapped in UoW.
      * @throws PHPCRException                if $document is not managed
      */
     public function getNodeForDocument($document)
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
-        $identifier = $this->unitOfWork->getDocumentId($document);
-        if (null === $identifier) {
-            return null;
+        if (!$identifier = $this->unitOfWork->getDocumentId($document)) {
+            throw new InvalidArgumentException('Parameter document should have an entry in identityMap.');
         }
 
         if (UUIDHelper::isUUID($identifier)) {
-            try {
-                $node =  $this->session->getNodeByIdentifier($identifier);
+            $node = $this->session->getNodeByIdentifier($identifier);
 
-                return $node;
-            } catch (ItemNotFoundException $e) {
-                return null;
-            }
+            // switch uuid mapping to identifier mapping for identityMap
+            $this->unitOfWork->unregisterDocument($document);
+            $this->unitOfWork->registerDocument($document, $node->getPath());
         } else {
-            try {
-                $node = $this->session->getNode($identifier);
-
-                return $node;
-            } catch (PathNotFoundException $e) {
-                return null;
-            }
+            $node = $this->session->getNode($identifier);
         }
+
+        return $node;
     }
 }
