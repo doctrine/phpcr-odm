@@ -599,11 +599,11 @@ class DocumentManager implements ObjectManager
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param QueryInterface $query the query instance as acquired through
-     *      createPhpcrQuery()
-     * @param string         $className document class
+     * @param QueryInterface $query           PHPCR query instance as acquired through createPhpcrQuery.
+     * @param string         $className       Document class if known.
+     * @param string         $primarySelector The selector name to create documents for.
      *
-     * @return array of document instances
+     * @return Collection of document instances
      */
     public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
     {

@@ -38,13 +38,20 @@ class Query
     /**
      * Defines the processing mode to be used during hydration / result set transformation.
      *
-     * @param string $hydrationMode Processing mode to be used during hydration process.
-     *     One of the Query::HYDRATE_* constants.
+     * @param string $hydrationMode The mode to return the result in execute.
      *
      * @return Query This query instance.
+     *
+     * @throws QueryException If $hydrationMode is not known.
+     *
+     * @see execute
      */
     public function setHydrationMode($hydrationMode)
     {
+        if (self::HYDRATE_DOCUMENT !== $hydrationMode && self::HYDRATE_PHPCR !== $hydrationMode) {
+            throw QueryException::hydrationModeNotKnown($hydrationMode);
+        }
+
         $this->hydrationMode = $hydrationMode;
 
         return $this;
@@ -136,14 +143,15 @@ class Query
     }
 
     /**
-     * Executes the query.
+     * Executes the query and returns the result based on the hydration mode.
      *
-     * @param array   $parameters    Parameters, alternative to calling
-     *      "setParameters"
-     * @param integer $hydrationMode Processing mode to be used during the
-     *      hydration process, alternative to calling "setHydrationMode"
+     * @param array $parameters    Parameters, alternative to calling setParameters.
+     * @param int   $hydrationMode Processing mode to be used during the hydration
+     *                             process. One of the Query::HYDRATE_* constants.
      *
-     * @return mixed
+     * @return mixed A Collection for HYDRATE_DOCUMENT, \PHPCR\Query\QueryResultInterface for HYDRATE_PHPCR
+     *
+     * @throws QueryException If $hydrationMode is not known.
      */
     public function execute($parameters = null, $hydrationMode = null)
     {
