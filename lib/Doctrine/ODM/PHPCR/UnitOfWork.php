@@ -566,6 +566,14 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
+        $identifier = $this->determineDocumentId($document);
+        $node = $this->dm->getNodeByPathOrUuid($identifier);
+        if (UUIDHelper::isUUID($identifier)) {
+            // switch document registration to path as usual
+            $this->unregisterDocument($document);
+            $this->registerDocument($document, $node->getPath());
+        }
+
         $hints = array('refresh' => true, 'fallback' => true);
 
         $oid = spl_object_hash($document);
@@ -573,7 +581,7 @@ class UnitOfWork
             $hints['locale'] = $this->documentLocales[$oid]['current'];
         }
 
-        $this->getOrCreateDocument($className, $this->dm->getNodeForDocument($document), $hints);
+        $this->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
