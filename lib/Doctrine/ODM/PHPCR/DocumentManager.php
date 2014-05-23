@@ -313,10 +313,11 @@ class DocumentManager implements ObjectManager
      */
     public function find($className, $id)
     {
-        // when there is a document return that on, when it is valid
+        // document still mapped -> return that when class name is valid
         $document = $this->unitOfWork->getDocumentById($id);
         if ($document) {
-            return $this->documentHasValidClassName($document, $className) ? $document : null;
+            $document = $this->documentHasValidClassName($document, $className) ? $document : null;
+            return $document;
         }
 
         // id can either be an path or an uuid, so we can have a look if one of both does have an entry
@@ -330,12 +331,14 @@ class DocumentManager implements ObjectManager
             $id = '/'.$id;
         }
 
+        // document mapped by id = absolute Path -> return that when class name is valid
         $document = $this->unitOfWork->getDocumentById($id);
         if ($document) {
-            return $this->documentHasValidClassName($document, $className) ? $document : null;
+            $document = $this->documentHasValidClassName($document, $className) ? $document : null;
+            return $document;
         }
 
-        // next try: when it is an absolute path, then fetch it from the session, create a new document for it
+        // no document mapped, then try to fetch it from session and create a new one
         try {
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
@@ -359,7 +362,7 @@ class DocumentManager implements ObjectManager
      * @param  string $className
      * @return bool
      */
-    public function documentHasValidClassName($document, $className)
+    private function documentHasValidClassName($document, $className)
     {
         try {
             $this->unitOfWork->validateClassName($document, $className);
@@ -1236,14 +1239,21 @@ class DocumentManager implements ObjectManager
             throw new InvalidArgumentException('Parameter document should have an entry in identityMap.');
         }
 
-        if (UUIDHelper::isUUID($identifier)) {
-            $node = $this->session->getNodeByIdentifier($identifier);
+        return $this->getNodeByPathOrUuid($identifier);
+    }
 
-            // switch uuid mapping to identifier mapping for identityMap
-            $this->unitOfWork->unregisterDocument($document);
-            $this->unitOfWork->registerDocument($document, $node->getPath());
+    /**
+     * Creates a node from a given path or an uuid
+     *
+     * @param $pathOrUuid
+     * @return \PHPCR\NodeInterface
+     */
+    public function getNodeByPathOrUuid($pathOrUuid)
+    {
+        if (UUIDHelper::isUUID($pathOrUuid)) {
+            $node = $this->session->getNodeByIdentifier($pathOrUuid);
         } else {
-            $node = $this->session->getNode($identifier);
+            $node = $this->session->getNode($pathOrUuid);
         }
 
         return $node;

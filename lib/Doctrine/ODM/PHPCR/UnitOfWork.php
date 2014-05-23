@@ -2666,11 +2666,7 @@ class UnitOfWork
             $id = $this->getDocumentId($document);
 
             try {
-                if (UUIDHelper::isUUID($id)) {
-                    $node = $this->session->getNodeByIdentifier($id);
-                } else {
-                    $node = $this->session->getNode($id);
-                }
+                $this->dm->getNodeByPathOrUuid($id);
                 $this->doRemoveAllTranslations($document, $class);
                 $node->remove();
             } catch (PathNotFoundException $e) {
@@ -3476,11 +3472,7 @@ class UnitOfWork
             throw new InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $id));
         }
 
-        if (UUIDHelper::isUUID($id)) {
-            $node = $this->session->getNodeByIdentifier($id);
-        } else {
-            $node = $this->session->getNode($id);
-        }
+        $node = $this->dm->getNodeByPathOrUuid($id);
         $node->addMixin('mix:versionable');
 
         return $id;
