@@ -2666,7 +2666,7 @@ class UnitOfWork
             $id = $this->getDocumentId($document);
 
             try {
-                $this->dm->getNodeByPathOrUuid($id);
+                $node = $this->dm->getNodeByPathOrUuid($id);
                 $this->doRemoveAllTranslations($document, $class);
                 $node->remove();
             } catch (PathNotFoundException $e) {
