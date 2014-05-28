@@ -623,6 +623,22 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->nodename = 'bad/name';
         $this->dm->flush();
     }
+
+    public function testChangeset()
+    {
+        $user = $this->node->getNode('user');
+        // the property is not nullable, but this should only be checked on saving, not on loading
+        $user->getProperty('username')->remove();
+        $this->dm->getPhpcrSession()->save();
+
+        $userDoc = $this->dm->find(null, $user->getPath());
+
+        $this->assertInstanceOf($this->type, $userDoc);
+        $this->assertNull($userDoc->username);
+
+        // nothing should happen, we did not alter any value
+        $this->dm->flush();
+    }
 }
 
 /**
