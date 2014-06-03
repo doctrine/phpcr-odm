@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.1.1
+-----
+
+Release 1.1.1
+
+* **2014-06-03**: Fix ClassMetadata::newInstance() for PHP 5.5.13.
+* **2014-05-10**: Cleanup on query builder, invalid alias will now be detected
+  earlier.
+
 1.1.0
 -----
 
