@@ -1942,6 +1942,18 @@ class UnitOfWork
             }
         }
 
+        if (empty($this->scheduledInserts) &&
+                empty($this->scheduledUpdates) &&
+                empty($this->scheduledRemovals) &&
+                empty($this->scheduledReorders) &&
+                empty($this->scheduledMoves)) {
+                    error_log('all empty');
+            $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
+            $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
+
+            return; // Nothing to do.
+        }
+
         $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
 
         try {
@@ -2015,9 +2027,7 @@ class UnitOfWork
         $this->documentChangesets =
         $this->changesetComputed = array();
 
-        if ($this->evm->hasListeners(Event::endFlush)) {
-            $this->evm->dispatchEvent(Event::endFlush, new ManagerEventArgs($this->dm));
-        }
+        $this->invokeGlobalEvent(Event::endFlush, new ManagerEventArgs($this->dm));
     }
 
     /**

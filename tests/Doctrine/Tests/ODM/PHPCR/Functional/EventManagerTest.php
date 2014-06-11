@@ -57,6 +57,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
                     Event::preFlush,
                     Event::preMove,
                     Event::postMove,
+                    Event::endFlush,
                 ),
                 $this->listener
             );
@@ -70,12 +71,14 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->listener->pagePrePersist);
         $this->assertFalse($this->listener->itemPrePersist);
         $this->assertFalse($this->listener->postFlush);
+        $this->assertFalse($this->listener->endFlush);
         $this->assertFalse($this->listener->preFlush);
 
         $this->dm->flush();
 
         $this->assertTrue($this->listener->onFlush);
         $this->assertTrue($this->listener->postFlush);
+        $this->assertTrue($this->listener->endFlush);
         $this->assertTrue($this->listener->preFlush);
         $this->assertFalse($this->listener->preUpdate);
         $this->assertFalse($this->listener->postUpdate);
@@ -205,6 +208,7 @@ class TestPersistenceListener
     public $itemPostRemove = false;
     public $onFlush = false;
     public $postFlush = false;
+    public $endFlush = false;
     public $preFlush = false;
     public $itemPreMove = false;
     public $itemPostMove = false;
@@ -304,6 +308,14 @@ class TestPersistenceListener
     public function postFlush(ManagerEventArgs $e)
     {
         $this->postFlush = true;
+    }
+
+    public function endFlush(ManagerEventArgs $e)
+    {
+        $this->endFlush = true;
+        $dm = $e->getObjectManager();
+
+        $dm->flush();
     }
 
     public function preFlush(ManagerEventArgs $e)
