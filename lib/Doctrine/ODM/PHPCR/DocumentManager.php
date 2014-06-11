@@ -512,7 +512,7 @@ class DocumentManager implements ObjectManager
         $illegalCharacters = array(
             '!' => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
             '[' => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
-            '\"' => '\\\"', '?' => '\\?',
+            '\"' => '\\\"', '?' => '\\?', "'" => "''",
         );
 
         return strtr($string, $illegalCharacters);
