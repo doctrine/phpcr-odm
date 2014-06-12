@@ -139,6 +139,52 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->listener->itemPostRemove);
     }
 
+    public function testPreUpdate()
+    {
+        $this->dm
+            ->getEventManager()
+            ->addEventListener(
+                array(
+                    Event::prePersist,
+                    Event::postPersist,
+                    Event::preUpdate,
+                    Event::postUpdate,
+                    Event::preRemove,
+                    Event::postRemove,
+                    Event::onFlush,
+                    Event::postFlush,
+                    Event::preFlush,
+                    Event::preMove,
+                    Event::postMove,
+                    Event::endFlush,
+                ),
+                $this->listener
+            );
+
+        $page = new CmsPage();
+        $page->title = "my-page";
+        $page->content = "long story";
+
+        $item = new CmsItem();
+        $item->name = "my-item";
+        $item->documentTarget = $page;
+
+        $this->dm->persist($page);
+        $this->dm->flush();
+
+        $page->content = "short story";
+        $this->dm->persist($item);
+        $page->addItem($item);
+
+        $this->dm->persist($page);
+        $this->dm->flush();
+
+        $this->assertTrue($this->listener->preUpdate);
+        $this->assertTrue($this->listener->itemPrePersist);
+        $this->assertTrue($this->listener->postUpdate);
+        $this->assertTrue($this->listener->itemPostPersist);
+    }
+
     public function testTriggerTranslationEvents()
     {
         $this->dm
@@ -314,7 +360,6 @@ class TestPersistenceListener
     {
         $this->endFlush = true;
         $dm = $e->getObjectManager();
-
         $dm->flush();
     }
 

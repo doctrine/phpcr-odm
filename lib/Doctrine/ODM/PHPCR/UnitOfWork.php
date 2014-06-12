@@ -1157,18 +1157,20 @@ class UnitOfWork
         $this->changesetComputed[] = $oid;
 
         $actualData = $this->getDocumentActualData($class, $document);
+        $changeSet = $actualData;
+
         $id = $this->getDocumentId($document, false);
 
         $isNew = !isset($this->originalData[$oid]);
         if ($isNew) {
             // Document is New and should be inserted
-            $this->originalData[$oid] = $actualData;
-            $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
+            $this->originalData[$oid] = $changeSet;
+            $this->documentChangesets[$oid] = array('fields' => $changeSet, 'reorderings' => array());
             $this->scheduledInserts[$oid] = $document;
         }
 
-        if ($class->parentMapping && isset($actualData[$class->parentMapping])) {
-            $parent = $actualData[$class->parentMapping];
+        if ($class->parentMapping && isset($changeSet[$class->parentMapping])) {
+            $parent = $changeSet[$class->parentMapping];
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
@@ -1178,33 +1180,34 @@ class UnitOfWork
         }
 
         foreach ($class->childMappings as $fieldName) {
-            if ($actualData[$fieldName]) {
-                if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
+            if ($changeSet[$fieldName]) {
+                if (is_array($changeSet[$fieldName]) || $changeSet[$fieldName] instanceof Collection) {
                     throw PHPCRException::childFieldIsArray(
                         self::objToStr($document, $this->dm),
                         $fieldName
                     );
                 }
-                if (!is_object($actualData[$fieldName])) {
+
+                if (!is_object($changeSet[$fieldName])) {
                     throw PHPCRException::childFieldNoObject(
                         self::objToStr($document, $this->dm),
                         $fieldName,
-                        gettype($actualData[$fieldName])
+                        gettype($changeSet[$fieldName])
                     );
                 }
 
                 $mapping = $class->mappings[$fieldName];
-                $actualData[$fieldName] = $this->computeChildChanges($mapping, $actualData[$fieldName], $id, $mapping['nodeName']);
+                $changeSet[$fieldName] = $this->computeChildChanges($mapping, $changeSet[$fieldName], $id, $mapping['nodeName']);
             }
         }
 
-        $this->computeAssociationChanges($class, $oid, $isNew, $actualData, 'reference');
-        $this->computeAssociationChanges($class, $oid, $isNew, $actualData, 'referrer');
+        $this->computeAssociationChanges($class, $oid, $isNew, $changeSet, 'reference');
+        $this->computeAssociationChanges($class, $oid, $isNew, $changeSet, 'referrer');
 
         foreach ($class->mixedReferrersMappings as $fieldName) {
-            if ($actualData[$fieldName]
-                && $actualData[$fieldName] instanceof PersistentCollection
-                && $actualData[$fieldName]->isDirty()
+            if ($changeSet[$fieldName]
+                && $changeSet[$fieldName] instanceof PersistentCollection
+                && $changeSet[$fieldName]->isDirty()
             ) {
                 throw new PHPCRException("The immutable mixed referrer collection in field $fieldName is dirty");
             }
@@ -1213,8 +1216,8 @@ class UnitOfWork
         if ($isNew) {
             // much simpler handling for children
             foreach ($class->childrenMappings as $fieldName) {
-                if ($actualData[$fieldName]) {
-                    if (!is_array($actualData[$fieldName]) && !$actualData[$fieldName] instanceof Collection) {
+                if ($changeSet[$fieldName]) {
+                    if (!is_array($changeSet[$fieldName]) && !$changeSet[$fieldName] instanceof Collection) {
                         throw PHPCRException::childrenFieldNoArray(
                             self::objToStr($document, $this->dm),
                             $fieldName
@@ -1222,7 +1225,7 @@ class UnitOfWork
                     }
 
                     $mapping = $class->mappings[$fieldName];
-                    foreach ($actualData[$fieldName] as $originalNodename => $child) {
+                    foreach ($changeSet[$fieldName] as $originalNodename => $child) {
                         if (!is_object($child)) {
                             throw PHPCRException::childrenContainsNonObject(
                                 self::objToStr($document, $this->dm),
@@ -1232,9 +1235,9 @@ class UnitOfWork
                         }
 
                         $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
-                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        $changeSet[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         if (0 !== strcmp($originalNodename, $nodename)) {
-                            unset($actualData[$fieldName][$originalNodename]);
+                            unset($changeSet[$fieldName][$originalNodename]);
                         }
                         $childNames[] = $nodename;
                     }
@@ -1245,30 +1248,30 @@ class UnitOfWork
             $destPath = $destName = false;
 
             if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($actualData[$class->parentMapping])
-                && $this->originalData[$oid][$class->parentMapping] !== $actualData[$class->parentMapping]
+                && isset($changeSet[$class->parentMapping])
+                && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
             ) {
-                $destPath = $this->getDocumentId($actualData[$class->parentMapping]);
+                $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
             }
 
             if (isset($this->originalData[$oid][$class->nodename])
-                && isset($actualData[$class->nodename])
-                && $this->originalData[$oid][$class->nodename] !== $actualData[$class->nodename]
+                && isset($changeSet[$class->nodename])
+                && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
             ) {
-                $destName = $actualData[$class->nodename];
+                $destName = $changeSet[$class->nodename];
             }
 
             // there was assignment move
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = isset($actualData[$class->parentMapping])
-                        ? $this->getDocumentId($actualData[$class->parentMapping])
+                    $destPath = isset($changeSet[$class->parentMapping])
+                        ? $this->getDocumentId($changeSet[$class->parentMapping])
                         : PathHelper::getParentPath($this->getDocumentId($document));
                 }
                 if (false === $destName) {
-                    $destName = $actualData[$class->nodename]
-                        ? $actualData[$class->nodename]
+                    $destName = $changeSet[$class->nodename]
+                        ? $changeSet[$class->nodename]
                         : PathHelper::getNodeName($this->getDocumentId($document));
                 }
 
@@ -1284,35 +1287,36 @@ class UnitOfWork
             }
 
             if (isset($this->originalData[$oid][$class->identifier])
-                && isset($actualData[$class->identifier])
-                && $this->originalData[$oid][$class->identifier] !== $actualData[$class->identifier]
+                && isset($changeSet[$class->identifier])
+                && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
             ) {
-                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$actualData[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
             }
 
             foreach ($class->childrenMappings as $fieldName) {
-                if ($actualData[$fieldName] instanceof PersistentCollection) {
-                    if (!$actualData[$fieldName]->isInitialized()) {
+                if ($changeSet[$fieldName] instanceof PersistentCollection) {
+                    if (!$changeSet[$fieldName]->isInitialized()) {
                         continue;
                     }
 
-                    $coid = spl_object_hash($actualData[$fieldName]);
-                    $this->visitedCollections[$coid] = $actualData[$fieldName];
+                    $coid = spl_object_hash($changeSet[$fieldName]);
+                    $this->visitedCollections[$coid] = $changeSet[$fieldName];
                 }
+
 
                 $mapping = $class->mappings[$fieldName];
 
                 $childNames = array();
                 $movedChildNames = array();
-                if ($actualData[$fieldName]) {
-                    if (!is_array($actualData[$fieldName]) && !$actualData[$fieldName] instanceof Collection) {
+                if ($changeSet[$fieldName]) {
+                    if (!is_array($changeSet[$fieldName]) && !$changeSet[$fieldName] instanceof Collection) {
                         throw PHPCRException::childrenFieldNoArray(
                             self::objToStr($document, $this->dm),
                             $fieldName
                         );
                     }
 
-                    foreach ($actualData[$fieldName] as $originalNodename => $child) {
+                    foreach ($changeSet[$fieldName] as $originalNodename => $child) {
                         if (!is_object($child)) {
                             throw PHPCRException::childrenContainsNonObject(
                                 self::objToStr($document, $this->dm),
@@ -1322,9 +1326,9 @@ class UnitOfWork
                         }
 
                         $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
-                        $actualData[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                        $changeSet[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
                         if (0 !== strcmp($originalNodename, $nodename)) {
-                            unset($actualData[$fieldName][$originalNodename]);
+                            unset($changeSet[$fieldName][$originalNodename]);
                             $movedChildNames[] = (string) $originalNodename;
                         }
                         $childNames[] = $nodename;
@@ -1370,8 +1374,8 @@ class UnitOfWork
             if (!isset($this->documentLocales[$oid])
                 || $this->documentLocales[$oid]['current'] === $this->documentLocales[$oid]['original']
             ) {
-                // remove anything from $actualData that did not change
-                foreach ($actualData as $fieldName => $fieldValue) {
+                // remove anything from $changeSet that did not change
+                foreach ($changeSet as $fieldName => $fieldValue) {
                     if (isset($class->mappings[$fieldName])) {
                         if ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                             continue;
@@ -1385,17 +1389,20 @@ class UnitOfWork
                         }
                     }
 
-                    unset($actualData[$fieldName]);
+                    unset($changeSet[$fieldName]);
                 }
             }
 
-            if (count($actualData)) {
+            if (count($changeSet)) {
                 if (empty($this->documentChangesets[$oid])) {
-                    $this->documentChangesets[$oid] = array('fields' => $actualData, 'reorderings' => array());
-                } else {
-                    $this->documentChangesets[$oid]['fields'] = $actualData;
+                    $this->documentChangesets[$oid] = array(
+                        'fields' => array(),
+                        'reorderings' => array()
+                    );
                 }
 
+                $this->documentChangesets[$oid]['fields'] = $changeSet;
+                $this->originalData[$oid] = $actualData;
                 $this->scheduledUpdates[$oid] = $document;
             } elseif (isset($this->documentChangesets[$oid])) {
                 // make sure we don't keep an old changeset if an event changed
@@ -1947,7 +1954,6 @@ class UnitOfWork
                 empty($this->scheduledRemovals) &&
                 empty($this->scheduledReorders) &&
                 empty($this->scheduledMoves)) {
-                    error_log('all empty');
             $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
             $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
 
