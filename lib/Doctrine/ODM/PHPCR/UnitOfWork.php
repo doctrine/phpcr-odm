@@ -2233,7 +2233,7 @@ class UnitOfWork
             }
 
             $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $this->session->getNode($id = $this->getDocumentId($document));
+            $node = $this->session->getNode($this->getDocumentId($document));
 
             if ($this->writeMetadata) {
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
