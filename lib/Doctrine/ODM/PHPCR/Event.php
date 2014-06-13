@@ -33,6 +33,7 @@ final class Event
 
     const preFlush = 'preFlush';
     const postFlush = 'postFlush';
+    const endFlush = 'endFlush';
     const onFlush = 'onFlush';
     const onClear = 'onClear';
     const loadClassMetadata = 'loadClassMetadata';

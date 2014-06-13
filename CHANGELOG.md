@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* **2014-06-13**: Added the endFlush event that happens after the flush has
+  been terminated.
+* **2014-06-13**: Fixed a bug in calculateChangeSet that led to subsequent
+  flushes seeing already persisted changes again.
+
 1.1.1
 -----
 
