@@ -1464,12 +1464,11 @@ class ClassMetadata implements ClassMetadataInterface
     public function newInstance()
     {
         if ($this->prototype === null) {
-            if (PHP_VERSION_ID >= 50400) {
-                $rc = new \ReflectionClass($this->name);
-                $this->prototype = $rc->newInstanceWithoutConstructor();
+            if (PHP_VERSION_ID === 50429 || PHP_VERSION_ID === 50513) {
+                $this->prototype = $this->reflClass->newInstanceWithoutConstructor();
             } else {
                 $this->prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->name), $this->name));
-            }            
+            }
         }
 
         return clone $this->prototype;
