@@ -41,6 +41,10 @@ packages that change depending on the backend you want to test.
 
     ./tests/travis_jackrabbit.sh
 
+Please note that this will also require implementations for virtual packages
+that match the backend you want to test, resulting in a change in your
+`composer.json`. Make sure you do not check in this change into version control.
+
 3. Run the tests:
 
     phpunit -c tests/phpunit_jackrabbit.xml.dist
