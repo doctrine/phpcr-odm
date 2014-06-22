@@ -33,10 +33,17 @@ This examples shows how to run the tests for jackrabbit. You can run the tests
 for the other backends. Just replace jackrabbit with the name of the backend
 you want to run.
 
-1. Make sure you have installed the dependencies
+1. Make sure you have installed the dependencies that can't be installed with
+Composer (e.g. when running `travis_doctrine_dbal.sh`, install MySQL). Do not
+run `composer install`, it will not work because phpcr-odm requires virtual
+packages that change depending on the backend you want to test.
 2. Run this command to download jackrabbit and launch it (requires wget)
 
     ./tests/travis_jackrabbit.sh
+
+Please note that this will also require implementations for virtual packages
+that match the backend you want to test, resulting in a change in your
+`composer.json`. Make sure you do not check in this change into version control.
 
 3. Run the tests:
 
