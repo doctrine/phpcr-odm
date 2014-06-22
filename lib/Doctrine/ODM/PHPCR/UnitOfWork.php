@@ -284,7 +284,7 @@ class UnitOfWork
      *
      * @param object      $document
      * @param string|null $className The class name $document must be
-     *      instanceof. Pass empty to not validate anything.
+     *                               instanceof. Pass empty to not validate anything.
      *
      * @throws PHPCRException
      */
@@ -315,7 +315,7 @@ class UnitOfWork
      * @return object
      *
      * @throws PHPCRExceptionInterface if $className was specified and does not match
-     *      the class of the document corresponding to $node.
+     *                                 the class of the document corresponding to $node.
      */
     public function getOrCreateDocument($className, NodeInterface $node, array &$hints = array())
     {
@@ -507,7 +507,7 @@ class UnitOfWork
      * Get the existing document or proxy or create a new one for this PHPCR Node
      *
      * @param NodeInterface $node
-     * @param string $locale
+     * @param string        $locale
      *
      * @return object
      */
@@ -1933,7 +1933,7 @@ class UnitOfWork
      * Commits the UnitOfWork
      *
      * @param object|array|null $document optionally limit to a specific
-     *      document or an array of documents
+     *                                    document or an array of documents
      */
     public function commit($document = null)
     {
@@ -2705,7 +2705,7 @@ class UnitOfWork
      * @param int    $limit    an optional limit to only get the latest $limit information
      *
      * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
-     *         oldest version first
+     *               oldest version first
      */
     public function getAllLinearVersions($document, $limit = -1)
     {
@@ -2738,8 +2738,8 @@ class UnitOfWork
     /**
      * Restore the document to the state it was before
      *
-     * @param string $documentVersion the version name to restore
-     * @param boolean $removeExisting how to handle identifier collisions
+     * @param string  $documentVersion the version name to restore
+     * @param boolean $removeExisting  how to handle identifier collisions
      *
      * @see VersionManager::restore
      */
@@ -2841,7 +2841,7 @@ class UnitOfWork
      * @param string $rootClassName The name of the root class of the mapped document hierarchy.
      *
      * @return object|false Returns the document with the specified id if it exists in
-     *               this UnitOfWork, FALSE otherwise.
+     *                      this UnitOfWork, FALSE otherwise.
      */
     public function getDocumentById($id)
     {
@@ -3041,7 +3041,7 @@ class UnitOfWork
      * @param string        $locale
      *
      * @return boolean whether the pending translation in language $locale was
-     *      loaded or not.
+     *                 loaded or not.
      *
      * @see doLoadTranslation
      */
@@ -3079,7 +3079,7 @@ class UnitOfWork
      * @return string The locale used
      *
      * @throws MissingTranslationException if the translation in $locale is not
-     *      found and $fallback is false.
+     *                                     found and $fallback is false.
      *
      * @see doLoadTranslation
      */
@@ -3093,7 +3093,7 @@ class UnitOfWork
             if ($strategy->loadTranslation($document, $node, $metadata, $locale)) {
                 return $locale;
             }
-        } catch(PathNotFoundException $e) {
+        } catch (PathNotFoundException $e) {
             // no node, document not persisted yet
             $node = null;
         }
@@ -3146,7 +3146,7 @@ class UnitOfWork
      * @param boolean       $fallback Whether to do try other languages
      *
      * @throws MissingTranslationException if the translation in $locale is not
-     *      found and $fallback is false.
+     *                                     found and $fallback is false.
      */
     public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false, $refresh = false)
     {
@@ -3470,7 +3470,6 @@ class UnitOfWork
         return $g();
     }
 
-
     /**
      * Sets the fetch depth on the session if the PHPCR session instance supports it
      * and returns the previous fetch depth value
@@ -3549,18 +3548,18 @@ class UnitOfWork
      *
      * Stores keys and null fields in the node and returns the processed values
      *
-     * @param NodeInterface $node the node where to store the assoc array
-     * @param array $mapping the field's mapping
-     * @param array $assoc the associative array
+     * @param  NodeInterface $node    the node where to store the assoc array
+     * @param  array         $mapping the field's mapping
+     * @param  array         $assoc   the associative array
      * @return array
      */
     protected function processAssoc(NodeInterface $node, array $mapping, array $assoc)
     {
-        $isNull = function($item) {
+        $isNull = function ($item) {
             return null === $item;
         };
 
-        $isNotNull = function($item) {
+        $isNotNull = function ($item) {
             return null !== $item;
         };
 
@@ -3570,14 +3569,15 @@ class UnitOfWork
 
         $node->setProperty($mapping['assoc'], $keys, PropertyType::STRING);
         $node->setProperty($mapping['assocNulls'], $nulls, PropertyType::STRING);
+
         return $values;
     }
 
     /**
      * Create an associative array form the properties stored with the node
      *
-     * @param array $properties the node's properties
-     * @param array $mapping the field's mapping information
+     * @param  array $properties the node's properties
+     * @param  array $mapping    the field's mapping information
      * @return array
      */
     protected function createAssoc(array $properties, array $mapping)
@@ -3597,6 +3597,7 @@ class UnitOfWork
                 next($values);
             }
         }
+
         return $result;
     }
 
