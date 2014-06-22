@@ -1763,7 +1763,7 @@ class UnitOfWork
                     $this->cascadeMergeCollection($managedCol, $mapping);
                 } elseif ('parent' === $mapping['type']) {
                     $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
-                } elseif (in_array($mapping['type'], array('locale', 'versionane', 'versioncreated', 'node', 'nodename'))) {
+                } elseif (in_array($mapping['type'], array('locale', 'versionname', 'versioncreated', 'node', 'nodename'))) {
                     if (null !== $other) {
                         $prop->setValue($managedCopy, $other);
                     }
