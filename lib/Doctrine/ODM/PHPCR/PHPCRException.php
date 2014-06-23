@@ -72,6 +72,15 @@ class PHPCRException extends \Exception implements PHPCRExceptionInterface
         ));
     }
 
+    public static function associationFieldNoArray($className, $fieldName)
+    {
+        return new self(sprintf(
+            'Association documents are not stored correctly in an association property. Use array notation or a Collection: field "%s" of "%s"',
+            $fieldName,
+            $className
+        ));
+    }
+
     public static function childrenContainsNonObject($className, $fieldName, $type)
     {
         return new self(sprintf(

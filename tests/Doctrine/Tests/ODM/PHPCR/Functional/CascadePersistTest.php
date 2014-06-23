@@ -55,7 +55,7 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertEquals(2, count($pUser->groups));
     }
 
-    public function testCascadePersistForManagedEntity()
+    public function testCascadePersistForManagedDocument()
     {
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
         $user->username = "beberlei";

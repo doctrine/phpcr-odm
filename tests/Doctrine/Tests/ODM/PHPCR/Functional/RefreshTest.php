@@ -99,4 +99,35 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = 'gblanco';
         $this->dm->refresh($user);
     }
+
+    public function testRefreshCollection()
+    {
+        $user = new CmsUser;
+        $user->id = '/functional/Guilherme';
+        $user->username = 'gblanco';
+
+        // Add a group
+        $group1 = new CmsGroup;
+        $group1->name = "12345";
+        $group1->id = '/functional/group1';
+        $user->addGroup($group1);
+
+        // Add a group
+        $group2 = new CmsGroup;
+        $group2->name = "54321";
+        $group2->id = '/functional/group2';
+
+        $this->dm->persist($user);
+        $this->dm->persist($group1);
+        $this->dm->persist($group2);
+        $this->dm->flush();
+
+        $user->addGroup($group2);
+
+        $this->assertCount(2, $user->groups);
+
+        $user->groups->refresh();
+
+        $this->assertCount(1, $user->groups);
+    }
 }
