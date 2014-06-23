@@ -8,7 +8,7 @@ use PHPCR\Util\PathHelper;
 /**
  * @group functional
  */
-class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
@@ -20,7 +20,7 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $typeVersion;
+    protected $typeVersion;
 
     /**
      * class name
@@ -36,7 +36,6 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->typeVersion = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\VersionTestObj';
         $this->typeReference = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\ReferenceTestObj';
         $this->dm = $this->createDocumentManager();
 
@@ -69,6 +68,19 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->getPhpcrSession()->save();
         $this->dm = $this->createDocumentManager();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     * @expectedMessage The document at path '/functional/referenceTestObj' is not versionable
+     */
+    public function testCheckinOnNonVersionableNode()
+    {
+        $contentNode = $this->dm->find(
+            $this->typeReference,
+            '/functional/referenceTestObj'
+        );
+        $this->dm->checkin($contentNode);
     }
 
     public function testCheckin()
@@ -309,31 +321,6 @@ class VersioningTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
     }
-}
-
-/**
- * @PHPCRODM\Document(versionable="full")
- */
-class VersionTestObj
-{
-    /** @PHPCRODM\Id */
-    public $id;
-    /** @PHPCRODM\Node */
-    public $node;
-
-    /** @PHPCRODM\VersionName */
-    public $versionName;
-
-    /** @PHPCRODM\VersionCreated */
-    public $versionCreated;
-
-    /** @PHPCRODM\String() */
-    public $username;
-    /** @PHPCRODM\Int(multivalue=true) */
-    public $numbers;
-
-    /** @PHPCRODM\ReferenceOne(strategy="weak") */
-    public $reference;
 }
 
 /**
