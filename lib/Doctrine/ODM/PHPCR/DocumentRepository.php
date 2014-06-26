@@ -171,7 +171,7 @@ class DocumentRepository implements ObjectRepository
                 $where = $qb->andWhere();
             }
 
-            $this->contraintField($where, $field, $value, 'a');
+            $this->constraintField($where, $field, $value, 'a');
         }
 
         return $qb->getQuery()->execute();
@@ -185,7 +185,7 @@ class DocumentRepository implements ObjectRepository
      * @param mixed $value The value to search for
      * @param string The alias used
      */
-    protected function contraintField(ConstraintFactory $where, $field, $value, $alias) {
+    protected function constraintField(ConstraintFactory $where, $field, $value, $alias) {
     	$where->eq()->field($alias.'.'.$field)->literal($value);
     }
 
