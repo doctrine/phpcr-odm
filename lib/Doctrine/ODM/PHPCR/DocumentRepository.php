@@ -26,6 +26,9 @@ use Doctrine\ODM\PHPCR\Query\Query;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
+use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
+
+
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
  * business specific methods for retrieving documents.
@@ -120,7 +123,7 @@ class DocumentRepository implements ObjectRepository
      * Finds document by a set of criteria.
      *
      * Optionally sorting and limiting details can be passed. An implementation may throw
-     * an UnexpectedValueException if certain values of the sorting or limiting details are
+     * an InvalidArgumentException if certain values of the sorting or limiting details are
      * not supported.
      *
      * @param  array      $criteria
@@ -168,10 +171,21 @@ class DocumentRepository implements ObjectRepository
                 $where = $qb->andWhere();
             }
 
-            $where->eq()->field('a.'.$field)->literal($value);
+            $this->contraintField($where, $field, $value);
         }
 
         return $qb->getQuery()->execute();
+    }
+
+    /**
+     * Constraints a field for a given value
+     * 
+     * @param ConstraintFactory $where
+     * @param string $field
+     * @param mixed $value
+     */
+    protected function contraintField(ConstraintFactory $where, $field, $value) {
+    	$where->eq()->field('a.'.$field)->literal($value);
     }
 
     /**
