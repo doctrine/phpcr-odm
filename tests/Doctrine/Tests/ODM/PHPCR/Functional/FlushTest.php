@@ -284,17 +284,25 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($group);
         $this->assertCount(3, $group->getUsers());
         $this->dm->flush();
+
+        $user4 = new CmsTeamUser();
+        $user4->username = 'ocranimus';
+        $user4->parent = $user1;
+        $group->addUser($user4);
+        $this->assertCount(4, $group->getUsers());
+        $this->dm->flush();
+
         $this->dm->getPhpcrSession()->removeItem($user2->id);
         $this->dm->getPhpcrSession()->save();
         $this->dm->flush();
         $this->assertInstanceOf('\PHPCR\NodeInterface', $user1->node);
 
-        $this->assertCount(3, $group->getUsers());
+        $this->assertCount(4, $group->getUsers());
         $this->dm->clear();
 
         $group = $this->dm->find(null, '/functional/group');
         $group->getUsers()->first();
-        $this->assertCount(1, $group->getUsers());
+        $this->assertCount(2, $group->getUsers());
         $this->assertInstanceOf('\PHPCR\NodeInterface', $group->getUsers()->first()->node);
     }
 }

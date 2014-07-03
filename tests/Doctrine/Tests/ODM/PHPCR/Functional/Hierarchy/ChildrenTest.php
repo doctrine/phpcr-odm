@@ -494,7 +494,9 @@ class ChildrenTest extends PHPCRFunctionalTestCase
             'Child F' => $parent->allChildren->first(),
         );
 
-        $parent->allChildren = new ArrayCollection($data);
+        $first = $parent->allChildren->first();
+        $parent->allChildren->remove('Child F');
+        $parent->allChildren->add($first);
 
         $this->dm->flush();
         $this->dm->clear();
@@ -550,7 +552,6 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(count($keys), $parent->allChildren);
         $this->assertEquals($keys, $parent->allChildren->getKeys());
-
     }
 
     public function testReorderChildrenLast()

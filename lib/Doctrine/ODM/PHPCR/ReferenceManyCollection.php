@@ -19,8 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Util\ClassUtils;
+use PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 /**
  * Property collection class
@@ -29,6 +32,8 @@ use Doctrine\Common\Util\ClassUtils;
  */
 class ReferenceManyCollection extends PersistentCollection
 {
+    private $document;
+    private $property;
     private $referencedNodes;
     private $targetDocument;
     private $originalReferencePaths;
@@ -37,16 +42,51 @@ class ReferenceManyCollection extends PersistentCollection
      * Creates a new persistent collection.
      *
      * @param DocumentManager $dm              The DocumentManager the collection will be associated with.
+     * @param object          $document        The document with the references property
+     * @param string          $property        The node property name with the multivalued references
      * @param array           $referencedNodes An array of referenced nodes (UUID or path)
      * @param string          $targetDocument  The class name of the target documents
      * @param string          $locale          The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManager $dm, array $referencedNodes, $targetDocument, $locale = null)
+    public function __construct(DocumentManager $dm, $document, $property, array $referencedNodes, $targetDocument, $locale = null)
     {
         $this->dm = $dm;
+        $this->document = $document;
+        $this->property = $property;
         $this->referencedNodes = $referencedNodes;
         $this->targetDocument = $targetDocument;
         $this->locale = $locale;
+    }
+
+    /**
+     * @param DocumentManager  $dm              The DocumentManager the collection will be associated with.
+     * @param object           $document        The document with the references property
+     * @param string           $property        The node property name with the multivalued references
+     * @param array|Collection $collection      The collection to initialize with
+     * @param string           $targetDocument  The class name of the target documents
+     * @param bool             $forceOverwrite If to force the database to be forced to the state of the collection
+     *
+     * @return ReferenceManyCollection
+     */
+    public static function createFromCollection(DocumentManager $dm, $document, $property, $collection, $targetDocument, $forceOverwrite = false)
+    {
+        $referenceCollection = new self($dm, $document, $property, array(), $targetDocument);
+        $referenceCollection->initializeFromCollection($collection, $forceOverwrite);
+
+        return $referenceCollection;
+    }
+
+    /** {@inheritDoc} */
+    public function refresh()
+    {
+        try {
+            $this->referencedNodes = $this->dm->getNodeForDocument($this->document)->getPropertiesValues($this->property);
+            $this->referencedNodes = array_keys($this->referencedNodes[$this->property]);
+        } catch (InvalidArgumentException $e) {
+            $this->referencedNodes = array();
+        }
+
+        parent::refresh();
     }
 
     /**
@@ -55,12 +95,13 @@ class ReferenceManyCollection extends PersistentCollection
      */
     public function initialize()
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             $referencedDocs = array();
             $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
             $uow = $this->dm->getUnitOfWork();
             $uow->getPrefetchHelper()->prefetch($this->dm, $referencedNodes, $this->locale);
 
+            $this->originalReferencePaths = array();
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
                 if (isset($targetDocument) && !$proxy instanceof $this->targetDocument) {
@@ -71,14 +112,14 @@ class ReferenceManyCollection extends PersistentCollection
             }
 
             $this->collection = new ArrayCollection($referencedDocs);
-            $this->initialized = true;
+            $this->initialized = self::INITIALIZED_FROM_PHPCR;
         }
     }
 
     /** {@inheritDoc} */
     public function count()
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             return count($this->referencedNodes);
         }
 
@@ -88,7 +129,7 @@ class ReferenceManyCollection extends PersistentCollection
     /** {@inheritDoc} */
     public function isEmpty()
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             return !$this->count();
         }
 
@@ -104,9 +145,16 @@ class ReferenceManyCollection extends PersistentCollection
     {
         if (null === $this->originalReferencePaths) {
             $this->originalReferencePaths = array();
-            $nodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
-            foreach ($nodes as $node) {
-                $this->originalReferencePaths[] = $node->getPath();
+            if (self::INITIALIZED_FROM_COLLECTION === $this->initialized) {
+                $uow = $this->dm->getUnitOfWork();
+                foreach ($this->collection as $reference) {
+                    $this->originalReferencePaths[] = $uow->getDocumentId($reference);
+                }
+            } else {
+                $nodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
+                foreach ($nodes as $node) {
+                    $this->originalReferencePaths[] = $node->getPath();
+                }
             }
         }
 
@@ -119,7 +167,7 @@ class ReferenceManyCollection extends PersistentCollection
     public function takeSnapshot()
     {
         if (is_array($this->originalReferencePaths)) {
-            if ($this->initialized) {
+            if ($this->isInitialized()) {
                 foreach ($this->collection->toArray() as $document) {
                     try {
                         $this->originalReferencePaths[] = $this->dm->getUnitOfWork()->getDocumentId($document);

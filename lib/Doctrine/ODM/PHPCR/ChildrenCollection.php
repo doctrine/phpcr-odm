@@ -19,8 +19,10 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPCR\Util\PathHelper;
+use PHPCR\NodeInterface;
 
 /**
  * Children collection class
@@ -40,11 +42,11 @@ class ChildrenCollection extends PersistentCollection
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManager $dm                 The DocumentManager the collection will be associated with.
-     * @param object          $document           The parent document instance
-     * @param string|array    $filter             filter string or array of filter string
-     * @param int             $fetchDepth         Optional fetch depth, -1 to not override.
-     * @param string          $locale             the locale to use during the loading of this collection
+     * @param DocumentManager $dm         The DocumentManager the collection will be associated with.
+     * @param object          $document   The parent document instance
+     * @param string|array    $filter     Filter string or array of filter string
+     * @param int             $fetchDepth Optional fetch depth, -1 to not override.
+     * @param string          $locale     The locale to use during the loading of this collection
      */
     public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
     {
@@ -55,6 +57,29 @@ class ChildrenCollection extends PersistentCollection
         $this->locale = $locale;
     }
 
+    /**
+     * @param DocumentManager  $dm             The DocumentManager the collection will be associated with.
+     * @param object           $document       The parent document instance
+     * @param array|Collection $collection     The collection to initialize with
+     * @param string|array     $filter         Filter string or array of filter string
+     * @param int              $fetchDepth     Optional fetch depth, -1 to not override.
+     * @param bool             $forceOverwrite If to force overwrite the state in the database to the state of the collection
+     *
+     * @return ChildrenCollection
+     */
+    public static function createFromCollection(DocumentManager $dm, $document, $collection, $filter = null, $fetchDepth = -1, $forceOverwrite = false)
+    {
+        $childrenCollection = new self($dm, $document, $filter, $fetchDepth);
+        $childrenCollection->initializeFromCollection($collection, $forceOverwrite);
+
+        return $childrenCollection;
+    }
+
+    /**
+     * @param $fetchDepth
+     *
+     * @return NodeInterface
+     */
     private function getNode($fetchDepth)
     {
         if (null === $this->node) {
@@ -65,6 +90,11 @@ class ChildrenCollection extends PersistentCollection
         return $this->node;
     }
 
+    /**
+     * @param $childNodes
+     *
+     * @return array
+     */
     private function getChildren($childNodes)
     {
         $uow = $this->dm->getUnitOfWork();
@@ -85,19 +115,19 @@ class ChildrenCollection extends PersistentCollection
      */
     public function initialize()
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             $this->getOriginalNodeNames();
             $fetchDepth = $this->fetchDepth > 0 ? $this->fetchDepth + 1 : -1;
             $childNodes = $this->getNode($fetchDepth)->getNodes($this->filter);
             $this->collection = new ArrayCollection($this->getChildren($childNodes));
-            $this->initialized = true;
+            $this->initialized = self::INITIALIZED_FROM_PHPCR;
         }
     }
 
     /** {@inheritDoc} */
     public function contains($element)
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             $uow = $this->dm->getUnitOfWork();
 
             // Shortcut for new documents
@@ -127,7 +157,7 @@ class ChildrenCollection extends PersistentCollection
     /** {@inheritDoc} */
     public function containsKey($key)
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             return in_array($key, $this->getOriginalNodeNames());
         }
 
@@ -137,7 +167,7 @@ class ChildrenCollection extends PersistentCollection
     /** {@inheritDoc} */
     public function count()
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             return count($this->getOriginalNodeNames());
         }
 
@@ -147,7 +177,7 @@ class ChildrenCollection extends PersistentCollection
     /** {@inheritDoc} */
     public function isEmpty()
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             return !$this->count();
         }
 
@@ -157,7 +187,7 @@ class ChildrenCollection extends PersistentCollection
     /** {@inheritDoc} */
     public function slice($offset, $length = null)
     {
-        if (!$this->initialized) {
+        if (!$this->isInitialized()) {
             $nodeNames = $this->getOriginalNodeNames();
             if (!is_numeric($offset)) {
                 $offset = array_search($offset, $nodeNames);
@@ -195,7 +225,11 @@ class ChildrenCollection extends PersistentCollection
     public function getOriginalNodeNames()
     {
         if (null === $this->originalNodeNames) {
-            $this->originalNodeNames = (array) $this->getNode($this->fetchDepth)->getNodeNames($this->filter);
+            if (self::INITIALIZED_FROM_COLLECTION === $this->initialized) {
+                $this->originalNodeNames = $this->collection->getKeys();
+            } else {
+                $this->originalNodeNames = (array) $this->getNode($this->fetchDepth)->getNodeNames($this->filter);
+            }
         }
 
         return $this->originalNodeNames;
@@ -207,7 +241,7 @@ class ChildrenCollection extends PersistentCollection
     public function takeSnapshot()
     {
         if (is_array($this->originalNodeNames)) {
-            if ($this->initialized) {
+            if ($this->isInitialized()) {
                 $this->originalNodeNames = $this->collection->getKeys();
             } else {
                 $this->originalNodeNames = null;
