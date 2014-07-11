@@ -1114,6 +1114,7 @@ class ClassMetadata implements ClassMetadataInterface
             return false;
         }
         return in_array($fieldName, $this->fieldMappings)
+            || isset($this->inheritedFields[$fieldName])
             || $this->identifier === $fieldName
             || $this->localeMapping === $fieldName
             || $this->node === $fieldName
