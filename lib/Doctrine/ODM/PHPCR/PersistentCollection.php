@@ -33,6 +33,11 @@ use Closure;
  */
 abstract class PersistentCollection implements Collection
 {
+    const INITIALIZED_NONE = 'not initialized';
+    const INITIALIZED_FROM_COLLECTION = 'initialized from collection';
+    const INITIALIZED_FROM_COLLECTION_FORCE = 'initialized from collection to force a new db state';
+    const INITIALIZED_FROM_PHPCR = 'initialized from phpcr';
+
     /** @var ArrayCollection */
     protected $collection;
 
@@ -47,9 +52,9 @@ abstract class PersistentCollection implements Collection
     /**
      * Whether the collection has already been initialized.
      *
-     * @var boolean
+     * @var string
      */
-    protected $initialized = false;
+    protected $initialized = self::INITIALIZED_NONE;
 
     /**
      * @var DocumentManager
@@ -345,13 +350,12 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * Sets the initialized flag of the collection, forcing it into that state.
-     *
-     * @param boolean $bool
+     * Refresh the collection form the database, all local changes are lost
      */
-    public function setInitialized($bool)
+    public function refresh()
     {
-        $this->initialized = $bool;
+        $this->initialized = self::INITIALIZED_NONE;
+        $this->initialize();
     }
 
     /**
@@ -361,7 +365,7 @@ abstract class PersistentCollection implements Collection
      */
     public function isInitialized()
     {
-        return $this->initialized;
+        return self::INITIALIZED_NONE !== $this->initialized;
     }
 
     /**
@@ -393,6 +397,17 @@ abstract class PersistentCollection implements Collection
     public function setLocale($locale)
     {
         $this->locale = $locale;
+    }
+
+    /**
+     * @param array|Collection $collection          The collection to initialize with
+     * @param bool             $forceOverwrite     If to force the database to be forced to the state of the collection
+     */
+    protected function initializeFromCollection($collection, $forceOverwrite = false)
+    {
+        $this->collection = is_array($collection) ? new ArrayCollection($collection) : $collection;
+        $this->initialized = $forceOverwrite ? self::INITIALIZED_FROM_COLLECTION_FORCE : self::INITIALIZED_FROM_COLLECTION;
+        $this->isDirty = true;
     }
 
     /**

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* **2014-07-02**: convert all collections to PersistentCollections on flush
+  This required a considerable refactoring in the collections and also resulted in some BC breaks.
+  Most notably Collections are now only managing the documents that have explicitly been assigned
+  or that where fetched initially from the PHPCR store.
+  Use the new ``$collection->refresh()`` method to force an immediate refresh from the PHPCR store.
 * **2014-06-13**: Added the endFlush event that happens after the flush has
   been terminated.
 * **2014-06-13**: Fixed a bug in calculateChangeSet that led to subsequent

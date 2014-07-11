@@ -415,7 +415,7 @@ class UnitOfWork
                 }
 
                 $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
-                $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument, $locale);
+                $coll = new ReferenceManyCollection($this->dm, $document, $mapping['property'], $referencedNodes, $targetDocument, $locale);
                 $documentState[$fieldName] = $coll;
             }
         }
@@ -481,10 +481,10 @@ class UnitOfWork
         }
 
         $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
-        foreach ($class->reflFields as $prop => $reflFields) {
-            $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
+        foreach ($class->reflFields as $fieldName => $reflFields) {
+            $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
             $reflFields->setValue($document, $value);
-            $this->originalData[$overrideLocalValuesOid][$prop] = $value;
+            $this->originalData[$overrideLocalValuesOid][$fieldName] = $value;
         }
 
         // Load translations
@@ -1082,7 +1082,7 @@ class UnitOfWork
         return $nodename;
     }
 
-    private function computeAssociationChanges($class, $oid, $isNew, $actualData, $assocType)
+    private function computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, $assocType)
     {
         switch ($assocType) {
             case 'reference':
@@ -1098,40 +1098,188 @@ class UnitOfWork
         }
 
         foreach ($mappings as $fieldName) {
-            if ($actualData[$fieldName]) {
-                if (is_array($actualData[$fieldName]) || $actualData[$fieldName] instanceof Collection) {
-                    if ($actualData[$fieldName] instanceof PersistentCollection) {
-                        if (!$actualData[$fieldName]->isInitialized()) {
-                            continue;
-                        }
+            $mapping = $class->mappings[$fieldName];
 
-                        $coid = spl_object_hash($actualData[$fieldName]);
-                        $this->visitedCollections[$coid] = $actualData[$fieldName];
+            if ((ClassMetadata::MANY_TO_MANY === $mapping['type'] && 'reference' === $assocType)
+                || ('referrers' === $mapping['type'] && 'referrer' === $assocType)
+            ) {
+                if ($changeSet[$fieldName] instanceof PersistentCollection) {
+                    if (!$changeSet[$fieldName]->isInitialized()) {
+                        continue;
+                    }
+                } else {
+                    if (null === $changeSet[$fieldName]) {
+                        $changeSet[$fieldName] = array();
                     }
 
-                    $mapping = $class->mappings[$fieldName];
-                    foreach ($actualData[$fieldName] as $association) {
-                        if ($association !== null) {
-                            $this->$computeMethod($mapping, $association);
-                        }
+                    if (!is_array($changeSet[$fieldName]) && !$changeSet[$fieldName] instanceof Collection) {
+                        throw PHPCRException::associationFieldNoArray(
+                            self::objToStr($document, $this->dm),
+                            $fieldName
+                        );
                     }
 
-                    if (!$isNew && $mapping['cascade'] & ClassMetadata::CASCADE_REMOVE
-                        && (is_array($this->originalData[$oid][$fieldName])
-                            || $this->originalData[$oid][$fieldName] instanceof Collection
-                        )
-                    ) {
-                        $associations = $this->originalData[$oid][$fieldName]->getOriginalPaths();
-                        foreach ($associations as $association) {
-                            $association = $this->getDocumentById($association);
-                            if ($association && !$this->originalData[$oid][$fieldName]->contains($association)) {
-                                $this->scheduleRemove($association);
-                            }
+                    // convert to a PersistentCollection
+                    switch ($assocType) {
+                        case 'reference':
+                            $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
+                            $changeSet[$fieldName] = ReferenceManyCollection::createFromCollection(
+                                $this->dm,
+                                $document,
+                                $mapping['property'],
+                                $changeSet[$fieldName],
+                                $targetDocument,
+                                !$isNew
+                            );
+                            break;
+                        case 'referrer':
+                            $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
+                            $referringField = $referringMeta->mappings[$mapping['referencedBy']];
+
+                            $changeSet[$fieldName] = ReferrersCollection::createFromCollection(
+                                $this->dm,
+                                $document,
+                                $changeSet[$fieldName],
+                                $referringField['strategy'],
+                                $referringField['property'],
+                                $mapping['referringDocument'],
+                                !$isNew
+                            );
+                            break;
+                    }
+
+                    $class->setFieldValue($document, $fieldName, $changeSet[$fieldName]);
+                    $this->originalData[$oid][$fieldName] = $changeSet[$fieldName];
+                }
+
+                $coid = spl_object_hash($changeSet[$fieldName]);
+                $this->visitedCollections[$coid] = $changeSet[$fieldName];
+
+                foreach ($changeSet[$fieldName] as $association) {
+                    if ($association !== null) {
+                        $this->$computeMethod($mapping, $association);
+                    }
+                }
+
+                if (!$isNew && $mapping['cascade'] & ClassMetadata::CASCADE_REMOVE) {
+                    if (!$this->originalData[$oid][$fieldName] instanceof PersistentCollection) {
+                        throw new RuntimeException("OriginalData for a collection association contains something else than a PersistentCollection.");
+                    }
+
+                    $associations = $this->originalData[$oid][$fieldName]->getOriginalPaths();
+                    foreach ($associations as $association) {
+                        $association = $this->getDocumentById($association);
+                        if ($association && !$this->originalData[$oid][$fieldName]->contains($association)) {
+                            $this->scheduleRemove($association);
                         }
                     }
-                } elseif ('reference' === $assocType && $actualData[$fieldName]) {
-                    $mapping = $class->mappings[$fieldName];
-                    $this->computeReferenceChanges($mapping, $actualData[$fieldName]);
+                }
+            } elseif ($changeSet[$fieldName] && ClassMetadata::MANY_TO_ONE === $mapping['type'] && 'reference' === $assocType) {
+                $this->computeReferenceChanges($mapping, $changeSet[$fieldName]);
+            }
+        }
+    }
+
+    private function computeChildrenChanges($document, $class, $oid, $isNew, $changeSet)
+    {
+        $id = $this->getDocumentId($document, false);
+
+        foreach ($class->childrenMappings as $fieldName) {
+            if ($changeSet[$fieldName] instanceof PersistentCollection) {
+                if (!$changeSet[$fieldName]->isInitialized()) {
+                    continue;
+                }
+            } else {
+                if (null === $changeSet[$fieldName]) {
+                    $changeSet[$fieldName] = array();
+                }
+
+                if (!is_array($changeSet[$fieldName]) && !$changeSet[$fieldName] instanceof Collection) {
+                    throw PHPCRException::childrenFieldNoArray(
+                        self::objToStr($document, $this->dm),
+                        $fieldName
+                    );
+                }
+
+                $filter = isset($mapping['filter']) ? $mapping['filter'] : null;
+                $fetchDepth = isset($mapping['fetchDepth']) ? $mapping['fetchDepth'] : null;
+
+                // convert to a PersistentCollection
+                $changeSet[$fieldName] = ChildrenCollection::createFromCollection(
+                    $this->dm,
+                    $document,
+                    $changeSet[$fieldName],
+                    $filter,
+                    $fetchDepth,
+                    !$isNew
+                );
+
+                $class->setFieldValue($document, $fieldName, $changeSet[$fieldName]);
+                $this->originalData[$oid][$fieldName] = $changeSet[$fieldName];
+            }
+
+            $mapping = $class->mappings[$fieldName];
+            $childNames = $movedChildNames = array();
+
+            $coid = spl_object_hash($changeSet[$fieldName]);
+            $this->visitedCollections[$coid] = $changeSet[$fieldName];
+
+            foreach ($changeSet[$fieldName] as $originalNodename => $child) {
+                if (!is_object($child)) {
+                    throw PHPCRException::childrenContainsNonObject(
+                        self::objToStr($document, $this->dm),
+                        $fieldName,
+                        gettype($child)
+                    );
+                }
+
+                $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
+                $changeSet[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
+                if (0 !== strcmp($originalNodename, $nodename)) {
+                    unset($changeSet[$fieldName][$originalNodename]);
+                    $movedChildNames[] = (string) $originalNodename;
+                }
+                $childNames[] = $nodename;
+            }
+
+            if ($isNew) {
+                continue;
+            }
+
+            if (!$this->originalData[$oid][$fieldName] instanceof ChildrenCollection) {
+                throw new RuntimeException("OriginalData for a children association contains something else than a ChildrenCollection.");
+            }
+
+            $this->originalData[$oid][$fieldName]->initialize();
+            $originalNames = $this->originalData[$oid][$fieldName]->getOriginalNodenames();
+            foreach ($originalNames as $key => $childName) {
+                // check moved children to not accidentally remove a child that simply moved away.
+                if (!(in_array($childName, $childNames) || in_array($childName, $movedChildNames))) {
+                    $child = $this->getDocumentById($id.'/'.$childName);
+                    $this->scheduleRemove($child);
+                    unset($originalNames[$key]);
+                }
+            }
+
+            if (!empty($childNames) && isset($originalNames)) {
+                // reindex the arrays to avoid holes in the indexes
+                $originalNames = array_values($originalNames);
+                $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
+                if ($originalNames !== $childNames) {
+
+                    $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
+
+                    if (empty($this->documentChangesets[$oid])) {
+                        $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($reordering));
+                    } else {
+                        $this->documentChangesets[$oid]['reorderings'][] = $reordering;
+                    }
+
+                    $this->scheduledUpdates[$oid] = $document;
+                } elseif (isset($this->documentChangesets[$oid])) {
+                    // make sure we don't keep an old changeset if an event changed
+                    // the document and no reoderings changeset remain.
+                    $this->documentChangesets[$oid]['reorderings'] = array();
                 }
             }
         }
@@ -1156,12 +1304,10 @@ class UnitOfWork
 
         $this->changesetComputed[] = $oid;
 
-        $actualData = $this->getDocumentActualData($class, $document);
-        $changeSet = $actualData;
-
+        $changeSet = $actualData = $this->getDocumentActualData($class, $document);
         $id = $this->getDocumentId($document, false);
-
         $isNew = !isset($this->originalData[$oid]);
+
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $changeSet;
@@ -1201,8 +1347,8 @@ class UnitOfWork
             }
         }
 
-        $this->computeAssociationChanges($class, $oid, $isNew, $changeSet, 'reference');
-        $this->computeAssociationChanges($class, $oid, $isNew, $changeSet, 'referrer');
+        $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'reference');
+        $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'referrer');
 
         foreach ($class->mixedReferrersMappings as $fieldName) {
             if ($changeSet[$fieldName]
@@ -1213,37 +1359,9 @@ class UnitOfWork
             }
         }
 
-        if ($isNew) {
-            // much simpler handling for children
-            foreach ($class->childrenMappings as $fieldName) {
-                if ($changeSet[$fieldName]) {
-                    if (!is_array($changeSet[$fieldName]) && !$changeSet[$fieldName] instanceof Collection) {
-                        throw PHPCRException::childrenFieldNoArray(
-                            self::objToStr($document, $this->dm),
-                            $fieldName
-                        );
-                    }
+        $this->computeChildrenChanges($document, $class, $oid, $isNew, $changeSet);
 
-                    $mapping = $class->mappings[$fieldName];
-                    foreach ($changeSet[$fieldName] as $originalNodename => $child) {
-                        if (!is_object($child)) {
-                            throw PHPCRException::childrenContainsNonObject(
-                                self::objToStr($document, $this->dm),
-                                $fieldName,
-                                gettype($child)
-                            );
-                        }
-
-                        $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
-                        $changeSet[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
-                        if (0 !== strcmp($originalNodename, $nodename)) {
-                            unset($changeSet[$fieldName][$originalNodename]);
-                        }
-                        $childNames[] = $nodename;
-                    }
-                }
-            }
-        } else {
+        if (!$isNew) {
             // collect assignment move operations
             $destPath = $destName = false;
 
@@ -1293,98 +1411,17 @@ class UnitOfWork
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
             }
 
-            foreach ($class->childrenMappings as $fieldName) {
-                if ($changeSet[$fieldName] instanceof PersistentCollection) {
-                    if (!$changeSet[$fieldName]->isInitialized()) {
-                        continue;
-                    }
-
-                    $coid = spl_object_hash($changeSet[$fieldName]);
-                    $this->visitedCollections[$coid] = $changeSet[$fieldName];
-                }
-
-
-                $mapping = $class->mappings[$fieldName];
-
-                $childNames = array();
-                $movedChildNames = array();
-                if ($changeSet[$fieldName]) {
-                    if (!is_array($changeSet[$fieldName]) && !$changeSet[$fieldName] instanceof Collection) {
-                        throw PHPCRException::childrenFieldNoArray(
-                            self::objToStr($document, $this->dm),
-                            $fieldName
-                        );
-                    }
-
-                    foreach ($changeSet[$fieldName] as $originalNodename => $child) {
-                        if (!is_object($child)) {
-                            throw PHPCRException::childrenContainsNonObject(
-                                self::objToStr($document, $this->dm),
-                                $fieldName,
-                                gettype($child)
-                            );
-                        }
-
-                        $nodename = $this->getChildNodename($id, $originalNodename, $child, $document);
-                        $changeSet[$fieldName][$nodename] = $this->computeChildChanges($mapping, $child, $id, $nodename, $document);
-                        if (0 !== strcmp($originalNodename, $nodename)) {
-                            unset($changeSet[$fieldName][$originalNodename]);
-                            $movedChildNames[] = (string) $originalNodename;
-                        }
-                        $childNames[] = $nodename;
-                    }
-                }
-
-                if ($this->originalData[$oid][$fieldName] instanceof ChildrenCollection) {
-                    $this->originalData[$oid][$fieldName]->initialize();
-                    $originalNames = $this->originalData[$oid][$fieldName]->getOriginalNodenames();
-                    foreach ($originalNames as $key => $childName) {
-                        // check moved children to not accidentally remove a child that simply moved away.
-                        if (!(in_array($childName, $childNames) || in_array($childName, $movedChildNames))) {
-                            $child = $this->getDocumentById($id.'/'.$childName);
-                            $this->scheduleRemove($child);
-                            unset($originalNames[$key]);
-                        }
-                    }
-                }
-
-                if (!empty($childNames) && isset($originalNames)) {
-                    // reindex the arrays to avoid holes in the indexes
-                    $originalNames = array_values($originalNames);
-                    $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
-                    if ($originalNames !== $childNames) {
-
-                        $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
-
-                        if (empty($this->documentChangesets[$oid])) {
-                            $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($reordering));
-                        } else {
-                            $this->documentChangesets[$oid]['reorderings'][] = $reordering;
-                        }
-
-                        $this->scheduledUpdates[$oid] = $document;
-                    } elseif (isset($this->documentChangesets[$oid])) {
-                        // make sure we don't keep an old changeset if an event changed
-                        // the document and no reoderings changeset remain.
-                        $this->documentChangesets[$oid]['reorderings'] = array();
-                    }
-                }
-            }
-
             if (!isset($this->documentLocales[$oid])
                 || $this->documentLocales[$oid]['current'] === $this->documentLocales[$oid]['original']
             ) {
                 // remove anything from $changeSet that did not change
                 foreach ($changeSet as $fieldName => $fieldValue) {
                     if (isset($class->mappings[$fieldName])) {
-                        if ($this->originalData[$oid][$fieldName] !== $fieldValue) {
-                            continue;
-                        }
-                        if (($fieldValue instanceof ReferenceManyCollection
-                                || $fieldValue instanceof ReferrersCollection
-                            )
-                            && $fieldValue->changed()
-                        ) {
+                        if ($fieldValue instanceof ReferenceManyCollection || $fieldValue instanceof ReferrersCollection) {
+                            if ($fieldValue->changed()) {
+                                continue;
+                            }
+                        } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
                             continue;
                         }
                     }
@@ -1618,7 +1655,6 @@ class UnitOfWork
 
         $managedCol->initialize();
         if (!$managedCol->isEmpty()) {
-            // clear managed collection, in casacadeMerge() the collection is filled again.
             $managedCol->unwrap()->clear();
             $managedCol->setDirty(true);
         }
@@ -1698,6 +1734,7 @@ class UnitOfWork
                     // keep the lazy persistent collection of the managed copy.
                     continue;
                 }
+
                 $mapping = $class->mappings[$fieldName];
                 if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                     $this->doMergeSingleDocumentProperty($managedCopy, $other, $prop, $mapping);
@@ -1706,6 +1743,8 @@ class UnitOfWork
                     if (!$managedCol) {
                         $managedCol = new ReferenceManyCollection(
                             $this->dm,
+                            $document,
+                            $mapping['property'],
                             array(),
                             isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null,
                             $locale
@@ -2396,7 +2435,7 @@ class UnitOfWork
                                         // make sure the reference is not deleted in this change because the field could be null
                                         unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     } else {
-                                        $collection = new ReferenceManyCollection($this->dm, array($node), $class->name);
+                                        $collection = new ReferenceManyCollection($this->dm, $fv, $referencingField['property'], array($node), $class->name);
                                         $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
                                     }
 
@@ -2568,12 +2607,11 @@ class UnitOfWork
                     }
 
                     $parentNode->orderBefore($src, $dest);
-                    // set all children collection to initialized = false to force reload after reordering
                     $class = $this->dm->getClassMetadata(get_class($parent));
                     foreach ($class->childrenMappings as $fieldName) {
-                        $children = $class->reflFields[$fieldName]->getValue($parent);
-                        if ($children instanceof PersistentCollection) {
-                            $children->setInitialized(false);
+                        if ($parent instanceof Proxy && $parent->__isInitialized()) {
+                            $children = $class->reflFields[$fieldName]->getValue($parent);
+                            $children->refresh();
                         }
                     }
                 }

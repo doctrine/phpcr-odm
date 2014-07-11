@@ -196,6 +196,10 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($user);
         $this->dm->persist($teamuser);
         $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/beberlei');
+        $this->assertCount(1, $user->children);
 
         $mergableUser = new CmsUser();
         $mergableUser->username = "jgalt";

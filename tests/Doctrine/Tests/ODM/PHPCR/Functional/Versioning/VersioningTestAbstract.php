@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use PHPCR\Util\PathHelper;
+use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 
 /**
  * @group functional
@@ -81,6 +82,24 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
             '/functional/referenceTestObj'
         );
         $this->dm->checkin($contentNode);
+    }
+
+    public function testMergeVersionable()
+    {
+        $versionableArticle = new FullVersionableArticle;
+        $versionableArticle->setText('very interesting content');
+        $versionableArticle->author = 'greg0ire';
+        $versionableArticle->topic  = 'whatever';
+        $versionableArticle->id = '/functional/whatever';
+        $versionableArticle->versionName = 'v1';
+
+        $this->dm->persist($versionableArticle);
+        $this->dm->flush();
+        $this->dm->clear();
+        $versionableArticle->versionName = 'v2';
+
+        $mergedVersionableArticle = $this->dm->merge($versionableArticle);
+        $this->assertEquals('v2', $mergedVersionableArticle->versionName);
     }
 
     public function testCheckin()
