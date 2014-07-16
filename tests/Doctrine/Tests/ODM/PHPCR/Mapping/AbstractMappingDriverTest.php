@@ -473,7 +473,47 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('mix:one', 'mix:two'), $class->mixins);
         $this->assertEquals("simple", $class->versionable);
         $this->assertTrue($class->referenceable);
+        $this->assertEquals(
+            'id',
+            $class->identifier,
+            'A driver should always be able to give mapping for a mapped superclass,' . PHP_EOL.
+            'and let classes mapped with other drivers inherit this mapping entirely.'
+        );
+
+        return $class;
     }
+
+    public function testLoadMappedSuperclassChildTypeMapping()
+    {
+        $parentClass = $this->loadMetadataForClassname(
+            'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceParentMappingObject'
+        );
+
+        $mappingDriver = $this->loadDriver();
+        $subClass = new ClassMetadata(
+            $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildMappingObject'
+        );
+        $subClass->initializeReflection(new RuntimeReflectionService());
+        $subClass->mapId($parentClass->mappings[$parentClass->identifier], $parentClass);
+
+        $mappingDriver->loadMetadataForClass($className, $subClass);
+
+        return $subClass;
+    }
+
+    /**
+     * @depends testLoadMappedSuperclassChildTypeMapping
+     * @param ClassMetadata $class
+     */
+    public function testMappedSuperclassChildTypeMapping($class)
+    {
+        $this->assertEquals(
+            'id',
+            $class->identifier,
+            'The id mapping should be inherited'
+        );
+    }
+
 
     public function testLoadNodeMapping()
     {
