@@ -800,7 +800,7 @@ class ClassMetadata implements ClassMetadataInterface
     protected function validateAndCompleteFieldMapping(array $mapping, ClassMetadata $inherited = null, $isField = true, $phpcrLabel = 'property')
     {
         if ($inherited) {
-            if (!isset($mapping['inherited']) && !$inherited->isMappedSuperclass) {
+            if (!isset($mapping['inherited'])) {
                 $this->inheritedFields[$mapping['fieldName']] = $inherited->name;
             }
             if (!isset($mapping['declared'])) {
