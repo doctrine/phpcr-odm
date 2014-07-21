@@ -68,6 +68,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
         $this->assertEquals('prepersist', $user->name);
+        $this->assertEquals('active', $user->status);
 
         // Change document
         // In preupdate the name will be changed
@@ -77,13 +78,13 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->flush();
         $this->dm->clear();
 
-
         // Post persist data is not saved to document, so check before reloading document
         $this->assertEquals('postupdate', $user->username);
 
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
         $this->assertEquals('preupdate', $user->name);
+        $this->assertEquals('changed', $user->status);
 
         // Move from /functional/preudpate to /functional/moved
         $targetPath = '/functional/moved';

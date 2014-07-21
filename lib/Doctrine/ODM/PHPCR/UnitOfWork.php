@@ -1082,6 +1082,17 @@ class UnitOfWork
         return $nodename;
     }
 
+    /**
+     * @param object $document
+     * @param string $class
+     * @param string $oid
+     * @param boolean $isNew
+     * @param array $changeSet
+     * @param string $assocType
+     * @throws Exception\RuntimeException
+     * @throws Exception\InvalidArgumentException
+     * @throws PHPCRException
+     */
     private function computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, $assocType)
     {
         switch ($assocType) {
@@ -1180,6 +1191,15 @@ class UnitOfWork
         }
     }
 
+    /**
+     * @param object $document
+     * @param string $class
+     * @param string $oid
+     * @param boolean $isNew
+     * @param array $changeSet
+     * @throws Exception\RuntimeException
+     * @throws PHPCRException
+     */
     private function computeChildrenChanges($document, $class, $oid, $isNew, $changeSet)
     {
         $id = $this->getDocumentId($document, false);
@@ -1280,6 +1300,7 @@ class UnitOfWork
                     // make sure we don't keep an old changeset if an event changed
                     // the document and no reoderings changeset remain.
                     $this->documentChangesets[$oid]['reorderings'] = array();
+                    $this->unscheduleUpdates($oid);
                 }
             }
         }
@@ -1313,6 +1334,8 @@ class UnitOfWork
             $this->originalData[$oid] = $changeSet;
             $this->documentChangesets[$oid] = array('fields' => $changeSet, 'reorderings' => array());
             $this->scheduledInserts[$oid] = $document;
+        } elseif (isset($this->documentChangesets[$oid]['originalData'])) {
+            $this->originalData[$oid] = $this->documentChangesets[$oid]['originalData'];
         }
 
         if ($class->parentMapping && isset($changeSet[$class->parentMapping])) {
@@ -1439,14 +1462,30 @@ class UnitOfWork
                 }
 
                 $this->documentChangesets[$oid]['fields'] = $changeSet;
+                $this->documentChangesets[$oid]['originalData'] = $this->originalData[$oid];
                 $this->originalData[$oid] = $actualData;
                 $this->scheduledUpdates[$oid] = $document;
             } elseif (isset($this->documentChangesets[$oid])) {
                 // make sure we don't keep an old changeset if an event changed
                 // the document and no field changeset remains.
                 $this->documentChangesets[$oid]['fields'] = array();
+                $this->unscheduleUpdates($oid);
             }
         }
+    }
+
+    /**
+     * @param $oid
+     */
+    private function unscheduleUpdates($oid)
+    {
+        foreach ($this->documentChangesets[$oid] as $key => $array) {
+            if ($key !== 'originalData' && !empty($array)) {
+                return;
+            }
+        }
+
+        unset($this->scheduledUpdates[$oid]);
     }
 
     /**
