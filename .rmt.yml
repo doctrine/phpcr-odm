@@ -10,5 +10,5 @@ pre-release-actions:
         file: CHANGELOG.md
         insert-at: 3
     update-version-class:
-        class: Doctrine\ODM\PHPCR\Version
+        class: lib/Doctrine/ODM/PHPCR/Version.php
     vcs-commit: ~
