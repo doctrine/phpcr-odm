@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.0-RC1
+---------
+
+prepare 1.2.0-RC1
+
 * **2014-07-02**: convert all collections to PersistentCollections on flush
   This required a considerable refactoring in the collections and also resulted in some BC breaks.
   Most notably Collections are now only managing the documents that have explicitly been assigned
