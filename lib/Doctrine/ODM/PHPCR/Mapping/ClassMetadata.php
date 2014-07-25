@@ -1464,8 +1464,12 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function newInstance()
     {
-        if (!$this->instantiator instanceof InstantiatorInterface) {
-            $this->instantiator = new Instantiator();
+        if ($this->prototype === null) {
+            if (PHP_VERSION_ID === 50429 || PHP_VERSION_ID === 50513) {
+                $this->_prototype = $this->reflClass->newInstanceWithoutConstructor();
+            } else {
+                $this->_prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->name), $this->name));
+            }
         }
 
         return $this->instantiator->instantiate($this->name);
