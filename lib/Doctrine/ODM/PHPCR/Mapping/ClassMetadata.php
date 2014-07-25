@@ -1466,9 +1466,9 @@ class ClassMetadata implements ClassMetadataInterface
     {
         if ($this->prototype === null) {
             if (PHP_VERSION_ID === 50429 || PHP_VERSION_ID === 50513) {
-                $this->_prototype = $this->reflClass->newInstanceWithoutConstructor();
+                $this->prototype = $this->reflClass->newInstanceWithoutConstructor();
             } else {
-                $this->_prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->name), $this->name));
+                $this->prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->name), $this->name));
             }
         }
 
