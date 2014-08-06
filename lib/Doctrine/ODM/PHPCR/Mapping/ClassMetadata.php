@@ -29,6 +29,8 @@ use ReflectionClass;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
+use Doctrine\Instantiator\Instantiator;
+use Doctrine\Instantiator\InstantiatorInterface;
 
 /**
  * Metadata class
@@ -94,13 +96,6 @@ class ClassMetadata implements ClassMetadataInterface
      * @var ReflectionProperty[]
      */
     public $reflFields = array();
-
-    /**
-     * The prototype from which new instances of the mapped class are created.
-     *
-     * @var object
-     */
-    private $prototype;
 
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
@@ -318,6 +313,11 @@ class ClassMetadata implements ClassMetadataInterface
      * @var array
      */
     private $inheritedFields = array();
+
+    /**
+     * @var InstantiatorInterface
+     */
+    private $instantiator;
 
     /**
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
@@ -1464,15 +1464,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function newInstance()
     {
-        if ($this->prototype === null) {
-            if (PHP_VERSION_ID === 50429 || PHP_VERSION_ID === 50513) {
-                $this->prototype = $this->reflClass->newInstanceWithoutConstructor();
-            } else {
-                $this->prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->name), $this->name));
-            }
+        if (!$this->instantiator instanceof InstantiatorInterface) {
+            $this->instantiator = new Instantiator();
         }
 
-        return clone $this->prototype;
+        return $this->instantiator->instantiate($this->name);
     }
 
     /**
