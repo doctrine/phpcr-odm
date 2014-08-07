@@ -1,6 +1,9 @@
 Changelog
 =========
 
+
+* **2014-08-07**: properly handle fields mapped to nodename in DocumentRepository::findBy()
+
 1.2.0-RC1
 ---------
 

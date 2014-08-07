@@ -148,6 +148,13 @@ class DocumentRepository implements ObjectRepository
 
         if ($orderBy) {
             foreach ($orderBy as $field => $order) {
+                if ($field === $this->getClassMetadata()->nodename) {
+                    throw new InvalidArgumentException(sprintf(
+                        'It is not possible to order by a nodename property "%s"',
+                        $field
+                    ));
+                }
+
                 $order = strtolower($order);
                 if (!in_array($order, array('asc', 'desc'))) {
                     throw new InvalidArgumentException(sprintf(
@@ -187,7 +194,11 @@ class DocumentRepository implements ObjectRepository
      */
     protected function constraintField(ConstraintFactory $where, $field, $value, $alias)
     {
-    	$where->eq()->field($alias.'.'.$field)->literal($value);
+        if ($field === $this->getClassMetadata()->nodename) {
+            $where->eq()->name($alias)->literal($value);
+        } else {
+            $where->eq()->field($alias.'.'.$field)->literal($value);
+        }
     }
 
     /**
