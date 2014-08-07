@@ -4,6 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
+use Doctrine\Common\Persistence\Event\PreUpdateEventArgs;
+
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 
 use Doctrine\ODM\PHPCR\Event;
@@ -241,7 +243,7 @@ class TestPersistenceListener
         }
     }
 
-    public function preUpdate(LifecycleEventArgs $e)
+    public function preUpdate(PreUpdateEventArgs $e)
     {
         $document = $e->getObject();
         if (! $document instanceof CmsPage ){

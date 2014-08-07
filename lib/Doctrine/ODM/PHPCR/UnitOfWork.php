@@ -20,6 +20,10 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\EventArgs;
+use Doctrine\Common\Persistence\Event\PreUpdateEventArgs;
+use Doctrine\Common\Persistence\Event\OnClearEventArgs;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
@@ -33,8 +37,6 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
@@ -2027,13 +2029,15 @@ class UnitOfWork
             }
         }
 
-        if (empty($this->scheduledInserts) &&
-                empty($this->scheduledUpdates) &&
-                empty($this->scheduledRemovals) &&
-                empty($this->scheduledReorders) &&
-                empty($this->documentTranslations) &&
-                empty($this->scheduledMoves)) {
-            $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
+        $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
+
+        if (empty($this->scheduledInserts)
+            && empty($this->scheduledUpdates)
+            && empty($this->scheduledRemovals)
+            && empty($this->scheduledReorders)
+            && empty($this->documentTranslations)
+            && empty($this->scheduledMoves)
+        ) {
             $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
             $this->changesetComputed = array();
 
@@ -2043,8 +2047,6 @@ class UnitOfWork
 
             return; // Nothing to do.
         }
-
-        $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
 
         try {
             $utx = $this->session->getWorkspace()->getTransactionManager();
@@ -2324,7 +2326,7 @@ class UnitOfWork
                         $class,
                         Event::preUpdate,
                         $document,
-                        new LifecycleEventArgs($document, $this->dm),
+                        new PreUpdateEventArgs($document, $this->dm, $this->documentChangesets[$oid]),
                         $invoke
                     );
                     $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
@@ -3016,7 +3018,7 @@ class UnitOfWork
         $this->documentHistory =
         $this->documentVersion = array();
 
-        $this->invokeGlobalEvent(Event::onClear, new ManagerEventArgs($this->dm));
+        $this->invokeGlobalEvent(Event::onClear, new OnClearEventArgs($this->dm));
 
         $this->session->refresh(false);
     }
