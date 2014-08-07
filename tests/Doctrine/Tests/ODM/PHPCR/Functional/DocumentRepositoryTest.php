@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsUser;
 
 /**
@@ -116,6 +117,27 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         // test descending order
         $users6 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findBy(array('status' =>'active'), array('name' => 'desc'));
         $this->assertEquals('/functional/lsmith', $users6->key());
+    }
+
+    public function testFindByOnNodename()
+    {
+        $parent = new CmsUser();
+        $parent->username = "lsmith";
+        $parent->status = "active";
+        $parent->name = "Lukas";
+
+        $user = new CmsTeamUser();
+        $user->username = "beberlei";
+        $user->status = "active";
+        $user->name = "Benjamin";
+        $user->parent = $parent;
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'));
+        $this->assertCount(1, $users);
+        $this->assertEquals($user->username, $users['/functional/lsmith/beberlei']->username);
     }
 
     public function testFindOneBy()
