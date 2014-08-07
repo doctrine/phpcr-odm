@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
-use Doctrine\Common\Persistence\Event\PreUpdateEventArgs;
+use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 
@@ -116,12 +116,20 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm->persist($item);
         $page->addItem($item);
 
-        $this->dm->persist($page);
         $this->dm->flush();
         $this->assertTrue($this->listener->preUpdate);
         $this->assertTrue($this->listener->itemPrePersist);
         $this->assertTrue($this->listener->postUpdate);
         $this->assertTrue($this->listener->itemPostPersist);
+        $this->assertEquals('long story is now short story', $page->content);
+
+        $pageId = $this->dm->getUnitOfWork()->getDocumentId($page);
+        $itemId = $this->dm->getUnitOfWork()->getDocumentId($item);
+        $this->dm->clear();
+
+        $page = $this->dm->find(null, $pageId);
+        $item = $this->dm->find(null, $itemId);
+        $this->assertEquals('long story is now short story', $page->content);
 
         $this->dm->remove($item);
         $this->dm->remove($page);
@@ -255,6 +263,11 @@ class TestPersistenceListener
             $dm->persist($item);
         }
         $this->preUpdate = true;
+
+        if ($e->hasChangedField('content')) {
+            $e->getObject()->content = $e->getOldValue('content').' is now '.$e->getNewValue('content');
+            $e->setNewValue('content', $e->getObject()->content);
+        }
     }
 
     public function postUpdate(LifecycleEventArgs $e)

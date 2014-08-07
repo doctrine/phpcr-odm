@@ -20,7 +20,6 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\EventArgs;
-use Doctrine\Common\Persistence\Event\PreUpdateEventArgs;
 use Doctrine\Common\Persistence\Event\OnClearEventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
@@ -29,6 +28,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 
 use Doctrine\ODM\PHPCR\Event\ListenersInvoker;
+use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
+use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
@@ -36,7 +37,6 @@ use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
-use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
@@ -1288,21 +1288,19 @@ class UnitOfWork
                 $originalNames = array_values($originalNames);
                 $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
                 if ($originalNames !== $childNames) {
-
                     $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
-
                     if (empty($this->documentChangesets[$oid])) {
-                        $this->documentChangesets[$oid] = array('fields' => array(), 'reorderings' => array($reordering));
+                        $this->documentChangesets[$oid] = array('reorderings' => array($reordering));
                     } else {
                         $this->documentChangesets[$oid]['reorderings'][] = $reordering;
                     }
 
                     $this->scheduledUpdates[$oid] = $document;
-                } elseif (isset($this->documentChangesets[$oid])) {
-                    // make sure we don't keep an old changeset if an event changed
-                    // the document and no reoderings changeset remain.
+                } elseif (empty($this->documentChangesets[$oid]['fields'])) {
+                    unset($this->documentChangesets[$oid]);
+                    unset($this->scheduledUpdates[$oid]);
+                } else {
                     $this->documentChangesets[$oid]['reorderings'] = array();
-                    $this->unscheduleUpdates($oid);
                 }
             }
         }
@@ -1334,10 +1332,10 @@ class UnitOfWork
         if ($isNew) {
             // Document is New and should be inserted
             $this->originalData[$oid] = $changeSet;
-            $this->documentChangesets[$oid] = array('fields' => $changeSet, 'reorderings' => array());
-            $this->scheduledInserts[$oid] = $document;
-        } elseif (isset($this->documentChangesets[$oid]['originalData'])) {
-            $this->originalData[$oid] = $this->documentChangesets[$oid]['originalData'];
+        } elseif (!empty($this->documentChangesets[$oid]['fields'])) {
+            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $data) {
+                $this->originalData[$oid][$fieldName] = $data[0];
+            }
         }
 
         if ($class->parentMapping && isset($changeSet[$class->parentMapping])) {
@@ -1435,59 +1433,47 @@ class UnitOfWork
             ) {
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
             }
+        }
 
-            if (!isset($this->documentLocales[$oid])
-                || $this->documentLocales[$oid]['current'] === $this->documentLocales[$oid]['original']
-            ) {
-                // remove anything from $changeSet that did not change
-                foreach ($changeSet as $fieldName => $fieldValue) {
-                    if (isset($class->mappings[$fieldName])) {
-                        if ($fieldValue instanceof ReferenceManyCollection || $fieldValue instanceof ReferrersCollection) {
-                            if ($fieldValue->changed()) {
-                                continue;
-                            }
-                        } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
-                            continue;
-                        }
+        $fields = array_intersect_key($changeSet, $class->mappings);
+
+        if ($isNew) {
+            $this->documentChangesets[$oid]['fields'] = $fields;
+            $this->scheduledInserts[$oid] = $document;
+            return;
+        }
+
+        // when locale changes, we should keep all field changes
+        $keepAllChanges = isset($this->documentLocales[$oid]) && $this->documentLocales[$oid]['current'] !== $this->documentLocales[$oid]['original'];
+        foreach ($fields as $fieldName => $fieldValue) {
+            $keepChange = $keepAllChanges;
+            if (!$keepChange) {
+                if ($fieldValue instanceof ReferenceManyCollection || $fieldValue instanceof ReferrersCollection) {
+                    if ($fieldValue->changed()) {
+                        $keepChange = true;
                     }
-
-                    unset($changeSet[$fieldName]);
+                } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                    $keepChange = true;
                 }
             }
 
-            if (count($changeSet)) {
-                if (empty($this->documentChangesets[$oid])) {
-                    $this->documentChangesets[$oid] = array(
-                        'fields' => array(),
-                        'reorderings' => array()
-                    );
-                }
-
-                $this->documentChangesets[$oid]['fields'] = $changeSet;
-                $this->documentChangesets[$oid]['originalData'] = $this->originalData[$oid];
-                $this->originalData[$oid] = $actualData;
-                $this->scheduledUpdates[$oid] = $document;
-            } elseif (isset($this->documentChangesets[$oid])) {
-                // make sure we don't keep an old changeset if an event changed
-                // the document and no field changeset remains.
-                $this->documentChangesets[$oid]['fields'] = array();
-                $this->unscheduleUpdates($oid);
-            }
-        }
-    }
-
-    /**
-     * @param $oid
-     */
-    private function unscheduleUpdates($oid)
-    {
-        foreach ($this->documentChangesets[$oid] as $key => $array) {
-            if ($key !== 'originalData' && !empty($array)) {
-                return;
+            if ($keepChange) {
+                $fields[$fieldName] = array($this->originalData[$oid][$fieldName], $fieldValue);
+            } else {
+                unset($fields[$fieldName]);
             }
         }
 
-        unset($this->scheduledUpdates[$oid]);
+        if (!empty($fields)) {
+            $this->documentChangesets[$oid]['fields'] = $fields;
+            $this->originalData[$oid] = $actualData;
+            $this->scheduledUpdates[$oid] = $document;
+        } elseif (empty($this->documentChangesets[$oid]['reorderings'])) {
+            unset($this->documentChangesets[$oid]);
+            unset($this->scheduledUpdates[$oid]);
+        } else {
+            $this->documentChangesets[$oid]['fields'] = array();
+        }
     }
 
     /**
@@ -2214,8 +2200,8 @@ class UnitOfWork
 
             $this->setMixins($class, $node, $document);
 
-
-            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
+            $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : array();
+            foreach ($fields as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
                     continue;
@@ -2242,8 +2228,8 @@ class UnitOfWork
                     //populate $associationChangesets to force executeUpdates($associationUpdates)
                     //to only update association fields
                     $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
-                    $data[$fieldName] = $fieldValue;
-                    $associationChangesets[$oid] = array('fields' => $data, 'reorderings' => array());
+                    $data[$fieldName] = array(null, $fieldValue);
+                    $associationChangesets[$oid] = array('fields' => $data);
                 }
             }
 
@@ -2334,7 +2320,10 @@ class UnitOfWork
                 }
             }
 
-            foreach ($this->documentChangesets[$oid]['fields'] as $fieldName => $fieldValue) {
+            $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : array();
+            foreach ($fields as $fieldName => $data) {
+                $fieldValue = $data[1];
+
                 // PHPCR does not validate nullable unless we would start to
                 // generate custom node types, which we at the moment don't.
                 // the ORM can delegate this validation to the relational database
@@ -2513,9 +2502,11 @@ class UnitOfWork
                 }
             }
 
-            foreach ($this->documentChangesets[$oid]['reorderings'] as $reorderings) {
-                foreach ($reorderings as $srcChildRelPath => $destChildRelPath) {
-                    $node->orderBefore($srcChildRelPath, $destChildRelPath);
+            if (!empty($this->documentChangesets[$oid]['reorderings'])) {
+                foreach ($this->documentChangesets[$oid]['reorderings'] as $reorderings) {
+                    foreach ($reorderings as $srcChildRelPath => $destChildRelPath) {
+                        $node->orderBefore($srcChildRelPath, $destChildRelPath);
+                    }
                 }
             }
 
