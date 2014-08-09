@@ -4,11 +4,13 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 
 /**
  * @group functional
  */
-class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class DocumentRepositoryTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
@@ -38,6 +40,22 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         }
         $this->node = $root->addNode('functional');
         $session->save();
+    }
+
+    public function testCreateQueryBuilder()
+    {
+        $rep = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser');
+        $qb = $rep->createQueryBuilder('a');
+
+        $from = $qb->getChildOfType(QBConstants::NT_FROM);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\From', $from);
+        $source = $from->getChildOfType(QBConstants::NT_SOURCE);
+        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\SourceDocument', $source);
+
+        $this->assertEquals('a', $source->getAlias());
+        $this->assertEquals('a', $qb->getPrimaryAlias());
+
+        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $source->getDocumentFqn());
     }
 
     public function testLoadMany()
@@ -138,6 +156,30 @@ class DocumentRepositoryTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'));
         $this->assertCount(1, $users);
         $this->assertEquals($user->username, $users['/functional/lsmith/beberlei']->username);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     */
+    public function testFindByOrderNodename()
+    {
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('nodename'));
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     */
+    public function testFindByOnAssociation()
+    {
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('parent' =>'/foo'));
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     */
+    public function testFindByOrderAssociation()
+    {
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('parent'));
     }
 
     public function testFindOneBy()

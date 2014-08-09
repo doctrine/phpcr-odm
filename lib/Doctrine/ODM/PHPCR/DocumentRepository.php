@@ -28,7 +28,6 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
 
-
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
  * business specific methods for retrieving documents.
@@ -147,10 +146,19 @@ class DocumentRepository implements ObjectRepository
         $orderByNode = $qb->orderBy();
 
         if ($orderBy) {
+            $classMeta = $this->getClassMetadata();
             foreach ($orderBy as $field => $order) {
-                if ($field === $this->getClassMetadata()->nodename) {
+                if ($field === $classMeta->nodename) {
                     throw new InvalidArgumentException(sprintf(
-                        'It is not possible to order by a nodename property "%s"',
+                        'It is not possible to order by a nodename property "%s->%s"',
+                        $classMeta->name,
+                        $field
+                    ));
+                }
+                if ($classMeta->hasAssociation($field)) {
+                    throw new InvalidArgumentException(sprintf(
+                       'It is not possible to order by association field "%s->%s"',
+                        $classMeta->name,
                         $field
                     ));
                 }
@@ -186,14 +194,23 @@ class DocumentRepository implements ObjectRepository
 
     /**
      * Constraints a field for a given value
-     * 
+     *
      * @param ConstraintFactory $where
      * @param string $field The field searched
      * @param mixed $value The value to search for
-     * @param string The alias used
+     * @param string $alias The alias used
      */
     protected function constraintField(ConstraintFactory $where, $field, $value, $alias)
     {
+        $classMeta = $this->getClassMetadata();
+        if ($classMeta->hasAssociation($field)) {
+            throw new InvalidArgumentException(sprintf(
+                'It is not possible to filter on association fields %s->%s',
+                $classMeta->name,
+                $field
+            ));
+        }
+
         if ($field === $this->getClassMetadata()->nodename) {
             $where->eq()->name($alias)->literal($value);
         } else {
