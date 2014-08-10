@@ -82,37 +82,37 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
     
     public function testMoveParentNoNodeName() {
-    	$root = $this->dm->find(null, 'functional');
-    	
-    	$parent1 = new ParentTestObj();
-    	$parent1->nodename = "root1";
-    	$parent1->name = "root1";
-    	$parent1->setParentDocument($root);
-    	
-    	$parent2 = new ParentTestObj();
-    	$parent2->name = "/root2";
-    	$parent2->nodename = "root2";
-    	$parent2->setParentDocument($root);
-    	 
-    	$child = new ParentNoNodeNameTestObj();
-    	$child->setParentDocument($parent1);
-    	$child->name = "child";
-    	
-    	$this->dm->persist($parent1);
-    	$this->dm->persist($parent2);
-       	$this->dm->persist($child);
-       	
-       	$this->dm->flush();
-       	
-       	$child->setParentDocument($parent2);
-       	
-       	$this->dm->persist($child);
-       	
-       	try {
-	       	$this->dm->flush();
-       	} catch (\Exception $e) {
-       		$this->fail('An exception has been raised moving a child node from parent1 to parent2.');
-       	}
+        $root = $this->dm->find(null, 'functional');
+
+        $parent1 = new ParentTestObj();
+        $parent1->nodename = "root1";
+        $parent1->name = "root1";
+        $parent1->setParentDocument($root);
+
+        $parent2 = new ParentTestObj();
+        $parent2->name = "/root2";
+        $parent2->nodename = "root2";
+        $parent2->setParentDocument($root);
+
+        $child = new ParentNoNodeNameTestObj();
+        $child->setParentDocument($parent1);
+        $child->name = "child";
+
+        $this->dm->persist($parent1);
+        $this->dm->persist($parent2);
+           $this->dm->persist($child);
+
+           $this->dm->flush();
+
+           $child->setParentDocument($parent2);
+
+           $this->dm->persist($child);
+
+           try {
+               $this->dm->flush();
+           } catch (\Exception $e) {
+               $this->fail('An exception has been raised moving a child node from parent1 to parent2.');
+           }
     }
 
     public function testGetScheduledReorders()
