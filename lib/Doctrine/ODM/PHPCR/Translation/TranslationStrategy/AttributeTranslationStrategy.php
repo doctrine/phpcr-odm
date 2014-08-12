@@ -50,11 +50,12 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         foreach ($data as $field => $propValue) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             $mapping = $metadata->mappings[$field];
+
             if ($mapping['multivalue'] && $propValue) {
                 $propValue = (array) $propValue;
                 if (isset($mapping['assoc'])) {
                     $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
-                    $this->dm->getUnitOfWork()->processAssoc($node, $transMapping, $propValue);
+                    $propValue = $this->dm->getUnitOfWork()->processAssoc($node, $transMapping, $propValue);
                 }
             }
 
@@ -114,12 +115,11 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 $value = $node->getPropertyValue($propName);
                 $mapping = $metadata->mappings[$field];
                 if (true === $mapping['multivalue']) {
-                    $value = (array) $value;
                     if (isset($mapping['assoc'])) {
                         $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
-                        if (isset($properties[$transMapping['assoc']])) {
-                            $value = $this->dm->getUnitOfWork()->createAssoc($properties, $transMapping);
-                        }
+                        $value = $this->dm->getUnitOfWork()->createAssoc($properties, $transMapping);
+                    } else {
+                        $value = (array) $value;
                     }
                 }
             } else {

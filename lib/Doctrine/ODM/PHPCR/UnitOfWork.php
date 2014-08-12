@@ -355,7 +355,7 @@ class UnitOfWork
             $mapping = $class->mappings[$fieldName];
             if (isset($properties[$mapping['property']])) {
                 if (true === $mapping['multivalue']) {
-                    if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
+                    if (isset($mapping['assoc'])) {
                         $documentState[$fieldName] = $this->createAssoc($properties, $mapping);
                     } else {
                         $documentState[$fieldName] = (array) $properties[$mapping['property']];
@@ -3661,8 +3661,12 @@ class UnitOfWork
         $values = array_values(array_filter($assoc, $isNotNull));
         $nulls = array_keys(array_filter($assoc, $isNull));
 
-        $node->setProperty($mapping['assoc'], $keys, PropertyType::STRING);
-        $node->setProperty($mapping['assocNulls'], $nulls, PropertyType::STRING);
+        if (empty($keys)) {
+            $this->removeAssoc($node, $mapping);
+        } else {
+            $node->setProperty($mapping['assoc'], $keys, PropertyType::STRING);
+            $node->setProperty($mapping['assocNulls'], $nulls, PropertyType::STRING);
+        }
 
         return $values;
     }
@@ -3676,8 +3680,12 @@ class UnitOfWork
      */
     public function createAssoc(array $properties, array $mapping)
     {
-        $keys = (array) $properties[$mapping['assoc']];
         $values = (array) $properties[$mapping['property']];
+        if (!isset($properties[$mapping['assoc']])) {
+            return $values;
+        }
+
+        $keys = (array) $properties[$mapping['assoc']];
         $nulls = isset($properties[$mapping['assocNulls']]) ? ((array) $properties[$mapping['assocNulls']]) : array();
 
         // make sure we start with first value
