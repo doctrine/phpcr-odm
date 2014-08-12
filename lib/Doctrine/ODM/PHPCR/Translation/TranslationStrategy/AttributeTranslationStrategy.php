@@ -53,8 +53,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             if ($mapping['multivalue'] && $propValue) {
                 $propValue = (array) $propValue;
                 if (isset($mapping['assoc'])) {
-                    $node->setProperty($this->getTranslatedPropertyName($locale, $mapping['assoc']), array_keys($propValue));
-                    $propValue = array_values($propValue);
+                    $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
+                    $this->dm->getUnitOfWork()->processAssoc($node, $transMapping, $propValue);
                 }
             }
 
@@ -67,7 +67,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         if (empty($nullFields)) {
             $nullFields = null;
         }
-        $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, $nullFields); // no '-' to avoid nameclashes
+        $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, $nullFields); // no '-' to avoid name clashes
     }
 
     /**
@@ -85,6 +85,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
             return true;
         }
+
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             if ($node->hasProperty($propName)) {
@@ -104,22 +105,28 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             return false;
         }
 
+        $properties = $node->getPropertiesValues(null, false);
+
         // we have a translation, now update the document fields
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
             if ($node->hasProperty($propName)) {
                 $value = $node->getPropertyValue($propName);
                 $mapping = $metadata->mappings[$field];
-                if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
-                    $keysPropName = $this->getTranslatedPropertyName($locale, $mapping['assoc']);
-                    if ($node->hasProperty($keysPropName)) {
-                        $value = array_combine((array) $node->getPropertyValue($keysPropName), (array) $value);
+                if (true === $mapping['multivalue']) {
+                    $value = (array) $value;
+                    if (isset($mapping['assoc'])) {
+                        $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
+                        if (isset($properties[$transMapping['assoc']])) {
+                            $value = $this->dm->getUnitOfWork()->createAssoc($properties, $transMapping);
+                        }
                     }
                 }
             } else {
                 // A null field or a missing field
                 $value = ($metadata->mappings[$field]['multivalue']) ? array() : null;
             }
+
             $metadata->reflFields[$field]->setValue($document, $value);
         }
 
@@ -133,20 +140,19 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     {
         foreach ($metadata->translatableFields as $field) {
             $propName = $this->getTranslatedPropertyName($locale, $field);
+
             if ($node->hasProperty($propName)) {
                 $prop = $node->getProperty($propName);
                 $prop->remove();
 
                 $mapping = $metadata->mappings[$field];
                 if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
-                    $keysPropName = $this->getTranslatedPropertyName($locale, $mapping['assoc']);
-                    if ($node->hasProperty($keysPropName)) {
-                        $prop = $node->getProperty($keysPropName);
-                        $prop->remove();
-                    }
+                    $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
+                    $this->dm->getUnitOfWork()->removeAssoc($node, $transMapping);
                 }
             }
         }
+
         if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
             $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, null);
         }

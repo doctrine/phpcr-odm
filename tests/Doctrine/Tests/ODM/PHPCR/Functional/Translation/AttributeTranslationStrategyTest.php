@@ -59,7 +59,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $node = $this->getTestNode();
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
@@ -100,7 +100,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         // Then try to read it's translation
         $doc = new Article();
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'en'));
 
         // And check the translatable properties have the correct value
@@ -127,7 +127,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         // Then try to read it's translation
         $doc = new Article();
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'));
     }
 
@@ -148,7 +148,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
@@ -187,7 +187,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
         $data['topic'] = 'sujet interessant';
         $data['text'] = null;
@@ -224,7 +224,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $doc = new Article();
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
         $this->assertTrue(is_array($locales));
@@ -280,7 +280,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
 
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
@@ -316,7 +316,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
     public function testQueryBuilder()
     {
-        $strategy = new AttributeTranslationStrategy();
+        $strategy = new AttributeTranslationStrategy($this->dm);
         $this->dm->setTranslationStrategy('attribute', $strategy);
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
 

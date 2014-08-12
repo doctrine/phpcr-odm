@@ -2374,6 +2374,9 @@ class UnitOfWork
                     }
                     if ($node->hasProperty($mapping['property']) && is_null($fieldValue)) {
                         $node->getProperty($mapping['property'])->remove();
+                        if (isset($mapping['assoc'])) {
+                            $this->removeAssoc($node, $mapping);
+                        }
                         continue;
                     }
 
@@ -3644,7 +3647,7 @@ class UnitOfWork
      * @param  array         $assoc   the associative array
      * @return array
      */
-    protected function processAssoc(NodeInterface $node, array $mapping, array $assoc)
+    public function processAssoc(NodeInterface $node, array $mapping, array $assoc)
     {
         $isNull = function ($item) {
             return null === $item;
@@ -3671,7 +3674,7 @@ class UnitOfWork
      * @param  array $mapping    the field's mapping information
      * @return array
      */
-    protected function createAssoc(array $properties, array $mapping)
+    public function createAssoc(array $properties, array $mapping)
     {
         $keys = (array) $properties[$mapping['assoc']];
         $values = (array) $properties[$mapping['property']];
@@ -3690,6 +3693,22 @@ class UnitOfWork
         }
 
         return $result;
+    }
+
+    /**
+     * Remove an associative array form the properties stored with the node
+     *
+     * @param  NodeInterface $node    the node where to store the assoc array
+     * @param  array         $mapping the field's mapping
+     */
+    public function removeAssoc(NodeInterface $node, array $mapping)
+    {
+        if ($node->hasProperty($mapping['assoc'])) {
+            $node->getProperty($mapping['assoc'])->remove();
+        }
+        if ($node->hasProperty($mapping['assocNulls'])) {
+            $node->getProperty($mapping['assocNulls'])->remove();
+        }
     }
 
     /**

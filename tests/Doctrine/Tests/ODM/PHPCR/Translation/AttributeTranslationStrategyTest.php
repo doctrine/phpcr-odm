@@ -10,7 +10,11 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
     public function testSetPrefixAndGetPropertyName()
     {
-        $s = new AttributeTranslationStrategy();
+        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $s = new AttributeTranslationStrategy($dm);
         $s->setPrefix('test');
 
         $class = new \ReflectionClass('Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy');
