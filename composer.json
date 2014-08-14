@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "symfony/yaml": "~2.0",
-        "liip/rmt": "1.0.*"
+        "liip/rmt": "~1.0"
     },
     "suggest":{
         "symfony/yaml": "~2.0",
