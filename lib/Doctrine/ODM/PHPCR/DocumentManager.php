@@ -391,6 +391,14 @@ class DocumentManager implements ObjectManager
             }
         }
 
+        // there should be no uuid in the ids array anymore
+        foreach ($ids as $key => $id) {
+            if (UUIDHelper::isUUID($id)) {
+                // TODO log that uuid, which do not match a node.
+                unset($ids[$key]);
+            }
+        }
+
         $nodes = $this->session->getNodes($ids);
 
         $hints = array('fallback' => true);
