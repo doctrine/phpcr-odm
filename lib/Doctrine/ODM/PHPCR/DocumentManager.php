@@ -128,8 +128,8 @@ class DocumentManager implements ObjectManager
 
         // initialize default translation strategies
         $this->translationStrategy = array(
-            'attribute' => new AttributeTranslationStrategy,
-            'child'     => new ChildTranslationStrategy,
+            'attribute' => new AttributeTranslationStrategy($this),
+            'child'     => new ChildTranslationStrategy($this),
         );
     }
 

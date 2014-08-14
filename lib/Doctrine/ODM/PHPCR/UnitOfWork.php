@@ -355,7 +355,7 @@ class UnitOfWork
             $mapping = $class->mappings[$fieldName];
             if (isset($properties[$mapping['property']])) {
                 if (true === $mapping['multivalue']) {
-                    if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
+                    if (isset($mapping['assoc'])) {
                         $documentState[$fieldName] = $this->createAssoc($properties, $mapping);
                     } else {
                         $documentState[$fieldName] = (array) $properties[$mapping['property']];
@@ -2363,6 +2363,9 @@ class UnitOfWork
                     }
                     if ($node->hasProperty($mapping['property']) && is_null($fieldValue)) {
                         $node->getProperty($mapping['property'])->remove();
+                        if (isset($mapping['assoc'])) {
+                            $this->removeAssoc($node, $mapping);
+                        }
                         continue;
                     }
 
@@ -3635,7 +3638,7 @@ class UnitOfWork
      * @param  array         $assoc   the associative array
      * @return array
      */
-    protected function processAssoc(NodeInterface $node, array $mapping, array $assoc)
+    public function processAssoc(NodeInterface $node, array $mapping, array $assoc)
     {
         $isNull = function ($item) {
             return null === $item;
@@ -3649,8 +3652,12 @@ class UnitOfWork
         $values = array_values(array_filter($assoc, $isNotNull));
         $nulls = array_keys(array_filter($assoc, $isNull));
 
-        $node->setProperty($mapping['assoc'], $keys, PropertyType::STRING);
-        $node->setProperty($mapping['assocNulls'], $nulls, PropertyType::STRING);
+        if (empty($keys)) {
+            $this->removeAssoc($node, $mapping);
+        } else {
+            $node->setProperty($mapping['assoc'], $keys, PropertyType::STRING);
+            $node->setProperty($mapping['assocNulls'], $nulls, PropertyType::STRING);
+        }
 
         return $values;
     }
@@ -3662,10 +3669,14 @@ class UnitOfWork
      * @param  array $mapping    the field's mapping information
      * @return array
      */
-    protected function createAssoc(array $properties, array $mapping)
+    public function createAssoc(array $properties, array $mapping)
     {
-        $keys = (array) $properties[$mapping['assoc']];
         $values = (array) $properties[$mapping['property']];
+        if (!isset($properties[$mapping['assoc']])) {
+            return $values;
+        }
+
+        $keys = (array) $properties[$mapping['assoc']];
         $nulls = isset($properties[$mapping['assocNulls']]) ? ((array) $properties[$mapping['assocNulls']]) : array();
 
         // make sure we start with first value
@@ -3681,6 +3692,22 @@ class UnitOfWork
         }
 
         return $result;
+    }
+
+    /**
+     * Remove an associative array form the properties stored with the node
+     *
+     * @param  NodeInterface $node    the node where to store the assoc array
+     * @param  array         $mapping the field's mapping
+     */
+    public function removeAssoc(NodeInterface $node, array $mapping)
+    {
+        if ($node->hasProperty($mapping['assoc'])) {
+            $node->getProperty($mapping['assoc'])->remove();
+        }
+        if ($node->hasProperty($mapping['assocNulls'])) {
+            $node->getProperty($mapping['assocNulls'])->remove();
+        }
     }
 
     /**

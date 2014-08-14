@@ -589,7 +589,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testMultilangReferrers()
     {
         $this->dm->setLocaleChooserStrategy(new \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser($this->localePrefs, 'en'));
-        $this->dm->setTranslationStrategy('attribute', new \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy());
+        $this->dm->setTranslationStrategy('attribute', new \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy($this->dm));
 
         $referrerTestObj = new ReferrerTestObjMultilang();
         $referrerRefTestObj = new ReferrerRefTestObj();

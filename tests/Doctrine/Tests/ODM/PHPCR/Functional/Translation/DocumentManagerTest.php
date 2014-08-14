@@ -826,4 +826,22 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         // this would kill the $a->text and set it back to the english text
         $this->dm->bindTranslation($a, 'de');
     }
+
+    public function testAssocWithNulls()
+    {
+        $assoc = array('foo' => 'bar', 'test' => null, 2 => 'huhu');
+
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'This is an article in English';
+        $a->assoc = $assoc;
+        $this->dm->persist($a);
+        $this->dm->bindTranslation($a, 'de');
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $a = $this->dm->find(null, '/functional/' . $this->testNodeName);
+        $this->assertEquals($assoc, $a->assoc);
+    }
 }

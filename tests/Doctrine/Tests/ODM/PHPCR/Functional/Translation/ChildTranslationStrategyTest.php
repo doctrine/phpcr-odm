@@ -56,7 +56,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $node = $this->getTestNode();
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
@@ -95,7 +95,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $node = $this->getTestNode();
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
@@ -136,7 +136,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         // Then try to read it's translation
         $doc = new Article();
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
 
         // And check the translatable properties have the correct value
@@ -158,7 +158,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $subNode_en = $node->getNode(Translation::LOCALE_NAMESPACE . ":en");
         $subNode_fr = $node->getNode(Translation::LOCALE_NAMESPACE . ":fr");
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
 
         $strategy->removeTranslation($doc, $node, $this->metadata, 'en');
 
@@ -176,7 +176,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $subNode_fr = $node->getNode(Translation::LOCALE_NAMESPACE . ":fr");
         $subNode_de = $node->getNode(Translation::LOCALE_NAMESPACE . ":de");
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
 
         $strategy->removeAllTranslations($doc, $node, $this->metadata);
 
@@ -191,7 +191,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $doc = new Article();
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
         $this->assertInternalType('array', $locales);
@@ -209,17 +209,17 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         // Then try to read it's translation
         $doc = new Article();
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should succeed to load EN translation');
 
         $this->assertEquals('English is not null', $doc->nullable);
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'fr'), 'Should succeed to load FR translation');
 
         $this->assertEquals(null, $doc->nullable);
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'de'), 'Should succeed to load DE translation');
 
         $this->assertEquals(null, $doc->nullable);
@@ -233,7 +233,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->session->save();
 
         $doc = new Article();
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should fail to load english as there is no english child node');
     }
 
@@ -319,7 +319,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $node = $this->getTestNode();
 
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
@@ -353,7 +353,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
     public function testQueryBuilder()
     {
-        $strategy = new ChildTranslationStrategy();
+        $strategy = new ChildTranslationStrategy($this->dm);
         $this->dm->setTranslationStrategy('children', $strategy);
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
 
