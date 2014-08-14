@@ -1,5 +1,7 @@
 vcs: git
-version-generator: semantic
+version-generator:
+    semantic:
+        allow-label: true
 version-persister: vcs-tag
 prerequisites:
     - working-copy-check
