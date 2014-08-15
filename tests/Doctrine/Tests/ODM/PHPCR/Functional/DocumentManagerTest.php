@@ -8,6 +8,8 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
 
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+
 class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
     /**
