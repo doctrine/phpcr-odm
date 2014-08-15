@@ -30,6 +30,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Event\ListenersInvoker;
 use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
@@ -41,6 +42,7 @@ use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 
+use Iterator;
 use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
@@ -321,8 +323,7 @@ class UnitOfWork
      */
     public function getOrCreateDocument($className, NodeInterface $node, array &$hints = array())
     {
-        $nodes = $this->session->getNodes(array($node->getPath()));
-        $documents = $this->getOrCreateDocuments($className, $nodes, $hints);
+        $documents = $this->getOrCreateDocuments($className, array($node), $hints);
 
         return array_shift($documents);
     }
@@ -341,7 +342,7 @@ class UnitOfWork
      *      (This makes sense when the caller already did this beforehand.)
      *
      * @param null|string $className
-     * @param Iterator $nodes
+     * @param Iterator|array $nodes
      * @param array $hints
      *
      * @throws Exception\InvalidArgumentException
@@ -358,10 +359,42 @@ class UnitOfWork
         //prepare array of document ordered by the nodes path
         foreach ($nodes as $node) {
             $requestedClassName = $className;
-            $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
-            $class = $this->dm->getClassMetadata($className);
+
+            try {
+                $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
+            } catch (ClassMismatchException $e) {
+                // ignore class mismatch, just skip that one
+                continue;
+            }
+
             $id = $node->getPath();
-            $documents[$id] = $class->newInstance();
+            $class = $this->dm->getClassMetadata($className);
+
+            // prepare first, add later when fine
+            $document = $this->getDocumentById($id);
+
+            $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
+            if ($document) {
+                if (!$refresh) {
+                    // document already loaded and no need to refresh. return early
+                    continue;
+                }
+                $overrideLocalValuesOid = spl_object_hash($document);
+            } else {
+                $document = $class->newInstance();
+                // delay registering the new document until children proxy have been created
+                $overrideLocalValuesOid = false;
+            }
+
+            try {
+                $this->validateClassName($document, $requestedClassName);
+            } catch(ClassMismatchException $e) {
+
+                continue;
+            }
+
+            $documents[$id] = $document;
+            unset($document);
         }
 
         // hold on to prepare the translations
@@ -370,23 +403,20 @@ class UnitOfWork
         }
 
         foreach ($nodes as $node) {
+            $id = $node->getPath();
+
+            // skip not set nodes
+            if (!isset($documents[$id])) {
+                continue;
+            }
+
+            $class = $this->dm->getClassMetadata($className);
+
+            $locale = isset($hints['locale']) ? $hints['locale'] : null;
+            $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
+
             $documentState = array();
             $nonMappedData = array();
-            $id = $node->getPath();
-            $documents[$id] = $this->getDocumentById($id);
-
-            if ($documents[$id]) {
-                if (!$refresh) {
-                    // document already loaded and no need to refresh. return early
-                    continue;
-                }
-                $overrideLocalValuesOid = spl_object_hash($documents[$id]);
-            } else {
-                $documents[$id] = $class->newInstance();
-                // delay registering the new document until children proxy have been created
-                $overrideLocalValuesOid = false;
-            }
-            $this->validateClassName($documents[$id], $requestedClassName);
 
             // second param is false to get uuid rather than dereference reference properties to node instances
             $properties = $node->getPropertiesValues(null, false);
@@ -395,7 +425,7 @@ class UnitOfWork
                 $mapping = $class->mappings[$fieldName];
                 if (isset($properties[$mapping['property']])) {
                     if (true === $mapping['multivalue']) {
-                        if (isset($mapping['assoc']) && isset($properties[$mapping['assoc']])) {
+                        if (isset($mapping['assoc'])) {
                             $documentState[$fieldName] = $this->createAssoc($properties, $mapping);
                         } else {
                             $documentState[$fieldName] = (array) $properties[$mapping['property']];
@@ -457,7 +487,7 @@ class UnitOfWork
                     }
 
                     $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
-                    $coll = new ReferenceManyCollection($this->dm, $referencedNodes, $targetDocument, $locale);
+                    $coll = new ReferenceManyCollection($this->dm, $documents[$id], $mapping['property'], $referencedNodes, $targetDocument, $locale);
                     $documentState[$fieldName] = $coll;
                 }
             }
@@ -523,11 +553,14 @@ class UnitOfWork
             }
 
             $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
-            foreach ($class->reflFields as $prop => $reflFields) {
-                $value = isset($documentState[$prop]) ? $documentState[$prop] : null;
+            foreach ($class->reflFields as $fieldName => $reflFields) {
+                $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
                 $reflFields->setValue($documents[$id], $value);
-                $this->originalData[$overrideLocalValuesOid][$prop] = $value;
+                $this->originalData[$overrideLocalValuesOid][$fieldName] = $value;
             }
+
+            // Load translations
+            $this->doLoadTranslation($documents[$id], $class, $locale, $fallback, $refresh);
 
             if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postLoad)) {
                 $this->eventListenersInvoker->invoke(
@@ -538,11 +571,13 @@ class UnitOfWork
                     $invoke
                 );
             }
-
-            $this->doLoadTranslation($documents[$id], $class, $locale, $fallback, $refresh);
         }
 
         return $documents;
+
+
+
+
     }
 
 
