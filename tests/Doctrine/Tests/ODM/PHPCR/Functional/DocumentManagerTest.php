@@ -39,12 +39,15 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     {
         $user = new TestUser();
         $user->username = 'test-name';
+        $user->id = '/functional/test';
         $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
 
         $uuids[] = $user->uuid;
         $uuids[] = UUIDHelper::generateUUID();
 
-        $documents = $this->dm->findMany('User', $uuids);
+        $documents = $this->dm->findMany(get_class($user), $uuids);
         $this->assertEquals(1, count($documents));
     }
 }
