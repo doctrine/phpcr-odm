@@ -395,23 +395,19 @@ class DocumentManager implements ObjectManager
 
         $hints = array('fallback' => true);
 
+        $fetchableNodes = array();
         foreach ($ids as $id) {
             $document = $this->unitOfWork->getDocumentById($id);
-            if ($document) {
-                try {
-                    $this->unitOfWork->validateClassName($document, $className);
-                    $documents[$id] = $document;
-                } catch (ClassMismatchException $e) {
-                    // ignore on class mismatch
-                }
+
+            if ($document && $this->documentHasValidClassName($document, $className)) {
+                $documents[$id] = $document;
             } elseif (isset($nodes[$id])) {
-                try {
-                    $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
-                } catch (ClassMismatchException $e) {
-                    // ignore on class mismatch
-                }
+                $fetchableNodes[] = $nodes[$id];
             }
         }
+
+        $fetchedDocuments = $this->unitOfWork->getOrCreateDocuments($className, $fetchableNodes, $hints);
+        $documents = array_merge($documents, $fetchedDocuments);
 
         return new ArrayCollection($documents);
     }
