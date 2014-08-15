@@ -376,15 +376,19 @@ class DocumentManager implements ObjectManager
         if (!empty($uuids)) {
             $nodes = $this->session->getNodesByIdentifier(array_keys($uuids));
 
+            $countNodes = 0;
             foreach ($nodes as $node) {
                 /** @var $node \PHPCR\NodeInterface */
                 $ids[$uuids[$node->getIdentifier()]] = $node->getPath();
+                $countNodes++;
             }
 
-            // skip not found ids
-            $ids = array_filter($ids, function ($id) {
-                return !UUIDHelper::isUUID($id);
-            });
+            if ($countNodes < count($ids)) {
+                // skip not found ids
+                $ids = array_filter($ids, function ($id) {
+                    return !UUIDHelper::isUUID($id);
+                });
+            }
         }
 
         $nodes = $this->session->getNodes($ids);
