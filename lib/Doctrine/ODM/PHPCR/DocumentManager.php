@@ -399,8 +399,13 @@ class DocumentManager implements ObjectManager
         foreach ($ids as $id) {
             $document = $this->unitOfWork->getDocumentById($id);
 
-            if ($document && $this->documentHasValidClassName($document, $className)) {
-                $documents[$id] = $document;
+            if ($document) {
+                try {
+                    $this->unitOfWork->validateClassName($document, $className);
+                    $documents[$id] = $document;
+                } catch (ClassMismatchException $e) {
+                    // ignore on class mismatch
+                }
             } elseif (isset($nodes[$id])) {
                 $fetchableNodes[] = $nodes[$id];
             }
