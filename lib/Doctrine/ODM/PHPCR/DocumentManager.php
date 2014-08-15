@@ -389,11 +389,6 @@ class DocumentManager implements ObjectManager
                     return !UUIDHelper::isUUID($id);
                 });
             }
-
-            // skip not found ids
-            $ids = array_filter($ids, function ($id) {
-                return !UUIDHelper::isUUID($id);
-            });
         }
 
         $nodes = $this->session->getNodes($ids);
