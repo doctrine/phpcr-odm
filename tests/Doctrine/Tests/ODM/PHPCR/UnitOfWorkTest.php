@@ -9,6 +9,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 use Jackalope\Factory;
 use Jackalope\Node;
+use Jackalope\NodePathIterator;
 
 /**
  * TODO: remove Jackalope dependency
