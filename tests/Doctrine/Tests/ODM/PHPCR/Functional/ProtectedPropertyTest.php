@@ -68,7 +68,7 @@ CND;
             $this->dm->persist($object);
             $this->dm->flush();
             $this->dm->clear();
-        } catch(\PHPCR\NodeType\ConstraintViolationException $e) {
+        } catch (\PHPCR\NodeType\ConstraintViolationException $e) {
             $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
         }
 
@@ -84,7 +84,7 @@ CND;
             $this->dm->persist($object);
             $this->dm->flush();
             $this->dm->clear();
-        } catch(\PHPCR\NodeType\ConstraintViolationException $e) {
+        } catch (\PHPCR\NodeType\ConstraintViolationException $e) {
             $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
         }
 
@@ -102,7 +102,7 @@ CND;
             $object->changeme = 'changed';
             $this->dm->flush();
             $this->dm->clear();
-        } catch(\PHPCR\NodeType\ConstraintViolationException $e) {
+        } catch (\PHPCR\NodeType\ConstraintViolationException $e) {
             $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
         }
 

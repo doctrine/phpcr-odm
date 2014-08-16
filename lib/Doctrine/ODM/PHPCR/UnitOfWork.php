@@ -1878,7 +1878,7 @@ class UnitOfWork
             $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
-                    // Unwrap so that foreach() does not initialize
+                    // Unwrap so that foreach () does not initialize
                     $related = $related->unwrap();
                 }
                 foreach ($related as $relatedDocument) {
@@ -1942,7 +1942,7 @@ class UnitOfWork
             $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
-                    // Unwrap so that foreach() does not initialize
+                    // Unwrap so that foreach () does not initialize
                     $related = $related->unwrap();
                 }
                 foreach ($related as $relatedDocument) {

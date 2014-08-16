@@ -330,7 +330,7 @@ class DocumentManager implements ObjectManager
                     $this->unitOfWork->validateClassName($document, $className);
 
                     return $document;
-                } catch(ClassMismatchException $e) {
+                } catch (ClassMismatchException $e) {
                     return null;
                 }
 

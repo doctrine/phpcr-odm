@@ -922,11 +922,11 @@ class ClassMetadata implements ClassMetadataInterface
             $assocFields[$mapping['assoc']] = $fieldName;
         }
 
-        if(!empty($this->versionNameField) && !$this->versionable){
+        if (!empty($this->versionNameField) && !$this->versionable){
             throw new MappingException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
         }
 
-        if(!empty($this->versionCreatedField) && !$this->versionable){
+        if (!empty($this->versionCreatedField) && !$this->versionable){
             throw new MappingException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
         }
 

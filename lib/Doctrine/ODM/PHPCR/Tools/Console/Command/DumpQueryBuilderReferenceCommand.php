@@ -355,7 +355,7 @@ HERE
             }
         }
 
-        foreach($reflParams as $reflParam) {
+        foreach ($reflParams as $reflParam) {
             if ($reflParam->name == 'void') {
                 continue;
             }
