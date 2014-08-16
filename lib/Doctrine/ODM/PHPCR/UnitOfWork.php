@@ -355,6 +355,7 @@ class UnitOfWork
         $locale = isset($hints['locale']) ? $hints['locale'] : null;
         $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
         $documents = array();
+        $overrideLocalValuesOids = array();
 
         //prepare array of document ordered by the nodes path
         foreach ($nodes as $node) {
@@ -376,20 +377,20 @@ class UnitOfWork
             $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
             if ($document) {
                 if (!$refresh) {
+                    $documents[$id] = $document;
                     // document already loaded and no need to refresh. return early
                     continue;
                 }
-                $overrideLocalValuesOid = spl_object_hash($document);
+                $overrideLocalValuesOids[$id] = spl_object_hash($document);
             } else {
                 $document = $class->newInstance();
                 // delay registering the new document until children proxy have been created
-                $overrideLocalValuesOid = false;
+                $overrideLocalValuesOids[$id] = false;
             }
 
             try {
                 $this->validateClassName($document, $requestedClassName);
             } catch(ClassMismatchException $e) {
-
                 continue;
             }
 
@@ -547,16 +548,21 @@ class UnitOfWork
                 );
             }
 
-            if (! $overrideLocalValuesOid) {
-                // registering the document needs to be delayed until the children proxies where created
-                $overrideLocalValuesOid = $this->registerDocument($documents[$id], $id);
+            // when not set then not needed
+            if (!isset($overrideLocalValuesOids[$id])) {
+                continue;
             }
 
-            $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
+            if (!$overrideLocalValuesOids[$id]) {
+                // registering the document needs to be delayed until the children proxies where created
+                $overrideLocalValuesOids[$id] = $this->registerDocument($documents[$id], $id);
+            }
+
+            $this->nonMappedData[$overrideLocalValuesOids[$id]] = $nonMappedData;
             foreach ($class->reflFields as $fieldName => $reflFields) {
                 $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
                 $reflFields->setValue($documents[$id], $value);
-                $this->originalData[$overrideLocalValuesOid][$fieldName] = $value;
+                $this->originalData[$overrideLocalValuesOids[$id]][$fieldName] = $value;
             }
 
             // Load translations
@@ -579,7 +585,6 @@ class UnitOfWork
 
 
     }
-
 
     /**
      * Get the existing document or proxy or create a new one for this PHPCR Node
@@ -3138,8 +3143,6 @@ class UnitOfWork
 
             $strategies[$strategyClass]->getTranslationsForNodes($nodesForLocale, $allLocales, $this->session);
         }
-
-        print("Ready with translations preparing <br />");
     }
 
     /**
