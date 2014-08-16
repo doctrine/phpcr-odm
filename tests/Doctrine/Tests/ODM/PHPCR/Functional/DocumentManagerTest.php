@@ -58,7 +58,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 }
 
 /**
- * @PHPCRODM\Document()
+ * @PHPCRODM\Document(referenceable=true)
+ *
  */
 class TestUser
 {
