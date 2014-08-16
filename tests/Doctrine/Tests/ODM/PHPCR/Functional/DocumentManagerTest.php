@@ -43,14 +43,14 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $truthyUuid = $user->uuid;
-        $falsyUuid = UUIDHelper::generateUUID();
+        $actualUuid = $user->uuid;
+        $unusedUuid = UUIDHelper::generateUUID();
 
         $this->assertNotNull($this->dm->find(get_class($user), $user->id));
-        $this->assertNotNull($this->dm->find(get_class($user), $truthyUuid));
-        $this->assertNull($this->dm->find(get_class($user), $falsyUuid));
+        $this->assertNotNull($this->dm->find(get_class($user), $actualUuid));
+        $this->assertNull($this->dm->find(get_class($user), $unusedUuid));
 
-        $uuids = array($truthyUuid, $falsyUuid); var_dump($uuids);
+        $uuids = array($actualUuid, $unusedUuid);
 
         $documents = $this->dm->findMany(get_class($user), $uuids);
         $this->assertEquals(1, count($documents));
