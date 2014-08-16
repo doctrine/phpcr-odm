@@ -362,9 +362,7 @@ class DocumentManager implements ObjectManager
      */
     public function findMany($className, array $ids)
     {
-        $documents = array();
-
-        $uuids = array();
+        $documents = $uuids = array();
         foreach ($ids as $key => $id) {
             if (UUIDHelper::isUUID($id)) {
                 $uuids[$id] = $key;
@@ -376,18 +374,16 @@ class DocumentManager implements ObjectManager
         if (!empty($uuids)) {
             $nodes = $this->session->getNodesByIdentifier(array_keys($uuids));
 
-            $countNodes = 0;
             foreach ($nodes as $node) {
                 /** @var $node \PHPCR\NodeInterface */
-                $ids[$uuids[$node->getIdentifier()]] = $node->getPath();
-                $countNodes++;
+                $id = $node->getPath();
+                $ids[$uuids[$node->getIdentifier()]] = $id;
+                unset($uuids[$id]);
             }
 
-            if ($countNodes < count($ids)) {
+            if (!empty($uuids)) {
                 // skip not found ids
-                $ids = array_filter($ids, function ($id) {
-                    return !UUIDHelper::isUUID($id);
-                });
+                $ids = array_diff($ids, array_keys($uuids));
             }
         }
 
