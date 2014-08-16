@@ -36,7 +36,7 @@ use PHPCR\SessionInterface;
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  */
-class ChildTranslationStrategy extends AttributeTranslationStrategy implements TranslationsNodesWarmer
+class ChildTranslationStrategy extends AttributeTranslationStrategy implements TranslationNodesWarmer
 {
     /**
      * {@inheritdoc}

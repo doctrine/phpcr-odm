@@ -392,10 +392,7 @@ class DocumentManager implements ObjectManager
         }
 
         $nodes = $this->session->getNodes($ids);
-
         $hints = array('fallback' => true);
-
-
         $documents = $this->unitOfWork->getOrCreateDocuments($className, $nodes, $hints);
 
         return new ArrayCollection($documents);

@@ -41,6 +41,7 @@ use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationNodesWarmer;
 
 use Iterator;
 use PHPCR\RepositoryInterface;
@@ -356,65 +357,88 @@ class UnitOfWork
         $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
         $documents = array();
         $overrideLocalValuesOids = array();
+        $strategies = array();
+        $nodesByStrategy = array();
+        $allLocales = array();
 
         //prepare array of document ordered by the nodes path
+        $existingDocuments = 0;
         foreach ($nodes as $node) {
             $requestedClassName = $className;
 
             try {
-                $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
+                $actualClassName = $this->documentClassMapper->getClassName($this->dm, $node, $className);
             } catch (ClassMismatchException $e) {
                 // ignore class mismatch, just skip that one
                 continue;
             }
 
             $id = $node->getPath();
-            $class = $this->dm->getClassMetadata($className);
+            $class = $this->dm->getClassMetadata($actualClassName);
 
             // prepare first, add later when fine
             $document = $this->getDocumentById($id);
 
-            $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
             if ($document) {
                 if (!$refresh) {
+                    ++$existingDocuments;
                     $documents[$id] = $document;
-                    // document already loaded and no need to refresh. return early
+                } else {
+                    $overrideLocalValuesOids[$id] = spl_object_hash($document);
+                }
+
+                try {
+                    $this->validateClassName($document, $requestedClassName);
+                } catch(ClassMismatchException $e) {
                     continue;
                 }
-                $overrideLocalValuesOids[$id] = spl_object_hash($document);
             } else {
                 $document = $class->newInstance();
                 // delay registering the new document until children proxy have been created
                 $overrideLocalValuesOids[$id] = false;
             }
 
-            try {
-                $this->validateClassName($document, $requestedClassName);
-            } catch(ClassMismatchException $e) {
+            $documents[$id] = $document;
+
+            if ($this->isDocumentTranslatable($class)) {
+                $currentStrategy = $this->dm->getTranslationStrategy($class->translator);
+
+                $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales(
+                    $document,
+                    $class,
+                    $locale
+                );
+
+                foreach ($localesToTry as $localeToTry) {
+                    $allLocales[$localeToTry] = $localeToTry;
+                }
+
+                $strategies[$class->name] = $currentStrategy;
+                $nodesByStrategy[$class->name][] = $node;
+            }
+        }
+
+        foreach ($nodesByStrategy as $strategyClass => $nodesForLocale) {
+            if (!$strategies[$strategyClass] instanceof TranslationNodesWarmer) {
                 continue;
             }
 
-            $documents[$id] = $document;
-            unset($document);
+            $strategies[$strategyClass]->getTranslationsForNodes($nodesForLocale, $allLocales, $this->session);
         }
 
-        // hold on to prepare the translations
-        if (count($documents) > 5) {
-            $this->doPrepareTranslationNodes($documents, $nodes, $locale);
+        // return early
+        if (count($documents) === $existingDocuments) {
+            return $documents;
         }
 
         foreach ($nodes as $node) {
             $id = $node->getPath();
-
-            // skip not set nodes
             if (!isset($documents[$id])) {
                 continue;
             }
 
-            $class = $this->dm->getClassMetadata($className);
-
-            $locale = isset($hints['locale']) ? $hints['locale'] : null;
-            $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
+            $document = $documents[$id];
+            $class = $this->dm->getClassMetadata(get_class($document));
 
             $documentState = array();
             $nonMappedData = array();
@@ -488,7 +512,7 @@ class UnitOfWork
                     }
 
                     $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
-                    $coll = new ReferenceManyCollection($this->dm, $documents[$id], $mapping['property'], $referencedNodes, $targetDocument, $locale);
+                    $coll = new ReferenceManyCollection($this->dm, $document, $mapping['property'], $referencedNodes, $targetDocument, $locale);
                     $documentState[$fieldName] = $coll;
                 }
             }
@@ -503,6 +527,7 @@ class UnitOfWork
                 } else {
                     $prefetchLocale = null;
                 }
+
                 $this->getPrefetchHelper()->prefetchHierarchy($class, $node, $prefetchLocale);
             }
 
@@ -520,7 +545,7 @@ class UnitOfWork
 
             foreach ($class->childrenMappings as $fieldName) {
                 $mapping = $class->mappings[$fieldName];
-                $documentState[$fieldName] = new ChildrenCollection($this->dm, $documents[$id], $mapping['filter'], $mapping['fetchDepth'], $locale);
+                $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth'], $locale);
             }
 
             foreach ($class->referrersMappings as $fieldName) {
@@ -531,7 +556,7 @@ class UnitOfWork
                 $referringField = $referringMeta->mappings[$mapping['referencedBy']];
                 $documentState[$fieldName] = new ReferrersCollection(
                     $this->dm,
-                    $documents[$id],
+                    $document,
                     $referringField['strategy'],
                     $referringField['property'],
                     $locale,
@@ -542,7 +567,7 @@ class UnitOfWork
                 $mapping = $class->mappings[$fieldName];
                 $documentState[$fieldName] = new ImmutableReferrersCollection(
                     $this->dm,
-                    $documents[$id],
+                    $document,
                     $mapping['referenceType'],
                     $locale
                 );
@@ -555,35 +580,31 @@ class UnitOfWork
 
             if (!$overrideLocalValuesOids[$id]) {
                 // registering the document needs to be delayed until the children proxies where created
-                $overrideLocalValuesOids[$id] = $this->registerDocument($documents[$id], $id);
+                $overrideLocalValuesOids[$id] = $this->registerDocument($document, $id);
             }
 
             $this->nonMappedData[$overrideLocalValuesOids[$id]] = $nonMappedData;
             foreach ($class->reflFields as $fieldName => $reflFields) {
                 $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
-                $reflFields->setValue($documents[$id], $value);
+                $reflFields->setValue($document, $value);
                 $this->originalData[$overrideLocalValuesOids[$id]][$fieldName] = $value;
             }
 
             // Load translations
-            $this->doLoadTranslation($documents[$id], $class, $locale, $fallback, $refresh);
+            $this->doLoadTranslation($document, $class, $locale, $fallback, $refresh);
 
             if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postLoad)) {
                 $this->eventListenersInvoker->invoke(
                     $class,
                     Event::postLoad,
-                    $documents[$id],
-                    new LifecycleEventArgs($documents[$id], $this->dm),
+                    $document,
+                    new LifecycleEventArgs($document, $this->dm),
                     $invoke
                 );
             }
         }
 
         return $documents;
-
-
-
-
     }
 
     /**
@@ -3096,53 +3117,6 @@ class UnitOfWork
         $this->invokeGlobalEvent(Event::onClear, new OnClearEventArgs($this->dm));
 
         $this->session->refresh(false);
-    }
-
-    /**
-     * Instead of running into performance issues when creating lots of nodes with
-     * locales this method will prepare them by calling the translation
-     * strategy to do its job.
-     *
-     * @param array            $documents
-     * @param NodePathIterator $nodes
-     * @param string           $locale
-     */
-    public function doPrepareTranslationNodes($documents, $nodes, $locale)
-    {
-        $strategies = array();
-        $nodesByStrategy = array();
-        $allLocales = array();
-
-        foreach ($nodes as $node) {
-            $id = $node->getPath();
-            if (!isset($documents[$id])) {
-                continue;
-            }
-
-            $document = $documents[$id];
-            $classMetadata = $this->dm->getClassMetadata(get_class($document));
-            $currentStrategy = $this->dm->getTranslationStrategy($classMetadata->translator);
-
-            $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales(
-                $document,
-                $classMetadata,
-                $locale
-            );
-
-            foreach ($localesToTry as $localeToTry) {
-                $allLocales[$localeToTry] = $localeToTry;
-            }
-            $strategies[get_class($currentStrategy)] = $currentStrategy;
-            $nodesByStrategy[get_class($currentStrategy)][] = $node;
-        }
-
-        foreach ($nodesByStrategy as $strategyClass => $nodesForLocale) {
-            if (!$strategies[$strategyClass] instanceof TranslationsNodesWarmer) {
-                continue;
-            }
-
-            $strategies[$strategyClass]->getTranslationsForNodes($nodesForLocale, $allLocales, $this->session);
-        }
     }
 
     /**
