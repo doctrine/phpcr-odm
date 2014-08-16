@@ -41,6 +41,7 @@ use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationsNodesWarmer;
 
 use Iterator;
 use PHPCR\RepositoryInterface;
@@ -356,8 +357,12 @@ class UnitOfWork
         $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
         $documents = array();
         $overrideLocalValuesOids = array();
+        $strategies = array();
+        $nodesByStrategy = array();
+        $allLocales = array();
 
         //prepare array of document ordered by the nodes path
+        $existingDocuments = 0;
         foreach ($nodes as $node) {
             $requestedClassName = $className;
 
@@ -374,47 +379,70 @@ class UnitOfWork
             // prepare first, add later when fine
             $document = $this->getDocumentById($id);
 
-            $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
             if ($document) {
                 if (!$refresh) {
+                    ++$existingDocuments;
                     $documents[$id] = $document;
-                    // document already loaded and no need to refresh. return early
+                } else {
+                    $overrideLocalValuesOids[$id] = spl_object_hash($document);
+                }
+
+                try {
+                    $this->validateClassName($document, $requestedClassName);
+                } catch(ClassMismatchException $e) {
                     continue;
                 }
-                $overrideLocalValuesOids[$id] = spl_object_hash($document);
+
+                if (ClassUtils::getClass($document) !== $className) {
+                    $class = $this->dm->getClassMetadata(get_class($document));
+                }
             } else {
                 $document = $class->newInstance();
                 // delay registering the new document until children proxy have been created
                 $overrideLocalValuesOids[$id] = false;
             }
 
-            try {
-                $this->validateClassName($document, $requestedClassName);
-            } catch(ClassMismatchException $e) {
+            $documents[$id] = $document;
+
+            if ($this->isDocumentTranslatable($class)) {
+                $currentStrategy = $this->dm->getTranslationStrategy($class->translator);
+
+                $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales(
+                    $document,
+                    $class,
+                    $locale
+                );
+
+                foreach ($localesToTry as $localeToTry) {
+                    $allLocales[$localeToTry] = $localeToTry;
+                }
+
+                $strategies[$class->name] = $currentStrategy;
+                $nodesByStrategy[$class->name][] = $node;
+            }
+        }
+
+        foreach ($nodesByStrategy as $strategyClass => $nodesForLocale) {
+            if (!$strategies[$strategyClass] instanceof TranslationsNodesWarmer) {
                 continue;
             }
 
-            $documents[$id] = $document;
-            unset($document);
+            $strategies[$strategyClass]->getTranslationsForNodes($nodesForLocale, $allLocales, $this->session);
         }
 
-        // hold on to prepare the translations
-        if (count($documents) > 5) {
-            $this->doPrepareTranslationNodes($documents, $nodes, $locale);
+        // return early
+        if (count($nodes) === $existingDocuments) {
+            return $documents;
         }
 
         foreach ($nodes as $node) {
             $id = $node->getPath();
-
-            // skip not set nodes
             if (!isset($documents[$id])) {
                 continue;
             }
 
-            $class = $this->dm->getClassMetadata($className);
-
-            $locale = isset($hints['locale']) ? $hints['locale'] : null;
-            $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
+            $document = $documents[$id];
+            $class = $this->dm->getClassMetadata(get_class($document));
 
             $documentState = array();
             $nonMappedData = array();
@@ -3096,53 +3124,6 @@ class UnitOfWork
         $this->invokeGlobalEvent(Event::onClear, new OnClearEventArgs($this->dm));
 
         $this->session->refresh(false);
-    }
-
-    /**
-     * Instead of running into performance issues when creating lots of nodes with
-     * locales this method will prepare them by calling the translation
-     * strategy to do its job.
-     *
-     * @param array            $documents
-     * @param NodePathIterator $nodes
-     * @param string           $locale
-     */
-    public function doPrepareTranslationNodes($documents, $nodes, $locale)
-    {
-        $strategies = array();
-        $nodesByStrategy = array();
-        $allLocales = array();
-
-        foreach ($nodes as $node) {
-            $id = $node->getPath();
-            if (!isset($documents[$id])) {
-                continue;
-            }
-
-            $document = $documents[$id];
-            $classMetadata = $this->dm->getClassMetadata(get_class($document));
-            $currentStrategy = $this->dm->getTranslationStrategy($classMetadata->translator);
-
-            $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales(
-                $document,
-                $classMetadata,
-                $locale
-            );
-
-            foreach ($localesToTry as $localeToTry) {
-                $allLocales[$localeToTry] = $localeToTry;
-            }
-            $strategies[get_class($currentStrategy)] = $currentStrategy;
-            $nodesByStrategy[get_class($currentStrategy)][] = $node;
-        }
-
-        foreach ($nodesByStrategy as $strategyClass => $nodesForLocale) {
-            if (!$strategies[$strategyClass] instanceof TranslationsNodesWarmer) {
-                continue;
-            }
-
-            $strategies[$strategyClass]->getTranslationsForNodes($nodesForLocale, $allLocales, $this->session);
-        }
     }
 
     /**
