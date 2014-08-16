@@ -30,7 +30,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\User';
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -47,10 +46,11 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $truthyUuid = $user->uuid;
         $falsyUuid = UUIDHelper::generateUUID();
 
+        $this->assertNotNull($this->dm->find(get_class($user), $user->id));
         $this->assertNotNull($this->dm->find(get_class($user), $truthyUuid));
         $this->assertNull($this->dm->find(get_class($user), $falsyUuid));
 
-        $uuids = array($truthyUuid, $falsyUuid);
+        $uuids = array($truthyUuid, $falsyUuid); var_dump($uuids);
 
         $documents = $this->dm->findMany(get_class($user), $uuids);
         $this->assertEquals(1, count($documents));
