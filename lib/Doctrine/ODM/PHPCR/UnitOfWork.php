@@ -30,6 +30,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Event\ListenersInvoker;
 use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
@@ -40,7 +41,9 @@ use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationNodesWarmer;
 
+use Iterator;
 use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
@@ -317,192 +320,291 @@ class UnitOfWork
      * @return object
      *
      * @throws PHPCRExceptionInterface if $className was specified and does not match
-     *                                 the class of the document corresponding to $node.
+     *      the class of the document corresponding to $node.
      */
     public function getOrCreateDocument($className, NodeInterface $node, array &$hints = array())
     {
-        $requestedClassName = $className;
-        $className = $this->documentClassMapper->getClassName($this->dm, $node, $className);
-        $class = $this->dm->getClassMetadata($className);
-        $id = $node->getPath();
+        $documents = $this->getOrCreateDocuments($className, array($node), $hints);
 
-        $document = $this->getDocumentById($id);
+        return array_shift($documents);
+    }
 
+    /**
+     * Get the existing document or proxy of the specified class and node data
+     * or create a new one if not existing.
+     *
+     * Supported hints are
+     * - refresh: reload the fields from the database if set
+     * - locale: use this locale instead of the one from the annotation or the default
+     * - fallback: whether to try other languages or throw a not found
+     *      exception if the desired locale is not found. defaults to true if
+     *      not set and locale is not given either.
+     * - prefetch: if set to false, do not attempt to prefetch related data.
+     *      (This makes sense when the caller already did this beforehand.)
+     *
+     * @param null|string $className
+     * @param Iterator|array $nodes
+     * @param array $hints
+     *
+     * @throws Exception\InvalidArgumentException
+     * @throws PHPCRException
+     * @return array
+     */
+    public function getOrCreateDocuments($className, $nodes, array &$hints = array())
+    {
         $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
-        if ($document) {
-            if (!$refresh) {
-                // document already loaded and no need to refresh. return early
-                return $document;
-            }
-            $overrideLocalValuesOid = spl_object_hash($document);
-        } else {
-            $document = $class->newInstance();
-            // delay registering the new document until children proxy have been created
-            $overrideLocalValuesOid = false;
-        }
-        $this->validateClassName($document, $requestedClassName);
-
         $locale = isset($hints['locale']) ? $hints['locale'] : null;
         $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
+        $documents = array();
+        $overrideLocalValuesOids = array();
+        $strategies = array();
+        $nodesByStrategy = array();
+        $allLocales = array();
 
-        $documentState = array();
-        $nonMappedData = array();
+        //prepare array of document ordered by the nodes path
+        $existingDocuments = 0;
+        foreach ($nodes as $node) {
+            $requestedClassName = $className;
 
-        // second param is false to get uuid rather than dereference reference properties to node instances
-        $properties = $node->getPropertiesValues(null, false);
-
-        foreach ($class->fieldMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            if (isset($properties[$mapping['property']])) {
-                if (true === $mapping['multivalue']) {
-                    if (isset($mapping['assoc'])) {
-                        $documentState[$fieldName] = $this->createAssoc($properties, $mapping);
-                    } else {
-                        $documentState[$fieldName] = (array) $properties[$mapping['property']];
-                    }
-                } else {
-                    $documentState[$fieldName] = $properties[$mapping['property']];
-                }
-            } elseif (true === $mapping['multivalue']) {
-                $documentState[$mapping['property']] = array();
+            try {
+                $actualClassName = $this->documentClassMapper->getClassName($this->dm, $node, $className);
+            } catch (ClassMismatchException $e) {
+                // ignore class mismatch, just skip that one
+                continue;
             }
-        }
 
-        if ($class->node) {
-            $documentState[$class->node] = $node;
-        }
+            $id = $node->getPath();
+            $class = $this->dm->getClassMetadata($actualClassName);
 
-        if ($class->nodename) {
-            $documentState[$class->nodename] = $node->getName();
-        }
+            // prepare first, add later when fine
+            $document = $this->getDocumentById($id);
 
-        if ($class->identifier) {
-            $documentState[$class->identifier] = $node->getPath();
-        }
+            if ($document) {
+                if (!$refresh) {
+                    ++$existingDocuments;
+                    $documents[$id] = $document;
+                } else {
+                    $overrideLocalValuesOids[$id] = spl_object_hash($document);
+                }
 
-        if (! isset($hints['prefetch']) || $hints['prefetch']) {
-            $this->getPrefetchHelper()->prefetchReferences($class, $node);
-        }
-
-        // initialize inverse side collections
-        foreach ($class->referenceMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            if ($mapping['type'] === ClassMetadata::MANY_TO_ONE) {
-                if (!$node->hasProperty($mapping['property'])) {
+                try {
+                    $this->validateClassName($document, $requestedClassName);
+                } catch(ClassMismatchException $e) {
                     continue;
                 }
-
-                try {
-                    $referencedNode = $node->getProperty($mapping['property'])->getNode();
-                    $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
-                    if (isset($mapping['targetDocument']) && !$proxy instanceof $mapping['targetDocument']) {
-                        throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$mapping['targetDocument']}' but got '".ClassUtils::getClass($proxy)."'.");
-                    }
-                } catch (RepositoryException $e) {
-                    if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
-                        // a weak reference or an old version can have lost references
-                        $proxy = null;
-                    } else {
-                        throw new PHPCRException($e->getMessage(), 0, $e);
-                    }
-                }
-
-                $documentState[$fieldName] = $proxy;
-            } elseif ($mapping['type'] === ClassMetadata::MANY_TO_MANY) {
-                $referencedNodes = array();
-                if ($node->hasProperty($mapping['property'])) {
-                    foreach ($node->getProperty($mapping['property'])->getString() as $reference) {
-                        $referencedNodes[] = $reference;
-                    }
-                }
-
-                $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
-                $coll = new ReferenceManyCollection($this->dm, $document, $mapping['property'], $referencedNodes, $targetDocument, $locale);
-                $documentState[$fieldName] = $coll;
-            }
-        }
-
-        if (! isset($hints['prefetch']) || $hints['prefetch']) {
-            if ($class->translator) {
-                try {
-                    $prefetchLocale = $locale ?: $this->dm->getLocaleChooserStrategy()->getLocale();
-                } catch (InvalidArgumentException $e) {
-                    throw new InvalidArgumentException($e->getMessage() . ' but document ' . $class->name . ' is mapped with translations.');
-                }
             } else {
-                $prefetchLocale = null;
+                $document = $class->newInstance();
+                // delay registering the new document until children proxy have been created
+                $overrideLocalValuesOids[$id] = false;
             }
-            $this->getPrefetchHelper()->prefetchHierarchy($class, $node, $prefetchLocale);
+
+            $documents[$id] = $document;
+
+            if ($this->isDocumentTranslatable($class)) {
+                $currentStrategy = $this->dm->getTranslationStrategy($class->translator);
+
+                $localesToTry = $this->dm->getLocaleChooserStrategy()->getFallbackLocales(
+                    $document,
+                    $class,
+                    $locale
+                );
+
+                foreach ($localesToTry as $localeToTry) {
+                    $allLocales[$localeToTry] = $localeToTry;
+                }
+
+                $strategies[$class->name] = $currentStrategy;
+                $nodesByStrategy[$class->name][] = $node;
+            }
         }
 
-        if ($class->parentMapping && $node->getDepth() > 0) {
-            // do not map parent to self if we are at root
-            $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent(), $locale);
+        foreach ($nodesByStrategy as $strategyClass => $nodesForLocale) {
+            if (!$strategies[$strategyClass] instanceof TranslationNodesWarmer) {
+                continue;
+            }
+
+            $strategies[$strategyClass]->getTranslationsForNodes($nodesForLocale, $allLocales, $this->session);
         }
 
-        foreach ($class->childMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = $node->hasNode($mapping['nodeName'])
-                ? $this->getOrCreateProxyFromNode($node->getNode($mapping['nodeName']), $locale)
-                : null;
+        // return early
+        if (count($documents) === $existingDocuments) {
+            return $documents;
         }
 
-        foreach ($class->childrenMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth'], $locale);
+        foreach ($nodes as $node) {
+            $id = $node->getPath();
+            if (!isset($documents[$id])) {
+                continue;
+            }
+
+            $document = $documents[$id];
+            $class = $this->dm->getClassMetadata(get_class($document));
+
+            $documentState = array();
+            $nonMappedData = array();
+
+            // second param is false to get uuid rather than dereference reference properties to node instances
+            $properties = $node->getPropertiesValues(null, false);
+
+            foreach ($class->fieldMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                if (isset($properties[$mapping['property']])) {
+                    if (true === $mapping['multivalue']) {
+                        if (isset($mapping['assoc'])) {
+                            $documentState[$fieldName] = $this->createAssoc($properties, $mapping);
+                        } else {
+                            $documentState[$fieldName] = (array) $properties[$mapping['property']];
+                        }
+                    } else {
+                        $documentState[$fieldName] = $properties[$mapping['property']];
+                    }
+                } elseif (true === $mapping['multivalue']) {
+                    $documentState[$mapping['property']] = array();
+                }
+            }
+
+            if ($class->node) {
+                $documentState[$class->node] = $node;
+            }
+
+            if ($class->nodename) {
+                $documentState[$class->nodename] = $node->getName();
+            }
+
+            if ($class->identifier) {
+                $documentState[$class->identifier] = $node->getPath();
+            }
+
+            if (! isset($hints['prefetch']) || $hints['prefetch']) {
+                $this->getPrefetchHelper()->prefetchReferences($class, $node);
+            }
+
+            // initialize inverse side collections
+            foreach ($class->referenceMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                if ($mapping['type'] === ClassMetadata::MANY_TO_ONE) {
+                    if (!$node->hasProperty($mapping['property'])) {
+                        continue;
+                    }
+
+                    try {
+                        $referencedNode = $node->getProperty($mapping['property'])->getNode();
+                        $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
+                        if (isset($mapping['targetDocument']) && !$proxy instanceof $mapping['targetDocument']) {
+                            throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$mapping['targetDocument']}' but got '".ClassUtils::getClass($proxy)."'.");
+                        }
+                    } catch (RepositoryException $e) {
+                        if ($e instanceof ItemNotFoundException || isset($hints['ignoreHardReferenceNotFound'])) {
+                            // a weak reference or an old version can have lost references
+                            $proxy = null;
+                        } else {
+                            throw new PHPCRException($e->getMessage(), 0, $e);
+                        }
+                    }
+
+                    $documentState[$fieldName] = $proxy;
+                } elseif ($mapping['type'] === ClassMetadata::MANY_TO_MANY) {
+                    $referencedNodes = array();
+                    if ($node->hasProperty($mapping['property'])) {
+                        foreach ($node->getProperty($mapping['property'])->getString() as $reference) {
+                            $referencedNodes[] = $reference;
+                        }
+                    }
+
+                    $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
+                    $coll = new ReferenceManyCollection($this->dm, $document, $mapping['property'], $referencedNodes, $targetDocument, $locale);
+                    $documentState[$fieldName] = $coll;
+                }
+            }
+
+            if (! isset($hints['prefetch']) || $hints['prefetch']) {
+                if ($class->translator) {
+                    try {
+                        $prefetchLocale = $locale ?: $this->dm->getLocaleChooserStrategy()->getLocale();
+                    } catch (InvalidArgumentException $e) {
+                        throw new InvalidArgumentException($e->getMessage() . ' but document ' . $class->name . ' is mapped with translations.');
+                    }
+                } else {
+                    $prefetchLocale = null;
+                }
+
+                $this->getPrefetchHelper()->prefetchHierarchy($class, $node, $prefetchLocale);
+            }
+
+            if ($class->parentMapping && $node->getDepth() > 0) {
+                // do not map parent to self if we are at root
+                $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent(), $locale);
+            }
+
+            foreach ($class->childMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                $documentState[$fieldName] = $node->hasNode($mapping['nodeName'])
+                    ? $this->getOrCreateProxyFromNode($node->getNode($mapping['nodeName']), $locale)
+                    : null;
+            }
+
+            foreach ($class->childrenMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                $documentState[$fieldName] = new ChildrenCollection($this->dm, $document, $mapping['filter'], $mapping['fetchDepth'], $locale);
+            }
+
+            foreach ($class->referrersMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                // get the reference type strategy (weak or hard) on the fly, as we
+                // can not do it in ClassMetadata
+                $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
+                $referringField = $referringMeta->mappings[$mapping['referencedBy']];
+                $documentState[$fieldName] = new ReferrersCollection(
+                    $this->dm,
+                    $document,
+                    $referringField['strategy'],
+                    $referringField['property'],
+                    $locale,
+                    $mapping['referringDocument']
+                );
+            }
+            foreach ($class->mixedReferrersMappings as $fieldName) {
+                $mapping = $class->mappings[$fieldName];
+                $documentState[$fieldName] = new ImmutableReferrersCollection(
+                    $this->dm,
+                    $document,
+                    $mapping['referenceType'],
+                    $locale
+                );
+            }
+
+            // when not set then not needed
+            if (!isset($overrideLocalValuesOids[$id])) {
+                continue;
+            }
+
+            if (!$overrideLocalValuesOids[$id]) {
+                // registering the document needs to be delayed until the children proxies where created
+                $overrideLocalValuesOids[$id] = $this->registerDocument($document, $id);
+            }
+
+            $this->nonMappedData[$overrideLocalValuesOids[$id]] = $nonMappedData;
+            foreach ($class->reflFields as $fieldName => $reflFields) {
+                $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
+                $reflFields->setValue($document, $value);
+                $this->originalData[$overrideLocalValuesOids[$id]][$fieldName] = $value;
+            }
+
+            // Load translations
+            $this->doLoadTranslation($document, $class, $locale, $fallback, $refresh);
+
+            if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postLoad)) {
+                $this->eventListenersInvoker->invoke(
+                    $class,
+                    Event::postLoad,
+                    $document,
+                    new LifecycleEventArgs($document, $this->dm),
+                    $invoke
+                );
+            }
         }
 
-        foreach ($class->referrersMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            // get the reference type strategy (weak or hard) on the fly, as we
-            // can not do it in ClassMetadata
-            $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
-            $referringField = $referringMeta->mappings[$mapping['referencedBy']];
-            $documentState[$fieldName] = new ReferrersCollection(
-                $this->dm,
-                $document,
-                $referringField['strategy'],
-                $referringField['property'],
-                $locale,
-                $mapping['referringDocument']
-            );
-        }
-        foreach ($class->mixedReferrersMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
-            $documentState[$fieldName] = new ImmutableReferrersCollection(
-                $this->dm,
-                $document,
-                $mapping['referenceType'],
-                $locale
-            );
-        }
-
-        if (! $overrideLocalValuesOid) {
-            // registering the document needs to be delayed until the children proxies where created
-            $overrideLocalValuesOid = $this->registerDocument($document, $id);
-        }
-
-        $this->nonMappedData[$overrideLocalValuesOid] = $nonMappedData;
-        foreach ($class->reflFields as $fieldName => $reflFields) {
-            $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
-            $reflFields->setValue($document, $value);
-            $this->originalData[$overrideLocalValuesOid][$fieldName] = $value;
-        }
-
-        // Load translations
-        $this->doLoadTranslation($document, $class, $locale, $fallback, $refresh);
-
-        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postLoad)) {
-            $this->eventListenersInvoker->invoke(
-                $class,
-                Event::postLoad,
-                $document,
-                new LifecycleEventArgs($document, $this->dm),
-                $invoke
-            );
-        }
-
-        return $document;
+        return $documents;
     }
 
     /**
@@ -1882,7 +1984,7 @@ class UnitOfWork
             $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
-                    // Unwrap so that foreach() does not initialize
+                    // Unwrap so that foreach () does not initialize
                     $related = $related->unwrap();
                 }
                 foreach ($related as $relatedDocument) {
@@ -1946,7 +2048,7 @@ class UnitOfWork
             $related = $class->reflFields[$fieldName]->getValue($document);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
-                    // Unwrap so that foreach() does not initialize
+                    // Unwrap so that foreach () does not initialize
                     $related = $related->unwrap();
                 }
                 foreach ($related as $relatedDocument) {

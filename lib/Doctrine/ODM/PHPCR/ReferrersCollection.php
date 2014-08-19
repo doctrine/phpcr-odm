@@ -110,7 +110,7 @@ class ReferrersCollection extends PersistentCollection
             $referrerDocuments = array();
             $referrerProperties = $this->getReferrerProperties();
             $referringNodes = array();
-            foreach($referrerProperties as $prop) {
+            foreach ($referrerProperties as $prop) {
                 $referringNodes[] = $prop->getParent();
             }
             $locale = $this->locale ?: $uow->getCurrentLocale($this->document);

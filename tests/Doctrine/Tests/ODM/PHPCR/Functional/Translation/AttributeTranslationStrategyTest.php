@@ -45,7 +45,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
     {
         try {
             $this->removeTestNode();
-        } catch(\Exception $ignore) {
+        } catch (\Exception $ignore) {
             // do nothing
         }
     }
