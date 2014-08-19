@@ -388,26 +388,8 @@ class DocumentManager implements ObjectManager
         }
 
         $nodes = $this->session->getNodes($ids);
-
         $hints = array('fallback' => true);
-
-        foreach ($ids as $id) {
-            $document = $this->unitOfWork->getDocumentById($id);
-            if ($document) {
-                try {
-                    $this->unitOfWork->validateClassName($document, $className);
-                    $documents[$id] = $document;
-                } catch (ClassMismatchException $e) {
-                    // ignore on class mismatch
-                }
-            } elseif (isset($nodes[$id])) {
-                try {
-                    $documents[$id] = $this->unitOfWork->getOrCreateDocument($className, $nodes[$id], $hints);
-                } catch (ClassMismatchException $e) {
-                    // ignore on class mismatch
-                }
-            }
-        }
+        $documents = $this->unitOfWork->getOrCreateDocuments($className, $nodes, $hints);
 
         return new ArrayCollection($documents);
     }

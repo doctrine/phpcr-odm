@@ -26,6 +26,7 @@ use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\SelectorInterface;
+use PHPCR\SessionInterface;
 
 /**
  * Translation strategy that stores the translations in a child nodes of the current node.
@@ -35,7 +36,7 @@ use PHPCR\Query\QOM\SelectorInterface;
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  */
-class ChildTranslationStrategy extends AttributeTranslationStrategy
+class ChildTranslationStrategy extends AttributeTranslationStrategy implements TranslationNodesWarmer
 {
     /**
      * {@inheritdoc}
@@ -181,5 +182,21 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy
         } else {
             $constraint = $languageConstraint;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTranslationsForNodes($nodes, $locales, SessionInterface $session)
+    {
+        $absolutePaths = array();
+
+        foreach ($locales as $locale) {
+            foreach ($nodes as $node) {
+                $absolutePaths[] = $node->getPath().'/'.Translation::LOCALE_NAMESPACE.':'.$locale;
+            }
+        }
+
+        return $session->getNodes($absolutePaths);
     }
 }
