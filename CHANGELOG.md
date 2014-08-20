@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.0-rc3
+---------
+
+performance optimizations with translations
+
 1.2.0-rc2
 ---------
 
