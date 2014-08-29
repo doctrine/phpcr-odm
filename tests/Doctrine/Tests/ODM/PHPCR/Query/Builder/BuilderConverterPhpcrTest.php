@@ -622,7 +622,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      * @expectedExceptionMessage You must specify a primary alias
      */
     public function testGetQueryMoreThanOneSourceNoPrimaryAlias()
