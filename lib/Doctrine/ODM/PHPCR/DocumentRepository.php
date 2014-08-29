@@ -146,23 +146,7 @@ class DocumentRepository implements ObjectRepository
         $orderByNode = $qb->orderBy();
 
         if ($orderBy) {
-            $classMeta = $this->getClassMetadata();
             foreach ($orderBy as $field => $order) {
-                if ($field === $classMeta->nodename) {
-                    throw new InvalidArgumentException(sprintf(
-                        'It is not possible to order by a nodename property "%s->%s"',
-                        $classMeta->name,
-                        $field
-                    ));
-                }
-                if ($classMeta->hasAssociation($field)) {
-                    throw new InvalidArgumentException(sprintf(
-                       'It is not possible to order by association field "%s->%s"',
-                        $classMeta->name,
-                        $field
-                    ));
-                }
-
                 $order = strtolower($order);
                 if (!in_array($order, array('asc', 'desc'))) {
                     throw new InvalidArgumentException(sprintf(
@@ -202,16 +186,7 @@ class DocumentRepository implements ObjectRepository
      */
     protected function constraintField(ConstraintFactory $where, $field, $value, $alias)
     {
-        $classMeta = $this->getClassMetadata();
-        if ($classMeta->hasAssociation($field)) {
-            throw new InvalidArgumentException(sprintf(
-                'It is not possible to filter on association fields %s->%s',
-                $classMeta->name,
-                $field
-            ));
-        }
-
-        if ($field === $this->getClassMetadata()->nodename) {
+        if ($field === $this->class->nodename) {
             $where->eq()->name($alias)->literal($value);
         } else {
             $where->eq()->field($alias.'.'.$field)->literal($value);
