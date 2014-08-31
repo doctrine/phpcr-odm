@@ -640,9 +640,18 @@ class BuilderConverterPhpcr
         $field = $node->getField();
 
         $classMeta = $this->aliasMetadata[$alias];
+
+        if ($field === $classMeta->nodename) {
+            throw new InvalidArgumentException(sprintf(
+                'It is not possible to order by a nodename property "%s->%s"',
+                $classMeta->name,
+                $field
+            ));
+        }
+
         if ($classMeta->hasAssociation($field)) {
             throw new InvalidArgumentException(sprintf(
-                'It is not possible to filter on association fields %s->%s',
+                'It is not possible to order by association field "%s->%s"',
                 $classMeta->name,
                 $field
             ));
@@ -758,27 +767,6 @@ class BuilderConverterPhpcr
 
         /** @var $ordering Ordering */
         foreach ($orderings as $ordering) {
-            $node = $ordering->getChild();
-            $alias = $node->getAlias();
-            $field = $node->getField();
-
-            $classMeta = $this->aliasMetadata[$alias];
-            if ($field === $classMeta->nodename) {
-                throw new InvalidArgumentException(sprintf(
-                    'It is not possible to order by a nodename property "%s->%s"',
-                    $classMeta->name,
-                    $field
-                ));
-            }
-
-            if ($classMeta->hasAssociation($field)) {
-                throw new InvalidArgumentException(sprintf(
-                    'It is not possible to order by association field "%s->%s"',
-                    $classMeta->name,
-                    $field
-                ));
-            }
-
             $dynOp = $ordering->getChildOfType(
                 QBConstants::NT_OPERAND_DYNAMIC
             );
