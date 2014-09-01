@@ -564,7 +564,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         return array(
             array('alias_1.ok_field', null),
             array('alias_1.nodenameProperty', 'It is not possible to order by a nodename property "MyClassName->nodenameProperty"'),
-            array('alias_1.associationfield', 'It is not possible to order by association field "MyClassName->associationfield"'),
+            array('alias_1.associationfield', 'It is not possible to order by an association field "MyClassName->associationfield"'),
         );
     }
 
