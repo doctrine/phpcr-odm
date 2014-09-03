@@ -134,6 +134,19 @@ class ChangesetCalculationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->dm->flush();
 
         $this->assertEquals(0, $this->listener->count);
+
+        $user1 = $this->dm->findTranslation(null, $user1->id, 'en');
+        $user1->status = 'active';
+        $this->dm->findTranslation(null, $user1->id, 'fr');
+
+        $this->dm->flush();
+
+        $this->assertEquals(1, $this->listener->count);
+        $this->dm->clear();
+
+        $user1 = $this->dm->findTranslation(null, $user1->id, 'en');
+        $this->assertEquals('active', $user1->status);
+
     }
 }
 
