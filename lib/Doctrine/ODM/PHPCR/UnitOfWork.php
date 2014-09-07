@@ -147,6 +147,11 @@ class UnitOfWork
     /**
      * @var array
      */
+    private $originalTranslatedData = array();
+
+    /**
+     * @var array
+     */
     private $documentChangesets = array();
 
     /**
@@ -712,7 +717,12 @@ class UnitOfWork
             ));
         }
 
-        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
+        $this->doBindTranslation($document, $locale, $class);
+    }
+
+    private function doBindTranslation($document, $locale, ClassMetadata $class, $supressEvents = false)
+    {
+        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
             $this->eventListenersInvoker->invoke(
                 $class,
                 Event::preBindTranslation,
@@ -726,15 +736,11 @@ class UnitOfWork
 
         $oid = spl_object_hash($document);
 
-        if (empty($this->documentTranslations[$oid])) {
-            $this->documentTranslations[$oid] = array();
-        }
-
         foreach ($class->translatableFields as $field) {
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
 
-        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
+        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
             $this->eventListenersInvoker->invoke(
                 $class,
                 Event::postBindTranslation,
@@ -1539,24 +1545,64 @@ class UnitOfWork
 
         $fields = array_intersect_key($changeSet, $class->mappings);
 
+        if ($this->isDocumentTranslatable($class)) {
+            $locale = $this->getCurrentLocale($document, $class);
+            $oid = spl_object_hash($document);
+
+            // check if the document has not been bound or if the locale has not yet been bound
+            // (note array_key_exists is necessary to handle removed translations)
+            if (empty($this->documentTranslations[$oid])
+                || !array_key_exists($locale, $this->documentTranslations[$oid])
+            ) {
+                $this->doBindTranslation($document, $locale, $class);
+            }
+        }
+
         if ($isNew) {
             $this->documentChangesets[$oid]['fields'] = $fields;
             $this->scheduledInserts[$oid] = $document;
             return;
         }
 
-        // when locale changes, we should keep all field changes
-        $keepAllChanges = isset($this->documentLocales[$oid]) && $this->documentLocales[$oid]['current'] !== $this->documentLocales[$oid]['original'];
-        foreach ($fields as $fieldName => $fieldValue) {
-            $keepChange = $keepAllChanges;
-            if (!$keepChange) {
-                if ($fieldValue instanceof ReferenceManyCollection || $fieldValue instanceof ReferrersCollection) {
-                    if ($fieldValue->changed()) {
-                        $keepChange = true;
+        $translationChanges = false;
+        if ($this->isDocumentTranslatable($class)) {
+            $oid = spl_object_hash($document);
+            if (isset($this->documentTranslations[$oid])) {
+                foreach ($this->documentTranslations[$oid] as $localeToCheck => $data) {
+                    // a translation was removed
+                    if (empty($data)) {
+                        $translationChanges = true;
+                        break;
                     }
-                } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                    // a translation was added
+                    if (empty($this->originalTranslatedData[$oid][$localeToCheck])) {
+                        $translationChanges = true;
+                        break;
+                    }
+                    // a translation was changed
+                    foreach ($data as $fieldName => $fieldValue) {
+                        if ($this->originalTranslatedData[$oid][$localeToCheck][$fieldName] !== $fieldValue) {
+                            $translationChanges = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // ensure that locale changes are not considered a change in the document
+            if ($class->localeMapping && array_key_exists($class->localeMapping, $fields)) {
+                unset($fields[$class->localeMapping]);
+            }
+        }
+
+        foreach ($fields as $fieldName => $fieldValue) {
+            $keepChange = false;
+            if ($fieldValue instanceof ReferenceManyCollection || $fieldValue instanceof ReferrersCollection) {
+                if ($fieldValue->changed()) {
                     $keepChange = true;
                 }
+            } elseif ($this->originalData[$oid][$fieldName] !== $fieldValue) {
+                $keepChange = true;
             }
 
             if ($keepChange) {
@@ -1566,7 +1612,7 @@ class UnitOfWork
             }
         }
 
-        if (!empty($fields)) {
+        if (!empty($fields) || $translationChanges) {
             $this->documentChangesets[$oid]['fields'] = $fields;
             $this->originalData[$oid] = $actualData;
             $this->scheduledUpdates[$oid] = $document;
@@ -2967,6 +3013,7 @@ class UnitOfWork
             $this->scheduledReorders[$oid],
             $this->scheduledInserts[$oid],
             $this->originalData[$oid],
+            $this->originalTranslatedData[$oid],
             $this->documentIds[$oid],
             $this->documentState[$oid],
             $this->documentTranslations[$oid],
@@ -3103,6 +3150,7 @@ class UnitOfWork
         $this->documentLocales =
         $this->nonMappedData =
         $this->originalData =
+        $this->originalTranslatedData =
         $this->documentChangesets =
         $this->changesetComputed =
         $this->scheduledUpdates =
@@ -3171,23 +3219,15 @@ class UnitOfWork
             return;
         }
 
-        $locale = $this->getCurrentLocale($document, $metadata);
-
         $oid = spl_object_hash($document);
-        // handle case for initial persisting
-        if (empty($this->documentTranslations[$oid])) {
-            $this->bindTranslation($document, $locale);
-        // handle case when locale in the mapped property changed
-        } elseif (isset($this->documentLocales[$oid]['current'])
-            && $locale !== $this->documentLocales[$oid]['current']
-        ) {
-            $this->bindTranslation($document, $locale);
-        }
-
         if (!empty($this->documentTranslations[$oid])) {
             $strategy = $this->dm->getTranslationStrategy($metadata->translator);
             foreach ($this->documentTranslations[$oid] as $locale => $data) {
                 if ($data) {
+                    foreach ($data as $fieldName => $fieldValue) {
+                        $this->originalTranslatedData[$oid][$locale][$fieldName] = $fieldValue;
+                    }
+
                     $strategy->saveTranslation($data, $node, $metadata, $locale);
                 } else {
                     $strategy->removeTranslation($document, $node, $metadata, $locale);
@@ -3330,6 +3370,7 @@ class UnitOfWork
         }
 
         $currentLocale = $this->getCurrentLocale($document, $metadata);
+
         // if no locale is specified, we reset the current translation
         $locale = $locale ?: $currentLocale;
 
@@ -3339,7 +3380,13 @@ class UnitOfWork
             $localeUsed = $this->doLoadDatabaseTranslation($document, $metadata, $locale, $fallback, $refresh);
         }
 
-        $this->setLocale($document, $metadata, $localeUsed);
+        $this->doBindTranslation($document, $localeUsed, $metadata, true);
+
+        $oid = spl_object_hash($document);
+        foreach ($metadata->translatableFields as $fieldName) {
+            $this->originalData[$oid][$fieldName] = $this->originalTranslatedData[$oid][$localeUsed][$fieldName]
+                = $metadata->getFieldValue($document, $fieldName);
+        }
 
         if ($metadata->parentMapping) {
             $parent = $metadata->reflFields[$metadata->parentMapping]->getValue($document);
