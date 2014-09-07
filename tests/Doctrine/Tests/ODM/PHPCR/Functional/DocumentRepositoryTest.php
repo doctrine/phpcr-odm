@@ -153,7 +153,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'));
+        $users = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' => 'beberlei'));
         $this->assertCount(1, $users);
         $this->assertEquals($user->username, $users['/functional/lsmith/beberlei']->username);
     }
@@ -161,9 +161,17 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
     /**
      * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
+    public function testFindByOrderNonExistentDirectionString()
+    {
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('username' =>'nowhere'));
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     */
     public function testFindByOrderNodename()
     {
-        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('nodename'));
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('nodename' =>'asc'));
     }
 
     /**
@@ -179,7 +187,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
      */
     public function testFindByOrderAssociation()
     {
-        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('parent'));
+        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('username' =>'beberlei'), array('parent' => 'asc'));
     }
 
     public function testFindOneBy()

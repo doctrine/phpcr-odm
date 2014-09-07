@@ -247,6 +247,19 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     }
 
     /**
+     * @depends testFrom
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     */
+    public function testOrderByNonSimpleField()
+    {
+        $qb = $this->createQb();
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->orderBy()->asc()->localname('a.username')->end();
+
+        $qb->getQuery()->execute();
+    }
+
+    /**
      * Removes jcr:primaryType from row values,
      * Jackrabbit does not return this, but doctrinedbal does.
      */

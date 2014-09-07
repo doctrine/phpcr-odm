@@ -132,7 +132,6 @@ class BuilderConverterPhpcr
         $this->validateAlias($originalAlias);
         $meta = $this->aliasMetadata[$originalAlias];;
 
-
         if ($meta->hasField($odmField)) {
             $fieldMeta = $meta->getField($odmField);
         } elseif ($meta->hasAssociation($odmField)) {
@@ -637,9 +636,30 @@ class BuilderConverterPhpcr
 
     protected function walkOperandDynamicField(OperandDynamicField $node)
     {
+        $alias = $node->getAlias();
+        $field = $node->getField();
+
+        $classMeta = $this->aliasMetadata[$alias];
+
+        if ($field === $classMeta->nodename) {
+            throw new InvalidArgumentException(sprintf(
+                'Cannot use nodename property "%s->%s" in a field operand; use "localname()" instead.',
+                $classMeta->name,
+                $field
+            ));
+        }
+
+        if ($classMeta->hasAssociation($field)) {
+            throw new InvalidArgumentException(sprintf(
+                'Cannot use association property "%s->%s" in a field operand.',
+                $classMeta->name,
+                $field
+            ));
+        }
+
         list($alias, $phpcrProperty) = $this->getPhpcrProperty(
-            $node->getAlias(),
-            $node->getField()
+            $alias,
+            $field
         );
 
         $op = $this->qomf->propertyValue(
@@ -750,6 +770,29 @@ class BuilderConverterPhpcr
             $dynOp = $ordering->getChildOfType(
                 QBConstants::NT_OPERAND_DYNAMIC
             );
+
+            if ($dynOp instanceof OperandDynamicField) {
+                $alias = $dynOp->getAlias();
+                $field = $dynOp->getField();
+
+                $classMeta = $this->aliasMetadata[$alias];
+
+                if ($field === $classMeta->nodename) {
+                    throw new InvalidArgumentException(sprintf(
+                        'It is not possible to order by a nodename property "%s->%s"',
+                        $classMeta->name,
+                        $field
+                    ));
+                }
+
+                if ($classMeta->hasAssociation($field)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'It is not possible to order by an association field "%s->%s"',
+                        $classMeta->name,
+                        $field
+                    ));
+                }
+            }
 
             $phpcrDynOp = $this->dispatch($dynOp);
 

@@ -63,6 +63,19 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     ->method('getName')
                     ->will($me->returnValue($documentFqn));
 
+                $meta->expects($me->any())
+                    ->method('hasAssociation')
+                    ->will($me->returnCallback(function ($field) {
+                        if ($field === 'associationfield') {
+                            return true;
+                        }
+
+                        return false;
+                    }));
+
+                $meta->nodename = 'nodenameProperty';
+                $meta->name = 'MyClassName';
+
                 return $meta;
             }));
 
@@ -480,7 +493,6 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 'phpcr_class' => 'LiteralInterface',
             )),
         );
-
     }
 
     /**
@@ -545,6 +557,37 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         // redispatching orderBy resets so we only have 2 again
         $res = $this->converter->dispatch($orderBy);
         $this->assertCount(2, $res);
+    }
+
+    public function provideOrderByDynamicField()
+    {
+        return array(
+            array('alias_1.ok_field', null),
+            array('alias_1.nodenameProperty', 'It is not possible to order by a nodename property "MyClassName->nodenameProperty"'),
+            array('alias_1.associationfield', 'It is not possible to order by an association field "MyClassName->associationfield"'),
+        );
+    }
+
+    /**
+     * @dataProvider provideOrderByDynamicField
+     */
+    public function testOrderByDynamicField($field, $exception)
+    {
+        $this->primeBuilder();
+        $order1 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
+
+        $orderBy = $this->createNode('OrderBy', array());
+        $orderBy->addChild($order1);
+
+        $op = $this->createNode('OperandDynamicField', array($field));
+        $order1->addChild($op);
+
+        if (null !== $exception) {
+            $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\InvalidArgumentException', $exception);
+        }
+
+        $res = $this->converter->dispatch($orderBy);
+        $this->assertCount(1, $res);
     }
 
     public function testGetQuery()
@@ -622,7 +665,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      * @expectedExceptionMessage You must specify a primary alias
      */
     public function testGetQueryMoreThanOneSourceNoPrimaryAlias()
