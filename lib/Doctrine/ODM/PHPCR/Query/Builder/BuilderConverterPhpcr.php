@@ -643,17 +643,17 @@ class BuilderConverterPhpcr
 
         if ($field === $classMeta->nodename) {
             throw new InvalidArgumentException(sprintf(
-                'Cannot use nodename property "%s->%s" in a field operand; use "localname()" instead.',
-                $classMeta->name,
-                $field
+                'Cannot use nodename property "%s" of class "%s" as a dynamic operand use "localname()" instead.',
+                $field,
+                $classMeta->name
             ));
         }
 
         if ($classMeta->hasAssociation($field)) {
             throw new InvalidArgumentException(sprintf(
-                'Cannot use association property "%s->%s" in a field operand.',
-                $classMeta->name,
-                $field
+                'Cannot use association property "%s" of class "%s" as a dynamic operand.',
+                $field,
+                $classMeta->name
             ));
         }
 
@@ -770,29 +770,6 @@ class BuilderConverterPhpcr
             $dynOp = $ordering->getChildOfType(
                 QBConstants::NT_OPERAND_DYNAMIC
             );
-
-            if ($dynOp instanceof OperandDynamicField) {
-                $alias = $dynOp->getAlias();
-                $field = $dynOp->getField();
-
-                $classMeta = $this->aliasMetadata[$alias];
-
-                if ($field === $classMeta->nodename) {
-                    throw new InvalidArgumentException(sprintf(
-                        'It is not possible to order by a nodename property "%s->%s"',
-                        $classMeta->name,
-                        $field
-                    ));
-                }
-
-                if ($classMeta->hasAssociation($field)) {
-                    throw new InvalidArgumentException(sprintf(
-                        'It is not possible to order by an association field "%s->%s"',
-                        $classMeta->name,
-                        $field
-                    ));
-                }
-            }
 
             $phpcrDynOp = $this->dispatch($dynOp);
 
