@@ -3359,6 +3359,7 @@ class UnitOfWork
      * @param ClassMetadata $metadata
      * @param string        $locale   The locale to use or null if the default locale should be used
      * @param boolean       $fallback Whether to do try other languages
+     * @param boolean       $refresh
      *
      * @throws MissingTranslationException if the translation in $locale is not
      *                                     found and $fallback is false.
