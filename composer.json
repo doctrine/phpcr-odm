@@ -16,12 +16,12 @@
         "doctrine/common": "~2.4.0",
         "phpcr/phpcr": "~2.1.1",
         "phpcr/phpcr-implementation": "~2.1.0",
-        "phpcr/phpcr-utils": ">=1.1.0,<1.3.x-dev",
+        "phpcr/phpcr-utils": "~1.1",
         "doctrine/instantiator": "~1.0.1"
     },
     "require-dev": {
         "symfony/yaml": "~2.0",
-        "liip/rmt": "~1.0"
+        "liip/rmt": "~1.1"
     },
     "suggest":{
         "symfony/yaml": "~2.0",
