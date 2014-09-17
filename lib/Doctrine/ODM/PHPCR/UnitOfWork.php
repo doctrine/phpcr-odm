@@ -2621,7 +2621,7 @@ class UnitOfWork
                                     }
 
                                     if ($referencingNode->hasProperty($referencingField['property'])) {
-                                        if (! in_array($uuid, $referencingNode->getPropertyValue($referencingField['property']), PropertyType::STRING)) {
+                                        if (!array_key_exists($uuid, $referencingNode->getPropertyValue($referencingField['property']))) {
                                             if (!$collection instanceof PersistentCollection || !$collection->isDirty()) {
                                                 // update the reference collection: add us to it
                                                 $collection->add($document);

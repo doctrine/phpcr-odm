@@ -289,4 +289,48 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->persist($user);
         $this->dm->flush();
     }
+
+    /**
+     * Test Referrers MantyToMany cascade Flush
+     */
+    public function testCascadeManagedDocumentReferrerMtoMDuringFlush()
+    {
+        $article1 = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article1->text = "foo";
+        $article1->topic = "bar";
+        $article1->id = '/functional/article_m2m_referrer_1';
+        $this->dm->persist($article1);
+
+        $article2 = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article2->text = "foo2";
+        $article2->topic = "bar2";
+        $article2->id = '/functional/article_m2m_referrer_2';
+        $this->dm->persist($article2);
+
+        $superman = new \Doctrine\Tests\Models\CMS\CmsArticlePerson();
+        $superman->name = "superman";
+
+        $this->dm->persist($superman);
+
+        $article1->addPerson($superman);
+
+        $this->dm->flush();
+
+        $this->dm->refresh($superman);
+
+        $this->assertEquals($superman, $article1->getPersons()->first());
+
+        // we want to attach article2 to superman
+        // in the form of edition, we will submit article1 and article2 at the same time
+        $superman->getArticlesReferrers()->add($article1);
+        $superman->getArticlesReferrers()->add($article2);
+        $this->dm->flush();
+        $this->dm->refresh($superman);
+
+
+        $this->assertEquals(1, $article1->getPersons()->count());
+        $this->assertEquals(2, $superman->getArticlesReferrers()->count());
+
+        $this->dm->clear();
+    }
 }
