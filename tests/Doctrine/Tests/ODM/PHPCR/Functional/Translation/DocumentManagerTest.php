@@ -210,6 +210,19 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertDocumentStored();
+
+        // Get de translation via fallback en
+        $this->doc = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'de');
+        $this->doc->topic = 'Ein interessantes Thema';
+
+        //set locale explicitly
+        $this->doc->locale = 'de';
+        $this->dm->flush();
+
+        $node = $this->getTestNode();
+
+        // ensure the new translation was bound and persisted
+        $this->assertEquals('Ein interessantes Thema', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('de', 'topic')));
     }
 
     public function testFlush()
