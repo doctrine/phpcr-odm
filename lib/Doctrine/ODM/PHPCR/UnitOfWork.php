@@ -720,9 +720,19 @@ class UnitOfWork
         $this->doBindTranslation($document, $locale, $class);
     }
 
-    private function doBindTranslation($document, $locale, ClassMetadata $class, $supressEvents = false)
+    /**
+     * @param object        $document
+     * @param string        $locale
+     * @param ClassMetadata $class
+     */
+    private function doBindTranslation($document, $locale, ClassMetadata $class)
     {
-        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
+        $oid = spl_object_hash($document);
+
+        // only trigger the events if we bind a new translation
+        $suppressEvents = isset($this->documentTranslations[$oid][$locale]);
+
+        if (!$suppressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
             $this->eventListenersInvoker->invoke(
                 $class,
                 Event::preBindTranslation,
@@ -734,13 +744,11 @@ class UnitOfWork
 
         $this->setLocale($document, $class, $locale);
 
-        $oid = spl_object_hash($document);
-
         foreach ($class->translatableFields as $field) {
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
 
-        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
+        if (!$suppressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
             $this->eventListenersInvoker->invoke(
                 $class,
                 Event::postBindTranslation,
@@ -1547,13 +1555,9 @@ class UnitOfWork
 
         if ($this->isDocumentTranslatable($class)) {
             $locale = $this->getCurrentLocale($document, $class);
-            $oid = spl_object_hash($document);
 
-            // check if the document has not been bound or if the locale has not yet been bound
-            // (note array_key_exists is necessary to handle removed translations)
-            if (empty($this->documentTranslations[$oid])
-                || !array_key_exists($locale, $this->documentTranslations[$oid])
-            ) {
+            // ensure we do not bind a previously removed translation
+            if (!$this->isTranslationRemoved($document, $locale)) {
                 $this->doBindTranslation($document, $locale, $class);
             }
         }
@@ -3381,7 +3385,7 @@ class UnitOfWork
             $localeUsed = $this->doLoadDatabaseTranslation($document, $metadata, $locale, $fallback, $refresh);
         }
 
-        $this->doBindTranslation($document, $localeUsed, $metadata, true);
+        $this->doBindTranslation($document, $localeUsed, $metadata);
 
         $oid = spl_object_hash($document);
         foreach ($metadata->translatableFields as $fieldName) {
@@ -3456,7 +3460,12 @@ class UnitOfWork
         }
     }
 
-    private function cascadeDoLoadTranslation($document, $mapping, $locale)
+    /**
+     * @param object $document
+     * @param array  $mapping
+     * @param string $locale
+     */
+    private function cascadeDoLoadTranslation($document, array $mapping, $locale)
     {
         if (!$document || !($mapping['cascade'] & ClassMetadata::CASCADE_TRANSLATION)) {
             return;
@@ -3471,10 +3480,18 @@ class UnitOfWork
             try {
                 $this->doLoadTranslation($document, $class, $locale, true);
             } catch (\Exception $e) {
+                // do nothing
             }
         }
     }
 
+    /**
+     * @param object $document
+     * @param string $locale
+     *
+     * @throws MissingTranslationException
+     * @throws PHPCRException
+     */
     public function removeTranslation($document, $locale)
     {
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -3506,6 +3523,32 @@ class UnitOfWork
         $this->setLocale($document, $metadata, null);
     }
 
+    /**
+     * Checks if the translation was removed
+     * Note it also returns true if the document isn't translated
+     * or was not translated into the given locale, ie.
+     * it does not check if there is a translation for the given locale
+     *
+     * @param object $document
+     * @param string $locale
+     *
+     * @return bool
+     */
+    private function isTranslationRemoved($document, $locale)
+    {
+        $oid = spl_object_hash($document);
+
+        return isset($this->documentTranslations[$oid])
+            && empty($this->documentTranslations[$oid][$locale])
+            && array_key_exists($locale, $this->documentTranslations[$oid])
+        ;
+    }
+
+    /**
+     * @param object        $document
+     * @param ClassMetadata $metadata
+     * @throws PHPCRException
+     */
     private function doRemoveAllTranslations($document, ClassMetadata $metadata)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
@@ -3517,6 +3560,11 @@ class UnitOfWork
         $strategy->removeAllTranslations($document, $node, $metadata);
     }
 
+    /**
+     * @param object        $document
+     * @param ClassMetadata $metadata
+     * @param string        $locale
+     */
     private function setLocale($document, ClassMetadata $metadata, $locale)
     {
         if (!$this->isDocumentTranslatable($metadata)) {
