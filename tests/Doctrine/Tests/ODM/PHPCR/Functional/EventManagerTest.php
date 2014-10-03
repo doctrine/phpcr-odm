@@ -184,8 +184,9 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->postRemoveTranslation);
 
         $this->dm->flush();
+        $this->dm->clear();
 
-        $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsPageTranslatable', $page->id, 'en');
+        $page = $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsPageTranslatable', $page->id, 'en');
 
         $this->assertTrue($this->listener->postLoadTranslation);
 
