@@ -155,8 +155,8 @@ class EventManagerTest extends PHPCRFunctionalTestCase
             ->getEventManager()
             ->addEventListener(
                 array(
-                    Event::preBindTranslation,
-                    Event::postBindTranslation,
+                    Event::preCreateTranslation,
+                    Event::postCreateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
@@ -340,12 +340,12 @@ class TestPersistenceListener
         $this->preFlush = true;
     }
 
-    public function preBindTranslation(LifecycleEventArgs $e)
+    public function preCreateTranslation(LifecycleEventArgs $e)
     {
         $this->preBindTranslation = true;
     }
 
-    public function postBindTranslation(LifecycleEventArgs $e)
+    public function postCreateTranslation(LifecycleEventArgs $e)
     {
         $this->postBindTranslation = true;
     }

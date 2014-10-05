@@ -39,8 +39,8 @@ final class Event
     const loadClassMetadata = 'loadClassMetadata';
 
     const postLoadTranslation = 'postLoadTranslation';
-    const preBindTranslation = 'preBindTranslation';
-    const postBindTranslation = 'postBindTranslation';
+    const preCreateTranslation = 'preCreateTranslation';
+    const postCreateTranslation = 'postCreateTranslation';
     const preRemoveTranslation = 'preRemoveTranslation';
     const postRemoveTranslation = 'postRemoveTranslation';
 
@@ -55,8 +55,8 @@ final class Event
         self::postMove => self::postMove,
         self::postLoad => self::postLoad,
         self::postLoadTranslation => self::postLoadTranslation,
-        self::preBindTranslation => self::preBindTranslation,
-        self::postBindTranslation => self::postBindTranslation,
+        self::preCreateTranslation => self::preCreateTranslation,
+        self::postCreateTranslation => self::postCreateTranslation,
         self::preRemoveTranslation => self::preRemoveTranslation,
         self::postRemoveTranslation => self::postRemoveTranslation,
     );

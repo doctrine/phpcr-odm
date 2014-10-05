@@ -722,10 +722,10 @@ class UnitOfWork
 
     private function doBindTranslation($document, $locale, ClassMetadata $class, $supressEvents = false)
     {
-        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
+        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preCreateTranslation)) {
             $this->eventListenersInvoker->invoke(
                 $class,
-                Event::preBindTranslation,
+                Event::preCreateTranslation,
                 $document,
                 new LifecycleEventArgs($document, $this->dm),
                 $invoke
@@ -740,10 +740,10 @@ class UnitOfWork
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
         }
 
-        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
+        if (!$supressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postCreateTranslation)) {
             $this->eventListenersInvoker->invoke(
                 $class,
-                Event::postBindTranslation,
+                Event::postCreateTranslation,
                 $document,
                 new LifecycleEventArgs($document, $this->dm),
                 $invoke
