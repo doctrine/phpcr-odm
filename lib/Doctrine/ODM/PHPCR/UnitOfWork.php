@@ -2233,7 +2233,6 @@ class UnitOfWork
         $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
 
         if (null === $document) {
-            $this->documentTranslations = array();
             foreach ($this->documentLocales as $oid => $locales) {
                 $this->documentLocales[$oid]['original'] = $locales['current'];
             }
@@ -2241,7 +2240,6 @@ class UnitOfWork
             $documents = is_array($document) ? $document : array($document);
             foreach ($documents as $doc) {
                 $oid = spl_object_hash($doc);
-                unset($this->documentTranslations[$oid]);
                 if (isset($this->documentLocales[$oid])) {
                     $this->documentLocales[$oid]['original'] = $this->documentLocales[$oid]['current'];
                 }
@@ -3376,8 +3374,15 @@ class UnitOfWork
 
         $currentLocale = $this->getCurrentLocale($document, $metadata);
 
-        // if no locale is specified, we reset the current translation
-        $locale = $locale ?: $currentLocale;
+        $oid = spl_object_hash($document);
+        if (null === $locale || $locale === $currentLocale) {
+            // current locale is already loaded and not removed
+            if (!$refresh && isset($this->documentTranslations[$oid][$currentLocale])) {
+                return;
+            }
+
+            $locale = $currentLocale;
+        }
 
         if (!$refresh && $this->doLoadPendingTranslation($document, $metadata, $locale)) {
             $localeUsed = $locale;
@@ -3387,7 +3392,6 @@ class UnitOfWork
 
         $this->doBindTranslation($document, $localeUsed, $metadata);
 
-        $oid = spl_object_hash($document);
         foreach ($metadata->translatableFields as $fieldName) {
             $this->originalData[$oid][$fieldName] = $this->originalTranslatedData[$oid][$localeUsed][$fieldName]
                 = $metadata->getFieldValue($document, $fieldName);

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* **2014-10-06**: we no longer unload translations after flush(). furthermore when doing multiple
+                  find() calls on a translated document we no longer fresh the state, so any
+                  changes to the document state that have not been persisted will no longer be lost
+
 1.2.0-rc5
 ---------
 

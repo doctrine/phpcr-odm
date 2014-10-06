@@ -862,4 +862,24 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $a = $this->dm->find(null, '/functional/' . $this->testNodeName);
         $this->assertEquals($assoc, $a->assoc);
     }
+
+    public function testAdditionalFindCallsDoNotRefresh()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'Some text';
+        $this->dm->persist($a);
+        $this->dm->flush();
+
+        $a->topic = 'Guten tag';
+
+        $trans = $this->dm->findTranslation(
+            null,
+            '/functional/' . $this->testNodeName,
+            'en'
+        );
+
+        $this->assertEquals('Guten tag', $trans->topic);
+    }
 }
