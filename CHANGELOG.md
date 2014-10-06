@@ -4,12 +4,12 @@ Changelog
 1.2.0-rc5
 ---------
 
-1.2.0-rc5
+bug fixing in translation handling
 
-1.2.0-rc5
+1.2.0-rc4
 ---------
 
-1.2.0-rc5
+bug fixing in translation handling
 
 1.2.0-rc3
 ---------
