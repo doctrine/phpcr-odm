@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.0-rc6
+---------
+
+minor fixes related to translations
+
 * **2014-10-07**: **BC break** dropped the pre/postBindTranslation events as they were previously
                   not clearly defined when they would be triggered. they are replaced by
                   preCreateTranslation which is triggered only before a new translation is added.
