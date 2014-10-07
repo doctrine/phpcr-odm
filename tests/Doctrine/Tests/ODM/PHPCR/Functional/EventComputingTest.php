@@ -115,8 +115,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
              ->getEventManager()
              ->addEventListener(
                 array(
-                    Event::preBindTranslation,
-                    Event::postBindTranslation,
+                    Event::preCreateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
@@ -132,11 +131,6 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user->status = 'active';
 
         $this->dm->persist($user);
-
-        // postBindTranslation event should change the name to bindTranslation
-        $this->dm->bindTranslation($user, 'en');
-        $this->assertEquals('postBindTranslation', $user->username);
-
         $this->dm->flush();
         $this->dm->clear();
 
@@ -146,7 +140,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertEquals('loadTranslation', $user->username);
 
         // name had been changed pre binding translation
-        $this->assertEquals('preBindTranslation', $user->name);
+        $this->assertEquals('preCreateTranslation', $user->name);
 
         $this->dm->name = 'neuer Name';
         $this->dm->bindTranslation($user, 'de');
@@ -215,16 +209,10 @@ class TestEventDocumentChanger
         $document->username .= '-postmove';
     }
 
-    public function preBindTranslation(LifecycleEventArgs $e)
+    public function preCreateTranslation(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        $document->name = 'preBindTranslation';
-    }
-
-    public function postBindTranslation(LifecycleEventArgs $e)
-    {
-        $document = $e->getObject();
-        $document->username = 'postBindTranslation';
+        $document->name = 'preCreateTranslation';
     }
 
     public function postLoadTranslation(LifecycleEventArgs $e)

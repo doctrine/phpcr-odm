@@ -730,12 +730,12 @@ class UnitOfWork
         $oid = spl_object_hash($document);
 
         // only trigger the events if we bind a new translation
-        $suppressEvents = isset($this->documentTranslations[$oid][$locale]);
-
-        if (!$suppressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preBindTranslation)) {
+        if (empty($this->documentTranslations[$oid][$locale])
+            && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preCreateTranslation)
+        ) {
             $this->eventListenersInvoker->invoke(
                 $class,
-                Event::preBindTranslation,
+                Event::preCreateTranslation,
                 $document,
                 new LifecycleEventArgs($document, $this->dm),
                 $invoke
@@ -746,16 +746,6 @@ class UnitOfWork
 
         foreach ($class->translatableFields as $field) {
             $this->documentTranslations[$oid][$locale][$field] = $class->reflFields[$field]->getValue($document);
-        }
-
-        if (!$suppressEvents && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::postBindTranslation)) {
-            $this->eventListenersInvoker->invoke(
-                $class,
-                Event::postBindTranslation,
-                $document,
-                new LifecycleEventArgs($document, $this->dm),
-                $invoke
-            );
         }
     }
 

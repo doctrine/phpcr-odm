@@ -155,8 +155,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
             ->getEventManager()
             ->addEventListener(
                 array(
-                    Event::preBindTranslation,
-                    Event::postBindTranslation,
+                    Event::preCreateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
@@ -170,16 +169,14 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $page->content = "long story";
 
         $this->dm->persist($page);
-        $this->assertFalse($this->listener->postBindTranslation);
-        $this->assertFalse($this->listener->preBindTranslation);
+        $this->assertFalse($this->listener->preCreateTranslation);
         $this->assertFalse($this->listener->postLoadTranslation);
         $this->assertFalse($this->listener->postRemoveTranslation);
         $this->assertFalse($this->listener->postRemoveTranslation);
 
         $this->dm->bindTranslation($page, 'en');
 
-        $this->assertTrue($this->listener->preBindTranslation);
-        $this->assertTrue($this->listener->postBindTranslation);
+        $this->assertTrue($this->listener->preCreateTranslation);
         $this->assertFalse($this->listener->postLoadTranslation);
         $this->assertFalse($this->listener->postRemoveTranslation);
 
@@ -227,8 +224,7 @@ class TestPersistenceListener
     public $pagePostMove = false;
 
     public $postLoadTranslation = false;
-    public $preBindTranslation = false;
-    public $postBindTranslation = false;
+    public $preCreateTranslation = false;
     public $preRemoveTranslation = false;
     public $postRemoveTranslation = false;
 
@@ -341,14 +337,9 @@ class TestPersistenceListener
         $this->preFlush = true;
     }
 
-    public function preBindTranslation(LifecycleEventArgs $e)
+    public function preCreateTranslation(LifecycleEventArgs $e)
     {
-        $this->preBindTranslation = true;
-    }
-
-    public function postBindTranslation(LifecycleEventArgs $e)
-    {
-        $this->postBindTranslation = true;
+        $this->preCreateTranslation = true;
     }
 
     public function postLoadTranslation(LifecycleEventArgs $e)
