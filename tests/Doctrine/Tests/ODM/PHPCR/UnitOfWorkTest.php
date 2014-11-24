@@ -9,6 +9,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 use Jackalope\Factory;
 use Jackalope\Node;
+use PHPCR\Util\UUIDHelper;
 
 /**
  * TODO: remove Jackalope dependency
@@ -39,7 +40,6 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->factory = new Factory;
         $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
-
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
         $this->dm = DocumentManager::create($this->session);
         $this->uow = new UnitOfWork($this->dm);
@@ -53,19 +53,22 @@ class UnitOfWorkTest extends PHPCRTestCase
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
-    protected function createNode($id, $username)
+    protected function createNode($id, $username, $uuid = null)
     {
         $repository = $this->getMockBuilder('Jackalope\Repository')->disableOriginalConstructor()->getMock();
         $this->session->expects($this->any())
             ->method('getRepository')
             ->with()
             ->will($this->returnValue($repository));
-
         $nodeData = array(
             "jcr:primaryType" => "rep:root",
             "jcr:system" => array(),
             'username' => $username,
         );
+
+        if (null !== $uuid) {
+            $nodeData['jcr:uuid'] = $uuid;
+        }
         return new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
     }
 
@@ -160,6 +163,27 @@ class UnitOfWorkTest extends PHPCRTestCase
         $dm = DocumentManager::create($this->session, $config);
         $uow = new UnitOfWork($dm);
         $this->assertEquals('like-a-uuid', $method->invoke($uow));
+    }
+
+    public function testGetOrCreateProxy()
+    {
+        $user = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
+        $this->uow->clear();
+        $userAsReference = $this->uow->getOrCreateProxy($user->id, get_class($user));
+
+        $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentById($userAsReference->id));
+    }
+
+    public function testGetOrCreateProxyWithUuid()
+    {
+        $uuid = UUIDHelper::generateUUID();
+        $user = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo', $uuid));
+        $this->uow->clear();
+        $userAsReference = $this->uow->getOrCreateProxy($uuid, get_class($user));
+
+        $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentById($uuid));
     }
 }
 

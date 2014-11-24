@@ -669,11 +669,17 @@ class UnitOfWork
      * Populate the proxy with actual data
      *
      * @param string $className
-     * @param Proxy  $document
+     * @param Proxy $document
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $node = $this->session->getNode($this->determineDocumentId($document));
+        $identifier = $this->determineDocumentId($document);
+        $node = $this->dm->getNodeByPathOrUuid($identifier);
+        if (UUIDHelper::isUUID($identifier)) {
+            // switch document registration to path as usual
+            $this->unregisterDocument($document);
+            $this->registerDocument($document, $node->getPath());
+        }
 
         $hints = array('refresh' => true, 'fallback' => true);
 
@@ -1781,13 +1787,11 @@ class UnitOfWork
             throw new InvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
         }
 
-        $node = $this->session->getNode($this->getDocumentId($document));
-
         $class = $this->dm->getClassMetadata(get_class($document));
         $this->cascadeRefresh($class, $document, $visited);
 
         $hints = array('refresh' => true);
-        $this->getOrCreateDocument(ClassUtils::getClass($document), $node, $hints);
+        $this->getOrCreateDocument(ClassUtils::getClass($document), $this->dm->getNodeForDocument($document), $hints);
     }
 
     public function merge($document)
@@ -2440,7 +2444,7 @@ class UnitOfWork
             }
 
             $class = $this->dm->getClassMetadata(get_class($document));
-            $node = $this->session->getNode($this->getDocumentId($document));
+            $node = $this->dm->getNodeForDocument($document);
 
             if ($this->writeMetadata) {
                 $this->documentClassMapper->writeMetadata($this->dm, $node, $class->name);
@@ -2529,7 +2533,7 @@ class UnitOfWork
                                     continue;
                                 }
 
-                                $associatedNode = $this->session->getNode($this->getDocumentId($fv));
+                                $associatedNode = $this->dm->getNodeForDocument($fv);
                                 if ($strategy === PropertyType::PATH) {
                                     $refNodesIds[] = $associatedNode->getPath();
                                 } else {
@@ -2547,7 +2551,7 @@ class UnitOfWork
                         }
                     } elseif ($mapping['type'] === $class::MANY_TO_ONE) {
                         if (isset($fieldValue)) {
-                            $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
+                            $associatedNode = $this->dm->getNodeForDocument($fieldValue);
 
                             if ($strategy === PropertyType::PATH) {
                                 $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
@@ -2579,7 +2583,7 @@ class UnitOfWork
                                 throw new PHPCRException(sprintf("%s is not an instance of %s for document %s field %s", self::objToStr($fv, $this->dm), $mapping['referencedBy'], self::objToStr($document, $this->dm), $mapping['fieldName']));
                             }
 
-                            $referencingNode = $this->session->getNode($this->getDocumentId($fv));
+                            $referencingNode = $this->dm->getNodeForDocument($fv);
                             $referencingMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
                             $referencingField = $referencingMeta->getAssociation($mapping['referencedBy']);
 
@@ -2762,7 +2766,7 @@ class UnitOfWork
             }
             foreach ($list as $value) {
                 list($parent, $src, $target, $before) = $value;
-                $parentNode = $this->session->getNode($this->getDocumentId($parent));
+                $parentNode = $this->dm->getNodeForDocument($parent);
 
                 // check for src and target ...
                 $dest = $target;
@@ -2810,7 +2814,7 @@ class UnitOfWork
             $id = $this->getDocumentId($document);
 
             try {
-                $node = $this->session->getNode($id);
+                $node = $this->dm->getNodeByPathOrUuid($id);
                 $this->doRemoveAllTranslations($document, $class);
                 $node->remove();
             } catch (PathNotFoundException $e) {
@@ -2991,7 +2995,7 @@ class UnitOfWork
      *
      * @param object $document
      */
-    private function unregisterDocument($document)
+    public function unregisterDocument($document)
     {
         $oid = spl_object_hash($document);
 
@@ -3178,7 +3182,7 @@ class UnitOfWork
         $oid = spl_object_hash($document);
         if ($this->contains($oid)) {
             try {
-                $node = $this->session->getNode($this->getDocumentId($document));
+                $node = $this->dm->getNodeForDocument($document);
                 $locales = $this->dm->getTranslationStrategy($metadata->translator)->getLocalesFor($document, $node, $metadata);
             } catch (PathNotFoundException $e) {
                 $locales = array();
@@ -3296,7 +3300,7 @@ class UnitOfWork
 
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         try {
-            $node = $this->session->getNode($this->getDocumentId($oid));
+            $node = $this->dm->getNodeForDocument($oid);
             if ($strategy->loadTranslation($document, $node, $metadata, $locale)) {
                 return $locale;
             }
@@ -3549,9 +3553,8 @@ class UnitOfWork
             return;
         }
 
-        $node = $this->session->getNode($this->getDocumentId($document));
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
-        $strategy->removeAllTranslations($document, $node, $metadata);
+        $strategy->removeAllTranslations($document, $this->dm->getNodeForDocument($document), $metadata);
     }
 
     /**
@@ -3663,28 +3666,16 @@ class UnitOfWork
 
     private function getVersionedNodePath($document)
     {
-        $path = $this->getDocumentId($document);
+        $id = $this->getDocumentId($document);
         $metadata = $this->dm->getClassMetadata(get_class($document));
-
-        if (!$metadata->versionable) {
-            throw new InvalidArgumentException(sprintf(
-                "The document at path '%s' is not versionable",
-                $path
-            ));
+        if ($metadata->versionable !== 'full') {
+            throw new InvalidArgumentException(sprintf("The document at '%s' is not full versionable", $id));
         }
 
-        $node = $this->session->getNode($path);
+        $node = $this->dm->getNodeByPathOrUuid($id);
+        $node->addMixin('mix:versionable');
 
-        $mixin = $metadata->versionable === 'simple' ?
-            'mix:simpleVersionable' :
-            'mix:versionable';
-
-        if (!$node->isNodeType($mixin)) {
-            $node->addMixin($mixin);
-        }
-
-
-        return $path;
+        return $id;
     }
 
     /**

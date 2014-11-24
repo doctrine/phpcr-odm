@@ -313,28 +313,33 @@ class DocumentManager implements ObjectManager
      */
     public function find($className, $id)
     {
+        // document still mapped -> return that when class name is valid
+        $document = $this->unitOfWork->getDocumentById($id);
+        if ($document) {
+            $document = $this->documentHasValidClassName($document, $className) ? $document : null;
+            return $document;
+        }
+
+        // id can either be an path or an uuid, so we can have a look if one of both does have an entry
+        if (UUIDHelper::isUUID($id)) {
+            try {
+                $id = $this->session->getNodeByIdentifier($id)->getPath();
+            } catch (ItemNotFoundException $e) {
+                return null;
+            }
+        } elseif (strpos($id, '/') !== 0) {
+            $id = '/'.$id;
+        }
+
+        // document mapped by id = absolute Path -> return that when class name is valid
+        $document = $this->unitOfWork->getDocumentById($id);
+        if ($document) {
+            $document = $this->documentHasValidClassName($document, $className) ? $document : null;
+            return $document;
+        }
+
+        // no document mapped, then try to fetch it from session and create a new one
         try {
-            if (UUIDHelper::isUUID($id)) {
-                try {
-                    $id = $this->session->getNodeByIdentifier($id)->getPath();
-                } catch (ItemNotFoundException $e) {
-                    return null;
-                }
-            } elseif (strpos($id, '/') !== 0) {
-                $id = '/'.$id;
-            }
-
-            $document = $this->unitOfWork->getDocumentById($id);
-            if ($document) {
-                try {
-                    $this->unitOfWork->validateClassName($document, $className);
-
-                    return $document;
-                } catch (ClassMismatchException $e) {
-                    return null;
-                }
-
-            }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
             return null;
@@ -346,6 +351,25 @@ class DocumentManager implements ObjectManager
             return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
         } catch (ClassMismatchException $e) {
             return null;
+        }
+    }
+
+    /**
+     * Just a little helper to validate the documents class name with a
+     * boolean answer.
+     *
+     * @param  object $document
+     * @param  string $className
+     * @return bool
+     */
+    private function documentHasValidClassName($document, $className)
+    {
+        try {
+            $this->unitOfWork->validateClassName($document, $className);
+
+            return true;
+        } catch(ClassMismatchException $e) {
+            return false;
         }
     }
 
@@ -1190,23 +1214,40 @@ class DocumentManager implements ObjectManager
     }
 
     /**
-     * Return the node of the given object
+     * Return the node of the given object or its hash.
      *
-     * @param object $document
+     * This node is fetched by the objects uuid or its id means the absolute path.
+     *
+     * @param object|string $document
      *
      * @return \PHPCR\NodeInterface
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document isn't mapped in UoW.
      * @throws PHPCRException                if $document is not managed
      */
     public function getNodeForDocument($document)
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+        if (!$identifier = $this->unitOfWork->getDocumentId($document)) {
+            throw new InvalidArgumentException('Parameter document should have an entry in identityMap.');
         }
 
-        $path = $this->unitOfWork->getDocumentId($document);
+        return $this->getNodeByPathOrUuid($identifier);
+    }
 
-        return $this->session->getNode($path);
+    /**
+     * Creates a node from a given path or an uuid
+     *
+     * @param $pathOrUuid
+     * @return \PHPCR\NodeInterface
+     */
+    public function getNodeByPathOrUuid($pathOrUuid)
+    {
+        if (UUIDHelper::isUUID($pathOrUuid)) {
+            $node = $this->session->getNodeByIdentifier($pathOrUuid);
+        } else {
+            $node = $this->session->getNode($pathOrUuid);
+        }
+
+        return $node;
     }
 }
