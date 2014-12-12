@@ -179,7 +179,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $result   = new \stdClass();
         $callback = $this->getMock('stdClass', array('__invoke'));
 
-        $callback->expects($this->once())->method('__invoke')->will($this->returnValue($result));
+        $callback->expects($this->once())->method('__invoke')->with($dm)->will($this->returnValue($result));
 
 
         $transactionManager->expects($this->at(0))->method('begin');
@@ -221,8 +221,11 @@ class DocumentManagerTest extends PHPCRTestCase
         $callbackException = new \Exception();
         $callback          = $this->getMock('stdClass', array('__invoke'));
 
-        $callback->expects($this->once())->method('__invoke')->will($this->throwException($callbackException));
-
+        $callback
+            ->expects($this->once())
+            ->method('__invoke')
+            ->with($dm)
+            ->will($this->throwException($callbackException));
 
         $transactionManager->expects($this->at(0))->method('begin');
         $transactionManager->expects($this->never())->method('commit');
@@ -252,7 +255,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $result   = new \stdClass();
         $callback = $this->getMock('stdClass', array('__invoke'));
 
-        $callback->expects($this->once())->method('__invoke')->will($this->returnValue($result));
+        $callback->expects($this->once())->method('__invoke')->with($dm)->will($this->returnValue($result));
 
         $this->assertSame($result, $dm->transactional($callback));
     }
