@@ -444,7 +444,8 @@ class UnitOfWork
                 continue;
             }
 
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $documents[$id] = $document;
+            $class          = $this->dm->getClassMetadata(get_class($document));
 
             $documentState = array();
             $nonMappedData = array();
