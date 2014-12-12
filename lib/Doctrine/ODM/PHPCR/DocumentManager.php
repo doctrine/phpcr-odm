@@ -1211,6 +1211,22 @@ class DocumentManager implements ObjectManager
         return $this->session->getNode($path);
     }
 
+    /**
+     * Executes a given callback in a transaction.
+     *
+     * The function gets passed this DocumentManager instance as a parameter.
+     *
+     * {@link flush} is invoked prior to transaction commit.
+     *
+     * If an exception occurs during execution of the function or flushing or transaction commit,
+     * the transaction is rolled back, the DocumentManager closed and the exception re-thrown.
+     *
+     * @param callable $callback The callback to be executed execute transactionally.
+     *
+     * @return mixed the return value of the callback execution
+     *
+     * @throws \Exception
+     */
     public function transactional($callback)
     {
         if (! is_callable($callback)) {
