@@ -1226,6 +1226,7 @@ class DocumentManager implements ObjectManager
      * @return mixed the return value of the callback execution
      *
      * @throws \Exception
+     * @throws InvalidArgumentException when an invalid callback is provided
      */
     public function transactional($callback)
     {
