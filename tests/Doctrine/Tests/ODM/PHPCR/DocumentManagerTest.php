@@ -260,6 +260,8 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $callback->expects($this->once())->method('__invoke')->with($dm)->will($this->returnValue($result));
 
+        $dm->expects($this->once())->method('flush');
+
         $this->assertSame($result, $dm->transactional($callback));
     }
 
