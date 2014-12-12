@@ -150,38 +150,39 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testFetchingMultipleHierarchicalObjectsWithChildIdFirst()
     {
-        $comment1           = new ParentTestObj();
-        $comment1->nodename = 'parentComment';
-        $comment1->name     = 'parentComment';
-        $comment1->parent   = $this->dm->find(null, 'functional');
+        $parent           = new ParentTestObj();
+        $parent->nodename = 'parentComment';
+        $parent->name     = 'parentComment';
+        $parent->parent   = $this->dm->find(null, 'functional');
 
-        $comment2           = new ParentTestObj();
-        $comment2->nodename = 'childComment';
-        $comment2->name     = 'childComment';
-        $comment2->parent   = $comment1;
+        $child            = new ParentTestObj();
+        $child->nodename  = 'childComment';
+        $child->name      = 'childComment';
+        $child->parent    = $parent;
 
-        $this->dm->persist($comment1);
-        $this->dm->persist($comment2);
+        $this->dm->persist($parent);
+        $this->dm->persist($child);
 
-        $comment1Id = $this->uow->getDocumentId($comment1);
-        $comment2Id = $this->uow->getDocumentId($comment2);
+        $parentId = $this->uow->getDocumentId($parent);
+        $childId  = $this->uow->getDocumentId($child);
 
         $this->dm->flush();
         $this->dm->clear();
 
+        // this forces the objects to be loaded in an order where the $parent will become a proxy
         $documents = $this->dm->findMany(
             'Doctrine\Tests\Models\References\ParentTestObj',
-            array($comment2Id, $comment1Id)
+            array($childId, $parentId)
         );
 
         $this->assertCount(2, $documents);
 
-        /* @var $comment2 ParentTestObj */
-        /* @var $comment1 ParentTestObj */
-        $comment2 = $documents->first();
-        $comment1 = $documents->last();
+        /* @var $child ParentTestObj */
+        /* @var $parent ParentTestObj */
+        $child  = $documents->first();
+        $parent = $documents->last();
 
-        $this->assertSame($comment2->parent, $comment1);
-        $this->assertSame('parentComment', $comment1->nodename);
+        $this->assertSame($child->parent, $parent);
+        $this->assertSame('parentComment', $parent->nodename);
     }
 }
