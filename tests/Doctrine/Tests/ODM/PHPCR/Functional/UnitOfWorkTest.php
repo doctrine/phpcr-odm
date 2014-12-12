@@ -150,16 +150,14 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testFetchingMultipleHierarchicalObjectsWithChildIdFirst()
     {
-        $root = $this->dm->find(null, 'functional');
-
         $comment1           = new ParentTestObj();
         $comment1->nodename = 'parentComment';
         $comment1->name     = 'parentComment';
-        $comment1->parent   = $root;
+        $comment1->parent   = $this->dm->find(null, 'functional');
 
         $comment2           = new ParentTestObj();
-        $comment2->nodename = 'parentComment';
-        $comment2->name     = 'parentComment';
+        $comment2->nodename = 'childComment';
+        $comment2->name     = 'childComment';
         $comment2->parent   = $comment1;
 
         $this->dm->persist($comment1);
@@ -184,5 +182,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $comment1 = $documents->last();
 
         $this->assertSame($comment2->parent, $comment1);
+        $this->assertSame('parentComment', $comment1->nodename);
     }
 }
