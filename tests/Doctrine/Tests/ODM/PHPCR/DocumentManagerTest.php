@@ -4,6 +4,10 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\SessionInterface;
+use PHPCR\Transaction\UserTransactionInterface;
+use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\WorkspaceInterface;
 
 /**
  * @group unit
@@ -160,6 +164,67 @@ class DocumentManagerTest extends PHPCRTestCase
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder', $qb);
+    }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithSuccessfulReturnValue()
+    {
+        /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+
+        $dm = $this->buildDocumentManager(null, $transactionManager);
+
+        $result   = new \stdClass();
+        $callback = $this->getMock('stdClass', array('__invoke'));
+
+        $callback->expects($this->once())->method('__invoke')->will($this->returnValue($result));
+
+
+        $transactionManager->expects($this->at(0))->method('begin');
+        $transactionManager->expects($this->at(1))->method('commit');
+        $transactionManager->expects($this->never())->method('rollback');
+
+        $this->assertSame($result, $dm->transactional($callback));
+    }
+
+    /**
+     * @param null|SessionInterface         $session
+     * @param null|UserTransactionInterface $transactionManager
+     * @param null|WorkspaceInterface       $workspace
+     *
+     * @return DocumentManager
+     */
+    private function buildDocumentManager(
+        SessionInterface $session = null,
+        UserTransactionInterface $transactionManager = null,
+        WorkspaceInterface $workspace = null
+    ) {
+        if (! $transactionManager) {
+            $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+        }
+
+        if (! $workspace) {
+            $workspace = $this->getMock('PHPCR\WorkspaceInterface');
+
+            $workspace
+                ->expects($this->any())
+                ->method('getTransactionManager')
+                ->will($this->returnValue($transactionManager));
+        }
+
+        if (! $session) {
+            /* @var $session SessionInterface|\PHPUnit_Framework_MockObject_MockObject */
+            $session            = $this->getMock('PHPCR\SessionInterface');
+
+            $session
+                ->expects($this->any())
+                ->method('getWorkspace')
+                ->will($this->returnValue($workspace));
+        }
+
+        return DocumentManager::create($session);
     }
 }
 
