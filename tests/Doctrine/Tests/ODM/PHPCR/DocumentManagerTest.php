@@ -190,6 +190,25 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithInvalidCallback()
+    {
+        /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+
+        $dm = $this->buildDocumentManager(null, $transactionManager);
+
+        $transactionManager->expects($this->never())->method('begin');
+        $transactionManager->expects($this->never())->method('commit');
+        $transactionManager->expects($this->never())->method('rollback');
+
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
+
+        $dm->transactional('I AM NOT A CALLBACK!');
+    }
+
+    /**
      * @param null|SessionInterface         $session
      * @param null|UserTransactionInterface $transactionManager
      * @param null|WorkspaceInterface       $workspace
