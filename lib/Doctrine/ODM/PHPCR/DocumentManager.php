@@ -37,6 +37,7 @@ use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
+use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
@@ -1208,5 +1209,41 @@ class DocumentManager implements ObjectManager
         $path = $this->unitOfWork->getDocumentId($document);
 
         return $this->session->getNode($path);
+    }
+
+    public function transactional($callback)
+    {
+        if (! is_callable($callback)) {
+            throw new InvalidArgumentException(sprintf(
+                'Parameter $callback must be a valid callable, "%s" given',
+                gettype($callback)
+            ));
+        }
+
+        $transactionManager = null;
+
+        try {
+            $transactionManager = $this->session->getWorkspace()->getTransactionManager();
+        } catch (UnsupportedRepositoryOperationException $e) {
+        }
+
+        if (! $transactionManager) {
+            return call_user_func($callback, $this);
+        }
+
+        $transactionManager->begin();
+
+        try {
+            $result = call_user_func($callback, $this);
+        } catch (\Exception $exception) {
+            $this->close();
+            $transactionManager->rollback();
+
+            throw $exception;
+        }
+
+        $transactionManager->commit();
+
+        return $result;
     }
 }
