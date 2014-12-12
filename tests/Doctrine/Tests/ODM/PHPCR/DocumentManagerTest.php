@@ -174,7 +174,7 @@ class DocumentManagerTest extends PHPCRTestCase
         /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
         $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
 
-        $dm = $this->buildDocumentManager(null, $transactionManager);
+        $dm = $this->buildFakeDocumentManager(null, $transactionManager);
 
         $result   = new \stdClass();
         $callback = $this->getMock('stdClass', array('__invoke'));
@@ -185,6 +185,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $transactionManager->expects($this->at(0))->method('begin');
         $transactionManager->expects($this->at(1))->method('commit');
         $transactionManager->expects($this->never())->method('rollback');
+        $dm->expects($this->once())->method('flush');
 
         $this->assertSame($result, $dm->transactional($callback));
     }
@@ -197,11 +198,12 @@ class DocumentManagerTest extends PHPCRTestCase
         /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
         $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
 
-        $dm = $this->buildDocumentManager(null, $transactionManager);
+        $dm = $this->buildFakeDocumentManager(null, $transactionManager);
 
         $transactionManager->expects($this->never())->method('begin');
         $transactionManager->expects($this->never())->method('commit');
         $transactionManager->expects($this->never())->method('rollback');
+        $dm->expects($this->once())->method('flush');
 
         $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
 
@@ -216,7 +218,7 @@ class DocumentManagerTest extends PHPCRTestCase
         /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
         $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
 
-        $dm = $this->buildDocumentManager(null, $transactionManager);
+        $dm = $this->buildFakeDocumentManager(null, $transactionManager);
 
         $callbackException = new \Exception();
         $callback          = $this->getMock('stdClass', array('__invoke'));
@@ -230,6 +232,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $transactionManager->expects($this->at(0))->method('begin');
         $transactionManager->expects($this->never())->method('commit');
         $transactionManager->expects($this->at(1))->method('rollback');
+        $dm->expects($this->never())->method('flush');
 
         try {
             $dm->transactional($callback);
@@ -250,7 +253,7 @@ class DocumentManagerTest extends PHPCRTestCase
             ->method('getTransactionManager')
             ->will($this->throwException(new UnsupportedRepositoryOperationException()));
 
-        $dm = $this->buildDocumentManager(null, null, $workspace);
+        $dm = $this->buildFakeDocumentManager(null, null, $workspace);
 
         $result   = new \stdClass();
         $callback = $this->getMock('stdClass', array('__invoke'));
@@ -265,9 +268,9 @@ class DocumentManagerTest extends PHPCRTestCase
      * @param null|UserTransactionInterface $transactionManager
      * @param null|WorkspaceInterface       $workspace
      *
-     * @return DocumentManager
+     * @return DocumentManager|\PHPUnit_Framework_MockObject_MockObject
      */
-    private function buildDocumentManager(
+    private function buildFakeDocumentManager(
         SessionInterface $session = null,
         UserTransactionInterface $transactionManager = null,
         WorkspaceInterface $workspace = null
@@ -287,7 +290,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         if (! $session) {
             /* @var $session SessionInterface|\PHPUnit_Framework_MockObject_MockObject */
-            $session            = $this->getMock('PHPCR\SessionInterface');
+            $session = $this->getMock('PHPCR\SessionInterface');
 
             $session
                 ->expects($this->any())
@@ -295,7 +298,11 @@ class DocumentManagerTest extends PHPCRTestCase
                 ->will($this->returnValue($workspace));
         }
 
-        return DocumentManager::create($session);
+        return $this->getMock(
+            'Doctrine\ODM\PHPCR\DocumentManager',
+            array('flush'),
+            array($session)
+        );
     }
 }
 
