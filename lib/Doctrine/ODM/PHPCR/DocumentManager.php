@@ -1242,9 +1242,6 @@ class DocumentManager implements ObjectManager
         try {
             $transactionManager = $this->session->getWorkspace()->getTransactionManager();
         } catch (UnsupportedRepositoryOperationException $e) {
-        }
-
-        if (! $transactionManager) {
             $result = call_user_func($callback, $this);
 
             $this->flush();
