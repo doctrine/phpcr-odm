@@ -236,6 +236,28 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithNoTransactionSupport()
+    {
+        $workspace = $this->getMock('PHPCR\WorkspaceInterface');
+
+        $workspace
+            ->expects($this->any())
+            ->method('getTransactionManager')
+            ->will($this->throwException(new UnsupportedRepositoryOperationException()));
+
+        $dm = $this->buildDocumentManager(null, null, $workspace);
+
+        $result   = new \stdClass();
+        $callback = $this->getMock('stdClass', array('__invoke'));
+
+        $callback->expects($this->once())->method('__invoke')->will($this->returnValue($result));
+
+        $this->assertSame($result, $dm->transactional($callback));
+    }
+
+    /**
      * @param null|SessionInterface         $session
      * @param null|UserTransactionInterface $transactionManager
      * @param null|WorkspaceInterface       $workspace
