@@ -1245,13 +1245,19 @@ class DocumentManager implements ObjectManager
         }
 
         if (! $transactionManager) {
-            return call_user_func($callback, $this);
+            $result = call_user_func($callback, $this);
+
+            $this->flush();
+
+            return $result;
         }
 
         $transactionManager->begin();
 
         try {
             $result = call_user_func($callback, $this);
+
+            $this->flush();
         } catch (\Exception $exception) {
             $this->close();
             $transactionManager->rollback();
