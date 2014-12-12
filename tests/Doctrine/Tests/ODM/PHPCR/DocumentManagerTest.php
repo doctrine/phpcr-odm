@@ -203,7 +203,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $transactionManager->expects($this->never())->method('begin');
         $transactionManager->expects($this->never())->method('commit');
         $transactionManager->expects($this->never())->method('rollback');
-        $dm->expects($this->once())->method('flush');
+        $dm->expects($this->never())->method('flush');
 
         $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
 
