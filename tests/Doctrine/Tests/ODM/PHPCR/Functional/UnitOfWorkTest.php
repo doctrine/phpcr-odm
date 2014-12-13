@@ -183,6 +183,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = $documents->last();
 
         $this->assertSame($child->parent, $parent);
-        $this->assertSame('parentComment', $parent->nodename);
+        $this->assertSame('parent', $parent->nodename);
     }
 }
