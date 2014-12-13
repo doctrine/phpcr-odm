@@ -88,6 +88,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     const GENERATOR_TYPE_AUTO = 4;
 
+    /**
+     * Slugify the value of a specified field and use that as the node name
+     */
+    const GENERATOR_TYPE_FIELD_SLUGIFY = 5;
+
     protected static $validVersionableAnnotations = array('simple', 'full');
 
     /**
@@ -103,6 +108,13 @@ class ClassMetadata implements ClassMetadataInterface
      * @var int constant for the id generator to use for this class
      */
     public $idGenerator = self::GENERATOR_TYPE_NONE;
+
+    /**
+     * READ-ONLY: The options for the ID generator
+     *
+     * @var array
+     */
+    public $idGeneratorOptions = array();
 
     /**
      * READ-ONLY: The field name of the document identifier.
@@ -659,6 +671,7 @@ class ClassMetadata implements ClassMetadataInterface
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
                 $this->setIdGenerator($mapping['strategy']);
+                $this->idGeneratorOptions = isset($mapping['options']) ? : array();
             }
         }
 

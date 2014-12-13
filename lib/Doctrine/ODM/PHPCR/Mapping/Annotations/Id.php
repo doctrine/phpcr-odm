@@ -41,4 +41,9 @@ final class Id
      * @var string
      */
     public $strategy;
+
+    /**
+     * @var array
+     */
+    public $options;
 }
