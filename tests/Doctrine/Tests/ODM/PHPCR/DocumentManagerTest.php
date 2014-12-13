@@ -4,6 +4,10 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\SessionInterface;
+use PHPCR\Transaction\UserTransactionInterface;
+use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\WorkspaceInterface;
 
 /**
  * @group unit
@@ -160,6 +164,147 @@ class DocumentManagerTest extends PHPCRTestCase
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
         $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder', $qb);
+    }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithSuccessfulReturnValue()
+    {
+        /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+
+        $dm = $this->buildFakeDocumentManager(null, $transactionManager);
+
+        $result   = new \stdClass();
+        $callback = $this->getMock('stdClass', array('__invoke'));
+
+        $callback->expects($this->once())->method('__invoke')->with($dm)->will($this->returnValue($result));
+
+
+        $transactionManager->expects($this->at(0))->method('begin');
+        $transactionManager->expects($this->at(1))->method('commit');
+        $transactionManager->expects($this->never())->method('rollback');
+        $dm->expects($this->once())->method('flush');
+
+        $this->assertSame($result, $dm->transactional($callback));
+    }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithInvalidCallback()
+    {
+        /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+
+        $dm = $this->buildFakeDocumentManager(null, $transactionManager);
+
+        $transactionManager->expects($this->never())->method('begin');
+        $transactionManager->expects($this->never())->method('commit');
+        $transactionManager->expects($this->never())->method('rollback');
+        $dm->expects($this->never())->method('flush');
+
+        $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
+
+        $dm->transactional('I AM NOT A CALLBACK!');
+    }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithErrorThrowingCallback()
+    {
+        /* @var $transactionManager UserTransactionInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+
+        $dm = $this->buildFakeDocumentManager(null, $transactionManager);
+
+        $callbackException = new \Exception();
+        $callback          = $this->getMock('stdClass', array('__invoke'));
+
+        $callback
+            ->expects($this->once())
+            ->method('__invoke')
+            ->with($dm)
+            ->will($this->throwException($callbackException));
+
+        $transactionManager->expects($this->at(0))->method('begin');
+        $transactionManager->expects($this->never())->method('commit');
+        $transactionManager->expects($this->at(1))->method('rollback');
+        $dm->expects($this->never())->method('flush');
+
+        try {
+            $dm->transactional($callback);
+        } catch (\Exception $caughtException) {
+            $this->assertSame($callbackException, $caughtException);
+        }
+    }
+
+    /**
+     * @covers Doctrine\ODM\PHPCR\DocumentManager::transactional
+     */
+    public function testTransactionalWithNoTransactionSupport()
+    {
+        $workspace = $this->getMock('PHPCR\WorkspaceInterface');
+
+        $workspace
+            ->expects($this->any())
+            ->method('getTransactionManager')
+            ->will($this->throwException(new UnsupportedRepositoryOperationException()));
+
+        $dm = $this->buildFakeDocumentManager(null, null, $workspace);
+
+        $result   = new \stdClass();
+        $callback = $this->getMock('stdClass', array('__invoke'));
+
+        $callback->expects($this->once())->method('__invoke')->with($dm)->will($this->returnValue($result));
+
+        $dm->expects($this->once())->method('flush');
+
+        $this->assertSame($result, $dm->transactional($callback));
+    }
+
+    /**
+     * @param null|SessionInterface         $session
+     * @param null|UserTransactionInterface $transactionManager
+     * @param null|WorkspaceInterface       $workspace
+     *
+     * @return DocumentManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private function buildFakeDocumentManager(
+        SessionInterface $session = null,
+        UserTransactionInterface $transactionManager = null,
+        WorkspaceInterface $workspace = null
+    ) {
+        if (! $transactionManager) {
+            $transactionManager = $this->getMock('PHPCR\Transaction\UserTransactionInterface');
+        }
+
+        if (! $workspace) {
+            $workspace = $this->getMock('PHPCR\WorkspaceInterface');
+
+            $workspace
+                ->expects($this->any())
+                ->method('getTransactionManager')
+                ->will($this->returnValue($transactionManager));
+        }
+
+        if (! $session) {
+            /* @var $session SessionInterface|\PHPUnit_Framework_MockObject_MockObject */
+            $session = $this->getMock('PHPCR\SessionInterface');
+
+            $session
+                ->expects($this->any())
+                ->method('getWorkspace')
+                ->will($this->returnValue($workspace));
+        }
+
+        return $this->getMock(
+            'Doctrine\ODM\PHPCR\DocumentManager',
+            array('flush'),
+            array($session)
+        );
     }
 }
 
