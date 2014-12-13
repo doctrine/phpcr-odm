@@ -437,13 +437,15 @@ class UnitOfWork
         }
 
         foreach ($nodes as $node) {
-            $id = $node->getPath();
-            if (!isset($documents[$id])) {
+            $id       = $node->getPath();
+            $document = $this->getDocumentById($id) ?: (isset($documents[$id]) ? $documents[$id] : null);
+
+            if (! $document) {
                 continue;
             }
 
-            $document = $documents[$id];
-            $class = $this->dm->getClassMetadata(get_class($document));
+            $documents[$id] = $document;
+            $class          = $this->dm->getClassMetadata(get_class($document));
 
             $documentState = array();
             $nonMappedData = array();
