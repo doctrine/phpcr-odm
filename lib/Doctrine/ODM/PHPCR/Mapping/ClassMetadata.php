@@ -91,7 +91,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Slugify the value of a specified field and use that as the node name
      */
-    const GENERATOR_TYPE_FIELD_SLUGIFY = 5;
+    const GENERATOR_TYPE_FIELD_SLUGIFIER = 5;
 
     protected static $validVersionableAnnotations = array('simple', 'full');
 

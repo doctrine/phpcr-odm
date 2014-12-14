@@ -27,8 +27,21 @@ use PHPCR\Util\NodeHelper;
 /**
  * Generate the id using the auto naming strategy
  */
-class AutoIdGenerator extends ParentIdGenerator
+class FieldSlugifierIdGenerator extends ParentIdGenerator
 {
+    /**
+     * @var callable
+     */
+    private $slugifier;
+
+    /**
+     * @param callable Slugifier callable
+     */
+    public function __construct($slugifier)
+    {
+        $this->slugifier = $slugifier;
+    }
+
     /**
      * Use the parent field together with an auto generated name to generate the id
      *
@@ -40,29 +53,77 @@ class AutoIdGenerator extends ParentIdGenerator
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
 
-        $id = $class->getFieldValue($document, $class->identifier);
-        if (empty($id) && null === $parent) {
+        if (null === $parent) {
             throw IdException::noIdNoParent($document, $class->parentMapping);
         }
 
-        if (empty($parent)) {
-            return $id;
+        if (!isset($class->idGeneratorOptions['field'])) {
+            throw new \InvalidArgumentException(
+                'The field slugifier ID generator requires that you specify the '.
+                '"field" option specifying the field to be slugified.'
+            );
         }
 
-        try {
-            $parentNode = $dm->getNodeForDocument($parent);
-            $existingNames = (array) $parentNode->getNodeNames();
-        } catch (RepositoryException $e) {
-            // this typically happens while cascading persisting documents
-            $existingNames = array();
-        }
-        $name = NodeHelper::generateAutoNodeName(
-            $existingNames,
-            $dm->getPhpcrSession()->getWorkspace()->getNamespaceRegistry()->getNamespaces(),
-            '',
-            ''
-        );
+        $fieldName = $class->idGeneratorOptions['field'];
 
-        return $this->buildName($document ,$class, $dm, $parent, $name);
+        if (!$class->hasField($fieldName)) {
+            throw new \InvalidArgumentException(sprintf(
+                '"%s" has been specified as the field to be slugified by the ' .
+                'field slugifier ID generator. But it is not mapped',
+                $fieldName
+            ));
+        }
+
+        $value = $class->getFieldValue($document, $fieldName);
+
+        if (!$value) {
+            throw new \InvalidArgumentException(sprintf(
+                'Cannot slugify node name from empty field value for field "%s"',
+                $fieldName
+            ));
+        }
+
+        $slugified = $this->slugify($value);
+
+        $parentId = $dm->getUnitOfWork()->getDocumentId($parent);
+
+        return $parentId . '/' . $slugified;
+    }
+
+    /**
+     * Try and call the slugifier
+     */
+    private function slugify($string)
+    {
+        static $resolvedSlugifier = null;
+
+        if ($resolvedSlugifier) {
+            return $resolvedSlugifier($string);
+        }
+
+        $slugifier = $this->slugifier;
+
+        if ($slugifier instanceof \Closure) {
+            return $resolvedSlugifier = function ($string) use ($slugifier) {
+                $slugifier($string);
+            };
+        }
+
+        if (is_array($string)) {
+            return $resolvedSlugifier = function ($string) use ($slugifier) {
+                call_user_func_array($slugifier[0], $slugifier[1]);
+            };
+        }
+
+        if (is_string($string)) {
+            return $resolvedSlugifier = function ($string) use ($slugifier) {
+                call_user_func($string);
+            };
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'Could not call given slugifier callable of type "%s"',
+            gettype($string)
+        ));
     }
 }

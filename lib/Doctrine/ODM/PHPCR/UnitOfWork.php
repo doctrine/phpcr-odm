@@ -892,7 +892,7 @@ class UnitOfWork
     private function getIdGenerator($type)
     {
         if (!isset($this->idGenerators[$type])) {
-            $this->idGenerators[$type] = IdGenerator::create($type);
+            $this->idGenerators[$type] = IdGenerator::create($type, $config);
         }
 
         return $this->idGenerators[$type];

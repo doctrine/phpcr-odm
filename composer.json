@@ -20,6 +20,7 @@
         "doctrine/instantiator": "~1.0.1"
     },
     "require-dev": {
+        "aferrandini/urlizer": "1.0.*",
         "symfony/yaml": "~2.0",
         "liip/rmt": "~1.1"
     },
