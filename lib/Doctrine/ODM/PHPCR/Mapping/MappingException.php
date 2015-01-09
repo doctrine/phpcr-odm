@@ -170,6 +170,6 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
 
     public static function noTranslatorStrategy($className, $fieldNames)
     {
-        return new self("Document '" .$className."' does not have a translation strategy, but the fields ('".implode(', ', $fieldNames)."' have been set as translatable.");
+        return new self("Document '" .$className."' does not have a translation strategy, but the fields ('".implode('\', \'', $fieldNames)."') have been set as translatable.");
     }
 }
