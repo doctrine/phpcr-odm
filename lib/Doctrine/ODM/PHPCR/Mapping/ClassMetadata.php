@@ -1418,6 +1418,10 @@ class ClassMetadata implements ClassMetadataInterface
             $serialized[] = 'versionable';
         }
 
+        if ($this->referenceable) {
+            $serialized[] = 'referenceable';
+        }
+
         if ($this->lifecycleCallbacks) {
             $serialized[] = 'lifecycleCallbacks';
         }

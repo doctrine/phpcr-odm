@@ -80,8 +80,8 @@ class ReferenceManyCollection extends PersistentCollection
     public function refresh()
     {
         try {
-            $this->referencedNodes = $this->dm->getNodeForDocument($this->document)->getPropertiesValues($this->property);
-            $this->referencedNodes = array_keys($this->referencedNodes[$this->property]);
+            $property = $this->dm->getNodeForDocument($this->document)->getProperty($this->property);
+            $this->referencedNodes = $property->getString();
         } catch (InvalidArgumentException $e) {
             $this->referencedNodes = array();
         }

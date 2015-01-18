@@ -37,6 +37,7 @@ use Doctrine\ODM\PHPCR\Query\Query;
 
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
+use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
@@ -1208,5 +1209,61 @@ class DocumentManager implements ObjectManager
         $path = $this->unitOfWork->getDocumentId($document);
 
         return $this->session->getNode($path);
+    }
+
+    /**
+     * Executes a given callback in a transaction.
+     *
+     * The function gets passed this DocumentManager instance as a parameter.
+     *
+     * {@link flush} is invoked prior to transaction commit.
+     *
+     * If an exception occurs during execution of the function or flushing or transaction commit,
+     * the transaction is rolled back, the DocumentManager closed and the exception re-thrown.
+     *
+     * @param callable $callback The callback to be executed execute transactionally.
+     *
+     * @return mixed the return value of the callback execution
+     *
+     * @throws \Exception
+     * @throws InvalidArgumentException when an invalid callback is provided
+     */
+    public function transactional($callback)
+    {
+        if (! is_callable($callback)) {
+            throw new InvalidArgumentException(sprintf(
+                'Parameter $callback must be a valid callable, "%s" given',
+                gettype($callback)
+            ));
+        }
+
+        $transactionManager = null;
+
+        try {
+            $transactionManager = $this->session->getWorkspace()->getTransactionManager();
+        } catch (UnsupportedRepositoryOperationException $e) {
+            $result = call_user_func($callback, $this);
+
+            $this->flush();
+
+            return $result;
+        }
+
+        $transactionManager->begin();
+
+        try {
+            $result = call_user_func($callback, $this);
+
+            $this->flush();
+        } catch (\Exception $exception) {
+            $this->close();
+            $transactionManager->rollback();
+
+            throw $exception;
+        }
+
+        $transactionManager->commit();
+
+        return $result;
     }
 }

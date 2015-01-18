@@ -147,4 +147,42 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount(1, $this->uow->getScheduledInserts());
         $this->assertCount(0, $this->uow->getScheduledUpdates());
     }
+
+    public function testFetchingMultipleHierarchicalObjectsWithChildIdFirst()
+    {
+        $parent           = new ParentTestObj();
+        $parent->nodename = 'parent';
+        $parent->name     = 'parent';
+        $parent->parent   = $this->dm->find(null, 'functional');
+
+        $child            = new ParentTestObj();
+        $child->nodename  = 'child';
+        $child->name      = 'child';
+        $child->parent    = $parent;
+
+        $this->dm->persist($parent);
+        $this->dm->persist($child);
+
+        $parentId = $this->uow->getDocumentId($parent);
+        $childId  = $this->uow->getDocumentId($child);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        // this forces the objects to be loaded in an order where the $parent will become a proxy
+        $documents = $this->dm->findMany(
+            'Doctrine\Tests\Models\References\ParentTestObj',
+            array($childId, $parentId)
+        );
+
+        $this->assertCount(2, $documents);
+
+        /* @var $child ParentTestObj */
+        /* @var $parent ParentTestObj */
+        $child  = $documents->first();
+        $parent = $documents->last();
+
+        $this->assertSame($child->parent, $parent);
+        $this->assertSame('parent', $parent->nodename);
+    }
 }

@@ -1,6 +1,33 @@
 Changelog
 =========
 
+1.2.0
+-----
+
+1.2.0 final
+
+1.2.0-rc6
+---------
+
+minor fixes related to translations
+
+* **2014-10-07**: **BC break** dropped the pre/postBindTranslation events as they were previously
+                  not clearly defined when they would be triggered. they are replaced by
+                  preCreateTranslation which is triggered only before a new translation is added.
+* **2014-10-06**: we no longer unload translations after flush(). furthermore when doing multiple
+                  find() calls on a translated document we no longer fresh the state, so any
+                  changes to the document state that have not been persisted will no longer be lost
+
+1.2.0-rc5
+---------
+
+bug fixing in translation handling
+
+1.2.0-rc4
+---------
+
+bug fixing in translation handling
+
 1.2.0-rc3
 ---------
 

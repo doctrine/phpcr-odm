@@ -179,10 +179,15 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->bindTranslation($this->doc, 'en');
         $this->dm->flush();
 
-        $this->doc->topic = 'Un sujet intéressant';
+        $this->doc->topic = 'Un intéressant';
         $this->dm->bindTranslation($this->doc, 'fr');
         $this->dm->flush();
         $this->dm->clear();
+
+        $node = $this->getTestNode();
+        $this->assertNotNull($node);
+
+        $this->assertEquals('Un intéressant', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('fr', 'topic')));
 
         $this->doc = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'fr');
         $this->doc->topic = 'Un sujet intéressant';
@@ -205,6 +210,19 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertDocumentStored();
+
+        // Get de translation via fallback en
+        $this->doc = $this->dm->findTranslation(null, '/functional/' . $this->testNodeName, 'de');
+        $this->doc->topic = 'Ein interessantes Thema';
+
+        //set locale explicitly
+        $this->doc->locale = 'de';
+        $this->dm->flush();
+
+        $node = $this->getTestNode();
+
+        // ensure the new translation was bound and persisted
+        $this->assertEquals('Ein interessantes Thema', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('de', 'topic')));
     }
 
     public function testFlush()
@@ -843,5 +861,25 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $a = $this->dm->find(null, '/functional/' . $this->testNodeName);
         $this->assertEquals($assoc, $a->assoc);
+    }
+
+    public function testAdditionalFindCallsDoNotRefresh()
+    {
+        $a = new Article();
+        $a->id = '/functional/' . $this->testNodeName;
+        $a->topic = 'Hello';
+        $a->text = 'Some text';
+        $this->dm->persist($a);
+        $this->dm->flush();
+
+        $a->topic = 'Guten tag';
+
+        $trans = $this->dm->findTranslation(
+            null,
+            '/functional/' . $this->testNodeName,
+            'en'
+        );
+
+        $this->assertEquals('Guten tag', $trans->topic);
     }
 }

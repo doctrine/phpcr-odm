@@ -291,7 +291,7 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
     }
 
     /**
-     * Test Referrers MantyToMany cascade Flush
+     * Test Referrers ManyToMany cascade Flush
      */
     public function testCascadeManagedDocumentReferrerMtoMDuringFlush()
     {
@@ -326,7 +326,6 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $superman->getArticlesReferrers()->add($article2);
         $this->dm->flush();
         $this->dm->refresh($superman);
-
 
         $this->assertEquals(1, $article1->getPersons()->count());
         $this->assertEquals(2, $superman->getArticlesReferrers()->count());
