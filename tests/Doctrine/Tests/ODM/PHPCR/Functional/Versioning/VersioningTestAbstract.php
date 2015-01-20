@@ -5,6 +5,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use PHPCR\Util\PathHelper;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
+use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
+use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
+use Doctrine\ODM\PHPCR\UnitOfWork;
 
 /**
  * @group functional
@@ -339,6 +342,60 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
     public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
     {
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
+    }
+
+    /**
+     * Try to access the children of a specific version of a document and assert they
+     * are hydrated properly
+     */
+    public function testUnversionedChildrenOnParentVersion()
+    {
+        $versionableArticle = new FullVersionableArticleWithChildren();
+        $versionableArticle->author = 'mellowplace';
+        $versionableArticle->topic = 'children test';
+        $versionableArticle->id = '/functional/children-test';
+        $versionableArticle->setText('Parent article text');
+        $this->dm->persist($versionableArticle);
+
+        $childArticle = new NonVersionableArticle();
+        $childArticle->setText("This is the child");
+        $childArticle->id = '/functional/children-test/child';
+        $childArticle->author = 'mellowplace';
+        $childArticle->topic = 'children test - child';
+        $versionableArticle->addChildArticle($childArticle);
+
+        // checkin the first version (1.0)
+        $this->dm->flush();
+        $this->dm->checkpoint($versionableArticle);
+
+        // now modify the child nodes text and checkin the second version (1.1)
+        $childArticle->setText('modified text');
+        $this->dm->flush(); 
+        $this->dm->checkpoint($versionableArticle);
+
+        $firstVersion = $this->dm->findVersionByName(
+                'Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren',
+                $versionableArticle->id,
+                '1.0'
+        );
+
+        $secondVersion = $this->dm->findVersionByName(
+                'Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren',
+                $versionableArticle->id,
+                '1.1'
+        );
+
+        $this->assertEquals(
+                'This is the child',
+                $firstVersion->childArticles->first()->getText(),
+                'The expected child article text is correct'
+        );
+
+        $this->assertEquals(
+                'modified text',
+                $secondVersion->childArticles->first()->getText(),
+                'The expected, modified, child article text is correct'
+        );
     }
 }
 

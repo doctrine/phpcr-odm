@@ -38,6 +38,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         $this->factory = new Factory;
         $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
+        
         $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
 
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
@@ -53,20 +54,55 @@ class UnitOfWorkTest extends PHPCRTestCase
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
-    protected function createNode($id, $username)
+    protected function createNode($id, $username, $primaryType = 'rep:root')
     {
         $repository = $this->getMockBuilder('Jackalope\Repository')->disableOriginalConstructor()->getMock();
         $this->session->expects($this->any())
             ->method('getRepository')
             ->with()
             ->will($this->returnValue($repository));
-
+        
+        $type = $this->getMockBuilder('Jackalope\NodeType\NodeType')->disableOriginalConstructor()->getMock();
+        $type->expects($this->any())
+        	->method('getName')
+        	->with()
+        	->will($this->returnValue($primaryType));
+        
+        $ntm = $this->getMockBuilder('Jackalope\NodeType\NodeTypeManager')->disableOriginalConstructor()->getMock();
+        $ntm->expects($this->any())
+        	->method('getNodeType')
+        	->with()
+        	->will($this->returnValue($type));
+        
+        $workspace = $this->getMockBuilder('Jackalope\Workspace')->disableOriginalConstructor()->getMock();
+        $workspace->expects($this->any())
+        	->method('getNodeTypeManager')
+        	->with()
+        	->will($this->returnValue($ntm));
+        
+        $this->session->expects($this->any())
+        	->method('getWorkspace')
+        	->with()
+        	->will($this->returnValue($workspace));
+        
+        $this->session->expects($this->any())
+       	    ->method('nodeExists')
+            ->with($id)
+            ->will($this->returnValue(true));
+        
         $nodeData = array(
-            "jcr:primaryType" => "rep:root",
+            "jcr:primaryType" => $primaryType,
             "jcr:system" => array(),
             'username' => $username,
         );
-        return new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
+        $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
+        
+        $this->session->expects($this->any())
+        	->method('getNode')
+        	->with($id)
+        	->will($this->returnValue($node));
+        
+        return $node;
     }
 
     public function testGetOrCreateDocument()
@@ -160,6 +196,20 @@ class UnitOfWorkTest extends PHPCRTestCase
         $dm = DocumentManager::create($this->session, $config);
         $uow = new UnitOfWork($dm);
         $this->assertEquals('like-a-uuid', $method->invoke($uow));
+    }
+    
+    /**
+     * @author Rob Graham
+     * 
+     * Test the registering of a version of a document, state should be set to STATE_FROZEN
+     */
+    public function testRegisterDocumentForVersion()
+    {
+    	// create a node of type frozenNode (which is a version)
+    	$node = $this->createNode('/version/doc', 'foo', 'nt:frozenNode');
+    	$document = $this->uow->getOrCreateDocument($this->type, $node);
+    	$this->uow->registerDocument($document, '/version/doc');
+    	$this->assertEquals(UnitOfWork::STATE_FROZEN, $this->uow->getDocumentState($document), 'A version of a document is frozen as expected');
     }
 }
 
