@@ -80,6 +80,13 @@ class UnitOfWork
     const STATE_DETACHED = 4;
 
     /**
+     * Used for versions of documents (these are unmodifiable frozen nodes)
+     * 
+     * @var int
+     */
+    const STATE_FROZEN = 5;
+
+    /**
      * @var DocumentManager
      */
     private $dm = null;
@@ -799,6 +806,8 @@ class UnitOfWork
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
+            case self::STATE_FROZEN:
+            	throw new InvalidArgumentException('Document versions cannot be persisted: '.self::objToStr($document, $this->dm));
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
@@ -2860,7 +2869,7 @@ class UnitOfWork
 
         $hints = array('versionName' => $versionName, 'ignoreHardReferenceNotFound' => true);
         $frozenDocument = $this->getOrCreateDocument($className, $node, $hints);
-        $this->dm->detach($frozenDocument);
+
 
         $oid = spl_object_hash($frozenDocument);
         $this->documentHistory[$oid] = $history;
@@ -3032,8 +3041,12 @@ class UnitOfWork
         $oid = spl_object_hash($document);
         $this->documentIds[$oid] = $id;
         $this->identityMap[$id] = $document;
-        $this->setDocumentState($oid, self::STATE_MANAGED);
+        
+        // frozen nodes need another state so they are managed but not included for updates
+        $frozen = $this->session->nodeExists($id) && $this->session->getNode($id)->isNodeType('nt:frozenNode');
 
+        $this->setDocumentState($oid, $frozen ? self::STATE_FROZEN : self::STATE_MANAGED);
+        
         return $oid;
     }
 

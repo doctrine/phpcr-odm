@@ -9,16 +9,19 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class FullVersionableArticleWithChildren extends FullVersionableArticle
 {
-	/** @PHPCRODM\Children */
-	public $childArticles;
-	
-	public function __construct()
-	{
-		$this->childArticles = new ArrayCollection();
-	}
-	
-	public function addChildArticle(NonVersionableArticle $a)
-	{
-		$this->childArticles->add($a);
-	}
+
+    /**
+     * @PHPCRODM\Children
+     */
+    public $childArticles;
+
+    public function __construct()
+    {
+        $this->childArticles = new ArrayCollection();
+    }
+
+    public function addChildArticle(NonVersionableArticle $a)
+    {
+        $this->childArticles->add($a);
+    }
 }
