@@ -1573,10 +1573,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getFieldMapping($fieldName)
     {
-        if ( ! isset($this->fieldMappings[$fieldName])) {
-            throw MappingException::mappingNotFound($this->name, $fieldName);
-        }
-        return $this->fieldMappings[$fieldName];
+        return $this->getField($fieldName);
     }
 
     /**
