@@ -26,6 +26,7 @@ use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
 use ReflectionProperty;
 use ReflectionClass;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
@@ -1558,6 +1559,24 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         return null;
+    }
+
+    /**
+     * Gets the mapping of a (regular) field that holds some data but not a
+     * reference to another object.
+     *
+     * @param string $fieldName The field name.
+     *
+     * @return array The field mapping.
+     *
+     * @throws MappingException
+     */
+    public function getFieldMapping($fieldName)
+    {
+        if ( ! isset($this->fieldMappings[$fieldName])) {
+            throw MappingException::mappingNotFound($this->name, $fieldName);
+        }
+        return $this->fieldMappings[$fieldName];
     }
 
     /**
