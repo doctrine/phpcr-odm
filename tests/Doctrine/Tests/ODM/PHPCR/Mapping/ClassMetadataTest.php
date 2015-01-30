@@ -99,7 +99,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFieldNonexisting(ClassMetadata $cm)
     {
-        $cm->getField('nonexisting');
+        $cm->getFieldMapping('nonexisting');
     }
 
     /**

@@ -2412,7 +2412,7 @@ class UnitOfWork
      */
     private function isAutocreatedProperty(ClassMetadata $class, $fieldName)
     {
-        $field = $class->getField($fieldName);
+        $field = $class->getFieldMapping($fieldName);
         if ('jcr:uuid' === $field['property']) {
             // jackrabbit at least does not identify this as auto created
             // it is strictly speaking no property

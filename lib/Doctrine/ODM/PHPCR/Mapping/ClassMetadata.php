@@ -1127,14 +1127,11 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * {@inheritDoc}
+     * @deprecated use getFieldMapping instead
      */
     public function getField($fieldName)
     {
-        if (!$this->hasField($fieldName)) {
-            throw MappingException::fieldNotFound($this->name, $fieldName);
-        }
-
-        return $this->mappings[$fieldName];
+        return $this->getFieldMapping($fieldName);
     }
 
     /**
@@ -1290,7 +1287,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isNullable($fieldName)
     {
-        $mapping = $this->getField($fieldName);
+        $mapping = $this->getFieldMapping($fieldName);
         if ($mapping !== false) {
             return isset($mapping['nullable']) && true == $mapping['nullable'];
         }
@@ -1573,7 +1570,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getFieldMapping($fieldName)
     {
-        return $this->getField($fieldName);
+        if (!$this->hasField($fieldName)) {
+            throw MappingException::fieldNotFound($this->name, $fieldName);
+        }
+
+        return $this->mappings[$fieldName];
     }
 
     /**
