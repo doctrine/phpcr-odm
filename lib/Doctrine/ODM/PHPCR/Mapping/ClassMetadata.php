@@ -26,6 +26,7 @@ use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
 use ReflectionProperty;
 use ReflectionClass;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
@@ -1126,14 +1127,11 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * {@inheritDoc}
+     * @deprecated use getFieldMapping instead
      */
     public function getField($fieldName)
     {
-        if (!$this->hasField($fieldName)) {
-            throw MappingException::fieldNotFound($this->name, $fieldName);
-        }
-
-        return $this->mappings[$fieldName];
+        return $this->getFieldMapping($fieldName);
     }
 
     /**
@@ -1289,7 +1287,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isNullable($fieldName)
     {
-        $mapping = $this->getField($fieldName);
+        $mapping = $this->getFieldMapping($fieldName);
         if ($mapping !== false) {
             return isset($mapping['nullable']) && true == $mapping['nullable'];
         }
@@ -1558,6 +1556,25 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         return null;
+    }
+
+    /**
+     * Gets the mapping of a (regular) field that holds some data but not a
+     * reference to another object.
+     *
+     * @param string $fieldName The field name.
+     *
+     * @return array The field mapping.
+     *
+     * @throws MappingException
+     */
+    public function getFieldMapping($fieldName)
+    {
+        if (!$this->hasField($fieldName)) {
+            throw MappingException::fieldNotFound($this->name, $fieldName);
+        }
+
+        return $this->mappings[$fieldName];
     }
 
     /**

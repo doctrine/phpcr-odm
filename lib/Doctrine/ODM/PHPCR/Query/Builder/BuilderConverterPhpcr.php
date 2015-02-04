@@ -133,7 +133,7 @@ class BuilderConverterPhpcr
         $meta = $this->aliasMetadata[$originalAlias];;
 
         if ($meta->hasField($odmField)) {
-            $fieldMeta = $meta->getField($odmField);
+            $fieldMeta = $meta->getFieldMapping($odmField);
         } elseif ($meta->hasAssociation($odmField)) {
             $fieldMeta = $meta->getAssociation($odmField);
         } else {

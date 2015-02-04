@@ -44,7 +44,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                     ->will($me->returnValue(true));
 
                 $meta->expects($me->any())
-                    ->method('getField')
+                    ->method('getFieldMapping')
                     ->will($me->returnCallback(function ($name) {
 
                         $res = array(
