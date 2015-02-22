@@ -20,11 +20,11 @@
         "doctrine/instantiator": "~1.0.1"
     },
     "require-dev": {
-        "symfony/yaml": "~2.0",
+        "symfony/yaml": "~2.3|~3.0",
         "liip/rmt": "~1.1"
     },
     "suggest":{
-        "symfony/yaml": "~2.0",
+        "symfony/yaml": "~2.3|~3.0",
         "jackalope/jackalope-doctrine-dbal": "~1.0",
         "jackalope/jackalope-jackrabbit": "~1.0"
     },
