@@ -156,6 +156,9 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                 } elseif ($fieldAnnot instanceof ODM\Locale) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapLocale($mapping);
+                } elseif ($fieldAnnot instanceof ODM\Depth) {
+                    $mapping = array_merge($mapping, (array) $fieldAnnot);
+                    $metadata->mapDepth($mapping);
                 } elseif ($fieldAnnot instanceof ODM\VersionName) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapVersionName($mapping);

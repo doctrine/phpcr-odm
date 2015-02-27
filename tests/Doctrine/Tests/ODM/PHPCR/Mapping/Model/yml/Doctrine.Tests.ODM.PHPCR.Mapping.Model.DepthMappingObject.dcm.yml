@@ -1,0 +1,3 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\DepthMappingObject:
+  id: id
+  depth: depth

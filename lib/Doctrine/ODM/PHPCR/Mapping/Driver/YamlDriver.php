@@ -201,6 +201,9 @@ class YamlDriver extends FileDriver
             $class->mapLocale(array('fieldName' => $element['locale']));
         }
 
+        if (isset($element['depth'])) {
+            $class->mapDepth(array('fieldName' => $element['depth']));
+        }
 
         if (isset($element['mixedReferrers'])) {
             foreach ($element['mixedReferrers'] as $name => $attributes) {

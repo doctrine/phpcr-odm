@@ -190,6 +190,10 @@ class XmlDriver extends FileDriver
             $class->mapLocale(array('fieldName' => (string) $xmlRoot->locale->attributes()->name));
         }
 
+        if (isset($xmlRoot->depth)) {
+            $class->mapDepth(array('fieldName' => (string) $xmlRoot->depth->attributes()->name));
+        }
+
         if (isset($xmlRoot->{'mixed-referrers'})) {
             foreach ($xmlRoot->{'mixed-referrers'} as $mixedReferrers) {
                 $attributes = $mixedReferrers->attributes();

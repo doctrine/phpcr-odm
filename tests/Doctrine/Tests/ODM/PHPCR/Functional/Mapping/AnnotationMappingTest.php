@@ -211,6 +211,8 @@ class Testclass
     public $node;
     /** @PHPCRODM\String */
     public $text;
+    /** @PHPCRODM\Depth */
+    public $depth;
     public $callback_run = 0;
 
     /**
