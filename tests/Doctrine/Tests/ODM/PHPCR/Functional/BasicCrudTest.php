@@ -9,6 +9,7 @@ use PHPCR\PropertyType;
 use PHPCR\Util\UUIDHelper;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\Util\NodeHelper;
 
 /**
  * @group functional
@@ -584,6 +585,23 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
+    public function testDepth()
+    {
+        $object = new DepthMappingObject();
+        $object->id = '/functional/test';
+        $this->dm->persist($object);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $object = $this->dm->find(null, '/functional/test');
+        $this->assertEquals(2, $object->depth);
+
+        NodeHelper::createPath($this->dm->getPhpcrSession(), '/functional/newtest/foobar');
+        $this->dm->move($object, '/functional/newtest/foobar/test');
+        $this->dm->flush();
+        $this->assertEquals(4, $object->depth);
+    }
+
     /**
      * Create a node with a bad name and explicitly persist it without
      * adding it to any parent's children collection.
@@ -761,4 +779,16 @@ class UserWithUuid extends User
 {
     /** @PHPCRODM\Uuid */
     public $uuid;
+}
+
+/**
+ * @PHPCRODM\Document
+ */
+class DepthMappingObject
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    
+    /** @PHPCRODM\Depth */
+    public $depth;
 }

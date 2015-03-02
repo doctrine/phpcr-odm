@@ -258,6 +258,13 @@ class ClassMetadata implements ClassMetadataInterface
     public $localeMapping;
 
     /**
+     * READ-ONLY: Name of the depth property
+     *
+     * @var string
+     */
+    public $depthMapping;
+
+    /**
      * READ-ONLY: Name of the version name property of this document
      *
      * @var string
@@ -767,6 +774,13 @@ class ClassMetadata implements ClassMetadataInterface
         $this->localeMapping = $mapping['fieldName'];
     }
 
+    public function mapDepth(array $mapping, ClassMetadata $inherited = null)
+    {
+        $mapping['type'] = 'depth';
+        $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
+        $this->depthMapping = $mapping['fieldName'];
+    }
+
     public function mapVersionName(array $mapping, ClassMetadata $inherited = null)
     {
         $mapping['type'] = 'versionname';
@@ -1118,6 +1132,7 @@ class ClassMetadata implements ClassMetadataInterface
             || isset($this->inheritedFields[$fieldName])
             || $this->identifier === $fieldName
             || $this->localeMapping === $fieldName
+            || $this->depthMapping === $fieldName
             || $this->node === $fieldName
             || $this->nodename === $fieldName
             || $this->versionNameField === $fieldName
@@ -1195,6 +1210,9 @@ class ClassMetadata implements ClassMetadataInterface
         }
         if ($this->localeMapping) {
             $fields[] = $this->localeMapping;
+        }
+        if ($this->depthMapping) {
+            $fields[] = $this->depthMapping;
         }
         if ($this->node) {
             $fields[] = $this->node;
@@ -1446,6 +1464,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->localeMapping) {
             $serialized[] = 'localeMapping';
+        }
+
+        if ($this->depthMapping) {
+            $serialized[] = 'depthMapping';
         }
 
         if ($this->translator) {

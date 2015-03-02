@@ -146,6 +146,7 @@
             <xs:element name="version-created" type="phpcr:version-created" minOccurs="0" maxOccurs="1"/>
             <xs:element name="parent-document" type="phpcr:parent-document" minOccurs="0" maxOccurs="1"/>
             <xs:element name="child" type="phpcr:child" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depth" type="phpcr:depth" minOccurs="0" maxOccurs="1"/>
             <xs:element name="children" type="phpcr:children" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="reference-one" type="phpcr:reference-one" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="reference-many" type="phpcr:reference-many" minOccurs="0" maxOccurs="unbounded" />
@@ -169,6 +170,11 @@
     </xs:complexType>
 
     <xs:complexType name="locale">
+        <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+        <xs:anyAttribute namespace="##other"/>
+    </xs:complexType>
+
+    <xs:complexType name="depth">
         <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>

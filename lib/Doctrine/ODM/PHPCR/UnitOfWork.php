@@ -550,6 +550,10 @@ class UnitOfWork
                 $documentState[$class->parentMapping] = $this->getOrCreateProxyFromNode($node->getParent(), $locale);
             }
 
+            if ($class->depthMapping) {
+                $documentState[$class->depthMapping] = $node->getDepth();
+            }
+
             foreach ($class->childMappings as $fieldName) {
                 $mapping = $class->mappings[$fieldName];
                 $documentState[$fieldName] = $node->hasNode($mapping['nodeName'])
@@ -2712,7 +2716,7 @@ class UnitOfWork
 
             $this->session->move($sourcePath, $targetPath);
 
-            // update fields nodename and parentMapping if they exist in this type
+            // update fields nodename, parentMapping and depth if they exist in this type
             $node = $this->session->getNode($targetPath); // get node from session, document class might not map it
             if ($class->nodename) {
                 $class->setFieldValue($document, $class->nodename, $node->getName());
@@ -2720,6 +2724,10 @@ class UnitOfWork
 
             if ($class->parentMapping) {
                 $class->setFieldValue($document, $class->parentMapping, $this->getOrCreateProxyFromNode($node->getParent(), $this->getCurrentLocale($document, $class)));
+            }
+
+            if ($class->depthMapping) {
+                $class->setFieldValue($document, $class->depthMapping, $node->getDepth());
             }
 
             // update all cached children of the document to reflect the move (path id changes)

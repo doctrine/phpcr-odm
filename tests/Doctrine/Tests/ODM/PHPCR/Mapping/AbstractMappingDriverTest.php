@@ -319,6 +319,22 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('parent', $class->parentMapping);
     }
 
+    public function testLoadDepthMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\DepthMappingObject';
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadDepthMapping
+     * @param ClassMetadata $class
+     */
+    public function testDepthMapping($class)
+    {
+        $this->assertTrue(isset($class->depthMapping));
+        $this->assertEquals('depth', $class->depthMapping);
+    }
+
     public function testParentWithPrivatePropertyMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject';
