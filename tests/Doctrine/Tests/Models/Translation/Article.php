@@ -54,6 +54,9 @@ class Article
     /** @PHPCRODM\String(translated=true, nullable=true) */
     public $nullable;
 
+    /** @PHPCRODM\String(translated=true, nullable=true, property="custom-property-name") */
+    public $customPropertyName;
+
     /** @PHPCRODM\String(translated=true, assoc="", nullable=true)*/
     public $assoc;
 
