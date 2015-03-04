@@ -48,8 +48,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         // no need to validate non-nullable condition, the UoW does that for all fields
         $nullFields = array();
         foreach ($data as $field => $propValue) {
-            $propName = $this->getTranslatedPropertyName($locale, $field);
             $mapping = $metadata->mappings[$field];
+            $propName = $this->getTranslatedPropertyName($locale, $mapping['property']);
 
             if ($mapping['multivalue'] && $propValue) {
                 $propValue = (array) $propValue;

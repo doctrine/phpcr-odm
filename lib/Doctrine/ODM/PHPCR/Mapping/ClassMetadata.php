@@ -1379,8 +1379,8 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         // Add the field to the list of translatable fields
-        if (!empty($mapping['translated']) && !in_array($mapping['property'], $this->translatableFields)) {
-            $this->translatableFields[] = $mapping['property'];
+        if (!empty($mapping['translated']) && !in_array($mapping['fieldName'], $this->translatableFields)) {
+            $this->translatableFields[] = $mapping['fieldName'];
         }
 
         if (!$parentMapping) {
