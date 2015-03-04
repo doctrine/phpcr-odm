@@ -91,6 +91,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $node = $this->getTestNode();
         $node->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
         $node->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
+        $node->setProperty(self::propertyNameForLocale('en', 'custom-property-name'), 'Custom property name');
         $node->setProperty(self::propertyNameForLocale('fr', 'topic'), 'Sujet français');
         $node->setProperty(self::propertyNameForLocale('fr', 'text'), 'Texte français');
         $node->setProperty('author', 'John Doe');
@@ -106,6 +107,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         // And check the translatable properties have the correct value
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->getText());
+        $this->assertEquals('Custom property name', $doc->customPropertyName);
         $this->assertEquals(array(), $doc->getSettings()); // nullable
 
         // Load another language and test the document has been updated
@@ -143,6 +145,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
         $data['nullable'] = 'not null';
+        $data['customPropertyName'] = 'Custom property name';
         $data['settings'] = array('key' => 'value');
 
         $node = $this->getTestNode();
@@ -155,6 +158,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $data = array();
         $data['topic'] = 'Un sujet intéressant';
         $data['text'] = 'Lorem français';
+        $data['customPropertyName'] = null;
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
@@ -167,13 +171,20 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertEquals('Some interesting subject', $doc->topic);
         $this->assertEquals('Lorem ipsum...', $doc->getText());
         $this->assertEquals('not null', $doc->nullable);
+        $this->assertEquals('Custom property name', $doc->customPropertyName);
         $this->assertEquals(array('key' => 'value'), $doc->getSettings());
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
         $this->assertEquals('Un sujet intéressant', $doc->topic);
         $this->assertEquals('Lorem français', $doc->getText());
         $this->assertNull($doc->nullable);
+        $this->assertNull($doc->customPropertyName);
         $this->assertEquals(array(), $doc->getSettings());
+
+        $nullFields = $node->getProperty('phpcr_locale:fr' . AttributeTranslationStrategy::NULLFIELDS)->getValue();
+        $this->assertEquals(array(
+            'custom-property-name',
+        ), $nullFields);
     }
 
     public function testRemoveTranslation()
@@ -276,6 +287,10 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
             'is-active' => 'true',
             'url'       => 'great-article-in-english.html'
         );
+        $data['customNameSettings'] = array(
+            'is-active' => 'true',
+            'url'       => 'great-article-in-english.html'
+        );
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -287,6 +302,10 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $data['topic'] = 'Un sujet intéressant';
         $data['settings'] = array(
+            'is-active' => 'true',
+            'url'       => 'super-article-en-francais.html'
+        );
+        $data['customNameSettings'] = array(
             'is-active' => 'true',
             'url'       => 'super-article-en-francais.html'
         );
@@ -305,6 +324,10 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
             'is-active' => 'true',
             'url'       => 'great-article-in-english.html'
         ), $doc->getSettings());
+        $this->assertEquals(array(
+            'is-active' => 'true',
+            'url'       => 'great-article-in-english.html'
+        ), $doc->customNameSettings);
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
         $this->assertEquals(array('is-active', 'url'), array_keys($doc->getSettings()));
@@ -312,6 +335,10 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
             'is-active' => 'true',
             'url'       => 'super-article-en-francais.html'
         ), $doc->getSettings());
+        $this->assertEquals(array(
+            'is-active' => 'true',
+            'url'       => 'super-article-en-francais.html'
+        ), $doc->customNameSettings);
     }
 
     public function testQueryBuilder()
