@@ -65,6 +65,11 @@ class Article
      */
     protected $settings;
 
+    /**
+     * @PHPCRODM\String(assoc="", property="custom-settings", translated=true, nullable=true)
+     */
+    public $customNameSettings;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();

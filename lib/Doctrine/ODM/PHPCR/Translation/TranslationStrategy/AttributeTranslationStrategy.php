@@ -62,7 +62,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             $node->setProperty($propName, $propValue);
 
             if (null === $propValue) {
-                $nullFields[] = $field;
+                $nullFields[] = $mapping['property'];
             }
         }
         if (empty($nullFields)) {
@@ -88,7 +88,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         }
 
         foreach ($metadata->translatableFields as $field) {
-            $propName = $this->getTranslatedPropertyName($locale, $field);
+            $mapping = $metadata->mappings[$field];
+            $propName = $this->getTranslatedPropertyName($locale, $mapping['property']);
             if ($node->hasProperty($propName)) {
                 return true;
             }
@@ -110,10 +111,10 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
 
         // we have a translation, now update the document fields
         foreach ($metadata->translatableFields as $field) {
-            $propName = $this->getTranslatedPropertyName($locale, $field);
+            $mapping = $metadata->mappings[$field];
+            $propName = $this->getTranslatedPropertyName($locale, $mapping['property']);
             if ($node->hasProperty($propName)) {
                 $value = $node->getPropertyValue($propName);
-                $mapping = $metadata->mappings[$field];
                 if (true === $mapping['multivalue']) {
                     if (isset($mapping['assoc'])) {
                         $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
@@ -139,7 +140,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         foreach ($metadata->translatableFields as $field) {
-            $propName = $this->getTranslatedPropertyName($locale, $field);
+            $mapping = $metadata->mappings[$field];
+            $propName = $this->getTranslatedPropertyName($locale, $mapping['property']);
 
             if ($node->hasProperty($propName)) {
                 $prop = $node->getProperty($propName);
