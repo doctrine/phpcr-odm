@@ -203,6 +203,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if ($parentClass->localeMapping) {
             $subClass->mapLocale($parentClass->mappings[$parentClass->localeMapping], $parentClass);
         }
+        if ($parentClass->depthMapping) {
+            $subClass->mapDepth($parentClass->mappings[$parentClass->depthMapping], $parentClass);
+        }
         if ($parentClass->versionNameField) {
             $subClass->mapVersionName($parentClass->mappings[$parentClass->versionNameField], $parentClass);
         }
