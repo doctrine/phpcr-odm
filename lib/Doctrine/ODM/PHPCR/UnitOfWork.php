@@ -753,6 +753,14 @@ class UnitOfWork
                 new LifecycleEventArgs($document, $this->dm),
                 $invoke
             );
+        } elseif ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preUpdateTranslation)) {
+            $this->eventListenersInvoker->invoke(
+                $class,
+                Event::preUpdateTranslation,
+                $document,
+                new LifecycleEventArgs($document, $this->dm),
+                $invoke
+            );
         }
 
         $this->setLocale($document, $class, $locale);

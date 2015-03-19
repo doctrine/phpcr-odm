@@ -40,6 +40,7 @@ final class Event
 
     const postLoadTranslation = 'postLoadTranslation';
     const preCreateTranslation = 'preCreateTranslation';
+    const preUpdateTranslation = 'preUpdateTranslation';
     const preRemoveTranslation = 'preRemoveTranslation';
     const postRemoveTranslation = 'postRemoveTranslation';
 
@@ -55,6 +56,7 @@ final class Event
         self::postLoad => self::postLoad,
         self::postLoadTranslation => self::postLoadTranslation,
         self::preCreateTranslation => self::preCreateTranslation,
+        self::preUpdateTranslation => self::preUpdateTranslation,
         self::preRemoveTranslation => self::preRemoveTranslation,
         self::postRemoveTranslation => self::postRemoveTranslation,
     );
