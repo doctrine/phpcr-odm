@@ -26,7 +26,7 @@ use Doctrine\ODM\PHPCR\Query\Builder\SourceFactory;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\SelectorInterface;
+use PHPCR\Query\QOM\SourceInterface;
 
 /**
  * Translation strategy that stores the translations in attributes of the same node.
@@ -203,7 +203,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,
-        SelectorInterface &$selector,
+        SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
         $alias,
         $locale

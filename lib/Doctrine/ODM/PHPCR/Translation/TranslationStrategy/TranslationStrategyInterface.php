@@ -23,7 +23,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\NodeInterface;
 use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\SelectorInterface;
+use PHPCR\Query\QOM\SourceInterface;
 
 /**
  * Operations that a translation strategy must support.
@@ -113,7 +113,7 @@ interface TranslationStrategyInterface
      * generate a different query.
      *
      * @param QueryObjectModelFactoryInterface $qomf       The PHPCR query factory.
-     * @param SelectorInterface                $selector   The current selector.
+     * @param SourceInterface                $selector   The current selector.
      * @param ConstraintInterface|null         $constraint The current constraint, may be empty.
      * @param string                           $alias      The selector alias of the main node.
      * @param string                           $locale     The language to use.
@@ -122,7 +122,7 @@ interface TranslationStrategyInterface
      */
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,
-        SelectorInterface &$selector,
+        SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
         $alias,
         $locale
