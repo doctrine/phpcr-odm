@@ -25,7 +25,7 @@ use PHPCR\NodeInterface;
 use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\SelectorInterface;
+use PHPCR\Query\QOM\SourceInterface;
 use PHPCR\SessionInterface;
 
 /**
@@ -154,7 +154,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      */
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,
-        SelectorInterface &$selector,
+        SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
         $alias,
         $locale

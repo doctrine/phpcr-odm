@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.3.0
+-----
+
+* **2015-03-19**: **BC break** changed the type hint of the second parameter of
+                  TranslationStrategyInterface::alterQueryForTranslation from
+                  SelectorInterface to SourceInterface to fix queries with joins
+
 1.2.0
 -----
 
