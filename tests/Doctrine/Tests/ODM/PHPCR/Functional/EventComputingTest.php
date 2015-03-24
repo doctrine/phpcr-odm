@@ -116,6 +116,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
              ->addEventListener(
                 array(
                     Event::preCreateTranslation,
+                    Event::preUpdateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
@@ -142,8 +143,13 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         // name had been changed pre binding translation
         $this->assertEquals('preCreateTranslation', $user->name);
 
+        $this->dm->bindTranslation($user, 'en');
+        // name has been changed when translation was updated
+        $this->assertEquals('preUpdateTranslation', $user->name);
+
         $this->dm->name = 'neuer Name';
         $this->dm->bindTranslation($user, 'de');
+
         $this->dm->flush();
         $this->dm->clear();
 
@@ -213,6 +219,12 @@ class TestEventDocumentChanger
     {
         $document = $e->getObject();
         $document->name = 'preCreateTranslation';
+    }
+
+    public function preUpdateTranslation(LifecycleEventArgs $e)
+    {
+        $document = $e->getObject();
+        $document->name = 'preUpdateTranslation';
     }
 
     public function postLoadTranslation(LifecycleEventArgs $e)
