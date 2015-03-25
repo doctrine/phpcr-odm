@@ -2,8 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Source;
-
 /**
  * Factory node for join conditions.
  *
@@ -35,7 +33,7 @@ class SourceJoinConditionFactory extends AbstractNode
      *       ->condition()
      *         ->descendant('alias_1', 'alias_2')
      *       ->end()
-     *   ->end()
+     *   ->end();
      * </code>
      *
      * @param string $descendantAlias - Name of alias for descendant documents.
@@ -46,7 +44,7 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function descendant($descendantAlias, $ancestorAlias)
     {
-        return $this->addChild(new SourceJoinConditionDescendant($this, 
+        return $this->addChild(new SourceJoinConditionDescendant($this,
             $descendantAlias, $ancestorAlias
         ));
     }
@@ -59,7 +57,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
-     *       ->condition()->equi('alias_1.prop_1', 'alias_2.prop_2');
+     *       ->condition()->equi('alias_1.prop_1', 'alias_2.prop_2')
+     *     ->end()
+     *  ->end();
      * </code>
      *
      * See: http://en.wikipedia.org/wiki/Join_%28SQL%29#Equi-join
@@ -85,7 +85,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *     ->joinInner()
      *       ->left()->document('Foo/Bar/One', 'alias_1')->end()
      *       ->right()->document('Foo/Bar/Two', 'alias_2')->end()
-     *       ->condition()->child('alias_1', 'alias_2');
+     *       ->condition()->child('alias_1', 'alias_2')->end()
+     *     ->end()
+     *  ->end();
      * </code>
      *
      * @param string $childAlias - Name of alias for child documents.
@@ -96,7 +98,7 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function child($childAlias, $parentAlias)
     {
-        return $this->addChild(new SourceJoinConditionChildDocument($this, 
+        return $this->addChild(new SourceJoinConditionChildDocument($this,
             $childAlias, $parentAlias
         ));
     }
@@ -113,6 +115,7 @@ class SourceJoinConditionFactory extends AbstractNode
      *         ->same('alias_1', 'alias_2', '/path_to/alias_2/document')
      *       ->end()
      *     ->end()
+     *   ->end();
      * </code>
      *
      * @param string $alias1 - Name of first alias.
@@ -124,7 +127,7 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function same($alias1, $alias2, $alias2Path)
     {
-        return $this->addChild(new SourceJoinConditionSameDocument($this, 
+        return $this->addChild(new SourceJoinConditionSameDocument($this,
             $alias1, $alias2, $alias2Path
         ));
     }

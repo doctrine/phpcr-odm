@@ -3,8 +3,6 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 /**
- * $from->joinInner()->left()->document()->
- *
  * @IgnoreAnnotation("factoryMethod")
  */
 class SourceJoin extends AbstractNode

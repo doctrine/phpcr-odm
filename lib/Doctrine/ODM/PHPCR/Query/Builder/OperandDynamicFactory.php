@@ -2,8 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-
 /**
  * Factory node for dynamic operands.
  *
@@ -26,7 +24,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Represents the aliased documents rank by relevance to the full text 
+     * Represents the aliased documents rank by relevance to the full text
      * search expression given by the "fullTextSearch" constraint.
      *
      * See also: http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
@@ -37,9 +35,11 @@ class OperandDynamicFactory extends AbstractNode
      *     ->fullTextSearchScore('sel_1')
      *     ->literal(50)
      *   ->end()
+     * ->end();
      *
      * $qb->orderBy()
-     *    ->asc()->fullTextSearchScore('sel_1');
+     *   ->asc()->fullTextSearchScore('sel_1')
+     * ->end();
      * </code>
      *
      * @param string $alias - Name of alias to use
@@ -59,9 +59,11 @@ class OperandDynamicFactory extends AbstractNode
      * $qb->where()
      *   ->gt()
      *     ->length('alias_1.prop_1')
-     *     ->literal(50);
+     *     ->literal(50)
+     *   ->end()
+     * ->end();
      *
-     * $qb->orderBy()->asc()->fullTextSearchScore('sel_1');
+     * $qb->orderBy()->asc()->fullTextSearchScore('sel_1')->end();
      * </code>
      *
      * @param string $field - Name of field to check.
@@ -81,7 +83,9 @@ class OperandDynamicFactory extends AbstractNode
      * $qb->where()
      *   ->eq()
      *     ->lowerCase()->field('sel_1.prop_1')->end()
-     *     ->literal('lower_case');
+     *     ->literal('lower_case')
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod OperandDynamicLowerCase
@@ -99,7 +103,9 @@ class OperandDynamicFactory extends AbstractNode
      * $qb->where()
      *   ->eq()
      *       ->upperCase()->field('sel_1.prop_1')->end()
-     *       ->literal('UPPER_CASE');
+     *       ->literal('UPPER_CASE')
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod OperandDynamicUpperCase
@@ -121,7 +127,9 @@ class OperandDynamicFactory extends AbstractNode
      * $qb->where()
      *   ->eq()
      *     ->localName('sel_1')
-     *     ->literal('my_node_name');
+     *     ->literal('my_node_name')
+     *   ->end()
+     * ->end();
      * </code>
      *
      * Relates to PHPCR NodeLocalNameInterface
@@ -139,14 +147,16 @@ class OperandDynamicFactory extends AbstractNode
     /**
      * Evaluates to the namespaced name of the node being compared.
      *
-     * For example, if a node has the path "/path/to/bar:foobar", then 
+     * For example, if a node has the path "/path/to/bar:foobar", then
      * "bar:foobar" is the namespaced node name.
      *
      * <code>
      * $qb->where()
      *   ->eq()
      *     ->name('sel_1')
-     *     ->literal('namespace:my_node_name');
+     *     ->literal('namespace:my_node_name')
+     *   ->end()
+     * ->end();
      * </code>
      *
      * Relates to PHPCR NodeNameInterface.
@@ -168,7 +178,9 @@ class OperandDynamicFactory extends AbstractNode
      * $qb->where()
      *   ->eq()
      *     ->field('sel_1.prop_name')
-     *     ->literal('my_field_value');
+     *     ->literal('my_field_value')
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @param string $field - name of field to check, including alias name.

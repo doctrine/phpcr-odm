@@ -3,13 +3,9 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-
-use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 /**
  * The Query Builder root node.
@@ -117,7 +113,11 @@ class QueryBuilder extends AbstractNode
      * Where factory node is used to specify selection criteria.
      *
      * <code>
-     *  $qb->where()->eq()->field('a.foobar')->literal('bar');
+     * $qb->where()
+     *   ->eq()
+     *     ->field('a.foobar')->literal('bar')->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod Where
@@ -157,14 +157,15 @@ class QueryBuilder extends AbstractNode
      * Set the from source for the query.
      *
      * <code>
-     *  $qb->from()->document('Foobar', 'a')
+     * $qb->from()->document('Foobar', 'a');
      *
-     *  // or with a join ...
+     * // or with a join ...
      *
-     *  -$qb->from('a')->joinInner()
-     *    ->left()->document('Foobar', 'a')->end()
-     *    ->right()->document('Barfoo', 'b')->end()
-     *    ->condition()->equi('a.prop_1', 'b.prop_1');
+     * $qb->from('a')->joinInner()
+     *   ->left()->document('Foobar', 'a')->end()
+     *   ->right()->document('Barfoo', 'b')->end()
+     *   ->condition()->equi('a.prop_1', 'b.prop_1')->end()
+     * ->end();
      * </code>
      *
      * @param string $primaryAlias - Alias to use as primary source (optional for single sources)
@@ -183,13 +184,15 @@ class QueryBuilder extends AbstractNode
      * Shortcut for:
      *
      * <code>
-     * $qb->from()->document('Foobar', 'a')->end()
+     * $qb->from()
+     *   ->document('Foobar', 'a')->end()
+     * ->end();
      * </code>
      *
      * Which becomes:
      *
      * <code>
-     * $qb->fromDocument('Foobar', 'a');
+     * $qb->fromDocument('Foobar', 'a')->end();
      * </code>
      *
      * Replaces any existing from source.
@@ -233,9 +236,10 @@ class QueryBuilder extends AbstractNode
      *
      * <code>
      * $qb->fromDocument('Foobar', 'a')
-     * ->addJoinLeftOuter()
-     *   ->right()->document('Barfoo', 'b')->end()
-     *   ->condition()->equi('a.prop_1', 'b.prop_2');
+     *   ->addJoinLeftOuter()
+     *     ->right()->document('Barfoo', 'b')->end()
+     *     ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+     *   ->end()
      * ->end();
      * </code>
      *
@@ -258,8 +262,10 @@ class QueryBuilder extends AbstractNode
      * <code>
      * $qb->fromDocument('Foobar', 'a')
      *   ->addJoinRightOuter()
-     *     ->right()->document('Barfoo', 'b')->end()
-     *     ->condition()->equi('a.prop_1', 'b.prop_2');
+     *     ->right()->document('Barfoo', 'b')->end()->end()
+     *     ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * Note that this method is currently not implemented until we can decide
@@ -280,10 +286,11 @@ class QueryBuilder extends AbstractNode
      *
      * <code>
      * $qb->fromDocument('Foobar', 'a')
-     * ->addJoinInner()
-     *   ->right()->document('Barfoo', 'b')->end()
-     *   ->condition()->equi('a.prop_1', 'b.prop_2');
-     * ->end()
+     *   ->addJoinInner()
+     *     ->right()->document('Barfoo', 'b')->end()
+     *     ->condition()->equi('a.prop_1', 'b.prop_2')->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * Note that this method is currently not implemented until we can decide
@@ -308,7 +315,8 @@ class QueryBuilder extends AbstractNode
      * $qb->select()
      *   ->field('a.prop_1')
      *   ->field('a.prop_2')
-     *   ->field('a.prop_3');
+     *   ->field('a.prop_3')
+     * ->end();
      * </code>
      *
      * @factoryMethod Select
@@ -330,7 +338,8 @@ class QueryBuilder extends AbstractNode
      *   ->addSelect()
      *     ->field('a.prop_2')
      *     ->field('a.prop_3')
-     *     ->field('a.prop_4');
+     *     ->field('a.prop_4')
+     *   ->end();
      * </code>
      *
      * @factoryMethod SelectAdd
@@ -349,8 +358,9 @@ class QueryBuilder extends AbstractNode
      *
      * <code>
      * $qb->orderBy()
-     *     ->asc()->field('a.prop_1')->end()
-     *     ->desc()->field('a.prop_2');
+     *   ->asc()->field('a.prop_1')->end()
+     *   ->desc()->field('a.prop_2')->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod OrderBy

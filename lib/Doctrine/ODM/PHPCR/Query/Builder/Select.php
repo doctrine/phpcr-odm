@@ -23,8 +23,9 @@ class Select extends AbstractNode
      *
      * <code>
      * $qb->select()
-     *   ->field('sel_1.foobar')
-     *   ->field('sel_1.barfoo');
+     *     ->field('sel_1.foobar')
+     *     ->field('sel_1.barfoo')
+     * ->end();
      * </code>
      *
      * @param string $field - name of field to check, including alias name

@@ -142,9 +142,6 @@ abstract class AbstractNode
         $cardinalityMap = $this->getCardinalityMap();
         $nodeType = $node->getNodeType();
 
-        $validChild = true;
-        $end = false;
-
         // if proposed child node is of an invalid type
         if (!isset($cardinalityMap[$nodeType])) {
             throw new OutOfBoundsException(sprintf(
@@ -214,6 +211,8 @@ abstract class AbstractNode
     /**
      * Return children of specified type.
      *
+     * @param string $type The type name.
+     *
      * @return AbstractNode[]
      */
     public function getChildrenOfType($type)
@@ -233,7 +232,7 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
-     * @return AbstractNode[]
+     * @return AbstractNode
      *
      * @throws OutOfBoundsException if there are more than one or none
      */
@@ -263,7 +262,9 @@ abstract class AbstractNode
      *
      * Note: This does not take inheritance into account.
      *
-     * @return AbstractNode[]
+     * @param string $type The name of the type.
+     *
+     * @return AbstractNode
      *
      * @throws OutOfBoundsException if there are more than one or none
      */
@@ -344,6 +345,9 @@ abstract class AbstractNode
     /**
      * Catch any undefined method calls and tell the developer what
      * methods can be called.
+     *
+     * @param string $methodName The requested nonexistent method.
+     * @param array  $args       The arguments that where used.
      *
      * @throws BadMethodCallException if an unknown method is called.
      */
