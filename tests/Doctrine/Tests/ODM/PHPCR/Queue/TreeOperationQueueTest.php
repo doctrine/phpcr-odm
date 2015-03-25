@@ -76,6 +76,12 @@ class TreeOperationQueueTest extends \PHPUnit_Framework_Testcase
                         false
                     ),
                     array(
+                        TreeOperation::OP_REMOVE,
+                        6,
+                        'arg3',
+                        true
+                    ),
+                    array(
                         TreeOperation::OP_MOVE,
                         3,
                         'arg3',
