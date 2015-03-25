@@ -57,6 +57,8 @@ use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 
 use Jackalope\Session as JackalopeSession;
+use Doctrine\ODM\PHPCR\Queue\TreeOperation;
+use Doctrine\ODM\PHPCR\Queue\TreeOperationQueue;
 
 /**
  * Unit of work class
@@ -169,20 +171,6 @@ class UnitOfWork
     private $scheduledUpdates = array();
 
     /**
-     * List of documents that will be inserted on next flush
-     * oid => document
-     * @var array
-     */
-    private $scheduledInserts = array();
-
-    /**
-     * List of documents that will be moved on next flush
-     * oid => array(document, target path)
-     * @var array
-     */
-    private $scheduledMoves = array();
-
-    /**
      * List of parent documents that have children that will be reordered on next flush
      * parent oid => list of array with records array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
@@ -193,13 +181,6 @@ class UnitOfWork
      * @var array
      */
     private $scheduledReorders = array();
-
-    /**
-     * List of documents that will be removed on next flush
-     * oid => document
-     * @var array
-     */
-    private $scheduledRemovals = array();
 
     /**
      * @var array
@@ -261,6 +242,11 @@ class UnitOfWork
     private $useFetchDepth;
 
     /**
+     * @var TreeOperationQueue
+     */
+    private $treeOpQueue;
+
+    /**
      * @param DocumentManager $dm
      */
     public function __construct(DocumentManager $dm)
@@ -269,6 +255,7 @@ class UnitOfWork
         $this->session = $dm->getPhpcrSession();
         $this->eventListenersInvoker = new ListenersInvoker($dm);
         $this->eventManager = $dm->getEventManager();
+        $this->treeOpQueue = new TreeOperationQueue();
 
         $config = $dm->getConfiguration();
         $this->documentClassMapper = $config->getDocumentClassMapper();
@@ -813,7 +800,7 @@ class UnitOfWork
                 // TODO: Change Tracking Deferred Explicit
                 break;
             case self::STATE_REMOVED:
-                unset($this->scheduledRemovals[$oid]);
+                $this->treeOpQueue->unqueue(TreeOperation::OP_REMOVE, $oid);
                 $this->setDocumentState($oid, self::STATE_MANAGED);
                 break;
             case self::STATE_DETACHED:
@@ -927,16 +914,22 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                unset($this->scheduledInserts[$oid]);
                 break;
             case self::STATE_REMOVED:
-                unset($this->scheduledRemovals[$oid]);
+                $this->treeOpQueue->unqueue(TreeOperation::OP_REMOVE, $oid);
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
         }
 
-        $this->scheduledMoves[$oid] = array($document, $targetPath);
+        $this->treeOpQueue->push(
+            new TreeOperation(
+                TreeOperation::OP_MOVE, 
+                $oid,
+                array($document, $targetPath)
+            )
+        );
+
         $this->setDocumentState($oid, self::STATE_MANAGED);
     }
 
@@ -975,17 +968,20 @@ class UnitOfWork
         $state = $this->getDocumentState($document);
         switch ($state) {
             case self::STATE_NEW:
-                unset($this->scheduledInserts[$oid]);
-                break;
             case self::STATE_MANAGED:
-                unset($this->scheduledMoves[$oid]);
-                unset($this->scheduledReorders[$oid]);
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
         }
 
-        $this->scheduledRemovals[$oid] = $document;
+        $this->treeOpQueue->push(
+            new TreeOperation(
+                TreeOperation::OP_REMOVE, 
+                $oid,
+                $document
+            )
+        );
+
         $this->setDocumentState($oid, self::STATE_REMOVED);
 
         $class = $this->dm->getClassMetadata(get_class($document));
@@ -1100,7 +1096,7 @@ class UnitOfWork
      */
     public function isScheduledForInsert($document)
     {
-        return isset($this->scheduledInserts[spl_object_hash($document)]);
+        return $this->treeOpQueue->isQueued(TreeOperation::OP_INSERT);
     }
 
     /**
@@ -1115,7 +1111,8 @@ class UnitOfWork
             throw new InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
-        foreach ($this->scheduledInserts as $insertedDocument) {
+        $insertSchedule = $this->treeOpQueue->getSchedule(TreeOperation::OP_INSERT);
+        foreach ($insertSchedule as $insertedDocument) {
             $class = $this->dm->getClassMetadata(get_class($insertedDocument));
             $this->computeChangeSet($class, $insertedDocument);
         }
@@ -1126,7 +1123,7 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-        if (!isset($this->scheduledInserts[$oid])) {
+        if (!isset($insertSchedule[$oid])) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
         }
@@ -1577,7 +1574,6 @@ class UnitOfWork
 
         if ($isNew) {
             $this->documentChangesets[$oid]['fields'] = $fields;
-            $this->scheduledInserts[$oid] = $document;
             return;
         }
 
@@ -1768,6 +1764,14 @@ class UnitOfWork
         $generator = $this->getIdGenerator($overrideIdGenerator ? $overrideIdGenerator : $class->idGenerator);
         $id = $generator->generate($document, $class, $this->dm, $parent);
         $this->registerDocument($document, $id);
+
+        $this->treeOpQueue->push(
+            new TreeOperation(
+                TreeOperation::OP_INSERT,
+                spl_object_hash($document),
+                $document
+            )
+        );
 
         if (!$generator instanceof AssignedIdGenerator) {
             $class->setIdentifierValue($document, $id);
@@ -2181,13 +2185,13 @@ class UnitOfWork
         }
 
         $this->invokeGlobalEvent(Event::onFlush, new ManagerEventArgs($this->dm));
+        $opBatches = $this->treeOpQueue->getBatches();
 
-        if (empty($this->scheduledInserts)
+        if (
+            empty($opBatches)
             && empty($this->scheduledUpdates)
-            && empty($this->scheduledRemovals)
             && empty($this->scheduledReorders)
             && empty($this->documentTranslations)
-            && empty($this->scheduledMoves)
         ) {
             $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
             $this->changesetComputed = array();
@@ -2211,15 +2215,23 @@ class UnitOfWork
         }
 
         try {
-            $this->executeInserts($this->scheduledInserts);
 
-            $this->executeUpdates($this->scheduledUpdates);
-
-            $this->executeRemovals($this->scheduledRemovals);
+            foreach ($opBatches as $opBatch) {
+                switch ($opBatch->getType()) {
+                    case TreeOperation::OP_INSERT:
+                        $this->executeInserts($opBatch->getSchedule());
+                        continue;
+                    case TreeOperation::OP_REMOVE:
+                        $this->executeRemovals($opBatch->getSchedule());
+                        continue;
+                    case TreeOperation::OP_MOVE:
+                        $this->executeMoves($opBatch->getSchedule());
+                        continue;
+                }
+            }
 
             $this->executeReorders($this->scheduledReorders);
-
-            $this->executeMoves($this->scheduledMoves);
+            $this->executeUpdates($this->scheduledUpdates);
 
             $this->session->save();
 
@@ -2259,11 +2271,9 @@ class UnitOfWork
             }
         }
 
+        $this->treeOpQueue->clear();
         $this->scheduledUpdates =
-        $this->scheduledRemovals =
-        $this->scheduledMoves =
         $this->scheduledReorders =
-        $this->scheduledInserts =
         $this->visitedCollections =
         $this->documentChangesets =
         $this->changesetComputed = array();
@@ -2281,10 +2291,6 @@ class UnitOfWork
         // sort the documents to insert parents first but maintain child order
         $oids = array();
         foreach ($documents as $oid => $document) {
-            if (!$this->contains($oid)) {
-                continue;
-            }
-
             $oids[$oid] = $this->getDocumentId($document);
         }
 
@@ -2318,7 +2324,9 @@ class UnitOfWork
                     && !$class->isNullable($fieldName)
                     && !$this->isAutocreatedProperty($class, $fieldName)
                 ) {
-                    throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
+                    if (!$this->treeOpQueue->isQueued(TreeOperation::OP_REMOVE, $oid)) {
+                        throw new PHPCRException(sprintf('Field "%s" of class "%s" is not nullable', $fieldName, $class->name));
+                    }
                 }
             }
 
@@ -3026,11 +3034,10 @@ class UnitOfWork
             unset($this->identityMap[$this->documentIds[$oid]]);
         }
 
-        unset($this->scheduledRemovals[$oid],
+        $this->treeOpQueue->unregister($oid);
+        unset(
             $this->scheduledUpdates[$oid],
-            $this->scheduledMoves[$oid],
             $this->scheduledReorders[$oid],
-            $this->scheduledInserts[$oid],
             $this->originalData[$oid],
             $this->originalTranslatedData[$oid],
             $this->documentIds[$oid],
@@ -3075,7 +3082,7 @@ class UnitOfWork
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
 
-        return isset($this->documentIds[$oid]) && !isset($this->scheduledRemovals[$oid]);
+        return isset($this->documentIds[$oid]) && !$this->treeOpQueue->isQueued(TreeOperation::OP_REMOVE, $oid);
     }
 
     /**
@@ -3177,13 +3184,12 @@ class UnitOfWork
         $this->documentChangesets =
         $this->changesetComputed =
         $this->scheduledUpdates =
-        $this->scheduledInserts =
-        $this->scheduledMoves =
         $this->scheduledReorders =
-        $this->scheduledRemovals =
         $this->visitedCollections =
         $this->documentHistory =
         $this->documentVersion = array();
+
+        $this->treeOpQueue->clear();
 
         $this->invokeGlobalEvent(Event::onClear, new OnClearEventArgs($this->dm));
 
@@ -3818,7 +3824,7 @@ class UnitOfWork
      */
     public function getScheduledInserts()
     {
-        return $this->scheduledInserts;
+        return $this->treeOpQueue->getSchedule(TreeOperation::OP_INSERT);
     }
 
     /**
@@ -3828,7 +3834,7 @@ class UnitOfWork
      */
     public function getScheduledMoves()
     {
-        return $this->scheduledMoves;
+        return $this->treeOpQueue->getSchedule(TreeOperation::OP_MOVE);
     }
 
     /**
@@ -3848,7 +3854,7 @@ class UnitOfWork
      */
     public function getScheduledRemovals()
     {
-        return $this->scheduledRemovals;
+        return $this->treeOpQueue->getSchedule(TreeOperation::OP_REMOVE);
     }
 
     /**
