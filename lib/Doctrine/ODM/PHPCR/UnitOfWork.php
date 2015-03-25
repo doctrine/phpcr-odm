@@ -3035,6 +3035,7 @@ class UnitOfWork
         }
 
         $this->treeOpQueue->unregister($oid);
+
         unset(
             $this->scheduledUpdates[$oid],
             $this->scheduledReorders[$oid],
