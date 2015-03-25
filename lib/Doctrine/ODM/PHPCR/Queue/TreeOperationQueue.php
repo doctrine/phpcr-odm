@@ -95,6 +95,10 @@ class TreeOperationQueue
                 continue;
             }
 
+            if ($type !== $operation->getType()) {
+                continue;
+            }
+
             $schedule[$operation->getOid()] = $operation->getArgs();
         }
 
