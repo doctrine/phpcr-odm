@@ -175,7 +175,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         $locales = array();
         foreach ($node->getProperties("*{$this->prefix}*") as $prop) {
             $matches = null;
-            if (preg_match('/' . $this->prefix . ':(..)-[^-]*/', $prop->getName(), $matches)) {
+            if (preg_match('/' . $this->prefix . ':([a-z]{2}_?[a-z]{0,2})-[^-]*/', $prop->getName(), $matches)) {
                 if (is_array($matches) && count($matches) > 1 && !in_array($matches[1], $locales)) {
                     $locales[] = $matches[1];
                 }
