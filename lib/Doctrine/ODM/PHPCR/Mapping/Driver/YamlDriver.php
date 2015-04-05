@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Symfony\Component\Yaml\Yaml;
@@ -273,7 +274,10 @@ class YamlDriver extends FileDriver
      */
     protected function loadMappingFile($file)
     {
-        return Yaml::parse($file);
+        if (!is_file($file)) {
+            throw new InvalidArgumentException(sprintf('File "%s" not found', $file));
+        }
+        return Yaml::parse(file_get_contents($file));
     }
 
     /**
