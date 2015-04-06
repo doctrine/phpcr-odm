@@ -31,7 +31,7 @@ abstract class SourceFactory extends AbstractNode
      * and will be used to reference documents selected from this source.
      *
      * <code>
-     * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')
+     * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')->end();
      * </code>
      *
      * @param string $documentFqn - Fully qualified class name for document.
@@ -53,7 +53,9 @@ abstract class SourceFactory extends AbstractNode
      *   ->joinInner()
      *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
      *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
-     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
+     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2')->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod SourceJoin
@@ -76,7 +78,9 @@ abstract class SourceFactory extends AbstractNode
      *   ->joinLeftOuter()
      *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
      *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
-     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
+     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2')->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod SourceJoin
@@ -99,7 +103,9 @@ abstract class SourceFactory extends AbstractNode
      *   ->joinRightOuter()
      *     ->left()->document('My/Document/Class/One', 'sel_1')->end()
      *     ->right()->document('My/Document/Class/Two', 'sel_2')->end()
-     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2');
+     *     ->condition()->equi('sel_1.prop_1', 'sel_2.prop_2')->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod SourceJoin

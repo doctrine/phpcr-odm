@@ -38,4 +38,3 @@ class SourceDocument extends AbstractLeafNode
         return self::NT_SOURCE;
     }
 }
-

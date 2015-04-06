@@ -27,7 +27,7 @@ class OrderBy extends AbstractNode
      * Add ascending ordering:
      *
      * <code>
-     * $qb->orderBy()->asc()->field('sel_1.prop_1');
+     * $qb->orderBy()->asc()->field('sel_1.prop_1')->end();
      * </code>
      *
      * @factoryMethod Ordering
@@ -42,7 +42,7 @@ class OrderBy extends AbstractNode
      * Add descending ordering:
      *
      * <code>
-     * $qb->orderBy()->desc()->field('sel_1.prop_1');
+     * $qb->orderBy()->desc()->field('sel_1.prop_1')->end();
      * </code>
      *
      * @factoryMethod Ordering

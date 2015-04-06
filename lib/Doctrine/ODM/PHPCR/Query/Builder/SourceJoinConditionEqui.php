@@ -2,8 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Source;
-
 class SourceJoinConditionEqui extends AbstractLeafNode
 {
     protected $property1;
@@ -27,22 +25,22 @@ class SourceJoinConditionEqui extends AbstractLeafNode
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getProperty1() 
+    public function getProperty1()
     {
         return $this->property1;
     }
 
-    public function getAlias1() 
+    public function getAlias1()
     {
         return $this->alias1;
     }
 
-    public function getProperty2() 
+    public function getProperty2()
     {
         return $this->property2;
     }
 
-    public function getAlias2() 
+    public function getAlias2()
     {
         return $this->alias2;
     }

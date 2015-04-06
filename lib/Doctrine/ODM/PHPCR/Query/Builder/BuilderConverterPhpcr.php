@@ -126,6 +126,8 @@ class BuilderConverterPhpcr
      *
      * @return array first element is the real alias to use, second element is
      *      the property name
+     *
+     * @throws \Exception If a field used in the query does not exist on the document.
      */
     protected function getPhpcrProperty($originalAlias, $odmField)
     {
@@ -513,13 +515,16 @@ class BuilderConverterPhpcr
     {
         $children = $node->getChildren();
 
-        if (count($children) == 1) {
-            $op = $this->dispatch(current($children));
-            return $op;
+        if (0 === count($children)) {
+            throw new \InvalidArgumentException('Composite must have at least one constraint');
+        }
+        if (1 === count($children)) {
+            return $this->dispatch(current($children));
         }
 
         $lConstraint = array_shift($children);
         $lPhpcrConstraint = $this->dispatch($lConstraint);
+        $phpcrComposite = false;
 
         foreach ($children as $rConstraint) {
             $rPhpcrConstraint = $this->dispatch($rConstraint);

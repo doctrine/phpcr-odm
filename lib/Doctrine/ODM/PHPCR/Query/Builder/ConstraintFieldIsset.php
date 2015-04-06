@@ -6,10 +6,10 @@ use Doctrine\ODM\PHPCR\Query\Builder\Source;
 use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
 /**
- * Constraint which evalues to true if the specified field on
+ * Constraint which evaluates to true if the specified field on
  * the aliased document isset, or alternatively speaking, is not-null.
  *
- * This constraint is equivalent to PHPCR PropertyExistanceInterface QOM
+ * This constraint is equivalent to PHPCR PropertyExistenceInterface QOM
  * interface, which checks to see if a property actually exists.
  *
  * The PHPCR-ODM will remove properties at the PHPCR level when they
@@ -36,12 +36,12 @@ class ConstraintFieldIsset extends AbstractLeafNode
         return self::NT_CONSTRAINT;
     }
 
-    public function getField() 
+    public function getField()
     {
         return $this->field;
     }
 
-    public function getAlias() 
+    public function getAlias()
     {
         return $this->alias;
     }

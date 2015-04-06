@@ -29,9 +29,12 @@ class ConstraintFactory extends AbstractNode
      * And composite constraint.
      *
      * <code>
-     * $qb->where()->andX()
-     *   ->fieldIsset('f.foo')
-     *   ->gt()->field('f.max')->literal(40);
+     * $qb->where()
+     *   ->andX()
+     *     ->fieldIsset('f.foo')
+     *     ->gt()->field('f.max')->literal(40)->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * The andX node allows you to add 1, 2 or many operand nodes. When
@@ -46,17 +49,24 @@ class ConstraintFactory extends AbstractNode
      *
      *
      * // when adding more than one,
-     * $qb->where()->andX()
-     *   ->fieldIsset('f.foo')
-     *   ->gt()->field('f.max')->literal(40);
-     *   ->eq()->field('f.zar')->literal('bar')
-     *
-     * // is equivilent to:
-     * $qb->where()->andX()
+     * $qb->where()
      *   ->andX()
      *     ->fieldIsset('f.foo')
-     *     ->gt()->field('f.max')->literal(40);
-     *   ->eq()->field('f.zar')->litreal('bar');
+     *     ->gt()->field('f.max')->literal(40)->end()
+     *     ->eq()->field('f.zar')->literal('bar')->end()
+     *   ->end()
+     * ->end();
+     *
+     * // is equivilent to:
+     * $qb->where()
+     *   ->andX()
+     *     ->fieldIsset('f.foo')
+     *     ->andX()
+     *       ->gt()->field('f.max')->literal(40)->end()
+     *       ->eq()->field('f.zar')->litreal('bar')->end()
+     *     ->end()
+     *   ->end()
+     * ->end();
      * </code>
      *
      * @factoryMethod ConstraintAndx
@@ -75,7 +85,8 @@ class ConstraintFactory extends AbstractNode
      *   ->orX()
      *     ->fieldIsset('sel_1.prop_1')
      *     ->fieldIsset('sel_1.prop_2')
-     *   ->end();
+     *   ->end()
+     * ->end();
      * </code>
      *
      * As with "andX", "orX" allows one to many operands.
@@ -92,7 +103,7 @@ class ConstraintFactory extends AbstractNode
      * Field existance constraint:
      *
      * <code>
-     * $qb->where()->fieldIsset('sel_1.prop_1');
+     * $qb->where()->fieldIsset('sel_1.prop_1')->end();
      * </code>
      *
      * @param string $field - Field to check
@@ -109,7 +120,7 @@ class ConstraintFactory extends AbstractNode
      * Full text search constraint.
      *
      * <code>
-     * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression');
+     * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression')->end();
      * </code>
      *
      * @param string $field - Name of field to check, including alias name.
@@ -127,7 +138,7 @@ class ConstraintFactory extends AbstractNode
      * Same document constraint.
      *
      * <code>
-     * $qb->where()->same('/path/to/doc', 'sel_1');
+     * $qb->where()->same('/path/to/doc', 'sel_1')->end();
      * </code>
      *
      * Relates to PHPCR QOM SameNodeInterface.
@@ -147,7 +158,7 @@ class ConstraintFactory extends AbstractNode
      * Descendant document constraint.
      *
      * <code>
-     *   $qb->where()->descendant('/ancestor/path', 'sel_1');
+     *   $qb->where()->descendant('/ancestor/path', 'sel_1')->end();
      * </code>
      *
      * Relates to PHPCR QOM DescendantNodeInterface
@@ -167,7 +178,7 @@ class ConstraintFactory extends AbstractNode
      * Select children of the aliased document at the given path.
      *
      * <code>
-     * $qb->where()->child('/parent/path', 'sel_1');
+     * $qb->where()->child('/parent/path', 'sel_1')->end();
      * </code>
      *
      * Relates to PHPCR QOM ChildNodeInterface.
@@ -200,7 +211,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->eq()
      *     ->field('sel_1.foobar')
-     *     ->literal('var_1');
+     *     ->literal('var_1')
+     *   ->end();
      * </code>
      *
      * @factoryMethod ConstraintComparison
@@ -220,7 +232,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->neq()
      *     ->field('sel_1.foobar')
-     *     ->literal('var_1');
+     *     ->literal('var_1')
+     *   ->end();
      * </code>
      *
      * @factoryMethod ConstraintComparison
@@ -240,7 +253,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->lt()
      *     ->field('sel_1.foobar')
-     *     ->literal(5);
+     *     ->literal(5)
+     *   ->end();
      * </code>
      *
      * @factoryMethod ConstraintComparison
@@ -260,7 +274,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->lte()
      *     ->field('sel_1.foobar')
-     *     ->literal(5);
+     *     ->literal(5)
+     *   ->end();
      * </code>
      *
      * @factoryMethod ConstraintComparison
@@ -280,7 +295,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->gt()
      *     ->field('sel_1.foobar')
-     *     ->literal(5);
+     *     ->literal(5)
+     *   ->end();
      * </code>
      *
      * @factoryMethod ConstraintComparison
@@ -300,7 +316,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->gte()
      *     ->field('sel_1.foobar')
-     *     ->literal(5);
+     *     ->literal(5)
+     *   ->end();
      * </code>
      *
      * @factoryMethod ConstraintComparison
@@ -322,7 +339,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()
      *   ->like()
      *     ->field('sel_1.foobar')
-     *     ->literal('foo%');
+     *     ->literal('foo%')
+     *   ->end();
      * </code>
      *
      * The above example will match "foo" and "foobar" but not "barfoo".
