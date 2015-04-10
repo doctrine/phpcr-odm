@@ -755,4 +755,14 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 
         return $this->loadMetadataForClassname($className);
     }
+
+    /**
+     * A document that is not referenceable must not have a uuid mapped.
+     */
+    public function testUuidMappingNonReferenceable()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
 }

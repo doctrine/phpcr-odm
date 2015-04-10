@@ -4,6 +4,9 @@ Changelog
 1.3.0
 -----
 
+* **2015-04-07**: Class metadata now validates that you can not map the UUID on
+                  Documents that are not referenceable. Either set your
+                  documents `referenceable=true` or remove the UUID mapping.
 * **2015-03-19**: **BC break** changed the type hint of the second parameter of
                   TranslationStrategyInterface::alterQueryForTranslation from
                   SelectorInterface to SourceInterface to fix queries with joins
