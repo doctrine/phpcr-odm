@@ -81,7 +81,7 @@ class UnitOfWork
 
     /**
      * Used for versions of documents (these are unmodifiable frozen nodes)
-     * 
+     *
      * @var int
      */
     const STATE_FROZEN = 5;
@@ -1014,7 +1014,9 @@ class UnitOfWork
             if ($related instanceof Collection || is_array($related)) {
                 // If its a PersistentCollection initialization is intended! No unwrap!
                 foreach ($related as $relatedDocument) {
-                    $this->doRemove($relatedDocument, $visited);
+                    if (null !== $relatedDocument) {
+                        $this->doRemove($relatedDocument, $visited);
+                    }
                 }
             } elseif ($related !== null) {
                 $this->doRemove($related, $visited);
@@ -3057,12 +3059,12 @@ class UnitOfWork
         $oid = spl_object_hash($document);
         $this->documentIds[$oid] = $id;
         $this->identityMap[$id] = $document;
-        
+
         // frozen nodes need another state so they are managed but not included for updates
         $frozen = $this->session->nodeExists($id) && $this->session->getNode($id)->isNodeType('nt:frozenNode');
 
         $this->setDocumentState($oid, $frozen ? self::STATE_FROZEN : self::STATE_MANAGED);
-        
+
         return $oid;
     }
 
