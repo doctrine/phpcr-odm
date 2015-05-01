@@ -441,6 +441,21 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
+     * Validate whether this class needs to be referenceable.
+     *
+     * The document needs to be either referenceable or full versionable.
+     * Simple versioning does not imply referenceable.
+     *
+     * @throws MappingException if there is an invalid reference mapping
+     */
+    public function validateReferenceable()
+    {
+        if ($this->uuidFieldName && !$this->referenceable && 'full' !== $this->versionable) {
+            throw MappingException::notReferenceable($this->name, $this->uuidFieldName);
+        }
+    }
+
+    /**
      * Validate association targets actually exist.
      *
      * @throws MappingException if there is an invalid reference mapping

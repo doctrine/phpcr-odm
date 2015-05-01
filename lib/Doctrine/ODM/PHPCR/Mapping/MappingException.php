@@ -172,4 +172,9 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
     {
         return new self("Document '" .$className."' does not have a translation strategy, but the fields ('".implode('\', \'', $fieldNames)."') have been set as translatable.");
     }
+
+    public static function notReferenceable($className, $fieldName)
+    {
+        return new self(sprintf('Document "%s" is not referenceable. You can not map field "%s" to the UUID.', $className, $fieldName));
+    }
 }

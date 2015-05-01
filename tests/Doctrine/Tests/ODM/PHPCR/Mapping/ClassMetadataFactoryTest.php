@@ -29,6 +29,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $cmf = new ClassMetadataFactory($this->dm);
         $meta = $cmf->getMetadataFor($fqn);
+
         return $meta;
     }
 
@@ -116,6 +117,15 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('mix:baz'), $meta->mixins);
         $this->assertEquals('full', $meta->versionable);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\BarfooRepository', $meta->customRepositoryClassName);
+    }
+
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     * @expectedExceptionMessage is not referenceable
+     */
+    public function testValidateUuidNotReferenceable()
+    {
+        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObjectNotReferenceable');
     }
 
     /**
