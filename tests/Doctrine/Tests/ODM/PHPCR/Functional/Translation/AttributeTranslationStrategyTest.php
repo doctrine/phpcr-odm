@@ -118,6 +118,74 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertEquals(array(), $doc->getSettings());
     }
 
+    public function testSubRegionSaveTranslation()
+    {
+        // First save some translations
+        $data = array();
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] ='Lorem ipsum...';
+
+        $node = $this->getTestNode();
+
+        $strategy = new AttributeTranslationStrategy($this->dm);
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
+
+        // Save translation in another language
+
+        $data['topic'] = 'Some interesting american subject';
+
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en_US');
+        $this->dm->flush();
+
+        // Then test we have what we expect in the content repository
+        $node = $this->session->getNode('/' . $this->testNodeName);
+
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en_US', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en_US', 'text')));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en', 'author')));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('en_US', 'author')));
+
+        $this->assertEquals('Some interesting subject', $node->getPropertyValue(self::propertyNameForLocale('en', 'topic')));
+        $this->assertEquals('Some interesting american subject', $node->getPropertyValue(self::propertyNameForLocale('en_US', 'topic')));
+        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('en', 'text')));
+        $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('en_US', 'text')));
+    }
+
+    public function testSubRegionLoadTranslation()
+    {
+        // Create the node in the content repository
+        $node = $this->getTestNode();
+        $node->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
+        $node->setProperty(self::propertyNameForLocale('en', 'text'), 'English text');
+        $node->setProperty(self::propertyNameForLocale('en', 'custom-property-name'), 'Custom property name');
+        $node->setProperty(self::propertyNameForLocale('en_US', 'topic'), 'American topic');
+        $node->setProperty(self::propertyNameForLocale('en_US', 'text'), 'American text');
+        $node->setProperty('author', 'John Doe');
+
+        $this->session->save();
+
+        // Then try to read it's translation
+        $doc = new Article();
+
+        $strategy = new AttributeTranslationStrategy($this->dm);
+        $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'en'));
+
+        // And check the translatable properties have the correct value
+        $this->assertEquals('English topic', $doc->topic);
+        $this->assertEquals('English text', $doc->getText());
+        $this->assertEquals('Custom property name', $doc->customPropertyName);
+        $this->assertEquals(array(), $doc->getSettings()); // nullable
+
+        // Load another language and test the document has been updated
+        $strategy->loadTranslation($doc, $node, $this->metadata, 'en_US');
+
+        $this->assertEquals('American topic', $doc->topic);
+        $this->assertEquals('American text', $doc->getText());
+        $this->assertEquals(array(), $doc->getSettings());
+    }
+
     public function testLoadTranslationNotNullable()
     {
         // Create the node in the content repository

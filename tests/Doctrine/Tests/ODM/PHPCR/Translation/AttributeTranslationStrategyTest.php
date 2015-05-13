@@ -8,20 +8,33 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 
 class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
-    public function testSetPrefixAndGetPropertyName()
+    private $dm;
+    private $method;
+    private $strategy;
+
+    public function setUp()
     {
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
+        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $s = new AttributeTranslationStrategy($dm);
-        $s->setPrefix('test');
+        $this->strategy = new AttributeTranslationStrategy($this->dm);
+        $this->strategy->setPrefix('test');
 
         $class = new \ReflectionClass('Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy');
-        $method = $class->getMethod('getTranslatedPropertyName');
-        $method->setAccessible(true);
+        $this->method = $class->getMethod('getTranslatedPropertyName');
+        $this->method->setAccessible(true);
+    }
 
-        $name = $method->invokeArgs($s, array('fr', 'field'));
+    public function testSetPrefixAndGetPropertyName()
+    {
+        $name = $this->method->invokeArgs($this->strategy, array('fr', 'field'));
         $this->assertEquals('test:fr-field', $name);
+    }
+
+    public function testSubRegion()
+    {
+        $name = $this->method->invokeArgs($this->strategy, array('en_GB', 'field'));
+        $this->assertEquals('test:en_GB-field', $name);
     }
 }
