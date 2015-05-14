@@ -41,14 +41,14 @@ class ReferenceManyCollection extends PersistentCollection
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManager $dm              The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm     The DocumentManager the collection will be associated with.
      * @param object          $document        The document with the references property
      * @param string          $property        The node property name with the multivalued references
      * @param array           $referencedNodes An array of referenced nodes (UUID or path)
      * @param string          $targetDocument  The class name of the target documents
      * @param string          $locale          The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManager $dm, $document, $property, array $referencedNodes, $targetDocument, $locale = null)
+    public function __construct(DocumentManagerInterface $dm, $document, $property, array $referencedNodes, $targetDocument, $locale = null)
     {
         $this->dm = $dm;
         $this->document = $document;
@@ -59,7 +59,7 @@ class ReferenceManyCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManager  $dm              The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface  $dm     The DocumentManager the collection will be associated with.
      * @param object           $document        The document with the references property
      * @param string           $property        The node property name with the multivalued references
      * @param array|Collection $collection      The collection to initialize with
@@ -68,7 +68,7 @@ class ReferenceManyCollection extends PersistentCollection
      *
      * @return ReferenceManyCollection
      */
-    public static function createFromCollection(DocumentManager $dm, $document, $property, $collection, $targetDocument, $forceOverwrite = false)
+    public static function createFromCollection(DocumentManagerInterface $dm, $document, $property, $collection, $targetDocument, $forceOverwrite = false)
     {
         $referenceCollection = new self($dm, $document, $property, array(), $targetDocument);
         $referenceCollection->initializeFromCollection($collection, $forceOverwrite);

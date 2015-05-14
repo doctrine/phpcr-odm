@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Id;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\RepositoryException;
 use PHPCR\Util\NodeHelper;
@@ -34,7 +34,7 @@ class AutoIdGenerator extends ParentIdGenerator
      *
      * {@inheritDoc}
      */
-    public function generate($document, ClassMetadata $class, DocumentManager $dm, $parent = null)
+    public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
     {
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;

@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventManager;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
@@ -31,16 +31,16 @@ class ListenersInvoker
     private $eventManager;
 
     /**
-     * @var DocumentManager
+     * @var DocumentManagerInterface
      */
     private $dm;
 
     /**
      * Initializes a new ListenersInvoker instance.
      *
-     * @param DocumentManager $dm
+     * @param DocumentManagerInterface $dm
      */
-    public function __construct(DocumentManager $dm)
+    public function __construct(DocumentManagerInterface $dm)
     {
         $this->eventManager = $dm->getEventManager();
         $this->dm = $dm;

@@ -38,15 +38,14 @@ class ReferrersCollection extends PersistentCollection
     private $originalReferrerPaths;
 
     /**
-     * @param DocumentManager  $dm       The DocumentManager the collection will be associated with.
-     * @param object           $document The parent document instance
-     * @param string|null      $type     Type can be 'weak', 'hard' or null to get both weak and hard references.
-     * @param string|null      $name     If set, name of the referencing property.
-     * @param string|null      $locale   The locale to use.
-     * @param string|null      $refClass Class the referrer document must be instanceof.
-
+     * @param DocumentManagerInterface  $dm The DocumentManager the collection will be associated with.
+     * @param object           $document    The parent document instance
+     * @param string|null      $type        Type can be 'weak', 'hard' or null to get both weak and hard references.
+     * @param string|null      $name        If set, name of the referencing property.
+     * @param string|null      $locale      The locale to use.
+     * @param string|null      $refClass    Class the referrer document must be instanceof.
      */
-    public function __construct(DocumentManager $dm, $document, $type = null, $name = null, $locale = null, $refClass = null)
+    public function __construct(DocumentManagerInterface $dm, $document, $type = null, $name = null, $locale = null, $refClass = null)
     {
         $this->dm = $dm;
         $this->document = $document;
@@ -57,7 +56,7 @@ class ReferrersCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManager  $dm             The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface  $dm    The DocumentManager the collection will be associated with.
      * @param object           $document       The parent document instance
      * @param array|Collection $collection     The collection to initialize with
      * @param string|null      $type           Type can be 'weak', 'hard' or null to get both weak and hard references.
@@ -67,7 +66,7 @@ class ReferrersCollection extends PersistentCollection
      *
      * @return ReferrersCollection
      */
-    public static function createFromCollection(DocumentManager $dm, $document, $collection, $type = null, $name = null, $refClass = null, $forceOverwrite = false)
+    public static function createFromCollection(DocumentManagerInterface $dm, $document, $collection, $type = null, $name = null, $refClass = null, $forceOverwrite = false)
     {
         $referrerCollection = new self($dm, $document, $type, $name, null, $refClass);
         $referrerCollection->initializeFromCollection($collection, $forceOverwrite);

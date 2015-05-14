@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Tools\Helper;
 
 use PHPCR\NodeInterface;
 use PHPCR\Util\PathHelper;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
@@ -23,7 +23,7 @@ class PrefetchHelper
     /**
      * @param NodeInterface[] $nodes
      */
-    public function prefetch(DocumentManager $dm, $nodes, $locale = null)
+    public function prefetch(DocumentManagerInterface $dm, $nodes, $locale = null)
     {
         if (!count($nodes)) {
             return;

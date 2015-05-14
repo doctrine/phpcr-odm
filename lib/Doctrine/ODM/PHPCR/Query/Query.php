@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query;
 
 use PHPCR\Query\QueryInterface;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
@@ -28,7 +28,7 @@ class Query
     protected $query;
     protected $dm;
 
-    public function __construct(QueryInterface $query, DocumentManager $dm, $primaryAlias = null)
+    public function __construct(QueryInterface $query, DocumentManagerInterface $dm, $primaryAlias = null)
     {
         $this->dm = $dm;
         $this->query = $query;

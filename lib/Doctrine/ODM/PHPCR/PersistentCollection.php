@@ -57,7 +57,7 @@ abstract class PersistentCollection implements Collection
     protected $initialized = self::INITIALIZED_NONE;
 
     /**
-     * @var DocumentManager
+     * @var DocumentManagerInterface
      */
     protected $dm;
 

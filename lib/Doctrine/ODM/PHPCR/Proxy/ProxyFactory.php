@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Proxy;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 use Doctrine\Common\Util\ClassUtils;
@@ -44,7 +44,7 @@ use ReflectionProperty;
 class ProxyFactory extends AbstractProxyFactory
 {
     /**
-     * @var DocumentManager The DocumentManager this factory is bound to.
+     * @var DocumentManagerInterface The DocumentManager this factory is bound to.
      */
     private $documentManager;
 
@@ -57,12 +57,12 @@ class ProxyFactory extends AbstractProxyFactory
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>DocumentManager</tt>.
      *
-     * @param DocumentManager $documentManager The DocumentManager the new factory works for.
-     * @param string          $proxyDir        The directory to use for the proxy classes. It must exist.
-     * @param string          $proxyNamespace  The namespace to use for the proxy classes.
-     * @param boolean         $autoGenerate    Whether to automatically generate proxy classes.
+     * @param DocumentManagerInterface $documentManager The DocumentManager the new factory works for.
+     * @param string                   $proxyDir        The directory to use for the proxy classes. It must exist.
+     * @param string                   $proxyNamespace  The namespace to use for the proxy classes.
+     * @param boolean                  $autoGenerate    Whether to automatically generate proxy classes.
      */
-    public function __construct(DocumentManager $documentManager, $proxyDir, $proxyNamespace, $autoGenerate = false)
+    public function __construct(DocumentManagerInterface $documentManager, $proxyDir, $proxyNamespace, $autoGenerate = false)
     {
         parent::__construct(
             new ProxyGenerator($proxyDir, $proxyNamespace),

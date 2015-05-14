@@ -4,6 +4,10 @@ Changelog
 1.3.0
 -----
 
+* **2015-05-14**: Added a DocumentManagerInterface and a base DocumentManagerDecorator
+                  to allow users of the library to decorate the document manager.
+                  **Potential BC break** several internal classes changed their signatures 
+                  from DocumentManager to DocumentManagerInterface.
 * **2015-04-07**: Class metadata now validates that you can not map the UUID on
                   Documents that are not referenceable. Either set your
                   documents `referenceable=true` or remove the UUID mapping.

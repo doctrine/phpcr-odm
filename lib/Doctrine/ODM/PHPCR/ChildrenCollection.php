@@ -42,13 +42,13 @@ class ChildrenCollection extends PersistentCollection
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManager $dm         The DocumentManager the collection will be associated with.
-     * @param object          $document   The parent document instance
-     * @param string|array    $filter     Filter string or array of filter string
-     * @param int             $fetchDepth Optional fetch depth, -1 to not override.
-     * @param string          $locale     The locale to use during the loading of this collection
+     * @param DocumentManagerInterface $dm  The DocumentManager the collection will be associated with.
+     * @param object          $document     The parent document instance
+     * @param string|array    $filter       Filter string or array of filter string
+     * @param int             $fetchDepth   Optional fetch depth, -1 to not override.
+     * @param string          $locale       The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManager $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
+    public function __construct(DocumentManagerInterface $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
     {
         $this->dm = $dm;
         $this->document = $document;
@@ -58,7 +58,7 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManager  $dm             The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface  $dm    The DocumentManager the collection will be associated with.
      * @param object           $document       The parent document instance
      * @param array|Collection $collection     The collection to initialize with
      * @param string|array     $filter         Filter string or array of filter string
@@ -67,7 +67,7 @@ class ChildrenCollection extends PersistentCollection
      *
      * @return ChildrenCollection
      */
-    public static function createFromCollection(DocumentManager $dm, $document, $collection, $filter = null, $fetchDepth = -1, $forceOverwrite = false)
+    public static function createFromCollection(DocumentManagerInterface $dm, $document, $collection, $filter = null, $fetchDepth = -1, $forceOverwrite = false)
     {
         $childrenCollection = new self($dm, $document, $filter, $fetchDepth);
         $childrenCollection->initializeFromCollection($collection, $forceOverwrite);

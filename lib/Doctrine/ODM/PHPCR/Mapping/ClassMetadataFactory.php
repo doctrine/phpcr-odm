@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
@@ -46,7 +46,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     protected $cacheSalt = '\$PHPCRODMCLASSMETADATA';
 
     /**
-     * @var DocumentManager
+     * @var DocumentManagerInterface
      */
     private $dm;
 
@@ -65,9 +65,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      * Creates a new factory instance that uses the given DocumentManager instance.
      *
-     * @param DocumentManager $dm The DocumentManager instance
+     * @param DocumentManagerInterface $dm The DocumentManager instance
      */
-    public function __construct(DocumentManager $dm)
+    public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;
 

@@ -46,7 +46,7 @@ class DocumentRepository implements ObjectRepository
     const QUERY_REPLACE_WITH_FIELDNAMES = 1;
 
     /**
-     * @var DocumentManager
+     * @var DocumentManagerInterface
      */
     protected $dm;
 
@@ -68,8 +68,8 @@ class DocumentRepository implements ObjectRepository
     /**
      * Initializes a new <tt>DocumentRepository</tt>.
      *
-     * @param DocumentManager $dm            The DocumentManager to use.
-     * @param ClassMetadata   $classMetadata The class descriptor.
+     * @param DocumentManagerInterface $dm            The DocumentManager to use.
+     * @param ClassMetadata            $classMetadata The class descriptor.
      */
     public function __construct($dm, ClassMetadata $class)
     {
@@ -237,7 +237,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * @return DocumentManager
+     * @return DocumentManagerInterface
      */
     public function getDocumentManager()
     {
