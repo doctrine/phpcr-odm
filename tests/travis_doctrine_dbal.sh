@@ -1,8 +1,7 @@
 #!/bin/bash
 
 composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
-if [[ "$PACKAGE_VERSION" == "high" ]]; then composer update --prefer-source --no-interaction; fi
-if [[ "$PACKAGE_VERSION" == "low" ]]; then composer update --prefer-lowest --prefer-source --no-interaction; fi
+composer update $COMPOSER_FLAGS --prefer-source --no-interaction;
 
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"

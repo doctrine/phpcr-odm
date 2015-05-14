@@ -4,6 +4,11 @@ Changelog
 1.3.0-rc1
 ---------
 
+* **2015-07-13**: Added Symfony 3 compatibility for the console commands. If you
+                  use the commands, update your `cli-config.php` according to 
+                  `cli-config.[implementation].php.dist` to set the question
+                   helper if it is available.
+
 * **2015-07-13**: Adjusted the regular expression for locales, to allow for sublocales
                   but preventing arbitrary non alphanumeric characters.
 
