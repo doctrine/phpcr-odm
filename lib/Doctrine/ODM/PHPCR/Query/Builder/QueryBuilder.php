@@ -78,15 +78,15 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * @param BuilderConverterPhpcr $converter
+     * @param ConverterPhpcr $converter
      */
-    public function setConverter(BuilderConverterPhpcr $converter)
+    public function setConverter(ConverterInterface $converter)
     {
         $this->converter = $converter;
     }
 
     /**
-     * @return BuilderConverterPhpcr
+     * @return ConverterPhpcr
      */
     protected function getConverter()
     {

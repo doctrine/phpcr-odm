@@ -22,8 +22,6 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
-use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
-use Doctrine\ODM\PHPCR\DocumentClassMapper;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
 use PHPCR\Util\UUIDHelper;

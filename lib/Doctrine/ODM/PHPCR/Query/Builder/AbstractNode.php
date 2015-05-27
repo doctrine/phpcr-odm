@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
+
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;

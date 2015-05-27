@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
 
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 

@@ -5,12 +5,12 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Jackalope\Query\QOM\QueryObjectModelFactory;
-use Doctrine\ODM\PHPCR\Query\Builder\BuilderConverterPhpcr;
+use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 
-class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
+class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
 {
     protected $parentNode;
 
@@ -95,7 +95,7 @@ class BuilderConverterPhpcrTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->converter = new BuilderConverterPhpcr($dm, $this->qomf);
+        $this->converter = new ConverterPhpcr($dm, $this->qomf);
 
         $this->qb = new QueryBuilder();
         $this->qb->setConverter($this->converter);

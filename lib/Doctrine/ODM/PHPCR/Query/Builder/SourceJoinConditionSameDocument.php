@@ -2,8 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Source;
-use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
 
 class SourceJoinConditionSameDocument extends AbstractLeafNode
 {
