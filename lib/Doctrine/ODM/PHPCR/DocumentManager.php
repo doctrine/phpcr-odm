@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
@@ -31,7 +30,7 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
-use Doctrine\ODM\PHPCR\Query\Builder\BuilderConverterPhpcr;
+use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
 
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -454,7 +453,7 @@ class DocumentManager implements DocumentManagerInterface
         $qm = $this->session->getWorkspace()->getQueryManager();
         $qomf = $qm->getQOMFactory();
 
-        $converter = new BuilderConverterPhpcr($this, $qomf);
+        $converter = new ConverterPhpcr($this, $qomf);
 
         $builder = new QueryBuilder();
         $builder->setConverter($converter);

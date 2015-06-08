@@ -17,37 +17,21 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
+namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-
-/**
- * base class for all property types
- */
-class Property
+interface ConverterInterface
 {
     /**
-     * The PHPCR property name to use
-     * @var string
+     * Returns an ODM Query object from the given ODM (query) Builder.
+     *
+     * Dispatches the From, Select, Where and OrderBy nodes. Each of these
+     * "root" nodes append or set PHPCR QOM objects to corresponding properties
+     * in this class, which are subsequently used to create a PHPCR QOM object which
+     * is embedded in an ODM Query object.
+     *
+     * @param QueryBuilder $builder
+     *
+     * @return Query
      */
-    public $property;
-
-    /**
-     * @var string
-     */
-    public $type = 'undefined';
-
-    /**
-     * @var boolean
-     */
-    public $multivalue = false;
-
-    /**
-     * @var string
-     */
-    public $assoc;
-
-    /**
-     * @var boolean
-     */
-    public $nullable = false;
+    public function getQuery(QueryBuilder $queryBuilder);
 }

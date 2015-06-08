@@ -1,119 +1,58 @@
 <?php
+/*
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * This software consists of voluntary contributions made by many individuals
+ * and is licensed under the MIT license. For more information, see
+ * <http://www.doctrine-project.org>.
+ */
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-
-use PHPCR\Query\QOM\EquiJoinConditionInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\ColumnInterface;
 
 /**
- * Class which converts a Builder tree to a PHPCR Query
+ * Base class for PHPCR based query converters
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class BuilderConverterPhpcr
+abstract class ConverterBase implements ConverterInterface
 {
     /**
-     * @var QueryObjectModelFactoryInterface
+     * @var From
      */
-    protected $qomf;
-
-    /**
-     * @var ClassMetadataFactory
-     */
-    protected $mdf;
-
-    /**
-     * @var DocumentManagerInterface
-     */
-    protected $dm;
-
-    /**
-     * When document sources are registered we put the document
-     * metadata here.
-     *
-     * @var ClassMetadata[]
-     */
-    protected $aliasMetadata = array();
-
-    /**
-     * When document sources are registered we put the translator
-     * here in case the document is translatable.
-     *
-     * @var TranslationStrategyInterface[]
-     */
-    protected $translator = array();
-
-    /**
-     * Ugly: We need to store the document source types so that we
-     * can append constraints to match the phpcr:class and phpcr:classparents
-     * later on.
-     *
-     * @var SourceDocument[]
-     */
-    protected $sourceDocumentNodes;
-
-    /**
-     * Used to keep track of which sources are used with translated fields, to
-     * tell the translation strategy to update if needed.
-     *
-     * @var array keys are the alias, value is true
-     */
-    protected $aliasWithTranslatedFields;
-
-    /**
-     * @var string|null
-     */
-    protected $locale;
-
     protected $from = null;
-    protected $columns = array();
-    protected $orderings = array();
-    protected $constraint = null;
-
-    public function __construct(
-        DocumentManagerInterface $dm,
-        QueryObjectModelFactoryInterface $qomf
-    ) {
-        $this->qomf = $qomf;
-        $this->mdf = $dm->getMetadataFactory();
-        $this->dm = $dm;
-    }
 
     /**
-     * Check that the given alias is valid and return it.
-     *
-     * This should only be called from the getQuery function AFTER
-     * the document sources are known.
-     *
-     * @param string $alias Alias to validate and return
-     *
-     * @return string Return the alias to allow this function to be used inline
-     *
-     * @throws InvalidArgumentException
+     * @var ColumnInterface[]
      */
-    protected function validateAlias($alias)
-    {
-        if (!isset($this->aliasMetadata[$alias])) {
-            throw new InvalidArgumentException(sprintf(
-                'Alias name "%s" is not known. The following aliases '.
-                'are valid: "%s"',
-                $alias,
-                implode(', ', array_keys($this->aliasMetadata))
-            ));
-        }
+    protected $columns = array();
 
-        return $alias;
-    }
+    /**
+     * @var OrderingInterface[]
+     */
+    protected $orderings = array();
+
+    /**
+     * @var ConstraintInterface[]
+     */
+    protected $constraint = null;
 
     /**
      * Return the PHPCR property name and alias for the given ODM document
@@ -130,141 +69,44 @@ class BuilderConverterPhpcr
      *
      * @throws \Exception If a field used in the query does not exist on the document.
      */
-    protected function getPhpcrProperty($originalAlias, $odmField)
-    {
-        $this->validateAlias($originalAlias);
-        $meta = $this->aliasMetadata[$originalAlias];;
-
-        if ($meta->hasField($odmField)) {
-            $fieldMeta = $meta->getFieldMapping($odmField);
-        } elseif ($meta->hasAssociation($odmField)) {
-            $fieldMeta = $meta->getAssociation($odmField);
-        } else {
-            throw new \Exception(sprintf(
-                'Could not find a mapped field or association named "%s" for alias "%s"',
-                $odmField, $originalAlias
-            ));
-        }
-
-        $propertyName = $fieldMeta['property'];
-
-        if (empty($fieldMeta['translated'])
-            || empty($this->translator[$originalAlias])
-        ) {
-            return array($originalAlias, $propertyName);
-        }
-
-        $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $fieldMeta['property'], $this->locale);
-
-        $this->aliasWithTranslatedFields[$originalAlias] = true;
-
-        return $propertyPath;
-    }
+    abstract protected function getPhpcrProperty($originalAlias, $odmField);
 
     /**
-     * Returns an ODM Query object from the given ODM (query) Builder.
+     * Walk the source document
      *
-     * Dispatches the From, Select, Where and OrderBy nodes. Each of these
-     * "root" nodes append or set PHPCR QOM objects to corresponding properties
-     * in this class, which are subsequently used to create a PHPCR QOM object which
-     * is embedded in an ODM Query object.
-     *
-     * @param QueryBuilder $builder
-     *
-     * @return Query
+     * @param SourceDocument
      */
-    public function getQuery(QueryBuilder $builder)
-    {
-        $this->aliasWithTranslatedFields = array();
-        $this->locale = $builder->getLocale();
-        if (null === $this->locale && $this->dm->hasLocaleChooserStrategy()) {
-            $this->locale = $this->dm->getLocaleChooserStrategy()->getLocale();
-        }
+    abstract protected function walkSourceDocument(SourceDocument $node);
 
-        $from = $builder->getChildrenOfType(
-            QBConstants::NT_FROM
-        );
+    /**
+     * Walk the dynamic field
+     *
+     * Implementations should map their domain field name to the PHPCR field name here.
+     *
+     * @param OperandDynamicField $node
+     */
+    abstract protected function walkOperandDynamicField(OperandDynamicField $node);
 
-        if (!$from) {
-            throw new RuntimeException(
-                'No From (source) node in query'
-            );
-        }
+    /**
+     * Return the query object model factory
+     *
+     * @return QueryObjectModelFactoryInterface
+     */
+    abstract protected function qomf();
 
-        $dispatches = array(
-            QBConstants::NT_FROM,
-            QBConstants::NT_SELECT,
-            QBConstants::NT_WHERE,
-            QBConstants::NT_ORDER_BY,
-        );
-
-        foreach ($dispatches as $dispatchType) {
-            $this->dispatchMany($builder->getChildrenOfType($dispatchType));
-        }
-
-        if (count($this->sourceDocumentNodes) > 1 && null === $builder->getPrimaryAlias()) {
-            throw new InvalidArgumentException(
-                'You must specify a primary alias when selecting from multiple document sources'.
-                'e.g. $qb->from(\'a\') ...'
-            );
-        }
-
-        // for each document source add phpcr:{class,classparents} restrictions
-        foreach ($this->sourceDocumentNodes as $sourceNode) {
-            $documentFqn = $this->aliasMetadata[$sourceNode->getAlias()]->getName();
-
-            $odmClassConstraints = $this->qomf->orConstraint(
-                $this->qomf->comparison(
-                    $this->qomf->propertyValue(
-                        $sourceNode->getAlias(),
-                        'phpcr:class'
-                    ),
-                    QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                    $this->qomf->literal($documentFqn)
-                ),
-                $this->qomf->comparison(
-                    $this->qomf->propertyValue(
-                        $sourceNode->getAlias(),
-                        'phpcr:classparents'
-                    ),
-                    QOMConstants::JCR_OPERATOR_EQUAL_TO,
-                    $this->qomf->literal($documentFqn)
-                )
-            );
-
-            if ($this->constraint) {
-                $this->constraint = $this->qomf->andConstraint(
-                    $this->constraint,
-                    $odmClassConstraints
-                );
-            } else {
-                $this->constraint = $odmClassConstraints;
-            }
-        }
-
-        foreach (array_keys($this->aliasWithTranslatedFields) as $alias) {
-            $this->translator[$alias]->alterQueryForTranslation($this->qomf, $this->from, $this->constraint, $alias, $this->locale);
-        }
-
-        $phpcrQuery = $this->qomf->createQuery(
-            $this->from,
-            $this->constraint,
-            $this->orderings,
-            $this->columns
-        );
-
-        $query = new Query($phpcrQuery, $this->dm, $builder->getPrimaryAlias());
-
-        if ($firstResult = $builder->getFirstResult()) {
-            $query->setFirstResult($firstResult);
-        }
-
-        if ($maxResults = $builder->getMaxResults()) {
-            $query->setMaxResults($maxResults);
-        }
-
-        return $query;
-    }
+    /**
+     * Check that the given alias is valid and return it.
+     *
+     * This should only be called from the getQuery function AFTER
+     * the document sources are known.
+     *
+     * @param string $alias Alias to validate and return
+     *
+     * @return string Return the alias to allow this function to be used inline
+     *
+     * @throws InvalidArgumentException
+     */
+    abstract protected function validateAlias($alias);
 
     /**
      * Convenience method to dispatch an array of nodes.
@@ -316,7 +158,7 @@ class BuilderConverterPhpcr
                 $property->getField()
             );
 
-            $column = $this->qomf->column(
+            $column = $this->qomf()->column(
                 $alias,
                 $phpcrName,
                 // do we want to support custom column names in ODM?
@@ -370,7 +212,7 @@ class BuilderConverterPhpcr
 
         $constraint = $whereAnd->getChild();
         $res = $this->dispatch($constraint);
-        $newConstraint = $this->qomf->andConstraint(
+        $newConstraint = $this->qomf()->andConstraint(
             $this->constraint,
             $res
         );
@@ -387,7 +229,7 @@ class BuilderConverterPhpcr
 
         $constraint = $whereOr->getChild();
         $res = $this->dispatch($constraint);
-        $newConstraint = $this->qomf->orConstraint(
+        $newConstraint = $this->qomf()->orConstraint(
             $this->constraint,
             $res
         );
@@ -396,48 +238,13 @@ class BuilderConverterPhpcr
         return $this->constraint;
     }
 
-    protected function walkSourceDocument(SourceDocument $node)
-    {
-        $alias = $node->getAlias();
-        $documentFqn = $node->getDocumentFqn();
-
-        // make sure we add the phpcr:{class,classparents} constraints
-        // From is dispatched first, so these will always be the primary
-        // constraints.
-        $this->sourceDocumentNodes[$alias] = $node;
-
-        // cache the metadata for this document
-        /** @var $meta ClassMetadata */
-        $meta = $this->mdf->getMetadataFor($documentFqn);
-
-        if (null === $meta->getName()) {
-            throw new \RuntimeException(sprintf(
-                '%s is not a mapped document', $documentFqn
-            ));
-        }
-
-        $this->aliasMetadata[$alias] = $meta;
-        if ($this->locale && $meta->translator) {
-            $this->translator[$alias] = $this->dm->getTranslationStrategy($meta->translator);
-        }
-        $nodeType = $meta->getNodeType();
-
-        // get the PHPCR Alias
-        $alias = $this->qomf->selector(
-            $alias,
-            $nodeType
-        );
-
-        return $alias;
-    }
-
     protected function walkSourceJoin(SourceJoin $node)
     {
         $left = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_LEFT));
         $right = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_RIGHT));
         $cond = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_CONDITION_FACTORY));
 
-        $join = $this->qomf->join($left, $right, $node->getJoinType(), $cond);
+        $join = $this->qomf()->join($left, $right, $node->getJoinType(), $cond);
 
         return $join;
     }
@@ -461,11 +268,6 @@ class BuilderConverterPhpcr
         return $res;
     }
 
-    /**
-     * @param SourceJoinConditionEqui $node
-     *
-     * @return EquiJoinConditionInterface
-     */
     protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
     {
         list($alias1, $phpcrProperty1) = $this->getPhpcrProperty(
@@ -640,58 +442,22 @@ class BuilderConverterPhpcr
         return $ret;
     }
 
-    protected function walkOperandDynamicField(OperandDynamicField $node)
-    {
-        $alias = $node->getAlias();
-        $field = $node->getField();
-
-        $classMeta = $this->aliasMetadata[$alias];
-
-        if ($field === $classMeta->nodename) {
-            throw new InvalidArgumentException(sprintf(
-                'Cannot use nodename property "%s" of class "%s" as a dynamic operand use "localname()" instead.',
-                $field,
-                $classMeta->name
-            ));
-        }
-
-        if ($classMeta->hasAssociation($field)) {
-            throw new InvalidArgumentException(sprintf(
-                'Cannot use association property "%s" of class "%s" as a dynamic operand.',
-                $field,
-                $classMeta->name
-            ));
-        }
-
-        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
-            $alias,
-            $field
-        );
-
-        $op = $this->qomf->propertyValue(
-            $alias,
-            $phpcrProperty
-        );
-
-        return $op;
-    }
-
     protected function walkOperandDynamicLocalName(OperandDynamicLocalName $node)
     {
-        $op = $this->qomf->nodeLocalName(
+        $operand = $this->qomf()->nodeLocalName(
             $this->validateAlias($node->getAlias())
         );
 
-        return $op;
+        return $operand;
     }
 
     protected function walkOperandDynamicFullTextSearchScore(OperandDynamicFullTextSearchScore $node)
     {
-        $op = $this->qomf->fullTextSearchScore(
+        $operand = $this->qomf()->fullTextSearchScore(
             $this->validateAlias($node->getAlias())
         );
 
-        return $op;
+        return $operand;
     }
 
     protected function walkOperandDynamicLength(OperandDynamicLength $node)
@@ -701,25 +467,25 @@ class BuilderConverterPhpcr
             $node->getField()
         );
 
-        $propertyValue = $this->qomf->propertyValue(
+        $propertyValue = $this->qomf()->propertyValue(
             $alias,
             $phpcrProperty
         );
 
-        $op = $this->qomf->length(
+        $operand = $this->qomf()->length(
             $propertyValue
         );
 
-        return $op;
+        return $operand;
     }
 
     protected function walkOperandDynamicName(OperandDynamicName $node)
     {
-        $op = $this->qomf->nodeName(
+        $operand = $this->qomf()->nodeName(
             $this->validateAlias($node->getAlias())
         );
 
-        return $op;
+        return $operand;
     }
 
     protected function walkOperandDynamicLowerCase(OperandDynamicLowerCase $node)
@@ -730,11 +496,11 @@ class BuilderConverterPhpcr
 
         $phpcrChild = $this->dispatch($child);
 
-        $op = $this->qomf->lowerCase(
+        $operand = $this->qomf()->lowerCase(
             $phpcrChild
         );
 
-        return $op;
+        return $operand;
     }
 
     protected function walkOperandDynamicUpperCase(OperandDynamicUpperCase $node)
@@ -745,23 +511,23 @@ class BuilderConverterPhpcr
 
         $phpcrChild = $this->dispatch($child);
 
-        $op = $this->qomf->upperCase(
+        $operand = $this->qomf()->upperCase(
             $phpcrChild
         );
 
-        return $op;
+        return $operand;
     }
 
     protected function walkOperandStaticLiteral(OperandStaticLiteral $node)
     {
-        $op = $this->qomf->literal($node->getValue());
-        return $op;
+        $operand = $this->qomf()->literal($node->getValue());
+        return $operand;
     }
 
     protected function walkOperandStaticParameter(OperandStaticParameter $node)
     {
-        $op = $this->qomf->bindVariable($node->getVariableName());
-        return $op;
+        $operand = $this->qomf()->bindVariable($node->getVariableName());
+        return $operand;
     }
 
     // ordering
@@ -780,9 +546,9 @@ class BuilderConverterPhpcr
             $phpcrDynOp = $this->dispatch($dynOp);
 
             if ($ordering->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
-                $ordering = $this->qomf->ascending($phpcrDynOp);
+                $ordering = $this->qomf()->ascending($phpcrDynOp);
             } else {
-                $ordering = $this->qomf->descending($phpcrDynOp);
+                $ordering = $this->qomf()->descending($phpcrDynOp);
             }
 
             $this->orderings[] = $ordering;

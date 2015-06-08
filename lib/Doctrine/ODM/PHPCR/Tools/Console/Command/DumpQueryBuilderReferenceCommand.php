@@ -18,14 +18,9 @@
  */
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
-use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 
 /**

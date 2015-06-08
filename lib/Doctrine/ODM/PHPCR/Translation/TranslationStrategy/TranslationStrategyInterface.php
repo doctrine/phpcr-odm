@@ -109,7 +109,7 @@ interface TranslationStrategyInterface
      * integrate translations that are on other nodes.
      *
      * Only called once per alias value. The selector and constraint are passed
-     * by reference, the strategy can alter them to let the BuilderConverterPhpcr
+     * by reference, the strategy can alter them to let the ConverterInterface instance
      * generate a different query.
      *
      * @param QueryObjectModelFactoryInterface $qomf       The PHPCR query factory.

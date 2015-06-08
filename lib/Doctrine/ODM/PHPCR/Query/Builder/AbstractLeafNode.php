@@ -3,7 +3,6 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 
 /**
  * Special class for leaf nodes. Leaf nodes have no children

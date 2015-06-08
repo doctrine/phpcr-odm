@@ -20,7 +20,6 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;

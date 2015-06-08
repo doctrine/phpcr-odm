@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
-use Doctrine\Common\Annotations\Annotation;
 
 /**
  * Base class for all the translatable properties (i.e. every property but Uuid and Version)

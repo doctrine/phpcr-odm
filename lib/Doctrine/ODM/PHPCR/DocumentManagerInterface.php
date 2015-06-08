@@ -26,14 +26,11 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Query\Query;
 
-use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\PropertyType;
-use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
 /**

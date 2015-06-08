@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-Use Doctrine\ODM\PHPCR\Query\Builder\Source;
 
 /**
  * Factory node for "left" source in join.

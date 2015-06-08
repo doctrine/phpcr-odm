@@ -26,7 +26,6 @@ use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
 use ReflectionProperty;
 use ReflectionClass;
-use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;

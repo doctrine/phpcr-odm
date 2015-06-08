@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Immutable referrer collection class

@@ -21,7 +21,6 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\Common\Util\Debug;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use SimpleXmlElement;

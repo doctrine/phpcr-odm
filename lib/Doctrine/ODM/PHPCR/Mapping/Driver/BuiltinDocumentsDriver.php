@@ -5,7 +5,6 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 
 /**
  * The BuiltinDocumentsDriver is used internally to make sure
