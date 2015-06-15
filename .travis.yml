@@ -6,13 +6,18 @@ php:
   - 5.4
   - 5.5
   - 5.6
+  - 7.0
   - hhvm
+  - hhvm-nightly
 
 env:
   - TRANSPORT=jackrabbit PACKAGE_VERSION=high
   - TRANSPORT=doctrine_dbal PACKAGE_VERSION=high
 
 matrix:
+  allow_failures:
+    - php: 7.0
+    - php: hhvm-nightly
   include:
     - php: 5.3.3
       env: TRANSPORT=doctrine_dbal PACKAGE_VERSION=low
