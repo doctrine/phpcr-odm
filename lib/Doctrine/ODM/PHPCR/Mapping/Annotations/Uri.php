@@ -21,6 +21,8 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+@trigger_error('The @Uri annotation is deprecated, use @Field(type="uri") instead.', E_USER_DEPRECATED);
+
 /**
  * String that is validated to be an URI.
  *

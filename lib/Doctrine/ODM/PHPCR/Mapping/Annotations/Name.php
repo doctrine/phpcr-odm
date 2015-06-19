@@ -21,6 +21,8 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+@trigger_error('The @Name annotation is deprecated, use @Field(type="name") instead.', E_USER_DEPRECATED);
+
 /**
  * String that is restricted to name with optional namespace.
  *

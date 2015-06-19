@@ -21,6 +21,8 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+@trigger_error('The @Binary annotation is deprecated, use @Field(type="binary") instead.', E_USER_DEPRECATED);
+
 /**
  * @Annotation
  * @Target("PROPERTY")
