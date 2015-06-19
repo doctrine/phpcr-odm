@@ -24,6 +24,8 @@ use Doctrine\Common\Annotations\Annotation;
 /**
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="Binary") instead.
  */
 final class Binary extends TranslatableProperty
 {

@@ -23,8 +23,11 @@ use Doctrine\Common\Annotations\Annotation;
 
 /**
  * Convenience alias for Long.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="long") instead.
  */
 final class Int extends TranslatableProperty
 {

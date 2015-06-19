@@ -22,9 +22,12 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 use Doctrine\Common\Annotations\Annotation;
 
 /**
- * String that is restricted to name with optional namespace
+ * String that is restricted to name with optional namespace.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="name") instead.
  */
 final class Name extends TranslatableProperty
 {

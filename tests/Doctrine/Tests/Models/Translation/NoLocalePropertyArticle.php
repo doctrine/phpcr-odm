@@ -27,12 +27,12 @@ class NoLocalePropertyArticle
     public $publishDate;
 
     // untranslated:
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $author;
 
-    /** @PHPCRODM\String(translated=true) */
+    /** @PHPCRODM\Field(type="string", translated=true) */
     public $topic;
 
-    /** @PHPCRODM\String(translated=true) */
+    /** @PHPCRODM\Field(type="string", translated=true) */
     public $text;
 }

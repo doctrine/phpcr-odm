@@ -29,17 +29,17 @@ class Article
     public $parent;
 
     // untranslated:
-    /** @PHPCRODM\Date(nullable=true) */
+    /** @PHPCRODM\Field(type="date", nullable=true) */
     public $publishDate;
 
     // untranslated:
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $author;
 
-    /** @PHPCRODM\String(translated=true) */
+    /** @PHPCRODM\Field(type="string", translated=true) */
     public $topic;
 
-    /** @PHPCRODM\String(translated=true) */
+    /** @PHPCRODM\Field(type="string", translated=true) */
     public $text;
 
     /** @PHPCRODM\Children() */
@@ -51,22 +51,22 @@ class Article
     /** @PHPCRODM\ReferenceMany() */
     public $relatedArticles = array();
 
-    /** @PHPCRODM\String(translated=true, nullable=true) */
+    /** @PHPCRODM\Field(type="string", translated=true, nullable=true) */
     public $nullable;
 
-    /** @PHPCRODM\String(translated=true, nullable=true, property="custom-property-name") */
+    /** @PHPCRODM\Field(type="string", translated=true, nullable=true, property="custom-property-name") */
     public $customPropertyName;
 
-    /** @PHPCRODM\String(translated=true, assoc="", nullable=true)*/
+    /** @PHPCRODM\Field(type="string", translated=true, assoc="", nullable=true)*/
     public $assoc;
 
     /**
-     * @PHPCRODM\String(assoc="", translated=true, nullable=true)
+     * @PHPCRODM\Field(type="string", assoc="", translated=true, nullable=true)
      */
     protected $settings;
 
     /**
-     * @PHPCRODM\String(assoc="", property="custom-settings", translated=true, nullable=true)
+     * @PHPCRODM\Field(type="string", assoc="", property="custom-settings", translated=true, nullable=true)
      */
     public $customNameSettings;
 

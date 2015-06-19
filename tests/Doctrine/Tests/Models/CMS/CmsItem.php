@@ -16,7 +16,7 @@ class CmsItem
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
     /** @PHPCRODM\ReferenceOne(strategy="hard", cascade="persist") */
     public $documentTarget;

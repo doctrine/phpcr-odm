@@ -12,9 +12,9 @@ class CmsAuditItem
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $message;
 
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $username;
 }

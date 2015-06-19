@@ -22,9 +22,12 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 use Doctrine\Common\Annotations\Annotation;
 
 /**
- * String that is validated to be an URI
+ * String that is validated to be an URI.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="uri") instead.
  */
 final class Uri extends TranslatableProperty
 {

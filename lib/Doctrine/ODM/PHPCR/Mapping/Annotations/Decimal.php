@@ -22,9 +22,12 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 use Doctrine\Common\Annotations\Annotation;
 
 /**
- * Large numbers bcmath compatible strings
+ * Large numbers bcmath compatible strings.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="decimal") instead.
  */
 final class Decimal extends TranslatableProperty
 {

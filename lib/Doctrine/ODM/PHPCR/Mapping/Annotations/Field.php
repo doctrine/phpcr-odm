@@ -24,13 +24,7 @@ use Doctrine\Common\Annotations\Annotation;
 /**
  * @Annotation
  * @Target("PROPERTY")
- *
- * @deprecated Use @Field(type="long") instead.
  */
-final class Long extends TranslatableProperty
+final class Field extends TranslatableProperty
 {
-    /**
-     * @var string
-     */
-    public $type = 'long';
 }

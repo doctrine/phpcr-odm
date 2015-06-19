@@ -12,13 +12,13 @@ class VersionableArticle
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $author;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $topic;
 
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     private $text;
 
     public function getText()

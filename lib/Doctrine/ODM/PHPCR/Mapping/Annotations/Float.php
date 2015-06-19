@@ -23,8 +23,11 @@ use Doctrine\Common\Annotations\Annotation;
 
 /**
  * Convenience alias for Double.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="double") instead.
  */
 final class Float extends TranslatableProperty
 {

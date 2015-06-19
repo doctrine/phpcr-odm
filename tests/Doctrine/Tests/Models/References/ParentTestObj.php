@@ -15,7 +15,7 @@ class ParentTestObj
     public $parent;
     /** @PHPCRODM\Nodename */
     public $nodename;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
 
     public function getParentDocument()
