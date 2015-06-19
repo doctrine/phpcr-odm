@@ -349,7 +349,7 @@ class Person
     public $locale;
 
     /**
-     * @PHPCRODM\String(translated=true)
+     * @PHPCRODM\Field(type="string", translated=true)
      */
     public $translatedField;
 }

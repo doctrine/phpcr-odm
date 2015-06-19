@@ -56,27 +56,27 @@ class Resource
     protected $parent;
 
     /**
-     * @PHPCRODM\Binary(property="jcr:data")
+     * @PHPCRODM\Field(type="binary", property="jcr:data")
      */
     protected $data;
 
     /**
-     * @PHPCRODM\String(property="jcr:mimeType")
+     * @PHPCRODM\Field(type="string", property="jcr:mimeType")
      */
     protected $mimeType = 'application/octet-stream';
 
     /**
-     * @PHPCRODM\String(property="jcr:encoding", nullable=true)
+     * @PHPCRODM\Field(type="string", property="jcr:encoding", nullable=true)
      */
     protected $encoding;
 
     /**
-     * @PHPCRODM\Date(property="jcr:lastModified")
+     * @PHPCRODM\Field(type="date", property="jcr:lastModified")
      */
     protected $lastModified;
 
     /**
-     * @PHPCRODM\String(property="jcr:lastModifiedBy")
+     * @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy")
      */
     protected $lastModifiedBy;
 

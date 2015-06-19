@@ -725,7 +725,7 @@ class ChildrenTestObj
     /** @PHPCR\Id(strategy="repository") */
     public $id;
 
-    /** @PHPCR\String(nullable=true) */
+    /** @PHPCR\Field(type="string", nullable=true) */
     public $name;
 
     /** @PHPCR\Children(filter="*A", fetchDepth=1, cascade="persist") */
@@ -798,7 +798,7 @@ class ChildrenReferrerTestObj
   /** @PHPCR\Id */
   public $id;
 
-  /** @PHPCR\String */
+  /** @PHPCR\Field(type="string") */
   public $name;
 
   /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
@@ -813,7 +813,7 @@ class ChildrenReferenceableTestObj
   /** @PHPCR\Id */
   public $id;
 
-  /** @PHPCR\String */
+  /** @PHPCR\Field(type="string") */
   public $name;
 
   /** @PHPCR\Children(cascade="persist") */

@@ -150,15 +150,15 @@ class TypeUser
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $note;
-    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
+    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
-    /** @PHPCRODM\String(assoc="",nullable=true) */
+    /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
     public $parameters;
-    /** @PHPCRODM\Long(assoc="",nullable=true) */
+    /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
     public $assocNumbers;
 }
 
@@ -167,6 +167,6 @@ class TypeUser
  */
 class TypeTeamUser extends TypeUser
 {
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
 }

@@ -63,8 +63,8 @@ class TestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
-    /** @PHPCRODM\String(property="myname") */
+    /** @PHPCRODM\Field(type="string", property="myname") */
     public $othername;
 }

@@ -14,28 +14,28 @@ class FieldMappingObject
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $string;
-    /** @PHPCRODM\Binary */
+    /** @PHPCRODM\Field(type="binary") */
     public $binary;
-    /** @PHPCRODM\Long */
+    /** @PHPCRODM\Field(type="long") */
     public $long;
-    /** @PHPCRODM\Int */
+    /** @PHPCRODM\Field(type="long") */
     public $int;
-    /** @PHPCRODM\Decimal */
+    /** @PHPCRODM\Field(type="decimal") */
     public $decimal;
-    /** @PHPCRODM\Double */
+    /** @PHPCRODM\Field(type="double") */
     public $double;
-    /** @PHPCRODM\Float */
+    /** @PHPCRODM\Field(type="double") */
     public $float;
-    /** @PHPCRODM\Date */
+    /** @PHPCRODM\Field(type="date") */
     public $date;
-    /** @PHPCRODM\Boolean */
+    /** @PHPCRODM\Field(type="boolean") */
     public $boolean;
-    /** @PHPCRODM\Name */
+    /** @PHPCRODM\Field(type="name") */
     public $name;
-    /** @PHPCRODM\Path */
+    /** @PHPCRODM\Field(type="path") */
     public $path;
-    /** @PHPCRODM\Uri */
+    /** @PHPCRODM\Field(type="uri") */
     public $uri;
 }

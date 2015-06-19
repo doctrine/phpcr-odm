@@ -99,10 +99,10 @@ class SomeEntity
     /** @PHPCRODM\Id() */
     public $id;
 
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $status;
 
-    /** @PHPCRODM\String() */
+    /** @PHPCRODM\Field(type="string") */
     public $text;
 }
 

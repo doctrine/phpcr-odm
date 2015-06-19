@@ -56,34 +56,34 @@ class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertTrue($this->node->getNode('p')->hasProperty('string'));
         $this->assertEquals(PropertyType::STRING, $this->node->getNode('p')->getProperty('string')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('long'));
         $this->assertEquals(PropertyType::LONG, $this->node->getNode('p')->getProperty('long')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('int'));
         $this->assertEquals(PropertyType::LONG, $this->node->getNode('p')->getProperty('int')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('decimal'));
         $this->assertEquals(PropertyType::DECIMAL, $this->node->getNode('p')->getProperty('decimal')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('double'));
         $this->assertEquals(PropertyType::DOUBLE, $this->node->getNode('p')->getProperty('double')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('float'));
         $this->assertEquals(PropertyType::DOUBLE, $this->node->getNode('p')->getProperty('float')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('date'));
         $this->assertEquals(PropertyType::DATE, $this->node->getNode('p')->getProperty('date')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('boolean'));
         $this->assertEquals(PropertyType::BOOLEAN, $this->node->getNode('p')->getProperty('boolean')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('name'));
         $this->assertEquals(PropertyType::NAME, $this->node->getNode('p')->getProperty('name')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('path'));
         $this->assertEquals(PropertyType::PATH, $this->node->getNode('p')->getProperty('path')->getType());
-        
+
         $this->assertTrue($this->node->getNode('p')->hasProperty('uri'));
         $this->assertEquals(PropertyType::URI, $this->node->getNode('p')->getProperty('uri')->getType());
 
@@ -122,27 +122,27 @@ class PropertyTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $string;
     //binary tested in its own test
-    /** @PHPCRODM\Long */
+    /** @PHPCRODM\Field(type="long") */
     public $long;
-    /** @PHPCRODM\Int */
+    /** @PHPCRODM\Field(type="long") */
     public $int;
-    /** @PHPCRODM\Decimal */
+    /** @PHPCRODM\Field(type="decimal") */
     public $decimal;
-    /** @PHPCRODM\Double */
+    /** @PHPCRODM\Field(type="double") */
     public $double;
-    /** @PHPCRODM\Float */
+    /** @PHPCRODM\Field(type="double") */
     public $float;
-    /** @PHPCRODM\Date */
+    /** @PHPCRODM\Field(type="date") */
     public $date;
-    /** @PHPCRODM\Boolean */
+    /** @PHPCRODM\Field(type="boolean") */
     public $boolean;
-    /** @PHPCRODM\Name */
+    /** @PHPCRODM\Field(type="name") */
     public $name;
-    /** @PHPCRODM\Path */
+    /** @PHPCRODM\Field(type="path") */
     public $path;
-    /** @PHPCRODM\Uri */
+    /** @PHPCRODM\Field(type="uri") */
     public $uri;
 }

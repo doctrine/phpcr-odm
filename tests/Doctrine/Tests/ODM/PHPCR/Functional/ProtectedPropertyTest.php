@@ -121,13 +121,13 @@ class ProtectedPropertyTestObj
     /** @PHPCRODM\ReferenceOne(strategy="hard") */
     public $reference;
 
-    /** @PHPCRODM\Date(property="jcr:created") */
+    /** @PHPCRODM\Field(type="date", property="jcr:created") */
     public $created;
 
-    /** @PHPCRODM\String(property="jcr:createdBy") */
+    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
     public $createdBy;
 
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $changeme;
 }
 
@@ -145,9 +145,9 @@ class ProtectedPropertyTestObj2
     /** @PHPCRODM\ReferenceOne(strategy="hard") */
     public $reference2;
 
-    /** @PHPCRODM\Date(property="jcr:created") */
+    /** @PHPCRODM\Field(type="date", property="jcr:created") */
     public $created;
 
-    /** @PHPCRODM\String(property="jcr:createdBy") */
+    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
     public $createdBy;
 }

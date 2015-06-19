@@ -23,7 +23,7 @@ class NoLocalePropertyArticle
     public $id;
 
     // untranslated:
-    /** @PHPCRODM\Date */
+    /** @PHPCRODM\Field(type="date") */
     public $publishDate;
 
     // untranslated:
