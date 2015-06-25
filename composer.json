@@ -23,6 +23,7 @@
         "symfony/console": "~2.3"
     },
     "require-dev": {
+        "aferrandini/urlizer": "1.0.*",
         "symfony/yaml": "~2.0",
         "symfony/phpunit-bridge": "2.7.*@dev",
         "liip/rmt": "~1.1"

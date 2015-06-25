@@ -380,4 +380,27 @@ class Configuration
             }
         ;
     }
+
+    /**
+     * Set slugifier callable
+     *
+     * PHP callable for peroforming slugification when using the 
+     * slugify from field ID generator method
+     *
+     * @param Callable
+     */
+    public function setSlugifier($callable)
+    {
+        $this->slugifier = $callable;
+    }
+
+    /**
+     * Get slugifier callable
+     *
+     * @return callable
+     */
+    public function getSlugifier()
+    {
+        return $this->slugifier;
+    }
 }

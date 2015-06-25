@@ -25,25 +25,11 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Id
+final class AssocArray extends TranslatableProperty
 {
     /**
-     * @var boolean
-     */
-    public $id = true;
-
-    /**
      * @var string
      */
-    public $type = 'string';
-
-    /**
-     * @var string
-     */
-    public $strategy;
-
-    /**
-     * @var array
-     */
-    public $options;
+    public $type = 'assoc-array';
 }
+

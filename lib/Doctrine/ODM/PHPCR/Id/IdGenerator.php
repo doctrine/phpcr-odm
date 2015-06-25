@@ -22,6 +22,8 @@ namespace Doctrine\ODM\PHPCR\Id;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Configuration;
+use Doctrine\ODM\PHPCR\Id\FieldSlugifierIdGenerator;
 
 /**
  * Used to abstract ID generation
@@ -41,7 +43,7 @@ abstract class IdGenerator
      *
      * @return IdGenerator
      */
-    public static function create($generatorType)
+    public static function create($generatorType, Configuration $config)
     {
         switch ($generatorType) {
             case ClassMetadata::GENERATOR_TYPE_ASSIGNED:
@@ -55,6 +57,9 @@ abstract class IdGenerator
                 break;
             case ClassMetadata::GENERATOR_TYPE_AUTO:
                 $instance = new AutoIdGenerator();
+                break;
+            case ClassMetadata::GENERATOR_TYPE_FIELD_SLUGIFIER:
+                $instance = new FieldSlugifierIdGenerator($config->getSlugifier());
                 break;
 
             default:
