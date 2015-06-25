@@ -1090,7 +1090,8 @@ class UnitOfWork
     public function computeSingleDocumentChangeSet($document)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED) {
+
+        if ($state !== self::STATE_MANAGED && $state !== self::STATE_REMOVED) {
             throw new InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
