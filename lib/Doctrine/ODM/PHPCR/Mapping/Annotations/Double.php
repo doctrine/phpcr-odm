@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
-@trigger_error('The @Double annotation is deprecated, use @Field(type="double") instead.', E_USER_DEPRECATED);
+//@trigger_error('The @Double annotation is deprecated, use @Field(type="double") instead.', E_USER_DEPRECATED);
 
 /**
  * @Annotation

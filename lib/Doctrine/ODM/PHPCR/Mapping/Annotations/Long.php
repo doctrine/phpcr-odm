@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
-@trigger_error('The @Long annotation is deprecated, use @Field(type="long") instead.', E_USER_DEPRECATED);
+//@trigger_error('The @Long annotation is deprecated, use @Field(type="long") instead.', E_USER_DEPRECATED);
 
 /**
  * @Annotation

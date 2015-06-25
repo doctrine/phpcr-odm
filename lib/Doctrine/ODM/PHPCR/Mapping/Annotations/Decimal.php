@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
-@trigger_error('The @Decimal annotation is deprecated, use @Field(type="decimal") instead.', E_USER_DEPRECATED);
+//@trigger_error('The @Decimal annotation is deprecated, use @Field(type="decimal") instead.', E_USER_DEPRECATED);
 
 /**
  * Large numbers bcmath compatible strings.
