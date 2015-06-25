@@ -69,7 +69,7 @@ class TestUser
     /** @PHPCRODM\Node */
     public $node;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
 
     /** @PHPCRODM\Uuid */

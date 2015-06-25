@@ -19,9 +19,9 @@ class FullVersionTestObj
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-    /** @PHPCRODM\String() */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
-    /** @PHPCRODM\Int(multivalue=true) */
+    /** @PHPCRODM\Field(type="long", multivalue=true) */
     public $numbers;
 
     /** @PHPCRODM\ReferenceOne(strategy="weak") */

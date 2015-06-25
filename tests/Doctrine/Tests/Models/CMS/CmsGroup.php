@@ -15,7 +15,7 @@ class CmsGroup
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String() */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
 
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsUser", cascade="persist") */

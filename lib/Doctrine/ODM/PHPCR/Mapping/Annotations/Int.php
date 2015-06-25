@@ -21,10 +21,15 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+//@trigger_error('The @Int annotation is deprecated, use @Field(type="long") instead.', E_USER_DEPRECATED);
+
 /**
  * Convenience alias for Long.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="long") instead.
  */
 final class Int extends TranslatableProperty
 {

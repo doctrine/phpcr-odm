@@ -13,7 +13,7 @@ class RefCascadeManyTestObj
     public $id;
     /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj", cascade="persist") */
     public $references;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
 
     public function __construct()

@@ -21,10 +21,15 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+//@trigger_error('The @Decimal annotation is deprecated, use @Field(type="decimal") instead.', E_USER_DEPRECATED);
+
 /**
- * Large numbers bcmath compatible strings
+ * Large numbers bcmath compatible strings.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="decimal") instead.
  */
 final class Decimal extends TranslatableProperty
 {

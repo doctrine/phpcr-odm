@@ -14,9 +14,9 @@ class Post
     /** @PHPCRODM\Id() */
     public $id;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $title;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
 }

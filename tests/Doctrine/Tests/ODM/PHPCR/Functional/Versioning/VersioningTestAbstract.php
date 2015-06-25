@@ -370,7 +370,7 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
 
         // now modify the child nodes text and checkin the second version (1.1)
         $childArticle->setText('modified text');
-        $this->dm->flush(); 
+        $this->dm->flush();
         $this->dm->checkpoint($versionableArticle);
 
         $firstVersion = $this->dm->findVersionByName(
@@ -409,7 +409,7 @@ class ReferenceTestObj
     /** @PHPCRODM\Node */
     public $node;
 
-    /** @PHPCRODM\String(property="username") */
+    /** @PHPCRODM\Field(type="string", property="username") */
     public $content;
 }
 

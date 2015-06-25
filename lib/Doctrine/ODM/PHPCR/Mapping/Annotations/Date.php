@@ -21,9 +21,13 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+//@trigger_error('The @Date annotation is deprecated, use @Field(type="date") instead.', E_USER_DEPRECATED);
+
 /**
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="date") instead.
  */
 final class Date extends TranslatableProperty
 {

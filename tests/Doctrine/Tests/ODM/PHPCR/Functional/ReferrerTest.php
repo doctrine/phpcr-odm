@@ -660,7 +660,7 @@ class HardReferrerTestObj
     public $referenceToWeak;
     /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="hard") */
     public $referenceToAll;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
 }
 
@@ -680,7 +680,7 @@ class WeakReferrerTestObj
     public $referenceToHard;
     /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="weak", cascade="persist") */
     public $referenceToAll;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
 }
 
@@ -733,7 +733,7 @@ class ReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
@@ -746,7 +746,7 @@ class OtherReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
     public $namedReference;
@@ -759,7 +759,7 @@ class ReferrerTestObjMultilang
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String(translated=true) */
+    /** @PHPCRODM\Field(type="string", translated=true) */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
@@ -775,7 +775,7 @@ class ReferrerNamedPropTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
     public $namedReference;

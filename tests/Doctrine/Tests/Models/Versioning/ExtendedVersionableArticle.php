@@ -9,13 +9,13 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class ExtendedVersionableArticle extends FullVersionableArticle
 {
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $author;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $topic;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     private $text;
 
     public function getText()

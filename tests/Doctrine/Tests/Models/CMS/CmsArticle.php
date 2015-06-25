@@ -12,9 +12,9 @@ class CmsArticle
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $topic;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $text;
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
     public $user;
@@ -23,7 +23,7 @@ class CmsArticle
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticlePerson") */
     public $persons;
 
-    /** @PHPCRODM\Binary(nullable=true) */
+    /** @PHPCRODM\Field(type="binary", nullable=true) */
     public $attachments;
 
     function __construct()

@@ -21,9 +21,13 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+//@trigger_error('The @String annotation is deprecated, use @Field(type="string") instead.', E_USER_DEPRECATED);
+
 /**
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="string") instead.
  */
 final class String extends TranslatableProperty
 {

@@ -21,10 +21,15 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
+//@trigger_error('The @Path annotation is deprecated, use @Field(type="path") instead.', E_USER_DEPRECATED);
+
 /**
- * String that is an absolute or relative path in the repository
+ * String that is an absolute or relative path in the repository.
+ *
  * @Annotation
  * @Target("PROPERTY")
+ *
+ * @deprecated Use @Field(type="path") instead.
  */
 final class Path extends TranslatableProperty
 {

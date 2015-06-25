@@ -92,7 +92,7 @@ class ReferenceManyObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $name;
     /** @PHPCRODM\ReferenceMany(cascade="persist") */
     public $references;
@@ -105,7 +105,7 @@ class ReferenceOneObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
     /** @PHPCRODM\ReferenceOne(cascade="persist") */
     public $reference;

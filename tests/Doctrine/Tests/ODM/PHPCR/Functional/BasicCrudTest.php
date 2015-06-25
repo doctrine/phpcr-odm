@@ -668,15 +668,15 @@ class User
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
-    /** @PHPCRODM\String(nullable=true) */
+    /** @PHPCRODM\Field(type="string", nullable=true) */
     public $note;
-    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
+    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
-    /** @PHPCRODM\String(assoc="",nullable=true) */
+    /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
     public $parameters;
-    /** @PHPCRODM\Long(assoc="",nullable=true) */
+    /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
     public $assocNumbers;
 }
 
@@ -687,7 +687,7 @@ class User2
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
 }
 
@@ -698,7 +698,7 @@ class User3
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
 }
 
@@ -711,9 +711,9 @@ class User5
     public $nodename;
     /** @PHPCRODM\ParentDocument */
     public $parent;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
-    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
+    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
 }
 
@@ -765,10 +765,10 @@ class VersionTestObj
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $username;
 
-    /** @PHPCRODM\Int(multivalue=true,nullable=true) */
+    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
 }
 
@@ -788,7 +788,7 @@ class DepthMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
+
     /** @PHPCRODM\Depth */
     public $depth;
 }

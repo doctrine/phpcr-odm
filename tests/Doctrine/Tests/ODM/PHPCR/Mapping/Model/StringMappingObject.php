@@ -14,6 +14,6 @@ class StringMappingObject
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\String(assoc="") */
+    /** @PHPCRODM\Field(type="string", assoc="") */
     public $stringAssoc;
 }

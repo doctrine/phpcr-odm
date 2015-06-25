@@ -209,7 +209,7 @@ class Testclass
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\String */
+    /** @PHPCRODM\Field(type="string") */
     public $text;
     /** @PHPCRODM\Depth */
     public $depth;
@@ -255,7 +255,7 @@ class SecondLevel extends ExtendingClass
  */
 class SecondLevelWithDuplicate extends ExtendingClass
 {
-    /** @PHPCRODM\Int */
+    /** @PHPCRODM\Field(type="long") */
     public $text;
 }
 
@@ -266,7 +266,7 @@ class SecondLevelWithDuplicateOverwrite extends ExtendingClass
 {
     /** @PHPCRODM\Locale */
     public $locale;
-    /** @PHPCRODM\String(translated=true) */
+    /** @PHPCRODM\Field(type="string", translated=true) */
     public $text;
 }
 
