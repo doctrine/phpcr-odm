@@ -64,29 +64,29 @@ class UnitOfWorkTest extends PHPCRTestCase
         
         $type = $this->getMockBuilder('Jackalope\NodeType\NodeType')->disableOriginalConstructor()->getMock();
         $type->expects($this->any())
-        	->method('getName')
-        	->with()
-        	->will($this->returnValue($primaryType));
+            ->method('getName')
+            ->with()
+            ->will($this->returnValue($primaryType));
         
         $ntm = $this->getMockBuilder('Jackalope\NodeType\NodeTypeManager')->disableOriginalConstructor()->getMock();
         $ntm->expects($this->any())
-        	->method('getNodeType')
-        	->with()
-        	->will($this->returnValue($type));
+            ->method('getNodeType')
+            ->with()
+            ->will($this->returnValue($type));
         
         $workspace = $this->getMockBuilder('Jackalope\Workspace')->disableOriginalConstructor()->getMock();
         $workspace->expects($this->any())
-        	->method('getNodeTypeManager')
-        	->with()
-        	->will($this->returnValue($ntm));
+            ->method('getNodeTypeManager')
+            ->with()
+            ->will($this->returnValue($ntm));
         
         $this->session->expects($this->any())
-        	->method('getWorkspace')
-        	->with()
-        	->will($this->returnValue($workspace));
+            ->method('getWorkspace')
+            ->with()
+            ->will($this->returnValue($workspace));
         
         $this->session->expects($this->any())
-       	    ->method('nodeExists')
+               ->method('nodeExists')
             ->with($id)
             ->will($this->returnValue(true));
         
@@ -98,9 +98,9 @@ class UnitOfWorkTest extends PHPCRTestCase
         $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
         
         $this->session->expects($this->any())
-        	->method('getNode')
-        	->with($id)
-        	->will($this->returnValue($node));
+            ->method('getNode')
+            ->with($id)
+            ->will($this->returnValue($node));
         
         return $node;
     }
@@ -205,11 +205,11 @@ class UnitOfWorkTest extends PHPCRTestCase
      */
     public function testRegisterDocumentForVersion()
     {
-    	// create a node of type frozenNode (which is a version)
-    	$node = $this->createNode('/version/doc', 'foo', 'nt:frozenNode');
-    	$document = $this->uow->getOrCreateDocument($this->type, $node);
-    	$this->uow->registerDocument($document, '/version/doc');
-    	$this->assertEquals(UnitOfWork::STATE_FROZEN, $this->uow->getDocumentState($document), 'A version of a document is frozen as expected');
+        // create a node of type frozenNode (which is a version)
+        $node = $this->createNode('/version/doc', 'foo', 'nt:frozenNode');
+        $document = $this->uow->getOrCreateDocument($this->type, $node);
+        $this->uow->registerDocument($document, '/version/doc');
+        $this->assertEquals(UnitOfWork::STATE_FROZEN, $this->uow->getDocumentState($document), 'A version of a document is frozen as expected');
     }
 }
 

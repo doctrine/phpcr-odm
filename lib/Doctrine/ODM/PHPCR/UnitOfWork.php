@@ -819,7 +819,7 @@ class UnitOfWork
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
             case self::STATE_FROZEN:
-            	throw new InvalidArgumentException('Document versions cannot be persisted: '.self::objToStr($document, $this->dm));
+                throw new InvalidArgumentException('Document versions cannot be persisted: '.self::objToStr($document, $this->dm));
         }
 
         $this->cascadeScheduleInsert($class, $document, $visited);
