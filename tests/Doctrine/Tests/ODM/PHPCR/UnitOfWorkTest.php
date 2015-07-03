@@ -161,6 +161,22 @@ class UnitOfWorkTest extends PHPCRTestCase
         $uow = new UnitOfWork($dm);
         $this->assertEquals('like-a-uuid', $method->invoke($uow));
     }
+
+    /**
+     * @see https://github.com/doctrine/phpcr-odm/issues/637
+     * @covers Doctrine\ODM\PHPCR\UnitOfWork::computeSingleDocumentChangeSet
+     */
+    public function testComputeSingleDocumentChangeSetForRemovedDocument()
+    {
+        $object = new UoWUser();
+        $object->username = "bar";
+        $object->id = '/somepath';
+
+        $this->uow->scheduleRemove($object);
+
+        // Should not throw "InvalidArgumentException: Document has to be managed for single computation"
+        $this->uow->computeSingleDocumentChangeSet($object);
+    }
 }
 
 class UoWUser
