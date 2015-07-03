@@ -1,11 +1,11 @@
 Changelog
 =========
 
-* **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
-                  Path, String and Uri annotations in favor of `@Field(type="...")`.
-
 1.3.0
 -----
+
+* **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
+                  Path, String and Uri annotations in favor of `@Field(type="...")`.
 
 * **2015-05-14**: Added a DocumentManagerInterface and a base DocumentManagerDecorator
                   to allow users of the library to decorate the document manager.
