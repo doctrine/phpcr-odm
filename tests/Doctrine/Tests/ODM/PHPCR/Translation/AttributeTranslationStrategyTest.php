@@ -37,4 +37,32 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
         $name = $this->method->invokeArgs($this->strategy, array('en_GB', 'field'));
         $this->assertEquals('test:en_GB-field', $name);
     }
+
+    public function testGetLocalesFor()
+    {
+        $classMetadata = $this->prophesize('Doctrine\ODM\PHPCR\Mapping\ClassMetadata');
+        $document = new \stdClass;
+        $localizedPropNames = array(
+            'test:de-prop1' => 'de',
+            'test:de_at-prop2' => 'de_at',
+            'test:en_Hans_CN_nedis_rozaj_x_prv1_prv2-prop3' => 'en_Hans_CN_nedis_rozaj_x_prv1_prv2',
+            'i18n:de-asdf' => false, // prefix is incorrect
+            'de_asdf' => false, // no prefix
+            'de_asdf' => false, // no property name
+        );
+
+        $node = $this->prophesize('PHPCR\NodeInterface');
+        $properties = array();
+
+        foreach (array_keys($localizedPropNames) as $localizedPropName) {
+            $property = $this->prophesize('PHPCR\PropertyInterface');
+            $property->getName()->willReturn($localizedPropName);
+            $properties[] = $property->reveal();
+        }
+        $node->getProperties('test:*')->willReturn($properties);
+
+        $locales = $this->strategy->getLocalesFor($document, $node->reveal(), $classMetadata->reveal());
+        $expected = array_values(array_filter($localizedPropNames, function ($valid) { return $valid; }));
+        $this->assertEquals($expected, $locales);
+    }
 }
