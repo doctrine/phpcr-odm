@@ -88,7 +88,7 @@ class XmlDriver extends FileDriver
                 }
                 $mixins[] = (string) $attributes['type'];
             }
-            $class->setMixins($mixins);
+            $class->addMixins($mixins);
         }
 
         if (isset($xmlRoot['node-type'])) {

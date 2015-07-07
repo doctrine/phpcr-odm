@@ -1,0 +1,10 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\InheritedMixinMappingObject:
+  mixins:
+    - mix:title
+  fields:
+    title:
+      property: jcr:title
+      type: string
+    description:
+      property: jcr:description
+      type: string

@@ -86,7 +86,7 @@ class YamlDriver extends FileDriver
             foreach ($element['mixins'] as $mixin) {
                 $mixins[] = $mixin;
             }
-            $class->setMixins($mixins);
+            $class->addMixins($mixins);
         }
 
         if (isset($element['nodeType'])) {
