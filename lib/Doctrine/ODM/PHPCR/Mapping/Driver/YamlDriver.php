@@ -89,6 +89,10 @@ class YamlDriver extends FileDriver
             $class->setMixins($mixins);
         }
 
+        if (isset($element['inheritMixins'])) {
+            $class->setInheritMixins($element['inheritMixins']);
+        }
+
         if (isset($element['nodeType'])) {
             $class->setNodeType($element['nodeType']);
         }

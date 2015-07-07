@@ -48,6 +48,11 @@ class Document
     public $mixins;
 
     /**
+     * @var boolean
+     */
+    public $inheritMixins;
+
+    /**
      * @var string
      */
     public $versionable;
