@@ -4,6 +4,13 @@ Changelog
 1.3.0
 -----
 
+* **2015-07-09**: Changed the semantics for mixins from overriding parent classes' mixins
+                  to adding mixins to already existing mixins. Introduced an alternative
+                  mapping "<replace-mixins>" for XML- and "replaceMixins" for YML- and Annotations-
+                  Mapping with the old semantics.
+                  If you depend on the old behaviour make sure to change your mixins mapping to
+                  replace-mixins or replaceMixins.
+
 * **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
                   Path, String and Uri annotations in favor of `@Field(type="...")`.
 

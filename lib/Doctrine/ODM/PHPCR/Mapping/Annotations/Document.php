@@ -48,6 +48,11 @@ class Document
     public $mixins;
 
     /**
+     * @var array
+     */
+    public $replaceMixins;
+
+    /**
      * @var string
      */
     public $versionable;

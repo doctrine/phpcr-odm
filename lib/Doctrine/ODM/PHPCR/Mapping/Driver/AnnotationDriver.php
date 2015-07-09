@@ -87,8 +87,17 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setVersioned($documentAnnot->versionable);
         }
 
+
+        if (null !== $documentAnnot->mixins && null !== $documentAnnot->replaceMixins) {
+            throw new MappingException('Only one of "mixins" or "replace-mixins" can be used');
+        }
+
         if (null !== $documentAnnot->mixins) {
             $metadata->addMixins($documentAnnot->mixins);
+        }
+
+        if (null !== $documentAnnot->replaceMixins) {
+            $metadata->setMixins($documentAnnot->replaceMixins);
         }
 
         if (null !== $documentAnnot->nodeType) {

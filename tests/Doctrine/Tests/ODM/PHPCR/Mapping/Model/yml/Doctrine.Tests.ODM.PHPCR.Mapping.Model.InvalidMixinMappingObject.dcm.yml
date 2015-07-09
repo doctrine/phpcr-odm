@@ -1,0 +1,13 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\InvalidMixinMappingObject:
+  mixins:
+    - mix:lastModified
+  replaceMixins:
+    - mix:title
+  id: id
+  fields:
+    lastModified:
+      property: jcr:lastModified
+      type: date
+    lastModifiedBy:
+      property: jcr:lastModifiedBy
+      type: string
