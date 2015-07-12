@@ -135,11 +135,18 @@ class ClassMetadata implements ClassMetadataInterface
     public $nodeType = 'nt:unstructured';
 
     /**
-     * READ-ONLY: The JCR Mixins to be used for this node
+     * READ-ONLY: The JCR Mixins to be used for this node (including inherited mixins)
      *
      * @var array
      */
     public $mixins = array();
+
+    /**
+     * READ-ONLY: The JCR Mixins to be used for this node replacin parents' mixins
+     *
+     * @var array
+     */
+    public $replaceMixins = array();
 
     /**
      * READ-ONLY: The field name of the node
@@ -633,16 +640,6 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Add mixins to existing mixins
-     *
-     * @param array $mixins
-     */
-    public function addMixins($mixins)
-    {
-        $this->mixins = array_merge($this->mixins, $mixins);
-    }
-
-    /**
      * Return the JCR mixins to be used for this node.
      *
      * @return array
@@ -650,6 +647,22 @@ class ClassMetadata implements ClassMetadataInterface
     public function getMixins()
     {
         return $this->mixins;
+    }
+
+    /**
+     * @param array $replaceMixins
+     */
+    public function setReplaceMixins($replaceMixins)
+    {
+        $this->replaceMixins = $replaceMixins;
+    }
+
+    /**
+     * @return array
+     */
+    public function getReplaceMixins()
+    {
+        return $this->replaceMixins;
     }
 
     /**
@@ -973,6 +986,10 @@ class ClassMetadata implements ClassMetadataInterface
             if (!isset($this->localeMapping)) {
                 throw new MappingException("You must define a locale mapping for translatable document '".$this->name."'");
             }
+        }
+
+        if (count($this->mixins) && count($this->replaceMixins)) {
+            throw new MappingException('Only one of "mixins" or "replace-mixins" can be used');
         }
 
         // we allow mixed referrers on non-referenceable documents. maybe the mix:referenceable is just not mapped

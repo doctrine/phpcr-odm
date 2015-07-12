@@ -79,18 +79,14 @@ class XmlDriver extends FileDriver
             $class->setReferenceable((bool) $xmlRoot['referenceable']);
         }
 
-        if (isset($xmlRoot->mixins) && isset($xmlRoot->{'replace-mixins'})) {
-            throw new MappingException('Only one of "mixins" or "replace-mixins" can be used');
-        }
-
         if (isset($xmlRoot->mixins)) {
             $mixins = $this->getMixins($xmlRoot->mixins);
-            $class->addMixins($mixins);
+            $class->setMixins($mixins);
         }
 
         if (isset($xmlRoot->{'replace-mixins'})) {
             $mixins = $this->getMixins($xmlRoot->{'replace-mixins'});
-            $class->setMixins($mixins);
+            $class->setReplaceMixins($mixins);
         }
 
         if (isset($xmlRoot['node-type'])) {

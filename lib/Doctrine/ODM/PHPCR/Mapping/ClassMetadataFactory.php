@@ -133,6 +133,12 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $this->getDriver()->loadMetadataForClass($class->getName(), $class);
         }
 
+        if (count($class->getReplaceMixins())) {
+            $class->setMixins($class->getReplaceMixins());
+        } else if ($parent) {
+            $class->setMixins(array_merge($parent->getMixins(), $class->getMixins()));
+        }
+
         if ($this->evm->hasListeners(Event::loadClassMetadata)) {
             $eventArgs = new LoadClassMetadataEventArgs($class, $this->dm);
             $this->evm->dispatchEvent(Event::loadClassMetadata, $eventArgs);
@@ -155,7 +161,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $subClass->setVersioned($parentClass->versionable);
         $subClass->setReferenceable($parentClass->referenceable);
         $subClass->setNodeType($parentClass->getNodeType());
-        $subClass->setMixins($parentClass->getMixins());
     }
 
     /**
