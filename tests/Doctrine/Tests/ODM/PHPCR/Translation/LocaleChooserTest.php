@@ -94,4 +94,19 @@ class LocaleChooserTest extends PHPCRTestCase
         $locale = $this->localeChooser->getLocale();
         $this->assertEquals('en', $locale);
     }
+
+    public function testSubRegion()
+    {
+        $orderEnGB = array('en', 'de');
+        $this->localeChooser = new LocaleChooser(array('en_GB' => $orderEnGB, 'en' => $this->orderEn, 'de' => $this->orderDe), 'en');
+
+        $order = $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'en_GB');
+        $this->assertEquals($orderEnGB, $order);
+
+        $this->localeChooser->setLocale('en_GB');
+        $locale = $this->localeChooser->getLocale();
+        $this->assertEquals('en_GB', $locale);
+        $order = $this->localeChooser->getDefaultLocalesOrder();
+        $this->assertEquals($orderEnGB, $order);
+    }
 }
