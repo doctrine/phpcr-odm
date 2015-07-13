@@ -81,9 +81,21 @@ class YamlDriver extends FileDriver
             $class->setReferenceable($element['referenceable']);
         }
 
+        if (isset($element['mixins']) && isset($element['replaceMixins'])) {
+            throw new MappingException('Only one of "mixins" or "replace-mixins" can be used');
+        }
+
         if (isset($element['mixins'])) {
             $mixins = array();
             foreach ($element['mixins'] as $mixin) {
+                $mixins[] = $mixin;
+            }
+            $class->addMixins($mixins);
+        }
+
+        if (isset($element['replaceMixins'])) {
+            $mixins = array();
+            foreach ($element['replaceMixins'] as $mixin) {
                 $mixins[] = $mixin;
             }
             $class->setMixins($mixins);

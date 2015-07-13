@@ -633,6 +633,16 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
+     * Add mixins to existing mixins
+     *
+     * @param array $mixins
+     */
+    public function addMixins($mixins)
+    {
+        $this->mixins = array_merge($this->mixins, $mixins);
+    }
+
+    /**
      * Return the JCR mixins to be used for this node.
      *
      * @return array
