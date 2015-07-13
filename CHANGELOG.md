@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.3.0
------
+1.3.0-rc1
+---------
 
 * **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
                   Path, String and Uri annotations in favor of `@Field(type="...")`.
