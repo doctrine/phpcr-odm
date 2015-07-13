@@ -53,11 +53,6 @@ class Document
     public $inheritMixins;
 
     /**
-     * @var array
-     */
-    public $replaceMixins;
-
-    /**
      * @var string
      */
     public $versionable;
