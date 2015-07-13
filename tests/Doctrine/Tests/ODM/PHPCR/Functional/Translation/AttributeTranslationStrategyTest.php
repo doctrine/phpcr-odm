@@ -8,8 +8,9 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrat
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 
 use Doctrine\Tests\Models\Translation\Article;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
-class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 {
     protected $testNodeName = '__test-node__';
 
@@ -151,6 +152,11 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertEquals('Some interesting american subject', $node->getPropertyValue(self::propertyNameForLocale('en_US', 'topic')));
         $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('en', 'text')));
         $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('en_US', 'text')));
+
+        // make sure getLocalesFor works as well.
+        $doc = new Article();
+        $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
+        $this->assertEquals(array('en', 'en_US'), $locales);
     }
 
     public function testSubRegionLoadTranslation()
@@ -274,6 +280,7 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
 
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr', 'topic')));
         $this->assertTrue($node->hasProperty('phpcr_locale:frnullfields'));
 
         // Then remove the french translation
@@ -290,7 +297,46 @@ class AttributeTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFu
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
     }
 
-    public function testGetLocaleFor()
+    /**
+     * @depends testRemoveTranslation
+     */
+    public function testRemoveTranslationSubLocale()
+    {
+        // First save some translations
+        $data = array();
+        $data['topic'] = 'Some interesting subject';
+        $data['text'] = 'Lorem ipsum...';
+        $data['settings'] = array('setting-1' => 'one-setting');
+
+        $node = $this->getTestNode();
+        $node->setProperty('author', 'John Doe');
+
+        $strategy = new AttributeTranslationStrategy($this->dm);
+        $strategy->saveTranslation($data, $node, $this->metadata, 'en');
+        $data['topic'] = 'sujet interessant';
+        $data['text'] = null;
+        $strategy->saveTranslation($data, $node, $this->metadata, 'fr_CA');
+
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr_CA', 'topic')));
+        $this->assertTrue($node->hasProperty('phpcr_locale:fr_CAnullfields'));
+
+        // Then remove the french translation
+        $doc = new Article;
+        $doc->author = 'John Doe';
+        $doc->topic = $data['topic'];
+        $doc->setText($data['text']);
+        $strategy->removeTranslation($doc, $node, $this->metadata, 'fr_CA');
+
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr_CA', 'topic')));
+        $this->assertFalse($node->hasProperty(self::propertyNameForLocale('fr_CA', 'text')));
+        $this->assertFalse($node->hasProperty('phpcr_locale:fr_CAnullfields'));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
+        $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
+    }
+
+    public function testGetLocalesFor()
     {
         $node = $this->getTestNode();
         $node->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');

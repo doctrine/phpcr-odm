@@ -36,7 +36,8 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     protected $dm;
 
     /**
-     * Prefix to namespace properties or child nodes
+     * Prefix to namespace properties or child nodes.
+     *
      * @var string
      */
     protected $prefix = Translation::LOCALE_NAMESPACE;
@@ -47,9 +48,9 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     }
 
     /**
-     * Set the prefix to use to determine the name of the property where translations are stored
+     * Set the namespace alias for translation extra properties
      *
-     * @param $prefix
+     * @param string $prefix
      */
     public function setPrefix($prefix)
     {

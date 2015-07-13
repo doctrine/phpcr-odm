@@ -40,6 +40,10 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
     public function testGetLocalesFor()
     {
+        if (version_compare(PHP_VERSION, '5.3.3', '<=')) {
+            $this->markTestSkipped('Prophesize does not work on PHP 5.3.3');
+        }
+
         $classMetadata = $this->prophesize('Doctrine\ODM\PHPCR\Mapping\ClassMetadata');
         $document = new \stdClass;
         $localizedPropNames = array(
@@ -47,7 +51,7 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
             'test:de_at-prop2' => 'de_at',
             'test:en_Hans_CN_nedis_rozaj_x_prv1_prv2-prop3' => 'en_Hans_CN_nedis_rozaj_x_prv1_prv2',
             'i18n:de-asdf' => false, // prefix is incorrect
-            'de_asdf' => false, // no prefix
+            'asdf' => false, // no prefix
             'de_asdf' => false, // no property name
         );
 
