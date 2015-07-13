@@ -4,6 +4,9 @@ Changelog
 1.3.0
 -----
 
+* **2015-07-13**: Adjusted the regular expression for locales, to allow for sublocales
+                  but preventing arbitrary non alphanumeric characters.
+
 * **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
                   Path, String and Uri annotations in favor of `@Field(type="...")`.
 
