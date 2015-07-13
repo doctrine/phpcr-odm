@@ -10,7 +10,8 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *
  * @PHPCRODM\Document(
  *   nodeType="nt:test-override",
- *   replaceMixins="mix:baz",
+ *   mixins="mix:baz",
+ *   inheritMixins=false,
  *   translator="bar",
  *   repositoryClass="BarfooRepository",
  *   versionable="full"

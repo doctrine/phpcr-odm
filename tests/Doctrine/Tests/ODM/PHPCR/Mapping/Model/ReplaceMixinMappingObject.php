@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * A class that contains mapped children via properties
  *
- * @PHPCRODM\Document(replaceMixins={"mix:lastModified"})
+ * @PHPCRODM\Document(mixins={"mix:lastModified"}, inheritMixins=false)
  */
 class ReplaceMixinMappingObject
 {

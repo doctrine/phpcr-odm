@@ -91,8 +91,8 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setMixins($documentAnnot->mixins);
         }
 
-        if (null !== $documentAnnot->replaceMixins) {
-            $metadata->setReplaceMixins($documentAnnot->replaceMixins);
+        if (null !== $documentAnnot->inheritMixins) {
+            $metadata->setInheritMixins($documentAnnot->inheritMixins);
         }
 
         if (null !== $documentAnnot->nodeType) {

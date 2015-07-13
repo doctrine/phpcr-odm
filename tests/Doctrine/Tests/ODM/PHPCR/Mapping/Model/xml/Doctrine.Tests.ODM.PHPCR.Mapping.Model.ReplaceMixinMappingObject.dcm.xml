@@ -4,9 +4,9 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
                   https://github.com/doctrine/phpcr-odm/raw/master/doctrine-phpcr-odm-mapping.xsd">
     <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReplaceMixinMappingObject">
-        <replace-mixins>
+        <mixins inherit="false">
             <mixin type="mix:lastModified" />
-        </replace-mixins>
+        </mixins>
         <id name="id" />
         <field name="lastModified" property="jcr:lastModified" type="date" />
         <field name="lastModifiedBy" property="jcr:lastModifiedBy" type="string" />

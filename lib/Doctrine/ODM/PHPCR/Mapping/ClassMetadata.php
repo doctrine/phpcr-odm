@@ -142,11 +142,11 @@ class ClassMetadata implements ClassMetadataInterface
     public $mixins = array();
 
     /**
-     * READ-ONLY: The JCR Mixins to be used for this node replacin parents' mixins
+     * READ-ONLY: Inherit parent class' mixins (default) or not
      *
-     * @var array
+     * @var bool
      */
-    public $replaceMixins = array();
+    public $inheritMixins = true;
 
     /**
      * READ-ONLY: The field name of the node
@@ -650,20 +650,26 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param array $replaceMixins
+     * Set whether to use inherited mixins
+     *
+     * @param boolean $inheritMixins
      */
-    public function setReplaceMixins($replaceMixins)
+    public function setInheritMixins($inheritMixins)
     {
-        $this->replaceMixins = $replaceMixins;
+        $this->inheritMixins = $inheritMixins;
     }
 
     /**
-     * @return array
+     * Return whether to use inherited mixins
+     *
+     * @return boolean
      */
-    public function getReplaceMixins()
+    public function getInheritMixins()
     {
-        return $this->replaceMixins;
+        return $this->inheritMixins;
     }
+
+
 
     /**
      * Gets the ReflectionProperties of the mapped class.
@@ -986,10 +992,6 @@ class ClassMetadata implements ClassMetadataInterface
             if (!isset($this->localeMapping)) {
                 throw new MappingException("You must define a locale mapping for translatable document '".$this->name."'");
             }
-        }
-
-        if (count($this->mixins) && count($this->replaceMixins)) {
-            throw new MappingException('Only one of "mixins" or "replace-mixins" can be used');
         }
 
         // we allow mixed referrers on non-referenceable documents. maybe the mix:referenceable is just not mapped
@@ -1501,6 +1503,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->mixins) {
             $serialized[] = 'mixins';
+        }
+
+        if ($this->inheritMixins) {
+            $serialized[] = 'inheritMixins';
         }
 
         if ($this->localeMapping) {

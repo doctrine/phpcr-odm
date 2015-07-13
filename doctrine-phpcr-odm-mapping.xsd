@@ -52,12 +52,7 @@
         <xs:choice>
             <xs:element name="mixin" type="phpcr:mixin" minOccurs="1" maxOccurs="unbounded" />
         </xs:choice>
-    </xs:complexType>
-
-    <xs:complexType name="replace-mixins">
-        <xs:choice>
-            <xs:element name="mixin" type="phpcr:mixin" minOccurs="1" maxOccurs="unbounded" />
-        </xs:choice>
+        <xs:attribute name="inherit" type="xs:boolean" default="true" />
     </xs:complexType>
 
     <xs:complexType name="option" mixed="true">
@@ -136,7 +131,6 @@
     <xs:complexType name="document">
         <xs:choice>
             <xs:element name="mixins" type="phpcr:mixins" minOccurs="0" />
-            <xs:element name="replace-mixins" type="phpcr:replace-mixins" minOccurs="0" />
             <xs:element name="options" type="phpcr:options" minOccurs="0" />
             <xs:element name="lifecycle-callbacks" type="phpcr:lifecycle-callbacks" minOccurs="0" maxOccurs="1" />
             <!--

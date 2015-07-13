@@ -80,13 +80,19 @@ class XmlDriver extends FileDriver
         }
 
         if (isset($xmlRoot->mixins)) {
-            $mixins = $this->getMixins($xmlRoot->mixins);
+            $mixins = array();
+            foreach ($xmlRoot->mixins->mixin as $mixin) {
+                $attributes = $mixin->attributes();
+                if (! isset($attributes['type'])) {
+                    throw new MappingException('<mixin> missing mandatory type attribute');
+                }
+                $mixins[] = (string) $attributes['type'];
+            }
             $class->setMixins($mixins);
-        }
-
-        if (isset($xmlRoot->{'replace-mixins'})) {
-            $mixins = $this->getMixins($xmlRoot->{'replace-mixins'});
-            $class->setReplaceMixins($mixins);
+            $attributes = $xmlRoot->mixins->attributes();
+            if (isset($attributes['inherit'])) {
+                $class->setInheritMixins($attributes['inherit']);
+            }
         }
 
         if (isset($xmlRoot['node-type'])) {
@@ -251,19 +257,6 @@ class XmlDriver extends FileDriver
         }
 
         $class->validateClassMapping();
-    }
-
-    private function getMixins($mixinsRoot)
-    {
-        $mixins = array();
-        foreach ($mixinsRoot->mixin as $mixin) {
-            $attributes = $mixin->attributes();
-            if (! isset($attributes['type'])) {
-                throw new MappingException('<mixin> missing mandatory type attribute');
-            }
-            $mixins[] = (string) $attributes['type'];
-        }
-        return $mixins;
     }
 
     private function addReferenceMapping(ClassMetadata $class, $reference, $type)

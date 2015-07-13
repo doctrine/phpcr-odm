@@ -1,6 +1,7 @@
 Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReplaceMixinMappingObject:
-  replaceMixins:
+  mixins:
     - mix:lastModified
+  inheritMixins: false
   id: id
   fields:
     lastModified:

@@ -133,9 +133,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             $this->getDriver()->loadMetadataForClass($class->getName(), $class);
         }
 
-        if (count($class->getReplaceMixins())) {
-            $class->setMixins($class->getReplaceMixins());
-        } else if ($parent) {
+        if ($parent && $class->getInheritMixins()) {
             $class->setMixins(array_merge($parent->getMixins(), $class->getMixins()));
         }
 

@@ -694,7 +694,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('mix:lastModified', $class->mixins);
     }
 
-    public function testLoadreplaceMixinMapping()
+    public function testLoadReplaceMixinMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReplaceMixinMappingObject';
 
@@ -709,14 +709,6 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(1, count($class->mixins));
         $this->assertContains('mix:lastModified', $class->mixins);
-    }
-
-    public function testInvalidMixinMappingThrowsException()
-    {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\InvalidMixinMappingObject';
-
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
-        return $this->loadMetadataForClassname($className);
     }
 
     public function testLoadLifecycleCallbackMapping()
