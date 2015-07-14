@@ -46,11 +46,16 @@ if (isset($argv[1])
     $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
 
     $helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
-        'dialog' => new \Symfony\Component\Console\Helper\DialogHelper(),
         'phpcr' => new \PHPCR\Util\Console\Helper\PhpcrHelper($session),
         'phpcr_console_dumper' => new \PHPCR\Util\Console\Helper\PhpcrConsoleDumperHelper(),
         'dm' => new \Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper(null, $dm),
     ));
+
+    if (class_exists('Symfony\Component\Console\Helper\QuestionHelper')) {
+        $helperSet->set(new \Symfony\Component\Console\Helper\QuestionHelper(), 'question');
+    } else {
+        $helperSet->set(new \Symfony\Component\Console\Helper\DialogHelper, 'dialog');
+    }
 } elseif (isset($argv[1]) && $argv[1] == 'jackalope:init:dbal') {
     // special case: the init command needs the db connection, but a session is impossible if the db is not yet initialized
     $helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
