@@ -52,6 +52,7 @@
         <xs:choice>
             <xs:element name="mixin" type="phpcr:mixin" minOccurs="1" maxOccurs="unbounded" />
         </xs:choice>
+        <xs:attribute name="inherit" type="xs:boolean" default="true" />
     </xs:complexType>
 
     <xs:complexType name="option" mixed="true">

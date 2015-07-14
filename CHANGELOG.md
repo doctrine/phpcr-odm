@@ -12,6 +12,13 @@ Changelog
 * **2015-07-13**: Adjusted the regular expression for locales, to allow for sublocales
                   but preventing arbitrary non alphanumeric characters.
 
+* **2015-07-09**: Changed the semantics for mixins from overriding parent classes' mixins
+                  to adding mixins to already existing mixins. Introduced an attribute
+                  "<mixins inherit="false">" for XML- and mappings "inheritMixins" for YML-
+                  and Annotations-Mapping with the old semantics.
+                  If you depend on the old behaviour make sure to change your mixins mapping to
+                  use inherit="false", inheritMixins: false or inheritMixins=false.
+
 * **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
                   Path, String and Uri annotations in favor of `@Field(type="...")`.
 

@@ -108,6 +108,14 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $meta->customRepositoryClassName);
     }
 
+    public function testLoadInheritedMixins()
+    {
+        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\InheritedMixinMappingObject');
+        $this->assertCount(2, $meta->mixins);
+        $this->assertContains('mix:lastModified', $meta->mixins);
+        $this->assertContains('mix:title', $meta->mixins);
+    }
+
     public function testLoadMetadataClassInheritanceChildCanOverride()
     {
         $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildOverridesMappingObject');

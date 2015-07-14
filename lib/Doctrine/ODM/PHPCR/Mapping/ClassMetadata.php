@@ -135,11 +135,18 @@ class ClassMetadata implements ClassMetadataInterface
     public $nodeType = 'nt:unstructured';
 
     /**
-     * READ-ONLY: The JCR Mixins to be used for this node
+     * READ-ONLY: The JCR Mixins to be used for this node (including inherited mixins)
      *
      * @var array
      */
     public $mixins = array();
+
+    /**
+     * READ-ONLY: Inherit parent class' mixins (default) or not
+     *
+     * @var bool
+     */
+    public $inheritMixins = true;
 
     /**
      * READ-ONLY: The field name of the node
@@ -641,6 +648,28 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return $this->mixins;
     }
+
+    /**
+     * Set whether to use inherited mixins
+     *
+     * @param boolean $inheritMixins
+     */
+    public function setInheritMixins($inheritMixins)
+    {
+        $this->inheritMixins = $inheritMixins;
+    }
+
+    /**
+     * Return whether to use inherited mixins
+     *
+     * @return boolean
+     */
+    public function getInheritMixins()
+    {
+        return $this->inheritMixins;
+    }
+
+
 
     /**
      * Gets the ReflectionProperties of the mapped class.
@@ -1474,6 +1503,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->mixins) {
             $serialized[] = 'mixins';
+        }
+
+        if ($this->inheritMixins) {
+            $serialized[] = 'inheritMixins';
         }
 
         if ($this->localeMapping) {

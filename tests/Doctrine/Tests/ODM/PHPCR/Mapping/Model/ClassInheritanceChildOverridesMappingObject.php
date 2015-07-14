@@ -11,6 +11,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * @PHPCRODM\Document(
  *   nodeType="nt:test-override",
  *   mixins="mix:baz",
+ *   inheritMixins=false,
  *   translator="bar",
  *   repositoryClass="BarfooRepository",
  *   versionable="full"
