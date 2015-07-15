@@ -17,6 +17,6 @@ class StringExtendedMappingObject extends StringMappingObject
      */
     private $doclocale;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    /** @PHPCRODM\Property(type="string", translated=true) */
     public $stringAssoc;
 }

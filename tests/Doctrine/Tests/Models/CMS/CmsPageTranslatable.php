@@ -28,12 +28,12 @@ class CmsPageTranslatable
     public $locale;
 
     /**
-     * @PHPCRODM\Field(type="string")
+     * @PHPCRODM\Property(type="string")
      */
     public $content;
 
     /**
-     * @PHPCRODM\Field(type="string", translated=true)
+     * @PHPCRODM\Property(type="string", translated=true)
      */
     public $title;
 

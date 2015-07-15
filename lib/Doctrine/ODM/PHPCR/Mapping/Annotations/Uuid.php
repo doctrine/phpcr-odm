@@ -25,7 +25,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Uuid extends Property
+final class Uuid extends BaseProperty
 {
     /**
      * @var string

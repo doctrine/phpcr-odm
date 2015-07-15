@@ -668,15 +668,15 @@ class User
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $username;
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    /** @PHPCRODM\Property(type="string", nullable=true) */
     public $note;
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    /** @PHPCRODM\Property(type="long", multivalue=true, nullable=true) */
     public $numbers;
-    /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
+    /** @PHPCRODM\Property(type="string", assoc="", nullable=true) */
     public $parameters;
-    /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
+    /** @PHPCRODM\Property(type="long", assoc="", nullable=true) */
     public $assocNumbers;
 }
 
@@ -687,7 +687,7 @@ class User2
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $username;
 }
 
@@ -698,7 +698,7 @@ class User3
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $username;
 }
 
@@ -711,9 +711,9 @@ class User5
     public $nodename;
     /** @PHPCRODM\ParentDocument */
     public $parent;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $username;
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    /** @PHPCRODM\Property(type="long", multivalue=true, nullable=true) */
     public $numbers;
 }
 
@@ -765,10 +765,10 @@ class VersionTestObj
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $username;
 
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    /** @PHPCRODM\Property(type="long", multivalue=true, nullable=true) */
     public $numbers;
 }
 

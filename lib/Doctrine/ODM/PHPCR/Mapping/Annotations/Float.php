@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
-//@trigger_error('The @Float annotation is deprecated, use @Field(type="double") instead.', E_USER_DEPRECATED);
+//@trigger_error('The @Float annotation is deprecated, use @Property(type="double") instead.', E_USER_DEPRECATED);
 
 /**
  * Convenience alias for Double.
@@ -29,7 +29,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="double") instead.
+ * @deprecated Use @Property(type="double") instead.
  */
 final class Float extends TranslatableProperty
 {

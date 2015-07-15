@@ -14,7 +14,7 @@ class CmsArticlePerson
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    /** @PHPCRODM\Property(type="string", nullable=true) */
     public $name;
     /** @PHPCRODM\Referrers(referencedBy="persons", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
     public $articlesReferrers;

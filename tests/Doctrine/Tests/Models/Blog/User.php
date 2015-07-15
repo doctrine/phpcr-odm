@@ -14,13 +14,13 @@ class User
     /** @PHPCRODM\Id() */
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $username;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $name;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $status;
 }
 

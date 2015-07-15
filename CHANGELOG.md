@@ -20,7 +20,7 @@ Changelog
                   use inherit="false", inheritMixins: false or inheritMixins=false.
 
 * **2015-06-19**: Deprecated Binary, Boolean, Date, Decimal, Double, Float, Int, Long, Name,
-                  Path, String and Uri annotations in favor of `@Field(type="...")`.
+                  Path, String and Uri annotations in favor of `@Property(type="...")`.
 
 * **2015-05-14**: Added a DocumentManagerInterface and a base DocumentManagerDecorator
                   to allow users of the library to decorate the document manager.

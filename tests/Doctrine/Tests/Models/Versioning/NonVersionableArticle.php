@@ -12,13 +12,13 @@ class NonVersionableArticle
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $author;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $topic;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     private $text;
 
     public function getText()

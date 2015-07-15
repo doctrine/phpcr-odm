@@ -139,10 +139,10 @@ class TestObject
     /** @PHPCRODM\Id */
     public $id;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
+    /** @PHPCRODM\Property(type="date", property="jcr:created") */
     public $created;
 
-    /** @PHPCRODM\Field(type="string", property="change_me") */
+    /** @PHPCRODM\Property(type="string", property="change_me") */
     public $changeMe;
 
 }

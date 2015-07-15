@@ -25,7 +25,7 @@ class Comment
     /** @PHPCRODM\ParentDocument */
     public $parent;
 
-    /** @PHPCRODM\Field(type="string", translated=true,nullable=true) */
+    /** @PHPCRODM\Property(type="string", translated=true,nullable=true) */
     private $text;
 
     /**

@@ -41,10 +41,10 @@ abstract class AbstractFile implements HierarchyInterface
     /** @PHPCRODM\ParentDocument */
     protected $parent;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
+    /** @PHPCRODM\Property(type="date", property="jcr:created") */
     protected $created;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
+    /** @PHPCRODM\Property(type="string", property="jcr:createdBy") */
     protected $createdBy;
 
     /**

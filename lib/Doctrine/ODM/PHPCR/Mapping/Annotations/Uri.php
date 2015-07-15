@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
-//@trigger_error('The @Uri annotation is deprecated, use @Field(type="uri") instead.', E_USER_DEPRECATED);
+//@trigger_error('The @Uri annotation is deprecated, use @Property(type="uri") instead.', E_USER_DEPRECATED);
 
 /**
  * String that is validated to be an URI.
@@ -29,7 +29,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="uri") instead.
+ * @deprecated Use @Property(type="uri") instead.
  */
 final class Uri extends TranslatableProperty
 {

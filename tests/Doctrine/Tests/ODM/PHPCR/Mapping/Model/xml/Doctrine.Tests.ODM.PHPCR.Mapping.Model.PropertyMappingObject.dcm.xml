@@ -3,7 +3,7 @@
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/phpcr-odm/phpcr-mapping
                   https://github.com/doctrine/phpcr-odm/raw/master/doctrine-phpcr-odm-mapping.xsd">
-    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject">
+    <document name="Doctrine\Tests\ODM\PHPCR\Mapping\Model\PropertyMappingObject">
         <id name="id" />
         <field name="string" type="string" />
         <field name="binary" type="binary" />

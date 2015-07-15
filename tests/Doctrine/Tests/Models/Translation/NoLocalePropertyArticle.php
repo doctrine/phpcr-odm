@@ -23,16 +23,16 @@ class NoLocalePropertyArticle
     public $id;
 
     // untranslated:
-    /** @PHPCRODM\Field(type="date") */
+    /** @PHPCRODM\Property(type="date") */
     public $publishDate;
 
     // untranslated:
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $author;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    /** @PHPCRODM\Property(type="string", translated=true) */
     public $topic;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    /** @PHPCRODM\Property(type="string", translated=true) */
     public $text;
 }
