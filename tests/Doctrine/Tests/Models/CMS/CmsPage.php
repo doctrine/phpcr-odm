@@ -16,9 +16,9 @@ class CmsPage
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $content;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $title;
     /** @PHPCRODM\MixedReferrers(referenceType="hard") */
     public $items = array();

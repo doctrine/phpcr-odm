@@ -13,7 +13,7 @@ class ParentNoNodeNameTestObj
     public $id;
     /** @PHPCRODM\ParentDocument */
     public $parent;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $name;
 
     public function getParentDocument()

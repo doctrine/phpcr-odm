@@ -445,7 +445,7 @@ class ChildChildTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $name;
     /** @PHPCRODM\Nodename */
     public $nodename;
@@ -460,7 +460,7 @@ class ChildTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $name;
     /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
     public $child;
@@ -474,7 +474,7 @@ class ChildReferrerTestObj
   /** @PHPCRODM\Id */
   public $id;
 
-  /** @PHPCRODM\Field(type="string") */
+  /** @PHPCRODM\Property(type="string") */
   public $name;
 
   /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj", cascade="persist") */
@@ -489,7 +489,7 @@ class ChildReferenceableTestObj
   /** @PHPCRODM\Id */
   public $id;
 
-  /** @PHPCRODM\Field(type="string") */
+  /** @PHPCRODM\Property(type="string") */
   public $name;
 
   /** @PHPCRODM\Child(nodeName="test", cascade="persist") */

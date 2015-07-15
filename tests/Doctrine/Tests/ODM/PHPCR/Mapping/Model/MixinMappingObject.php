@@ -17,10 +17,10 @@ class MixinMappingObject
     /** @PHPCRODM\Node */
     public $node;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:lastModified") */
+    /** @PHPCRODM\Property(type="date", property="jcr:lastModified") */
     public $lastModified;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy") */
+    /** @PHPCRODM\Property(type="string", property="jcr:lastModifiedBy") */
     public $lastModifiedBy;
 
 }

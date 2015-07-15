@@ -122,27 +122,27 @@ class PropertyTestObj
     public $id;
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $string;
     //binary tested in its own test
-    /** @PHPCRODM\Field(type="long") */
+    /** @PHPCRODM\Property(type="long") */
     public $long;
-    /** @PHPCRODM\Field(type="long") */
+    /** @PHPCRODM\Property(type="long") */
     public $int;
-    /** @PHPCRODM\Field(type="decimal") */
+    /** @PHPCRODM\Property(type="decimal") */
     public $decimal;
-    /** @PHPCRODM\Field(type="double") */
+    /** @PHPCRODM\Property(type="double") */
     public $double;
-    /** @PHPCRODM\Field(type="double") */
+    /** @PHPCRODM\Property(type="double") */
     public $float;
-    /** @PHPCRODM\Field(type="date") */
+    /** @PHPCRODM\Property(type="date") */
     public $date;
-    /** @PHPCRODM\Field(type="boolean") */
+    /** @PHPCRODM\Property(type="boolean") */
     public $boolean;
-    /** @PHPCRODM\Field(type="name") */
+    /** @PHPCRODM\Property(type="name") */
     public $name;
-    /** @PHPCRODM\Field(type="path") */
+    /** @PHPCRODM\Property(type="path") */
     public $path;
-    /** @PHPCRODM\Field(type="uri") */
+    /** @PHPCRODM\Property(type="uri") */
     public $uri;
 }

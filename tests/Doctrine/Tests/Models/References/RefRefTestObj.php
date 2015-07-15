@@ -11,7 +11,7 @@ class RefRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $name;
 
     public function getId()

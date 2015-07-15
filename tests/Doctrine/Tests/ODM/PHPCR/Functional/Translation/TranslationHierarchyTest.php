@@ -239,6 +239,6 @@ class ChildObj
     /** @PHPCRODM\ParentDocument */
     public $parent;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    /** @PHPCRODM\Property(type="string", translated=true) */
     public $text;
 }

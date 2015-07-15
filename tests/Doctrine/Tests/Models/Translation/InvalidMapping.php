@@ -24,6 +24,6 @@ class InvalidMapping
      */
     public $locale = 'en';
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    /** @PHPCRODM\Property(type="string", translated=true) */
     public $topic;
 }

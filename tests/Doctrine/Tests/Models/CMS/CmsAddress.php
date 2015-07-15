@@ -16,13 +16,13 @@ class CmsAddress
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $country;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $zip;
 
-    /** @PHPCRODM\Field(type="string") */
+    /** @PHPCRODM\Property(type="string") */
     public $city;
 
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */

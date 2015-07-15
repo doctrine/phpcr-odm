@@ -409,7 +409,7 @@ class ReferenceTestObj
     /** @PHPCRODM\Node */
     public $node;
 
-    /** @PHPCRODM\Field(type="string", property="username") */
+    /** @PHPCRODM\Property(type="string", property="username") */
     public $content;
 }
 

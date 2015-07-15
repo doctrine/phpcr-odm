@@ -118,7 +118,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $mapping['fieldName'] = $property->getName();
 
             foreach ($this->reader->getPropertyAnnotations($property) as $fieldAnnot) {
-                if ($fieldAnnot instanceof ODM\Property) {
+                if ($fieldAnnot instanceof ODM\BaseProperty) {
                     $mapping = array_merge($mapping, (array) $fieldAnnot);
                     $metadata->mapField($mapping);
                 } elseif ($fieldAnnot instanceof ODM\Id) {

@@ -18,11 +18,11 @@ class CmsUserTranslatable
     public $locale = 'en';
     /** @PHPCRODM\Node */
     public $node;
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    /** @PHPCRODM\Property(type="string", nullable=true) */
     public $status;
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    /** @PHPCRODM\Property(type="string", translated=true) */
     public $username;
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    /** @PHPCRODM\Property(type="string", nullable=true) */
     public $name;
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;

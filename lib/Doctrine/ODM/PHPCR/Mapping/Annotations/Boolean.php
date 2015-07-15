@@ -21,13 +21,13 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 
-//@trigger_error('The @Boolean annotation is deprecated, use @Field(type="boolean") instead.', E_USER_DEPRECATED);
+//@trigger_error('The @Boolean annotation is deprecated, use @Property(type="boolean") instead.', E_USER_DEPRECATED);
 
 /**
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="boolean") instead.
+ * @deprecated Use @Property(type="boolean") instead.
  */
 final class Boolean extends TranslatableProperty
 {

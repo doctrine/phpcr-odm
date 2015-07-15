@@ -18,36 +18,16 @@
  */
 
 namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
-
-
 /**
- * base class for all property types
+ * @Annotation
+ * @Target("PROPERTY")
+ *
+ * Represent a standard property.
  */
-class Property
+class Property extends BaseProperty
 {
     /**
-     * The PHPCR property name to use
-     * @var string
-     */
-    public $property;
-
-    /**
-     * @var string
-     */
-    public $type = 'undefined';
-
-    /**
      * @var boolean
      */
-    public $multivalue = false;
-
-    /**
-     * @var string
-     */
-    public $assoc;
-
-    /**
-     * @var boolean
-     */
-    public $nullable = false;
+    public $translated = false;
 }

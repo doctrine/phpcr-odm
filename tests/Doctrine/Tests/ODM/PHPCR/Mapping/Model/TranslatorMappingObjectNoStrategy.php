@@ -25,19 +25,19 @@ class TranslatorMappingObjectNoStrategy
 
     /**
      * Untranslated property
-     * @PHPCRODM\Field(type="date")
+     * @PHPCRODM\Property(type="date")
      */
     private $publishDate;
 
     /**
      * Translated property
-     * @PHPCRODM\Field(type="string", translated=true)
+     * @PHPCRODM\Property(type="string", translated=true)
      */
     private $topic;
 
     /**
      * Language specific image
-     * @PHPCRODM\Field(type="binary", translated=true)
+     * @PHPCRODM\Property(type="binary", translated=true)
      */
     private $image;
 }

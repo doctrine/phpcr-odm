@@ -12,9 +12,9 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class InheritedMixinMappingObject extends MixinMappingObject
 {
 
-    /** @PHPCRODM\Field(type="string", property="jcr:title") */
+    /** @PHPCRODM\Property(type="string", property="jcr:title") */
     public $title;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:description") */
+    /** @PHPCRODM\Property(type="string", property="jcr:description") */
     public $description;
 }
