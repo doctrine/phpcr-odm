@@ -4,7 +4,7 @@ Changelog
 1.3.0-rc
 --------
 
-various internal refactoring
+various internal refactorings and compatibility improvements
 
 * **2015-07-13**: Added Symfony 3 compatibility for the console commands. If you
                   use the commands, update your `cli-config.php` according to 
