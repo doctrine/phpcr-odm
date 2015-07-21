@@ -13,4 +13,3 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class ClassInheritanceChildMappingObject extends ClassInheritanceParentMappingObject
 {
 }
-

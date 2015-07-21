@@ -23,4 +23,3 @@ class SameNode implements Expression
     {
     }
 }
-

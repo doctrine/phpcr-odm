@@ -17,42 +17,35 @@ class LifecycleCallbackMappingObject
     /** @PHPCRODM\PreRemove */
     public function preRemoveFunc()
     {
-        
     }
 
     /** @PHPCRODM\PostRemove */
     public function postRemoveFunc()
     {
-        
     }
 
     /** @PHPCRODM\PrePersist */
     public function prePersistFunc()
     {
-        
     }
 
     /** @PHPCRODM\PostPersist */
     public function postPersistFunc()
     {
-        
     }
 
     /** @PHPCRODM\PreUpdate */
     public function preUpdateFunc()
     {
-        
     }
 
     /** @PHPCRODM\PostUpdate */
     public function postUpdateFunc()
     {
-        
     }
 
     /** @PHPCRODM\PostLoad */
     public function postLoadFunc()
     {
-        
     }
 }

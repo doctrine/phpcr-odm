@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
-
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 
 class AttributeTranslationStrategyTest extends PHPCRTestCase

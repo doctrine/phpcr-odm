@@ -5,7 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Command;
 use Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class QueryBuilderReferenceCommandTest extends \PHPUnit_Framework_TestCase
+class DumpQueryBuilderReferenceCommandTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

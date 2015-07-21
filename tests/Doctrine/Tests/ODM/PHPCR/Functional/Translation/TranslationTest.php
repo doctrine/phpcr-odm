@@ -2,9 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
 class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
@@ -51,7 +50,7 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('attribute', $metadata->translator);
 
         $this->assertTrue(isset($metadata->localeMapping));
-        $this->assertEquals('locale',$metadata->localeMapping);
+        $this->assertEquals('locale', $metadata->localeMapping);
     }
 
     /**

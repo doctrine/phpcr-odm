@@ -17,7 +17,7 @@ class ConstraintFullTextSearch extends AbstractLeafNode
     protected $field;
     protected $fullTextSearchExpression;
 
-    Public function __construct(AbstractNode $parent, $field, $fullTextSearchExpression)
+    public function __construct(AbstractNode $parent, $field, $fullTextSearchExpression)
     {
         list($alias, $field) = $this->explodeField($field);
         $this->alias = $alias;

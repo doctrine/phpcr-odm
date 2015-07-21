@@ -13,5 +13,3 @@ class DefaultMappingObject
     /** @PHPCRODM\Id */
     public $id;
 }
-
-

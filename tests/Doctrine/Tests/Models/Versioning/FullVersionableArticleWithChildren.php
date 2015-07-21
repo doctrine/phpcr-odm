@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class FullVersionableArticleWithChildren extends FullVersionableArticle
 {
-
     /**
      * @PHPCRODM\Children
      */

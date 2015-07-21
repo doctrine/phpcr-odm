@@ -22,5 +22,4 @@ class MixinMappingObject
 
     /** @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy") */
     public $lastModifiedBy;
-
 }

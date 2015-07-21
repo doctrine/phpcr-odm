@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-
 /**
  * Constraint which evaluates to true if the specified field on
  * the aliased document isset, or alternatively speaking, is not-null.

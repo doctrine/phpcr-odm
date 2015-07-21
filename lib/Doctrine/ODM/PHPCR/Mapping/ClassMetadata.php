@@ -470,7 +470,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         foreach ($this->referenceMappings as $fieldName) {
             $mapping = $this->mappings[$fieldName];
-            if (!empty($mapping['targetDocument']) && !ClassLoader::classExists($mapping['targetDocument']) ) {
+            if (!empty($mapping['targetDocument']) && !ClassLoader::classExists($mapping['targetDocument'])) {
                 throw MappingException::invalidTargetDocumentClass($mapping['targetDocument'], $this->name, $mapping['fieldName']);
             }
         }
@@ -980,11 +980,11 @@ class ClassMetadata implements ClassMetadataInterface
             $assocFields[$mapping['assoc']] = $fieldName;
         }
 
-        if (!empty($this->versionNameField) && !$this->versionable){
+        if (!empty($this->versionNameField) && !$this->versionable) {
             throw new MappingException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
         }
 
-        if (!empty($this->versionCreatedField) && !$this->versionable){
+        if (!empty($this->versionCreatedField) && !$this->versionable) {
             throw new MappingException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
         }
 
@@ -1022,7 +1022,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @throws MappingException if no strategy is applicable with the mapped fields.
      */
-    private  function determineIdStrategy()
+    private function determineIdStrategy()
     {
         if ($this->parentMapping && $this->nodename) {
             $this->setIdGenerator(self::GENERATOR_TYPE_PARENT);
@@ -1679,7 +1679,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isUuid($fieldName)
     {
-       return $this->uuidFieldName === $fieldName;
+        return $this->uuidFieldName === $fieldName;
     }
 
     /**

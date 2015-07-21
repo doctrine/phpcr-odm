@@ -22,9 +22,7 @@ namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use PHPCR\Util\Console\Command\NodeTypeRegisterCommand;
-
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
 /**

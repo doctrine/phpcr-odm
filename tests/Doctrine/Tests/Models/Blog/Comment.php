@@ -21,4 +21,3 @@ class Comment
     /** @PHPCRODM\Field(type="string") */
     public $title;
 }
-

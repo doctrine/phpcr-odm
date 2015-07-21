@@ -12,7 +12,7 @@ class OperandDynamicName extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getAlias() 
+    public function getAlias()
     {
         return $this->alias;
     }

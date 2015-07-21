@@ -1,5 +1,6 @@
 <?php
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
+
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**

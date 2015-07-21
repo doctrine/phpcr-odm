@@ -71,7 +71,6 @@ class CmsArticlePerson
     {
         return $this->name;
     }
-
 }
 
 class CmsArticlePersonRepository extends DocumentRepository implements RepositoryIdInterface

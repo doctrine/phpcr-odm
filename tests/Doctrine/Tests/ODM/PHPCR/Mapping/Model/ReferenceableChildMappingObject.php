@@ -15,4 +15,3 @@ class ReferenceableChildMappingObject extends ReferenceableMappingObject
     /** @PHPCRODM\Id */
     public $id;
 }
-

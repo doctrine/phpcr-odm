@@ -21,5 +21,4 @@ class ConstraintNot extends ConstraintFactory
     {
         return self::NT_CONSTRAINT;
     }
-
 }

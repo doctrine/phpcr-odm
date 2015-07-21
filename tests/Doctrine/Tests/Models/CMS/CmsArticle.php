@@ -26,7 +26,7 @@ class CmsArticle
     /** @PHPCRODM\Field(type="binary", nullable=true) */
     public $attachments;
 
-    function __construct()
+    public function __construct()
     {
         $this->persons = new ArrayCollection();
     }
@@ -39,7 +39,8 @@ class CmsArticle
     /**
      * @param CmsArticlePerson $person
      */
-    public function addPerson(CmsArticlePerson $person){
+    public function addPerson(CmsArticlePerson $person)
+    {
         $this->persons->add($person);
     }
 
@@ -58,7 +59,4 @@ class CmsArticle
     {
         return $this->persons;
     }
-
-
-
 }

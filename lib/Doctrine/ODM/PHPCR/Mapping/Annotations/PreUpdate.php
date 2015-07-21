@@ -25,4 +25,6 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("METHOD")
  */
-final class PreUpdate {}
+final class PreUpdate
+{
+}

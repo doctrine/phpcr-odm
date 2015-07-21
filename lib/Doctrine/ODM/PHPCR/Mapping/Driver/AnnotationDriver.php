@@ -19,14 +19,14 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Annotations\AnnotationReader,
-    Doctrine\Common\Annotations\Reader,
-    Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver,
-    Doctrine\Common\Persistence\Mapping\ClassMetadata,
-    Doctrine\Common\Persistence\Mapping\Driver\MappingDriver,
-    Doctrine\ODM\PHPCR\Event,
-    Doctrine\ODM\PHPCR\Mapping\Annotations as ODM,
-    Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
@@ -68,7 +68,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             }
         }
         if (!$documentAnnots) {
-             throw MappingException::classIsNotAValidDocument($className);
+            throw MappingException::classIsNotAValidDocument($className);
         }
 
         // find the winning document annotation

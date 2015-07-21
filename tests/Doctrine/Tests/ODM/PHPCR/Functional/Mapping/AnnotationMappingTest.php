@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**

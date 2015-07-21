@@ -79,7 +79,7 @@ class ProxyFactory extends AbstractProxyFactory
      */
     protected function skipClass(BaseClassMetadata $metadata)
     {
-        if ( ! $metadata instanceof ClassMetadata) {
+        if (! $metadata instanceof ClassMetadata) {
             throw new InvalidArgumentException('Did not get the expected type of metadata but ' . get_class($metadata));
         }
 

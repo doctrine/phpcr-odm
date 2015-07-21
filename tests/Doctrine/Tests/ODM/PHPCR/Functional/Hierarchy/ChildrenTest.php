@@ -8,10 +8,8 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 
 /**
@@ -795,7 +793,7 @@ class ChildrenParentAndNameTestObj
   */
 class ChildrenReferrerTestObj
 {
-  /** @PHPCR\Id */
+    /** @PHPCR\Id */
   public $id;
 
   /** @PHPCR\Field(type="string") */
@@ -810,7 +808,7 @@ class ChildrenReferrerTestObj
   */
 class ChildrenReferenceableTestObj
 {
-  /** @PHPCR\Id */
+    /** @PHPCR\Id */
   public $id;
 
   /** @PHPCR\Field(type="string") */
@@ -825,7 +823,7 @@ class TestResetReorderingListener
     public function preUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B'){
+        if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B') {
 
             /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
             $childrenCollection = $document->allChildren;

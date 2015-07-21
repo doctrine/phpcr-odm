@@ -12,7 +12,7 @@ class OperandStaticLiteral extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getValue() 
+    public function getValue()
     {
         return $this->value;
     }

@@ -169,7 +169,9 @@ class MockField
 
     public function getValue($parent)
     {
-        if (! $this->p == $parent) throw new \Exception('Wrong parent passed in getValue');
+        if (! $this->p == $parent) {
+            throw new \Exception('Wrong parent passed in getValue');
+        }
         return $this->id;
     }
 }

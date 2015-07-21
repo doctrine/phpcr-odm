@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
-
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\Comment;
 
@@ -87,7 +86,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->assertEquals('fr', $child->locale);
     }
 
-    function testFindTranslationPropagateLocale()
+    public function testFindTranslationPropagateLocale()
     {
         $child = new Article();
         $child->id = '/functional/thename/child';
@@ -151,7 +150,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->assertEquals('fr', $child->relatedArticles[0]->locale);
     }
 
-    function testBindTranslationLocale()
+    public function testBindTranslationLocale()
     {
         $child = new Article();
         $child->id = '/functional/thename/child';
@@ -174,7 +173,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         $this->assertEquals('Sujet interessant', $doc->child->topic);
     }
 
-    function testRefreshProxyUsesFallback()
+    public function testRefreshProxyUsesFallback()
     {
         $parent = new ParentObj();
         $parent->id = '/functional/thename/child';

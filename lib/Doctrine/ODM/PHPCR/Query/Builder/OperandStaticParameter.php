@@ -12,7 +12,7 @@ class OperandStaticParameter extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getVariableName() 
+    public function getVariableName()
     {
         return $this->variableName;
     }

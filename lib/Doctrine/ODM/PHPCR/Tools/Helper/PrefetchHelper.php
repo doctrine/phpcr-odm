@@ -134,5 +134,4 @@ class PrefetchHelper
 
         return $prefetch;
     }
-
 }

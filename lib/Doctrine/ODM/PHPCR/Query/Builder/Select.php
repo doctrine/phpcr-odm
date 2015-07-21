@@ -43,4 +43,3 @@ class Select extends AbstractNode
         return self::NT_SELECT;
     }
 }
-

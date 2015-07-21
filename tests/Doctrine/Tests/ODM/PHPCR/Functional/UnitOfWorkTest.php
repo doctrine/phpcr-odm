@@ -8,7 +8,6 @@ use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
-
 use Doctrine\Tests\Models\Translation\Comment;
 
 /**
@@ -81,7 +80,8 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(array($user1, '/foobar'), current($scheduledMoves));
     }
     
-    public function testMoveParentNoNodeName() {
+    public function testMoveParentNoNodeName()
+    {
         $root = $this->dm->find(null, 'functional');
 
         $parent1 = new ParentTestObj();
@@ -100,19 +100,19 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->persist($parent1);
         $this->dm->persist($parent2);
-           $this->dm->persist($child);
+        $this->dm->persist($child);
 
-           $this->dm->flush();
+        $this->dm->flush();
 
-           $child->setParentDocument($parent2);
+        $child->setParentDocument($parent2);
 
-           $this->dm->persist($child);
+        $this->dm->persist($child);
 
-           try {
-               $this->dm->flush();
-           } catch (\Exception $e) {
-               $this->fail('An exception has been raised moving a child node from parent1 to parent2.');
-           }
+        try {
+            $this->dm->flush();
+        } catch (\Exception $e) {
+            $this->fail('An exception has been raised moving a child node from parent1 to parent2.');
+        }
     }
 
     public function testGetScheduledReorders()

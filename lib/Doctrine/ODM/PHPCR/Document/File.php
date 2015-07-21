@@ -64,8 +64,8 @@ class File extends AbstractFile
         $this->content->setLastModified(new \DateTime('@'.filemtime($filename)));
 
         $finfo = new \finfo();
-        $this->content->setMimeType($finfo->file($filename,FILEINFO_MIME_TYPE));
-        $this->content->setEncoding($finfo->file($filename,FILEINFO_MIME_ENCODING));
+        $this->content->setMimeType($finfo->file($filename, FILEINFO_MIME_TYPE));
+        $this->content->setEncoding($finfo->file($filename, FILEINFO_MIME_ENCODING));
 
         return $this;
     }
@@ -132,7 +132,7 @@ class File extends AbstractFile
      */
     public function getFileContentAsStream()
     {
-      return $this->getContent()->getData();
+        return $this->getContent()->getData();
     }
 
     /**
@@ -142,8 +142,8 @@ class File extends AbstractFile
      */
     public function getFileContent()
     {
-      $content = stream_get_contents($this->getContent()->getData());
+        $content = stream_get_contents($this->getContent()->getData());
 
-      return $content !== false ? $content : '';
+        return $content !== false ? $content : '';
     }
 }

@@ -32,5 +32,3 @@ class OperandDynamicFactoryTest extends NodeTestCase
         );
     }
 }
-
-

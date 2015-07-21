@@ -5,9 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
-
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
-
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\CMS\CmsPageTranslatable;
@@ -231,9 +229,9 @@ class TestPersistenceListener
     public function prePersist(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $this->pagePrePersist = true;
-        } elseif ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem) {
             $this->itemPrePersist = true;
         }
     }
@@ -241,9 +239,9 @@ class TestPersistenceListener
     public function postPersist(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $this->pagePostPersist = true;
-        } elseif ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem) {
             $this->itemPostPersist = true;
         }
     }
@@ -251,7 +249,7 @@ class TestPersistenceListener
     public function preUpdate(PreUpdateEventArgs $e)
     {
         $document = $e->getObject();
-        if (! $document instanceof CmsPage ){
+        if (! $document instanceof CmsPage) {
             return;
         }
         $dm = $e->getObjectManager();
@@ -275,9 +273,9 @@ class TestPersistenceListener
     public function preRemove(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $this->pagePreRemove = true;
-        } elseif ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem) {
             $this->itemPreRemove = true;
         }
     }
@@ -285,9 +283,9 @@ class TestPersistenceListener
     public function postRemove(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $this->pagePostRemove = true;
-        } elseif ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem) {
             $this->itemPostRemove = true;
         }
     }
@@ -295,9 +293,9 @@ class TestPersistenceListener
     public function preMove(MoveEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $this->pagePreMove = true;
-        } elseif ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem) {
             $this->itemPreMove = true;
         }
     }
@@ -305,9 +303,9 @@ class TestPersistenceListener
     public function postMove(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $this->pagePostMove = true;
-        } elseif ($document instanceof CmsItem){
+        } elseif ($document instanceof CmsItem) {
             $this->itemPostMove = true;
         }
     }

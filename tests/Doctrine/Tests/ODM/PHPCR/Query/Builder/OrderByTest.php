@@ -19,6 +19,3 @@ class OrderByTest extends NodeTestCase
         );
     }
 }
-
-
-

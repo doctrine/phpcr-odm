@@ -45,4 +45,3 @@ class SourceJoinConditionEqui extends AbstractLeafNode
         return $this->alias2;
     }
 }
-

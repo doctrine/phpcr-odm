@@ -63,6 +63,6 @@ class AutoIdGenerator extends ParentIdGenerator
             ''
         );
 
-        return $this->buildName($document ,$class, $dm, $parent, $name);
+        return $this->buildName($document, $class, $dm, $parent, $name);
     }
 }

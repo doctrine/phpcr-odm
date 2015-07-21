@@ -287,7 +287,7 @@ class Configuration
      */
     public function getClassMetadataFactoryName()
     {
-        if ( ! isset($this->attributes['classMetadataFactoryName'])) {
+        if (! isset($this->attributes['classMetadataFactoryName'])) {
             $this->attributes['classMetadataFactoryName'] = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory';
         }
 
@@ -309,7 +309,7 @@ class Configuration
     {
         $reflectionClass = new \ReflectionClass($className);
 
-        if ( ! $reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
+        if (! $reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
             throw PHPCRException::invalidDocumentRepository($className);
         }
 

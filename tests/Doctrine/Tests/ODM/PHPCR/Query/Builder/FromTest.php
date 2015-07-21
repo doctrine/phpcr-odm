@@ -33,5 +33,3 @@ class FromTest extends NodeTestCase
         );
     }
 }
-
-

@@ -24,5 +24,4 @@ class ConstraintOrx extends ConstraintFactory
     {
         return self::NT_CONSTRAINT;
     }
-
 }

@@ -134,7 +134,6 @@ class XmlDriver extends FileDriver
         }
         if (isset($xmlRoot->node)) {
             $class->mapNode(array('fieldName' => (string) $xmlRoot->node->attributes()->name));
-
         }
         if (isset($xmlRoot->nodename)) {
             $class->mapNodename(array('fieldName' => (string) $xmlRoot->nodename->attributes()->name));

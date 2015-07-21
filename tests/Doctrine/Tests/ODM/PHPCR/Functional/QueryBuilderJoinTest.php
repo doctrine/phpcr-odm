@@ -85,7 +85,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
                     array(
                         'a' => '/functional/dantleech',
                         'b' => '/functional/audit0',
-                    ), 
+                    ),
                     array(
                         'a' => '/functional/dantleech',
                         'b' => '/functional/audit2',
@@ -99,7 +99,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
                     array(
                         'a' => '/functional/winstonsmith',
                         'b' => '/functional/audit1',
-                    ), 
+                    ),
                 ),
             ),
             array(

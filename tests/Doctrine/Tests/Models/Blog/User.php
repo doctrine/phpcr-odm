@@ -23,4 +23,3 @@ class User
     /** @PHPCRODM\Field(type="string") */
     public $status;
 }
-

@@ -19,12 +19,12 @@ class SourceJoinConditionChildDocument extends AbstractLeafNode
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getChildAlias() 
+    public function getChildAlias()
     {
         return $this->childAlias;
     }
 
-    public function getParentAlias() 
+    public function getParentAlias()
     {
         return $this->parentAlias;
     }

@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-
 use Doctrine\Tests\Models\CMS\CmsUser;
 
 /**

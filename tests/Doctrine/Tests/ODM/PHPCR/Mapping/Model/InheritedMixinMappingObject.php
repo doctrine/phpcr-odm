@@ -11,7 +11,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 class InheritedMixinMappingObject extends MixinMappingObject
 {
-
     /** @PHPCRODM\Field(type="string", property="jcr:title") */
     public $title;
 

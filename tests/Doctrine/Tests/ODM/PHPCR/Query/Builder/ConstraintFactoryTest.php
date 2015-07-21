@@ -55,5 +55,3 @@ class ConstraintFactoryTest extends NodeTestCase
         );
     }
 }
-
-

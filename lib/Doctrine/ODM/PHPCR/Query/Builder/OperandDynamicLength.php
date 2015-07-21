@@ -7,7 +7,7 @@ class OperandDynamicLength extends AbstractLeafNode
     protected $alias;
     protected $field;
 
-    Public function __construct(AbstractNode $parent, $field)
+    public function __construct(AbstractNode $parent, $field)
     {
         list($alias, $field) = $this->explodeField($field);
         $this->field = $field;
@@ -20,12 +20,12 @@ class OperandDynamicLength extends AbstractLeafNode
         return self::NT_OPERAND_DYNAMIC;
     }
 
-    public function getField() 
+    public function getField()
     {
         return $this->field;
     }
 
-    public function getAlias() 
+    public function getAlias()
     {
         return $this->alias;
     }

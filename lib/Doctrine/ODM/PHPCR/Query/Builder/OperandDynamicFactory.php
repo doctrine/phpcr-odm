@@ -193,4 +193,3 @@ class OperandDynamicFactory extends AbstractNode
         return $this->addChild(new OperandDynamicField($this, $field));
     }
 }
-
