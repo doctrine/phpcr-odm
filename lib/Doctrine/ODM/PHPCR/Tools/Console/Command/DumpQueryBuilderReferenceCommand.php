@@ -139,7 +139,6 @@ HERE
             $nti[] = '';
             $nti[] = $f['humanize']($nType);
             $nti[] = $f['underline']($nType, '~');
-            ;
             $nti[] = '';
             
             foreach ($nClasses as $nClass) {

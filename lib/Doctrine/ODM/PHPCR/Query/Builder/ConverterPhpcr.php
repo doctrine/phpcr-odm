@@ -131,7 +131,6 @@ class ConverterPhpcr extends ConverterBase
     {
         $this->validateAlias($originalAlias);
         $meta = $this->aliasMetadata[$originalAlias];
-        ;
 
         if ($meta->hasField($odmField)) {
             $fieldMeta = $meta->getFieldMapping($odmField);
