@@ -794,13 +794,13 @@ class ChildrenParentAndNameTestObj
 class ChildrenReferrerTestObj
 {
     /** @PHPCR\Id */
-  public $id;
+    public $id;
 
-  /** @PHPCR\Field(type="string") */
-  public $name;
+    /** @PHPCR\Field(type="string") */
+    public $name;
 
-  /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
-  public $reference;
+    /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
+    public $reference;
 }
 
 /**
@@ -809,13 +809,13 @@ class ChildrenReferrerTestObj
 class ChildrenReferenceableTestObj
 {
     /** @PHPCR\Id */
-  public $id;
+    public $id;
 
-  /** @PHPCR\Field(type="string") */
-  public $name;
+    /** @PHPCR\Field(type="string") */
+    public $name;
 
-  /** @PHPCR\Children(cascade="persist") */
-  public $allChildren;
+    /** @PHPCR\Children(cascade="persist") */
+    public $allChildren;
 }
 
 class TestResetReorderingListener

@@ -2,6 +2,7 @@ preset: psr2
 
 enabled:
   - long_array_syntax
+  - duplicate_semicolon
 
 disabled:
   - short_array_syntax
