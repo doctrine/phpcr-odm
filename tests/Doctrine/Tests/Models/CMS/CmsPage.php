@@ -68,8 +68,8 @@ class CmsPage
 
     public function removeItem($item)
     {
-        foreach ($this->items as $key => $value){
-            if ($value === $item){
+        foreach ($this->items as $key => $value) {
+            if ($value === $item) {
                 unset($this->items[$key]);
             }
         }

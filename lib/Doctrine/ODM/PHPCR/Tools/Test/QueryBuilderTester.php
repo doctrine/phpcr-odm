@@ -150,7 +150,7 @@ class QueryBuilderTester
         }
 
         foreach ($node->getChildren() as $child) {
-                $nodes[] = $child;
+            $nodes[] = $child;
             if (!$child instanceof AbstractLeafNode) {
                 $nodes = array_merge($nodes, $this->getAllNodes($child));
             }

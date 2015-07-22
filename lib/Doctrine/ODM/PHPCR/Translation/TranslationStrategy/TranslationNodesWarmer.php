@@ -26,5 +26,4 @@ interface TranslationNodesWarmer
      * @return mixed
      */
     public function getTranslationsForNodes($nodes, $locales, SessionInterface $session);
-
-} 
+}

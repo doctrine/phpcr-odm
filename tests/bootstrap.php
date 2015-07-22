@@ -16,6 +16,7 @@ if ($files) {
 }
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+
 AnnotationRegistry::registerLoader(array($autoload, 'loadClass'));
 
 // tests are not autoloaded the composer.json

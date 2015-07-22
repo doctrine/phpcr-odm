@@ -72,7 +72,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * @depends testInsertWithUnnamedChild
      */
-    function testProxyForChildIsUsed()
+    public function testProxyForChildIsUsed()
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -471,14 +471,14 @@ class ChildTestObj
   */
 class ChildReferrerTestObj
 {
-  /** @PHPCRODM\Id */
-  public $id;
+    /** @PHPCRODM\Id */
+    public $id;
 
-  /** @PHPCRODM\Field(type="string") */
-  public $name;
+    /** @PHPCRODM\Field(type="string") */
+    public $name;
 
-  /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj", cascade="persist") */
-  public $reference;
+    /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj", cascade="persist") */
+    public $reference;
 }
 
 /**
@@ -486,12 +486,12 @@ class ChildReferrerTestObj
   */
 class ChildReferenceableTestObj
 {
-  /** @PHPCRODM\Id */
-  public $id;
+    /** @PHPCRODM\Id */
+    public $id;
 
-  /** @PHPCRODM\Field(type="string") */
-  public $name;
+    /** @PHPCRODM\Field(type="string") */
+    public $name;
 
-  /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
-  public $aChild;
+    /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
+    public $aChild;
 }

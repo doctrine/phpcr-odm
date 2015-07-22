@@ -50,4 +50,3 @@ class MoveEventArgsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('target/path', $path);
     }
 }
-

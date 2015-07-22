@@ -53,4 +53,3 @@ class ClassMetadataProxy extends ClassMetadata
         return $this->_value;
     }
 }
-

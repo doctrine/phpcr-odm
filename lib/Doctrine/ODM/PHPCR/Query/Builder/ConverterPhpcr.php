@@ -27,7 +27,6 @@ use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
@@ -131,7 +130,7 @@ class ConverterPhpcr extends ConverterBase
     protected function getPhpcrProperty($originalAlias, $odmField)
     {
         $this->validateAlias($originalAlias);
-        $meta = $this->aliasMetadata[$originalAlias];;
+        $meta = $this->aliasMetadata[$originalAlias];
 
         if ($meta->hasField($odmField)) {
             $fieldMeta = $meta->getFieldMapping($odmField);

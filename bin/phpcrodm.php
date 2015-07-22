@@ -20,6 +20,7 @@ if (!$autoload) {
 }
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+
 AnnotationRegistry::registerLoader(array($autoload, 'loadClass'));
 
 $configFile = getcwd() . DIRECTORY_SEPARATOR . 'cli-config.php';

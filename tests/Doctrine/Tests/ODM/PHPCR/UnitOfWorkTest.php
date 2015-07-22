@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-
 use Jackalope\Factory;
 use Jackalope\Node;
 

@@ -178,5 +178,4 @@ class LocaleChooser implements LocaleChooserInterface
     {
         return $this->defaultLocale;
     }
-
 }

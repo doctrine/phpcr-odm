@@ -207,7 +207,7 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $frozenDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
 
         $this->assertEquals('lsmith', $frozenDocument->username);
-        $this->assertEquals(array(3,1,2), $frozenDocument->numbers);
+        $this->assertEquals(array(3, 1, 2), $frozenDocument->numbers);
 
         $this->assertEquals($lastVersionName, $frozenDocument->versionName);
         $this->assertInstanceOf('DateTime', $frozenDocument->versionCreated);
@@ -412,4 +412,3 @@ class ReferenceTestObj
     /** @PHPCRODM\Field(type="string", property="username") */
     public $content;
 }
-

@@ -22,5 +22,4 @@ class ReplaceMixinMappingObject
 
     /** @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy") */
     public $lastModifiedBy;
-
 }

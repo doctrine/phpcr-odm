@@ -50,4 +50,3 @@ class IdGeneratorTest extends \PHPUnit_Framework_TestCase
         IdGenerator::create(null);
     }
 }
-

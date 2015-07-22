@@ -20,4 +20,3 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class ClassInheritanceChildOverridesMappingObject extends ClassInheritanceParentMappingObject
 {
 }
-

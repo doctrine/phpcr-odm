@@ -82,7 +82,7 @@ abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
         $dm->clear();
 
         return $node;
-   }
+    }
 
     public function tearDown()
     {

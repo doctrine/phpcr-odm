@@ -55,7 +55,7 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'FooBar' => array(1, 1),
-                ), 
+                ),
                 array(
                     'FooBar',
                 ),
@@ -67,11 +67,11 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'FooBar' => array(1, 1),
-                ), 
+                ),
                 array(
                     'FooBar',
                     'FooBar',
-                ), 
+                ),
                 array(
                     'exceeds_max' => true
                 ),
@@ -81,10 +81,10 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'FooBar' => array(1, 1),
-                ), 
+                ),
                 array(
                     'BarFoo',
-                ), 
+                ),
                 array(
                     'invalid_child' => true
                 ),
@@ -93,13 +93,13 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'FooBar' => array(1, null),
-                ), 
+                ),
                 array(
                     'FooBar',
                     'FooBar',
                     'FooBar',
                     'FooBar',
-                ), 
+                ),
                 array(
                 ),
             ),
@@ -108,12 +108,12 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'FooBar' => array(1, null),
-                ), 
+                ),
                 array(
                     'FooBar',
                     'FooBar',
                     'BarFoo',
-                ), 
+                ),
                 array(
                     'invalid_child' => true,
                 ),

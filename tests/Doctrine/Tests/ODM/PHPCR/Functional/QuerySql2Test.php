@@ -135,7 +135,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         }
         $this->assertEquals(array('/functional/node5', '/functional/node1'), $ids);
         $this->assertEquals(array(null, 'dbu'), $vals);
-        $this->assertEquals(array(array(3,1,2),array(3,1,2)), $nums);
+        $this->assertEquals(array(array(3, 1, 2), array(3, 1, 2)), $nums);
     }
 }
 

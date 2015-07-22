@@ -203,7 +203,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/child/grandchild', $grandchild->id);
     }
 
-    function testChildOfRoot()
+    public function testChildOfRoot()
     {
         $root = $this->dm->find(null, '/');
         $child = new NameDoc();
@@ -214,7 +214,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/childOfRoot', $child->id);
     }
 
-    function testParentOfReference()
+    public function testParentOfReference()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->node->addMixin('mix:referenceable');

@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-
 /**
  * Immutable referrer collection class
  *

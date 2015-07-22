@@ -28,7 +28,6 @@ use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Query\Query;
-
 use PHPCR\Query\QueryInterface;
 use PHPCR\PropertyType;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;

@@ -20,7 +20,6 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
-
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 

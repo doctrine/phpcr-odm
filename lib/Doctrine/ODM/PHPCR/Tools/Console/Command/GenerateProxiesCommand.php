@@ -25,7 +25,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use Doctrine\ODM\PHPCR\Tools\Console\MetadataFilter;
 
 /**
@@ -82,23 +81,23 @@ EOT
             $destPath = $documentManager->getConfiguration()->getProxyDir();
         }
 
-        if ( ! is_dir($destPath)) {
+        if (! is_dir($destPath)) {
             mkdir($destPath, 0777, true);
         }
 
         $destPath = realpath($destPath);
 
-        if ( ! file_exists($destPath)) {
+        if (! file_exists($destPath)) {
             throw new \InvalidArgumentException(
                 sprintf("Proxies destination directory '<info>%s</info>' does not exist.", $documentManager->getConfiguration()->getProxyDir())
             );
-        } else if ( ! is_writable($destPath)) {
+        } elseif (! is_writable($destPath)) {
             throw new \InvalidArgumentException(
                 sprintf("Proxies destination directory '<info>%s</info>' does not have write permissions.", $destPath)
             );
         }
 
-        if ( count($metadatas)) {
+        if (count($metadatas)) {
             foreach ($metadatas as $metadata) {
                 $output->write(
                     sprintf('Processing entity "<info>%s</info>"', $metadata->name) . PHP_EOL
@@ -113,6 +112,5 @@ EOT
         } else {
             $output->write('No Metadata Classes to process.' . PHP_EOL);
         }
-
     }
 }

@@ -244,6 +244,10 @@ class DocumentClassMapperTest extends \PHPUnit_Framework_Testcase
     }
 }
 
-class BaseClass {}
+class BaseClass
+{
+}
 
-class ExtendingClass extends BaseClass {}
+class ExtendingClass extends BaseClass
+{
+}

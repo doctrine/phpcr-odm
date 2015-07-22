@@ -3,10 +3,8 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
-
 
 /**
  * These tests ensure that you can reset a value in a lifecycle event
@@ -84,11 +82,10 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
 class TestResetListener
 {
-
     public function prePersist(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage && $document->content instanceof CmsPageContent){
+        if ($document instanceof CmsPage && $document->content instanceof CmsPageContent) {
             $contentReference = array('id' => $document->content->id);
             $document->content = serialize($contentReference);
         }
@@ -97,10 +94,10 @@ class TestResetListener
     public function postPersist(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $contentReference = unserialize($document->content);
 
-            if ($contentReference !== false && isset($contentReference['id'])){
+            if ($contentReference !== false && isset($contentReference['id'])) {
 
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();
@@ -114,11 +111,11 @@ class TestResetListener
     public function preUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage && $document->title !== 'my-page'){
+        if ($document instanceof CmsPage && $document->title !== 'my-page') {
             $document->title = 'my-page';
         }
 
-        if ($document instanceof CmsPage && $document->content instanceof CmsPageContent){
+        if ($document instanceof CmsPage && $document->content instanceof CmsPageContent) {
             $contentReference = array('id' => $document->content->id);
             $document->content = serialize($contentReference);
         }
@@ -127,10 +124,10 @@ class TestResetListener
     public function postUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage){
+        if ($document instanceof CmsPage) {
             $contentReference = unserialize($document->content);
 
-            if ($contentReference !== false && isset($contentReference['id'])){
+            if ($contentReference !== false && isset($contentReference['id'])) {
 
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();

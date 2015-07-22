@@ -21,5 +21,4 @@ class From extends SourceFactory
     {
         return self::NT_FROM;
     }
-
 }

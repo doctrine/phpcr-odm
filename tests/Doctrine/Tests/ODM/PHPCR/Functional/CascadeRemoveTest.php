@@ -31,7 +31,7 @@ class CascadeRemoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCas
 
     public function testCascadeRemoveBidirectionalFromOwningSide()
     {
-        $this->wrapRemove(function($dm, $user, $group1, $group2) {
+        $this->wrapRemove(function ($dm, $user, $group1, $group2) {
                 $dm->remove($user);
                 $dm->flush();
             });
@@ -39,7 +39,7 @@ class CascadeRemoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCas
 
     public function testCascadeRemoveFromInverseSide()
     {
-        $this->wrapRemove(function($dm, $user, $group1, $group2) {
+        $this->wrapRemove(function ($dm, $user, $group1, $group2) {
                 $dm->remove($group1);
                 $dm->flush();
             });

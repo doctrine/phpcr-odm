@@ -7,7 +7,6 @@ use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
-
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 class ClassMetadataTest extends \PHPUnit_Framework_TestCase
@@ -64,8 +63,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
                 'multivalue' => false,
                 'strategy' => 'assigned',
                 'nullable' => false,
-            )
-            , $cm->mappings['id']
+            ), $cm->mappings['id']
         );
 
         $this->assertEquals('id', $cm->identifier);
@@ -141,7 +139,8 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      * Mapping should return translated fields.
      * @depends testMapFieldWithId
      */
-    public function testMapFieldWithInheritance(ClassMetadata $cmp) {
+    public function testMapFieldWithInheritance(ClassMetadata $cmp)
+    {
         // Load parent document metadata.
         $ar = new AnnotationReader();
         $ad = new AnnotationDriver($ar);
@@ -325,7 +324,9 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     }
 }
 
-class Customer extends Person {}
+class Customer extends Person
+{
+}
 
 /**
  * @PHPCRODM\Document(translator="attribute")

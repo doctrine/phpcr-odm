@@ -19,5 +19,3 @@ class OperandStaticFactoryTest extends NodeTestCase
         );
     }
 }
-
-

@@ -4,12 +4,10 @@ namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 
 class LocaleChooserTest extends PHPCRTestCase
 {
-
     /**
      * @var LocaleChooser
      */

@@ -18,6 +18,6 @@ class RefCascadeManyTestObj
 
     public function __construct()
     {
-       $this->references = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->references = new \Doctrine\Common\Collections\ArrayCollection();
     }
 }

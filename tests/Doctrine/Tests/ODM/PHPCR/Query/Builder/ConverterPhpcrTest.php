@@ -362,7 +362,7 @@ class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$expectedClass;
 
         $this->primeBuilder();
-        $constraint = $this->createNode($class, $args);;
+        $constraint = $this->createNode($class, $args);
         $res = $this->converter->dispatch($constraint);
 
         $this->assertInstanceOf($expectedPhpcrClass, $res);

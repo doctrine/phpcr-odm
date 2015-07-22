@@ -22,4 +22,3 @@ class ClassInheritanceParentMappingObject
     /** @PHPCRODM\Id */
     public $id;
 }
-

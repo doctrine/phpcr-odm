@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use PHPCR\PropertyType;
-
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**

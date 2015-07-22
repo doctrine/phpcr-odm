@@ -19,9 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    PHPCR\NodeInterface;
-
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\NodeInterface;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;

@@ -166,7 +166,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
             $this->dm->removeTranslation($this->doc, 'fr');
             $this->fail('Last translation should not be removable');
         } catch (PHPCRException $e) {
-
         }
     }
 

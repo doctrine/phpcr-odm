@@ -5,7 +5,6 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @covers Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
@@ -78,4 +77,3 @@ class RepositoryClassMetadataProxy extends ClassMetadata
         return $this->_value;
     }
 }
-

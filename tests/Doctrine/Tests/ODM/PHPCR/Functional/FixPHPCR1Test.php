@@ -49,7 +49,6 @@ class FixPHPCR1Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue($this->node->getNode('filetest')->getNode('file')->hasNode('jcr:content'));
         $this->assertTrue($this->node->getNode('filetest')->getNode('file')->getNode('jcr:content')->hasProperty('jcr:data'));
     }
-
 }
 
 /**

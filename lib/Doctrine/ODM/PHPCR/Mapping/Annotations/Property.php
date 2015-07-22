@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
-
 /**
  * base class for all property types
  */

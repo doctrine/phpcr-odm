@@ -21,7 +21,6 @@ namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use PHPCR\Util\Console\Command\NodesUpdateCommand;
-
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -93,4 +92,3 @@ HERE
         return parent::execute($input, $output);
     }
 }
-

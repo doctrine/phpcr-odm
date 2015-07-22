@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-
 /**
  * Constraint evaluates to true if aliased node is a child of
  * the given parent path for the given alias.
@@ -23,12 +22,12 @@ class ConstraintChild extends AbstractLeafNode
         return self::NT_CONSTRAINT;
     }
 
-    public function getParentPath() 
+    public function getParentPath()
     {
         return $this->parentPath;
     }
 
-    public function getAlias() 
+    public function getAlias()
     {
         return $this->alias;
     }

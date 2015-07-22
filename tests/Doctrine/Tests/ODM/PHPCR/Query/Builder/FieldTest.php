@@ -17,4 +17,3 @@ class FieldTest extends LeafNodeTestCase
         );
     }
 }
-

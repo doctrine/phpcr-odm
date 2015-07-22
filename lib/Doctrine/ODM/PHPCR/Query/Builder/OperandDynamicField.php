@@ -26,12 +26,12 @@ class OperandDynamicField extends AbstractLeafNode
         return self::NT_OPERAND_DYNAMIC;
     }
 
-    public function getAlias() 
+    public function getAlias()
     {
         return $this->alias;
     }
 
-    public function getField() 
+    public function getField()
     {
         return $this->field;
     }

@@ -2,10 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata,
-    Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
-
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\ODM\PHPCR\Translation\Translation;
@@ -290,7 +289,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         }
     }
 
-    static function propertyNameForLocale($locale, $property)
+    public static function propertyNameForLocale($locale, $property)
     {
         return Translation::LOCALE_NAMESPACE . '-' . $locale . '-' . $property;
     }

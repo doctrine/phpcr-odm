@@ -31,11 +31,9 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
-
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
-
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
@@ -302,7 +300,6 @@ class DocumentManager implements DocumentManagerInterface
                 } catch (ClassMismatchException $e) {
                     return null;
                 }
-
             }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {

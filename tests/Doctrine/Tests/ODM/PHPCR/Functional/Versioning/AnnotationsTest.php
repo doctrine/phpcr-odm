@@ -2,12 +2,11 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory,
-    Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
-
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
      */

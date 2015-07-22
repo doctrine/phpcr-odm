@@ -18,6 +18,7 @@
  */
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -137,7 +138,7 @@ HERE
             $nti[] = $f['genAnc']($nType, 'type');
             $nti[] = '';
             $nti[] = $f['humanize']($nType);
-            $nti[] = $f['underline']($nType, '~');;
+            $nti[] = $f['underline']($nType, '~');
             $nti[] = '';
             
             foreach ($nClasses as $nClass) {

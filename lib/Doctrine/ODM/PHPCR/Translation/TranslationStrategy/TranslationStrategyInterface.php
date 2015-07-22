@@ -127,5 +127,4 @@ interface TranslationStrategyInterface
         $alias,
         $locale
     );
-
 }

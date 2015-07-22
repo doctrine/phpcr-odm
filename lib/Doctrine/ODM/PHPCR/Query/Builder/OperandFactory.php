@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-
 /**
  * Factory node for all operands, both dynamic and static.
  *

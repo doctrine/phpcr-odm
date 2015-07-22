@@ -144,5 +144,4 @@ class TestObject
 
     /** @PHPCRODM\Field(type="string", property="change_me") */
     public $changeMe;
-
 }

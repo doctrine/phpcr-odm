@@ -16,5 +16,3 @@ class SelectTest extends NodeTestCase
         );
     }
 }
-
-

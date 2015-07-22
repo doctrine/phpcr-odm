@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefCascadeManyTestObj;
 use Doctrine\Tests\Models\References\RefCascadeTestObj;
-
 use Doctrine\Tests\Models\References\HardRefTestObj;
 use Doctrine\Tests\Models\References\WeakRefTestObj;
 use Doctrine\Tests\Models\References\NonRefTestObj;
@@ -21,7 +20,6 @@ use Doctrine\Tests\Models\References\RefManyTestObj;
 use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
 use Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade;
 use Doctrine\Tests\Models\References\ParentTestObj;
-
 use PHPCR\Util\UUIDHelper;
 
 /**
@@ -29,7 +27,6 @@ use PHPCR\Util\UUIDHelper;
  */
 class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
-
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
      */
@@ -690,7 +687,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $i = 0;
-        foreach ($referrer->references as $reference ) {
+        foreach ($referrer->references as $reference) {
             $reference->name = "new name $i";
             $i++;
         }
@@ -1244,9 +1241,9 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $documents = array();
         $hashs = array();
         for ($i = 0; $i < $max; $i++) {
-           $doc = $this->dm->find($this->referencedType, "/functional/refRefTestObj$i");
-           $documents[] = $doc;
-           $hashs[] = spl_object_hash($doc);
+            $doc = $this->dm->find($this->referencedType, "/functional/refRefTestObj$i");
+            $documents[] = $doc;
+            $hashs[] = spl_object_hash($doc);
         }
 
         asort($hashs);
@@ -1256,7 +1253,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refDocuments = $this->dm->find($this->referrerManyType, "/functional/refManyTestObj")->references;
 
         foreach ($refDocuments as $refDoc) {
-           $refHashs[] = spl_object_hash($refDoc);
+            $refHashs[] = spl_object_hash($refDoc);
         }
 
         asort($refHashs);

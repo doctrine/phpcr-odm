@@ -26,7 +26,6 @@ use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
-
 use Doctrine\ODM\PHPCR\Event\ListenersInvoker;
 use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
@@ -42,7 +41,6 @@ use Doctrine\ODM\PHPCR\Exception\CascadeException;
 use Doctrine\ODM\PHPCR\Tools\Helper\PrefetchHelper;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationNodesWarmer;
-
 use Iterator;
 use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
@@ -55,7 +53,6 @@ use PHPCR\NodeType\NoSuchNodeTypeException;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
-
 use Jackalope\Session as JackalopeSession;
 
 /**
@@ -401,7 +398,7 @@ class UnitOfWork
 
                 try {
                     $this->validateClassName($document, $requestedClassName);
-                } catch(ClassMismatchException $e) {
+                } catch (ClassMismatchException $e) {
                     continue;
                 }
             } else {
@@ -898,7 +895,7 @@ class UnitOfWork
                         $class->parentMapping,
                         self::objToStr($document, $this->dm)
                     ));
-                 }
+                }
 
                 $this->doScheduleInsert($parent, $visited);
             }
@@ -1712,7 +1709,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST)) {
                     throw CascadeException::newDocumentFound(self::objToStr($reference));
                 }
                 $this->persistNew($targetClass, $reference);
@@ -1736,7 +1733,7 @@ class UnitOfWork
 
         switch ($state) {
             case self::STATE_NEW:
-                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST) ) {
+                if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST)) {
                     throw CascadeException::newDocumentFound(self::objToStr($referrer));
                 }
                 $this->persistNew($targetClass, $referrer);
@@ -3749,7 +3746,6 @@ class UnitOfWork
 
         // manually set the uuid if it is not present yet, so we can assign it to documents
         if ($node->isNodeType('mix:referenceable') && !$node->hasProperty('jcr:uuid')) {
-
             $uuid = false;
 
             $uuidFieldName = $metadata->getUuidFieldName();

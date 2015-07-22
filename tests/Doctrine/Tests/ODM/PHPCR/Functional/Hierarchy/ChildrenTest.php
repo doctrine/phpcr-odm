@@ -8,10 +8,8 @@ use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 
 /**
@@ -795,14 +793,14 @@ class ChildrenParentAndNameTestObj
   */
 class ChildrenReferrerTestObj
 {
-  /** @PHPCR\Id */
-  public $id;
+    /** @PHPCR\Id */
+    public $id;
 
-  /** @PHPCR\Field(type="string") */
-  public $name;
+    /** @PHPCR\Field(type="string") */
+    public $name;
 
-  /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
-  public $reference;
+    /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
+    public $reference;
 }
 
 /**
@@ -810,14 +808,14 @@ class ChildrenReferrerTestObj
   */
 class ChildrenReferenceableTestObj
 {
-  /** @PHPCR\Id */
-  public $id;
+    /** @PHPCR\Id */
+    public $id;
 
-  /** @PHPCR\Field(type="string") */
-  public $name;
+    /** @PHPCR\Field(type="string") */
+    public $name;
 
-  /** @PHPCR\Children(cascade="persist") */
-  public $allChildren;
+    /** @PHPCR\Children(cascade="persist") */
+    public $allChildren;
 }
 
 class TestResetReorderingListener
@@ -825,7 +823,7 @@ class TestResetReorderingListener
     public function preUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B'){
+        if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B') {
 
             /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
             $childrenCollection = $document->allChildren;
