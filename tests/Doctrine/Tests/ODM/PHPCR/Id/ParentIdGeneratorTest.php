@@ -30,7 +30,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
             ->method('getUnitOfWork')
             ->will($this->returnValue($uow))
         ;
-        $this->assertEquals('/miau/name', $generator->generate(null, $cm,  $dm));
+        $this->assertEquals('/miau/name', $generator->generate(null, $cm, $dm));
     }
 
     /**
@@ -44,7 +44,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $cm = new ParentClassMetadataProxy(null, 'name', $id);
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        $this->assertEquals($id, $generator->generate(null, $cm,  $dm));
+        $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
 
     /**
@@ -58,7 +58,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', $id);
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        $this->assertEquals($id, $generator->generate(null, $cm,  $dm));
+        $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
 
     /**
@@ -70,7 +70,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $cm = new ParentClassMetadataProxy(null, '', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        $generator->generate(null, $cm,  $dm);
+        $generator->generate(null, $cm, $dm);
     }
 
     /**
@@ -82,7 +82,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $cm = new ParentClassMetadataProxy(null, 'name', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        $generator->generate(null, $cm,  $dm);
+        $generator->generate(null, $cm, $dm);
     }
 
     /**
@@ -94,7 +94,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', '');
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        $generator->generate(null, $cm,  $dm);
+        $generator->generate(null, $cm, $dm);
     }
     /**
      * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
@@ -117,7 +117,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
             ->method('getUnitOfWork')
             ->will($this->returnValue($uow))
         ;
-        $generator->generate(null, $cm,  $dm);
+        $generator->generate(null, $cm, $dm);
     }
 }
 

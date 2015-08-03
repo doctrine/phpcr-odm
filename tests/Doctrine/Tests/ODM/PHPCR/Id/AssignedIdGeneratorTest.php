@@ -16,7 +16,7 @@ class AssignedIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $cm = new ClassMetadataProxy($id);
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
-        $this->assertEquals($id, $generator->generate(null, $cm,  $dm));
+        $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
 
     /**
@@ -31,7 +31,7 @@ class AssignedIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
 
         try {
-            $generator->generate(null, $cm,  $dm);
+            $generator->generate(null, $cm, $dm);
         } catch (\Exception $expected) {
             return;
         }

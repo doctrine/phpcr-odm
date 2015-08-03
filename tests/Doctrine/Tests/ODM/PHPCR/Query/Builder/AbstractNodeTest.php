@@ -62,7 +62,7 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
                 array(
                 ),
             ),
-            // 1a. 
+            // 1a.
             // INVALID: Out of bounds
             array(
                 array(

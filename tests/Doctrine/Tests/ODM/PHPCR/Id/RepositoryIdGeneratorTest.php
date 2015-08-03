@@ -28,7 +28,7 @@ class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
 
         $generator = new RepositoryIdGenerator;
 
-        $this->assertEquals('generatedid', $generator->generate(null, $cm,  $dm));
+        $this->assertEquals('generatedid', $generator->generate(null, $cm, $dm));
     }
 
     /**
@@ -55,7 +55,7 @@ class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
 
 
         try {
-            $generator->generate(null, $cm,  $dm);
+            $generator->generate(null, $cm, $dm);
         } catch (\Exception $expected) {
             return;
         }
