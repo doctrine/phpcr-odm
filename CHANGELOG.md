@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.0-rc2
+---------
+
+fixed coding style violations
+
 1.3.0-rc
 --------
 
