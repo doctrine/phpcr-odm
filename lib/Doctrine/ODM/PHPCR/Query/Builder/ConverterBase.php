@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+use PHPCR\Query\QOM\OrderingInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Query;
@@ -26,6 +27,7 @@ use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\ColumnInterface;
+use PHPCR\Query\QOM\SourceInterface;
 
 /**
  * Base class for PHPCR based query converters
@@ -35,7 +37,7 @@ use PHPCR\Query\QOM\ColumnInterface;
 abstract class ConverterBase implements ConverterInterface
 {
     /**
-     * @var From
+     * @var SourceInterface
      */
     protected $from = null;
 
@@ -50,7 +52,7 @@ abstract class ConverterBase implements ConverterInterface
     protected $orderings = array();
 
     /**
-     * @var ConstraintInterface[]
+     * @var ConstraintInterface
      */
     protected $constraint = null;
 
@@ -277,7 +279,7 @@ abstract class ConverterBase implements ConverterInterface
             $node->getAlias2(), $node->getProperty2()
         );
 
-        $equi = $this->qomf->equiJoinCondition(
+        $equi = $this->qomf()->equiJoinCondition(
             $alias1, $phpcrProperty1,
             $alias2, $phpcrProperty2
         );
@@ -287,7 +289,7 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkSourceJoinConditionDescendant(SourceJoinConditionDescendant $node)
     {
-        $joinCon = $this->qomf->descendantNodeJoinCondition(
+        $joinCon = $this->qomf()->descendantNodeJoinCondition(
             $node->getDescendantAlias(),
             $node->getAncestorAlias()
         );
@@ -296,7 +298,7 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkSourceJoinConditionChildDocument(SourceJoinConditionChildDocument $node)
     {
-        $joinCon = $this->qomf->childNodeJoinCondition(
+        $joinCon = $this->qomf()->childNodeJoinCondition(
             $node->getChildAlias(),
             $node->getParentAlias()
         );
@@ -306,7 +308,7 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkSourceJoinConditionSameDocument(SourceJoinConditionSameDocument $node)
     {
-        $joinCon = $this->qomf->childNodeJoinCondition(
+        $joinCon = $this->qomf()->childNodeJoinCondition(
             $this->validateAlias($node->getAlias1Name()),
             $this->validateAlias($node->getAlias2Name()),
             $node->getAlias2Path()
@@ -331,7 +333,7 @@ abstract class ConverterBase implements ConverterInterface
 
         foreach ($children as $rConstraint) {
             $rPhpcrConstraint = $this->dispatch($rConstraint);
-            $phpcrComposite = $this->qomf->$method($lPhpcrConstraint, $rPhpcrConstraint);
+            $phpcrComposite = $this->qomf()->$method($lPhpcrConstraint, $rPhpcrConstraint);
 
             $lPhpcrConstraint = $phpcrComposite;
         }
@@ -355,7 +357,7 @@ abstract class ConverterBase implements ConverterInterface
             $node->getAlias(), $node->getField()
         );
 
-        $con = $this->qomf->propertyExistence(
+        $con = $this->qomf()->propertyExistence(
             $alias,
             $phpcrProperty
         );
@@ -369,7 +371,7 @@ abstract class ConverterBase implements ConverterInterface
             $node->getAlias(), $node->getField()
         );
 
-        $con = $this->qomf->fullTextSearch(
+        $con = $this->qomf()->fullTextSearch(
             $alias,
             $phpcrProperty,
             $node->getFullTextSearchExpression()
@@ -380,7 +382,7 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkConstraintSame(ConstraintSame $node)
     {
-        $con = $this->qomf->sameNode(
+        $con = $this->qomf()->sameNode(
             $this->validateAlias($node->getAlias()),
             $node->getPath()
         );
@@ -390,7 +392,7 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkConstraintDescendant(ConstraintDescendant $node)
     {
-        $con = $this->qomf->descendantNode(
+        $con = $this->qomf()->descendantNode(
             $this->validateAlias($node->getAlias()),
             $node->getAncestorPath()
         );
@@ -400,7 +402,7 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkConstraintChild(ConstraintChild $node)
     {
-        $con = $this->qomf->childNode(
+        $con = $this->qomf()->childNode(
             $this->validateAlias($node->getAlias()),
             $node->getParentPath()
         );
@@ -420,7 +422,7 @@ abstract class ConverterBase implements ConverterInterface
         $phpcrDynOp = $this->dispatch($dynOp);
         $phpcrStatOp = $this->dispatch($statOp);
 
-        $compa = $this->qomf->comparison(
+        $compa = $this->qomf()->comparison(
             $phpcrDynOp, $node->getOperator(), $phpcrStatOp
         );
 
@@ -435,7 +437,7 @@ abstract class ConverterBase implements ConverterInterface
 
         $phpcrCon = $this->dispatch($con);
 
-        $ret = $this->qomf->notConstraint(
+        $ret = $this->qomf()->notConstraint(
             $phpcrCon
         );
 

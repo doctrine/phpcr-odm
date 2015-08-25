@@ -68,6 +68,7 @@ $cli->addCommands(array(
     new \PHPCR\Util\Console\Command\WorkspacePurgeCommand(),
     new \PHPCR\Util\Console\Command\WorkspaceQueryCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentMigrateClassCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentConvertTranslationCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\GenerateProxiesCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\InfoDoctrineCommand(),

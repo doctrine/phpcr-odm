@@ -99,7 +99,7 @@ class DocumentManager implements DocumentManagerInterface
     private $closed = false;
 
     /**
-     * @var TranslationStrategyInterface
+     * @var TranslationStrategyInterface[]
      */
     protected $translationStrategy;
 

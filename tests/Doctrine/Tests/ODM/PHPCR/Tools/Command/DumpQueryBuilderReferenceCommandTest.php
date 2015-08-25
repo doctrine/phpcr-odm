@@ -7,6 +7,16 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class DumpQueryBuilderReferenceCommandTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var DumpQueryBuilderReferenceCommand
+     */
+    private $command;
+
+    /**
+     * @var CommandTester
+     */
+    private $commandTester;
+
     public function setUp()
     {
         $this->command = new DumpQueryBuilderReferenceCommand();
