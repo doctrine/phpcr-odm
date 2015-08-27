@@ -233,12 +233,13 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Get document results from a PHPCR query instance
      *
-     * @param QueryInterface $query     The query instance as acquired through createPhpcrQuery().
-     * @param string         $className Document class.
+     * @param QueryInterface $query           The query instance as acquired through createPhpcrQuery().
+     * @param string|null    $className       Document class.
+     * @param string|null    $primarySelector Name of the selector for the document to return in case of a join query.
      *
      * @return array of document instances
      */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null);
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null);
 
     /**
      * Bind the translatable fields of the document in the specified locale.
@@ -487,6 +488,24 @@ interface DocumentManagerInterface extends ObjectManager
      * @return UnitOfWork
      */
     public function getUnitOfWork();
+
+    /**
+     * Flushes all changes to objects that have been queued up to now to the database.
+     * This effectively synchronizes the in-memory state of managed objects with the
+     * database.
+     *
+     * This is different from the ObjectManager in that it accepts an optional
+     * argument to limit the flush to one or more specific documents.
+     *
+     * @param object|array|null $document optionally limit to a specific
+     *      document or an array of documents
+     *
+     * @return void
+     *
+     * @throws InvalidArgumentException if $document is neither null nor a
+     *      document or an array of documents
+     */
+    public function flush($document = null);
 
     /**
      * Closes the DocumentManager. All entities that are currently managed

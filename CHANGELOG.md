@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* **2015-08-27** **BC break** Missing parameter in `DocumentManagerInterface::getDocumentsByPhpcrQuery`
+                 added. If you have your own implementation that is not based
+                 on DocumentManagerDecorator, you will need to adjust that method.
+
 1.3.0-rc2
 ---------
 
