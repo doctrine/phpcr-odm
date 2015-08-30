@@ -12,7 +12,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.3.9",
         "doctrine/common": "~2.4",
         "doctrine/annotations": "~1.2",
         "doctrine/data-fixtures": "~1.0,>=1.0.0",
