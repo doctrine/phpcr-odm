@@ -225,9 +225,9 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     /**
      * {@inheritDoc}
      */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null)
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
     {
-        return $this->wrapped->getDocumentsByPhpcrQuery($query, $className);
+        return $this->wrapped->getDocumentsByPhpcrQuery($query, $className, $primarySelector);
     }
 
     /**
@@ -235,7 +235,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
      */
     public function persist($document)
     {
-        return $this->wrapped->persist($document);
+        $this->wrapped->persist($document);
     }
 
     /**
@@ -423,6 +423,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
+     * {@inheritDoc}
      */
     public function clear($className = null)
     {
