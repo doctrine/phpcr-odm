@@ -46,6 +46,18 @@ various internal refactorings and compatibility improvements
                   TranslationStrategyInterface::alterQueryForTranslation from
                   SelectorInterface to SourceInterface to fix queries with joins
 
+1.2.5
+-----
+
+Fixed CVE-2015-5723 in the Proxy Generator
+
+* **2015-09-01**: resolved a security vulnerability related to Proxy generation in ODM.
+                  Doctrine Common and ORM are also affected, so users are encouraged to
+                  update all libraries and dependencies. The vulnerability has been assigned
+                  [CVE-2015-5723](http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5723)
+                  and additional information on the issue may be found in
+                  [this blog post](http://www.doctrine-project.org/2015/08/31/security_misconfiguration_vulnerability_in_various_doctrine_projects.html).
+
 1.2.0
 -----
 
