@@ -307,6 +307,13 @@ class ClassMetadata implements ClassMetadataInterface
     public $referenceable = false;
 
     /**
+     * READ-ONLY: If true, consider this document's node type to be unique among all mappings.
+     *
+     * @var bool
+     */
+    public $uniqueNodeType = false;
+
+    /**
      * READ-ONLY: Strategy key to find field translations.
      * This is the key used for DocumentManagerInterface::getTranslationStrategy
      *
@@ -609,6 +616,24 @@ class ClassMetadata implements ClassMetadataInterface
             throw new MappingException('Can not overwrite referenceable attribute to false in child class');
         }
         $this->referenceable = $referenceable;
+    }
+
+    /**
+     * @param bool $uniqueNodeType
+     */
+    public function setUniqueNodeType($uniqueNodeType)
+    {
+        $this->uniqueNodeType = $uniqueNodeType;
+    }
+
+    /**
+     * Return true if this document has a unique node type among all mappings.
+     *
+     * @return bool
+     */
+    public function hasUniqueNodeType()
+    {
+        return $this->uniqueNodeType;
     }
 
     /**
@@ -1479,6 +1504,10 @@ class ClassMetadata implements ClassMetadataInterface
 
         if ($this->referenceable) {
             $serialized[] = 'referenceable';
+        }
+
+        if ($this->uniqueNodeType) {
+            $serialized[] = 'uniqueNodeType';
         }
 
         if ($this->lifecycleCallbacks) {

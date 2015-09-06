@@ -453,6 +453,22 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($class->referenceable);
     }
 
+    public function testLoadUniqueNodeTypeMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\UniqueNodeTypeMappingObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadUniqueNodeTypeMapping
+     * @param ClassMetadata $class
+     */
+    public function testUniqueNodeTypeMapping($class)
+    {
+        $this->assertTrue($class->uniqueNodeType);
+    }
+
     public function testLoadNodeTypeMapping()
     {
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeTypeMappingObject';

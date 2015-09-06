@@ -197,6 +197,13 @@ class ConverterPhpcr extends ConverterBase
             );
         }
 
+        // be explicit in what we select
+        if (empty($this->columns)) {
+            foreach (array_keys($this->sourceDocumentNodes) as $selectorName) {
+                $this->columns[] = $this->qomf->column($selectorName);
+            }
+        }
+
         // for each document source add phpcr:{class,classparents} restrictions
         foreach ($this->sourceDocumentNodes as $sourceNode) {
             $documentFqn = $this->aliasMetadata[$sourceNode->getAlias()]->getName();
@@ -262,11 +269,6 @@ class ConverterPhpcr extends ConverterBase
         $alias = $node->getAlias();
         $documentFqn = $node->getDocumentFqn();
 
-        // make sure we add the phpcr:{class,classparents} constraints
-        // From is dispatched first, so these will always be the primary
-        // constraints.
-        $this->sourceDocumentNodes[$alias] = $node;
-
         // cache the metadata for this document
         /** @var $meta ClassMetadata */
         $meta = $this->mdf->getMetadataFor($documentFqn);
@@ -282,6 +284,13 @@ class ConverterPhpcr extends ConverterBase
             $this->translator[$alias] = $this->dm->getTranslationStrategy($meta->translator);
         }
         $nodeType = $meta->getNodeType();
+
+        // make sure we add the phpcr:{class,classparents} constraints
+        // unless the document has a unique type; From is dispatched first,
+        // so these will always be the primary constraints.
+        if (!$meta->hasUniqueNodeType()) {
+            $this->sourceDocumentNodes[$alias] = $node;
+        }
 
         // get the PHPCR Alias
         $alias = $this->qomf->selector(

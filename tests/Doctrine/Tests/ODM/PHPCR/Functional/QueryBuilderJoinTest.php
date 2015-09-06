@@ -8,6 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsAddress;
+use Doctrine\Tests\Models\CMS\CmsProfile;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAuditItem;
 
@@ -22,6 +23,9 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $transport = $this->dm->getPhpcrSession()->getTransport();
 
         $this->resetFunctionalNode($this->dm);
+
+        $ntm = $this->dm->getPhpcrSession()->getWorkspace()->getNodeTypeManager();
+        $ntm->registerNodeTypesCnd('[phpcr:cms_profile] > nt:unstructured', true);
 
         $address1 = new CmsAddress;
         $address1->country = 'France';
@@ -39,6 +43,11 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $user->username = 'dantleech';
         $user->address = $address1;
         $this->dm->persist($user);
+
+        $profile = new CmsProfile();
+        $profile->setData('testdata');
+        $user->addProfile($profile);
+        $this->dm->persist($profile);
 
         $user = new CmsUser;
         $user->username = 'winstonsmith';
@@ -196,6 +205,35 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
                 $path = $phpcrRow->getPath($selector);
                 $this->assertEquals($expectedPath, $path, 'PHPCR Result OK: '.print_r($expectedPaths[$i], true));
             }
+        }
+    }
+
+    /**
+     * Verify that using an outer join on a document that is uniquely typed
+     * results in the full expected result set.
+     */
+    public function testUniqueNodeTypeOuterJoin()
+    {
+        $qb = $this->dm->createQueryBuilder()
+            ->fromDocument('Doctrine\Tests\Models\CMS\CmsUser', 'u')
+            ->addJoinLeftOuter()
+                ->right()->document('Doctrine\Tests\Models\CMS\CmsProfile', 'p')->end()
+                ->condition()->equi('u.profiles', 'p.uuid')
+            ->end()->end()
+            ->where()->orX()
+                ->eq()->field('u.username')->literal('winstonsmith')->end()
+                ->eq()->field('p.data')->literal('testdata')->end()
+            ->end()->end()
+            ->orderBy()->asc()->field('u.username')->end()->end();
+
+        $q = $qb->getQuery();
+        $phpcrQuery = $q->getPhpcrQuery();
+        $phpcrRes = $phpcrQuery->execute();
+        $phpcrRows = $phpcrRes->getRows();
+
+        $this->assertCount(2, $phpcrRows);
+        foreach ($phpcrRows as $key => $row) {
+            $this->assertEquals($key == 0 ? '/functional/dantleech' : '/functional/winstonsmith', $row->getPath('u'));
         }
     }
 }

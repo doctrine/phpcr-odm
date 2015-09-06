@@ -81,6 +81,10 @@ class YamlDriver extends FileDriver
             $class->setReferenceable($element['referenceable']);
         }
 
+        if (isset($element['uniqueNodeType']) && $element['uniqueNodeType']) {
+            $class->setUniqueNodeType($element['uniqueNodeType']);
+        }
+
         if (isset($element['mixins'])) {
             $mixins = array();
             foreach ($element['mixins'] as $mixin) {
