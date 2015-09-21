@@ -1441,7 +1441,7 @@ class UnitOfWork
      * @param ClassMetadata $class
      * @param object        $document
      */
-    public function computeChangeSet(ClassMetadata $class, $document)
+    public function computeChangeSet(ClassMetadata $class, $document, $fieldsOnly = false)
     {
         if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
@@ -1467,7 +1467,7 @@ class UnitOfWork
             }
         }
 
-        if ($class->parentMapping && isset($changeSet[$class->parentMapping])) {
+        if (!$fieldsOnly && $class->parentMapping && isset($changeSet[$class->parentMapping])) {
             $parent = $changeSet[$class->parentMapping];
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
@@ -1477,90 +1477,92 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->childMappings as $fieldName) {
-            if ($changeSet[$fieldName]) {
-                if (is_array($changeSet[$fieldName]) || $changeSet[$fieldName] instanceof Collection) {
-                    throw PHPCRException::childFieldIsArray(
-                        self::objToStr($document, $this->dm),
-                        $fieldName
-                    );
+        if (!$fieldsOnly) {
+            foreach ($class->childMappings as $fieldName) {
+                if ($changeSet[$fieldName]) {
+                    if (is_array($changeSet[$fieldName]) || $changeSet[$fieldName] instanceof Collection) {
+                        throw PHPCRException::childFieldIsArray(
+                            self::objToStr($document, $this->dm),
+                            $fieldName
+                        );
+                    }
+
+                    if (!is_object($changeSet[$fieldName])) {
+                        throw PHPCRException::childFieldNoObject(
+                            self::objToStr($document, $this->dm),
+                            $fieldName,
+                            gettype($changeSet[$fieldName])
+                        );
+                    }
+
+                    $mapping = $class->mappings[$fieldName];
+                    $changeSet[$fieldName] = $this->computeChildChanges($mapping, $changeSet[$fieldName], $id, $mapping['nodeName']);
                 }
-
-                if (!is_object($changeSet[$fieldName])) {
-                    throw PHPCRException::childFieldNoObject(
-                        self::objToStr($document, $this->dm),
-                        $fieldName,
-                        gettype($changeSet[$fieldName])
-                    );
-                }
-
-                $mapping = $class->mappings[$fieldName];
-                $changeSet[$fieldName] = $this->computeChildChanges($mapping, $changeSet[$fieldName], $id, $mapping['nodeName']);
-            }
-        }
-
-        $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'reference');
-        $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'referrer');
-
-        foreach ($class->mixedReferrersMappings as $fieldName) {
-            if ($changeSet[$fieldName]
-                && $changeSet[$fieldName] instanceof PersistentCollection
-                && $changeSet[$fieldName]->isDirty()
-            ) {
-                throw new PHPCRException("The immutable mixed referrer collection in field $fieldName is dirty");
-            }
-        }
-
-        $this->computeChildrenChanges($document, $class, $oid, $isNew, $changeSet);
-
-        if (!$isNew) {
-            // collect assignment move operations
-            $destPath = $destName = false;
-
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($changeSet[$class->parentMapping])
-                && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
-            ) {
-                $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
             }
 
-            if (isset($this->originalData[$oid][$class->nodename])
-                && isset($changeSet[$class->nodename])
-                && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
-            ) {
-                $destName = $changeSet[$class->nodename];
+            $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'reference');
+            $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'referrer');
+
+            foreach ($class->mixedReferrersMappings as $fieldName) {
+                if ($changeSet[$fieldName]
+                    && $changeSet[$fieldName] instanceof PersistentCollection
+                    && $changeSet[$fieldName]->isDirty()
+                ) {
+                    throw new PHPCRException("The immutable mixed referrer collection in field $fieldName is dirty");
+                }
             }
 
-            // there was assignment move
-            if ($destPath || $destName) {
-                // add the other field if only one was changed
-                if (false === $destPath) {
-                    $destPath = isset($changeSet[$class->parentMapping])
-                        ? $this->getDocumentId($changeSet[$class->parentMapping])
-                        : PathHelper::getParentPath($this->getDocumentId($document));
-                }
-                if (false === $destName) {
-                    $destName = $class->nodename !== null && $changeSet[$class->nodename]
-                        ? $changeSet[$class->nodename]
-                        : PathHelper::getNodeName($this->getDocumentId($document));
-                }
+            $this->computeChildrenChanges($document, $class, $oid, $isNew, $changeSet);
 
-                // make sure destination nodename is okay
-                if ($exception = $class->isValidNodename($destName)) {
-                    throw IdException::illegalName($document, $class->nodename, $destName);
+            if (!$isNew) {
+                // collect assignment move operations
+                $destPath = $destName = false;
+
+                if (isset($this->originalData[$oid][$class->parentMapping])
+                    && isset($changeSet[$class->parentMapping])
+                    && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
+                ) {
+                    $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
                 }
 
-                // prevent path from becoming "//foobar" when moving to root node.
-                $targetPath = ('/' == $destPath) ? "/$destName" : "$destPath/$destName";
+                if (isset($this->originalData[$oid][$class->nodename])
+                    && isset($changeSet[$class->nodename])
+                    && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
+                ) {
+                    $destName = $changeSet[$class->nodename];
+                }
 
-                $this->scheduleMove($document, $targetPath);
-            }
+                // there was assignment move
+                if ($destPath || $destName) {
+                    // add the other field if only one was changed
+                    if (false === $destPath) {
+                        $destPath = isset($changeSet[$class->parentMapping])
+                            ? $this->getDocumentId($changeSet[$class->parentMapping])
+                            : PathHelper::getParentPath($this->getDocumentId($document));
+                    }
+                    if (false === $destName) {
+                        $destName = $class->nodename !== null && $changeSet[$class->nodename]
+                            ? $changeSet[$class->nodename]
+                            : PathHelper::getNodeName($this->getDocumentId($document));
+                    }
 
-            if (isset($this->originalData[$oid][$class->identifier])
-                && isset($changeSet[$class->identifier])
-                && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
-            ) {
-                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+                    // make sure destination nodename is okay
+                    if ($exception = $class->isValidNodename($destName)) {
+                        throw IdException::illegalName($document, $class->nodename, $destName);
+                    }
+
+                    // prevent path from becoming "//foobar" when moving to root node.
+                    $targetPath = ('/' == $destPath) ? "/$destName" : "$destPath/$destName";
+
+                    $this->scheduleMove($document, $targetPath);
+                }
+
+                if (isset($this->originalData[$oid][$class->identifier])
+                    && isset($changeSet[$class->identifier])
+                    && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
+                ) {
+                    throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+                }
             }
         }
 
@@ -2479,7 +2481,7 @@ class UnitOfWork
                         $invoke
                     );
                     $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
-                    $this->computeChangeSet($class, $document);
+                    $this->computeChangeSet($class, $document, true);
                 }
             }
 
