@@ -160,4 +160,3 @@ class RCTChild
     /** @PHPCRODM\Field(type="string") */
     public $title;
 }
-
