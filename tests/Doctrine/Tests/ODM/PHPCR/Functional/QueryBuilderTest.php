@@ -399,7 +399,21 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException 
+     * @depends testFrom
+     */
+    public function testSameEmpty()
+    {
+        $qb = $this->createQb();
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()->same('', 'a');
+        $q = $qb->getQuery();
+        $res = $q->execute();
+
+        $this->assertCount(0, $res);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Alias name "a" is not known
      */
     public function testConditionWithNonExistingAlias()
