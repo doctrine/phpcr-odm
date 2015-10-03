@@ -87,18 +87,20 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent = new ParentDoc();
         $parent->id = $parentId;
 
-
         $doc = new DocWithoutId();
         $doc->parent = $parent;
         $doc->nodename = 'foo';
-
         $this->dm->persist($doc);
 
         $this->dm->flush();
         $this->dm->clear();
 
         $parent = $this->dm->find(null, $parentId);
-        $this->assertInstanceOf('\stdClass', $parent->children[0]);
+        $doc = $parent->children->current();
+        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc);
+        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\DocWithoutId', $doc);
+        $this->assertEquals('foo', $doc->nodename);
+        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\ParentDoc', $doc->parent);
     }
 }
 

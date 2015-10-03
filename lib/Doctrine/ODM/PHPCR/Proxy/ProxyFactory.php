@@ -93,12 +93,20 @@ class ProxyFactory extends AbstractProxyFactory
     {
         $classMetadata = $this->documentManager->getClassMetadata($className);
 
+        if ($classMetadata->identifier) {
+            $identifierFields = array($classMetadata->identifier);
+            $reflectionId = $classMetadata->reflFields[$classMetadata->identifier];
+        } else {
+            $identifierFields = array();
+            $reflectionId = null;
+        }
+
         return new ProxyDefinition(
             ClassUtils::generateProxyClassName($classMetadata->getName(), $this->proxyNamespace),
-            array($classMetadata->identifier),
+            $identifierFields,
             $classMetadata->reflFields,
             $this->createInitializer($classMetadata),
-            $this->createCloner($classMetadata, $classMetadata->reflFields[$classMetadata->identifier])
+            $this->createCloner($classMetadata, $reflectionId)
         );
     }
 
@@ -168,7 +176,7 @@ class ProxyFactory extends AbstractProxyFactory
      *
      * @throws \Doctrine\Common\Proxy\Exception\UnexpectedValueException
      */
-    private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId)
+    private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
     {
         $className       = $classMetadata->getName();
         $documentManager = $this->documentManager;
@@ -180,6 +188,10 @@ class ProxyFactory extends AbstractProxyFactory
 
             $cloned->__setInitialized(true);
             $cloned->__setInitializer(null);
+
+            if (!$reflectionId) {
+                return;
+            }
 
             $original = $documentManager->find($className, $reflectionId->getValue($cloned));
 
