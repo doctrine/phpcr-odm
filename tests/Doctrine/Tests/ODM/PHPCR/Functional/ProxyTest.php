@@ -77,4 +77,48 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertSame($assistant, $user->child);
     }
+
+    public function testChildWithoutId()
+    {
+        $node = $this->resetFunctionalNode($this->dm);
+        $parentId = $node->getPath().'/parent';
+
+        $parent = new ParentDoc();
+        $parent->id = $parentId;
+
+
+        $doc = new DocWithoutId();
+        $doc->parent = $parent;
+        $doc->nodename = 'foo';
+
+        $this->dm->persist($doc);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, $parentId);
+        $this->assertInstanceOf('\stdClass', $parent->children[0]);
+    }
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class ParentDoc
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\Children(cascade="persist") */
+    public $children;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class DocWithoutId
+{
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+    /** @PHPCRODM\Nodename */
+    public $nodename;
 }
