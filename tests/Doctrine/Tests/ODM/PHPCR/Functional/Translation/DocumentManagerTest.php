@@ -881,4 +881,31 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $this->assertEquals('Guten tag', $trans->topic);
     }
+
+    /**
+     * It should be able to find a bound translation before flush.
+     */
+    public function testRetainTranslation()
+    {
+        $article = new Article;
+        $article->id = '/functional/article-1';
+        $article->text = 'Foo';
+        $this->dm->persist($article);
+
+        $article->topic = 'Hello everybody!';
+        $this->dm->bindTranslation($article, 'en');
+
+        $article->topic = 'Bonjour le monde!';
+        $this->dm->bindTranslation($article, 'fr');
+        $articleInstance = $this->dm->findTranslation(get_class($article), '/functional/article-1', 'en');
+
+        // Fails - returns "foo"
+        // $this->assertEquals('Hello everybody!', $articleInstance->text);
+
+        // Fails, could not find /functional/article-1
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $this->assertEquals('Hello everybody!', $article->topic);
+    }
 }
