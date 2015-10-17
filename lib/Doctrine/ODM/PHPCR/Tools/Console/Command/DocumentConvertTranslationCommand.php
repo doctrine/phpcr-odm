@@ -109,6 +109,8 @@ HERE
         }
 
         $output->writeln('done');
+
+        return 0;
     }
 
     /**
