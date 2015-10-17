@@ -48,7 +48,7 @@ class TranslationConverter
     }
 
     /**
-     * Migrate content into the new translation form and remove the old properties.
+     * Migrate content into the new translation format and remove the old properties.
      *
      * This does not commit the changes to the repository. Call save on the
      * PHPCR session *after each batch*. Calling flush on the document manager
@@ -64,11 +64,20 @@ class TranslationConverter
      * To convert a single field from translated to non-translated, simply
      * specify that field.
      *
+     * If you convert an existing translation, you need to specify the name of
+     * the strategy that was previously used. The name is the one you would use
+     * for DocumentManagerInterface::getTranslationStrategy, so "attribute" or
+     * "child".
+     *
+     * The current strategy is read from the document metadata. If you need,
+     * you can however specify the strategy explicitly.
+     *
      * @param string       $class                FQN of the document class
-     * @param string|null  $previousStrategyName Name of previous strategy or null if field was not
-     *                                           previously translated
      * @param array        $fields               List of fields to convert. Required when making a
      *                                           field not translated anymore
+     * @param string|null  $previousStrategyName Name of previous strategy or null if field was not
+     *                                           previously translated
+     * @param string|null  $currentStrategyName  Name of current strategy or null to auto discover
      *
      * @return boolean true if there are more documents to convert and this method needs to be
      *                      called again.
@@ -77,12 +86,15 @@ class TranslationConverter
      */
     public function convert(
         $class,
+        array $fields = array(),
         $previousStrategyName = null,
-        array $fields = array()
+        $currentStrategyName = null
     ) {
         /** @var ClassMetadata $currentMeta */
         $currentMeta = $this->dm->getClassMetadata($class);
-        $currentStrategyName = $currentMeta->translator;
+        if (!$currentStrategyName) {
+            $currentStrategyName = $currentMeta->translator;
+        }
 
         // sanity check strategies
         if ($currentStrategyName === $previousStrategyName) {
