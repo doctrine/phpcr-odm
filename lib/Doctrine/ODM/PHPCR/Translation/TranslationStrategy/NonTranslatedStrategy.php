@@ -39,6 +39,11 @@ use PHPCR\Query\QOM\SourceInterface;
 class NonTranslatedStrategy implements TranslationStrategyInterface
 {
     /**
+     * Identifier of this strategy
+     */
+    const NAME = 'none';
+
+    /**
      * @var DocumentManagerInterface
      */
     private $dm;

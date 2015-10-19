@@ -69,15 +69,13 @@ class TranslationConverter
      * for DocumentManagerInterface::getTranslationStrategy, so "attribute" or
      * "child".
      *
-     * The current strategy is read from the document metadata. If you need,
-     * you can however specify the strategy explicitly.
+     * The current strategy is read from the document metadata.
      *
-     * @param string       $class                FQN of the document class
-     * @param array        $fields               List of fields to convert. Required when making a
-     *                                           field not translated anymore
-     * @param string|null  $previousStrategyName Name of previous strategy or null if field was not
-     *                                           previously translated
-     * @param string|null  $currentStrategyName  Name of current strategy or null to auto discover
+     * @param string $class                FQN of the document class
+     * @param array  $fields               List of fields to convert. Required when making a
+     *                                     field not translated anymore
+     * @param string $previousStrategyName Name of previous strategy or "none" if field was not
+     *                                     previously translated
      *
      * @return boolean true if there are more documents to convert and this method needs to be
      *                      called again.
@@ -87,22 +85,19 @@ class TranslationConverter
     public function convert(
         $class,
         array $fields = array(),
-        $previousStrategyName = null,
-        $currentStrategyName = null
+        $previousStrategyName = NonTranslatedStrategy::NAME
     ) {
         /** @var ClassMetadata $currentMeta */
         $currentMeta = $this->dm->getClassMetadata($class);
-        if (!$currentStrategyName) {
-            $currentStrategyName = $currentMeta->translator;
-        }
+        $currentStrategyName = $currentMeta->translator ?: NonTranslatedStrategy::NAME;
 
         // sanity check strategies
         if ($currentStrategyName === $previousStrategyName) {
             $message = 'Previous and current strategy are the same.';
-            if ($currentStrategyName) {
-                $message .= sprintf(' Document is currently at %s', $currentStrategyName);
-            } else {
+            if (NonTranslatedStrategy::NAME === $currentStrategyName) {
                 $message .= ' To untranslate a document, you need to specify the previous translation strategy';
+            } else {
+                $message .= sprintf(' Document is currently at %s', $currentStrategyName);
             }
             throw new InvalidArgumentException($message);
         }
@@ -119,34 +114,34 @@ class TranslationConverter
             $translated = $current;
         }
         $partialUntranslate = false;
-        if (false === $translated && $currentStrategyName) {
+        if (false === $translated && NonTranslatedStrategy::NAME !== $currentStrategyName) {
             // special case, convert fields back to untranslated
             $partialUntranslate = true;
             $previousStrategyName = $currentStrategyName;
-            $currentStrategyName = null;
+            $currentStrategyName = NonTranslatedStrategy::NAME;
             $currentMeta->translator = null;
         }
 
-        $currentStrategy = $currentStrategyName
-            ? $this->dm->getTranslationStrategy($currentMeta->translator)
-            : new NonTranslatedStrategy($this->dm);
+        $currentStrategy = NonTranslatedStrategy::NAME === $currentStrategyName
+            ? new NonTranslatedStrategy($this->dm)
+            : $this->dm->getTranslationStrategy($currentMeta->translator);
 
-        if ($previousStrategyName) {
-            $previousStrategy = $this->dm->getTranslationStrategy($previousStrategyName);
-        } else {
+        if (NonTranslatedStrategy::NAME === $previousStrategyName) {
             $previousStrategy = new NonTranslatedStrategy($this->dm);
+        } else {
+            $previousStrategy = $this->dm->getTranslationStrategy($previousStrategyName);
         }
 
         if (!$fields) {
-            if (!$currentStrategyName) {
+            if (NonTranslatedStrategy::NAME === $currentStrategyName) {
                 throw new InvalidArgumentException('To untranslate a document, you need to specify the fields that where previously translated');
             }
             $fields = $currentMeta->translatableFields;
         }
 
         // trick query into using the previous strategy
-        $currentMeta->translator = $previousStrategyName;
-        if (!$currentStrategyName) {
+        $currentMeta->translator = NonTranslatedStrategy::NAME === $previousStrategyName ? null : $previousStrategyName;
+        if (NonTranslatedStrategy::NAME === $currentStrategyName) {
             $currentMeta->translatableFields = $fields;
             foreach ($fields as $field) {
                 $currentMeta->mappings[$field]['translated'] = true;
@@ -163,8 +158,8 @@ class TranslationConverter
         $documents = $qb->getQuery()->execute();
 
         // restore meta data to the real thing
-        $currentMeta->translator = $currentStrategyName;
-        if (!$currentStrategyName) {
+        $currentMeta->translator = NonTranslatedStrategy::NAME === $currentStrategyName ? null : $currentStrategyName;
+        if (NonTranslatedStrategy::NAME === $currentStrategyName) {
             $currentMeta->translatableFields = array();
             foreach ($fields as $field) {
                 unset($currentMeta->mappings[$field]['translated']);
@@ -173,7 +168,7 @@ class TranslationConverter
 
         // fake metadata for previous
         $previousMeta = clone $currentMeta;
-        $previousMeta->translator = $previousStrategyName;
+        $previousMeta->translator = NonTranslatedStrategy::NAME === $previousStrategyName ? null : $previousStrategyName;
         // even when previously not translated, we use translatableFields for the NonTranslatedStrategy
         $previousMeta->translatableFields = $fields;
 

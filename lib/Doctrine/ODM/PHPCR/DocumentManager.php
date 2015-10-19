@@ -126,8 +126,8 @@ class DocumentManager implements DocumentManagerInterface
 
         // initialize default translation strategies
         $this->translationStrategy = array(
-            'attribute' => new AttributeTranslationStrategy($this),
-            'child'     => new ChildTranslationStrategy($this),
+            AttributeTranslationStrategy::NAME => new AttributeTranslationStrategy($this),
+            ChildTranslationStrategy::NAME     => new ChildTranslationStrategy($this),
         );
     }
 

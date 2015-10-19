@@ -51,7 +51,7 @@ class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
         $this->converter
             ->expects($this->once())
             ->method('convert')
-            ->with('Document\MyClass', array(), null)
+            ->with('Document\MyClass', array(), 'none')
             ->will($this->returnValue(false))
         ;
         $this->commandTester->execute(array(

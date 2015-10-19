@@ -52,7 +52,8 @@ class DocumentConvertTranslationCommand extends Command
 
             ->addArgument('classname', InputArgument::REQUIRED, 'Class that has changed translation information')
             ->addOption('previous-strategy', 'prev', InputOption::VALUE_OPTIONAL,
-                'Name of the previous translation strategy if there was one. Omit for converting from non-translated to translated'
+                'Name of the previous translation strategy if there was one. Omit for converting from non-translated to translated',
+                'none'
             )
             ->addOption('fields', null, InputOption::VALUE_IS_ARRAY|InputOption::VALUE_OPTIONAL,
                 'The fields to convert. If not specified, all fields configured as translated will be converted.',

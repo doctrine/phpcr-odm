@@ -36,6 +36,11 @@ use PHPCR\Query\QOM\SourceInterface;
  */
 class AttributeTranslationStrategy extends AbstractTranslationStrategy
 {
+    /**
+     * Identifier of this strategy
+     */
+    const NAME = 'attribute';
+
     const NULLFIELDS = 'nullfields';
 
     /**

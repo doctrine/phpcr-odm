@@ -39,6 +39,11 @@ use PHPCR\SessionInterface;
 class ChildTranslationStrategy extends AttributeTranslationStrategy implements TranslationNodesWarmer
 {
     /**
+     * Identifier of this strategy
+     */
+    const NAME = 'child';
+
+    /**
      * {@inheritdoc}
      */
     public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
