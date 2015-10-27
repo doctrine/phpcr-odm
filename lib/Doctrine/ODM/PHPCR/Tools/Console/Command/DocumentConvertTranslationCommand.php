@@ -59,6 +59,10 @@ class DocumentConvertTranslationCommand extends Command
                 'The fields to convert. If not specified, all fields configured as translated will be converted.',
                 array()
             )
+            ->addOption('locales', null, InputOption::VALUE_IS_ARRAY|InputOption::VALUE_OPTIONAL,
+                'Locales to copy previously untranslated fields into.',
+                array()
+            )
             ->addOption('force', null, InputOption::VALUE_NONE, 'Use to bypass the confirmation dialog')
             ->setHelp(<<<HERE
 The <info>doctrine:phpcr:docment:convert-translation</info> command migrates translations
@@ -82,6 +86,7 @@ HERE
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $class = $input->getArgument('classname');
+        $locales = $input->getOption('locales');
         $force = $input->getOption('force');
         if (!$force) {
             $force = $this->askConfirmation(
@@ -104,7 +109,18 @@ HERE
         $previous = $input->getOption('previous-strategy');
         $fields = $input->getOption('fields');
 
-        while ($converter->convert($class, $fields, $previous)) {
+        while ($converter->convert($class, $locales, $fields, $previous)) {
+            $notices = $converter->getLastNotices();
+            if (count($notices)) {
+                foreach ($notices as $path => $realClass) {
+                    $output->writeln(sprintf(
+                        'Document at %s is of class %s but requested to convert %s.',
+                        $path,
+                        $realClass,
+                        $class
+                    ));
+                }
+            }
             $session->save();
             $output->write('.');
         }

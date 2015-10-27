@@ -51,11 +51,12 @@ class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
         $this->converter
             ->expects($this->once())
             ->method('convert')
-            ->with('Document\MyClass', array(), 'none')
+            ->with('Document\MyClass', array('en'), array(), 'none')
             ->will($this->returnValue(false))
         ;
         $this->commandTester->execute(array(
             'classname' => 'Document\MyClass',
+            '--locales' => array('en'),
             '--force' => true,
         ));
         $this->assertEquals("done\n", $this->commandTester->getDisplay());

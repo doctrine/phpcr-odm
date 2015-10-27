@@ -5,6 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Tools\Helper;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 use Doctrine\Tests\ODM\PHPCR\Functional\Translation\AttributeTranslationStrategyTest;
@@ -66,11 +67,11 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $comment->setProperty('phpcr:class', $class);
         $this->session->save();
 
-        $this->assertTrue($this->converter->convert($class));
+        $this->assertTrue($this->converter->convert($class, array('en')));
         $this->session->save();
-        $this->assertTrue($this->converter->convert($class));
+        $this->assertTrue($this->converter->convert($class, array('en')));
         $this->session->save();
-        $this->assertFalse($this->converter->convert($class));
+        $this->assertFalse($this->converter->convert($class, array('en')));
         $this->session->save();
 
         $this->assertTrue(
@@ -111,7 +112,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $comment->setProperty($field, 'Move to translated');
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class, array($field)));
+        $this->assertFalse($this->converter->convert($class, array('en'), array($field)));
         $this->session->save();
         $this->dm->clear();
 
@@ -155,7 +156,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $comment->setProperty($field, 'Move to translated');
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class));
+        $this->assertFalse($this->converter->convert($class, array('en')));
         $this->session->save();
         $this->dm->clear();
 
@@ -183,13 +184,15 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testTranslateChild()
     {
         $class = 'Doctrine\Tests\Models\Translation\ChildTranslationComment';
+        $parentClass = 'Doctrine\Tests\Models\Translation\Comment';
         $field = 'text';
         $comment = $this->node->addNode('convert');
         $comment->setProperty($field, 'Lorem ipsum...');
         $comment->setProperty('phpcr:class', $class);
+        $comment->setProperty('phpcr:classparents', array($parentClass));
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class));
+        $this->assertFalse($this->converter->convert($class, array('en')));
 
         $this->session->save();
 
@@ -211,6 +214,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testTranslateAttributeToChild()
     {
         $class = 'Doctrine\Tests\Models\Translation\ChildTranslationComment';
+        $parentClass = 'Doctrine\Tests\Models\Translation\Comment';
         $field = 'text';
         $comment = $this->node->addNode('convert');
         $comment->setProperty(
@@ -218,9 +222,10 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             'Lorem ipsum...'
         );
         $comment->setProperty('phpcr:class', $class);
+        $comment->setProperty('phpcr:classparents', $parentClass);
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class, array(), 'attribute'));
+        $this->assertFalse($this->converter->convert($class, array('en'), array(), AttributeTranslationStrategy::NAME));
 
         $this->session->save();
 
@@ -256,7 +261,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $comment->setProperty('phpcr:class', $class);
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class, array($field), 'attribute'));
+        $this->assertFalse($this->converter->convert($class, array('en'), array($field), 'attribute'));
 
         $this->session->save();
         $this->assertTrue(
@@ -304,7 +309,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         );
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class, array($field)));
+        $this->assertFalse($this->converter->convert($class, array('en'), array($field)));
         $this->session->save();
         $this->dm->clear();
 
@@ -319,7 +324,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             $comment->hasProperty(
                 AttributeTranslationStrategyTest::propertyNameForLocale('en', $field)
             ),
-                'old property was not removed'
+            'old property was not removed'
         );
 
         $article = $this->dm->find(null, '/functional/convert');
@@ -345,7 +350,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $translation->setProperty($field, 'Lorem ipsum...');
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class, array($field), 'child'));
+        $this->assertFalse($this->converter->convert($class, array(), array($field), 'child'));
 
         $this->session->save();
 
@@ -389,7 +394,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $node->getNode('phpcr_locale:en')->setProperty($field, 'Move to untranslated');
         $this->session->save();
 
-        $this->assertFalse($this->converter->convert($class, array($field)));
+        $this->assertFalse($this->converter->convert($class, array('en'), array($field)));
         $this->session->save();
         $this->dm->clear();
 
@@ -423,13 +428,37 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     }
 
     /**
+     * Pass parent document and check message.
+     */
+    public function testTranslateStrict()
+    {
+        $this->converter = new TranslationConverter($this->dm);
+
+        $class = 'Doctrine\Tests\Models\Translation\ChildTranslationComment';
+        $parentClass = 'Doctrine\Tests\Models\Translation\Comment';
+        $field = 'text';
+        $comment = $this->node->addNode('convert');
+        $comment->setProperty($field, 'Lorem ipsum...');
+        $comment->setProperty('phpcr:class', $class);
+        $comment->setProperty('phpcr:classparents', array($parentClass));
+        $this->session->save();
+
+        $this->assertFalse($this->converter->convert($parentClass, array('en')));
+        $notices = $this->converter->getLastNotices();
+        $this->assertCount(1, $notices);
+        $this->assertArrayHasKey('/functional/convert', $notices);
+
+        $this->assertFalse($this->session->hasPendingChanges());
+    }
+
+    /**
      * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      * @expectedExceptionMessage To untranslate a document, you need to specify the previous translation strategy
      */
     public function testUntranslateMissingPrevious()
     {
         $class = 'Doctrine\Tests\Models\Blog\Comment';
-        $this->converter->convert($class);
+        $this->converter->convert($class, array('en'));
     }
 
     /**
@@ -439,6 +468,18 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testUntranslateMissingFields()
     {
         $class = 'Doctrine\Tests\Models\Blog\Comment';
-        $this->converter->convert($class, array(), 'attribute');
+        $this->converter->convert($class, array(), array(), 'attribute');
+    }
+
+    /**
+     * Converting to translated without specifying locales.
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
+     * @expectedExceptionMessage locales must be specified
+     */
+    public function testMissingLocales()
+    {
+        $this->converter = new TranslationConverter($this->dm, 1);
+        $class = 'Doctrine\Tests\Models\Translation\Comment';
+        $this->converter->convert($class, array());
     }
 }

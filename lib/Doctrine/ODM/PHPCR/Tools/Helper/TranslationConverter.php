@@ -2,6 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Helper;
 
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 use Doctrine\ODM\PHPCR\Translation\Translation;
@@ -38,6 +39,11 @@ class TranslationConverter
     private $batchSize;
 
     /**
+     * @var array
+     */
+    private $notices = array();
+
+    /**
      * @param DocumentManagerInterface $dm
      * @param int                      $batchSize
      */
@@ -54,8 +60,9 @@ class TranslationConverter
      * PHPCR session *after each batch*. Calling flush on the document manager
      * *is not enough*.
      *
-     * When un-translating, the current locale and language fallback is used.
-     * When translating, the new properties are copied into all languages.
+     * When translating, the new properties are copied into the languages
+     * specified in $locales. When un-translating, the current locale and
+     * language fallback is used, and $locales is ignored.
      *
      * To convert all fields into a translation, you can pass an empty array
      * for $fields and the information is read from the metadata. The fields
@@ -71,7 +78,14 @@ class TranslationConverter
      *
      * The current strategy is read from the document metadata.
      *
+     * Only documents that match $class exactly are converted, but not
+     * descendants. You can query whether there where documents encountered
+     * that could not be converted by calling getLastNotices() after each call
+     * to convert().
+     *
      * @param string $class                FQN of the document class
+     * @param array  $locales              Locales to copy previously untranslated fields into.
+     *                                     Ignored when untranslating a document.
      * @param array  $fields               List of fields to convert. Required when making a
      *                                     field not translated anymore
      * @param string $previousStrategyName Name of previous strategy or "none" if field was not
@@ -81,9 +95,12 @@ class TranslationConverter
      *                      called again.
      *
      * @throws PHPCRExceptionInterface if the document can not be found.
+     *
+     * @see getLastNotices()
      */
     public function convert(
         $class,
+        $locales,
         array $fields = array(),
         $previousStrategyName = NonTranslatedStrategy::NAME
     ) {
@@ -101,7 +118,11 @@ class TranslationConverter
             }
             throw new InvalidArgumentException($message);
         }
+        if (!count($locales) && NonTranslatedStrategy::NAME !== $currentStrategyName) {
+            throw new InvalidArgumentException('When converting to translated content, the locales must be specified.');
+        }
 
+        $this->notices = array();
         $translated = null;
         foreach ($fields as $field) {
             $current = !empty($currentMeta->mappings[$field]['translated']);
@@ -141,6 +162,7 @@ class TranslationConverter
 
         // trick query into using the previous strategy
         $currentMeta->translator = NonTranslatedStrategy::NAME === $previousStrategyName ? null : $previousStrategyName;
+
         if (NonTranslatedStrategy::NAME === $currentStrategyName) {
             $currentMeta->translatableFields = $fields;
             foreach ($fields as $field) {
@@ -173,6 +195,12 @@ class TranslationConverter
         $previousMeta->translatableFields = $fields;
 
         foreach ($documents as $document) {
+            if (ClassUtils::getClass($document) !== $class) {
+                $path = $this->dm->getUnitOfWork()->getDocumentId($document);
+                $this->notices[$path] = ClassUtils::getClass($document);
+
+                continue;
+            }
             $this->convertDocument(
                 $document,
                 $previousStrategy,
@@ -180,11 +208,23 @@ class TranslationConverter
                 $currentStrategy,
                 $currentMeta,
                 $fields,
+                $locales,
                 $partialUntranslate
             );
         }
 
         return count($documents) === $this->batchSize;
+    }
+
+    /**
+     * Get list of child documents that had to be skipped because their class
+     * was not an exact match with the class being converted.
+     *
+     * @return array Map of path => class
+     */
+    public function getLastNotices()
+    {
+        return $this->notices;
     }
 
     /**
@@ -194,6 +234,7 @@ class TranslationConverter
      * @param TranslationStrategyInterface $currentStrategy    Translation strategy to save new translations
      * @param ClassMetadata                $currentMeta        Metadata for new translation strategy
      * @param array                        $fields             The fields to handle
+     * @param array                        $locales            Target locales to copy translations to.
      * @param bool                         $partialUntranslate Whether we are only a subset of fields back to untranslated
      */
     private function convertDocument(
@@ -203,6 +244,7 @@ class TranslationConverter
         TranslationStrategyInterface $currentStrategy,
         ClassMetadata $currentMeta,
         array $fields,
+        array $locales,
         $partialUntranslate
     ) {
         $node = $this->dm->getNodeForDocument($document);
@@ -215,7 +257,7 @@ class TranslationConverter
         if ($currentStrategy instanceof NonTranslatedStrategy) {
             $currentStrategy->saveTranslation($data, $node, $currentMeta, null);
         } else {
-            foreach ($this->dm->getLocaleChooserStrategy()->getDefaultLocalesOrder() as $locale) {
+            foreach ($locales as $locale) {
                 $currentStrategy->saveTranslation($data, $node, $currentMeta, $locale);
             }
         }
