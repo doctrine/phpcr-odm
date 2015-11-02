@@ -72,6 +72,7 @@ $cli->addCommands(array(
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\GenerateProxiesCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\InfoDoctrineCommand(),
+    new \Doctrine\ODM\PHPCR\Tools\Console\Command\VerifyUniqueNodeTypesMappingCommand(),
     new \Doctrine\ODM\PHPCR\Tools\Console\Command\RegisterSystemNodeTypesCommand(),
 ));
 if (isset($extraCommands) && ! empty($extraCommands)) {
