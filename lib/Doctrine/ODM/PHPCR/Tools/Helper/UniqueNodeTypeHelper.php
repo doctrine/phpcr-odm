@@ -57,14 +57,12 @@ class UniqueNodeTypeHelper
             $knownNodeTypes[$classMetadata->getNodeType()] = $classMetadata->name;
 
             if (!is_null($output)) {
-
                 $output->writeln(sprintf(
                     'The document <info>%s</info> uses %snode type <info>%s</info>',
                     $classMetadata->name,
                     $classMetadata->hasUniqueNodeType() ? '<comment>uniquely mapped</comment> ' : '',
                     $classMetadata->getNodeType()
                 ));
-
             }
         }
     }
