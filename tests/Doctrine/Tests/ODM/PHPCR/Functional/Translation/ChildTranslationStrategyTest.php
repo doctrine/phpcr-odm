@@ -352,8 +352,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
     public function testQueryBuilder()
     {
-        $strategy = new ChildTranslationStrategy($this->dm);
-        $this->dm->setTranslationStrategy('children', $strategy);
+        $strategy = $this->dm->getTranslationStrategy('child');
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
 
         // First save some translations

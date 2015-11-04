@@ -36,6 +36,11 @@ use PHPCR\Query\QOM\SourceInterface;
  */
 class AttributeTranslationStrategy extends AbstractTranslationStrategy
 {
+    /**
+     * Identifier of this strategy
+     */
+    const NAME = 'attribute';
+
     const NULLFIELDS = 'nullfields';
 
     /**
@@ -163,7 +168,14 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata)
     {
-        // Do nothing: if the node is removed then all it's translated properties will be removed
+        foreach ($this->getLocalesFor($document, $node, $metadata) as $locale) {
+            foreach ($metadata->translatableFields as $field) {
+                $node->setProperty(
+                    $this->getTranslatedPropertyName($locale, $metadata->mappings[$field]['property']),
+                    null
+                );
+            }
+        }
     }
 
     /**

@@ -160,8 +160,6 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $res);
     }
 
-    /**
-     */
     public function testComposite()
     {
         $qb = $this->createQb();
@@ -176,10 +174,10 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((a.username = 'dtl' OR a.username = 'js') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((a.[username] = 'dtl' OR a.[username] = 'js') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
                 break;
             case 'sql':
-                $query = "SELECT s FROM nt:unstructured AS a WHERE (a.username = 'dtl' OR a,username = 'js')";
+                $query = "SELECT s FROM nt:unstructured AS a WHERE (a.[username] = 'dtl' OR a.[username] = 'js')";
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -193,7 +191,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] AS a WHERE (((a.username = 'dtl' OR a.username = 'js') AND a.name = 'foobar') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE (((a.[username] = 'dtl' OR a.[username] = 'js') AND a.[name] = 'foobar') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
@@ -212,7 +210,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
-                $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((((a.username = 'dtl' OR a.username = 'js') AND a.name = 'foobar') OR a.name = 'johnsmith') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
+                $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((((a.[username] = 'dtl' OR a.[username] = 'js') AND a.[name] = 'foobar') OR a.[name] = 'johnsmith') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
@@ -399,7 +397,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException 
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Alias name "a" is not known
      */
     public function testConditionWithNonExistingAlias()

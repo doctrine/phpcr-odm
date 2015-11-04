@@ -6,7 +6,12 @@ Changelog
 
 fix CVE-2015-5723 in the Proxy Generator
 
-* **2015-08-27** **BC break** Missing parameter in `DocumentManagerInterface::getDocumentsByPhpcrQuery`
+* **2015-10-09**: Added a `TranslationConverter` helper to change the 
+                  translation state of a field. It can change a field from 
+                  non-translated to a translation strategy, from one strategy 
+                  to another or return a translated  field to non-translated.
+                  Also offering the command `doctrine:phpcr:document:convert-translation`
+* **2015-08-27**: **BC break** Missing parameter in `DocumentManagerInterface::getDocumentsByPhpcrQuery`
                  added. If you have your own implementation that is not based
                  on DocumentManagerDecorator, you will need to adjust that method.
 
