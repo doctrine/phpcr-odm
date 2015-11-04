@@ -925,46 +925,4 @@ class DocumentManager implements DocumentManagerInterface
 
         return $this->session->getNode($path);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function transactional($callback)
-    {
-        if (! is_callable($callback)) {
-            throw new InvalidArgumentException(sprintf(
-                'Parameter $callback must be a valid callable, "%s" given',
-                gettype($callback)
-            ));
-        }
-
-        $transactionManager = null;
-
-        try {
-            $transactionManager = $this->session->getWorkspace()->getTransactionManager();
-        } catch (UnsupportedRepositoryOperationException $e) {
-            $result = call_user_func($callback, $this);
-
-            $this->flush();
-
-            return $result;
-        }
-
-        $transactionManager->begin();
-
-        try {
-            $result = call_user_func($callback, $this);
-
-            $this->flush();
-        } catch (\Exception $exception) {
-            $this->close();
-            $transactionManager->rollback();
-
-            throw $exception;
-        }
-
-        $transactionManager->commit();
-
-        return $result;
-    }
 }
