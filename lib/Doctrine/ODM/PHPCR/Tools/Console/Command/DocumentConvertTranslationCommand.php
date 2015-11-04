@@ -29,6 +29,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
+ * Convert translated fields of a document class from an old translation format or untranslated.
+ *
  * @author David Buchmann <mail@davidbu.ch>
  */
 class DocumentConvertTranslationCommand extends Command
@@ -65,7 +67,7 @@ class DocumentConvertTranslationCommand extends Command
             )
             ->addOption('force', null, InputOption::VALUE_NONE, 'Use to bypass the confirmation dialog')
             ->setHelp(<<<HERE
-The <info>doctrine:phpcr:docment:convert-translation</info> command migrates translations
+The <info>doctrine:phpcr:document:convert-translation</info> command migrates translations
 from a previous format to the current mapping.
 
   <info>$ php ./app/console/phpcr doctrine:phpcr:document:convert-translation "Document\\ClassName"</info>
