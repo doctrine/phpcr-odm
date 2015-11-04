@@ -525,23 +525,4 @@ interface DocumentManagerInterface extends ObjectManager
      * @throws PHPCRException                if $document is not managed
      */
     public function getNodeForDocument($document);
-
-    /**
-     * Executes a given callback in a transaction.
-     *
-     * The function gets passed this DocumentManager instance as a parameter.
-     *
-     * {@link flush} is invoked prior to transaction commit.
-     *
-     * If an exception occurs during execution of the function or flushing or transaction commit,
-     * the transaction is rolled back, the DocumentManager closed and the exception re-thrown.
-     *
-     * @param callable $callback The callback to be executed execute transactionally.
-     *
-     * @return mixed the return value of the callback execution
-     *
-     * @throws \Exception
-     * @throws InvalidArgumentException when an invalid callback is provided
-     */
-    public function transactional($callback);
 }
