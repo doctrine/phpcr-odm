@@ -41,6 +41,8 @@ class InfoDoctrineCommand extends Command
 The <info>%command.name%</info> shows basic information about which
 documents exist and possibly if their mapping information contains errors or
 not.
+
+<info>php app/console doctrine:phpcr:mapping:info</info>
 EOT
         );
     }
