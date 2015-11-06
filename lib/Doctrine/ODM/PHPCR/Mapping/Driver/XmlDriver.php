@@ -79,6 +79,10 @@ class XmlDriver extends FileDriver
             $class->setReferenceable((bool) $xmlRoot['referenceable']);
         }
 
+        if (isset($xmlRoot['uniqueNodeType']) && $xmlRoot['uniqueNodeType'] !== 'false') {
+            $class->setUniqueNodeType((bool) $xmlRoot['uniqueNodeType']);
+        }
+
         if (isset($xmlRoot->mixins)) {
             $mixins = array();
             foreach ($xmlRoot->mixins->mixin as $mixin) {

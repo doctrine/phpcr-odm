@@ -61,4 +61,9 @@ class Document
      * @var boolean
      */
     public $referenceable;
+
+    /**
+     * @var boolean
+     */
+    public $uniqueNodeType;
 }

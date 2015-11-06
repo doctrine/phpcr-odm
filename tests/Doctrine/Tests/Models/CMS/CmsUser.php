@@ -28,6 +28,8 @@ class CmsUser
     public $articles;
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
     public $groups;
+    /** @PHPCRODM\ReferenceMany(targetDocument="CmsProfile") */
+    public $profiles;
     /** @PHPCRODM\Children() */
     public $children;
     /** @PHPCRODM\Child(nodeName="assistant", cascade="persist") */
@@ -81,6 +83,17 @@ class CmsUser
     public function getGroups()
     {
         return $this->groups;
+    }
+
+    public function addProfile(CmsProfile $profile)
+    {
+        $this->profiles[] = $profile;
+        $profile->setUser($this);
+    }
+
+    public function getProfiles()
+    {
+        return $this->profiles;
     }
 }
 
