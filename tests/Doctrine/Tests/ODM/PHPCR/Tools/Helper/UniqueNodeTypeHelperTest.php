@@ -68,7 +68,8 @@ class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
             $metadataC
         ));
 
-        UniqueNodeTypeHelper::checkNodeTypeMappings($documentManager);
+        $uniqueNodeTypeHelper = new UniqueNodeTypeHelper();
+        $uniqueNodeTypeHelper->checkNodeTypeMappings($documentManager);
     }
 
     /**
@@ -93,6 +94,7 @@ class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
             $metadataC
         ));
 
-        UniqueNodeTypeHelper::checkNodeTypeMappings($documentManager);
+        $uniqueNodeTypeHelper = new UniqueNodeTypeHelper();
+        $uniqueNodeTypeHelper->checkNodeTypeMappings($documentManager);
     }
 }

@@ -197,13 +197,6 @@ class ConverterPhpcr extends ConverterBase
             );
         }
 
-        // be explicit in what we select
-        if (empty($this->columns)) {
-            foreach (array_keys($this->sourceDocumentNodes) as $selectorName) {
-                $this->columns[] = $this->qomf->column($selectorName);
-            }
-        }
-
         // for each document source add phpcr:{class,classparents} restrictions
         foreach ($this->sourceDocumentNodes as $sourceNode) {
             $documentFqn = $this->aliasMetadata[$sourceNode->getAlias()]->getName();

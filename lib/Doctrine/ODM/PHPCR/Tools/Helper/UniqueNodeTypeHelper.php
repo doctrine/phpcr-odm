@@ -21,7 +21,6 @@ namespace Doctrine\ODM\PHPCR\Tools\Helper;
 
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Provides unique node type mapping verification.
@@ -31,17 +30,18 @@ class UniqueNodeTypeHelper
     /**
      * Check each mapped PHPCR-ODM document for the given document manager,
      * throwing an exception if any document is set to use a unique node
-     * type but the node type is re-used. If an OutputInterface is provided,
-     * write some basic information to it.
+     * type but the node type is re-used. Returns an array of debug information.
      *
      * @param DocumentManagerInterface $documentManager The document manager to check mappings for.
-     * @param OutputInterface $output If provided, output will be written here.
+     *
+     * @return array
      *
      * @throws MappingException
      */
-    public static function checkNodeTypeMappings(DocumentManagerInterface $documentManager, OutputInterface $output = null)
+    public function checkNodeTypeMappings(DocumentManagerInterface $documentManager)
     {
         $knownNodeTypes = array();
+        $debugInformation = array();
         $allMetadata = $documentManager->getMetadataFactory()->getAllMetadata();
 
         foreach ($allMetadata as $classMetadata) {
@@ -56,14 +56,12 @@ class UniqueNodeTypeHelper
 
             $knownNodeTypes[$classMetadata->getNodeType()] = $classMetadata->name;
 
-            if (!is_null($output)) {
-                $output->writeln(sprintf(
-                    'The document <info>%s</info> uses %snode type <info>%s</info>',
-                    $classMetadata->name,
-                    $classMetadata->hasUniqueNodeType() ? '<comment>uniquely mapped</comment> ' : '',
-                    $classMetadata->getNodeType()
-                ));
-            }
+            $debugInformation[$classMetadata->name] = array(
+                'unique_node_type' => $classMetadata->hasUniqueNodeType(),
+                'node_type' => $classMetadata->getNodeType()
+            );
         }
+
+        return $debugInformation;
     }
 }
