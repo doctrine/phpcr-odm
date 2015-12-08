@@ -14,24 +14,24 @@
     "prefer-stable": true,
     "require": {
         "php": "^5.3.9|~7.0",
-        "doctrine/common": "~2.4",
-        "doctrine/annotations": "~1.2",
-        "doctrine/data-fixtures": "~1.0",
-        "phpcr/phpcr": "~2.1.1",
-        "phpcr/phpcr-implementation": "~2.1.0",
+        "doctrine/common": "^2.4",
+        "doctrine/annotations": "^1.2",
+        "doctrine/data-fixtures": "^1.0",
+        "phpcr/phpcr": "^2.1.1",
+        "phpcr/phpcr-implementation": "^2.1.0",
         "phpcr/phpcr-utils": "^1.2.8",
         "doctrine/instantiator": "^1.0.1",
-        "symfony/console": "~2.3|~3.0"
+        "symfony/console": "^2.3|^3.0"
     },
     "require-dev": {
-        "symfony/yaml": "~2.3|~3.0",
-        "symfony/phpunit-bridge": "~2.7|~3.0",
-        "liip/rmt": "~1.1"
+        "symfony/yaml": "^2.3|^3.0",
+        "symfony/phpunit-bridge": "^2.7|^3.0",
+        "liip/rmt": "~1.2"
     },
     "suggest": {
-        "symfony/yaml": "~2.3|~3.0",
+        "symfony/yaml": "^2.3|^3.0",
         "jackalope/jackalope-doctrine-dbal": "^1.1.5",
-        "jackalope/jackalope-jackrabbit": "~1.0"
+        "jackalope/jackalope-jackrabbit": "^1.0"
     },
     "conflict": {
         "jackalope/jackalope-doctrine-dbal": "<1.1.5"
