@@ -438,4 +438,12 @@ class QueryBuilder extends AbstractNode
     {
         return $this->primaryAlias;
     }
+
+    /**
+     * Deep clone on converter, so it resets it's constraints.
+     */
+    public function __clone()
+    {
+        $this->converter = clone $this->converter;
+    }
 }
