@@ -100,4 +100,21 @@ class QueryBuilderTest extends NodeTestCase
         $this->node->fromDocument('Foobar', 'f');
         $this->assertEquals('f', $this->node->getPrimaryAlias());
     }
+
+    public function testCloningQueryBuilderUniqueConverterInstance()
+    {
+        $reflection = new \ReflectionClass(get_class($this->node));
+        $property = $reflection->getProperty('converter');
+        $property->setAccessible(true);
+
+        $this->node->setConverter($this->getMock('Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface'));
+
+        $clone = clone $this->node;
+
+        $this->assertNotSame(
+            $property->getValue($this->node),
+            $property->getValue($clone),
+            'Cloned instance of QueryBuilder does not have an unique Converter instance.'
+        );
+    }
 }

@@ -438,4 +438,14 @@ class QueryBuilder extends AbstractNode
     {
         return $this->primaryAlias;
     }
+
+    /**
+     * Ensure cloned query builder objects have unique instances of the converter.
+     */
+    public function __clone()
+    {
+        if (null !== $this->converter) {
+            $this->converter = clone $this->converter;
+        }
+    }
 }
