@@ -440,10 +440,12 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Deep clone on converter, so it resets it's constraints.
+     * Ensure cloned query builder objects have unique instances of the converter.
      */
     public function __clone()
     {
-        $this->converter = clone $this->converter;
+        if (null !== $this->converter) {
+            $this->converter = clone $this->converter;
+        }
     }
 }
