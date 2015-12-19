@@ -111,9 +111,10 @@ class QueryBuilderTest extends NodeTestCase
 
         $clone = clone $this->node;
 
-        $hash = spl_object_hash($property->getValue($this->node));
-        $hashClone = spl_object_hash($property->getValue($clone));
-
-        $this->assertNotEquals($hash, $hashClone, 'Cloned instance of QueryBuilder does not have an unique Converter instance.');
+        $this->assertNotSame(
+            $property->getValue($this->node),
+            $property->getValue($clone),
+            'Cloned instance of QueryBuilder does not have an unique Converter instance.'
+        );
     }
 }
