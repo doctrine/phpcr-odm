@@ -77,7 +77,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * @param ConverterPhpcr $converter
+     * @param ConverterInterface $converter
      */
     public function setConverter(ConverterInterface $converter)
     {
@@ -85,7 +85,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * @return ConverterPhpcr
+     * @return ConverterInterface
      */
     protected function getConverter()
     {
