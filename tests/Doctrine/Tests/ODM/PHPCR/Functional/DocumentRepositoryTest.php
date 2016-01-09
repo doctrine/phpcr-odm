@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 
@@ -211,5 +212,26 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
 
         $users2 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findOneBy(array('username' =>'obama'));
         $this->assertEquals(null, $users2);
+    }
+
+    public function testFindByAssociatedDocument()
+    {
+        $address1 = new CmsAddress;
+        $address1->country = 'France';
+        $address1->city = 'Lyon';
+        $address1->zip = '65019';
+
+        $user1 = new CmsUser();
+        $user1->username = "beberlei";
+        $user1->status = "active";
+        $user1->name = "Benjamin";
+        $user1->address = $address1;
+
+        $this->dm->persist($address1);
+        $this->dm->persist($user1);
+        $this->dm->flush();
+
+        $user = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findOneBy(array('address' => $address1));
+        $this->assertEquals($user1->username, $user->username);
     }
 }
