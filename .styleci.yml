@@ -3,3 +3,10 @@ preset: psr2
 enabled:
   - long_array_syntax
   - duplicate_semicolon
+
+finder:
+  not-name:
+    # exclude PHP7 illegal annotation classes to avoid false alert. those must not be attempted to be used in PHP 7
+    - Float.php
+    - String.php
+    - Int.php
