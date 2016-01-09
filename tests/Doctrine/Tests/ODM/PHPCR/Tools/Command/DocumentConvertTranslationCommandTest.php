@@ -59,6 +59,6 @@ class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
             '--locales' => array('en'),
             '--force' => true,
         ));
-        $this->assertEquals("done\n", $this->commandTester->getDisplay());
+        $this->assertEquals("done".PHP_EOL, $this->commandTester->getDisplay());
     }
 }
