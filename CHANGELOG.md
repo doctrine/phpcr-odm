@@ -1,6 +1,8 @@
 Changelog
 =========
 
+* **2016-01-12**: Added `$repository->findBy(array('field' => array('val1', 'val2')))` support via `->orX()` method
+
 1.3.0
 -----
 
