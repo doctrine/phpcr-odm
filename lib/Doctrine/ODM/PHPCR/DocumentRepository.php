@@ -168,7 +168,14 @@ class DocumentRepository implements ObjectRepository
                 $where = $qb->andWhere();
             }
 
-            $this->constraintField($where, $field, $value, 'a');
+            if (is_array($value)) {
+                $where = $where->orX();
+                foreach ($value as $oneValue) {
+                    $this->constraintField($where, $field, $oneValue, 'a');
+                }
+            } else {
+                $this->constraintField($where, $field, $value, 'a');
+            }
         }
 
         return $qb->getQuery()->execute();
