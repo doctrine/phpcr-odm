@@ -304,6 +304,7 @@
         <xs:restriction base="xs:token">
             <xs:enumeration value="WEAK"/>
             <xs:enumeration value="HARD"/>
+            <xs:enumeration value="PATH"/>
         </xs:restriction>
     </xs:simpleType>
 

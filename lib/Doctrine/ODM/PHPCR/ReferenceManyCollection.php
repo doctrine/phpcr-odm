@@ -31,11 +31,16 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
  */
 class ReferenceManyCollection extends PersistentCollection
 {
+
+    const REFERENCE_TYPE_PATH = 'path';
+    const REFERENCE_TYPE_UUID = 'uuid';
+
     private $document;
     private $property;
     private $referencedNodes;
     private $targetDocument;
     private $originalReferencePaths;
+    private $referenceType;
 
     /**
      * Creates a new persistent collection.
@@ -46,8 +51,9 @@ class ReferenceManyCollection extends PersistentCollection
      * @param array           $referencedNodes An array of referenced nodes (UUID or path)
      * @param string          $targetDocument  The class name of the target documents
      * @param string          $locale          The locale to use during the loading of this collection
+     * @param string          $referenceType   Identifiers used for reference nodes in this collection, either path or default uuid
      */
-    public function __construct(DocumentManagerInterface $dm, $document, $property, array $referencedNodes, $targetDocument, $locale = null)
+    public function __construct(DocumentManagerInterface $dm, $document, $property, array $referencedNodes, $targetDocument, $locale = null, $referenceType = self::REFERENCE_TYPE_UUID)
     {
         $this->dm = $dm;
         $this->document = $document;
@@ -55,6 +61,7 @@ class ReferenceManyCollection extends PersistentCollection
         $this->referencedNodes = $referencedNodes;
         $this->targetDocument = $targetDocument;
         $this->locale = $locale;
+        $this->referenceType = $referenceType;
     }
 
     /**
@@ -96,7 +103,13 @@ class ReferenceManyCollection extends PersistentCollection
     {
         if (!$this->isInitialized()) {
             $referencedDocs = array();
-            $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
+            if (self::REFERENCE_TYPE_UUID === $this->referenceType) {
+                $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
+            } else {
+                $referencedNodes = $this->dm->getPhpcrSession()->getNodes($this->referencedNodes);
+            }
+
+
             $uow = $this->dm->getUnitOfWork();
             $uow->getPrefetchHelper()->prefetch($this->dm, $referencedNodes, $this->locale);
 
@@ -150,9 +163,13 @@ class ReferenceManyCollection extends PersistentCollection
                     $this->originalReferencePaths[] = $uow->getDocumentId($reference);
                 }
             } else {
-                $nodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
-                foreach ($nodes as $node) {
-                    $this->originalReferencePaths[] = $node->getPath();
+                if (self::REFERENCE_TYPE_UUID === $this->referenceType) {
+                    $nodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
+                    foreach ($nodes as $node) {
+                        $this->originalReferencePaths[] = $node->getPath();
+                    }
+                } else {
+                    $this->originalReferencePaths = $this->referencedNodes;
                 }
             }
         }
