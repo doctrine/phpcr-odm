@@ -332,4 +332,35 @@ class ConverterPhpcr extends ConverterBase
 
         return $op;
     }
+
+    protected function walkOperandStaticLiteral(OperandStaticLiteral $node)
+    {
+        $value = $node->getValue();
+
+        if ($field = $node->getParent()->getChildOfType(AbstractLeafNode::NT_OPERAND_DYNAMIC)) {
+            if ($field instanceof OperandDynamicField) {
+                $meta = $this->aliasMetadata[$field->getAlias()];
+                $type = $meta->getFieldMapping($field->getField())['type'];
+
+                $typeMapping = array(
+                    'string' => 'string',
+                    'long' => 'integer',
+                    'decimal' => 'string',
+                    'boolean' => 'boolean',
+                    'name' => 'string',
+                    'path' => 'string',
+                    'uri' => 'string',
+                    'uuid' => 'string',
+                );
+
+                if (array_key_exists($type, $typeMapping)) {
+                    settype($value, $typeMapping[$type]);
+                }
+            }
+        }
+
+        $operand = $this->qomf()->literal($value);
+
+        return $operand;
+    }
 }
