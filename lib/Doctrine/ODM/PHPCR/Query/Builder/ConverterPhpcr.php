@@ -340,7 +340,8 @@ class ConverterPhpcr extends ConverterBase
         if ($field = $node->getParent()->getChildOfType(AbstractLeafNode::NT_OPERAND_DYNAMIC)) {
             if ($field instanceof OperandDynamicField) {
                 $meta = $this->aliasMetadata[$field->getAlias()];
-                $type = $meta->getFieldMapping($field->getField())['type'];
+                $fieldMapping = $meta->getFieldMapping($field->getField());
+                $type = $fieldMapping['type'];
 
                 $typeMapping = array(
                     'string' => 'string',
