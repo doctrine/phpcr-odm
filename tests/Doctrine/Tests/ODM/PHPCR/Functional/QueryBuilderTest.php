@@ -409,4 +409,27 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $res = $q->execute();
         $this->assertCount(3, $res);
     }
+
+    public function testConditionWithStaticLiteralOfDifferentType()
+    {
+        $user = new BlogUser;
+        $user->id = '/functional/user/old';
+        $user->name = 'I am old';
+        $user->username = 'old';
+        $user->status = 'query_builder';
+        $user->age = 99;
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $qb = $this->createQb();
+        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->where()->eq()
+            ->field('a.age')
+            ->literal('99') // we pass the age here as a string type
+        ;
+        $q = $qb->getQuery();
+        $res = $q->execute();
+
+        $this->assertCount(1, $res);
+    }
 }
