@@ -22,4 +22,7 @@ class User
 
     /** @PHPCRODM\Field(type="string") */
     public $status;
+
+    /** @PHPCRODM\Field(type="long", nullable=true) */
+    public $age;
 }
