@@ -145,13 +145,17 @@ class ConverterPhpcr extends ConverterBase
 
         $propertyName = $fieldMeta['property'];
 
+        if ($fieldMeta['type'] == 'uuid') {
+            $propertyName = 'jcr:uuid';
+        }
+
         if (empty($fieldMeta['translated'])
             || empty($this->translator[$originalAlias])
         ) {
             return array($originalAlias, $propertyName);
         }
 
-        $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $fieldMeta['property'], $this->locale);
+        $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $propertyName, $this->locale);
 
         $this->aliasWithTranslatedFields[$originalAlias] = true;
 
