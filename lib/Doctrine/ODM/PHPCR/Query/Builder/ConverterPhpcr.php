@@ -151,7 +151,7 @@ class ConverterPhpcr extends ConverterBase
             return array($originalAlias, $propertyName);
         }
 
-        $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $fieldMeta['property'], $this->locale);
+        $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $propertyName, $this->locale);
 
         $this->aliasWithTranslatedFields[$originalAlias] = true;
 
