@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * A class that uses Lifecycle Callbacks
- * 
+ *
  * @PHPCRODM\Document
  */
 class LifecycleCallbackMappingObject

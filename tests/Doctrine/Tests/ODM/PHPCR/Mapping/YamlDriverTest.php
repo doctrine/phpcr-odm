@@ -6,12 +6,12 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 /**
- * @group mapping 
+ * @group mapping
  */
 class YamlDriverTest extends AbstractMappingDriverTest
 {
     /**
-     * @return \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver 
+     * @return \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver
      */
     protected function loadDriver()
     {

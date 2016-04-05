@@ -199,7 +199,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     /**
      * @author Rob Graham
-     * 
+     *
      * Test the registering of a version of a document, state should be set to STATE_FROZEN
      */
     public function testRegisterDocumentForVersion()
