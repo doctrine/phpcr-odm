@@ -111,7 +111,8 @@ HERE
         $previous = $input->getOption('previous-strategy');
         $fields = $input->getOption('fields');
 
-        while ($converter->convert($class, $locales, $fields, $previous)) {
+        do {
+            $continue = $converter->convert($class, $locales, $fields, $previous);
             $notices = $converter->getLastNotices();
             if (count($notices)) {
                 foreach ($notices as $path => $realClass) {
@@ -125,8 +126,9 @@ HERE
             }
             $session->save();
             $output->write('.');
-        }
+        } while ($continue);
 
+        $output->writeln('');
         $output->writeln('done');
 
         return 0;
