@@ -17,7 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-/** 
+/**
  * @deprecated
  *
  * Including this file is no longer needed, as each annotation is now in its

@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 /**
- * Contraint which evaluates to true when 
+ * Contraint which evaluates to true when
  * all its child constraints evaluate to true.
  *
  * If only a single constraint is appended, the appended

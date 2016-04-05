@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * A class that references one other document
- * 
+ *
  * @PHPCRODM\Document
  */
 class ReferenceOneMappingObject

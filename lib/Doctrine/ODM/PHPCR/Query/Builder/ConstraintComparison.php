@@ -13,7 +13,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  * A dynamic operand is an operand whose value is derived from the
  * persisted object set.
  *
- * A static operand is a non-changing value, either a literal or a bound 
+ * A static operand is a non-changing value, either a literal or a bound
  * property.
  *
  * Comparisons can only be made one dynamic and one static operand. When

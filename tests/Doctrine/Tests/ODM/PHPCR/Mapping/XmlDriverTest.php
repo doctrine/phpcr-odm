@@ -6,12 +6,12 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 
 /**
- * @group mapping 
+ * @group mapping
  */
 class XmlDriverTest extends AbstractMappingDriverTest
 {
     /**
-     * @return \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver 
+     * @return \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver
      */
     protected function loadDriver()
     {
