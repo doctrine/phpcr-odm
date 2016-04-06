@@ -4,6 +4,11 @@ Changelog
 1.3.1
 -----
 
+Version 1.3.1
+
+1.3.1
+-----
+
 * **2016-04-05**: [Bugfix][Migration] The `doctrine:phpcr:document:convert-translation` had a bug preventing the
                   last batch of translations from being saved. If you used the converter, you might have some
                   of your documents not properly converted. Do not re-run the converter on a repository where
