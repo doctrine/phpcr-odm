@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.3.1
+-----
+
 * **2016-04-05**: [Bugfix][Migration] The `doctrine:phpcr:document:convert-translation` had a bug preventing the
                   last batch of translations from being saved. If you used the converter, you might have some
                   of your documents not properly converted. Do not re-run the converter on a repository where
@@ -16,7 +19,7 @@ Release 1.3.0
 1.3.0-rc3
 ---------
 
-fix CVE-2015-5723 in the Proxy Generator
+* fix CVE-2015-5723 in the Proxy Generator
 
 * **2015-10-09**: Added a `TranslationConverter` helper to change the 
                   translation state of a field. It can change a field from 
