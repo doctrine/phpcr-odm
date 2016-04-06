@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* **2016-04-05**: [Bugfix][Migration] The `doctrine:phpcr:document:convert-translation` had a bug preventing the
+                  last batch of translations from being saved. If you used the converter, you might have some
+                  of your documents not properly converted. Do not re-run the converter on a repository where
+                  part of the content is already translated, as that would destroy existing translations.
+                  Probably its best to manually fix the content that was not properly converted.
 * **2016-01-12**: Added `$repository->findBy(array('field' => array('val1', 'val2')))` support via `->orX()` method
 
 1.3.0
