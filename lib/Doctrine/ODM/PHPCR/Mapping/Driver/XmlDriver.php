@@ -269,6 +269,7 @@ class XmlDriver extends FileDriver
         $mapping = $attributes["@attributes"];
         $mapping['strategy'] = isset($mapping['strategy']) ? strtolower($mapping['strategy']) : null;
         $mapping['targetDocument'] = isset($mapping['target-document']) ? $mapping['target-document'] : null;
+        $mapping['indexByNodeName'] = isset($mapping['index-by-nodename']) ? $mapping['index-by-nodename'] : null;
         unset($mapping['target-document']);
 
         if ($type === 'many') {
