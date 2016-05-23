@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefCascadeManyTestObj;
 use Doctrine\Tests\Models\References\RefCascadeTestObj;
 use Doctrine\Tests\Models\References\HardRefTestObj;
+use Doctrine\Tests\Models\References\RefManyTestObjPathStrategy;
 use Doctrine\Tests\Models\References\WeakRefTestObj;
 use Doctrine\Tests\Models\References\NonRefTestObj;
 use Doctrine\Tests\Models\References\RefType2TestObj;
@@ -46,6 +47,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     private $referrerType = 'Doctrine\Tests\Models\References\RefTestObj';
     private $referencedType = 'Doctrine\Tests\Models\References\RefRefTestObj';
     private $referrerManyType = 'Doctrine\Tests\Models\References\RefManyTestObj';
+    private $referrerManyTypePathStrategy = 'Doctrine\Tests\Models\References\RefManyTestObjPathStrategy';
     private $referrerManyForCascadeType = 'Doctrine\Tests\Models\References\RefManyTestObjForCascade';
     private $hardReferrerType = 'Doctrine\Tests\Models\References\HardRefTestObj';
     private $referrerDifType = 'Doctrine\Tests\Models\References\RefDifTestObj';
@@ -829,6 +831,35 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount($max, $referrer->references);
 
         $refnode = $this->session->getNode('/functional')->getNode('refManyTestObj');
+        foreach ($refnode->getProperty('myReferences')->getNode() as $referenced) {
+            $this->assertTrue($referenced->hasProperty('name'));
+        }
+    }
+
+    public function testReferenceManyPath()
+    {
+        $refManyTestObj = new RefManyTestObjPathStrategy();
+        $refManyTestObj->id = '/functional/refManyTestObjWP';
+        $refManyTestObj->name = 'referrer';
+
+        $max = 5;
+
+        for ($i = 0; $i < $max; $i++) {
+            $newRefRefTestObj = new RefRefTestObj();
+            $newRefRefTestObj->id = "/functional/refRefTestObj$i";
+            $newRefRefTestObj->name = "refRefTestObj$i";
+            $refManyTestObj->references[] = $newRefRefTestObj;
+        }
+
+        $this->dm->persist($refManyTestObj);
+        $this->dm->flush();
+        $this->dm->clear();
+        $referrer = $this->dm->find($this->referrerManyTypePathStrategy, '/functional/refManyTestObjWP');
+        $referrer->references->refresh();
+
+        $this->assertCount($max, $referrer->references);
+
+        $refnode = $this->session->getNode('/functional')->getNode('refManyTestObjWP');
         foreach ($refnode->getProperty('myReferences')->getNode() as $referenced) {
             $this->assertTrue($referenced->hasProperty('name'));
         }

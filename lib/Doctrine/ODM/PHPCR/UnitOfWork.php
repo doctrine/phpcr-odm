@@ -523,7 +523,15 @@ class UnitOfWork
                     }
 
                     $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
-                    $coll = new ReferenceManyCollection($this->dm, $document, $mapping['property'], $referencedNodes, $targetDocument, $locale);
+                    $coll = new ReferenceManyCollection(
+                        $this->dm,
+                        $document,
+                        $mapping['property'],
+                        $referencedNodes,
+                        $targetDocument,
+                        $locale,
+                        $this->getReferenceManyCollectionTypeFromMetadata($mapping)
+                    );
                     $documentState[$fieldName] = $coll;
                 }
             }
@@ -1939,7 +1947,8 @@ class UnitOfWork
                             $mapping['property'],
                             array(),
                             isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null,
-                            $locale
+                            $locale,
+                            $this->getReferenceManyCollectionTypeFromMetadata($mapping)
                         );
                         $prop->setValue($managedCopy, $managedCol);
                         $this->originalData[$managedOid][$fieldName] = $managedCol;
@@ -2631,7 +2640,7 @@ class UnitOfWork
                                         // make sure the reference is not deleted in this change because the field could be null
                                         unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     } else {
-                                        $collection = new ReferenceManyCollection($this->dm, $fv, $referencingField['property'], array($node), $class->name);
+                                        $collection = new ReferenceManyCollection($this->dm, $fv, $referencingField['property'], array($node), $class->name, null, $this->getReferenceManyCollectionTypeFromMetadata($mapping));
                                         $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
                                     }
 
@@ -3775,6 +3784,21 @@ class UnitOfWork
 
         // TODO do we need to check with the storage backend if the generated id really is unique?
         return $g();
+    }
+
+
+    /**
+     * Extracts ReferenceManyCollection type from field metadata
+     *
+     * @param $referenceFieldMetadata
+     * @return string
+     */
+    private function getReferenceManyCollectionTypeFromMetadata($referenceFieldMetadata)
+    {
+        if (isset($referenceFieldMetadata['strategy']) && 'path' === $referenceFieldMetadata['strategy']) {
+            return ReferenceManyCollection::REFERENCE_TYPE_PATH;
+        }
+        return ReferenceManyCollection::REFERENCE_TYPE_UUID;
     }
 
     /**
