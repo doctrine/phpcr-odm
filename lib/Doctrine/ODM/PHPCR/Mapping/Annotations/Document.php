@@ -66,4 +66,14 @@ class Document
      * @var boolean
      */
     public $uniqueNodeType;
+
+    /**
+     * @var array
+     */
+    public $childClasses = array();
+
+    /**
+     * @var boolean
+     */
+    public $isLeaf;
 }

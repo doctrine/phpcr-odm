@@ -42,8 +42,8 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(':'));
         $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('x/y'));
 
-        $this->assertNull($cm->isValidNodename('a:b'));
-        $this->assertNull($cm->isValidNodename('b'));
+        $cm->isValidNodename('a:b');
+        $cm->isValidNodename('b');
     }
 
     /**
@@ -323,6 +323,88 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('attribute', $cm->translator);
         $this->assertTrue(in_array('translatedField', $cm->translatableFields));
         $this->assertEquals('locale', $cm->localeMapping);
+    }
+
+    /**
+     * It should throw an exception if given a child class FQN when the
+     * metadata is for a leaf.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
+     * @expectedExceptionMessage has been mapped as a leaf
+     */
+    public function testAssertValidChildClassesIsLeaf()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $childCm = new ClassMetadata('stdClass');
+        $cm->setIsLeaf(true);
+        $cm->assertValidChildClass($childCm);
+    }
+
+    /**
+     * It should return early if the mapped child classes value is an empty array (i.e. any child classes are permitted).
+     */
+    public function testAssertValidChildClassesEmpty()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $childCm = new ClassMetadata('stdClass');
+        $cm->setChildClasses(array());
+        $cm->assertValidChildClass($childCm);
+    }
+
+    /**
+     * It should return early if the given class is an allowed child class.
+     */
+    public function testAssertValidChildClassesAllowed()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm->setChildClasses(array('stdClass'));
+        $childCm = new ClassMetadata('stdClass');
+        $childCm->initializeReflection(new RuntimeReflectionService());
+        $cm->assertValidChildClass($childCm);
+    }
+
+    /**
+     * It should return early if the given class is an instance of an allowed class.
+     */
+    public function testAssertValidChildClassInstance()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm->initializeReflection(new RuntimeReflectionService());
+        $childCm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Customer');
+        $childCm->initializeReflection(new RuntimeReflectionService());
+        $cm->setChildClasses(array('Doctrine\Tests\ODM\PHPCR\Mapping\Person'));
+        $result = $cm->assertValidChildClass($childCm);
+        $this->assertNull($result);
+    }
+
+    /**
+     * It should return early if the given class implements an allowed interface.
+     */
+    public function testAssertValidChildClassInterface()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm->initializeReflection(new RuntimeReflectionService());
+        $childCm = new ClassMetadata('ArrayAccess');
+        $childCm->initializeReflection(new RuntimeReflectionService());
+        $cm->setChildClasses(array('ArrayAccess'));
+        $result = $cm->assertValidChildClass($childCm);
+        $this->assertNull($result);
+    }
+
+    /**
+     * It should throw an exception if the given class is not allowed.
+     *
+     * @expectedException \Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
+     * @expectedExceptionMessage does not allow children of type "stdClass"
+     */
+    public function testAssertValidChildClassesNotAllowed()
+    {
+        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm->initializeReflection(new RuntimeReflectionService());
+        $childCm = new ClassMetadata('stdClass');
+        $childCm->initializeReflection(new RuntimeReflectionService());
+        $cm->setChildClasses(array('Doctrine\Tests\ODM\PHPCR\Mapping\Person'));
+        $cm->assertValidChildClass($childCm);
     }
 }
 

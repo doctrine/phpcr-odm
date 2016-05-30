@@ -798,4 +798,36 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
 
         return $this->loadMetadataForClassname($className);
     }
+
+    public function testLoadChildClassesMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadChildClassesMapping
+     * @param ClassMetadata $class
+     */
+    public function testChildClassesMapping($class)
+    {
+        $this->assertEquals(array('stdClass'), $class->getChildClasses());
+    }
+
+    public function testLoadIsLeafMapping()
+    {
+        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\IsLeafObject';
+
+        return $this->loadMetadataForClassname($className);
+    }
+
+    /**
+     * @depends testLoadIsLeafMapping
+     * @param ClassMetadata $class
+     */
+    public function testIsLeafMapping($class)
+    {
+        $this->assertTrue($class->isLeaf());
+    }
 }

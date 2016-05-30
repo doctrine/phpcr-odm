@@ -255,6 +255,14 @@ class YamlDriver extends FileDriver
             }
         }
 
+        if (isset($element['child_classes'])) {
+            $class->setChildClasses($element['child_classes']);
+        }
+
+        if (isset($element['is_leaf'])) {
+            $class->setIsLeaf($element['is_leaf']);
+        }
+
         $class->validateClassMapping();
     }
 

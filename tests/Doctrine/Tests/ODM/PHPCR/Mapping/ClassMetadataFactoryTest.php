@@ -144,6 +144,15 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObjectNoStrategy');
     }
 
+    /**
+     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     * @expectedExceptionMessage Cannot map a document as a leaf and define child classes for "Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesAndLeafObject"
+     */
+    public function testValidateChildClassesIfLeafConflict()
+    {
+        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesAndLeafObject');
+    }
+
     public function testValidateTranslatable()
     {
         $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject');

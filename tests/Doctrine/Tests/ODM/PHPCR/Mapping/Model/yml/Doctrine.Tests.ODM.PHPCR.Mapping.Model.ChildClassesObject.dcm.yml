@@ -1,0 +1,5 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesObject:
+    id: id
+    child_classes: [ "stdClass" ]
+    is_leaf: false
+

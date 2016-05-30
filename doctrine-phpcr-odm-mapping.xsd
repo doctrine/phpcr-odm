@@ -44,6 +44,10 @@
         <xs:anyAttribute namespace="##other"/>
     </xs:complexType>
 
+    <xs:complexType name="child-class">
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
     <xs:complexType name="mixin">
         <xs:attribute name="type" type="xs:NMTOKEN"/>
     </xs:complexType>
@@ -138,6 +142,7 @@
             <xs:element name="document-listeners" type="phpcr:document-listeners" minOccurs="0" maxOccurs="1" />
             -->
             <xs:element name="id" type="phpcr:id" minOccurs="0" maxOccurs="1" />
+            <xs:element name="child-class" type="phpcr:child-class" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="uuid" type="phpcr:uuid" minOccurs="0" maxOccurs="1" />
             <xs:element name="locale" type="phpcr:locale" minOccurs="0" maxOccurs="1" />
             <xs:element name="field" type="phpcr:field" minOccurs="0" maxOccurs="unbounded"/>
@@ -159,6 +164,7 @@
         <xs:attribute name="translator" type="xs:NMTOKEN"/>
         <xs:attribute name="versionable" type="phpcr:versionable-type" />
         <xs:attribute name="referenceable" type="xs:boolean" default="false" />
+        <xs:attribute name="is-leaf" type="xs:boolean" default="false" />
         <xs:attribute name="node-type" type="xs:NMTOKEN" />
         <xs:attribute name="repository-class" type="xs:string"/>
         <xs:anyAttribute namespace="##other"/>
