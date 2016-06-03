@@ -36,12 +36,12 @@ before_script:
   - composer self-update || true
   - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini; fi
   - if [ "$SYMFONY_VERSION" != "" ]; then composer require --no-update symfony/symfony=$SYMFONY_VERSION; fi;
-  - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=0.12; fi;
+  - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.11; fi;
   - ./tests/travis_${TRANSPORT}.sh
 
 script: 
   - phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
-  - if [ "$PHPBENCH" = "yes" ]; then phpbench run; fi;
+  - if [ "$PHPBENCH" = "yes" ]; then php vendor/bin/phpbench run --report=all; fi;
 
 
 notifications:

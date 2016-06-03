@@ -26,7 +26,8 @@
     "require-dev": {
         "symfony/yaml": "^2.3|^3.0",
         "symfony/phpunit-bridge": "^2.7|^3.0",
-        "liip/rmt": "~1.2"
+        "liip/rmt": "~1.2",
+        "phpunit/phpunit": "*"
     },
     "suggest": {
         "symfony/yaml": "^2.3|^3.0",
@@ -38,6 +39,9 @@
     },
     "autoload": {
         "psr-4": { "Doctrine\\ODM\\PHPCR\\": "lib/Doctrine/ODM/PHPCR" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Doctrine\\Benchmarks\\ODM\\PHPCR\\": "benchmarks" }
     },
     "bin": ["bin/phpcrodm", "bin/phpcrodm.php"],
     "extra": {

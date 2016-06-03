@@ -1,4 +1,14 @@
 {
     "path": "benchmarks",
-    "bootstrap": "benchmarks/bootstrap.php"
+    "bootstrap": "benchmarks/bootstrap.php",
+    "reports": {
+        "phpbench_aggregate": {
+            "extends": "aggregate",
+            "cols": [ "subject", "its", "mem", "worst", "mean", "mode", "best", "rstdev" ]
+        },
+        "all": {
+            "generator": "composite",
+            "reports": [ "env", "phpbench_aggregate" ]
+        }
+    }
 }
