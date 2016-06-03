@@ -1,0 +1,4 @@
+{
+    "path": "benchmarks",
+    "bootstrap": "benchmarks/bootstrap.php"
+}
