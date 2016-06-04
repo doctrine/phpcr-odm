@@ -65,7 +65,9 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
         $node->getProperties('test:*')->willReturn($properties);
 
         $locales = $this->strategy->getLocalesFor($document, $node->reveal(), $classMetadata->reveal());
-        $expected = array_values(array_filter($localizedPropNames, function ($valid) { return $valid; }));
+        $expected = array_values(array_filter($localizedPropNames, function ($valid) {
+            return $valid;
+        }));
         $this->assertEquals($expected, $locales);
     }
 }
