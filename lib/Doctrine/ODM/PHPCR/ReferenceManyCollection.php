@@ -31,7 +31,6 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
  */
 class ReferenceManyCollection extends PersistentCollection
 {
-
     const REFERENCE_TYPE_PATH = 'path';
     const REFERENCE_TYPE_UUID = 'uuid';
 

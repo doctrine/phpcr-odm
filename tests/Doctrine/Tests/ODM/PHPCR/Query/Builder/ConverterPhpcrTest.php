@@ -30,7 +30,6 @@ class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $mdf->expects($this->any())
             ->method('getMetadataFor')
             ->will($this->returnCallback(function ($documentFqn) use ($me) {
-
                 $meta = $me->getMockBuilder(
                     'Doctrine\ODM\PHPCR\Mapping\ClassMetadata'
                 )->disableOriginalConstructor()->getMock();
@@ -46,7 +45,6 @@ class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 $meta->expects($me->any())
                     ->method('getFieldMapping')
                     ->will($me->returnCallback(function ($name) {
-
                         $res = array(
                             'fieldName' => $name,
                             'property' => $name.'_phpcr',
