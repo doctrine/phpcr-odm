@@ -348,7 +348,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($class->identifier));
         $this->assertEmpty($class->fieldMappings);
 
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
         $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
         $cmf = new ClassMetadataFactory($dm);
@@ -756,7 +756,7 @@ abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
         $this->loadMetadataForClassname($className);
 
         $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject';
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
         $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
         $cmf = new ClassMetadataFactory($dm);

@@ -36,9 +36,13 @@ class UnitOfWorkTest extends PHPCRTestCase
         }
 
         $this->factory = new Factory;
-        $this->session = $this->getMock('Jackalope\Session', array(), array($this->factory), '', false);
+        $this->session = $this->getMockBuilder('Jackalope\Session')
+            ->disableOriginalConstructor()
+            ->getMock();
         
-        $this->objectManager = $this->getMock('Jackalope\ObjectManager', array(), array($this->factory), '', false);
+        $this->objectManager = $this->getMockBuilder('Jackalope\ObjectManager')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
         $this->dm = DocumentManager::create($this->session);

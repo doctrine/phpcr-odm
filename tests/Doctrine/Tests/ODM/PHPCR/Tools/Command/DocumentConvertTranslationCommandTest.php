@@ -32,11 +32,10 @@ class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->mockSession = $this->getMock('PHPCR\SessionInterface');
-        $mockHelper = $this->getMock(
-            'Symfony\Component\Console\Helper\HelperInterface',
-            array('getSession', 'setHelperSet', 'getHelperSet', 'getName')
-        );
+        $this->mockSession = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $mockHelper = $this->getMockBuilder('PHPCR\Util\Console\Helper\PhpcrHelper')
+            ->disableOriginalConstructor()
+            ->getMock();
         $mockHelper
             ->expects($this->once())
             ->method('getSession')
