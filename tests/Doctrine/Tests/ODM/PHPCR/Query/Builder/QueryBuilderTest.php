@@ -107,7 +107,7 @@ class QueryBuilderTest extends NodeTestCase
         $property = $reflection->getProperty('converter');
         $property->setAccessible(true);
 
-        $this->node->setConverter($this->getMock('Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface'));
+        $this->node->setConverter($this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface')->getMock());
 
         $clone = clone $this->node;
 

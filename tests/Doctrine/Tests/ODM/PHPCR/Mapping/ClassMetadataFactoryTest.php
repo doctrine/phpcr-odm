@@ -35,7 +35,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
         $this->dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
     }
 

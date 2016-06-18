@@ -19,7 +19,7 @@ class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
         $me = $this;
         // note: this "factory" seems unnecessary in current jackalope
         //       implementation
-        $this->qomfFactory = $this->getMock('Jackalope\FactoryInterface');
+        $this->qomfFactory = $this->getMockBuilder('Jackalope\FactoryInterface')->getMock();
 
         $this->qomf = new QueryObjectModelFactory($this->qomfFactory);
 
@@ -651,7 +651,7 @@ class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
                 );
 
                 // return something ..
-                $qom = $me->getMock('PHPCR\Query\QOM\QueryObjectModelInterface');
+                $qom = $me->getMockBuilder('PHPCR\Query\QOM\QueryObjectModelInterface')->getMock();
                 return $qom;
             }));
 

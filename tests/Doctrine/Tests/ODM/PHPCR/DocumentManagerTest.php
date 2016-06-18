@@ -54,7 +54,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testNewInstanceFromConfiguration()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
         $config = new \Doctrine\ODM\PHPCR\Configuration();
 
         $dm = DocumentManager::create($session, $config);
@@ -68,7 +68,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testGetMetadataFactory()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
 
         $dm = DocumentManager::create($session);
 
@@ -80,7 +80,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testGetClassMetadataFor()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
 
         $dm = DocumentManager::create($session);
 
@@ -95,7 +95,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testContains()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
 
         $dm = DocumentManager::create($session);
 
@@ -115,7 +115,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testGetRepository()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
 
         $dm = new DocumentManagerGetClassMetadata($session);
 
@@ -131,7 +131,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testEscapeFullText()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
 
         $dm = DocumentManager::create($session);
 
@@ -144,11 +144,11 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testCreateQueryBuilder()
     {
-        $session = $this->getMock('PHPCR\SessionInterface');
-        $workspace = $this->getMock('PHPCR\WorkspaceInterface');
-        $queryManager = $this->getMock('PHPCR\Query\QueryManagerInterface');
-        $qomf = $this->getMock('PHPCR\Query\QOM\QueryObjectModelFactoryInterface');
-        $baseQuery = $this->getMock('PHPCR\Query\QueryInterface');
+        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $workspace = $this->getMockBuilder('PHPCR\WorkspaceInterface')->getMock();
+        $queryManager = $this->getMockBuilder('PHPCR\Query\QueryManagerInterface')->getMock();
+        $qomf = $this->getMockBuilder('PHPCR\Query\QOM\QueryObjectModelFactoryInterface')->getMock();
+        $baseQuery = $this->getMockBuilder('PHPCR\Query\QueryInterface')->getMock();
 
         $session->expects($this->once())
             ->method('getWorkspace')

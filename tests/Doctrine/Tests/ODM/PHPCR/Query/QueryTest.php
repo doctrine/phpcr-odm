@@ -11,11 +11,11 @@ class QueryTest extends \PHPUnit_Framework_Testcase
 {
     public function setUp()
     {
-        $this->phpcrQuery = $this->getMock('PHPCR\Query\QueryInterface');
+        $this->phpcrQuery = $this->getMockBuilder('PHPCR\Query\QueryInterface')->getMock();
         $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->arrayCollection = $this->getMock('Doctrine\Common\Collections\ArrayCollection');
+        $this->arrayCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
         $this->query = new Query($this->phpcrQuery, $this->dm);
         $this->aliasQuery = new Query($this->phpcrQuery, $this->dm, 'a');
     }

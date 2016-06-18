@@ -12,7 +12,7 @@ class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $id = 'moo';
         $cm = new RepositoryClassMetadataProxy($id);
-        $repository = $this->getMock('Doctrine\ODM\PHPCR\Id\RepositoryIdInterface');
+        $repository = $this->getMockBuilder('Doctrine\ODM\PHPCR\Id\RepositoryIdInterface')->getMock();
         $repository
             ->expects($this->once())
             ->method('generateId')
@@ -39,7 +39,7 @@ class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
         $id = 'moo';
         $generator = new RepositoryIdGenerator;
         $cm = new ClassMetadataProxy($id);
-        $repository = $this->getMock('Doctrine\ODM\PHPCR\Id\RepositoryIdInterface');
+        $repository = $this->getMockBuilder('Doctrine\ODM\PHPCR\Id\RepositoryIdInterface')->getMock();
         $repository
             ->expects($this->once())
             ->method('generateId')
