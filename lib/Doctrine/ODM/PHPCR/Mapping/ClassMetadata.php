@@ -1210,15 +1210,6 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * {@inheritDoc}
-     * @deprecated use getFieldMapping instead
-     */
-    public function getField($fieldName)
-    {
-        return $this->getFieldMapping($fieldName);
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function hasAssociation($fieldName)
     {

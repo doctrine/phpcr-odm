@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.0-dev
+-------
+
+* **2016-06-20**: [BC Break] removed deprecated methods HierarchyInterface:.getParent/setParent. 
+                  DocumentManager::flush no longer saves the PHPCR session if there are no changes on the ODM layer.
+                  Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
+
 1.3.1
 -----
 

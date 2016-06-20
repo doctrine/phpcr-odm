@@ -112,16 +112,6 @@ class Generic
     }
 
     /**
-     * Kept for BC
-     *
-     * @deprecated use getParentDocument instead.
-     */
-    public function getParent()
-    {
-        return $this->getParentDocument();
-    }
-
-    /**
      * Set the parent document of this document.
      *
      * @param object $parent Document that is the parent of this node..
@@ -133,16 +123,6 @@ class Generic
         $this->parent = $parent;
 
         return $this;
-    }
-
-    /**
-     * Kept for BC
-     *
-     * @deprecated use setParentDocument instead.
-     */
-    public function setParent($parent)
-    {
-        return $this->setParentDocument($parent);
     }
 
     /**
