@@ -2202,10 +2202,6 @@ class UnitOfWork
             $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
             $this->changesetComputed = array();
 
-            // @deprecated This is to maintain BC with the old behavior, where users may call
-            //             flush instead of PHPCR\SessionInterface#save
-            $this->session->save();
-
             return; // Nothing to do.
         }
 
