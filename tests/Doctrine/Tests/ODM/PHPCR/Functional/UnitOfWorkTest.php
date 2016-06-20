@@ -9,6 +9,13 @@ use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
+use Doctrine\Tests\Models\CMS\CmsArticleFolder;
+use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Tests\Models\CMS\CmsBlogPost;
+use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
+use Doctrine\Tests\Models\CMS\CmsBlogFolder;
 
 /**
  * @group functional
@@ -184,5 +191,123 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertSame($child->parent, $parent);
         $this->assertSame('parent', $parent->nodename);
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
+     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"
+     */
+    public function testRequiredClassesInvalidChildren()
+    {
+        $articleFolder = new CmsArticleFolder();
+        $articleFolder->id = '/functional/articles';
+
+        $article = new CmsGroup();
+        $article->id = '/functional/articles/address';
+        $article->name = 'invalid-child';
+
+        $this->dm->persist($articleFolder);
+        $this->dm->persist($article);
+        $this->dm->flush();
+    }
+
+    public function testRequiredClassesValidChildren()
+    {
+        $articleFolder = new CmsArticleFolder();
+        $articleFolder->id = '/functional/articles';
+
+        $article = new CmsArticle();
+        $article->id = '/functional/articles/article';
+        $article->topic = 'greetings';
+        $article->text = 'Hello World';
+
+        $this->dm->persist($articleFolder);
+        $this->dm->persist($article);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
+     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"
+     */
+    public function testRequiredClassesInvalidUpdate()
+    {
+        $articleFolder = new CmsArticleFolder();
+        $articleFolder->id = '/functional/articles';
+
+        $article = new CmsGroup();
+        $article->id = '/functional/address';
+        $article->name = 'invalid-child';
+
+        $this->dm->persist($articleFolder);
+        $this->dm->persist($article);
+        $this->dm->flush();
+
+        $this->dm->move($article, '/functional/articles/address');
+        $this->dm->flush();
+    }
+
+    public function testRequiredClassesAddToChildrenValid()
+    {
+        $post = new CmsBlogPost();
+        $post->name = 'hello';
+
+        $postFolder = new CmsBlogFolder();
+        $postFolder->id = '/functional/posts';
+        $postFolder->posts = new ArrayCollection(array(
+            $post
+        ));
+
+        $this->dm->persist($postFolder);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
+     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"
+     */
+    public function testRequiredClassesAddToChildrenInvalid()
+    {
+        $post = new CmsBlogInvalidChild();
+        $post->name = 'hello';
+
+        $postFolder = new CmsBlogFolder();
+        $postFolder->id = '/functional/posts';
+        $postFolder->posts = new ArrayCollection(array(
+            $post
+        ));
+
+        $this->dm->persist($postFolder);
+        $this->dm->flush();
+    }
+
+    /**
+     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
+     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"
+     */
+    public function testRequiredClassesAddToChildrenInvalidOnUpdate()
+    {
+        $post = new CmsBlogPost();
+        $post->name = 'hello';
+
+        $postFolder = new CmsBlogFolder();
+        $postFolder->id = '/functional/posts';
+        $postFolder->posts = new ArrayCollection(array(
+            $post
+        ));
+
+        $this->dm->persist($postFolder);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $postFolder = $this->dm->find(null, '/functional/posts');
+
+        $post = new CmsBlogInvalidChild();
+        $post->name = 'wolrd';
+        $postFolder->posts->add($post);
+
+        $this->dm->persist($postFolder);
+        $this->dm->flush();
+        $this->dm->clear();
     }
 }

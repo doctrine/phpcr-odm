@@ -83,6 +83,18 @@ class XmlDriver extends FileDriver
             $class->setUniqueNodeType((bool) $xmlRoot['uniqueNodeType']);
         }
 
+        if (isset($xmlRoot['is-leaf'])) {
+            if (!in_array($value = $xmlRoot['is-leaf'], array('true', 'false'))) {
+                throw new MappingException(sprintf(
+                    'Value of is-leaf must be "true" or "false", got "%s" for class "%s"',
+                    $value, $className
+                ));
+            }
+
+            $class->setIsLeaf($value == 'true' ? true : false);
+        }
+
+
         if (isset($xmlRoot->mixins)) {
             $mixins = array();
             foreach ($xmlRoot->mixins->mixin as $mixin) {
@@ -257,6 +269,14 @@ class XmlDriver extends FileDriver
             $mapping['uuid'] = true;
             $mapping['fieldName'] = $mapping['name'];
             $class->mapField($mapping);
+        }
+
+        if (isset($xmlRoot->{'child-class'})) {
+            $childClasses = array();
+            foreach ($xmlRoot->{'child-class'} as $requiredClass) {
+                $childClasses[] = $requiredClass['name'];
+            }
+            $class->setChildClasses($childClasses);
         }
 
         $class->validateClassMapping();

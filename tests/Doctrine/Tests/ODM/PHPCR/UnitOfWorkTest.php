@@ -16,17 +16,34 @@ use Jackalope\Node;
  */
 class UnitOfWorkTest extends PHPCRTestCase
 {
-    /** @var DocumentManager */
+    /**
+     * @var DocumentManager
+     */
     private $dm;
-    /** @var UnitOfWork */
+
+    /**
+     * @var UnitOfWork
+     */
     private $uow;
-    /** @var Factory */
+
+    /**
+     * @var Factory
+     */
     private $factory;
-    /** @var \PHPCR\SessionInterface */
+
+    /**
+     * @var \PHPCR\SessionInterface
+     */
     private $session;
-    /** @var \Jackalope\ObjectManager */
+
+    /**
+     * @var \Jackalope\ObjectManager
+     */
     private $objectManager;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     private $type;
 
     public function setUp()

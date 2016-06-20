@@ -111,6 +111,12 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setTranslator($documentAnnot->translator);
         }
 
+        if (array() !== $documentAnnot->childClasses) {
+            $metadata->setChildClasses($documentAnnot->childClasses);
+        }
+
+        $metadata->setIsLeaf($documentAnnot->isLeaf);
+
         foreach ($reflClass->getProperties() as $property) {
             if ($metadata->isInheritedField($property->name)
                 && $metadata->name !== $property->getDeclaringClass()->getName()

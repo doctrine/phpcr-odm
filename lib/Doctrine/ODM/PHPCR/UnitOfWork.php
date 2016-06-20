@@ -54,6 +54,7 @@ use PHPCR\Util\UUIDHelper;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use Jackalope\Session as JackalopeSession;
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 
 /**
  * Unit of work class
@@ -2332,6 +2333,8 @@ class UnitOfWork
             }
 
             $parentNode = $this->session->getNode(PathHelper::getParentPath($id));
+            $this->validateChildClass($parentNode, $class);
+
             $nodename = PathHelper::getNodeName($id);
             $node = $parentNode->addNode($nodename, $class->nodeType);
             if ($class->node) {
@@ -2730,6 +2733,9 @@ class UnitOfWork
                     $invoke
                 );
             }
+
+            $parentNode = $this->session->getNode(PathHelper::getParentPath($targetPath));
+            $this->validateChildClass($parentNode, $class);
 
             $this->session->move($sourcePath, $targetPath);
 
@@ -3967,5 +3973,24 @@ class UnitOfWork
         if ($this->eventManager->hasListeners($eventName)) {
             $this->eventManager->dispatchEvent($eventName, $event);
         }
+    }
+
+    /**
+     * If the parent node has child restrictions, ensure that the given
+     * class name is within them.
+     *
+     * @param NodeInterface $parentNode
+     * @param string $classFqn
+     */
+    private function validateChildClass(NodeInterface $parentNode, ClassMetadata $class)
+    {
+        $parentClass = $this->documentClassMapper->getClassName($this->dm, $parentNode);
+
+        if (null === $parentClass) {
+            return;
+        }
+
+        $metadata = $this->dm->getClassMetadata($parentClass);
+        $metadata->assertValidChildClass($class);
     }
 }

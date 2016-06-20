@@ -31,6 +31,7 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\ClassLoader;
 use Doctrine\Instantiator\Instantiator;
 use Doctrine\Instantiator\InstantiatorInterface;
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 
 /**
  * Metadata class
@@ -329,6 +330,23 @@ class ClassMetadata implements ClassMetadataInterface
     public $parentClasses = array();
 
     /**
+     * READ-ONLY: Child class restrictions.
+     *
+     * If empty then any classes are permitted.
+     *
+     * @var array
+     */
+    public $childClasses = array();
+
+    /**
+     * READ-ONLY: If the document should be act as a leaf-node and therefore
+     *            not be allowed children.
+     *
+     * @var boolean
+     */
+    public $isLeaf = false;
+
+    /**
      * The inherited fields of this class
      *
      * @var array
@@ -451,6 +469,57 @@ class ClassMetadata implements ClassMetadataInterface
                     break;
             }
         }
+    }
+
+    /**
+     * Validate that childClasses is empty if isLeaf is true.
+     *
+     * @throws MappingException if there is a conflict between isLeaf and childClasses.
+     */
+    public function validateChildClasses()
+    {
+        if (count($this->childClasses) > 0 && $this->isLeaf) {
+            throw new MappingException(sprintf(
+                'Cannot map a document as a leaf and define child classes for "%s"',
+                $this->name
+            ));
+        }
+    }
+
+    /**
+     * Assert that the given class FQN can be a child of the document this
+     * metadata represents.
+     *
+     * @param string $classFqn
+     * @throws OutOfBoundsException
+     */
+    public function assertValidChildClass(ClassMetadata $class)
+    {
+        if ($this->isLeaf()) {
+            throw new OutOfBoundsException(sprintf(
+                'Document "%s" has been mapped as a leaf. It cannot have children',
+                $this->name
+            ));
+        }
+
+        $childClasses = $this->getChildClasses();
+
+        if (0 === count($childClasses)) {
+            return;
+        }
+
+        foreach ($childClasses as $childClass) {
+            if ($class->name === $childClass || $class->reflClass->isSubclassOf($childClass)) {
+                return;
+            }
+        }
+
+        throw new OutOfBoundsException(sprintf(
+            'Document "%s" does not allow children of type "%s". Allowed child classes "%s"',
+            $this->name,
+            $class->name,
+            implode('", "', $childClasses)
+        ));
     }
 
     /**
@@ -1122,6 +1191,49 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return $this->parentClasses;
     }
+
+    /**
+     * Return the class names or interfaces that children of this document must
+     * be an instance of.
+     *
+     * @return string[]
+     */
+    public function getChildClasses()
+    {
+        return $this->childClasses;
+    }
+
+    /**
+     * Set the class names or interfaces that children of this document must be
+     * instance of.
+     *
+     * @param string[] $childClasses
+     */
+    public function setChildClasses(array $childClasses)
+    {
+        $this->childClasses = $childClasses;
+    }
+
+    /**
+     * Return true if this is designated as a leaf node.
+     *
+     * @return bool
+     */
+    public function isLeaf()
+    {
+        return $this->isLeaf;
+    }
+
+    /**
+     * Set if this document should act as a leaf node.
+     *
+     * @param bool $isLeaf
+     */
+    public function setIsLeaf($isLeaf)
+    {
+        $this->isLeaf = $isLeaf;
+    }
+    
 
     /**
      * Checks whether the class will generate an id via the repository.

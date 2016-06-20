@@ -1,0 +1,4 @@
+Doctrine\Tests\ODM\PHPCR\Mapping\Model\IsLeafObject:
+    id: id
+    is_leaf: true
+
