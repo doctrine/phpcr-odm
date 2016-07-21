@@ -131,7 +131,9 @@ class ParentClassMetadataProxy extends ClassMetadata
     public $identifier = 'id';
     public $reflFields;
 
-    protected $_parent, $_nodename, $_id;
+    protected $_parent;
+    protected $_nodename;
+    protected $_id;
 
     public function __construct($parent, $nodename, $identifier, $mockField = null)
     {
@@ -159,7 +161,8 @@ class ParentClassMetadataProxy extends ClassMetadata
 
 class MockField
 {
-    private $p, $id;
+    private $p;
+    private $id;
 
     public function __construct($parent, $id)
     {
