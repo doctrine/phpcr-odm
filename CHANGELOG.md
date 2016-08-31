@@ -1,8 +1,8 @@
 Changelog
 =========
 
-dev-master
-----------
+1.4.0
+-----
 
 * **2016-06-08**  [Feature] Allow children of a document to be restricted to a
                   certain class or forbidden.
