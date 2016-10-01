@@ -274,7 +274,7 @@ class XmlDriver extends FileDriver
         if (isset($xmlRoot->{'child-class'})) {
             $childClasses = array();
             foreach ($xmlRoot->{'child-class'} as $requiredClass) {
-                $childClasses[] = $requiredClass['name'];
+                $childClasses[] = (string) $requiredClass['name'];
             }
             $class->setChildClasses($childClasses);
         }
