@@ -21,8 +21,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected function getMetadataFor($fqn)
     {
-        $cache = new \Doctrine\Common\Cache\ArrayCache();
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader($cache);
+        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
         $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
         $annotationDriver->addPaths(array(__DIR__ . '/Model'));
         $this->dm->getConfiguration()->setMetadataDriverImpl($annotationDriver);
