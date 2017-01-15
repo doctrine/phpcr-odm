@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Decorator;
 
+use Doctrine\ODM\PHPCR\Decorator\DocumentManagerDecorator;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 
 /**
@@ -9,6 +11,8 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
  */
 class DocumentManagerDecoratorTest extends PHPCRTestCase
 {
+    /**
+     */
     public function testCheckIfAllPublicMethodsAreDecorated()
     {
         $dmMethods = get_class_methods('Doctrine\ODM\PHPCR\DocumentManager');
@@ -19,11 +23,15 @@ class DocumentManagerDecoratorTest extends PHPCRTestCase
         $dmiMethods = array_diff($dmiMethods, array('__construct'));
         sort($dmiMethods);
 
-        $dmdMethods = get_class_methods('Doctrine\ODM\PHPCR\\Decorator\DocumentManagerDecorator');
+        $dmdMethods = get_class_methods('\Doctrine\Tests\ODM\PHPCR\Decorator\OwnDocumentManager');
         $dmdMethods = array_diff($dmdMethods, array('__construct'));
         sort($dmdMethods);
 
         $this->assertEquals($dmMethods, $dmiMethods);
         $this->assertEquals($dmMethods, $dmdMethods);
     }
+}
+
+class OwnDocumentManager extends DocumentManagerDecorator
+{
 }
