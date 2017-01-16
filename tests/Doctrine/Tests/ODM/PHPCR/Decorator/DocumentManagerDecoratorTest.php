@@ -11,8 +11,6 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
  */
 class DocumentManagerDecoratorTest extends PHPCRTestCase
 {
-    /**
-     */
     public function testCheckIfAllPublicMethodsAreDecorated()
     {
         $dmMethods = get_class_methods('Doctrine\ODM\PHPCR\DocumentManager');
