@@ -407,7 +407,7 @@ class UnitOfWork
                     ++$existingDocuments;
                     $documents[$id] = $document;
                 } else {
-                    $overrideLocalValuesOids[$id] = $this->getObjectId($document);
+                    $overrideLocalValuesOids[$id] = $this->getObjectHash($document);
                 }
 
                 try {
@@ -715,7 +715,7 @@ class UnitOfWork
 
         $hints = array('refresh' => true, 'fallback' => true);
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($this->documentLocales[$oid]['current'])) {
             $hints['locale'] = $this->documentLocales[$oid]['current'];
         }
@@ -765,7 +765,7 @@ class UnitOfWork
      */
     private function doBindTranslation($document, $locale, ClassMetadata $class)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         // only trigger the events if we bind a new translation
         if (empty($this->documentTranslations[$oid][$locale])
@@ -815,7 +815,7 @@ class UnitOfWork
             ));
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         // To avoid recursion loops (over children and parents)
         if (isset($visited[$oid])) {
             return;
@@ -946,7 +946,7 @@ class UnitOfWork
 
     public function scheduleMove($document, $targetPath)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         $state = $this->getDocumentState($document);
 
@@ -967,7 +967,7 @@ class UnitOfWork
 
     public function scheduleReorder($document, $srcName, $targetName, $before)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -991,7 +991,7 @@ class UnitOfWork
 
     private function doRemove($document, &$visited)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($visited[$oid])) {
             return;
         }
@@ -1080,7 +1080,7 @@ class UnitOfWork
      */
     private function setDocumentState($document, $state)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         $this->documentState[$oid] = $state;
     }
 
@@ -1098,7 +1098,7 @@ class UnitOfWork
      */
     public function getDocumentState($document)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (!isset($this->documentState[$oid])) {
             // this will only use the metadata if id is mapped
             $id = $this->determineDocumentId($document);
@@ -1127,7 +1127,7 @@ class UnitOfWork
      */
     public function isScheduledForInsert($document)
     {
-        return isset($this->scheduledInserts[$this->getObjectId($document)]);
+        return isset($this->scheduledInserts[$this->getObjectHash($document)]);
     }
 
     /**
@@ -1153,7 +1153,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (!isset($this->scheduledInserts[$oid])) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
@@ -1475,7 +1475,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (in_array($oid, $this->changesetComputed)) {
             return;
         }
@@ -1611,7 +1611,7 @@ class UnitOfWork
 
         $translationChanges = false;
         if ($this->isDocumentTranslatable($class)) {
-            $oid = $this->getObjectId($document);
+            $oid = $this->getObjectHash($document);
             if (isset($this->documentTranslations[$oid])) {
                 foreach ($this->documentTranslations[$oid] as $localeToCheck => $data) {
                     // a translation was removed
@@ -1822,7 +1822,7 @@ class UnitOfWork
 
     private function doRefresh($document, &$visited)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($visited[$oid])) {
             return;
         }
@@ -1882,7 +1882,7 @@ class UnitOfWork
 
     private function doMerge($document, array &$visited, $prevManagedCopy = null, $assoc = null)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($visited[$oid])) {
             return $document; // Prevent infinite recursion
         }
@@ -2104,7 +2104,7 @@ class UnitOfWork
      */
     private function doDetach($document, array &$visited)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($visited[$oid])) {
             return; // Prevent infinite recursion
         }
@@ -3054,7 +3054,7 @@ class UnitOfWork
      */
     private function unregisterDocument($document)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($this->documentIds[$oid])) {
             unset($this->identityMap[$this->documentIds[$oid]]);
         }
@@ -3091,7 +3091,7 @@ class UnitOfWork
      */
     public function registerDocument($document, $pathOrUuid)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         // we shouldn't register document which can not be found, so we don't catch exception here
         $node = $this->getNodeByPathOrUuid($pathOrUuid);
 
@@ -3119,7 +3119,7 @@ class UnitOfWork
      */
     public function contains($document)
     {
-        return ($this->documentIsManaged($document) && !isset($this->scheduledRemovals[$this->getObjectId($document)]));
+        return ($this->documentIsManaged($document) && !isset($this->scheduledRemovals[$this->getObjectHash($document)]));
     }
 
     /**
@@ -3145,7 +3145,7 @@ class UnitOfWork
     }
 
     /**
-     * Creates a node from a given path or an uuid
+     * Creates a node from a given path or an UUID
      *
      * @param $pathOrUuid
      *
@@ -3179,7 +3179,7 @@ class UnitOfWork
             throw new PHPCRException($msg);
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (!empty($this->documentUuids[$oid]) && array_key_exists($this->documentUuids[$oid], $this->uuidIdMapping)) {
             return $this->uuidIdMapping[$this->documentUuids[$oid]];
         } elseif (!empty($this->documentIds[$oid])) {
@@ -3274,7 +3274,7 @@ class UnitOfWork
             throw new MissingTranslationException('This document is not translatable: : '.self::objToStr($document, $this->dm));
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if ($this->contains($oid)) {
             try {
                 $node = $this->session->getNode($this->getDocumentId($document));
@@ -3310,7 +3310,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (!empty($this->documentTranslations[$oid])) {
             $strategy = $this->dm->getTranslationStrategy($metadata->translator);
             foreach ($this->documentTranslations[$oid] as $locale => $data) {
@@ -3353,7 +3353,7 @@ class UnitOfWork
      */
     protected function doLoadPendingTranslation($document, ClassMetadata $metadata, $locale)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         if (!isset($this->documentTranslations[$oid][$locale])) {
             return false;
@@ -3391,7 +3391,7 @@ class UnitOfWork
      */
     protected function doLoadDatabaseTranslation($document, ClassMetadata $metadata, $locale, $fallback, $refresh)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
         try {
@@ -3463,7 +3463,7 @@ class UnitOfWork
 
         $currentLocale = $this->getCurrentLocale($document, $metadata);
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (null === $locale || $locale === $currentLocale) {
             // current locale is already loaded and not removed
             if (!$refresh && isset($this->documentTranslations[$oid][$currentLocale])) {
@@ -3611,7 +3611,7 @@ class UnitOfWork
             $document->__load();
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         $this->documentTranslations[$oid][$locale] = null;
         $this->setLocale($document, $metadata, null);
     }
@@ -3629,7 +3629,7 @@ class UnitOfWork
      */
     private function isTranslationRemoved($document, $locale)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         return isset($this->documentTranslations[$oid])
             && empty($this->documentTranslations[$oid][$locale])
@@ -3664,7 +3664,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (empty($this->documentLocales[$oid])) {
             $this->documentLocales[$oid] = array('original' => $locale);
         }
@@ -3713,7 +3713,7 @@ class UnitOfWork
             }
         }
 
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
         if (isset($this->documentLocales[$oid]['current'])) {
             return $this->documentLocales[$oid]['current'];
         }
@@ -4051,7 +4051,7 @@ class UnitOfWork
      * @param $document
      * @return string
      */
-    private function getObjectId($document)
+    private function getObjectHash($document)
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
         return $oid;
@@ -4066,7 +4066,7 @@ class UnitOfWork
      */
     private function documentIsManaged($document)
     {
-        $oid = $this->getObjectId($document);
+        $oid = $this->getObjectHash($document);
 
         return isset($this->documentIds[$oid]) || isset($this->documentUuids[$oid]);
     }
