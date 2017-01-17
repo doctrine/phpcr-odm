@@ -280,29 +280,28 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function find($className, $id)
     {
+        if (!UUIDHelper::isUUID($id) && strpos($id, '/') !== 0) {
+            $id = '/'.$id;
+        }
+
+        // try to get a manage document
+        $document = $this->unitOfWork->getDocumentByPathOrUuid($id);
+        if ($document) {
+            try {
+                $this->unitOfWork->validateClassName($document, $className);
+
+                return $document;
+            } catch (ClassMismatchException $e) {
+                return null;
+            }
+        }
+
+        // get the node
         try {
-            if (UUIDHelper::isUUID($id)) {
-                try {
-                    $id = $this->session->getNodeByIdentifier($id)->getPath();
-                } catch (ItemNotFoundException $e) {
-                    return null;
-                }
-            } elseif (strpos($id, '/') !== 0) {
-                $id = '/'.$id;
-            }
-
-            $document = $this->unitOfWork->getDocumentById($id);
-            if ($document) {
-                try {
-                    $this->unitOfWork->validateClassName($document, $className);
-
-                    return $document;
-                } catch (ClassMismatchException $e) {
-                    return null;
-                }
-            }
-            $node = $this->session->getNode($id);
+            $node = $this->unitOfWork->getNodeByPathOrUuid($id);
         } catch (PathNotFoundException $e) {
+            return null;
+        } catch (ItemNotFoundException $e) {
             return null;
         }
 
@@ -368,7 +367,7 @@ class DocumentManager implements DocumentManagerInterface
                 $id = '/'.$id;
             }
 
-            $document = $this->unitOfWork->getDocumentById($id);
+            $document = $this->unitOfWork->getDocumentByPathOrUuid($id);
 
             if ($document) {
                 $this->unitOfWork->validateClassName($document, $className);
@@ -917,7 +916,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getNodeForDocument($document)
     {
-        if (!$identifier = $this->unitOfWork->getDocumentId($document)) {
+        if (null === $identifier = $this->unitOfWork->getDocumentId($document)) {
             throw new InvalidArgumentException('This document is not managed by this manager.');
         }
 

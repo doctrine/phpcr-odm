@@ -116,6 +116,7 @@ class UnitOfWorkTest extends PHPCRTestCase
             "jcr:system" => array(),
             'username' => $username,
         );
+
         if (null !== $uuid) {
             $nodeData['jcr:uuid'] = $uuid;
         }
@@ -133,7 +134,6 @@ class UnitOfWorkTest extends PHPCRTestCase
                 ->with($uuid)
                 ->will($this->returnValue($node));
         }
-
 
         return $node;
     }
@@ -165,7 +165,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
 
-        $user2 = $this->uow->getDocumentById('/somepath', $this->type);
+        $user2 = $this->uow->getDocumentByPathOrUuid('/somepath', $this->type);
 
         $this->assertSame($user1, $user2);
     }
@@ -268,7 +268,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $userAsReference = $this->uow->getOrCreateProxy($user->id, get_class($user));
 
         $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
-        $this->assertEquals($userAsReference, $this->uow->getDocumentById($userAsReference->id));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentByPathOrUuid($userAsReference->id));
     }
 
     public function testGetOrCreateProxyWithUuid()
@@ -279,7 +279,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $userAsReference = $this->uow->getOrCreateProxy($uuid, get_class($user));
 
         $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
-        $this->assertEquals($userAsReference, $this->uow->getDocumentById($uuid));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentByPathOrUuid($uuid));
     }
 }
 

@@ -21,8 +21,7 @@
         "phpcr/phpcr-implementation": "^2.1.0",
         "phpcr/phpcr-utils": "^1.2.8",
         "doctrine/instantiator": "^1.0.1",
-        "symfony/console": "^2.3|^3.0",
-        "jackalope/jackalope-doctrine-dbal": "~1.0"
+        "symfony/console": "^2.3|^3.0"
     },
     "require-dev": {
         "symfony/yaml": "^2.3|^3.0",
