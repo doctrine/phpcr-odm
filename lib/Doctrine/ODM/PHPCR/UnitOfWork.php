@@ -34,6 +34,7 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Id\IdException;
+use Doctrine\ODM\PHPCR\Mapping\Annotations\Id;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
@@ -674,7 +675,7 @@ class UnitOfWork
         $metadata      = $this->dm->getClassMetadata($className);
         $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, array($metadata->identifier => $targetId));
 
-        // register the document under its own id
+        // register the document under its own id/uuid
         $this->registerDocument($proxyDocument, $targetId);
 
         if ($locale) {
@@ -692,7 +693,12 @@ class UnitOfWork
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
-        $node = $this->session->getNode($this->determineDocumentId($document));
+        $pathOrUuid = $this->determineDocumentId($document);
+        $node = $this->getNodeByPathOrUuid($pathOrUuid);
+        if (UUIDHelper::isUUID($pathOrUuid)) {
+            $this->unregisterDocument($document);
+            $this->registerDocument($document, $node->getPath());
+        }
 
         $hints = array('refresh' => true, 'fallback' => true);
 
@@ -3063,18 +3069,25 @@ class UnitOfWork
 
     /**
      * @param object $document
-     * @param string $id       The document id to look for.
+     * @param string $pathOrUuid       The document id to look for.
      *
      * @return string generated object hash
      */
-    public function registerDocument($document, $id)
+    public function registerDocument($document, $pathOrUuid)
     {
         $oid = spl_object_hash($document);
-        $this->documentIds[$oid] = $id;
-        $this->identityMap[$id] = $document;
+        $this->documentIds[$oid] = $pathOrUuid;
+        $this->identityMap[$pathOrUuid] = $document;
 
         // frozen nodes need another state so they are managed but not included for updates
-        $frozen = $this->session->nodeExists($id) && $this->session->getNode($id)->isNodeType('nt:frozenNode');
+        try {
+            $node = $this->getNodeByPathOrUuid($pathOrUuid);
+            $frozen = $node instanceof  NodeInterface ? $node->isNodeType('nt:frozenNode') : false;
+        } catch (ItemNotFoundException $e) {
+            $frozen = false;
+        } catch (PathNotFoundException $e) {
+            $frozen = false;
+        }
 
         $this->setDocumentState($oid, $frozen ? self::STATE_FROZEN : self::STATE_MANAGED);
 
@@ -3110,6 +3123,20 @@ class UnitOfWork
         }
 
         return false;
+    }
+
+    /**
+     * Creates a node from a given path or an uuid
+     *
+     * @param $pathOrUuid
+     *
+     * @return NodeInterface
+     */
+    public function getNodeByPathOrUuid($pathOrUuid)
+    {
+        return UUIDHelper::isUUID($pathOrUuid)
+            ? $this->session->getNodeByIdentifier($pathOrUuid)
+            : $this->session->getNode($pathOrUuid);
     }
 
     /**

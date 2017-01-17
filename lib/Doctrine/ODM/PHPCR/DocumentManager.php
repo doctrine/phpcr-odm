@@ -917,13 +917,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getNodeForDocument($document)
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
+        if (!$identifier = $this->unitOfWork->getDocumentId($document)) {
+            throw new InvalidArgumentException('This document is not managed by this manager.');
         }
 
-        $path = $this->unitOfWork->getDocumentId($document);
-
-        return $this->session->getNode($path);
+        return $this->unitOfWork->getNodeByPathOrUuid($identifier);
     }
 
     /**
