@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.0 (not released)
+--------------------
+
+* **2017-01-15** [Feature] `DocumentManager::getDocumentId()` to get the id of a managed document
+
 1.4.0
 -----
 
