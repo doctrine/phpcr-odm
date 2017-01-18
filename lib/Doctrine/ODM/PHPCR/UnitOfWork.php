@@ -3092,21 +3092,28 @@ class UnitOfWork
     public function registerDocument($document, $pathOrUuid)
     {
         $oid = $this->getObjectHash($document);
-        // we shouldn't register document which can not be found, so we don't catch exception here
-        $node = $this->getNodeByPathOrUuid($pathOrUuid);
 
+        $node = null;
+        // frozen nodes need another state so they are managed but not included for updates
+        $frozen = false;
         if (UUIDHelper::isUUID($pathOrUuid)) {
+            // we shouldn't register document which can not be found, so we don't catch exception here
+            $node = $this->getNodeByPathOrUuid($pathOrUuid);
             $this->documentUuids[$oid] = $pathOrUuid;
             $id = $node->getPath();
             $this->uuidIdMapping[$pathOrUuid] = $id;
             $this->identityMap[$id] = $document;
+
+            if (null !== $node && $node->isNodeType('nt:frozenNode')) {
+                $frozen = true;
+            }
         } else {
             $this->documentIds[$oid] = $pathOrUuid;
             $this->identityMap[$pathOrUuid] = $document;
+
+            $frozen = $this->session->nodeExists($pathOrUuid) && $this->session->getNode($pathOrUuid)->isNodeType('nt:frozenNode');
         }
 
-        // frozen nodes need another state so they are managed but not included for updates
-        $frozen = $node->isNodeType('nt:frozenNode');
         $this->setDocumentState($oid, $frozen ? self::STATE_FROZEN : self::STATE_MANAGED);
 
         return $oid;
