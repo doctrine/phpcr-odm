@@ -101,6 +101,8 @@ class UnitOfWork
     private $documentIds = array();
 
     /**
+     * A map to of oid to uuid.
+     *
      * @var array
      */
     private $documentUuids = array();
@@ -110,7 +112,7 @@ class UnitOfWork
      *
      * @var array
      */
-    private $uuidIdMapping = array();
+    private $uuidToPathMap = array();
 
     /**
      * Track version history of the version documents we create, indexed by spl_object_hash
@@ -3076,8 +3078,8 @@ class UnitOfWork
             $this->documentVersion[$oid]
         );
 
-        if (!empty($this->documentUuids[$oid]) && array_key_exists($this->documentUuids[$oid], $this->uuidIdMapping)) {
-            unset($this->uuidIdMapping[$this->documentUuids[$oid]], $this->documentUuids[$oid]);
+        if (isset($this->documentUuids[$oid]) && array_key_exists($this->documentUuids[$oid], $this->uuidToPathMap)) {
+            unset($this->uuidToPathMap[$this->documentUuids[$oid]], $this->documentUuids[$oid]);
         }
 
         $this->changesetComputed = array_diff($this->changesetComputed, array($oid));
@@ -3101,7 +3103,7 @@ class UnitOfWork
             $node = $this->getNodeByPathOrUuid($pathOrUuid);
             $this->documentUuids[$oid] = $pathOrUuid;
             $id = $node->getPath();
-            $this->uuidIdMapping[$pathOrUuid] = $id;
+            $this->uuidToPathMap[$pathOrUuid] = $id;
             $this->identityMap[$id] = $document;
 
             if (null !== $node && $node->isNodeType('nt:frozenNode')) {
@@ -3140,8 +3142,8 @@ class UnitOfWork
      */
     public function getDocumentByPathOrUuid($pathOrUuid)
     {
-        $id = UUIDHelper::isUUID($pathOrUuid) && array_key_exists($pathOrUuid, $this->uuidIdMapping)
-            ? $this->uuidIdMapping[$pathOrUuid]
+        $id = UUIDHelper::isUUID($pathOrUuid) && array_key_exists($pathOrUuid, $this->uuidToPathMap)
+            ? $this->uuidToPathMap[$pathOrUuid]
             : $pathOrUuid;
 
         if (isset($this->identityMap[$id])) {
@@ -3187,8 +3189,8 @@ class UnitOfWork
         }
 
         $oid = $this->getObjectHash($document);
-        if (!empty($this->documentUuids[$oid]) && array_key_exists($this->documentUuids[$oid], $this->uuidIdMapping)) {
-            return $this->uuidIdMapping[$this->documentUuids[$oid]];
+        if (!empty($this->documentUuids[$oid]) && array_key_exists($this->documentUuids[$oid], $this->uuidToPathMap)) {
+            return $this->uuidToPathMap[$this->documentUuids[$oid]];
         } elseif (!empty($this->documentIds[$oid])) {
             return $this->documentIds[$oid];
         }
@@ -3258,7 +3260,7 @@ class UnitOfWork
         $this->documentHistory =
         $this->documentVersion =
         $this->documentUuids =
-        $this->uuidIdMapping = array();
+        $this->uuidToPathMap = array();
 
         $this->invokeGlobalEvent(Event::onClear, new OnClearEventArgs($this->dm));
 
