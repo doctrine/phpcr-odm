@@ -1689,7 +1689,7 @@ class UnitOfWork
                 if ($this->getDocumentById($childId)) {
                     $child = $this->merge($child);
                 } else {
-                    $this->persistNew($targetClass, $child, ClassMetadata::GENERATOR_TYPE_ASSIGNED, $parent);
+                    $this->persistNew($targetClass, $child, null, $parent);
                 }
 
                 $this->computeChangeSet($targetClass, $child);
