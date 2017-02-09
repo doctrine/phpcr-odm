@@ -925,12 +925,4 @@ class DocumentManager implements DocumentManagerInterface
 
         return $this->session->getNode($path);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDocumentId($document)
-    {
-        return $this->unitOfWork->getDocumentId($document);
-    }
 }

@@ -452,12 +452,4 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     {
         return $this->wrapped->getNodeForDocument($document);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDocumentId($document)
-    {
-        return $this->wrapped->getDocumentId($document);
-    }
 }

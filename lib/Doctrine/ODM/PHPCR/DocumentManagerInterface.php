@@ -525,15 +525,4 @@ interface DocumentManagerInterface extends ObjectManager
      * @throws PHPCRException                if $document is not managed
      */
     public function getNodeForDocument($document);
-
-    /**
-     * Get the document identifier phpcr-odm is using.
-     *
-     * @param object $document A managed document
-     *
-     * @return string
-     *
-     * @throws PHPCRException if $document is not managed
-     */
-    public function getDocumentId($document);
 }
