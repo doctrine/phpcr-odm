@@ -9,6 +9,12 @@ Changelog
                   Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
 * **2017-01-15**: [Feature] `DocumentManager::getDocumentId()` to get the id of a managed document
 
+1.4.1
+-----
+
+* **2017-01-31** [Bugfix] Don't override ID generator when persisting children
+* **2017-01-15** [Feature] `DocumentManager::getDocumentId()` to get the id of a managed document
+
 1.4.0
 -----
 
