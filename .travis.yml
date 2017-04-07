@@ -21,8 +21,9 @@ matrix:
   include:
     - php: 5.3
       env: TRANSPORT=doctrine_dbal COMPOSER_FLAGS="--prefer-lowest"
-    - php: 5.3
-      env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
+# composer fails to find a solution even though i think there should exist one
+#    - php: 5.3
+#      env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
     - php: 7.0
       env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="2.7"
     - php: 7.0
@@ -39,8 +40,8 @@ before_script:
   - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.11; fi;
   - ./tests/travis_${TRANSPORT}.sh
 
-script: 
-  - phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
+script:
+  - vendor/bin/phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
   - if [ "$PHPBENCH" = "yes" ]; then php vendor/bin/phpbench run --report=all; fi;
 
 
