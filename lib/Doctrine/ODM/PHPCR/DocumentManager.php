@@ -346,7 +346,10 @@ class DocumentManager implements DocumentManagerInterface
         }
 
         $nodes = $this->session->getNodes($ids);
-        $hints = array('fallback' => true);
+        $hints = array(
+            'fallback' => true,
+            'locale' => $locale,
+        );
         $documents = $this->unitOfWork->getOrCreateDocuments($className, $nodes, $hints);
 
         return new ArrayCollection($documents);
