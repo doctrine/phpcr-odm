@@ -128,7 +128,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * @param array              $nonSuperclassParents All parent class names
      *                                                 that are not marked as mapped superclasses.
      */
-    protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents)
+    protected function doLoadMetadata($class, $parent, $rootEntityFound)
     {
         if ($parent) {
             $this->addInheritedDocumentOptions($class, $parent);
