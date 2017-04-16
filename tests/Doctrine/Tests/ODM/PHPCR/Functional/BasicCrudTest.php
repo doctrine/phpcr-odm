@@ -504,6 +504,26 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User6', '/functional/'.$user->nodename);
         $this->assertEquals($userNew->nodename, $user->nodename);
     }
+    
+    public function testNoNodename() {
+    	$functional = $this->dm->find(null, '/functional');
+    	
+    	$user = new User7();
+    	$user->parent = $functional;
+    	$user->text = "test";
+    	
+    	$this->dm->persist($user);
+    	$this->dm->flush();
+    	$this->dm->clear();
+    	
+    	$userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User7', $doc->id);
+    	$userNew->text = "test2";
+    	$this->dm->flush();
+    	
+    	$userNew2 = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User7', $doc->id);
+    	
+    	$this->assertEquals($userNew->text, $userNew2->text);
+    }
 
     public function testAssocProperty()
     {
@@ -723,6 +743,19 @@ class User6 extends User5
 {
     /** @PHPCRODM\Id(strategy="auto") */
     public $id;
+}
+
+
+/** @PHPCR\Document() */
+class User7 {
+	/** @PHPCR\Id() */
+	public $id;
+
+	/** @PHPCR\ParentDocument() */
+	public $parent;
+
+	/** @PHPCR\String */
+	public $text;
 }
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
