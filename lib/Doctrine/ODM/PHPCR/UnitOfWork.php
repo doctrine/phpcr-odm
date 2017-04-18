@@ -839,7 +839,7 @@ class UnitOfWork
      */
     private function cascadeScheduleInsert($class, $document, &$visited)
     {
-        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
+        foreach (array_merge($class->referenceMappings, $class->referrersMappings, $class->childrenMappings) as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST)) {
                 continue;
