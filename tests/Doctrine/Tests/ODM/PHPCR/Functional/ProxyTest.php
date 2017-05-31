@@ -101,6 +101,54 @@ class ProxyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('foo', $doc->nodename);
         $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\ParentDoc', $doc->parent);
     }
+
+    public function testProxyAwakesOnFields()
+    {
+
+        $node = $this->resetFunctionalNode($this->dm);
+        $parentId = $node->getPath().'/parent';
+
+        $parent = new ParentDoc();
+        $parent->id = $parentId;
+
+        $child = new ChildWithFields();
+        $child->parent = $parent;
+        $child->nodename = 'foo';
+        $child->title = 'child';
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, $parentId);
+        $child = $parent->children->current();
+        $this->assertFalse($child->__isInitialized__);
+        $this->assertEquals('child', $child->title);
+    }
+
+    public function testProxyAwakesOnNodeName()
+    {
+
+        $node = $this->resetFunctionalNode($this->dm);
+        $parentId = $node->getPath().'/parent';
+
+        $parent = new ParentDoc();
+        $parent->id = $parentId;
+
+        $child = new ChildWithFields();
+        $child->parent = $parent;
+        $child->nodename = 'foo';
+        $child->title = 'child';
+        $this->dm->persist($child);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, $parentId);
+        $child = $parent->children->current();
+        $this->assertFalse($child->__isInitialized__);
+        $this->assertEquals('foo', $child->nodename);
+    }
 }
 
 /**
@@ -123,4 +171,19 @@ class DocWithoutId
     public $parent;
     /** @PHPCRODM\Nodename */
     public $nodename;
+}
+
+/**
+ * @PHPCRODM\Document()
+ */
+class ChildWithFields
+{
+    /** @PHPCRODM\Id */
+    public $id;
+    /** @PHPCRODM\ParentDocument */
+    public $parent;
+    /** @PHPCRODM\Nodename */
+    public $nodename;
+    /** @PHPCRODM\Field(type="string") */
+    public $title;
 }
