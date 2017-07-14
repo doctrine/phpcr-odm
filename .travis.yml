@@ -5,7 +5,6 @@ php:
   - 5.5
   - 5.6
   - 7.0
-  - hhvm
 
 sudo: false
 
@@ -32,6 +31,8 @@ matrix:
       env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="2.8" PHPBENCH="yes"
     - php: 7.0
       env: TRANSPORT=jackrabbit SYMFONY_VERSION="2.8" PHPBENCH="yes"
+    - php: hhvm
+      dist: trusty
 
 before_script:
   - composer self-update || true
