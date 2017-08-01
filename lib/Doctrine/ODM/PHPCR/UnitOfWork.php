@@ -2774,7 +2774,7 @@ class UnitOfWork
                 if ($childClass->identifier) {
                     $childClass->setIdentifierValue($child, $newId);
                     if (! $child instanceof Proxy || $child->__isInitialized()) {
-                        $this->originalData[$oid][$childClass->identifier] = $newId;
+                        $this->originalData[$childOid][$childClass->identifier] = $newId;
                     }
                 }
             }
