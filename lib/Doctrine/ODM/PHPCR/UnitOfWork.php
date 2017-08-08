@@ -2317,6 +2317,7 @@ class UnitOfWork
 
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
+            /** @var ClassMetadata $class */
             $class = $this->dm->getClassMetadata(get_class($document));
 
             // PHPCR does not validate nullable unless we would start to
