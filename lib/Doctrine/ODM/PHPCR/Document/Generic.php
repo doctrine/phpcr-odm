@@ -19,9 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR\Document;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use PHPCR\NodeInterface;
+
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * This class represents an arbitrary node
@@ -46,13 +48,13 @@ class Generic
     protected $parent;
 
     /**
-     * @var ArrayCollection
+     * @var Collection
      * @PHPCRODM\Children
      */
     protected $children;
 
     /**
-     * @var ArrayCollection
+     * @var Collection
      * @PHPCRODM\MixedReferrers
      */
     protected $referrers;
@@ -151,7 +153,7 @@ class Generic
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
      *
-     * @return object documents
+     * @return Collection
      */
     public function getChildren()
     {
@@ -163,7 +165,7 @@ class Generic
      *
      * @param $children ArrayCollection
      *
-     * return $this
+     * @return $this
      */
     public function setChildren(ArrayCollection $children)
     {
@@ -196,7 +198,7 @@ class Generic
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
      *
-     * @return string
+     * @return Collection
      */
     public function getReferrers()
     {
