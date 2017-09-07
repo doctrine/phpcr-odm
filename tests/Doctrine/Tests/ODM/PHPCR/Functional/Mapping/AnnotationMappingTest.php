@@ -289,7 +289,7 @@ class ParentIdStrategyDifferentOrder
     /** @PHPCRODM\Nodename */
     public $name;
 
-       /** @PHPCRODM\ParentDocument */
+    /** @PHPCRODM\ParentDocument */
     public $parent;
 
     /** @PHPCRODM\Id */
