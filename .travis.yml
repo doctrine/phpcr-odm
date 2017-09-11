@@ -20,6 +20,7 @@ matrix:
   include:
     - php: 5.3
       env: TRANSPORT=doctrine_dbal COMPOSER_FLAGS="--prefer-lowest"
+      dist: precise
 # composer fails to find a solution even though i think there should exist one
 #    - php: 5.3
 #      env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
