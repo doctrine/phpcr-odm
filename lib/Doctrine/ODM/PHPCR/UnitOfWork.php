@@ -2297,13 +2297,13 @@ class UnitOfWork
         $order = array_flip(array_values($oids));
         uasort($oids, function ($a, $b) use ($order) {
             // compute the node depths
-                $aCount = substr_count($a, '/');
+            $aCount = substr_count($a, '/');
             $bCount = substr_count($b, '/');
 
-                // ensure that the original order is maintained for nodes with the same depth
-                if ($aCount === $bCount) {
-                    return ($order[$a] < $order[$b]) ? -1 : 1;
-                }
+            // ensure that the original order is maintained for nodes with the same depth
+            if ($aCount === $bCount) {
+                return ($order[$a] < $order[$b]) ? -1 : 1;
+            }
 
             return ($aCount < $bCount) ? -1 : 1;
         }
@@ -2313,6 +2313,7 @@ class UnitOfWork
 
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
+            /** @var ClassMetadata $class */
             $class = $this->dm->getClassMetadata(get_class($document));
 
             // PHPCR does not validate nullable unless we would start to
@@ -2770,7 +2771,7 @@ class UnitOfWork
                 if ($childClass->identifier) {
                     $childClass->setIdentifierValue($child, $newId);
                     if (! $child instanceof Proxy || $child->__isInitialized()) {
-                        $this->originalData[$oid][$childClass->identifier] = $newId;
+                        $this->originalData[$childOid][$childClass->identifier] = $newId;
                     }
                 }
             }
