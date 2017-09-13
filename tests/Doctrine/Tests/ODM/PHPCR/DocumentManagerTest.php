@@ -15,6 +15,16 @@ use PHPCR\WorkspaceInterface;
 class DocumentManagerTest extends PHPCRTestCase
 {
     /**
+     * @var SessionInterface
+     */
+    protected $session;
+
+    public function setUp()
+    {
+        $this->session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+    }
+
+    /**
      * @covers Doctrine\ODM\PHPCR\DocumentManager::find
      */
     public function testFind()
@@ -95,9 +105,7 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testContains()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-
-        $dm = DocumentManager::create($session);
+        $dm = DocumentManager::create($this->session);
 
         $obj = new \stdClass;
         $uow = $dm->getUnitOfWork();

@@ -8,6 +8,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Jackalope\Factory;
 use Jackalope\Node;
+use PHPCR\Util\UUIDHelper;
 
 /**
  * TODO: remove Jackalope dependency
@@ -56,7 +57,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->session = $this->getMockBuilder('Jackalope\Session')
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $this->objectManager = $this->getMockBuilder('Jackalope\ObjectManager')
             ->disableOriginalConstructor()
             ->getMock();
@@ -74,54 +75,66 @@ class UnitOfWorkTest extends PHPCRTestCase
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
-    protected function createNode($id, $username, $primaryType = 'rep:root')
+    protected function createNode($id, $username, $primaryType = 'rep:root', $uuid = null)
     {
         $repository = $this->getMockBuilder('Jackalope\Repository')->disableOriginalConstructor()->getMock();
         $this->session->expects($this->any())
             ->method('getRepository')
             ->with()
             ->will($this->returnValue($repository));
-        
+
         $type = $this->getMockBuilder('Jackalope\NodeType\NodeType')->disableOriginalConstructor()->getMock();
         $type->expects($this->any())
             ->method('getName')
             ->with()
             ->will($this->returnValue($primaryType));
-        
+
         $ntm = $this->getMockBuilder('Jackalope\NodeType\NodeTypeManager')->disableOriginalConstructor()->getMock();
         $ntm->expects($this->any())
             ->method('getNodeType')
             ->with()
             ->will($this->returnValue($type));
-        
+
         $workspace = $this->getMockBuilder('Jackalope\Workspace')->disableOriginalConstructor()->getMock();
         $workspace->expects($this->any())
             ->method('getNodeTypeManager')
             ->with()
             ->will($this->returnValue($ntm));
-        
+
         $this->session->expects($this->any())
             ->method('getWorkspace')
             ->with()
             ->will($this->returnValue($workspace));
-        
+
         $this->session->expects($this->any())
                ->method('nodeExists')
             ->with($id)
             ->will($this->returnValue(true));
-        
+
         $nodeData = array(
             "jcr:primaryType" => $primaryType,
             "jcr:system" => array(),
             'username' => $username,
         );
+
+        if (null !== $uuid) {
+            $nodeData['jcr:uuid'] = $uuid;
+        }
+
         $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
-        
+
         $this->session->expects($this->any())
             ->method('getNode')
             ->with($id)
             ->will($this->returnValue($node));
-        
+
+        if (null !== $uuid) {
+            $this->session->expects($this->any())
+                ->method('getNodeByIdentifier')
+                ->with($uuid)
+                ->will($this->returnValue($node));
+        }
+
         return $node;
     }
 
@@ -152,7 +165,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
 
-        $user2 = $this->uow->getDocumentById('/somepath', $this->type);
+        $user2 = $this->uow->getDocumentByPathOrUuid('/somepath', $this->type);
 
         $this->assertSame($user1, $user2);
     }
@@ -246,6 +259,27 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         // Should not throw "InvalidArgumentException: Document has to be managed for single computation"
         $this->uow->computeSingleDocumentChangeSet($object);
+    }
+
+    public function testGetOrCreateProxy()
+    {
+        $user = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
+        $this->uow->clear();
+        $userAsReference = $this->uow->getOrCreateProxy($user->id, get_class($user));
+
+        $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentByPathOrUuid($userAsReference->id));
+    }
+
+    public function testGetOrCreateProxyWithUuid()
+    {
+        $uuid = UUIDHelper::generateUUID();
+        $user = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo', 'rep:root', $uuid));
+        $this->uow->clear();
+        $userAsReference = $this->uow->getOrCreateProxy($uuid, get_class($user));
+
+        $this->assertEquals(2, $this->uow->getDocumentState($userAsReference));
+        $this->assertEquals($userAsReference, $this->uow->getDocumentByPathOrUuid($uuid));
     }
 }
 

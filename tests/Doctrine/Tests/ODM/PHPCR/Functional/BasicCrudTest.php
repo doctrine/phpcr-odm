@@ -656,6 +656,30 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         // nothing should happen, we did not alter any value
         $this->dm->flush();
     }
+
+    public function testGetReferenceProxyByUuidAndFindByPathShouldNotRegisterTwice()
+    {
+        $user = new User7();
+        $user->username = 'referenced-one';
+        $user->id = '/functional/referenced-one';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+
+        $user = $this->dm->find(null, '/functional/referenced-one');
+        $uuid = $user->uuid;
+        $this->dm->clear();
+
+        $proxy = $this->dm->getReference(get_class(new User7()), $uuid);
+        $this->assertEquals($uuid, $proxy->id);
+        $document = $this->dm->find(get_class($user), '/functional/referenced-one');
+
+        $this->assertNotNull($document);
+
+        // when calling the uuid the proxy will be awake too
+        $this->assertEquals($uuid, $document->uuid);
+        $this->assertEquals($document->id, $proxy->id);
+    }
 }
 
 /**
@@ -716,6 +740,7 @@ class User5
     public $numbers;
 }
 
+
 /**
  * @PHPCRODM\Document()
  */
@@ -723,6 +748,16 @@ class User6 extends User5
 {
     /** @PHPCRODM\Id(strategy="auto") */
     public $id;
+}
+
+/**
+ *
+ * @PHPCRODM\Document(referenceable=true)
+ */
+class User7 extends User
+{
+    /** @var  @PHPCRODM\Uuid */
+    public $uuid;
 }
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
