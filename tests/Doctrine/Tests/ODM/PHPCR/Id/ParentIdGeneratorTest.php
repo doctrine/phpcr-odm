@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
     public function testGenerate()
     {
@@ -34,7 +34,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
     public function testGenerateNoParent()
     {
@@ -48,7 +48,7 @@ class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
     public function testGenerateNoName()
     {
