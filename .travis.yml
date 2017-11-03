@@ -2,6 +2,7 @@ language: php
 
 php:
   - 7.1
+  - 7.0
 
 sudo: false
 
@@ -17,6 +18,8 @@ matrix:
   include:
     - php: 7.1
       env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
+    - php: 7.0
+      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="3.3"
     - php: 7.1
       env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="3.3" PHPBENCH="yes"
     - php: 7.1
