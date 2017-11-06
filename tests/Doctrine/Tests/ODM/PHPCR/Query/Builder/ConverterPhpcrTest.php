@@ -9,8 +9,9 @@ use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use PHPUnit\Framework\TestCase;
 
-class ConverterPhpcrTest extends \PHPUnit_Framework_TestCase
+class ConverterPhpcrTest extends TestCase
 {
     protected $parentNode;
 

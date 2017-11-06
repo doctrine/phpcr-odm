@@ -3,11 +3,12 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query;
 
 use Doctrine\ODM\PHPCR\Query\Query;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group unit
  */
-class QueryTest extends \PHPUnit_Framework_Testcase
+class QueryTest extends Testcase
 {
     public function setUp()
     {

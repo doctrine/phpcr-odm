@@ -2,8 +2,9 @@
 
 use Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPUnit\Framework\TestCase;
 
-class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
+class RepositoryIdGeneratorTest extends TestCase
 {
     /**
      * @covers Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate

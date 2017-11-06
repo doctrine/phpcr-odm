@@ -4,8 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
+use PHPUnit\Framework\TestCase;
 
-abstract class NodeTestCase extends \PHPUnit_Framework_TestCase
+abstract class NodeTestCase extends TestCase
 {
     protected $node;
 

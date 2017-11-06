@@ -5,8 +5,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractMappingDriverTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractMappingDriverTest extends TestCase
 {
     /**
      * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver

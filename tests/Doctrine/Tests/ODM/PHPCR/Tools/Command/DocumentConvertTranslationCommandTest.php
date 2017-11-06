@@ -7,8 +7,9 @@ use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use PHPCR\SessionInterface;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\TestCase;
 
-class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
+class DocumentConvertTranslationCommandTest extends TestCase
 {
     /**
      * @var DocumentConvertTranslationCommand
