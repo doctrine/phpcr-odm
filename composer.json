@@ -27,7 +27,7 @@
         "symfony/yaml": "^3.3",
         "symfony/phpunit-bridge": "^3.2",
         "liip/rmt": "~1.2",
-        "phpunit/phpunit": "5.*"
+        "phpunit/phpunit": "~5.7.21"
     },
     "suggest": {
         "symfony/yaml": "^3.2",
