@@ -4,10 +4,19 @@ Changelog
 2.0 (unreleased)
 ----------------
 
-* **2017-01-17**: [BC Break] removed deprecated methods HierarchyInterface:.getParent/setParent. 
-                  DocumentManager::flush no longer saves the PHPCR session if there are no changes on the ODM layer.
-                  Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
-* **2017-01-15**: [Feature] `DocumentManager::getDocumentId()` to get the id of a managed document
+### BC Breaks
+
+Removed deprecated methods HierarchyInterface::getParent/setParent.
+Use getParentDocument/setParentDocument instead.
+
+DocumentManager::flush no longer saves the PHPCR session if there are no changes
+on the ODM layer.
+
+Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
+
+### New Features
+
+`DocumentManager::getDocumentId()` to get the id of a managed document
 
 1.4.1
 -----
