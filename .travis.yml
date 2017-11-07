@@ -1,10 +1,7 @@
 language: php
 
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
+  - 7.1
 
 sudo: false
 
@@ -18,22 +15,12 @@ env:
 
 matrix:
   include:
-    - php: 5.3
-      env: TRANSPORT=doctrine_dbal COMPOSER_FLAGS="--prefer-lowest"
-      dist: precise
-# composer fails to find a solution even though i think there should exist one
-#    - php: 5.3
-#      env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
-    - php: 7.0
-      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="2.7"
-    - php: 7.0
-      env: TRANSPORT=jackrabbit SYMFONY_VERSION="2.7"
-    - php: 7.0
-      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="2.8" PHPBENCH="yes"
-    - php: 7.0
-      env: TRANSPORT=jackrabbit SYMFONY_VERSION="2.8" PHPBENCH="yes"
-    - php: hhvm
-      dist: trusty
+    - php: 7.1
+      env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
+    - php: 7.1
+      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="3.3" PHPBENCH="yes"
+    - php: 7.1
+      env: TRANSPORT=jackrabbit SYMFONY_VERSION="3.3" PHPBENCH="yes"
 
 before_script:
   - composer self-update || true

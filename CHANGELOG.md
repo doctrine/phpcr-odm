@@ -1,6 +1,23 @@
 Changelog
 =========
 
+2.0 (unreleased)
+----------------
+
+### BC Breaks
+
+Removed deprecated methods HierarchyInterface::getParent/setParent.
+Use getParentDocument/setParentDocument instead.
+
+DocumentManager::flush no longer saves the PHPCR session if there are no changes
+on the ODM layer.
+
+Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
+
+### New Features
+
+`DocumentManager::getDocumentId()` to get the id of a managed document
+
 1.4.1
 -----
 
@@ -9,8 +26,7 @@ Changelog
 1.4.0
 -----
 
-* **2016-06-08**  [Feature] Allow children of a document to be restricted to a
-                  certain class or forbidden.
+* **2016-06-08**: [Feature] Allow children of a document to be restricted to a certain class or forbidden.
 
 1.3.1
 -----

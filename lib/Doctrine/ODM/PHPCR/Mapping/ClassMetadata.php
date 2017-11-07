@@ -1233,7 +1233,6 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->isLeaf = $isLeaf;
     }
-    
 
     /**
      * Checks whether the class will generate an id via the repository.
@@ -1318,15 +1317,6 @@ class ClassMetadata implements ClassMetadataInterface
             || $this->versionNameField === $fieldName
             || $this->versionCreatedField === $fieldName
         ;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @deprecated use getFieldMapping instead
-     */
-    public function getField($fieldName)
-    {
-        return $this->getFieldMapping($fieldName);
     }
 
     /**

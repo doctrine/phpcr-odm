@@ -379,7 +379,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         );
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
-        $this->dm->flush();
+        $this->dm->getPhpcrSession()->save();
 
         $qb = $this->dm->createQueryBuilder();
         $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
@@ -388,7 +388,6 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
             ->field('a.topic')
             ->literal('Not Exist')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
@@ -399,7 +398,6 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
             ->field('a.topic')
             ->literal('Un sujet intéressant')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
@@ -411,7 +409,6 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
             ->field('a.topic')
             ->literal('Un sujet intéressant')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
@@ -422,7 +419,6 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
             ->field('a.topic')
             ->literal('Some interesting subject')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
 
@@ -434,7 +430,6 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
             ->field('a.topic')
             ->literal('Un sujet intéressant')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
     }
