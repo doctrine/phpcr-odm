@@ -4,8 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Test;
 
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Tools\Test\QueryBuilderTester;
+use PHPUnit\Framework\TestCase;
 
-class QueryBuilderTesterTest extends \PHPUnit_Framework_TestCase
+class QueryBuilderTesterTest extends TestCase
 {
     public function setUp()
     {

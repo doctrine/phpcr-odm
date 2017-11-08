@@ -1,8 +1,9 @@
 <?php
 
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class MoveEventArgsTest extends \PHPUnit_Framework_TestCase
+class MoveEventArgsTest extends TestCase
 {
     private $object;
 

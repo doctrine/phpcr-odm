@@ -6,8 +6,9 @@ use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Event;
+use PHPUnit\Framework\TestCase;
 
-class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
+class ClassMetadataFactoryTest extends TestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager

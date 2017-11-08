@@ -4,8 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Id;
 
 use Doctrine\ODM\PHPCR\Id\ParentIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPUnit\Framework\TestCase;
 
-class ParentIdGeneratorTest extends \PHPUnit_Framework_TestCase
+class ParentIdGeneratorTest extends TestCase
 {
     /**
      * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate

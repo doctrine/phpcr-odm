@@ -8,8 +8,9 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
+use PHPUnit\Framework\TestCase;
 
-class DocumentClassMapperTest extends \PHPUnit_Framework_Testcase
+class DocumentClassMapperTest extends Testcase
 {
     const CLASS_GENERIC = 'Doctrine\ODM\PHPCR\Document\Generic';
     const CLASS_TEST_1 = 'Test\Class1';

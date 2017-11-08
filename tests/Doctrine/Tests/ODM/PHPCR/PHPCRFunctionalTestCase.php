@@ -6,8 +6,9 @@ use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use PHPCR\RepositoryFactoryInterface;
 use PHPCR\SessionInterface;
+use PHPUnit\Framework\TestCase;
 
-abstract class PHPCRFunctionalTestCase extends \PHPUnit_Framework_TestCase
+abstract class PHPCRFunctionalTestCase extends TestCase
 {
     /**
      * @var SessionInterface[]

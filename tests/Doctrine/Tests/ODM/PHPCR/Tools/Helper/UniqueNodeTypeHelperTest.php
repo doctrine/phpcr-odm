@@ -4,13 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Helper;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Tools\Helper\UniqueNodeTypeHelper;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Verify the behavior of the UniqueNodeTypeHelper class that is used
  * to confirm that any documents set to use unique node types do not
  * conflict with any other mappings.
  */
-class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
+class UniqueNodeTypeHelperTest extends TestCase
 {
     /**
      * Configure a mocked DocumentManager that will return the supplied

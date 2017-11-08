@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-class AbstractNodeTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class AbstractNodeTest extends TestCase
 {
     public function setUp()
     {

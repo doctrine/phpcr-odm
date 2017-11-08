@@ -2,8 +2,9 @@
 
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPUnit\Framework\TestCase;
 
-class AssignedIdGeneratorTest extends \PHPUnit_Framework_TestCase
+class AssignedIdGeneratorTest extends TestCase
 {
     /**
      * @covers Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
