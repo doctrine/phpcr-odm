@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 /**
  * @PHPCRODM\Document(referenceable=true)
  */
-class ParentNoNodeNameTestObj
+class ParentNoNodenameTestObj
 {
     /** @PHPCRODM\Id */
     public $id;

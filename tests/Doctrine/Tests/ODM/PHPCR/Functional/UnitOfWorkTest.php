@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
-use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
+use Doctrine\Tests\Models\References\ParentNoNodenameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\Models\CMS\CmsArticleFolder;
@@ -86,7 +86,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(32, strlen(key($scheduledMoves)), 'Size of key is 32 chars (oid)');
         $this->assertEquals(array($user1, '/foobar'), current($scheduledMoves));
     }
-    
+
     public function testMoveParentNoNodeName()
     {
         $root = $this->dm->find(null, 'functional');
@@ -101,7 +101,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent2->nodename = "root2";
         $parent2->setParentDocument($root);
 
-        $child = new ParentNoNodeNameTestObj();
+        $child = new ParentNoNodenameTestObj();
         $child->setParentDocument($parent1);
         $child->name = "child";
 

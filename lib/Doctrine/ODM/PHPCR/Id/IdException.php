@@ -10,7 +10,7 @@ class IdException extends PHPCRException
     public static function noIdentificationParameters($document, $parent, $nodename)
     {
         $message = sprintf(
-            'Property "%s" mapped as ParentDocument and property "%s" mapped as NodeName '.
+            'Property "%s" mapped as ParentDocument and property "%s" mapped as Nodename '.
                 'may not be empty in document of class "%s"',
             $parent,
             $nodename,
@@ -34,7 +34,7 @@ class IdException extends PHPCRException
     public static function noIdNoName($document, $fieldName)
     {
         $message = sprintf(
-            'NodeName property "%s" may not be empty in document of class "%s"',
+            'Nodename property "%s" may not be empty in document of class "%s"',
             $fieldName,
             ClassUtils::getClass($document)
         );
@@ -59,7 +59,7 @@ class IdException extends PHPCRException
     public static function illegalName($document, $fieldName, $nodeName)
     {
         $message = sprintf(
-            'NodeName property "%s" of document "%s" contains the illegal PHPCR value "%s".',
+            'Nodename property "%s" of document "%s" contains the illegal PHPCR value "%s".',
             $fieldName,
             ClassUtils::getClass($document),
             $nodeName
