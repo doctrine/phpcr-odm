@@ -19,7 +19,7 @@ class Select extends AbstractNode
     }
 
     /**
-     * Field to select.
+     * Field to select::
      *
      * <code>
      * $qb->select()

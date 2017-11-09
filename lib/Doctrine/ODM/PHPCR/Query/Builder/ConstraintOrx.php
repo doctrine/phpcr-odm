@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 /**
- * Constraint which evaluates to true if any one of ites children
+ * Constraint which evaluates to true if any one of its children
  * evaluates to true.
  *
  * Like the ConstraintAndx constraint a single child will act as if

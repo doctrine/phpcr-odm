@@ -100,13 +100,13 @@ HERE
                 $out = array();
                 $indent = 0;
                 foreach (explode("\n", $string) as $line) {
-                    if (strstr($line, '<code>')) {
-                        $out[] = '.. code-block:: php';
+                    if (false !== strpos($line, '<code>')) {
                         $indent = 4;
-                        $out[] = str_repeat(' ', $indent);
-                        $out[] = str_repeat(' ', $indent).'<?php';
                     } elseif (strstr($line, '</code>')) {
                         $indent = 0;
+                        $out[] = '';
+                    } elseif (0 === strlen($line)) {
+                        // do not indent empty lines
                         $out[] = '';
                     } else {
                         $out[] = str_repeat(' ', $indent).$line;
@@ -128,6 +128,7 @@ HERE
         $out[] = '';
         $out[] = '    All the classes here documented can be found in the namespace: ``Doctrine\ODM\PHPCR\Query\Builder``';
         $out[] = '';
+        $out[] = '.. Run bin/phpcr-odm doctrine:phpcr:qb:dump-reference to re-generate';
 
         $nti = array();
         $nti[] = 'Node Type Index';
@@ -140,7 +141,7 @@ HERE
             $nti[] = $f['humanize']($nType);
             $nti[] = $f['underline']($nType, '~');
             $nti[] = '';
-            
+
             foreach ($nClasses as $nClass) {
                 $nti[] = '* '.$f['genRef']($nClass, 'node');
             }
@@ -177,8 +178,10 @@ HERE
                 foreach ($nData['inheritedMethods'] as $inheritedMethod => $inheritedMethodClass) {
                     $inheritedMethodLinks[] = $f['genRef']($inheritedMethod, 'method_'.strtolower($inheritedMethodClass));
                 }
-                $out[] = '**Inherited methods**: '.implode(', ', $inheritedMethodLinks);
-                $out[] = '';
+                if (count($inheritedMethodLinks)) {
+                    $out[] = '**Inherited methods**: '.implode(', ', $inheritedMethodLinks);
+                    $out[] = '';
+                }
             }
 
             if ($nData['cardMap']) {

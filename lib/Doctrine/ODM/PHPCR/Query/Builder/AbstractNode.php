@@ -380,7 +380,7 @@ abstract class AbstractNode
         foreach ($refl->getMethods() as $rMethod) {
             $comment = $rMethod->getDocComment();
             if ($comment) {
-                if (strstr($comment, '@factoryMethod')) {
+                if (false !== strpos($comment, '@factoryMethod')) {
                     $fMethods[] = $rMethod->name;
                 }
             }

@@ -14,7 +14,7 @@ class OperandFactory extends OperandDynamicFactory
     /**
      * Evaluates to the value of the parameter bound to the given $name.
      *
-     * Relates to PHPCR BindVariableValueInterface
+     * Relates to PHPCR BindVariableValueInterface::
      *
      * <code>
      * $qb->where()->eq()->field('f.foobar')->parameter('param_1')->end();
@@ -32,7 +32,7 @@ class OperandFactory extends OperandDynamicFactory
     }
 
     /**
-     * Evaluates to the given literal value.
+     * Evaluates to the given literal value::
      *
      * <code>
      * $qb->where()->eq()->field('f.foobar')->literal('Literal Value')->end();
