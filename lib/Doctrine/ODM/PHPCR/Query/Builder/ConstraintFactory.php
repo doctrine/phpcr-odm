@@ -26,7 +26,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * And composite constraint.
+     * And composite constraint::
      *
      * <code>
      * $qb->where()
@@ -39,7 +39,7 @@ class ConstraintFactory extends AbstractNode
      *
      * The andX node allows you to add 1, 2 or many operand nodes. When
      * one operand is added the "and" is removed, when more than one
-     * is added the "and" operands are nested.
+     * is added the "and" operands are nested::
      *
      * <code>
      * // when adding only a single operand,
@@ -78,7 +78,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Or composite constraint.
+     * Or composite constraint::
      *
      * <code>
      * $qb->where()
@@ -100,7 +100,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Field existance constraint:
+     * Field existance constraint::
      *
      * <code>
      * $qb->where()->fieldIsset('sel_1.prop_1')->end();
@@ -117,7 +117,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Full text search constraint.
+     * Full text search constraint::
      *
      * <code>
      * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression')->end();
@@ -135,7 +135,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Same document constraint.
+     * Same document constraint::
      *
      * <code>
      * $qb->where()->same('/path/to/doc', 'sel_1')->end();
@@ -155,7 +155,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Descendant document constraint.
+     * Descendant document constraint::
      *
      * <code>
      *   $qb->where()->descendant('/ancestor/path', 'sel_1')->end();
@@ -175,7 +175,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Select children of the aliased document at the given path.
+     * Select children of the aliased document at the given path::
      *
      * <code>
      * $qb->where()->child('/parent/path', 'sel_1')->end();
@@ -205,7 +205,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Equality comparison constraint.
+     * Equality comparison constraint::
      *
      * <code>
      * $qb->where()
@@ -226,7 +226,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Inequality comparison constraint
+     * Inequality comparison constraint::
      *
      * <code>
      * $qb->where()
@@ -247,7 +247,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Less than comparison constraint.
+     * Less than comparison constraint::
      *
      * <code>
      * $qb->where()
@@ -268,7 +268,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Less than or equal to comparison constraint.
+     * Less than or equal to comparison constraint::
      *
      * <code>
      * $qb->where()
@@ -289,7 +289,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Greater than comparison constraint.
+     * Greater than comparison constraint::
      *
      * <code>
      * $qb->where()
@@ -310,7 +310,7 @@ class ConstraintFactory extends AbstractNode
     }
 
     /**
-     * Greater than or equal to comparison constraint.
+     * Greater than or equal to comparison constraint::
      *
      * <code>
      * $qb->where()
@@ -333,7 +333,7 @@ class ConstraintFactory extends AbstractNode
     /**
      * Like comparison constraint.
      *
-     * Use "%" as wildcards.
+     * Use "%" as wildcards::
      *
      * <code>
      * $qb->where()

@@ -25,9 +25,7 @@ class OperandDynamicFactory extends AbstractNode
 
     /**
      * Represents the aliased documents rank by relevance to the full text
-     * search expression given by the "fullTextSearch" constraint.
-     *
-     * See also: http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
+     * search expression given by the "fullTextSearch" constraint::
      *
      * <code>
      * $qb->where()
@@ -42,6 +40,8 @@ class OperandDynamicFactory extends AbstractNode
      * ->end();
      * </code>
      *
+     * See also: http://www.day.com/specs/jcr/2.0/6_Query.html#FullTextSearchScore
+     *
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicFullTextSearchScore
@@ -53,7 +53,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Length operand resolves to length of aliased document.
+     * Length operand resolves to length of aliased document::
      *
      * <code>
      * $qb->where()
@@ -77,7 +77,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * LowerCase operand evaluates to lower-cased string of child operand:
+     * LowerCase operand evaluates to lower-cased string of child operand::
      *
      * <code>
      * $qb->where()
@@ -97,7 +97,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * UpperCase operand evaluates to upper-cased string of child operand:
+     * UpperCase operand evaluates to upper-cased string of child operand::
      *
      * <code>
      * $qb->where()
@@ -121,7 +121,7 @@ class OperandDynamicFactory extends AbstractNode
      * name of the node being compared.
      *
      * For example, if a node has the path "/path/to/foobar", then "foobar"
-     * is the local node name.
+     * is the local node name::
      *
      * <code>
      * $qb->where()
@@ -148,7 +148,7 @@ class OperandDynamicFactory extends AbstractNode
      * Evaluates to the namespaced name of the node being compared.
      *
      * For example, if a node has the path "/path/to/bar:foobar", then
-     * "bar:foobar" is the namespaced node name.
+     * "bar:foobar" is the namespaced node name::
      *
      * <code>
      * $qb->where()
@@ -172,7 +172,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Evaluates to the value of the specified field.
+     * Evaluates to the value of the specified field::
      *
      * <code>
      * $qb->where()

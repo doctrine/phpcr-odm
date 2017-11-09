@@ -8,12 +8,6 @@ class SourceJoinConditionDescendant extends AbstractLeafNode
     protected $descendantAlias;
     protected $ancestorAliasNode;
 
-    /**
-     * Constructor
-     *
-     * @param string $descendantAlias
-     * @param string $ancestorAlias
-     */
     public function __construct($parent, $descendantAlias, $ancestorAlias)
     {
         $this->ancestorAliasNode = (string) $ancestorAlias;

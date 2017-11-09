@@ -360,8 +360,6 @@ class ConverterPhpcr extends ConverterBase
             }
         }
 
-        $operand = $this->qomf()->literal($value);
-
-        return $operand;
+        return $this->qomf()->literal($value);
     }
 }
