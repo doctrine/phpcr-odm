@@ -3198,8 +3198,6 @@ class UnitOfWork
         $this->documentVersion = array();
 
         $this->invokeGlobalEvent(Event::onClear, new OnClearEventArgs($this->dm));
-
-        $this->session->refresh(false);
     }
 
     /**
