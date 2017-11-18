@@ -20,13 +20,13 @@ matrix:
     - php: 7.1
       env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="3.3" PHPBENCH="yes"
     - php: 7.1
-      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="3.4" PHPBENCH="yes"
+      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="3.4.*" PHPBENCH="yes"
     - php: 7.1
       env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="4.0" PHPBENCH="yes"
     - php: 7.1
       env: TRANSPORT=jackrabbit SYMFONY_VERSION="3.3" PHPBENCH="yes"
     - php: 7.1
-      env: TRANSPORT=jackrabbit SYMFONY_VERSION="3.4" PHPBENCH="yes"
+      env: TRANSPORT=jackrabbit SYMFONY_VERSION="3.4.*" PHPBENCH="yes"
     - php: 7.1
       env: TRANSPORT=jackrabbit SYMFONY_VERSION="4.0" PHPBENCH="yes"
 
