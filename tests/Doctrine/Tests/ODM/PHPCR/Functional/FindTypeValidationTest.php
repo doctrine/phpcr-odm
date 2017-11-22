@@ -2,9 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\DocumentRepository;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\PropertyType;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
@@ -13,7 +11,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *
  * @group functional
  */
-class FindTypeValidationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class FindTypeValidationTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var \Doctrine\ODM\PHPCR\DocumentManager
@@ -114,7 +112,7 @@ class FindTypeValidationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
     {
         $user = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\TypeTeamUser', '/functional/user');
 
-        $this->assertTrue(null === $user, get_class($user));
+        $this->assertTrue(null === $user, is_object($user) ? get_class($user) : $user);
     }
 
     /**
@@ -126,7 +124,7 @@ class FindTypeValidationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTe
         $this->assertInstanceOf($this->type, $user);
 
         $user = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\TypeTeamUser', '/functional/user');
-        $this->assertTrue(null === $user, get_class($user));
+        $this->assertTrue(null === $user, is_object($user) ? get_class($user) : $user);
     }
 
     /**
