@@ -210,6 +210,6 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user1->username, $users1->username);
 
         $users2 = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsUser')->findOneBy(array('username' =>'obama'));
-        $this->assertEquals(null, $users2);
+        $this->assertNull($users2);
     }
 }

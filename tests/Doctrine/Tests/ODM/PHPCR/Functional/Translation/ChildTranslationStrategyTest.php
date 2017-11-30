@@ -216,12 +216,12 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'fr'), 'Should succeed to load FR translation');
 
-        $this->assertEquals(null, $doc->nullable);
+        $this->assertNull($doc->nullable);
 
         $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'de'), 'Should succeed to load DE translation');
 
-        $this->assertEquals(null, $doc->nullable);
+        $this->assertNull($doc->nullable);
     }
 
     public function testLoadTranslationMissing()
