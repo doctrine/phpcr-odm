@@ -38,7 +38,7 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         // Check the annotation is not set if it is not present
         $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\NonVersionableArticle');
         $this->assertTrue(isset($metadata->versionable));
-        $this->assertEquals(false, $metadata->versionable);
+        $this->assertFalse($metadata->versionable);
     }
 
     /**

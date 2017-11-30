@@ -16,7 +16,7 @@ class ClassMetadataTest extends TestCase
     {
         $cmi = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
         $cmi->initializeReflection(new RuntimeReflectionService());
-        $this->assertEquals(null, $cmi->getTypeOfField('some_field'));
+        $this->assertNull($cmi->getTypeOfField('some_field'));
         $cmi->mappings['some_field'] = array('type' => 'some_type');
         $this->assertEquals('some_type', $cmi->getTypeOfField('some_field'));
     }
