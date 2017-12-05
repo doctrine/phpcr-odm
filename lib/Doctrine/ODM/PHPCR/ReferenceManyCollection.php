@@ -112,13 +112,22 @@ class ReferenceManyCollection extends PersistentCollection
             $uow = $this->dm->getUnitOfWork();
             $uow->getPrefetchHelper()->prefetch($this->dm, $referencedNodes, $this->locale);
 
+            $metadata = $this->dm->getClassMetadata(get_class($this->document));
+            $metadata = $metadata->mappings[$this->property];
+            $isAssociative = $metadata['index-by-nodename'];
+
             $this->originalReferencePaths = array();
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
                 if (isset($targetDocument) && !$proxy instanceof $this->targetDocument) {
                     throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$this->targetDocument}' but got '".ClassUtils::getClass($proxy)."'.");
                 }
-                $referencedDocs[] = $proxy;
+                if ($isAssociative) {
+                    $index = $referencedNode->getName();
+                    $referencedDocs[$index] = $proxy;
+                } else {
+                    $referencedDocs[] = $proxy;
+                }
                 $this->originalReferencePaths[] = $referencedNode->getPath();
             }
 
