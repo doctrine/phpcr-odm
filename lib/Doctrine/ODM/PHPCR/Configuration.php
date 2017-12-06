@@ -288,7 +288,7 @@ class Configuration
     public function getClassMetadataFactoryName()
     {
         if (! isset($this->attributes['classMetadataFactoryName'])) {
-            $this->attributes['classMetadataFactoryName'] = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory';
+            $this->attributes['classMetadataFactoryName'] = Mapping\ClassMetadataFactory::class;
         }
 
         return $this->attributes['classMetadataFactoryName'];
@@ -326,7 +326,7 @@ class Configuration
     public function getDefaultRepositoryClassName()
     {
         return $this->attributes['defaultRepositoryClassName']
-            ?? 'Doctrine\ODM\PHPCR\DocumentRepository';
+            ?? DocumentRepository::class;
     }
 
     /**

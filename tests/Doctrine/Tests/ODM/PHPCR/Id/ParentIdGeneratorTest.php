@@ -2,9 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Id;
 
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Id\ParentIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\UnitOfWork;
 
 class ParentIdGeneratorTest extends TestCase
 {
@@ -18,14 +21,14 @@ class ParentIdGeneratorTest extends TestCase
         $generator = new ParentIdGenerator;
         $parent = new ParentDummy;
         $cm = new ParentClassMetadataProxy($parent, 'name', $id, new MockField($parent, '/miau'));
-        $uow = $this->getMockBuilder('Doctrine\ODM\PHPCR\UnitOfWork')->disableOriginalConstructor()->getMock();
+        $uow = $this->createMock(UnitOfWork::class);
         $uow
             ->expects($this->once())
             ->method('getDocumentId')
             ->with($this->equalTo($parent))
             ->will($this->returnValue('/miau'))
         ;
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getUnitOfWork')
@@ -43,7 +46,7 @@ class ParentIdGeneratorTest extends TestCase
 
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(null, 'name', $id);
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
         $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
@@ -57,67 +60,61 @@ class ParentIdGeneratorTest extends TestCase
 
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', $id);
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
         $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
-     */
     public function testGenerateNoIdNoParentNoName()
     {
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(null, '', '');
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
+        $this->expectException(IdException::class);
         $generator->generate(null, $cm, $dm);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
-     */
     public function testGenerateNoIdNoParent()
     {
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(null, 'name', '');
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
+        $this->expectException(IdException::class);
         $generator->generate(null, $cm, $dm);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
-     */
     public function testGenerateNoIdNoName()
     {
         $generator = new ParentIdGenerator;
         $cm = new ParentClassMetadataProxy(new ParentDummy, '', '');
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
+        $this->expectException(IdException::class);
         $generator->generate(null, $cm, $dm);
     }
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
-     */
+
     public function testGenerateNoParentId()
     {
         $generator = new ParentIdGenerator;
         $parent = new ParentDummy;
         $cm = new ParentClassMetadataProxy($parent, 'name', '', new MockField($parent, '/miau'));
-        $uow = $this->getMockBuilder('Doctrine\ODM\PHPCR\UnitOfWork')->disableOriginalConstructor()->getMock();
+        $uow = $this->createMock(UnitOfWork::class);
         $uow
             ->expects($this->once())
             ->method('getDocumentId')
             ->with($this->equalTo($parent))
             ->will($this->returnValue(''))
         ;
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getUnitOfWork')
             ->will($this->returnValue($uow))
         ;
+
+        $this->expectException(IdException::class);
         $generator->generate(null, $cm, $dm);
     }
 }

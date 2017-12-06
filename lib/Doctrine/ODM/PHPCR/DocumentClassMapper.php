@@ -64,7 +64,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
 
         // default to the built in generic document class
         if (empty($className)) {
-            $className = 'Doctrine\\ODM\\PHPCR\\Document\\Generic';
+            $className = Document\Generic::class;
         }
 
         return $className;

@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
@@ -9,6 +10,11 @@ use PHPCR\SessionInterface;
 use PHPCR\Transaction\UserTransactionInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\WorkspaceInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\DocumentRepository;
+use PHPCR\Query\QueryManagerInterface;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QueryInterface;
 
 /**
  * @group unit
@@ -23,7 +29,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $fakeUuid = \PHPCR\Util\UUIDHelper::generateUUID();
         $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
         $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new \PHPCR\ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
 
@@ -40,7 +46,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $fakeUuid = \PHPCR\Util\UUIDHelper::generateUUID();
         $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
         $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new \PHPCR\ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
 
@@ -50,53 +56,53 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::create
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::getConfiguration
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::create
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::getConfiguration
      */
     public function testNewInstanceFromConfiguration()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $session = $this->createMock(SessionInterface::class);
+        $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentManager', $dm);
+        $this->assertInstanceOf(DocumentManager::class, $dm);
         $this->assertSame($config, $dm->getConfiguration());
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::getMetadataFactory
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::getMetadataFactory
      */
     public function testGetMetadataFactory()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
 
         $dm = DocumentManager::create($session);
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory', $dm->getMetadataFactory());
+        $this->assertInstanceOf(ClassMetadataFactory::class, $dm->getMetadataFactory());
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::getClassMetadata
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::getClassMetadata
      */
     public function testGetClassMetadataFor()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
 
         $dm = DocumentManager::create($session);
 
         $cmf = $dm->getMetadataFactory();
-        $cmf->setMetadataFor('stdClass', new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass'));
+        $cmf->setMetadataFor('stdClass', new ClassMetadata('stdClass'));
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadata', $dm->getClassMetadata('stdClass'));
+        $this->assertInstanceOf(ClassMetadata::class, $dm->getClassMetadata('stdClass'));
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::contains
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::contains
      */
     public function testContains()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
 
         $dm = DocumentManager::create($session);
 
@@ -112,27 +118,27 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::getRepository
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::getRepository
      */
     public function testGetRepository()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
 
         $dm = new DocumentManagerGetClassMetadata($session);
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
+        $this->assertInstanceOf(DocumentRepository::class, $dm->getRepository('foo'));
         $this->assertInstanceOf('stdClass', $dm->getRepository('foo2'));
 
         // call again to test the cache
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\DocumentRepository', $dm->getRepository('foo'));
+        $this->assertInstanceOf(DocumentRepository::class, $dm->getRepository('foo'));
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::escapeFullText
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::escapeFullText
      */
     public function testEscapeFullText()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
 
         $dm = DocumentManager::create($session);
 
@@ -145,11 +151,11 @@ class DocumentManagerTest extends PHPCRTestCase
      */
     public function testCreateQueryBuilder()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-        $workspace = $this->getMockBuilder('PHPCR\WorkspaceInterface')->getMock();
-        $queryManager = $this->getMockBuilder('PHPCR\Query\QueryManagerInterface')->getMock();
-        $qomf = $this->getMockBuilder('PHPCR\Query\QOM\QueryObjectModelFactoryInterface')->getMock();
-        $baseQuery = $this->getMockBuilder('PHPCR\Query\QueryInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
+        $workspace = $this->createMock(WorkspaceInterface::class);
+        $queryManager = $this->createMock(QueryManagerInterface::class);
+        $qomf = $this->createMock(QueryObjectModelFactoryInterface::class);
+        $baseQuery = $this->createMock(QueryInterface::class);
 
         $session->expects($this->once())
             ->method('getWorkspace')
@@ -169,7 +175,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
     public function testGetDocumentIdReturnsValueOfUnitOfWork()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $session = $this->createMock(SessionInterface::class);
 
         $dm = DocumentManager::create($session);
 
@@ -184,14 +190,13 @@ class DocumentManagerTest extends PHPCRTestCase
         $this->assertEquals('/foo', $dm->getDocumentId($obj));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testGetDocumentIdForNonManagedDocumentsReturnsNull()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
+        $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $obj = new \stdClass;
+        $this->expectException(PHPCRException::class);
         $dm->getDocumentId($obj);
     }
 }

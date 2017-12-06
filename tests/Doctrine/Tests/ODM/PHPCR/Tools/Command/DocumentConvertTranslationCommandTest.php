@@ -8,6 +8,7 @@ use PHPCR\SessionInterface;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
 use PHPUnit\Framework\TestCase;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 
 class DocumentConvertTranslationCommandTest extends TestCase
 {
@@ -33,19 +34,14 @@ class DocumentConvertTranslationCommandTest extends TestCase
 
     public function setUp()
     {
-        $this->mockSession = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-        $mockHelper = $this->getMockBuilder('PHPCR\Util\Console\Helper\PhpcrHelper')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->mockSession = $this->createMock(SessionInterface::class);
+        $mockHelper = $this->createMock(PhpcrHelper::class);
         $mockHelper
             ->expects($this->once())
             ->method('getSession')
             ->will($this->returnValue($this->mockSession))
         ;
-        $this->converter = $this->getMockBuilder('Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter')
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $this->converter = $this->createMock(TranslationConverter::class);
         $this->command = new DocumentConvertTranslationCommand(null, $this->converter);
         $this->command->setHelperSet(new HelperSet(
             array('phpcr' => $mockHelper)

@@ -3,8 +3,10 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Proxy\Proxy;
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
@@ -78,23 +80,21 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals($doc->nodename, $docNew->nodename);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testParentChangeException()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->parent = new NameDoc();
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testIdChangeException()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->id = '/different';
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
@@ -235,8 +235,6 @@ class ParentTest extends PHPCRFunctionalTestCase
     /**
      * Create a node with a bad name and allow it to be discovered
      * among its parent node's children without explicity persisting it.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNameNewChild()
     {
@@ -247,6 +245,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $child->parent = $parent;
         $parent->children->add($child);
 
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 
@@ -254,8 +253,6 @@ class ParentTest extends PHPCRFunctionalTestCase
      * Create a node with a bad name and allow it to be discovered
      * among its parent node's children while also explicitly
      * persisting it.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNameManagedChild()
     {
@@ -267,6 +264,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $parent->children->add($child);
         $this->dm->persist($child);
 
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 }

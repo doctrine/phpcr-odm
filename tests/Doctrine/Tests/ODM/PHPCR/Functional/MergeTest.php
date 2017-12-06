@@ -79,7 +79,8 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->remove($user);
 
-        $this->expectException(InvalidArgumentException::class, "Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
         $this->dm->merge($user);
     }
 
@@ -104,9 +105,6 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertInstanceOf('PHPCR\NodeInterface', $mergedUser->node);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testMergeChangeDocumentClass()
     {
         $user = new CmsUser();
@@ -124,6 +122,7 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $mergableGroup->id = $user->id;
         $mergableGroup->name = "doctrine";
 
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->merge($mergableGroup);
     }
 

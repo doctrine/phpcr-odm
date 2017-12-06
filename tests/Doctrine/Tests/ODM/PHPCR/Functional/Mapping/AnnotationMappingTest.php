@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Mapping;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -49,14 +50,13 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->dm->persist($second);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testSecondLevelInheritanceWithDuplicate()
     {
         $second = new SecondLevelWithDuplicate();
         $second->id = '/functional/second';
         $second->text = 'text test';
+
+        $this->expectException(MappingException::class);
         $this->dm->persist($second);
     }
 
@@ -140,12 +140,11 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     /**
      * @dataProvider invalidIdProvider
      *
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     *
      * @param string $class fqn of a class with invalid mapping
      */
     public function testInvalidId($class)
     {
+        $this->expectException(MappingException::class);
         $this->dm->getClassMetadata($class);
     }
 
@@ -153,9 +152,9 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     {
         return array(
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdNoParentStrategy',
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdNoParentStrategy',
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\NoId',
+                ParentIdNoParentStrategy::class,
+                AutoNameIdNoParentStrategy::class,
+                NoId::class,
             )
         );
     }

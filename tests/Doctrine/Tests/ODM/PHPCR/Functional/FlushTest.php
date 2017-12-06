@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
@@ -253,14 +254,13 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($uuidObj->uuid1);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testUuidFieldOnlySetOnce()
     {
         $uuidObj = new UuidTestTwoUuidFieldsObj;
         $uuidObj->id = '/functional/uuidObj';
         $this->dm->persist($uuidObj);
+
+        $this->expectException(MappingException::class);
         $this->dm->flush();
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\ODM\PHPCR\Id\AutoIdGenerator;
 use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
@@ -39,15 +40,12 @@ class IdGeneratorTest extends TestCase
     public function testCreateGeneratorTypeAuto()
     {
         $generator = IdGenerator::create(ClassMetadata::GENERATOR_TYPE_AUTO);
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Id\AutoIdGenerator', $generator);
+        $this->assertInstanceOf(AutoIdGenerator::class, $generator);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     * @covers Doctrine\ODM\PHPCR\Id\IdGenerator::create
-     */
     public function testCreateException()
     {
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         IdGenerator::create(null);
     }
 }

@@ -16,11 +16,9 @@ class SourceDocumentTest extends LeafNodeTestCase
         );
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testEmptyAlias()
     {
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         new SourceDocument($this->parent, 'My\Fqn', '');
     }
 }

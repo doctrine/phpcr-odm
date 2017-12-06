@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
@@ -65,9 +66,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testInsertTwice()
     {
         $user = new User();
@@ -82,6 +80,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = "toast";
         $user->numbers = array(1, 2, 3);
         $user->id = '/functional/test';
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -194,9 +193,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($testUuid, $flushedUser->uuid);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\RuntimeException
-     */
     public function testBadUuidSetting()
     {
         $newUser = new UserWithUuid();
@@ -204,6 +200,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $newUser->id = '/functional/test';
         $newUser->uuid = 'bad-uuid';
 
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\RuntimeException::class);
         $this->dm->persist($newUser);
     }
 
@@ -345,9 +342,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testRemoveAndInsertBeforeFlush()
     {
         $this->dm->clear();
@@ -359,6 +353,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User2();
         $user->username = "test";
         $user->id = '/functional/user';
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -604,8 +599,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * Create a node with a bad name and explicitly persist it without
      * adding it to any parent's children collection.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNodename()
     {
@@ -617,14 +610,13 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->parent = $functional;
         $this->dm->persist($user);
 
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 
     /**
      * Retrieve an existing node and try to move it by assigning it
      * an illegal name.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNodenameMove()
     {
@@ -638,6 +630,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $user->nodename = 'bad/name';
+
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 

@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\PHPCRException;
 
 /**
  * Test for the Child mapping.
@@ -113,9 +115,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
-     */
     public function testCreateConflictingName()
     {
         $parent = new ChildTestObj();
@@ -127,6 +126,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
+
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 
@@ -160,9 +161,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent->child);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testInsertArray()
     {
         $parent = new ChildTestObj();
@@ -173,12 +171,11 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testInsertNoObject()
     {
         $parent = new ChildTestObj();
@@ -189,6 +186,8 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $parent->id = '/functional/childtest';
 
         $this->dm->persist($parent);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
@@ -325,9 +324,6 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent->child);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testMoveByAssignment()
     {
         $original = new ChildTestObj();
@@ -352,6 +348,7 @@ class ChildTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $other->child = $original->child;
 
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 

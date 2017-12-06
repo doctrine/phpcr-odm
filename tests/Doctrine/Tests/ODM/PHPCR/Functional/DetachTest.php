@@ -51,9 +51,6 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('beberlei', $check->username);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testDetachedKnownObject()
     {
         $user = new CmsUser();
@@ -64,6 +61,8 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->dm->detach($user);
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -80,39 +79,36 @@ class DetachTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('lsmith', $newUser->username);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testDetachWithPerist()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
         $user->username = "new-name";
 
         $this->dm->detach($user);
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testDetachWithMove()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
         $user->username = "new-name";
 
         $this->dm->detach($user);
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->move($user, '/functional/user2');
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testDetachWithRemove()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
         $user->username = "new-name";
 
         $this->dm->detach($user);
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->remove($user);
     }
 

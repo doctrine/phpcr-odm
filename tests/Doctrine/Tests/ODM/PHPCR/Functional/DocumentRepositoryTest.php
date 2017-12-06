@@ -158,36 +158,29 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $users['/functional/lsmith/beberlei']->username);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testFindByOrderNonExistentDirectionString()
     {
-        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('username' =>'nowhere'));
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(array('nodename' =>'beberlei'), array('username' =>'nowhere'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testFindByOrderNodename()
     {
-        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('nodename' =>'beberlei'), array('nodename' =>'asc'));
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(array('nodename' =>'beberlei'), array('nodename' =>'asc'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testFindByOnAssociation()
     {
-        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('parent' =>'/foo'));
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(array('parent' =>'/foo'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testFindByOrderAssociation()
     {
-        $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsTeamUser')->findBy(array('username' =>'beberlei'), array('parent' => 'asc'));
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(array('username' =>'beberlei'), array('parent' => 'asc'));
     }
 
     public function testFindOneBy()

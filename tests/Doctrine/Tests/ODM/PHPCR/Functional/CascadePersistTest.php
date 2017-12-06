@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\PHPCRException;
 
 class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -230,9 +231,6 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertEquals($article->id, $savedArticle->id);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testCascadeReferenceArray()
     {
         $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
@@ -242,12 +240,11 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $article->user = array();
 
         $this->dm->persist($article);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testCascadeReferenceNoObject()
     {
         $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
@@ -257,12 +254,11 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $article->user = "This is not an object";
 
         $this->dm->persist($article);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testCascadeReferenceManyNoArray()
     {
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
@@ -272,12 +268,11 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user->groups = $this;
 
         $this->dm->persist($user);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testCascadeReferenceManyNoObject()
     {
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
@@ -287,6 +282,8 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $user->groups = array("this is a bad idea");
 
         $this->dm->persist($user);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 

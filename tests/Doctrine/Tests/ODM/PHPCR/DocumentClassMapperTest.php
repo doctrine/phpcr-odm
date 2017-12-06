@@ -5,10 +5,14 @@ namespace Doctrine\Tests\ODM\PHPCR;
 use Doctrine\ODM\PHPCR\Document\Generic;
 use Doctrine\ODM\PHPCR\DocumentClassMapper;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\UnitOfWork;
+use Jackalope\Node;
+use Jackalope\Property;
 
 class DocumentClassMapperTest extends Testcase
 {
@@ -38,20 +42,14 @@ class DocumentClassMapperTest extends Testcase
 
     public function setUp()
     {
-        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-          ->disableOriginalConstructor()
-          ->getMock();
+        $this->dm = $this->createMock(DocumentManager::class);
 
         // This should be PHPCR\NodeInterface but as of time of writing PHPUnit
         // will not Mock Traversable interfaces:
         // https://github.com/sebastianbergmann/phpunit-mock-objects/issues/103
-        $this->node = $this->getMockBuilder('Jackalope\Node')
-          ->disableOriginalConstructor()
-          ->getMock();
+        $this->node = $this->createMock(Node::class);
 
-        $this->metadata = $this->getMockBuilder('Doctrine\ODM\PHPCR\Mapping\ClassMetadata')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->metadata = $this->createMock(ClassMetadata::class);
 
         $this->mapper = new DocumentClassMapper();
     }
@@ -86,10 +84,7 @@ class DocumentClassMapperTest extends Testcase
      */
     private function mockNodeHasClass($class)
     {
-        $property = $this->getMockBuilder('Jackalope\Property')
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $property = $this->createMock(Property::class);
         $property->expects($this->once())
             ->method('getString')
             ->will($this->returnValue($class))
@@ -141,14 +136,12 @@ class DocumentClassMapperTest extends Testcase
         );
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\ClassMismatchException
-     */
     public function testGetClassNameMismatch()
     {
-        $this->mockNodeHasClass('Doctrine\Tests\ODM\PHPCR\BaseClass');
+        $this->mockNodeHasClass(BaseClass::class);
 
-        $this->mapper->getClassName($this->dm, $this->node, 'Doctrine\Tests\ODM\PHPCR\ExtendingClass');
+        $this->expectException(ClassMismatchException::class);
+        $this->mapper->getClassName($this->dm, $this->node, ExtendingClass::class);
     }
 
     public function testWriteMetadataWhenClassIsGeneric()
@@ -191,16 +184,10 @@ class DocumentClassMapperTest extends Testcase
         );
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\ClassMismatchException
-     */
     public function testValidateClassNameInvalid()
     {
         $generic = new Generic();
-        $uow = $this->getMockBuilder('Doctrine\ODM\PHPCR\UnitOfWork')
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $uow = $this->createMock(UnitOfWork::class);
         $uow->expects($this->once())
             ->method('determineDocumentId')
             ->with($generic)
@@ -210,6 +197,7 @@ class DocumentClassMapperTest extends Testcase
             ->method('getUnitOfWork')
             ->will($this->returnValue($uow))
         ;
+        $this->expectException(ClassMismatchException::class);
         $this->mapper->validateClassName($this->dm, $generic, 'Other\Class');
     }
 

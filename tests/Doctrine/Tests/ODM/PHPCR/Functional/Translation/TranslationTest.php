@@ -4,7 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\Translation;
+use Doctrine\Tests\Models\Translation\NoLocalePropertyArticle;
 
 class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -54,13 +56,14 @@ class TranslationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     }
 
     /**
-     * Test loading of a translatable document missing the @Locale annotation.
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
+     * Test loading of a translatable document missing the Locale annotation.
      */
     public function testLoadMissingLocaleAnnotation()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $factory->getMetadataFor('Doctrine\Tests\Models\Translation\NoLocalePropertyArticle');
+
+        $this->expectException(MappingException::class);
+        $factory->getMetadataFor(NoLocalePropertyArticle::class);
     }
 
     /**

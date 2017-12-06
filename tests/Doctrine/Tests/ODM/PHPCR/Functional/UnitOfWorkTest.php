@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
@@ -193,10 +194,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame('parent', $parent->nodename);
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"
-     */
     public function testRequiredClassesInvalidChildren()
     {
         $articleFolder = new CmsArticleFolder();
@@ -208,6 +205,9 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->persist($articleFolder);
         $this->dm->persist($article);
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"');
         $this->dm->flush();
     }
 
@@ -226,10 +226,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"
-     */
     public function testRequiredClassesInvalidUpdate()
     {
         $articleFolder = new CmsArticleFolder();
@@ -244,6 +240,9 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->dm->move($article, '/functional/articles/address');
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"');
         $this->dm->flush();
     }
 
@@ -262,10 +261,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"
-     */
     public function testRequiredClassesAddToChildrenInvalid()
     {
         $post = new CmsBlogInvalidChild();
@@ -278,13 +273,12 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         ));
 
         $this->dm->persist($postFolder);
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"');
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"
-     */
     public function testRequiredClassesAddToChildrenInvalidOnUpdate()
     {
         $post = new CmsBlogPost();
@@ -307,7 +301,8 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $postFolder->posts->add($post);
 
         $this->dm->persist($postFolder);
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"');
         $this->dm->flush();
-        $this->dm->clear();
     }
 }

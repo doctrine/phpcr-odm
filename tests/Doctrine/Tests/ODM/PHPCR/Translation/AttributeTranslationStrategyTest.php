@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
+use Doctrine\ODM\PHPCR\DocumentManager;
 
 class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
@@ -13,14 +14,12 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
     public function setUp()
     {
-        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dm = $this->createMock(DocumentManager::class);
 
         $this->strategy = new AttributeTranslationStrategy($this->dm);
         $this->strategy->setPrefix('test');
 
-        $class = new \ReflectionClass('Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy');
+        $class = new \ReflectionClass(AttributeTranslationStrategy::class);
         $this->method = $class->getMethod('getTranslatedPropertyName');
         $this->method->setAccessible(true);
     }

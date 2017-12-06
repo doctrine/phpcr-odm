@@ -2,12 +2,14 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use PHPUnit\Framework\TestCase;
 
 class ClassMetadataTest extends TestCase
@@ -83,21 +85,19 @@ class ClassMetadataTest extends TestCase
 
     /**
      * @depends testClassName
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testGetAssociationNonexisting(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->getAssociation('nonexisting');
     }
 
     /**
      * @depends testMapFieldWithId
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testGetFieldNonexisting(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->getFieldMapping('nonexisting');
     }
 
@@ -163,39 +163,37 @@ class ClassMetadataTest extends TestCase
 
     /**
      * @depends testMapField
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testMapFieldWithoutNameThrowsException(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->mapField(array());
     }
 
     /**
      * @depends testMapField
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testMapNonExistingField(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->mapField(array('fieldName' => 'notexisting'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testMapChildInvalidName()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Address');
+        $cm = new ClassMetadata(Address::class);
         $cm->initializeReflection(new RuntimeReflectionService());
+
+        $this->expectException(MappingException::class);
         $cm->mapChild(array('fieldName' => 'child', 'nodeName' => 'in/valid'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testMapChildrenInvalidFetchDepth()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
+
+        $this->expectException(MappingException::class);
         $cm->mapChildren(array('fieldName' => 'address', 'fetchDepth' => 'invalid'));
     }
 
@@ -329,15 +327,15 @@ class ClassMetadataTest extends TestCase
     /**
      * It should throw an exception if given a child class FQN when the
      * metadata is for a leaf.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage has been mapped as a leaf
      */
     public function testAssertValidChildClassesIsLeaf()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $childCm = new ClassMetadata('stdClass');
         $cm->setIsLeaf(true);
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('has been mapped as a leaf');
         $cm->assertValidChildClass($childCm);
     }
 
@@ -394,17 +392,17 @@ class ClassMetadataTest extends TestCase
 
     /**
      * It should throw an exception if the given class is not allowed.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage does not allow children of type "stdClass"
      */
     public function testAssertValidChildClassesNotAllowed()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $childCm = new ClassMetadata('stdClass');
         $childCm->initializeReflection(new RuntimeReflectionService());
-        $cm->setChildClasses(array('Doctrine\Tests\ODM\PHPCR\Mapping\Person'));
+        $cm->setChildClasses(array(Person::class));
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('does not allow children of type "stdClass"');
         $cm->assertValidChildClass($childCm);
     }
 }

@@ -1,6 +1,6 @@
 <?php
-
 namespace Doctrine\Tests\ODM\PHPCR;
+
 use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\PHPCRException;
 

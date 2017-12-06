@@ -3,11 +3,13 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\ReferentialIntegrityException;
 use PHPCR\Util\PathHelper;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
 use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
 use Doctrine\ODM\PHPCR\UnitOfWork;
+use PHPCR\Version\VersionException;
 
 /**
  * @group functional
@@ -74,16 +76,15 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $this->dm = $this->createDocumentManager();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     * @expectedMessage The document at path '/functional/referenceTestObj' is not versionable
-     */
     public function testCheckinOnNonVersionableNode()
     {
         $contentNode = $this->dm->find(
             $this->typeReference,
             '/functional/referenceTestObj'
         );
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The document at path \'/functional/referenceTestObj\' is not versionable');
         $this->dm->checkin($contentNode);
     }
 
@@ -174,7 +175,6 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
 
     /**
      * Test it's not possible to get a version of a non-versionable document
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testFindVersionByNameNotVersionable()
     {
@@ -182,15 +182,17 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $node = $session->getNode('/functional')->addNode('noVersionTestObj');
         $session->save();
         $id = $node->getPath();
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, $id, 'whatever');
     }
 
     /**
      * Test that trying to read a non existing version fails
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testFindVersionByNameVersionDoesNotExist()
     {
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', 'whatever');
     }
 
@@ -234,9 +236,6 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $this->assertNull($frozenDocument->reference);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testPersistVersionError()
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
@@ -248,6 +247,7 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
 
         $frozenDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
 
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($frozenDocument);
     }
 
@@ -275,7 +275,6 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
 
     /**
      * Check we cannot remove the last version of a document (since it's the current version)
-     * @expectedException \PHPCR\ReferentialIntegrityException
      */
     public function testRemoveLastVersion()
     {
@@ -288,12 +287,13 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
 
         $version = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
         $this->assertNotNull($version);
+
+        $this->expectException(ReferentialIntegrityException::class);
         $this->dm->removeVersion($version);
     }
 
     /**
      * Check we cannot remove the root version of a document
-     * @expectedException \PHPCR\Version\VersionException
      */
     public function testRemoveRootVersion()
     {
@@ -306,6 +306,8 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
 
         $version = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $firstVersionName);
         $this->assertNotNull($version);
+
+        $this->expectException(VersionException::class);
         $this->dm->removeVersion($version);
     }
 
@@ -336,10 +338,10 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
     /**
      * Check the version we removed in testRemoveVersion does not exist anymore
      * @depends testRemoveVersion
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
      */
     public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
     {
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
     }
 

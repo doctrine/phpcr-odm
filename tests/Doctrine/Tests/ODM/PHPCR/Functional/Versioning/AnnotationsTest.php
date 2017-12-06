@@ -4,6 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Tests\Models\Versioning\InvalidVersionableArticle;
+use Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle;
 
 class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -43,22 +46,24 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     /**
      * Test that using an invalid versionable annotation will not work
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadInvalidAnnotation()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InvalidVersionableArticle');
+
+        $this->expectException(MappingException::class);
+        $factory->getMetadataFor(InvalidVersionableArticle::class);
     }
 
     /**
      * Test that using the Version annotation on non-versionable documents will not work
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadInconsistentAnnotations()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle');
+
+        $this->expectException(MappingException::class);
+        $factory->getMetadataFor(InconsistentVersionableArticle::class);
     }
 
     /**

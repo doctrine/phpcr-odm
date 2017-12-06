@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Jackalope\Query\QOM\QueryObjectModelFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use PHPUnit\Framework\TestCase;
@@ -27,6 +26,8 @@ use PHPCR\Query\QOM\NodeLocalNameInterface;
 use PHPCR\Query\QOM\SourceInterface;
 use PHPCR\Query\QOM\OrderingInterface;
 use PHPCR\Query\QOM\QueryObjectModelInterface;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 class ConverterPhpcrTest extends TestCase
 {
@@ -66,9 +67,7 @@ class ConverterPhpcrTest extends TestCase
         $mdf->expects($this->any())
             ->method('getMetadataFor')
             ->will($this->returnCallback(function ($documentFqn) use ($me) {
-                $meta = $me->getMockBuilder(
-                    'Doctrine\ODM\PHPCR\Mapping\ClassMetadata'
-                )->disableOriginalConstructor()->getMock();
+                $meta = $me->createMock(ClassMetadata::class);
 
                 if ($documentFqn === '_document_not_mapped_') {
                     return $meta;
@@ -168,10 +167,6 @@ class ConverterPhpcrTest extends TestCase
         $this->assertEquals('alias', $res->getSelectorName());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage _document_not_mapped_ is not a mapped document
-     */
     public function testDispatchFromNonMapped()
     {
         $from = $this->createNode('From', array());
@@ -181,7 +176,9 @@ class ConverterPhpcrTest extends TestCase
         ));
         $from->addChild($source);
 
-        $res = $this->converter->dispatch($from);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('_document_not_mapped_ is not a mapped document');
+        $this->converter->dispatch($from);
     }
 
     public function provideDispatchWheres()
@@ -672,15 +669,9 @@ class ConverterPhpcrTest extends TestCase
 
         $phpcrQuery = $this->converter->getQuery($this->qb);
 
-        $this->assertInstanceOf(
-            'Doctrine\ODM\PHPCR\Query\Query', $phpcrQuery
-        );
+        $this->assertInstanceOf(Query::class, $phpcrQuery);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     * @expectedExceptionMessage You must specify a primary alias
-     */
     public function testGetQueryMoreThanOneSourceNoPrimaryAlias()
     {
         $this->qb->from()
@@ -688,6 +679,9 @@ class ConverterPhpcrTest extends TestCase
                 ->left()->document('foobar', 'alias_1')->end()
                 ->right()->document('barfoo', 'alias_2')->end()
                 ->condition()->child('child_alias', 'parent_alias')->end();
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('You must specify a primary alias');
 
         $this->qb->getQuery();
     }

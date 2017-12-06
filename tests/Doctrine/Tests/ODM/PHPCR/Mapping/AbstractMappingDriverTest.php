@@ -2,20 +2,24 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Tests\Models\ECommerce\ECommerceCart;
+use PHPCR\SessionInterface;
 
 abstract class AbstractMappingDriverTest extends TestCase
 {
     /**
-     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     * @return MappingDriver
      */
     abstract protected function loadDriver();
     /**
-     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     * @return MappingDriver
      */
     abstract protected function loadDriverForTestMappingDocuments();
 
@@ -29,7 +33,8 @@ abstract class AbstractMappingDriverTest extends TestCase
      * of this class.
      *
      * @param string $className
-     * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     *
+     * @return ClassMetadata
      */
     protected function loadMetadataForClassname($className)
     {
@@ -66,7 +71,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testGetAllClassNamesReturnsAlreadyLoadedClassesIfAppropriate()
     {
-        $rightClassName = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject';
+        $rightClassName = Model\FieldMappingObject::class;
         $this->ensureIsLoaded($rightClassName);
 
         $driver = $this->loadDriverForTestMappingDocuments();
@@ -77,7 +82,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testGetAllClassNamesReturnsOnlyTheAppropriateClasses()
     {
-        $extraneousClassName = 'Doctrine\Tests\Models\ECommerce\ECommerceCart';
+        $extraneousClassName = ECommerceCart::class;
         $this->ensureIsLoaded($extraneousClassName);
 
         $driver = $this->loadDriverForTestMappingDocuments();
@@ -87,19 +92,21 @@ abstract class AbstractMappingDriverTest extends TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
-     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
-     * @covers Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
+     * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
+     * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
+     * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
      */
     public function testLoadFieldMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject';
+        $className = Model\FieldMappingObject::class;
         return $this->loadMetadataForClassName($className);
     }
 
     /**
      * @depends testLoadFieldMapping
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testFieldMappings($class)
     {
@@ -135,6 +142,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testIdentifier($class)
     {
@@ -146,6 +155,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testStringFieldMappings($class)
     {
@@ -158,6 +169,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testBinaryFieldMappings($class)
     {
@@ -170,6 +183,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testLongFieldMappings($class)
     {
@@ -182,6 +197,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testIntFieldMappings($class)
     {
@@ -194,6 +211,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testDecimalFieldMappings($class)
     {
@@ -206,6 +225,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testDoubleFieldMappings($class)
     {
@@ -218,6 +239,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testFloatFieldMappings($class)
     {
@@ -230,6 +253,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testDateFieldMappings($class)
     {
@@ -242,6 +267,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testBooleanFieldMappings($class)
     {
@@ -266,6 +293,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testPathFieldMappings($class)
     {
@@ -278,6 +307,8 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testFieldMappings
      * @param ClassMetadata $class
+     *
+     * @return ClassMetadata
      */
     public function testUriFieldMappings($class)
     {
@@ -289,7 +320,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadNodenameMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodenameMappingObject';
+        $className = Model\NodenameMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -306,7 +337,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadParentDocumentMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentDocumentMappingObject';
+        $className = Model\ParentDocumentMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -323,7 +354,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadDepthMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\DepthMappingObject';
+        $className = Model\DepthMappingObject::class;
         return $this->loadMetadataForClassname($className);
     }
 
@@ -339,19 +370,20 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testParentWithPrivatePropertyMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject';
+        $className = Model\ParentWithPrivatePropertyObject::class;
         $class = $this->loadMetadataForClassname($className);
         $this->assertEquals('foo', $class->mappings['foo']['property']);
         $this->assertEquals('string', $class->mappings['foo']['type']);
 
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentPrivatePropertyMappingObject';
+        $className = Model\ParentPrivatePropertyMappingObject::class;
         $class = $this->loadMetadataForClassname($className);
 
         $this->assertTrue(isset($class->identifier));
         $this->assertEmpty($class->fieldMappings);
 
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
+        $session = $this->createMock(SessionInterface::class);
+        $dm = DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
         $cmf = new ClassMetadataFactory($dm);
         $class = $cmf->getMetadataFor($className);
@@ -360,9 +392,12 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertEquals('string', $class->mappings['foo']['type']);
     }
 
+    /**
+     * @return ClassMetadata
+     */
     public function testLoadChildMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject';
+        $className = Model\ChildMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -383,7 +418,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadChildrenMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject';
+        $className = Model\ChildrenMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -406,7 +441,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadRepositoryMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\RepositoryMappingObject';
+        $className = Model\RepositoryMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -417,13 +452,13 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testRepositoryMapping($class)
     {
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $class->customRepositoryClassName);
+        $this->assertEquals(Model\DocumentRepository::class, $class->customRepositoryClassName);
         $this->assertTrue($class->isIdGeneratorRepository());
     }
 
     public function testLoadVersionableMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject';
+        $className = Model\VersionableMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -441,7 +476,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadReferenceableMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableMappingObject';
+        $className = Model\ReferenceableMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -457,7 +492,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadUniqueNodeTypeMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\UniqueNodeTypeMappingObject';
+        $className = Model\UniqueNodeTypeMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -473,7 +508,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadNodeTypeMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeTypeMappingObject';
+        $className = Model\NodeTypeMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -489,7 +524,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadMappedSuperclassTypeMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject';
+        $className = Model\MappedSuperclassMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -502,7 +537,7 @@ abstract class AbstractMappingDriverTest extends TestCase
     {
         $this->assertTrue($class->isMappedSuperclass);
         $this->assertEquals("phpcr:test", $class->nodeType);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $class->customRepositoryClassName);
+        $this->assertEquals(Model\DocumentRepository::class, $class->customRepositoryClassName);
         $this->assertEquals("children", $class->translator);
         $this->assertEquals(array('mix:one', 'mix:two'), $class->mixins);
         $this->assertEquals("simple", $class->versionable);
@@ -520,12 +555,12 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testLoadMappedSuperclassChildTypeMapping()
     {
         $parentClass = $this->loadMetadataForClassname(
-            'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceParentMappingObject'
+            Model\ClassInheritanceParentMappingObject::class
         );
 
         $mappingDriver = $this->loadDriver();
         $subClass = new ClassMetadata(
-            $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildMappingObject'
+            $className = Model\ClassInheritanceChildMappingObject::class
         );
         $subClass->initializeReflection(new RuntimeReflectionService());
         $subClass->mapId($parentClass->mappings[$parentClass->identifier], $parentClass);
@@ -551,7 +586,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadNodeMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeMappingObject';
+        $className = Model\NodeMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -567,7 +602,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadReferenceOneMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject';
+        $className = Model\ReferenceOneMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -588,20 +623,20 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertEquals('referenceOneWeak', $referenceOneWeak['fieldName']);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceOneWeak['targetDocument']);
         $this->assertEquals('weak', $referenceOneWeak['strategy']);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneWeak['sourceDocument']);
+        $this->assertEquals(Model\ReferenceOneMappingObject::class, $referenceOneWeak['sourceDocument']);
         $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneWeak['type']);
 
         $referenceOneHard = $class->mappings['referenceOneHard'];
         $this->assertEquals('referenceOneHard', $referenceOneHard['fieldName']);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceOneHard['targetDocument']);
         $this->assertEquals('hard', $referenceOneHard['strategy']);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject', $referenceOneHard['sourceDocument']);
+        $this->assertEquals(Model\ReferenceOneMappingObject::class, $referenceOneHard['sourceDocument']);
         $this->assertEquals(ClassMetadata::MANY_TO_ONE, $referenceOneHard['type']);
     }
 
     public function testLoadReferenceManyMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject';
+        $className = Model\ReferenceManyMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -623,20 +658,20 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertEquals('referenceManyWeak', $referenceManyWeak['fieldName']);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceManyWeak['targetDocument']);
         $this->assertEquals('weak', $referenceManyWeak['strategy']);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject', $referenceManyWeak['sourceDocument']);
+        $this->assertEquals(Model\ReferenceManyMappingObject::class, $referenceManyWeak['sourceDocument']);
         $this->assertEquals(ClassMetadata::MANY_TO_MANY, $referenceManyWeak['type']);
 
         $referenceManyHard = $class->mappings['referenceManyHard'];
         $this->assertEquals('referenceManyHard', $referenceManyHard['fieldName']);
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $referenceManyHard['targetDocument']);
         $this->assertEquals('hard', $referenceManyHard['strategy']);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject', $referenceManyHard['sourceDocument']);
+        $this->assertEquals(Model\ReferenceManyMappingObject::class, $referenceManyHard['sourceDocument']);
         $this->assertEquals(ClassMetadata::MANY_TO_MANY, $referenceManyHard['type']);
     }
 
     public function testLoadReferrersMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject';
+        $className = Model\ReferrersMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -677,7 +712,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadTranslatorMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject';
+        $className = Model\TranslatorMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -697,7 +732,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadMixinMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject';
+        $className = Model\MixinMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -714,7 +749,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadReplaceMixinMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReplaceMixinMappingObject';
+        $className = Model\ReplaceMixinMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -731,7 +766,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadLifecycleCallbackMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject';
+        $className = Model\LifecycleCallbackMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -754,11 +789,12 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testStringExtendedMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject';
+        $className = Model\StringMappingObject::class;
         $this->loadMetadataForClassname($className);
 
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject';
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        $className = Model\StringExtendedMappingObject::class;
+        /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
+        $session = $this->createMock(SessionInterface::class);
         $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
         $cmf = new ClassMetadataFactory($dm);
@@ -786,7 +822,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadUuidMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject';
+        $className = Model\UuidMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -796,14 +832,14 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testUuidMappingNonReferenceable()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject';
+        $className = Model\UuidMappingObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
 
     public function testLoadChildClassesMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesObject';
+        $className = Model\ChildClassesObject::class;
 
         return $this->loadMetadataForClassname($className);
     }
@@ -819,7 +855,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testLoadIsLeafMapping()
     {
-        $className = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\IsLeafObject';
+        $className = Model\IsLeafObject::class;
 
         return $this->loadMetadataForClassname($className);
     }

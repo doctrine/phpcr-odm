@@ -89,14 +89,13 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals('parent', $child->parent->name);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testRefreshDetached()
     {
         $user = new CmsUser;
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->refresh($user);
     }
 
