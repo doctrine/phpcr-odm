@@ -135,8 +135,7 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $this->dm->flush();
 
         $versions = $this->dm->getAllLinearVersions($user);
-        each($versions);
-        list($dummy, $versionInfo) = each($versions);
+        $versionInfo = next($versions);
         $versionName = $versionInfo['name'];
         $versionDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $versionName);
         $this->dm->restoreVersion($versionDocument);

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class ParentIdGeneratorTest extends TestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
     public function testGenerate()
     {
@@ -35,7 +35,7 @@ class ParentIdGeneratorTest extends TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
     public function testGenerateNoParent()
     {
@@ -49,7 +49,7 @@ class ParentIdGeneratorTest extends TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
     public function testGenerateNoName()
     {
