@@ -14,7 +14,7 @@ class IdException extends PHPCRException
                 'may not be empty in document of class "%s"',
             $parent,
             $nodename,
-            ClassUtils::getClass($document)
+            $document ? ClassUtils::getClass($document) : 'null'
         );
 
         return new self($message);
@@ -25,7 +25,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             'Property "%s" mapped as ParentDocument may not be empty in document of class "%s"',
             $parent,
-            ClassUtils::getClass($document)
+            $document ? ClassUtils::getClass($document) : 'null'
         );
 
         return new self($message);
@@ -36,7 +36,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             'NodeName property "%s" may not be empty in document of class "%s"',
             $fieldName,
-            ClassUtils::getClass($document)
+            $document ? ClassUtils::getClass($document) : 'null'
         );
 
         return new self($message);
@@ -49,7 +49,7 @@ class IdException extends PHPCRException
             'ParentDocument property "%s" of document of class "%s" contains an ' .
             'object for which no ID could be found',
             $parent,
-            ClassUtils::getClass($document),
+            $document ? ClassUtils::getClass($document) : 'null',
             $parentType
         );
 
@@ -61,7 +61,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             'NodeName property "%s" of document "%s" contains the illegal PHPCR value "%s".',
             $fieldName,
-            ClassUtils::getClass($document),
+            $document ? ClassUtils::getClass($document) : 'null',
             $nodeName
         );
 
@@ -78,7 +78,7 @@ class IdException extends PHPCRException
         $message = sprintf(
             '%s discovered as new child of %s in field "%s" has a node name ' .
             'mismatch. The mapping says "%s" but the child was assigned "%s".',
-            ClassUtils::getClass($childDocument),
+            $childDocument ? ClassUtils::getClass($childDocument) : 'null',
             $parentId,
             $parentFieldName,
             $fieldNodeName,

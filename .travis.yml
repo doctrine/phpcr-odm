@@ -5,6 +5,8 @@ php:
   - 5.5
   - 5.6
   - 7.0
+  - 7.1
+  - 7.2
 
 sudo: false
 
@@ -13,39 +15,53 @@ cache:
     - $HOME/.composer/cache/files
 
 env:
-  - TRANSPORT=jackrabbit PACKAGE_VERSION=high
-  - TRANSPORT=doctrine_dbal PACKAGE_VERSION=high
+  global:
+    # on PHP 7.2 we get deprecations about using each. they come from old phpunit versions, but we don't update phpunit for the maintenance branch.
+    - SYMFONY_DEPRECATIONS_HELPER="/.*each.*/"
+  matrix:
+    - TRANSPORT=jackrabbit
+    - TRANSPORT=doctrine_dbal
 
 matrix:
+  fast_finish: true
   include:
     - php: 5.3
       env: TRANSPORT=doctrine_dbal COMPOSER_FLAGS="--prefer-lowest"
       dist: precise
-# composer fails to find a solution even though i think there should exist one
-#    - php: 5.3
-#      env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
-    - php: 7.0
-      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="2.7"
-    - php: 7.0
-      env: TRANSPORT=jackrabbit SYMFONY_VERSION="2.7"
-    - php: 7.0
-      env: TRANSPORT=doctrine_dbal SYMFONY_VERSION="2.8" PHPBENCH="yes"
-    - php: 7.0
-      env: TRANSPORT=jackrabbit SYMFONY_VERSION="2.8" PHPBENCH="yes"
+    - php: 5.3
+      # composer fails to find a solution for --prefer-lowest, even though i think there should exist one
+      env: TRANSPORT=jackrabbit
+      dist: precise
+    - php: 7.2
+      env: TRANSPORT=doctrine_dbal DEPENDENCIES="symfony/lts:^2"
+    - php: 7.2
+      env: TRANSPORT=jackrabbit DEPENDENCIES="symfony/lts:^2"
+    - php: 7.2
+      env: TRANSPORT=doctrine_dbal DEPENDENCIES="symfony/lts:^3" PHPBENCH="yes"
+    - php: 7.2
+      env: TRANSPORT=jackrabbit DEPENDENCIES="symfony/lts:^3" PHPBENCH="yes"
+    - php: 7.2
+      env: TRANSPORT=doctrine_dbal STABILITY="dev"
+    - php: 7.2
+      env: TRANSPORT=jackrabbit STABILITY="dev"
     - php: hhvm
       dist: trusty
 
-before_script:
-  - composer self-update || true
+before_install:
   - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini; fi
-  - if [ "$SYMFONY_VERSION" != "" ]; then composer require --no-update symfony/symfony=$SYMFONY_VERSION; fi;
+  - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
+  - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
+  - if ! [ -v "$DEPENDENCIES" ]; then composer require --no-update ${DEPENDENCIES}; fi;
   - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.11; fi;
+
+install:
+  # this also does the composer update
   - ./tests/travis_${TRANSPORT}.sh
 
 script:
+  - composer validate --strict --no-check-lock
   - vendor/bin/phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
   - if [ "$PHPBENCH" = "yes" ]; then php vendor/bin/phpbench run --report=all; fi;
-
 
 notifications:
   irc: "irc.freenode.org#symfony-cmf"
