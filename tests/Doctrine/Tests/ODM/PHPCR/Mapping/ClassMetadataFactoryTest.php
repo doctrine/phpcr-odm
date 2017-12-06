@@ -3,10 +3,13 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
+use Doctrine\Common\Persistence\Mapping\Driver\PHPDriver;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Event;
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use PHPCR\SessionInterface;
 
 class ClassMetadataFactoryTest extends TestCase
 {
@@ -35,7 +38,8 @@ class ClassMetadataFactoryTest extends TestCase
 
     public function setUp()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
+        /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
+        $session = $this->createMock(SessionInterface::class);
         $this->dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
     }
 
@@ -43,7 +47,7 @@ class ClassMetadataFactoryTest extends TestCase
     {
         $cmf = new ClassMetadataFactory($this->dm);
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
+        $this->expectException(MappingException::class);
         $cmf->getMetadataFor('unknown');
     }
 
@@ -51,7 +55,7 @@ class ClassMetadataFactoryTest extends TestCase
     {
         $cmf = new ClassMetadataFactory($this->dm);
 
-        $cm = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        $cm = new ClassMetadata('stdClass');
 
         $cmf->setMetadataFor('stdClass', $cm);
 
@@ -61,12 +65,12 @@ class ClassMetadataFactoryTest extends TestCase
 
     public function testGetAllMetadata()
     {
-        $driver = new \Doctrine\Common\Persistence\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
+        $driver = new PHPDriver(array(__DIR__ . '/Model/php'));
         $this->dm->getConfiguration()->setMetadataDriverImpl($driver);
 
         $cmf = new ClassMetadataFactory($this->dm);
 
-        $cm = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        $cm = new ClassMetadata('stdClass');
         $cmf->setMetadataFor('stdClass', $cm);
 
         $metadata = $cmf->getAllMetadata();

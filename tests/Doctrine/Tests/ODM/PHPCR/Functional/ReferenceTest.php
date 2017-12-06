@@ -22,6 +22,7 @@ use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
 use Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use PHPCR\Util\UUIDHelper;
+use PHPCR\ReferentialIntegrityException;
 
 /**
  * @group functional
@@ -774,7 +775,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $referenced = $this->dm->find($this->referencedType, '/functional/refRefTestObj');
 
-        $this->setExpectedException('PHPCR\ReferentialIntegrityException');
+        $this->expectException(ReferentialIntegrityException::class);
         $this->dm->remove($referenced);
         $this->dm->flush();
         $this->dm->clear();

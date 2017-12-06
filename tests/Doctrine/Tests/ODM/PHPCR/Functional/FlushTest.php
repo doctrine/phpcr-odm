@@ -9,6 +9,7 @@ use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\Models\References\UuidTestObj;
 use Doctrine\Tests\Models\References\UuidTestTwoUuidFieldsObj;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 /**
  * @group functional
@@ -167,7 +168,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = 'domnikl';
         $user->status = 'developer';
 
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->flush($user);
     }
 

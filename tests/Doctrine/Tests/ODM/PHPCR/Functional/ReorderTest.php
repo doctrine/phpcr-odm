@@ -5,6 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Document\Generic;
 use PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 /**
  * @group functional
@@ -102,7 +103,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testReorderNoObject()
     {
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder('parent', 'first', 'second', false);
         $this->dm->flush();
     }

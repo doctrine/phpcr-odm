@@ -6,6 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 
 abstract class AbstractMappingDriverTest extends TestCase
 {
@@ -48,7 +49,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
         $driver = $this->loadDriver();
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
+        $this->expectException(MappingException::class);
         $driver->loadMetadataForClass('stdClass', $cm);
     }
 

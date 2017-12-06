@@ -7,6 +7,7 @@ use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -78,7 +79,7 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->remove($user);
 
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException', "Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
+        $this->expectException(InvalidArgumentException::class, "Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
         $this->dm->merge($user);
     }
 

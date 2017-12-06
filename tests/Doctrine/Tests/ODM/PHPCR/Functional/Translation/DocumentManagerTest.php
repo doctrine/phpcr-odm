@@ -11,6 +11,7 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
@@ -476,11 +477,11 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         // if we do not flush, the translation node does not exist
 
         $doc = $this->dm->findTranslation($this->class, $this->doc->id, 'it', true);
-        $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Article', $doc);
+        $this->assertInstanceOf(Article::class, $doc);
         $this->assertEquals('John Doe', $doc->author);
         $this->assertEquals('en', $doc->locale);
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Translation\MissingTranslationException');
+        $this->expectException(MissingTranslationException::class);
         $this->dm->findTranslation($this->class, '/functional/' . $this->testNodeName, 'it', false);
     }
 
@@ -497,7 +498,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $doc = $this->dm->find(null, $path);
-        $this->assertInstanceOf('Doctrine\Tests\Models\Translation\Comment', $doc);
+        $this->assertInstanceOf(Comment::class, $doc);
         $this->assertNull($doc->getText());
     }
 
@@ -568,7 +569,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
+        $this->expectException(PHPCRException::class);
 
         $doc->topic = null;
         $this->dm->flush();

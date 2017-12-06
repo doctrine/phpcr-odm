@@ -138,11 +138,13 @@ class AbstractNodeTest extends TestCase
             ->will($this->returnValue($cardinalityMap));
 
         if ($options['exceeds_max']) {
-            $this->setExpectedException('OutOfBoundsException', 'cannot exceed');
+            $this->expectException(\OutOfBoundsException::class);
+            $this->expectExceptionMessage('cannot exceed');
         }
 
         if ($options['invalid_child']) {
-            $this->setExpectedException('OutOfBoundsException', 'cannot be appended');
+            $this->expectException(\OutOfBoundsException::class);
+            $this->expectExceptionMessage('cannot be appended');
         }
 
         $this->addChildrenToNode1($data);
@@ -214,7 +216,8 @@ class AbstractNodeTest extends TestCase
 
         if ($options['expected_exception']) {
             list($exceptionType, $exceptionMessage) = $options['expected_exception'];
-            $this->setExpectedException($exceptionType, $exceptionMessage);
+            $this->expectException($exceptionType);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $this->node1->expects($this->any())

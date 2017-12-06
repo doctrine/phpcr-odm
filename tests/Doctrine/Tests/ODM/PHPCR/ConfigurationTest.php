@@ -1,6 +1,8 @@
 <?php
 
 namespace Doctrine\Tests\ODM\PHPCR;
+use Doctrine\ODM\PHPCR\Configuration;
+use Doctrine\ODM\PHPCR\PHPCRException;
 
 /**
  * @group unit
@@ -8,13 +10,13 @@ namespace Doctrine\Tests\ODM\PHPCR;
 class ConfigurationTest extends PHPCRTestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Configuration::addDocumentNamespace
-     * @covers Doctrine\ODM\PHPCR\Configuration::getDocumentNamespace
-     * @covers Doctrine\ODM\PHPCR\Configuration::setDocumentNamespaces
+     * @covers \Doctrine\ODM\PHPCR\Configuration::addDocumentNamespace
+     * @covers \Doctrine\ODM\PHPCR\Configuration::getDocumentNamespace
+     * @covers \Doctrine\ODM\PHPCR\Configuration::setDocumentNamespaces
      */
     public function testDocumentNamespace()
     {
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $config = new Configuration();
 
         $config->addDocumentNamespace('foo', 'Documents\Bar');
         $this->assertEquals('Documents\Bar', $config->getDocumentNamespace('foo'));
@@ -24,7 +26,7 @@ class ConfigurationTest extends PHPCRTestCase
         $config->setDocumentNamespaces(array('foo' => 'Documents\Bar'));
         $this->assertEquals('Documents\Bar', $config->getDocumentNamespace('foo'));
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\PHPCRException');
+        $this->expectException(PHPCRException::class);
         $config->getDocumentNamespace('bar');
     }
 }
