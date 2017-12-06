@@ -6,6 +6,11 @@ Changelog
 
 Support PHP 7.1 and 7.2
 
+1.4.3
+-----
+
+Support PHP 7.1 and 7.2
+
 1.4.2
 -----
 
