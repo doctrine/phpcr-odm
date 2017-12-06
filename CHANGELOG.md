@@ -1,8 +1,16 @@
 Changelog
 =========
 
-1.4.1
+1.4.2
 -----
+
+Same as 1.4.1 without the BC break.
+
+1.4.1 (broken)
+-----
+
+This release is deprecated, it contained a BC break (new method in DocumentManagerInterface) that should have only gone
+to the 2.0 version.
 
 * **2017-01-31** [Bugfix] Don't override ID generator when persisting children
 
