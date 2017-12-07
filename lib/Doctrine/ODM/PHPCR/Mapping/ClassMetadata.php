@@ -768,7 +768,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Gets the ReflectionProperties of the mapped class.
      *
-     * @return array An array of \ReflectionProperty instances.
+     * @return \ReflectionProperty[]
      */
     public function getReflectionProperties()
     {

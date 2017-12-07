@@ -2,14 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\DocumentRepository;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-use Doctrine\Common\Proxy\Proxy;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\Blog\User as BlogUser;
 use Doctrine\Tests\Models\Blog\Post;
 use Doctrine\Tests\Models\Blog\Comment;
-use PHPCR\Util\PathHelper;
+use PHPCR\NodeInterface;
 use PHPCR\Util\NodeHelper;
 
 /**
@@ -18,12 +16,12 @@ use PHPCR\Util\NodeHelper;
 class QueryBuilderTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     protected $dm;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     protected $node;
 
@@ -110,7 +108,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testFrom()
     {
         $qb = $this->createQb();
-        $qb->from()->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from()->document(BlogUser::class, 'a');
 
         // add where to stop rouge documents that havn't been stored in /functional/ from appearing.
         $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
@@ -138,7 +136,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComparison()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()
             ->eq()
                 ->field('a.username')
@@ -149,7 +147,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $res);
 
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()
             ->eq()
                 ->field('a.username')
@@ -163,7 +161,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testComposite()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()
             ->orX()
                 ->eq()->field('a.username')->literal('dtl')->end()
@@ -361,7 +359,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testTextSearch($field, $search, $resCount)
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()->fullTextSearch('a.'.$field, $search);
         $q = $qb->getQuery();
 
@@ -376,7 +374,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testDescendant()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()->descendant('/functional', 'a')->end();
         $q = $qb->getQuery();
         $res = $q->execute();
@@ -389,7 +387,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testSameNode()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()->same('/functional/user/dtl', 'a');
         $q = $qb->getQuery();
         $res = $q->execute();
@@ -420,7 +418,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()->eq()
             ->field('a.age')
             ->literal('99') // we pass the age here as a string type

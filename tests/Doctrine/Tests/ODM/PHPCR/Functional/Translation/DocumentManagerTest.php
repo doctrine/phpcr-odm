@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\Models\Translation\InvalidMapping;
@@ -12,47 +13,50 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
+use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
+use Doctrine\ODM\PHPCR\Document\Generic;
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
-    protected $testNodeName = '__my_test_node__';
+    private $testNodeName = '__my_test_node__';
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
-    protected $dm;
+    private $dm;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
-    protected $session;
+    private $session;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
-    protected $node;
+    private $node;
 
     /**
      * @var ClassMetadata
      */
-    protected $metadata;
+    private $metadata;
 
     /**
      * @var Article
      */
-    protected $doc;
+    private $doc;
 
     /**
      * @var string
      */
-    protected $class = 'Doctrine\Tests\Models\Translation\Article';
+    private $class = Article::class;
 
     /**
      * @var string
      */
-    protected $childrenClass = 'Doctrine\Tests\Models\Translation\Comment';
+    private $childrenClass = Comment::class;
 
-    protected $localePrefs = array(
+    private $localePrefs = array(
         'en' => array('de', 'fr'),
         'fr' => array('de', 'en'),
         'de' => array('en'),
@@ -78,12 +82,12 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->assoc = array('key' => 'value');
     }
 
-    protected function getTestNode()
+    private function getTestNode()
     {
         return $this->session->getNode('/functional/'.$this->testNodeName);
     }
 
-    protected function assertDocumentStored()
+    private function assertDocumentStored()
     {
         $node = $this->getTestNode();
         $this->assertNotNull($node);
@@ -366,7 +370,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $children = $this->doc->getChildren();
         $this->assertCount(1, $children);
         foreach ($children as $comment) {
-            $this->assertInstanceOf('Doctrine\ODM\PHPCR\Document\Generic', $comment);
+            $this->assertInstanceOf(Generic::class, $comment);
             $this->assertNull($this->dm->getUnitOfWork()->getCurrentLocale($comment));
         }
 
@@ -376,7 +380,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $children = $this->dm->getChildren($this->doc);
         $this->assertCount(1, $children);
         foreach ($children as $comment) {
-            $this->assertInstanceOf('Doctrine\ODM\PHPCR\Document\Generic', $comment);
+            $this->assertInstanceOf(Generic::class, $comment);
             $this->assertNull($this->dm->getUnitOfWork()->getCurrentLocale($comment));
         }
     }

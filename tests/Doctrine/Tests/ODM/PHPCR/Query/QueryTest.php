@@ -58,7 +58,7 @@ class QueryTest extends Testcase
             ->method('execute')
             ->will($this->returnValue(array('ok')));
         $res = $this->query->execute(null, Query::HYDRATE_PHPCR);
-        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $res);
+        $this->assertInstanceOf(ArrayCollection::class, $res);
         $this->assertEquals('ok', $res->first());
     }
 

@@ -1,6 +1,8 @@
 <?php
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 
 /**
  * @group mapping
@@ -9,8 +11,9 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
 {
     protected function loadDriver()
     {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
+        $reader = new AnnotationReader();
+
+        return new AnnotationDriver($reader);
     }
 
     protected function loadDriverForTestMappingDocuments()

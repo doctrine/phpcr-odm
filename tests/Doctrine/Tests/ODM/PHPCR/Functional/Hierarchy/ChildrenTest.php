@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\ODM\PHPCR\ChildrenCollection;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
@@ -30,7 +31,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    private $type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildrenTestObj';
+    private $type = ChildrenTestObj::class;
 
     /**
      * @var TestResetReorderingListener
@@ -567,7 +568,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
-        /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
+        /** @var $childrenCollection ChildrenCollection */
         $childrenCollection = $parent->allChildren;
         $children = $childrenCollection->toArray();
 
@@ -726,7 +727,7 @@ class ChildrenTestObj
     public $aChildren;
 
     /**
-    * @var \Doctrine\ODM\PHPCR\ChildrenCollection
+    * @var ChildrenCollection
     * @PHPCR\Children(fetchDepth=2, cascade="persist")
     */
     public $allChildren;
@@ -821,7 +822,7 @@ class TestResetReorderingListener
         $document = $e->getObject();
         if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B') {
 
-            /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
+            /** @var $childrenCollection ChildrenCollection */
             $childrenCollection = $document->allChildren;
             $children = $childrenCollection->toArray();
 

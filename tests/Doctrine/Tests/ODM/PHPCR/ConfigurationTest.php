@@ -21,7 +21,7 @@ class ConfigurationTest extends PHPCRTestCase
         $config->addDocumentNamespace('foo', 'Documents\Bar');
         $this->assertEquals('Documents\Bar', $config->getDocumentNamespace('foo'));
 
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $config = new Configuration();
 
         $config->setDocumentNamespaces(array('foo' => 'Documents\Bar'));
         $this->assertEquals('Documents\Bar', $config->getDocumentNamespace('foo'));

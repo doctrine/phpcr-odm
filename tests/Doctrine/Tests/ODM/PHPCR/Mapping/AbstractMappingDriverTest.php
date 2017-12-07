@@ -795,7 +795,7 @@ abstract class AbstractMappingDriverTest extends TestCase
         $className = Model\StringExtendedMappingObject::class;
         /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
         $session = $this->createMock(SessionInterface::class);
-        $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        $dm = DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
         $cmf = new ClassMetadataFactory($dm);
         $class = $cmf->getMetadataFor($className);

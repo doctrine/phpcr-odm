@@ -45,9 +45,7 @@ abstract class NodeTestCase extends TestCase
         $res = call_user_func_array(array($this->node, $method), $args);
         $refl = new \ReflectionClass($expectedClass);
 
-        if ($refl->isSubclassOf(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode'
-        )) {
+        if ($refl->isSubclassOf(AbstractLeafNode::class)) {
             $this->assertSame($this->node, $res, 'Leaf node method "'.$method.'" returns parent');
         } else {
             $this->assertInstanceOf($expectedClass, $res);

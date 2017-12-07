@@ -6,6 +6,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\Common\Proxy\Proxy;
 
 /**
  * @group functional
@@ -98,10 +99,10 @@ class ProxyTest extends PHPCRFunctionalTestCase
 
         $parent = $this->dm->find(null, $parentId);
         $doc = $parent->children->current();
-        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc);
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\DocWithoutId', $doc);
+        $this->assertInstanceOf(Proxy::class, $doc);
+        $this->assertInstanceOf(DocWithoutId::class, $doc);
         $this->assertEquals('foo', $doc->nodename);
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\ParentDoc', $doc->parent);
+        $this->assertInstanceOf(ParentDoc::class, $doc->parent);
     }
 
 

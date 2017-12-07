@@ -4,10 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsUserTranslatable;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
-class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class EventComputingTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var TestEventDocumentChanger
@@ -15,7 +19,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
     private $listener;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -50,7 +54,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
             );
 
         // Create initial user
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->name = 'mdekrijger';
         $user->username = 'mdekrijger';
         $user->status = 'active';
@@ -63,10 +67,10 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->clear();
 
         // Post persist data is not saved to document, so check before reloading document
-        $this->assertTrue($user->username=='postpersist');
+        $this->assertEquals('postpersist', $user->username);
 
         // Be sure that document is really saved by refetching it from ODM
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $user = $this->dm->find(CmsUser::class, $user->id);
         $this->assertEquals('prepersist', $user->name);
         $this->assertEquals('active', $user->status);
 
@@ -82,7 +86,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->assertEquals('postupdate', $user->username);
 
         // Be sure that document is really saved by refetching it from ODM
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $user->id);
+        $user = $this->dm->find(CmsUser::class, $user->id);
         $this->assertEquals('preupdate', $user->name);
         $this->assertEquals('changed', $user->status);
 
@@ -97,7 +101,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->clear();
 
 
-        $user = $this->dm->find('Doctrine\Tests\Models\CMS\CmsUser', $targetPath);
+        $user = $this->dm->find(CmsUser::class, $targetPath);
 
         // the document was moved but the only changes applied in preUpdate are persisted,
         // pre/postMove changes are not persisted in that flush
@@ -126,7 +130,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
         // Create initial user
-        $user = new \Doctrine\Tests\Models\CMS\CmsUserTranslatable();
+        $user = new CmsUserTranslatable();
         $user->name = 'mdekrijger';
         $user->username = 'mdekrijger';
         $user->status = 'active';
@@ -135,7 +139,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsUserTranslatable', $user->id, 'en');
+        $user = $this->dm->findTranslation(CmsUserTranslatable::class, $user->id, 'en');
 
         // username should be changed after loading the translation
         $this->assertEquals('loadTranslation', $user->username);
@@ -153,7 +157,7 @@ class EventComputingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsUserTranslatable', $user->id, 'en');
+        $user = $this->dm->findTranslation(CmsUserTranslatable::class, $user->id, 'en');
 
         $this->dm->removeTranslation($user, 'en');
         $this->assertEquals('preRemoveTranslation', $user->name);

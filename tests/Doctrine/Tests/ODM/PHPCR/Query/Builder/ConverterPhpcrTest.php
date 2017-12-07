@@ -162,7 +162,7 @@ class ConverterPhpcrTest extends TestCase
 
         $res = $this->converter->dispatch($from);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res);
+        $this->assertInstanceOf(SelectorInterface::class, $res);
         $this->assertEquals('nt:unstructured', $res->getNodeTypeName());
         $this->assertEquals('alias', $res->getSelectorName());
     }

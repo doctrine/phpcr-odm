@@ -16,7 +16,7 @@ use Jackalope\Property;
 
 class DocumentClassMapperTest extends Testcase
 {
-    const CLASS_GENERIC = 'Doctrine\ODM\PHPCR\Document\Generic';
+    const CLASS_GENERIC = Generic::class;
     const CLASS_TEST_1 = 'Test\Class1';
     const CLASS_TEST_2 = 'Test\Class2';
     const CLASS_TEST_3 = 'Test\Class3';
@@ -59,7 +59,7 @@ class DocumentClassMapperTest extends Testcase
         $className = $this->mapper->getClassName($this->dm, $this->node);
 
         $this->assertEquals(
-            'Doctrine\ODM\PHPCR\Document\Generic',
+            Generic::class,
             $className
         );
     }
@@ -69,10 +69,10 @@ class DocumentClassMapperTest extends Testcase
      */
     public function testGetClassNameOnlySpecified()
     {
-        $className = $this->mapper->getClassName($this->dm, $this->node, 'Doctrine\Tests\ODM\PHPCR\BaseClass');
+        $className = $this->mapper->getClassName($this->dm, $this->node, BaseClass::class);
 
         $this->assertEquals(
-            'Doctrine\Tests\ODM\PHPCR\BaseClass',
+            BaseClass::class,
             $className
         );
     }
@@ -103,35 +103,35 @@ class DocumentClassMapperTest extends Testcase
 
     public function testGetClassNameNull()
     {
-        $this->mockNodeHasClass('Doctrine\Tests\ODM\PHPCR\BaseClass');
+        $this->mockNodeHasClass(BaseClass::class);
         $className = $this->mapper->getClassName($this->dm, $this->node);
 
         $this->assertEquals(
-            'Doctrine\Tests\ODM\PHPCR\BaseClass',
+            BaseClass::class,
             $className
         );
     }
 
     public function testGetClassNameMatch()
     {
-        $this->mockNodeHasClass('Doctrine\Tests\ODM\PHPCR\BaseClass');
+        $this->mockNodeHasClass(BaseClass::class);
 
-        $className = $this->mapper->getClassName($this->dm, $this->node, 'Doctrine\Tests\ODM\PHPCR\BaseClass');
+        $className = $this->mapper->getClassName($this->dm, $this->node, BaseClass::class);
 
         $this->assertEquals(
-            'Doctrine\Tests\ODM\PHPCR\BaseClass',
+            BaseClass::class,
             $className
         );
     }
 
     public function testGetClassNameExtend()
     {
-        $this->mockNodeHasClass('Doctrine\Tests\ODM\PHPCR\ExtendingClass');
+        $this->mockNodeHasClass(ExtendingClass::class);
 
-        $className = $this->mapper->getClassName($this->dm, $this->node, 'Doctrine\Tests\ODM\PHPCR\BaseClass');
+        $className = $this->mapper->getClassName($this->dm, $this->node, BaseClass::class);
 
         $this->assertEquals(
-            'Doctrine\Tests\ODM\PHPCR\ExtendingClass',
+            ExtendingClass::class,
             $className
         );
     }

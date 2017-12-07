@@ -5,6 +5,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Translation;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\NodeInterface;
+use PHPCR\PropertyInterface;
 
 class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
@@ -42,7 +45,7 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
             $this->markTestSkipped('Prophesize does not work on PHP 5.3.3');
         }
 
-        $classMetadata = $this->prophesize('Doctrine\ODM\PHPCR\Mapping\ClassMetadata');
+        $classMetadata = $this->prophesize(ClassMetadata::class);
         $document = new \stdClass;
         $localizedPropNames = array(
             'test:de-prop1' => 'de',
@@ -53,11 +56,11 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
             'de_asdf' => false, // no property name
         );
 
-        $node = $this->prophesize('PHPCR\NodeInterface');
+        $node = $this->prophesize(NodeInterface::class);
         $properties = array();
 
         foreach (array_keys($localizedPropNames) as $localizedPropName) {
-            $property = $this->prophesize('PHPCR\PropertyInterface');
+            $property = $this->prophesize(PropertyInterface::class);
             $property->getName()->willReturn($localizedPropName);
             $properties[] = $property->reveal();
         }

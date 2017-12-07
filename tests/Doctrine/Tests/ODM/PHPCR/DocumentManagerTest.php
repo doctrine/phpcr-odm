@@ -6,15 +6,18 @@ use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use PHPCR\ItemNotFoundException;
 use PHPCR\SessionInterface;
 use PHPCR\Transaction\UserTransactionInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\Util\UUIDHelper;
 use PHPCR\WorkspaceInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use PHPCR\Query\QueryManagerInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QueryInterface;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
 /**
  * @group unit
@@ -22,13 +25,13 @@ use PHPCR\Query\QueryInterface;
 class DocumentManagerTest extends PHPCRTestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::find
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::find
      */
     public function testFind()
     {
-        $fakeUuid = \PHPCR\Util\UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new \PHPCR\ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+        $fakeUuid = UUIDHelper::generateUUID();
+        $session = $this->getMockForAbstractClass(SessionInterface::class, array('getNodeByIdentifier'));
+        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
         $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
@@ -39,13 +42,13 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::findTranslation
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::findTranslation
      */
     public function testFindTranslation()
     {
-        $fakeUuid = \PHPCR\Util\UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass('PHPCR\SessionInterface', array('getNodeByIdentifier'));
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new \PHPCR\ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+        $fakeUuid = UUIDHelper::generateUUID();
+        $session = $this->getMockForAbstractClass(SessionInterface::class, array('getNodeByIdentifier'));
+        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
         $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
@@ -170,7 +173,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder', $qb);
+        $this->assertInstanceOf(QueryBuilder::class, $qb);
     }
 
     public function testGetDocumentIdReturnsValueOfUnitOfWork()
@@ -212,7 +215,7 @@ class DocumentManagerGetClassMetadata extends DocumentManager
     public function getClassMetadata($class)
     {
         ++$this->callCount;
-        $metadata = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        $metadata = new ClassMetadata('stdClass');
         switch ($this->callCount) {
             case '1':
                 break;

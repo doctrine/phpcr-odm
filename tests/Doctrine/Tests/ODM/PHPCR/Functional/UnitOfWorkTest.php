@@ -17,11 +17,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Tests\Models\CMS\CmsBlogPost;
 use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
 use Doctrine\Tests\Models\CMS\CmsBlogFolder;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
  * @group functional
  */
-class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class UnitOfWorkTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
@@ -45,9 +46,9 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user1 = new CmsUser();
         $user1->username = 'dantleech';
         $address = new CmsAddress();
-        $address->city = "Springfield";
-        $address->zip = "12354";
-        $address->country = "Germany";
+        $address->city = 'Springfield';
+        $address->zip = '12354';
+        $address->country = 'Germany';
         $user1->address = $address;
 
         // getScheduledInserts
@@ -93,18 +94,18 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $root = $this->dm->find(null, 'functional');
 
         $parent1 = new ParentTestObj();
-        $parent1->nodename = "root1";
-        $parent1->name = "root1";
+        $parent1->nodename = 'root1';
+        $parent1->name = 'root1';
         $parent1->setParentDocument($root);
 
         $parent2 = new ParentTestObj();
-        $parent2->name = "/root2";
-        $parent2->nodename = "root2";
+        $parent2->name = '/root2';
+        $parent2->nodename = 'root2';
         $parent2->setParentDocument($root);
 
         $child = new ParentNoNodenameTestObj();
         $child->setParentDocument($parent1);
-        $child->name = "child";
+        $child->name = 'child';
 
         $this->dm->persist($parent1);
         $this->dm->persist($parent2);
@@ -178,10 +179,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         // this forces the objects to be loaded in an order where the $parent will become a proxy
-        $documents = $this->dm->findMany(
-            'Doctrine\Tests\Models\References\ParentTestObj',
-            array($childId, $parentId)
-        );
+        $documents = $this->dm->findMany(ParentTestObj::class, array($childId, $parentId));
 
         $this->assertCount(2, $documents);
 

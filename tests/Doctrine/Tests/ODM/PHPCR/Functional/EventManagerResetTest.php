@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
 
@@ -21,7 +22,7 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
     private $listener;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -38,12 +39,12 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
     public function testResetEvents()
     {
         $page = new CmsPage();
-        $page->title = "my-page";
+        $page->title = 'my-page';
 
         $pageContent = new CmsPageContent();
         $pageContent->id = 1;
-        $pageContent->content = "long story";
-        $pageContent->formatter = "plaintext";
+        $pageContent->content = 'long story';
+        $pageContent->formatter = 'plaintext';
 
         $page->content = $pageContent;
 
@@ -53,15 +54,15 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\CmsPageContent', $page->content);
+        $this->assertInstanceOf(CmsPageContent::class, $page->content);
 
 
         // This is required as the originalData in the UnitOfWork doesn’t set the node of the Document
         $this->dm->clear();
 
-        $pageLoaded = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsPage')->find($page->id);
+        $pageLoaded = $this->dm->getRepository(CmsPage::class)->find($page->id);
 
-        $pageLoaded->title = "my-page-changed";
+        $pageLoaded->title = 'my-page-changed';
 
         $this->assertEquals('my-page-changed', $pageLoaded->title);
 
@@ -76,7 +77,7 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\CmsPageContent', $page->content);
+        $this->assertInstanceOf(CmsPageContent::class, $page->content);
     }
 }
 

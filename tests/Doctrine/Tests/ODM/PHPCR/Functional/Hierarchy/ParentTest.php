@@ -2,12 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use PHPCR\PropertyType;
+use Doctrine\ODM\PHPCR\Document\Generic;
 
 /**
  * Test for the Parent mapping.
@@ -17,7 +21,7 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 class ParentTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -28,13 +32,13 @@ class ParentTest extends PHPCRFunctionalTestCase
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\NameDoc';
+        $this->type = NameDoc::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -44,7 +48,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         }
 
         $user = $this->node->addNode('thename');
-        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
 
         $this->dm->getPhpcrSession()->save();
     }
@@ -229,7 +233,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $referrer = $this->dm->find(null, '/functional/referrer');
-        $this->assertInstanceOf('\Doctrine\ODM\PHPCR\Document\Generic', $referrer->ref->parent);
+        $this->assertInstanceOf(Generic::class, $referrer->ref->parent);
     }
 
     /**

@@ -3,8 +3,11 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\Query\InvalidQueryException;
 use Doctrine\ODM\PHPCR\Query\Query;
 use PHPCR\Query\QueryInterface;
@@ -12,10 +15,10 @@ use PHPCR\Query\QueryInterface;
 /**
  * @group functional
  */
-class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class QuerySql2Test extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -26,7 +29,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
@@ -56,7 +59,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\QuerySql2TestObj';
+        $this->type = QuerySql2TestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 

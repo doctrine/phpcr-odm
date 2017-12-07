@@ -2,22 +2,24 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\ReferentialIntegrityException;
 use PHPCR\Util\PathHelper;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
 use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
-use Doctrine\ODM\PHPCR\UnitOfWork;
 use PHPCR\Version\VersionException;
 
 /**
  * @group functional
  */
-abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -36,13 +38,13 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
     private $typeReference;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
     public function setUp()
     {
-        $this->typeReference = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\ReferenceTestObj';
+        $this->typeReference = ReferenceTestObj::class;
         $this->dm = $this->createDocumentManager();
 
         // Check that the repository supports versioning
@@ -111,7 +113,7 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $user = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkin($user);
 
-        $this->assertInstanceOf('PHPCR\NodeInterface', $user->node);
+        $this->assertInstanceOf(NodeInterface::class, $user->node);
         $this->assertTrue($user->node->isNodeType('mix:simpleVersionable'));
 
         // TODO: understand why jcr:isCheckedOut is true for a checked in node
@@ -375,13 +377,13 @@ abstract class VersioningTestAbstract extends \Doctrine\Tests\ODM\PHPCR\PHPCRFun
         $this->dm->checkpoint($versionableArticle);
 
         $firstVersion = $this->dm->findVersionByName(
-                'Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren',
+                FullVersionableArticleWithChildren::class,
                 $versionableArticle->id,
                 '1.0'
         );
 
         $secondVersion = $this->dm->findVersionByName(
-                'Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren',
+                FullVersionableArticleWithChildren::class,
                 $versionableArticle->id,
                 '1.1'
         );

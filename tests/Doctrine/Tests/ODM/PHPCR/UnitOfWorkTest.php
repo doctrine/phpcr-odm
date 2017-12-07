@@ -14,6 +14,7 @@ use Jackalope\Repository;
 use Jackalope\NodeType\NodeType;
 use Jackalope\NodeType\NodeTypeManager;
 use Jackalope\Workspace;
+use PHPCR\SessionInterface;
 
 /**
  * TODO: remove Jackalope dependency
@@ -38,12 +39,12 @@ class UnitOfWorkTest extends PHPCRTestCase
     private $factory;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
     /**
-     * @var \Jackalope\ObjectManager
+     * @var ObjectManager
      */
     private $objectManager;
 
@@ -54,7 +55,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
-        if (!class_exists('Jackalope\Factory', true)) {
+        if (!class_exists(Factory::class, true)) {
             $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
         }
 
@@ -160,8 +161,8 @@ class UnitOfWorkTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
      */
     public function testScheduleInsertion()
     {
@@ -173,9 +174,9 @@ class UnitOfWorkTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleRemove
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleRemove
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
      */
     public function testScheduleInsertCancelsScheduleRemove()
     {
@@ -205,7 +206,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function testUuid()
     {
-        $class = new \ReflectionClass('Doctrine\ODM\PHPCR\UnitOfWork');
+        $class = new \ReflectionClass(UnitOfWork::class);
         $method = $class->getMethod('generateUuid');
         $method->setAccessible(true);
 

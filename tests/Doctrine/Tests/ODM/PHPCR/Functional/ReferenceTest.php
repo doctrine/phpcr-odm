@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefCascadeManyTestObj;
@@ -21,38 +22,41 @@ use Doctrine\Tests\Models\References\RefManyTestObj;
 use Doctrine\Tests\Models\References\RefManyTestObjForCascade;
 use Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade;
 use Doctrine\Tests\Models\References\ParentTestObj;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\ReferentialIntegrityException;
 
 /**
  * @group functional
  */
-class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ReferenceTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
      * Class name of the document class
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    private $referrerType = 'Doctrine\Tests\Models\References\RefTestObj';
-    private $referencedType = 'Doctrine\Tests\Models\References\RefRefTestObj';
-    private $referrerManyType = 'Doctrine\Tests\Models\References\RefManyTestObj';
-    private $referrerManyTypePathStrategy = 'Doctrine\Tests\Models\References\RefManyTestObjPathStrategy';
-    private $referrerManyForCascadeType = 'Doctrine\Tests\Models\References\RefManyTestObjForCascade';
-    private $hardReferrerType = 'Doctrine\Tests\Models\References\HardRefTestObj';
-    private $referrerDifType = 'Doctrine\Tests\Models\References\RefDifTestObj';
-    private $referrerManyWithParentForCascadeType = 'Doctrine\Tests\Models\References\RefManyWithParentTestObjForCascade';
+    private $referrerType = RefTestObj::class;
+    private $referencedType = RefRefTestObj::class;
+    private $referrerManyType = RefManyTestObj::class;
+    private $referrerManyTypePathStrategy = RefManyTestObjPathStrategy::class;
+    private $referrerManyForCascadeType = RefManyTestObjForCascade::class;
+    private $hardReferrerType = HardRefTestObj::class;
+    private $referrerDifType = RefDifTestObj::class;
+    private $referrerManyWithParentForCascadeType = RefManyWithParentTestObjForCascade::class;
 
     public function setUp()
     {
@@ -155,7 +159,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertTrue($refTestNode->hasProperty('reference'));
         $this->assertEquals($refRefTestNode->getIdentifier(), $refTestNode->getProperty('reference')->getString());
 
-        $ref = $this->dm->find('Doctrine\Tests\Models\References\RefTestPrivateObj', '/functional/refTestObj');
+        $ref = $this->dm->find(RefTestPrivateObj::class, '/functional/refTestObj');
         $refref = $ref->getReference();
 
         $this->assertNotNull($refref);
@@ -318,7 +322,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $node = $this->session->getNode('/functional/refTestObj')->getPropertyValue('myReference');
-        $this->assertInstanceOf('PHPCR\\NodeInterface', $node);
+        $this->assertInstanceOf(NodeInterface::class, $node);
         $this->assertEquals('referenced changed', $node->getPropertyValue('name'));
     }
 
@@ -866,7 +870,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referencing = $this->dm->find('Doctrine\Tests\Models\References\RefManyTestObj', '/functional/refManyTestObj');
+        $referencing = $this->dm->find(RefManyTestObj::class, '/functional/refManyTestObj');
         $this->dm->flush();
 
         $this->assertFalse($referencing->references->isInitialized());
