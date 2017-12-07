@@ -77,7 +77,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     {
         $className = $this->expandClassName($dm, $className);
 
-        if ('Doctrine\\ODM\\PHPCR\\Document\\Generic' !== $className) {
+        if (Document\Generic::class !== $className) {
             $node->setProperty('phpcr:class', $className, PropertyType::STRING);
 
             $class = $dm->getClassMetadata($className);

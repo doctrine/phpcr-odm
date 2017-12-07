@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
@@ -66,8 +67,8 @@ class DocumentRepository implements ObjectRepository
     /**
      * Initializes a new <tt>DocumentRepository</tt>.
      *
-     * @param DocumentManagerInterface $dm            The DocumentManager to use.
-     * @param ClassMetadata            $classMetadata The class descriptor.
+     * @param DocumentManagerInterface $dm    The DocumentManager to use.
+     * @param ClassMetadata            $class The class descriptor.
      */
     public function __construct($dm, ClassMetadata $class)
     {
@@ -250,7 +251,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * @return ClassMetadata
      */
     public function getClassMetadata()
     {
@@ -335,7 +336,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @param string $alias name of the alias to use, defaults to 'a'
      *
-     * @return \Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder
+     * @return QueryBuilder
      */
     public function createQueryBuilder($alias)
     {

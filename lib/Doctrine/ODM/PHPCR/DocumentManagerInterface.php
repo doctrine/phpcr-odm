@@ -28,9 +28,13 @@ use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Query\Query;
+use PHPCR\NodeInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\PropertyType;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use PHPCR\RepositoryException;
+use PHPCR\SessionInterface;
+use PHPCR\UnsupportedRepositoryOperationException;
 
 /**
  * DocumentManager interface
@@ -98,7 +102,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Access the underlying PHPCR session this manager is using.
      *
-     * @return \PHPCR\SessionInterface
+     * @return SessionInterface
      */
     public function getPhpcrSession();
 
@@ -192,7 +196,7 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string $statement The statement in the specified language
      * @param string $language  The query language
      *
-     * @return \PHPCR\Query\QueryInterface
+     * @return QueryInterface
      */
     public function createPhpcrQuery($statement, $language);
 
@@ -441,7 +445,7 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $documentVersion The version document as returned by findVersionByName.
      *
-     * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
+     * @throws RepositoryException when trying to remove the root version or the last version
      */
     public function removeVersion($documentVersion);
 
@@ -475,7 +479,7 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @throws InvalidArgumentException if there is a document with $id but no
      *      version with $name
-     * @throws \PHPCR\UnsupportedRepositoryOperationException if the implementation
+     * @throws UnsupportedRepositoryOperationException if the implementation
      *      does not support versioning
      */
     public function findVersionByName($className, $id, $versionName);
@@ -519,7 +523,7 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $document
      *
-     * @return \PHPCR\NodeInterface
+     * @return NodeInterface
      *
      * @throws InvalidArgumentException if $document is not an object.
      * @throws PHPCRException                if $document is not managed

@@ -34,6 +34,8 @@ use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPCR\NodeInterface;
+use PHPCR\Query\RowInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Query\QueryInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
@@ -332,8 +334,8 @@ class DocumentManager implements DocumentManagerInterface
         if (!empty($uuids)) {
             $nodes = $this->session->getNodesByIdentifier(array_keys($uuids));
 
+            /** @var NodeInterface $node */
             foreach ($nodes as $node) {
-                /** @var $node \PHPCR\NodeInterface */
                 $id = $node->getPath();
                 $ids[$uuids[$node->getIdentifier()]] = $id;
                 unset($uuids[$id]);
@@ -478,8 +480,8 @@ class DocumentManager implements DocumentManagerInterface
         $result = $query->execute();
 
         $ids = array();
+        /** @var RowInterface $row */
         foreach ($result->getRows() as $row) {
-            /** @var $row \PHPCR\Query\RowInterface */
             $ids[] = $row->getPath($primarySelector);
         }
 

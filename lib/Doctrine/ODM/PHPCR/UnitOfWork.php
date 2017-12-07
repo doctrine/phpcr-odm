@@ -20,6 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\EventArgs;
+use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\Event\OnClearEventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
@@ -46,6 +47,7 @@ use PHPCR\RepositoryInterface;
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryException;
+use PHPCR\SessionInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\PathNotFoundException;
 use PHPCR\ItemNotFoundException;
@@ -54,7 +56,8 @@ use PHPCR\Util\UUIDHelper;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\NodeHelper;
 use Jackalope\Session as JackalopeSession;
-use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
+use PHPCR\Version\VersionHistoryInterface;
+use PHPCR\Version\VersionInterface;
 
 /**
  * Unit of work class
@@ -101,13 +104,13 @@ class UnitOfWork
 
     /**
      * Track version history of the version documents we create, indexed by spl_object_hash
-     * @var \PHPCR\Version\VersionHistoryInterface[]
+     * @var VersionHistoryInterface[]
      */
     private $documentHistory = array();
 
     /**
      * Track version objects of the version documents we create, indexed by spl_object_hash
-     * @var \PHPCR\Version\VersionInterface[]
+     * @var VersionInterface[]
      */
     private $documentVersion = array();
 
@@ -222,7 +225,7 @@ class UnitOfWork
     private $uuidGenerator;
 
     /**
-     * \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
@@ -232,7 +235,7 @@ class UnitOfWork
     private $eventListenersInvoker;
 
     /**
-     * @var \Doctrine\Common\EventManager
+     * @var EventManager
      */
     private $eventManager;
 
@@ -2976,7 +2979,7 @@ class UnitOfWork
 
         $result = array();
         foreach ($versions as $version) {
-            /** @var $version \PHPCR\Version\VersionInterface */
+            /** @var $version VersionInterface */
             $result[$version->getName()] = array(
                 'name' => $version->getName(),
                 'labels' => array(),

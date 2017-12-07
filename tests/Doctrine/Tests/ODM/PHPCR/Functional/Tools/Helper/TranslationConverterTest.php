@@ -475,6 +475,6 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->expectExceptionMessage('locales must be specified');
-        $this->converter->convert(Comment::class, array());
+        $this->converter->convert(Comment::class, array(), array(), 'attribute');
     }
 }

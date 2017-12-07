@@ -21,10 +21,12 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ODM\PHPCR\DocumentClassMapperInterface;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
 use PHPCR\Util\UUIDHelper;
+use Doctrine\Common\Persistence\ObjectRepository;
 
 /**
  * Configuration class
@@ -179,7 +181,7 @@ class Configuration
     /**
      * Gets the cache driver implementation that is used for metadata caching.
      *
-     * @return \Doctrine\ODM\PHPCR\DocumentClassMapperInterface
+     * @return DocumentClassMapperInterface
      */
     public function getDocumentClassMapper()
     {
@@ -193,7 +195,7 @@ class Configuration
     /**
      * Sets the cache driver implementation that is used for metadata caching.
      *
-     * @param \Doctrine\ODM\PHPCR\DocumentClassMapperInterface $documentClassMapper
+     * @param DocumentClassMapperInterface $documentClassMapper
      */
     public function setDocumentClassMapper(DocumentClassMapperInterface $documentClassMapper)
     {
@@ -309,7 +311,7 @@ class Configuration
     {
         $reflectionClass = new \ReflectionClass($className);
 
-        if (! $reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
+        if (! $reflectionClass->implementsInterface(ObjectRepository::class)) {
             throw PHPCRException::invalidDocumentRepository($className);
         }
 

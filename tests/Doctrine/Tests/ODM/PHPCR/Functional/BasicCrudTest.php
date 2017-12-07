@@ -612,7 +612,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->expectException(IdException::class);
         $this->expectExceptionMessage('Nodename property "nodename" of document "Doctrine\Tests\ODM\PHPCR\Functional\User5" contains the illegal PHPCR value "bad/name"');
         $this->dm->persist($user);
-
     }
 
     /**

@@ -190,7 +190,7 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refManyTestObj->references = $refRefTestObj;
 
         $this->expectException(PHPCRException::class);
-        $this->expectExceptionMessage('Referenced document is not stored correctly in a reference-many property.');
+        $this->expectExceptionMessage('Referenced documents are not stored correctly in a reference-many property.');
         $this->dm->persist($refManyTestObj);
     }
 
