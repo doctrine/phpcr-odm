@@ -261,6 +261,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->persist($uuidObj);
 
         $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('You can only designate a single "Uuid" field in "Doctrine\Tests\Models\References\UuidTestTwoUuidFieldsObj"');
         $this->dm->flush();
     }
 

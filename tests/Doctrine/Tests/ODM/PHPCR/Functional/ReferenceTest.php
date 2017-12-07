@@ -184,15 +184,14 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refManyTestObj = new RefManyTestObj();
         $refRefTestObj = new RefRefTestObj();
 
-        $refManyTestObj->id = "/functional/refTestObj";
-        $refRefTestObj->id = "/functional/refRefTestObj";
+        $refManyTestObj->id = '/functional/refTestObj';
+        $refRefTestObj->id = '/functional/refRefTestObj';
 
         $refManyTestObj->references = $refRefTestObj;
 
-        $this->dm->persist($refManyTestObj);
         $this->expectException(PHPCRException::class);
         $this->expectExceptionMessage('Referenced document is not stored correctly in a reference-many property.');
-        $this->dm->flush();
+        $this->dm->persist($refManyTestObj);
     }
 
     public function testCreateOneArrayError()
@@ -200,17 +199,15 @@ class ReferenceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $refTestObj = new RefTestObj();
         $refRefTestObj = new RefRefTestObj();
 
-        $refTestObj->id = "/functional/refTestObj";
-        $refRefTestObj->id = "/functional/refRefTestObj";
-        $refRefTestObj->name = "referenced";
+        $refTestObj->id = '/functional/refTestObj';
+        $refRefTestObj->id = '/functional/refRefTestObj';
+        $refRefTestObj->name = 'referenced';
 
         $refTestObj->reference = array($refRefTestObj);
 
-        $this->dm->persist($refTestObj);
-
         $this->expectException(PHPCRException::class);
         $this->expectExceptionMessage('Referenced document is not stored correctly in a reference-one property.');
-        $this->dm->flush();
+        $this->dm->persist($refTestObj);
     }
 
     public function testCreateWithoutRef()

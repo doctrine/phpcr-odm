@@ -671,7 +671,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function setVersioned($versionable)
     {
         if ($versionable && !in_array($versionable, self::$validVersionableAnnotations)) {
-            throw new MappingException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
+            throw new MappingException("Invalid value in \"{$this->name}\" for the versionable annotation: \"{$versionable}\"");
         }
         $this->versionable = $versionable;
     }
@@ -965,11 +965,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (empty($mapping['fieldName'])) {
-            throw new MappingException("Mapping a property requires to specify the field name in '{$this->name}'.");
+            throw new MappingException("Mapping a property requires to specify the field name in \"{$this->name}\".");
         }
 
         if (!is_string($mapping['fieldName'])) {
-            throw new MappingException("Field name must be of type string in '{$this->name}'.");
+            throw new MappingException("Field name must be of type string in \"{$this->name}\".");
         }
 
         if (!$this->reflClass->hasProperty($mapping['fieldName'])) {
@@ -1434,7 +1434,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function getAssociationTargetClass($fieldName)
     {
         if (empty($this->mappings[$fieldName]['targetDocument'])) {
-            throw new MappingException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
+            throw new MappingException("Association name expected, \"$fieldName\" is not an association in \"{$this->name}\".");
         }
 
         return $this->mappings[$fieldName]['targetDocument'];
@@ -1445,7 +1445,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationMappedByTargetField($assocName)
     {
-        throw new BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
+        throw new BadMethodCallException(__METHOD__."  not yet implemented in \"{$this->name}\"");
     }
 
     /**
@@ -1453,7 +1453,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isAssociationInverseSide($assocName)
     {
-        throw new BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
+        throw new BadMethodCallException(__METHOD__."  not yet implemented in \"{$this->name}\"");
     }
 
     /**
@@ -1512,15 +1512,15 @@ class ClassMetadata implements ClassMetadataInterface
 
             if (isset($parentMapping['type'])) {
                 if (isset($mapping['type']) && $parentMapping['type'] !== $mapping['type']) {
-                    throw new MappingException("You cannot change the type of a field via inheritance in '{$this->name}'");
+                    throw new MappingException("You cannot change the type of a field via inheritance in \"{$this->name}\"");
                 }
                 $mapping['type'] = $parentMapping['type'];
             }
         }
 
-        if (isset($mapping['property']) && $mapping['property'] == 'jcr:uuid') {
+        if (isset($mapping['property']) && $mapping['property'] === 'jcr:uuid') {
             if (null !== $this->uuidFieldName) {
-                throw new MappingException("You can only designate a single 'Uuid' field in '{$this->name}'");
+                throw new MappingException("You can only designate a single \"Uuid\" field in \"{$this->name}\"");
             }
 
             $this->uuidFieldName = $mapping['fieldName'];

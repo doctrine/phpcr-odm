@@ -5,6 +5,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Tests\Models\CMS\CmsArticlePerson;
+use Doctrine\Tests\Models\CMS\CmsUser;
 
 class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 {
@@ -38,7 +41,7 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $group2->name = "Test!";
         $group2->id = '/functional/group2';
 
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
         $user->addGroup($group1);
@@ -58,7 +61,7 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testCascadePersistForManagedDocument()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
         $this->dm->persist($user);
@@ -88,11 +91,11 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testCascadePersistSingleDocument()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
 
-        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article = new CmsArticle();
         $article->text = "foo";
         $article->topic = "bar";
         $article->user = $user;
@@ -111,7 +114,7 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testCascadeManagedDocumentCollectionDuringFlush()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
         $this->dm->persist($user);
@@ -142,14 +145,14 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testCascadeManagedDocumentReferenceDuringFlush()
     {
-        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article = new CmsArticle();
         $article->text = "foo";
         $article->topic = "bar";
         $article->id = '/functional/article';
 
         $this->dm->persist($article);
 
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
         $article->user = $user;
@@ -165,12 +168,12 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testCascadeManagedDocumentReferrerDuringFlush()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "dbu";
         $user->name = "David";
         $this->dm->persist($user);
 
-        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article = new CmsArticle();
         $article->text = "foo";
         $article->topic = "bar";
         $article->id = '/functional/article_referrer';
@@ -206,12 +209,12 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
      */
     public function testCascadeManagedDocumentReferrerDuringFlushArray()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "dbu";
         $user->name = "David";
         $this->dm->persist($user);
 
-        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article = new CmsArticle();
         $article->text = "foo";
         $article->topic = "bar";
         $article->id = '/functional/article_referrer';
@@ -233,58 +236,54 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
 
     public function testCascadeReferenceArray()
     {
-        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
+        $article = new CmsArticle();
         $article->text = "foo";
         $article->topic = "bar";
         $article->id = '/functional/article';
         $article->user = array();
 
-        $this->dm->persist($article);
-
         $this->expectException(PHPCRException::class);
-        $this->dm->flush();
+        $this->expectExceptionMessage('Referenced document is not stored correctly in a reference-one property. Do not use array notation');
+        $this->dm->persist($article);
     }
 
     public function testCascadeReferenceNoObject()
     {
-        $article = new \Doctrine\Tests\Models\CMS\CmsArticle();
-        $article->text = "foo";
-        $article->topic = "bar";
+        $article = new CmsArticle();
+        $article->text = 'foo';
+        $article->topic = 'bar';
         $article->id = '/functional/article';
-        $article->user = "This is not an object";
-
-        $this->dm->persist($article);
+        $article->user = 'This is not an object';
 
         $this->expectException(PHPCRException::class);
-        $this->dm->flush();
+        $this->expectExceptionMessage('A reference field may only contain mapped documents, found <string> in field "user" of "Doctrine\Tests\Models\CMS\CmsArticle');
+        $this->dm->persist($article);
     }
 
     public function testCascadeReferenceManyNoArray()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
-        $user->name = "foo";
-        $user->username = "bar";
+        $user = new CmsUser();
+        $user->name = 'foo';
+        $user->username = 'bar';
         $user->id = '/functional/user';
         $user->groups = $this;
 
-        $this->dm->persist($user);
-
         $this->expectException(PHPCRException::class);
-        $this->dm->flush();
+        $this->expectExceptionMessage('Referenced documents are not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection');
+        $this->dm->persist($user);
     }
 
     public function testCascadeReferenceManyNoObject()
     {
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
-        $user->name = "foo";
-        $user->username = "bar";
+        $user = new CmsUser();
+        $user->name = 'foo';
+        $user->username = 'bar';
         $user->id = '/functional/user';
-        $user->groups = array("this is a bad idea");
-
-        $this->dm->persist($user);
+        $user->groups = array('this is a bad idea');
 
         $this->expectException(PHPCRException::class);
-        $this->dm->flush();
+        $this->expectExceptionMessage('A reference field may only contain mapped documents, found <string> in field "groups" of "Doctrine\Tests\Models\CMS\CmsUser');
+        $this->dm->persist($user);
     }
 
     /**
@@ -292,20 +291,20 @@ class CascadePersistTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
      */
     public function testCascadeManagedDocumentReferrerMtoMDuringFlush()
     {
-        $article1 = new \Doctrine\Tests\Models\CMS\CmsArticle();
-        $article1->text = "foo";
-        $article1->topic = "bar";
+        $article1 = new CmsArticle();
+        $article1->text = 'foo';
+        $article1->topic = 'bar';
         $article1->id = '/functional/article_m2m_referrer_1';
         $this->dm->persist($article1);
 
-        $article2 = new \Doctrine\Tests\Models\CMS\CmsArticle();
-        $article2->text = "foo2";
-        $article2->topic = "bar2";
+        $article2 = new CmsArticle();
+        $article2->text = 'foo2';
+        $article2->topic = 'bar2';
         $article2->id = '/functional/article_m2m_referrer_2';
         $this->dm->persist($article2);
 
-        $superman = new \Doctrine\Tests\Models\CMS\CmsArticlePerson();
-        $superman->name = "superman";
+        $superman = new CmsArticlePerson();
+        $superman->name = 'superman';
 
         $this->dm->persist($superman);
 

@@ -229,7 +229,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testOrderBy()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->where()->eq()->field('a.status')->literal('query_builder')->end();
         $qb->orderBy()->asc()->field('a.username')->end();
 
@@ -250,13 +250,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testOrderByNonSimpleField()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->orderBy()->asc()->localname('a.username')->end();
 
-        $query = $qb->getQuery();
-
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
-        $query->execute();
+        $this->expectExceptionMessage('Alias name "a.username" is not known. The following aliases are valid: "a"');
+        $qb->getQuery();
     }
 
     /**
@@ -276,7 +275,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         // select one property
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'a');
+        $qb->from('a')->document(User::class, 'a');
         $qb->select()->field('a.username');
         $qb->where()
             ->eq()
@@ -401,13 +400,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     public function testConditionWithNonExistingAlias()
     {
         $qb = $this->createQb();
-        $qb->from('a')->document('Doctrine\Tests\Models\Blog\User', 'b');
+        $qb->from('a')->document(BlogUser::class, 'b');
         $qb->where()->descendant('/functional', 'a')->end();
-        $q = $qb->getQuery();
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Alias name "a" is not known');
-        $q->execute();
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Alias name "a" is not known. The following aliases are valid: "b"');
+        $q = $qb->getQuery();
     }
 
     public function testConditionWithStaticLiteralOfDifferentType()
