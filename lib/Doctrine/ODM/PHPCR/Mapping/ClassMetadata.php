@@ -634,7 +634,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getLifecycleCallbacks($event)
     {
-        return isset($this->lifecycleCallbacks[$event]) ? $this->lifecycleCallbacks[$event] : array();
+        return $this->lifecycleCallbacks[$event] ?? array();
     }
 
     /**
@@ -1463,7 +1463,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isInheritedField($fieldName)
     {
-        return isset($this->inheritedFields[$fieldName]) ? $this->inheritedFields[$fieldName] : false;
+        return $this->inheritedFields[$fieldName] ?? false;
     }
 
     /**
@@ -1537,7 +1537,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
 
             if (!isset($mapping['nullable'])) {
-                $mapping['nullable'] = isset($parentMapping['nullable']) ? $parentMapping['nullable'] : false;
+                $mapping['nullable'] = $parentMapping['nullable'] ?? false;
             }
         }
 

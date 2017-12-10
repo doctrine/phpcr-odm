@@ -63,7 +63,7 @@ class YamlDriver extends FileDriver
         if (!$element) {
             return;
         }
-        $element['type'] = isset($element['type']) ? $element['type'] : 'document';
+        $element['type'] = $element['type'] ?? 'document';
 
         if (isset($element['repositoryClass'])) {
             $class->setCustomRepositoryClassName($element['repositoryClass']);
@@ -218,7 +218,7 @@ class YamlDriver extends FileDriver
             foreach ($element['mixedReferrers'] as $name => $attributes) {
                 $mapping = array(
                     'fieldName' => $name,
-                    'referenceType' => isset($attributes['referenceType']) ? $attributes['referenceType'] : null,
+                    'referenceType' => $attributes['referenceType'] ?? null,
                 );
                 $class->mapMixedReferrers($mapping);
             }
@@ -272,7 +272,7 @@ class YamlDriver extends FileDriver
         $mapping = array_merge(array('fieldName' => $fieldName), $reference);
 
         $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
-        $mapping['name'] = (isset($reference['name'])) ? $reference['name'] : null;
+        $mapping['name'] = $reference['name'] ?? null;
 
         if (! isset($mapping['targetDocument'])) {
             $mapping['targetDocument'] = null;

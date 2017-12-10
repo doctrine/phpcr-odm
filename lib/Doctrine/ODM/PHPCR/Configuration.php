@@ -325,9 +325,8 @@ class Configuration
      */
     public function getDefaultRepositoryClassName()
     {
-        return isset($this->attributes['defaultRepositoryClassName'])
-            ? $this->attributes['defaultRepositoryClassName']
-            : 'Doctrine\ODM\PHPCR\DocumentRepository';
+        return $this->attributes['defaultRepositoryClassName']
+            ?? 'Doctrine\ODM\PHPCR\DocumentRepository';
     }
 
     /**
@@ -349,9 +348,8 @@ class Configuration
      */
     public function getRepositoryFactory()
     {
-        return isset($this->attributes['repositoryFactory'])
-            ? $this->attributes['repositoryFactory']
-            : new DefaultRepositoryFactory();
+        return $this->attributes['repositoryFactory']
+            ?? new DefaultRepositoryFactory();
     }
 
     /**
@@ -373,9 +371,8 @@ class Configuration
      */
     public function getUuidGenerator()
     {
-        return (isset($this->attributes['uuidGenerator']))
-            ? $this->attributes['uuidGenerator']
-            : function () {
+        return $this->attributes['uuidGenerator']
+            ?? function () {
                 return UUIDHelper::generateUUID();
             }
         ;

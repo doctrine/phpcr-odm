@@ -362,9 +362,9 @@ class UnitOfWork
      */
     public function getOrCreateDocuments($className, $nodes, array &$hints = array())
     {
-        $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
-        $locale = isset($hints['locale']) ? $hints['locale'] : null;
-        $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
+        $refresh = $hints['refresh'] ?? false;
+        $locale = $hints['locale'] ?? null;
+        $fallback = $hints['fallback'] ?? isset($locale);
         $documents = array();
         $overrideLocalValuesOids = array();
         $strategies = array();
@@ -443,7 +443,7 @@ class UnitOfWork
 
         foreach ($nodes as $node) {
             $id       = $node->getPath();
-            $document = $this->getDocumentById($id) ?: (isset($documents[$id]) ? $documents[$id] : null);
+            $document = $this->getDocumentById($id) ?: ($documents[$id] ?? null);
 
             if (! $document) {
                 continue;
@@ -523,7 +523,7 @@ class UnitOfWork
                         }
                     }
 
-                    $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
+                    $targetDocument = $mapping['targetDocument'] ?? null;
                     $coll = new ReferenceManyCollection(
                         $this->dm,
                         $document,
@@ -609,7 +609,7 @@ class UnitOfWork
 
             $this->nonMappedData[$overrideLocalValuesOids[$id]] = $nonMappedData;
             foreach ($class->reflFields as $fieldName => $reflFields) {
-                $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
+                $value = $documentState[$fieldName] ?? null;
                 $reflFields->setValue($document, $value);
                 $this->originalData[$overrideLocalValuesOids[$id]][$fieldName] = $value;
             }
@@ -1273,7 +1273,7 @@ class UnitOfWork
                     // convert to a PersistentCollection
                     switch ($assocType) {
                         case 'reference':
-                            $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
+                            $targetDocument = $mapping['targetDocument'] ?? null;
                             $changeSet[$fieldName] = ReferenceManyCollection::createFromCollection(
                                 $this->dm,
                                 $document,
@@ -1361,8 +1361,8 @@ class UnitOfWork
                     );
                 }
 
-                $filter = isset($mapping['filter']) ? $mapping['filter'] : null;
-                $fetchDepth = isset($mapping['fetchDepth']) ? $mapping['fetchDepth'] : null;
+                $filter = $mapping['filter'] ?? null;
+                $fetchDepth = $mapping['fetchDepth'] ?? null;
 
                 // convert to a PersistentCollection
                 $changeSet[$fieldName] = ChildrenCollection::createFromCollection(
@@ -1947,7 +1947,7 @@ class UnitOfWork
                             $document,
                             $mapping['property'],
                             array(),
-                            isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null,
+                            $mapping['targetDocument'] ?? null,
                             $locale,
                             $this->getReferenceManyCollectionTypeFromMetadata($mapping)
                         );
@@ -2372,7 +2372,7 @@ class UnitOfWork
 
             $this->setMixins($class, $node, $document);
 
-            $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : array();
+            $fields = $this->documentChangesets[$oid]['fields'] ?? array();
             foreach ($fields as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
@@ -2399,7 +2399,7 @@ class UnitOfWork
 
                     //populate $associationChangesets to force executeUpdates($associationUpdates)
                     //to only update association fields
-                    $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : array();
+                    $data = $associationChangesets[$oid]['fields'] ?? array();
                     $data[$fieldName] = array(null, $fieldValue);
                     $associationChangesets[$oid] = array('fields' => $data);
                 }
@@ -2492,7 +2492,7 @@ class UnitOfWork
                 }
             }
 
-            $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : array();
+            $fields = $this->documentChangesets[$oid]['fields'] ?? array();
             foreach ($fields as $fieldName => $data) {
                 $fieldValue = $data[1];
 
@@ -3926,7 +3926,7 @@ class UnitOfWork
         }
 
         $keys = (array) $properties[$mapping['assoc']];
-        $nulls = isset($properties[$mapping['assocNulls']]) ? ((array) $properties[$mapping['assocNulls']]) : array();
+        $nulls = (array) ($properties[$mapping['assocNulls']] ?? array());
 
         // make sure we start with first value
         reset($values);

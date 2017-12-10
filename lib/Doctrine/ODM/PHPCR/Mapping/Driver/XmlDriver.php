@@ -288,7 +288,7 @@ class XmlDriver extends FileDriver
         $attributes = (array) $reference->attributes();
         $mapping = $attributes["@attributes"];
         $mapping['strategy'] = isset($mapping['strategy']) ? strtolower($mapping['strategy']) : null;
-        $mapping['targetDocument'] = isset($mapping['target-document']) ? $mapping['target-document'] : null;
+        $mapping['targetDocument'] = $mapping['target-document'] ?? null;
         unset($mapping['target-document']);
 
         if ($type === 'many') {
