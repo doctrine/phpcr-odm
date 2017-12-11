@@ -10,7 +10,7 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->count = isset($GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT']) ? $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] : 100;
+        $this->count = $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] ?? 100;
     }
 
     public function testInsertDocuments()
