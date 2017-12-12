@@ -1,6 +1,6 @@
 <?php
-
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
+
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 
@@ -28,6 +28,5 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
      */
     public function testParentWithPrivatePropertyMapping()
     {
-        return;
     }
 }
