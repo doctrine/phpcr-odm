@@ -261,11 +261,10 @@ class FlushTest extends PHPCRFunctionalTestCase
     {
         $uuidObj = new UuidTestTwoUuidFieldsObj;
         $uuidObj->id = '/functional/uuidObj';
-        $this->dm->persist($uuidObj);
 
         $this->expectException(MappingException::class);
         $this->expectExceptionMessage('You can only designate a single "Uuid" field in "Doctrine\Tests\Models\References\UuidTestTwoUuidFieldsObj"');
-        $this->dm->flush();
+        $this->dm->persist($uuidObj);
     }
 
     public function testRepeatedFlush()

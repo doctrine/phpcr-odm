@@ -273,7 +273,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     {
         // select one property
         $qb = $this->createQb();
-        $qb->from('a')->document(User::class, 'a');
+        $qb->from('a')->document(BlogUser::class, 'a');
         $qb->select()->field('a.username');
         $qb->where()
             ->eq()
