@@ -23,6 +23,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 
 /**
  * Command to generate the official query builder reference.
@@ -290,7 +291,7 @@ HERE
 
                 $cardinalityMap = $inst->getCardinalityMap();
                 $doc = $this->parseDocComment($refl->getDocComment(), 0);
-                $isLeaf = $refl->isSubclassOf('Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode');
+                $isLeaf = $refl->isSubclassOf(AbstractLeafNode::class);
 
                 $parentName = null;
                 $inheritedMethods = array();

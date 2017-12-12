@@ -5,6 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 
 abstract class NodeTestCase extends TestCase
 {
@@ -12,9 +13,9 @@ abstract class NodeTestCase extends TestCase
 
     public function setUp()
     {
-        $this->parent = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractNode'
-        )->setMockClassName('ParentNode')->getMockForAbstractClass();
+        $this->parent = $this->getMockBuilder(AbstractNode::class)
+            ->setMockClassName('ParentNode')
+            ->getMockForAbstractClass();
         $this->node = $this->getNode();
     }
 
@@ -44,9 +45,7 @@ abstract class NodeTestCase extends TestCase
         $res = call_user_func_array(array($this->node, $method), $args);
         $refl = new \ReflectionClass($expectedClass);
 
-        if ($refl->isSubclassOf(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode'
-        )) {
+        if ($refl->isSubclassOf(AbstractLeafNode::class)) {
             $this->assertSame($this->node, $res, 'Leaf node method "'.$method.'" returns parent');
         } else {
             $this->assertInstanceOf($expectedClass, $res);

@@ -2,48 +2,54 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
+use Doctrine\Common\Persistence\Mapping\Driver\PHPDriver;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use PHPCR\SessionInterface;
 
 class ClassMetadataFactoryTest extends TestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @param $fqn
+     * @param string $fqn
      *
      * @return ClassMetadata
      */
     protected function getMetadataFor($fqn)
     {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $annotationDriver = new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
+        $reader = new AnnotationReader();
+        $annotationDriver = new AnnotationDriver($reader);
         $annotationDriver->addPaths(array(__DIR__ . '/Model'));
         $this->dm->getConfiguration()->setMetadataDriverImpl($annotationDriver);
 
         $cmf = new ClassMetadataFactory($this->dm);
-        $meta = $cmf->getMetadataFor($fqn);
 
-        return $meta;
+        return $cmf->getMetadataFor($fqn);
     }
 
     public function setUp()
     {
-        $session = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-        $this->dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session);
+        /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
+        $session = $this->createMock(SessionInterface::class);
+        $this->dm = DocumentManager::create($session);
     }
 
     public function testNotMappedThrowsException()
     {
         $cmf = new ClassMetadataFactory($this->dm);
 
-        $this->setExpectedException('Doctrine\ODM\PHPCR\Mapping\MappingException');
+        $this->expectException(MappingException::class);
         $cmf->getMetadataFor('unknown');
     }
 
@@ -51,7 +57,7 @@ class ClassMetadataFactoryTest extends TestCase
     {
         $cmf = new ClassMetadataFactory($this->dm);
 
-        $cm = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        $cm = new ClassMetadata('stdClass');
 
         $cmf->setMetadataFor('stdClass', $cm);
 
@@ -61,12 +67,12 @@ class ClassMetadataFactoryTest extends TestCase
 
     public function testGetAllMetadata()
     {
-        $driver = new \Doctrine\Common\Persistence\Mapping\Driver\PHPDriver(array(__DIR__ . '/Model/php'));
+        $driver = new PHPDriver(array(__DIR__ . '/Model/php'));
         $this->dm->getConfiguration()->setMetadataDriverImpl($driver);
 
         $cmf = new ClassMetadataFactory($this->dm);
 
-        $cm = new \Doctrine\ODM\PHPCR\Mapping\ClassMetadata('stdClass');
+        $cm = new ClassMetadata('stdClass');
         $cmf->setMetadataFor('stdClass', $cm);
 
         $metadata = $cmf->getAllMetadata();
@@ -79,17 +85,15 @@ class ClassMetadataFactoryTest extends TestCase
         $this->markTestIncomplete('Test cache driver setting and handling.');
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testLoadMetadataReferenceableChildOverriddenAsFalse()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableChildReferenceableFalseMappingObject');
+        $this->expectException(MappingException::class);
+        $this->getMetadataFor(Model\ReferenceableChildReferenceableFalseMappingObject::class);
     }
 
     public function testLoadMetadataDefaults()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DefaultMappingObject');
+        $meta = $this->getMetadataFor(Model\DefaultMappingObject::class);
         $this->assertFalse($meta->referenceable);
         $this->assertNull($meta->translator);
         $this->assertEquals('nt:unstructured', $meta->nodeType);
@@ -99,18 +103,18 @@ class ClassMetadataFactoryTest extends TestCase
 
     public function testLoadMetadataClassInheritanceChild()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildMappingObject');
+        $meta = $this->getMetadataFor(Model\ClassInheritanceChildMappingObject::class);
         $this->assertTrue($meta->referenceable);
         $this->assertEquals('foo', $meta->translator);
         $this->assertEquals('nt:test', $meta->nodeType);
         $this->assertEquals(array('mix:foo', 'mix:bar'), $meta->mixins);
         $this->assertEquals('simple', $meta->versionable);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository', $meta->customRepositoryClassName);
+        $this->assertEquals(Model\DocumentRepository::class, $meta->customRepositoryClassName);
     }
 
     public function testLoadInheritedMixins()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\InheritedMixinMappingObject');
+        $meta = $this->getMetadataFor(Model\InheritedMixinMappingObject::class);
         $this->assertCount(2, $meta->mixins);
         $this->assertContains('mix:lastModified', $meta->mixins);
         $this->assertContains('mix:title', $meta->mixins);
@@ -118,44 +122,39 @@ class ClassMetadataFactoryTest extends TestCase
 
     public function testLoadMetadataClassInheritanceChildCanOverride()
     {
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildOverridesMappingObject');
+        $meta = $this->getMetadataFor(Model\ClassInheritanceChildOverridesMappingObject::class);
         $this->assertTrue($meta->referenceable);
         $this->assertEquals('bar', $meta->translator);
         $this->assertEquals('nt:test-override', $meta->nodeType);
         $this->assertEquals(array('mix:baz'), $meta->mixins);
         $this->assertEquals('full', $meta->versionable);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\BarfooRepository', $meta->customRepositoryClassName);
+        $this->assertEquals(Model\BarfooRepository::class, $meta->customRepositoryClassName);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     * @expectedExceptionMessage is not referenceable
-     */
     public function testValidateUuidNotReferenceable()
     {
-        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObjectNotReferenceable');
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('is not referenceable');
+
+        $this->getMetadataFor(Model\UuidMappingObjectNotReferenceable::class);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testValidateTranslatableNoStrategy()
     {
-        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObjectNoStrategy');
+        $this->expectException(MappingException::class);
+        $this->getMetadataFor(Model\TranslatorMappingObjectNoStrategy::class);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     * @expectedExceptionMessage Cannot map a document as a leaf and define child classes for "Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesAndLeafObject"
-     */
     public function testValidateChildClassesIfLeafConflict()
     {
-        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesAndLeafObject');
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('Cannot map a document as a leaf and define child classes for "Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesAndLeafObject"');
+        $this->getMetadataFor(Model\ChildClassesAndLeafObject::class);
     }
 
     public function testValidateTranslatable()
     {
-        $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject');
+        $this->getMetadataFor(Model\TranslatorMappingObject::class);
     }
 
     public function testLoadClassMetadataEvent()
@@ -164,7 +163,7 @@ class ClassMetadataFactoryTest extends TestCase
         $evm = $this->dm->getEventManager();
         $evm->addEventListener(array(Event::loadClassMetadata), $listener);
 
-        $meta = $this->getMetadataFor('Doctrine\Tests\ODM\PHPCR\Mapping\Model\DefaultMappingObject');
+        $meta = $this->getMetadataFor(Model\DefaultMappingObject::class);
         $this->assertTrue($listener->called);
         $this->assertSame($this->dm, $listener->dm);
         $this->assertSame($meta, $listener->meta);

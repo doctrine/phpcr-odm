@@ -2,18 +2,29 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Tests\Models\Versioning\InvalidVersionableArticle;
+use Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
+use Doctrine\Tests\Models\Versioning\VersionableArticle;
+use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
+use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
+use Doctrine\Tests\Models\Versioning\ExtendedVersionableArticle;
 
-class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class AnnotationsTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
@@ -31,34 +42,36 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $factory = new ClassMetadataFactory($this->dm);
 
         // Check the annotation is correctly read if it is present
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\VersionableArticle');
+        $metadata = $factory->getMetadataFor(VersionableArticle::class);
         $this->assertTrue(isset($metadata->versionable));
         $this->assertEquals('simple', $metadata->versionable);
 
         // Check the annotation is not set if it is not present
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\NonVersionableArticle');
+        $metadata = $factory->getMetadataFor(NonVersionableArticle::class);
         $this->assertTrue(isset($metadata->versionable));
         $this->assertFalse($metadata->versionable);
     }
 
     /**
      * Test that using an invalid versionable annotation will not work
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadInvalidAnnotation()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $metadata = $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InvalidVersionableArticle');
+
+        $this->expectException(MappingException::class);
+        $factory->getMetadataFor(InvalidVersionableArticle::class);
     }
 
     /**
      * Test that using the Version annotation on non-versionable documents will not work
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testLoadInconsistentAnnotations()
     {
         $factory = new ClassMetadataFactory($this->dm);
-        $factory->getMetadataFor('Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle');
+
+        $this->expectException(MappingException::class);
+        $factory->getMetadataFor(InconsistentVersionableArticle::class);
     }
 
     /**
@@ -71,20 +84,20 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
             $this->markTestSkipped('PHPCR repository doesn\'t support versioning');
         }
 
-        $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\VersionableArticle');
+        $node = $this->createTestDocument('versionable-article-test', VersionableArticle::class);
         $this->assertTrue($node->isNodeType('mix:simpleVersionable'));
         $this->assertFalse($node->isNodeType('mix:versionable'));
 
         // mix:versionable derives from mix:simpleVersionable, so a full versionable node will be both types
-        $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\FullVersionableArticle');
+        $node = $this->createTestDocument('versionable-article-test', FullVersionableArticle::class);
         $this->assertTrue($node->isNodeType('mix:versionable'));
         $this->assertTrue($node->isNodeType('mix:simpleVersionable'));
 
-        $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\NonVersionableArticle');
+        $node = $this->createTestDocument('versionable-article-test', NonVersionableArticle::class);
         $this->assertFalse($node->isNodeType('mix:simpleVersionable'));
         $this->assertFalse($node->isNodeType('mix:versionable'));
 
-        $node = $this->createTestDocument('versionable-article-test', 'Doctrine\\Tests\\Models\\Versioning\\ExtendedVersionableArticle');
+        $node = $this->createTestDocument('versionable-article-test', ExtendedVersionableArticle::class);
         $this->assertTrue($node->isNodeType('mix:simpleVersionable'));
         $this->assertTrue($node->isNodeType('mix:versionable'));
     }
@@ -95,16 +108,15 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      * @param string $name The name of the new node (will be created under root)
      * @param string $class The class name of the document
      *
-     * @return \PHPCR\NodeInterface
+     * @return NodeInterface
      */
-    protected function createTestDocument($name, $class)
+    private function createTestDocument($name, $class)
     {
         $this->removeTestNode($name);
 
         $article = new $class();
         $article->id = '/' . $name;
         $article->author = 'John Doe';
-        $article->topic = 'Some topic';
         $article->topic = 'Some subject';
         $article->setText('Lorem ipsum...');
 
@@ -123,7 +135,7 @@ class AnnotationsTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      *
      * @return void
      */
-    protected function removeTestNode($name)
+    private function removeTestNode($name)
     {
         $root = $this->session->getNode('/');
         if ($root->hasNode($name)) {

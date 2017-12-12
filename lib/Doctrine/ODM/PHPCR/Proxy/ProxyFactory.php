@@ -29,6 +29,7 @@ use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
 use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use ReflectionProperty;
 
 /**
@@ -113,7 +114,7 @@ class ProxyFactory extends AbstractProxyFactory
     /**
      * Generates a closure capable of initializing a proxy
      *
-     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
+     * @param PhpcrClassMetadata $classMetadata
      *
      * @return \Closure
      */
@@ -169,12 +170,12 @@ class ProxyFactory extends AbstractProxyFactory
     /**
      * Generates a closure capable of finalizing a cloned proxy
      *
-     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
-     * @param \ReflectionProperty                       $reflectionId
+     * @param PhpcrClassMetadata  $classMetadata
+     * @param \ReflectionProperty $reflectionId
      *
      * @return \Closure
      *
-     * @throws \Doctrine\Common\Proxy\Exception\UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
     {

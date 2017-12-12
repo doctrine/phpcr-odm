@@ -72,9 +72,9 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
     public function testEquiJoinInnerOnReference()
     {
         $qb = $this->dm->createQueryBuilder();
-        $qb->fromDocument('Doctrine\Tests\Models\CMS\CmsUser', 'u');
+        $qb->fromDocument(CmsUser::class, 'u');
         $qb->addJoinInner()
-            ->right()->document('Doctrine\Tests\Models\CMS\CmsAddress', 'a')->end()
+            ->right()->document(CmsAddress::class, 'a')->end()
             ->condition()->equi('u.address', 'a.uuid');
         $qb->where()->eq()->field('a.city')->literal('Lyon');
         $q = $qb->getQuery();
@@ -215,9 +215,9 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
     public function testUniqueNodeTypeOuterJoin()
     {
         $qb = $this->dm->createQueryBuilder()
-            ->fromDocument('Doctrine\Tests\Models\CMS\CmsUser', 'u')
+            ->fromDocument(CmsUser::class, 'u')
             ->addJoinLeftOuter()
-                ->right()->document('Doctrine\Tests\Models\CMS\CmsProfile', 'p')->end()
+                ->right()->document(CmsProfile::class, 'p')->end()
                 ->condition()->equi('u.profiles', 'p.uuid')
             ->end()->end()
             ->where()->orX()

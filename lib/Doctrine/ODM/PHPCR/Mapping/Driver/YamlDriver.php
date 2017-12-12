@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Symfony\Component\Yaml\Yaml;
@@ -52,7 +53,7 @@ class YamlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
+        /** @var PhpcrClassMetadata $class */
         try {
             $element = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -268,7 +269,7 @@ class YamlDriver extends FileDriver
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
-        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
+        /** @var PhpcrClassMetadata $class */
         $mapping = array_merge(array('fieldName' => $fieldName), $reference);
 
         $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;

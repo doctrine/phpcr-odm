@@ -2,10 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Jackalope\RepositoryFactoryDoctrineDBAL;
+use Jackalope\RepositoryFactoryJackrabbit;
 use PHPCR\RepositoryFactoryInterface;
 use PHPCR\SessionInterface;
+use PHPCR\SimpleCredentials;
 use PHPUnit\Framework\TestCase;
 
 abstract class PHPCRFunctionalTestCase extends TestCase
@@ -17,8 +23,8 @@ abstract class PHPCRFunctionalTestCase extends TestCase
 
     public function createDocumentManager(array $paths = null)
     {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $reader->addGlobalIgnoredName('group');
+        $reader = new AnnotationReader();
+        AnnotationReader::addGlobalIgnoredName('group');
 
         if (empty($paths)) {
             $paths = array(__DIR__ . "/../../Models");
@@ -27,9 +33,9 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         $metaDriver = new AnnotationDriver($reader, $paths);
 
         $factoryclass = $GLOBALS['DOCTRINE_PHPCR_FACTORY']
-            ?? '\Jackalope\RepositoryFactoryJackrabbit';
+            ?? RepositoryFactoryJackrabbit::class;
 
-        if ($factoryclass === '\Jackalope\RepositoryFactoryDoctrineDBAL') {
+        if (ltrim($factoryclass, '\\') === RepositoryFactoryDoctrineDBAL::class) {
             $params = array();
             foreach ($GLOBALS as $key => $value) {
                 if (0 === strpos($key, 'jackalope.doctrine.dbal.')) {
@@ -39,7 +45,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
             if (isset($params['username'])) {
                 $params['user'] = $params['username'];
             }
-            $GLOBALS['jackalope.doctrine_dbal_connection'] = \Doctrine\DBAL\DriverManager::getConnection($params);
+            $GLOBALS['jackalope.doctrine_dbal_connection'] = DriverManager::getConnection($params);
         }
 
         /** @var $factory RepositoryFactoryInterface */
@@ -55,11 +61,11 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         $user = $GLOBALS['DOCTRINE_PHPCR_USER'] ?? '';
         $pass = $GLOBALS['DOCTRINE_PHPCR_PASS'] ?? '';
 
-        $credentials = new \PHPCR\SimpleCredentials($user, $pass);
+        $credentials = new SimpleCredentials($user, $pass);
         $session = $repository->login($credentials, $workspace);
         $this->sessions[] = $session;
 
-        $config = new \Doctrine\ODM\PHPCR\Configuration();
+        $config = new Configuration();
         $config->setMetadataDriverImpl($metaDriver);
 
         return DocumentManager::create($session, $config);

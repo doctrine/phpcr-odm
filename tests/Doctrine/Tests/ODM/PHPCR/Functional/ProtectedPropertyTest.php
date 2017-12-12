@@ -2,16 +2,21 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Jackalope\Session;
+use PHPCR\NodeInterface;
+use PHPCR\NodeType\ConstraintViolationException;
 
 /**
  * @see http://www.doctrine-project.org/jira/browse/PHPCR-78
  * @group functional
  */
-class ProtectedPropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ProtectedPropertyTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -22,7 +27,7 @@ class ProtectedPropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
@@ -32,7 +37,7 @@ class ProtectedPropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $session = $this->dm->getPhpcrSession();
-        if (! $session instanceof \Jackalope\Session) {
+        if (! $session instanceof Session) {
             $this->markTestSkipped('Not a Jackalope session');
         }
 
@@ -68,7 +73,7 @@ CND;
             $this->dm->persist($object);
             $this->dm->flush();
             $this->dm->clear();
-        } catch (\PHPCR\NodeType\ConstraintViolationException $e) {
+        } catch (ConstraintViolationException $e) {
             $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
         }
 
@@ -84,7 +89,7 @@ CND;
             $this->dm->persist($object);
             $this->dm->flush();
             $this->dm->clear();
-        } catch (\PHPCR\NodeType\ConstraintViolationException $e) {
+        } catch (ConstraintViolationException $e) {
             $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
         }
 
@@ -102,7 +107,7 @@ CND;
             $object->changeme = 'changed';
             $this->dm->flush();
             $this->dm->clear();
-        } catch (\PHPCR\NodeType\ConstraintViolationException $e) {
+        } catch (ConstraintViolationException $e) {
             $this->fail(sprintf('A ConstraintViolationException has been thrown when persisting document ("%s").', $e->getMessage()));
         }
 

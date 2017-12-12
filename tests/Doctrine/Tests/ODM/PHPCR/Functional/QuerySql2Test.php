@@ -2,15 +2,23 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use PHPCR\Query\InvalidQueryException;
+use Doctrine\ODM\PHPCR\Query\Query;
+use PHPCR\Query\QueryInterface;
 
 /**
  * @group functional
  */
-class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class QuerySql2Test extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -21,7 +29,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
@@ -51,7 +59,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\QuerySql2TestObj';
+        $this->type = QuerySql2TestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -89,10 +97,10 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         if ($rowCount == -1) {
             // magic to tell this is an invalid query
-            $this->setExpectedException('PHPCR\Query\InvalidQueryException');
+            $this->expectException(InvalidQueryException::class);
         }
-        $query = $this->dm->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
+        $query = $this->dm->createQuery($statement, QueryInterface::JCR_SQL2);
+        $this->assertInstanceOf(Query::class, $query);
 
         $result = $query->execute();
         $this->assertCount($rowCount, $result);
@@ -105,12 +113,13 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     {
         if ($rowCount == -1) {
             // magic to tell this is an invalid query
-            $this->setExpectedException('PHPCR\Query\InvalidQueryException');
+            $this->expectException(InvalidQueryException::class);
         }
 
+        /** @var DocumentRepository $repository */
         $repository = $this->dm->getRepository($this->type);
-        $query = $repository->createQuery($statement, \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Query\Query', $query);
+        $query = $repository->createQuery($statement, QueryInterface::JCR_SQL2);
+        $this->assertInstanceOf(Query::class, $query);
 
         $result = $query->execute();
         $this->assertCount($rowCount, $result);
@@ -119,8 +128,8 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testQueryLimit()
     {
         $query = $this->dm->createPhpcrQuery('SELECT * FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username',
-                                        \PHPCR\Query\QueryInterface::JCR_SQL2);
-        $this->assertInstanceOf('PHPCR\Query\QueryInterface', $query);
+                                        QueryInterface::JCR_SQL2);
+        $this->assertInstanceOf(QueryInterface::class, $query);
         $query->setLimit(2);
         $result = $this->dm->getDocumentsByPhpcrQuery($query, $this->type);
         $this->assertCount(2, $result);
@@ -128,7 +137,7 @@ class QuerySql2Test extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $vals = array();
         $nums = array();
         foreach ($result as $obj) {
-            $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\QuerySql2TestObj', $obj);
+            $this->assertInstanceOf(QuerySql2TestObj::class, $obj);
             $ids[] = $obj->id;
             $vals[] = $obj->username;
             $nums[] = $obj->numbers;

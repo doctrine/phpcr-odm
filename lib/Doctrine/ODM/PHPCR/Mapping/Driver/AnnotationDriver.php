@@ -19,14 +19,15 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\Annotations\Document;
+use Doctrine\ODM\PHPCR\Mapping\Annotations\MappedSuperclass;
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
@@ -47,16 +48,17 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      * Document annotation classes, ordered by precedence.
      */
     protected $entityAnnotationClasses = array(
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document' => 0,
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass' => 1,
+        Document::class => 0,
+        MappedSuperclass::class => 1,
     );
 
     /**
      * {@inheritdoc}
+     *
+     * @param PhpcrClassMetadata $metadata
      */
     public function loadMetadataForClass($className, ClassMetadata $metadata)
     {
-        /** @var $metadata \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         $reflClass = $metadata->getReflectionClass();
 
         $documentAnnots = array();

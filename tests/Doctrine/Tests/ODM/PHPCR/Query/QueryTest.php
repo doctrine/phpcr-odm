@@ -2,8 +2,13 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query;
 
+use Doctrine\ODM\PHPCR\Query\NoResultException;
 use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Query\QueryException;
 use PHPUnit\Framework\TestCase;
+use PHPCR\Query\QueryInterface;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @group unit
@@ -12,11 +17,9 @@ class QueryTest extends Testcase
 {
     public function setUp()
     {
-        $this->phpcrQuery = $this->getMockBuilder('PHPCR\Query\QueryInterface')->getMock();
-        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->arrayCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
+        $this->phpcrQuery = $this->createMock(QueryInterface::class);
+        $this->dm = $this->createMock(DocumentManager::class);
+        $this->arrayCollection = $this->createMock(ArrayCollection::class);
         $this->query = new Query($this->phpcrQuery, $this->dm);
         $this->aliasQuery = new Query($this->phpcrQuery, $this->dm, 'a');
     }
@@ -55,7 +58,7 @@ class QueryTest extends Testcase
             ->method('execute')
             ->will($this->returnValue(array('ok')));
         $res = $this->query->execute(null, Query::HYDRATE_PHPCR);
-        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $res);
+        $this->assertInstanceOf(ArrayCollection::class, $res);
         $this->assertEquals('ok', $res->first());
     }
 
@@ -87,11 +90,9 @@ class QueryTest extends Testcase
         $this->assertEquals('ok', $res->first());
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Query\QueryException
-     */
     public function testExecute_hydrateUnknown()
     {
+        $this->expectException(QueryException::class);
         $this->query->execute(null, 'unknown_hydration_mode');
     }
 
@@ -154,25 +155,23 @@ class QueryTest extends Testcase
         $this->assertEquals('ok1', $res);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Query\QueryException
-     */
     public function testGetOneOrNullResult_withTwoResults()
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1', 'ok2')));
+
+        $this->expectException(QueryException::class);
         $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Query\NoResultException
-     */
     public function testGetSingleResult_noResult()
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array()));
+
+        $this->expectException(NoResultException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
@@ -185,22 +184,19 @@ class QueryTest extends Testcase
         $this->assertEquals('ok1', $res);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Query\QueryException
-     */
     public function testGetSingleResult_withTwoResults()
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1', 'ok2')));
+
+        $this->expectException(QueryException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Query\QueryException
-     */
     public function testIterate()
     {
+        $this->expectException(QueryException::class);
         $this->query->iterate();
     }
 

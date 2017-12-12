@@ -19,6 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\EventManager;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
@@ -52,12 +54,12 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      *  The used metadata driver.
      *
-     * @var \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver
+     * @var MappingDriver
      */
     private $driver;
 
     /**
-     * @var \Doctrine\Common\EventManager
+     * @var EventManager
      */
     private $evm;
 

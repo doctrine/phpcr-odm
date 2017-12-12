@@ -2,16 +2,19 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 
 /**
  * @group functional
  */
-class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class PropertyTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -22,13 +25,13 @@ class PropertyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\PropertyTestObj';
+        $this->type = PropertyTestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }

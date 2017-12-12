@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use PHPUnit\Framework\TestCase;
 
@@ -14,9 +15,7 @@ class MoveEventArgsTest extends TestCase
 
     public function setUp()
     {
-        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dm = $this->createMock(DocumentManager::class);
         $this->object = new \stdClass;
 
         $this->eventArgs = new MoveEventArgs(

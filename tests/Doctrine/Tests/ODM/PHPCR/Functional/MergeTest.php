@@ -7,13 +7,22 @@ use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\ODM\PHPCR\ReferenceManyCollection;
+use PHPCR\NodeInterface;
 
-class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class MergeTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
      */
     private $dm;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
 
     public function setUp()
     {
@@ -25,23 +34,23 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testMergeNewDocument()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $mergedUser = $this->dm->merge($user);
 
         $this->assertNotSame($mergedUser, $user);
-        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsUser', $mergedUser);
-        $this->assertEquals("beberlei", $mergedUser->username);
-        $this->assertEquals($this->node->getPath().'/'.$mergedUser->username, $mergedUser->id, "Merged new document should have generated path");
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\ReferenceManyCollection', $mergedUser->articles);
+        $this->assertInstanceOf(CmsUser::class, $mergedUser);
+        $this->assertEquals('beberlei', $mergedUser->username);
+        $this->assertEquals($this->node->getPath().'/'.$mergedUser->username, $mergedUser->id, 'Merged new document should have generated path');
+        $this->assertInstanceOf(ReferenceManyCollection::class, $mergedUser->articles);
     }
 
     public function testMergeManagedDocument()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -54,8 +63,8 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testMergeKnownDocument()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -70,67 +79,66 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testMergeRemovedDocument()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->persist($user);
         $this->dm->flush();
 
         $this->dm->remove($user);
 
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException', "Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
         $this->dm->merge($user);
     }
 
     public function testMergeWithManagedDocument()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->persist($user);
         $this->dm->flush();
 
         $mergableUser = new CmsUser();
         $mergableUser->id = $user->id;
-        $mergableUser->username = "jgalt";
-        $mergableUser->name = "John Galt";
+        $mergableUser->username = 'jgalt';
+        $mergableUser->name = 'John Galt';
 
         $mergedUser = $this->dm->merge($mergableUser);
 
         $this->assertSame($mergedUser, $user);
-        $this->assertEquals("jgalt", $mergedUser->username);
-        $this->assertInstanceOf('PHPCR\NodeInterface', $mergedUser->node);
+        $this->assertEquals('jgalt', $mergedUser->username);
+        $this->assertInstanceOf(NodeInterface::class, $mergedUser->node);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testMergeChangeDocumentClass()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->persist($user);
         $this->dm->flush();
 
         $otherUser = new CmsUser();
-        $otherUser->username = "lukas";
-        $otherUser->name = "Lukas";
+        $otherUser->username = 'lukas';
+        $otherUser->name = 'Lukas';
 
         $mergableGroup = new CmsGroup();
         $mergableGroup->id = $user->id;
         $mergableGroup->name = "doctrine";
 
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->merge($mergableGroup);
     }
 
     public function testMergeUnknownAssignedId()
     {
         $doc = new CmsArticle();
-        $doc->id = "/foo";
-        $doc->name = "Foo";
+        $doc->id = '/foo';
+        $doc->name = 'Foo';
 
         $mergedDoc = $this->dm->merge($doc);
 
@@ -141,12 +149,12 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testMergeWithChild()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $teamuser = new CmsTeamUser();
-        $teamuser->username = "jwage";
-        $teamuser->name = "Jonathan Wage";
+        $teamuser->username = 'jwage';
+        $teamuser->name = 'Jonathan Wage';
         $teamuser->parent = $user;
         $user->child = $teamuser;
 
@@ -154,15 +162,15 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $mergableUser = new CmsUser();
-        $mergableUser->username = "jgalt";
-        $mergableUser->name = "John Galt";
+        $mergableUser->username = 'jgalt';
+        $mergableUser->name = 'John Galt';
         $mergableUser->id = $user->id;
 
         $mergedUser = $this->dm->merge($mergableUser);
 
         $this->assertSame($mergedUser, $user);
-        $this->assertEquals("jgalt", $mergedUser->username);
-        $this->assertEquals("jwage", $mergedUser->child->username);
+        $this->assertEquals('jgalt', $mergedUser->username);
+        $this->assertEquals('jwage', $mergedUser->child->username);
 
         $this->dm->flush();
         $mergedUser->children->count();
@@ -177,7 +185,7 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame($mergedUser, $user);
         $this->assertEquals('dbu', $mergedUser->username);
         $this->assertEquals('David', $mergedUser->name);
-        $this->assertEquals("jwage", $mergedUser->child->username);
+        $this->assertEquals('jwage', $mergedUser->child->username);
 
         $this->dm->flush();
     }
@@ -185,12 +193,12 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     public function testMergeWithChildren()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $teamuser = new CmsTeamUser();
-        $teamuser->username = "jwage";
-        $teamuser->name = "Jonathan Wage";
+        $teamuser->username = 'jwage';
+        $teamuser->name = 'Jonathan Wage';
         $teamuser->parent = $user;
 
         $this->dm->persist($user);
@@ -202,14 +210,14 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertCount(1, $user->children);
 
         $mergableUser = new CmsUser();
-        $mergableUser->username = "jgalt";
-        $mergableUser->name = "John Galt";
+        $mergableUser->username = 'jgalt';
+        $mergableUser->name = 'John Galt';
         $mergableUser->id = $user->id;
 
         $mergedUser = $this->dm->merge($mergableUser);
 
         $this->assertSame($mergedUser, $user);
-        $this->assertEquals("jgalt", $mergedUser->username);
+        $this->assertEquals('jgalt', $mergedUser->username);
         $this->assertCount(1, $mergedUser->children);
 
         $this->dm->flush();

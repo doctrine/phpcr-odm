@@ -2,9 +2,27 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Performance;
 
-class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+
+class InsertPerformanceTest extends PHPCRFunctionalTestCase
 {
-    protected $count = 100;
+    /**
+     * @var DocumentManager
+     */
+    private $dm;
+
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    /**
+     * @var int
+     */
+    private $count = 100;
 
     public function setup()
     {
@@ -22,7 +40,7 @@ class InsertPerformanceTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $s = microtime(true);
 
         for ($i = 0; $i < $this->count; $i++) {
-            $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+            $user = new CmsUser();
             $user->name = "Benjamin";
             $user->username = "beberlei";
             $user->status = "active";

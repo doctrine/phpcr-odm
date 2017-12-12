@@ -11,9 +11,6 @@ cache:
     - $HOME/.composer/cache/files
 
 env:
-  global:
-    # on PHP 7.2 we get deprecations about using each. they supposedly come from phpunit 5 itself. TODO: update to phpunit 6 and see if this goes away.
-    - SYMFONY_DEPRECATIONS_HELPER="/.*each.*/"
   matrix:
     - TRANSPORT=jackrabbit
     - TRANSPORT=doctrine_dbal

@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,7 @@ class AssignedIdGeneratorTest extends TestCase
 
         $generator = new AssignedIdGenerator;
         $cm = new ClassMetadataProxy($id);
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
         $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
@@ -29,7 +30,7 @@ class AssignedIdGeneratorTest extends TestCase
 
         $generator = new AssignedIdGenerator;
         $cm = new ClassMetadataProxy($id);
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
         try {
             $generator->generate(null, $cm, $dm);

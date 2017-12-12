@@ -6,36 +6,70 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Jackalope\Query\QOM\QueryObjectModelFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use PHPUnit\Framework\TestCase;
+use Jackalope\FactoryInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use PHPCR\Query\QOM\PropertyExistenceInterface;
+use PHPCR\Query\QOM\JoinInterface;
+use PHPCR\Query\QOM\SelectorInterface;
+use PHPCR\Query\QOM\ColumnInterface;
+use PHPCR\Query\QOM\AndInterface;
+use PHPCR\Query\QOM\OrInterface;
+use PHPCR\Query\QOM\ComparisonInterface;
+use PHPCR\Query\QOM\PropertyValueInterface;
+use PHPCR\Query\QOM\LiteralInterface;
+use PHPCR\Query\QOM\NotInterface;
+use PHPCR\Query\QOM\NodeLocalNameInterface;
+use PHPCR\Query\QOM\SourceInterface;
+use PHPCR\Query\QOM\OrderingInterface;
+use PHPCR\Query\QOM\QueryObjectModelInterface;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 class ConverterPhpcrTest extends TestCase
 {
-    protected $parentNode;
+    /**
+     * @var FactoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $qomfFactory;
+
+    /**
+     * @var ClassMetadataFactory|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $mdf;
+
+    /**
+     * @var ConverterPhpcr
+     */
+    private $converter;
+
+    /**
+     * @var QueryBuilder
+     */
+    private $qb;
+
+    private $parentNode;
 
     public function setUp()
     {
         $me = $this;
         // note: this "factory" seems unnecessary in current jackalope
         //       implementation
-        $this->qomfFactory = $this->getMockBuilder('Jackalope\FactoryInterface')->getMock();
+        $this->qomfFactory = $this->createMock(FactoryInterface::class);
 
         $this->qomf = new QueryObjectModelFactory($this->qomfFactory);
 
-        $mdf = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory'
-        )->disableOriginalConstructor()->getMock();
+        $mdf = $this->createMock(ClassMetadataFactory::class);
 
         $mdf->expects($this->any())
             ->method('getMetadataFor')
             ->will($this->returnCallback(function ($documentFqn) use ($me) {
-                $meta = $me->getMockBuilder(
-                    'Doctrine\ODM\PHPCR\Mapping\ClassMetadata'
-                )->disableOriginalConstructor()->getMock();
+                $meta = $me->createMock(ClassMetadata::class);
 
-                if ($documentFqn == '_document_not_mapped_') {
+                if ($documentFqn === '_document_not_mapped_') {
                     return $meta;
                 }
 
@@ -78,9 +112,8 @@ class ConverterPhpcrTest extends TestCase
                 return $meta;
             }));
 
-        $dm = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\DocumentManager'
-        )->disableOriginalConstructor()->getMock();
+        /** @var DocumentManager|\PHPUnit_Framework_MockObject_MockObject $dm */
+        $dm = $this->createMock(DocumentManager::class);
 
         $dm->expects($this->once())
             ->method('getMetadataFactory')
@@ -90,9 +123,7 @@ class ConverterPhpcrTest extends TestCase
             ->method('getLocaleChooserStrategy')
             ->will($this->throwException(new InvalidArgumentException('')));
 
-        $this->parentNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractNode')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->parentNode = $this->createMock(QBConstants::class);
 
         $this->converter = new ConverterPhpcr($dm, $this->qomf);
 
@@ -107,7 +138,7 @@ class ConverterPhpcrTest extends TestCase
     protected function primeBuilder()
     {
         $from = $this->qb->from('alias_1')->document('foobar', 'alias_1');
-        $res = $this->converter->dispatch($from);
+        $this->converter->dispatch($from);
     }
 
     protected function createNode($class, $constructorArgs)
@@ -116,9 +147,8 @@ class ConverterPhpcrTest extends TestCase
 
         $ns = 'Doctrine\\ODM\\PHPCR\\Query\\Builder';
         $refl = new \ReflectionClass($ns.'\\'.$class);
-        $node = $refl->newInstanceArgs($constructorArgs);
 
-        return $node;
+        return $refl->newInstanceArgs($constructorArgs);
     }
 
     public function testDispatchFrom()
@@ -132,15 +162,11 @@ class ConverterPhpcrTest extends TestCase
 
         $res = $this->converter->dispatch($from);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res);
+        $this->assertInstanceOf(SelectorInterface::class, $res);
         $this->assertEquals('nt:unstructured', $res->getNodeTypeName());
         $this->assertEquals('alias', $res->getSelectorName());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage _document_not_mapped_ is not a mapped document
-     */
     public function testDispatchFromNonMapped()
     {
         $from = $this->createNode('From', array());
@@ -150,7 +176,9 @@ class ConverterPhpcrTest extends TestCase
         ));
         $from->addChild($source);
 
-        $res = $this->converter->dispatch($from);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('_document_not_mapped_ is not a mapped document');
+        $this->converter->dispatch($from);
     }
 
     public function provideDispatchWheres()
@@ -184,7 +212,7 @@ class ConverterPhpcrTest extends TestCase
 
         $res = $this->converter->dispatch($where);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res);
+        $this->assertInstanceOf(PropertyExistenceInterface::class, $res);
         $this->assertEquals('alias_1', $res->getSelectorName());
         $this->assertEquals('foobar_phpcr', $res->getPropertyName());
 
@@ -250,10 +278,10 @@ class ConverterPhpcrTest extends TestCase
         $from = $this->qb->getChildOfType(QBConstants::NT_FROM);
         $res = $this->converter->dispatch($from);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\JoinInterface', $res);
+        $this->assertInstanceOf(JoinInterface::class, $res);
         $this->assertEquals($type, $res->getJoinType());
-        $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res->getLeft());
-        $this->assertInstanceOf('PHPCR\Query\QOM\SelectorInterface', $res->getLeft());
+        $this->assertInstanceOf(SelectorInterface::class, $res->getLeft());
+        $this->assertInstanceOf(SelectorInterface::class, $res->getLeft());
     }
 
     /**
@@ -271,7 +299,7 @@ class ConverterPhpcrTest extends TestCase
         $res = $this->converter->dispatch($select);
 
         $this->assertCount(2, $res);
-        $this->assertInstanceOf('PHPCR\Query\QOM\ColumnInterface', $res[0]);
+        $this->assertInstanceOf(ColumnInterface::class, $res[0]);
         $this->assertEquals('prop_1_phpcr', $res[0]->getPropertyName());
         $this->assertEquals('prop_1_phpcr', $res[0]->getColumnName());
         $this->assertEquals('prop_2_phpcr', $res[1]->getPropertyName());
@@ -289,12 +317,12 @@ class ConverterPhpcrTest extends TestCase
     public function provideDispatchCompositeConstraints()
     {
         return array(
-            array('andX', 'PHPCR\Query\QOM\PropertyExistenceInterface', 1),
-            array('andX', 'PHPCR\Query\QOM\AndInterface', 2),
-            array('andX', 'PHPCR\Query\QOM\AndInterface', 3),
-            array('orX', 'PHPCR\Query\QOM\PropertyExistenceInterface', 1),
-            array('orX', 'PHPCR\Query\QOM\OrInterface', 2),
-            array('orX', 'PHPCR\Query\QOM\OrInterface', 3),
+            array('andX', PropertyExistenceInterface::class, 1),
+            array('andX', AndInterface::class, 2),
+            array('andX', AndInterface::class, 3),
+            array('orX', PropertyExistenceInterface::class, 1),
+            array('orX', OrInterface::class, 2),
+            array('orX', OrInterface::class, 3),
         );
     }
 
@@ -318,11 +346,11 @@ class ConverterPhpcrTest extends TestCase
         $this->assertInstanceOf($expectedClass, $res);
 
         if ($nbConstraints == 2) {
-            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint1());
-            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
+            $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint1());
+            $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint2());
         } elseif ($nbConstraints > 2) {
             $this->assertInstanceOf($expectedClass, $res->getConstraint1());
-            $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint2());
+            $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint2());
         }
     }
 
@@ -394,9 +422,9 @@ class ConverterPhpcrTest extends TestCase
 
         $res = $this->converter->dispatch($comparison);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\ComparisonInterface', $res);
-        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyValueInterface', $res->getOperand1());
-        $this->assertInstanceOf('PHPCR\Query\QOM\LiteralInterface', $res->getOperand2());
+        $this->assertInstanceOf(ComparisonInterface::class, $res);
+        $this->assertInstanceOf(PropertyValueInterface::class, $res->getOperand1());
+        $this->assertInstanceOf(LiteralInterface::class, $res->getOperand2());
         $this->assertEquals($expectedOperator, $res->getOperator());
     }
 
@@ -408,8 +436,8 @@ class ConverterPhpcrTest extends TestCase
 
         $res = $this->converter->dispatch($not);
 
-        $this->assertInstanceOf('PHPCR\Query\QOM\NotInterface', $res);
-        $this->assertInstanceOf('PHPCR\Query\QOM\PropertyExistenceInterface', $res->getConstraint());
+        $this->assertInstanceOf(NotInterface::class, $res);
+        $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint());
     }
 
     public function provideTestDispatchOperands()
@@ -438,7 +466,7 @@ class ConverterPhpcrTest extends TestCase
                 'assert' => function ($test, $node) {
                     $propertyValue = $node->getPropertyValue();
                     $test->assertInstanceOf(
-                        'PHPCR\Query\QOM\PropertyValueInterface',
+                        PropertyValueInterface::class,
                         $propertyValue
                     );
                     $test->assertEquals('alias_1', $propertyValue->getSelectorName());
@@ -460,19 +488,13 @@ class ConverterPhpcrTest extends TestCase
                 'add_child_operand' => true,
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
-                    $test->assertInstanceOf(
-                        'PHPCR\Query\QOM\NodeLocalNameInterface',
-                        $op
-                   );
+                    $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 }
             )),
             array('OperandDynamicUpperCase', array('alias_1'), array(
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
-                    $test->assertInstanceOf(
-                        'PHPCR\Query\QOM\NodeLocalNameInterface',
-                        $op
-                   );
+                    $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 },
                 'add_child_operand' => true,
                 'phpcr_class' => 'UpperCaseInterface',
@@ -582,7 +604,8 @@ class ConverterPhpcrTest extends TestCase
         $order1->addChild($op);
 
         if (null !== $exception) {
-            $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\InvalidArgumentException', $exception);
+            $this->expectException(InvalidArgumentException::class);
+            $this->expectExceptionMessage($exception);
         }
 
         $res = $this->converter->dispatch($orderBy);
@@ -607,20 +630,12 @@ class ConverterPhpcrTest extends TestCase
             ->method('get')
             ->will($this->returnCallback(function ($class, $args) use ($me) {
                 list($om, $source, $constraint, $orderings, $columns) = $args;
-                $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\SourceInterface', $source
-                );
+                $me->assertInstanceOf(SourceInterface::class, $source);
 
                 // test that we append the phpcr:class and classparents constraints
-                $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\AndInterface', $constraint
-                );
-                $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\PropertyExistenceInterface', $constraint->getConstraint1()
-                );
-                $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\OrInterface', $constraint->getConstraint2()
-                );
+                $me->assertInstanceOf(AndInterface::class, $constraint);
+                $me->assertInstanceOf(PropertyExistenceInterface::class, $constraint->getConstraint1());
+                $me->assertInstanceOf(OrInterface::class, $constraint->getConstraint2());
                 $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
                 $me->assertEquals(
                     'phpcr:class', $phpcrClassConstraint->getOperand1()->getPropertyName()
@@ -640,33 +655,23 @@ class ConverterPhpcrTest extends TestCase
                 $me->assertCount(1, $columns);
 
                 $column = $columns[0];
-                $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\ColumnInterface', $column
-                );
+                $me->assertInstanceOf(ColumnInterface::class, $column);
 
                 // test orderings
                 $me->assertCount(1, $orderings);
                 $ordering = $orderings[0];
-                $me->assertInstanceOf(
-                    'PHPCR\Query\QOM\OrderingInterface', $ordering
-                );
+                $me->assertInstanceOf(OrderingInterface::class, $ordering);
 
                 // return something ..
-                $qom = $me->getMockBuilder('PHPCR\Query\QOM\QueryObjectModelInterface')->getMock();
+                $qom = $me->createMock(QueryObjectModelInterface::class);
                 return $qom;
             }));
 
         $phpcrQuery = $this->converter->getQuery($this->qb);
 
-        $this->assertInstanceOf(
-            'Doctrine\ODM\PHPCR\Query\Query', $phpcrQuery
-        );
+        $this->assertInstanceOf(Query::class, $phpcrQuery);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     * @expectedExceptionMessage You must specify a primary alias
-     */
     public function testGetQueryMoreThanOneSourceNoPrimaryAlias()
     {
         $this->qb->from()
@@ -674,6 +679,9 @@ class ConverterPhpcrTest extends TestCase
                 ->left()->document('foobar', 'alias_1')->end()
                 ->right()->document('barfoo', 'alias_2')->end()
                 ->condition()->child('child_alias', 'parent_alias')->end();
+
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('You must specify a primary alias');
 
         $this->qb->getQuery();
     }

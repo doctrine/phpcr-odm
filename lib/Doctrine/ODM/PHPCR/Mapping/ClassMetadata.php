@@ -649,7 +649,10 @@ class ClassMetadata implements ClassMetadataInterface
     public function addLifecycleCallback($callback, $event)
     {
         if (!isset(Event::$lifecycleCallbacks[$event])) {
-            throw new MappingException("$event is not a valid lifecycle callback event");
+            throw new MappingException(sprintf(
+                '%s is not a valid lifecycle callback event',
+                $event
+            ));
         }
         $this->lifecycleCallbacks[$event][] = $callback;
     }
@@ -671,7 +674,11 @@ class ClassMetadata implements ClassMetadataInterface
     public function setVersioned($versionable)
     {
         if ($versionable && !in_array($versionable, self::$validVersionableAnnotations)) {
-            throw new MappingException("Invalid value in '{$this->name}' for the versionable annotation: '{$versionable}'");
+            throw new MappingException(sprintf(
+                'Invalid value in "%s" for the versionable annotation: "%s"',
+                $this->name,
+                $versionable
+            ));
         }
         $this->versionable = $versionable;
     }
@@ -768,7 +775,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Gets the ReflectionProperties of the mapped class.
      *
-     * @return array An array of \ReflectionProperty instances.
+     * @return \ReflectionProperty[]
      */
     public function getReflectionProperties()
     {
@@ -855,9 +862,12 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping['type'] = 'children';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         if (!is_numeric($mapping['fetchDepth'])) {
-            throw new MappingException(
-                sprintf('fetchDepth option must be a numerical value (is "%s") on children mapping "%s" of document %s', $mapping['fetchDepth'], $mapping['fieldName'], $this->name)
-            );
+            throw new MappingException(sprintf(
+                'fetchDepth option must be a numerical value (is "%s") on children mapping "%s" of document %s',
+                $mapping['fetchDepth'],
+                $mapping['fieldName'],
+                $this->name
+            ));
         }
         unset($mapping['property']);
         $this->childrenMappings[$mapping['fieldName']] = $mapping['fieldName'];
@@ -889,11 +899,18 @@ class ClassMetadata implements ClassMetadataInterface
     public function mapMixedReferrers(array $mapping, ClassMetadata $inherited = null)
     {
         if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+            throw new MappingException(sprintf(
+                'You have to specify a "referenceType" for the "%s" mapping which must be null, "weak" or "hard": %s',
+                $this->name,
+                $mapping['referenceType']
+            ));
         }
 
         if (isset($mapping['referencedBy'])) {
-            throw new MappingException('MixedReferrers has no referredBy attribute, use Referrers for this: ' . $mapping['fieldName']);
+            throw new MappingException(sprintf(
+                'MixedReferrers has no referredBy attribute, use Referrers for this: "%s"',
+                $mapping['fieldName']
+            ));
         }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
@@ -965,11 +982,17 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (empty($mapping['fieldName'])) {
-            throw new MappingException("Mapping a property requires to specify the field name in '{$this->name}'.");
+            throw new MappingException(sprintf(
+                'Mapping a property requires to specify the field name in "%s".',
+                $this->name
+            ));
         }
 
         if (!is_string($mapping['fieldName'])) {
-            throw new MappingException("Field name must be of type string in '{$this->name}'.");
+            throw new MappingException(sprintf(
+                'Field name must be of type string in "%s".',
+                $this->name
+            ));
         }
 
         if (!$this->reflClass->hasProperty($mapping['fieldName'])) {
@@ -1036,7 +1059,11 @@ class ClassMetadata implements ClassMetadataInterface
         if (empty($mapping['strategy'])) {
             $mapping['strategy'] = 'weak';
         } elseif (!in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
-            throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
+            throw new MappingException(sprintf(
+                'The attribute "strategy" for the "%s" association has to be either a null, "weak", "hard" or "path": "%s"',
+                $this->name,
+                $mapping['strategy']
+            ));
         }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -1075,34 +1102,59 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (!empty($this->versionNameField) && !$this->versionable) {
-            throw new MappingException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
+            throw new MappingException(sprintf(
+                'You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)',
+                $this->name,
+                $this->versionNameField
+            ));
         }
 
         if (!empty($this->versionCreatedField) && !$this->versionable) {
-            throw new MappingException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
+            throw new MappingException(sprintf(
+                'You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)',
+                $this->name,
+                $this->versionCreatedField
+            ));
         }
 
         if (count($this->translatableFields)) {
             if (!isset($this->localeMapping)) {
-                throw new MappingException("You must define a locale mapping for translatable document '".$this->name."'");
+                throw new MappingException(sprintf(
+                    'You must define a locale mapping for translatable document "%s"',
+                    $this->name
+                ));
             }
         }
 
         // we allow mixed referrers on non-referenceable documents. maybe the mix:referenceable is just not mapped
         if (count($this->referrersMappings)) {
             if (!$this->referenceable) {
-                throw new MappingException('You can not have referrers mapped on document "'.$this->name.'" as the document is not referenceable');
+                throw new MappingException(sprintf(
+                    'You can not have referrers mapped on document "%s" as the document is not referenceable',
+                    $this->name
+                ));
             }
 
             foreach ($this->referrersMappings as $referrerName) {
                 $mapping = $this->mappings[$referrerName];
                 // only a santiy check with reflection. otherwise we could run into endless loops
                 if (!ClassLoader::classExists($mapping['referringDocument'])) {
-                    throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument class "%s" does not exist', $this->name, $mapping['fieldName'], $mapping['referringDocument']));
+                    throw new MappingException(sprintf(
+                        'Invalid referrer mapping on document "%s" for field "%s": The referringDocument class "%s" does not exist',
+                        $this->name,
+                        $mapping['fieldName'],
+                        $mapping['referringDocument']
+                    ));
                 }
                 $reflection = new ReflectionClass($mapping['referringDocument']);
                 if (! $reflection->hasProperty($mapping['referencedBy'])) {
-                    throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no property "%s"', $this->name, $mapping['fieldName'], $mapping['referringDocument'], $mapping['referencedBy']));
+                    throw new MappingException(sprintf(
+                        'Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no property "%s"',
+                        $this->name,
+                        $mapping['fieldName'],
+                        $mapping['referringDocument'],
+                        $mapping['referencedBy']
+                    ));
                 }
             }
         }
@@ -1134,7 +1186,10 @@ class ClassMetadata implements ClassMetadataInterface
             return;
         }
 
-        throw new MappingException(sprintf('No id generator could be determined in "%s". Either map a parent and a nodename field and add values to them, or map the id field and configure a mapping strategy', $this->name));
+        throw new MappingException(sprintf(
+            'No id generator could be determined in "%s". Either map a parent and a nodename field and add values to them, or map the id field and configure a mapping strategy',
+            $this->name
+        ));
     }
 
     public function mapManyToOne($mapping, ClassMetadata $inherited = null)
@@ -1434,7 +1489,11 @@ class ClassMetadata implements ClassMetadataInterface
     public function getAssociationTargetClass($fieldName)
     {
         if (empty($this->mappings[$fieldName]['targetDocument'])) {
-            throw new MappingException("Association name expected, '$fieldName' is not an association in '{$this->name}'.");
+            throw new MappingException(sprintf(
+                'Association name expected, "%s" is not an association in "%s".',
+                $fieldName,
+                $this->name
+            ));
         }
 
         return $this->mappings[$fieldName]['targetDocument'];
@@ -1445,7 +1504,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociationMappedByTargetField($assocName)
     {
-        throw new BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
+        throw new BadMethodCallException(sprintf(
+            '%s not yet implemented in "%s"',
+            __METHOD__,
+            $this->name
+        ));
     }
 
     /**
@@ -1453,7 +1516,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isAssociationInverseSide($assocName)
     {
-        throw new BadMethodCallException(__METHOD__."  not yet implemented in '{$this->name}'");
+        throw new BadMethodCallException(sprintf(
+            '%s not yet implemented in "%s"',
+            __METHOD__,
+            $this->name
+        ));
     }
 
     /**
@@ -1512,15 +1579,21 @@ class ClassMetadata implements ClassMetadataInterface
 
             if (isset($parentMapping['type'])) {
                 if (isset($mapping['type']) && $parentMapping['type'] !== $mapping['type']) {
-                    throw new MappingException("You cannot change the type of a field via inheritance in '{$this->name}'");
+                    throw new MappingException(sprintf(
+                        'You cannot change the type of a field via inheritance in "%s"',
+                        $this->name
+                    ));
                 }
                 $mapping['type'] = $parentMapping['type'];
             }
         }
 
-        if (isset($mapping['property']) && $mapping['property'] == 'jcr:uuid') {
+        if (isset($mapping['property']) && $mapping['property'] === 'jcr:uuid') {
             if (null !== $this->uuidFieldName) {
-                throw new MappingException("You can only designate a single 'Uuid' field in '{$this->name}'");
+                throw new MappingException(sprintf(
+                    'You can only designate a single "Uuid" field in "%s"',
+                    $this->name
+                ));
             }
 
             $this->uuidFieldName = $mapping['fieldName'];

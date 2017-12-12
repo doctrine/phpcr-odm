@@ -21,6 +21,7 @@ namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use SimpleXmlElement;
@@ -48,10 +49,11 @@ class XmlDriver extends FileDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @param PhpcrClassMetadata $class
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         try {
             $xmlRoot = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -282,9 +284,13 @@ class XmlDriver extends FileDriver
         $class->validateClassMapping();
     }
 
-    private function addReferenceMapping(ClassMetadata $class, $reference, $type)
+    /**
+     * @param PhpcrClassMetadata $class
+     * @param \SimpleXMLElement  $reference
+     * @param string             $type
+     */
+    private function addReferenceMapping(PhpcrClassMetadata $class, $reference, $type)
     {
-        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         $attributes = (array) $reference->attributes();
         $mapping = $attributes["@attributes"];
         $mapping['strategy'] = isset($mapping['strategy']) ? strtolower($mapping['strategy']) : null;

@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 
 class LocaleChooserTest extends PHPCRTestCase
@@ -21,7 +22,7 @@ class LocaleChooserTest extends PHPCRTestCase
 
     public function setUp()
     {
-        $this->mockMetadata = $this->getMockBuilder('\Doctrine\ODM\PHPCR\Mapping\ClassMetadata')->disableOriginalConstructor()->getMock();
+        $this->mockMetadata = $this->createMock(ClassMetadata::class);
         $this->localeChooser = new LocaleChooser(array('en' => $this->orderEn, 'de' => $this->orderDe), 'en');
     }
 
@@ -48,11 +49,9 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->assertEquals(array('fr'), $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Translation\MissingTranslationException
-     */
     public function testGetFallbackLocalesNonexisting()
     {
+        $this->expectException(MissingTranslationException::class);
         $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'notexisting');
     }
 
@@ -72,11 +71,9 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->assertEquals('de', $locale);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Translation\MissingTranslationException
-     */
     public function testSetLocaleNonexisting()
     {
+        $this->expectException(MissingTranslationException::class);
         $this->localeChooser->setLocale('nonexisting');
     }
 

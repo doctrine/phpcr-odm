@@ -3,21 +3,38 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 
 class AbstractNodeTest extends TestCase
 {
+    /**
+     * @var AbstractNode|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $parent;
+
+    /**
+     * @var AbstractNode|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $node1;
+
+    /**
+     * @var AbstractLeafNode|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $leafNode;
+
     public function setUp()
     {
-        $this->parent = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractNode'
-        )->setMockClassName('ParentNode')->getMockForAbstractClass();
+        $this->parent = $this->getMockBuilder(AbstractNode::class)
+            ->setMockClassName('ParentNode')
+            ->getMockForAbstractClass();
 
-        $this->node1 = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractNode')
+        $this->node1 = $this->getMockBuilder(AbstractNode::class)
             ->setMockClassName('TestNode')
             ->setConstructorArgs(array($this->parent))
             ->getMockForAbstractClass();
 
-        $this->leafNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode')
+        $this->leafNode = $this->getMockBuilder(AbstractLeafNode::class)
             ->setMockClassName('LeafNode')
             ->setConstructorArgs(array($this->node1))
             ->getMockForAbstractClass();
@@ -29,11 +46,8 @@ class AbstractNodeTest extends TestCase
     protected function addChildrenToNode1($data)
     {
         foreach ($data as $className) {
-            $childNode = $this->getMockForAbstractClass(
-                'Doctrine\ODM\PHPCR\Query\Builder\AbstractNode',
-                array(),
-                $className
-            );
+            /** @var AbstractNode|\PHPUnit_Framework_MockObject_MockObject $childNode */
+            $childNode = $this->getMockForAbstractClass(AbstractNode::class, array(), $className);
             $childNode->expects($this->once())
                 ->method('getNodeType')
                 ->will($this->returnValue($className));
@@ -138,11 +152,13 @@ class AbstractNodeTest extends TestCase
             ->will($this->returnValue($cardinalityMap));
 
         if ($options['exceeds_max']) {
-            $this->setExpectedException('OutOfBoundsException', 'cannot exceed');
+            $this->expectException(\OutOfBoundsException::class);
+            $this->expectExceptionMessage('cannot exceed');
         }
 
         if ($options['invalid_child']) {
-            $this->setExpectedException('OutOfBoundsException', 'cannot be appended');
+            $this->expectException(\OutOfBoundsException::class);
+            $this->expectExceptionMessage('cannot be appended');
         }
 
         $this->addChildrenToNode1($data);
@@ -214,7 +230,8 @@ class AbstractNodeTest extends TestCase
 
         if ($options['expected_exception']) {
             list($exceptionType, $exceptionMessage) = $options['expected_exception'];
-            $this->setExpectedException($exceptionType, $exceptionMessage);
+            $this->expectException($exceptionType);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $this->node1->expects($this->any())

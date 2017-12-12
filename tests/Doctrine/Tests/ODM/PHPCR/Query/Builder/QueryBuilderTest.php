@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface;
 
 class QueryBuilderTest extends NodeTestCase
 {
@@ -20,9 +21,8 @@ class QueryBuilderTest extends NodeTestCase
 
     public function testNonExistantMethod()
     {
-        $this->setExpectedException('BadMethodCallException',
-            'Unknown method "foobar" called on node'
-        );
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Unknown method "foobar" called on node');
         $this->node->foobar();
     }
 
@@ -107,7 +107,7 @@ class QueryBuilderTest extends NodeTestCase
         $property = $reflection->getProperty('converter');
         $property->setAccessible(true);
 
-        $this->node->setConverter($this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface')->getMock());
+        $this->node->setConverter($this->createMock(ConverterInterface::class));
 
         $clone = clone $this->node;
 

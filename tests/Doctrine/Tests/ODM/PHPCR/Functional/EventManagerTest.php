@@ -4,6 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\ODM\PHPCR\Event;
@@ -21,7 +22,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
     private $listener;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -63,8 +64,8 @@ class EventManagerTest extends PHPCRFunctionalTestCase
             );
 
         $page = new CmsPage();
-        $page->title = "my-page";
-        $page->content = "long story";
+        $page->title = 'my-page';
+        $page->content = 'long story';
 
         $this->dm->persist($page);
 
@@ -107,10 +108,10 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $item = new CmsItem();
-        $item->name = "my-item";
+        $item->name = 'my-item';
         $item->documentTarget = $page;
 
-        $page->content = "short story";
+        $page->content = 'short story';
         $this->dm->persist($item);
         $page->addItem($item);
 
@@ -163,8 +164,8 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
 
         $page = new CmsPageTranslatable();
-        $page->title = "my-page";
-        $page->content = "long story";
+        $page->title = 'my-page';
+        $page->content = 'long story';
 
         $this->dm->persist($page);
         $this->assertFalse($this->listener->preCreateTranslation);
@@ -181,7 +182,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $page = $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsPageTranslatable', $page->id, 'en');
+        $page = $this->dm->findTranslation(CmsPageTranslatable::class, $page->id, 'en');
 
         $this->assertTrue($this->listener->postLoadTranslation);
 

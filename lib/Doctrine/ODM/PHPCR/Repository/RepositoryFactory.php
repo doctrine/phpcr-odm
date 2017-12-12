@@ -19,6 +19,7 @@
 
 namespace Doctrine\ODM\PHPCR\Repository;
 
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 
 /**
@@ -34,7 +35,7 @@ interface RepositoryFactory
      * @param DocumentManagerInterface  $dm             The DocumentManager instance.
      * @param string                    $documentName   The name of the document.
      *
-     * @return \Doctrine\Common\Persistence\ObjectRepository
+     * @return ObjectRepository
      */
     public function getRepository(DocumentManagerInterface $dm, $documentName);
 }

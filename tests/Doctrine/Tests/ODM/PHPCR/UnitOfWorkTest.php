@@ -8,6 +8,13 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Jackalope\Factory;
 use Jackalope\Node;
+use Jackalope\Session;
+use Jackalope\ObjectManager;
+use Jackalope\Repository;
+use Jackalope\NodeType\NodeType;
+use Jackalope\NodeType\NodeTypeManager;
+use Jackalope\Workspace;
+use PHPCR\SessionInterface;
 
 /**
  * TODO: remove Jackalope dependency
@@ -32,12 +39,12 @@ class UnitOfWorkTest extends PHPCRTestCase
     private $factory;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
     /**
-     * @var \Jackalope\ObjectManager
+     * @var ObjectManager
      */
     private $objectManager;
 
@@ -48,20 +55,16 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function setUp()
     {
-        if (!class_exists('Jackalope\Factory', true)) {
+        if (!class_exists(Factory::class, true)) {
             $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
         }
 
         $this->factory = new Factory;
-        $this->session = $this->getMockBuilder('Jackalope\Session')
-            ->disableOriginalConstructor()
-            ->getMock();
-        
-        $this->objectManager = $this->getMockBuilder('Jackalope\ObjectManager')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->session = $this->createMock(Session::class);
 
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\UoWUser';
+        $this->objectManager = $this->createMock(ObjectManager::class);
+
+        $this->type = UoWUser::class;
         $this->dm = DocumentManager::create($this->session);
         $this->uow = new UnitOfWork($this->dm);
 
@@ -76,52 +79,52 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     protected function createNode($id, $username, $primaryType = 'rep:root')
     {
-        $repository = $this->getMockBuilder('Jackalope\Repository')->disableOriginalConstructor()->getMock();
+        $repository = $this->createMock(Repository::class);
         $this->session->expects($this->any())
             ->method('getRepository')
             ->with()
             ->will($this->returnValue($repository));
-        
-        $type = $this->getMockBuilder('Jackalope\NodeType\NodeType')->disableOriginalConstructor()->getMock();
+
+        $type = $this->createMock(NodeType::class);
         $type->expects($this->any())
             ->method('getName')
             ->with()
             ->will($this->returnValue($primaryType));
-        
-        $ntm = $this->getMockBuilder('Jackalope\NodeType\NodeTypeManager')->disableOriginalConstructor()->getMock();
+
+        $ntm = $this->createMock(NodeTypeManager::class);
         $ntm->expects($this->any())
             ->method('getNodeType')
             ->with()
             ->will($this->returnValue($type));
-        
-        $workspace = $this->getMockBuilder('Jackalope\Workspace')->disableOriginalConstructor()->getMock();
+
+        $workspace = $this->createMock(Workspace::class);
         $workspace->expects($this->any())
             ->method('getNodeTypeManager')
             ->with()
             ->will($this->returnValue($ntm));
-        
+
         $this->session->expects($this->any())
             ->method('getWorkspace')
             ->with()
             ->will($this->returnValue($workspace));
-        
+
         $this->session->expects($this->any())
                ->method('nodeExists')
             ->with($id)
             ->will($this->returnValue(true));
-        
+
         $nodeData = array(
             "jcr:primaryType" => $primaryType,
             "jcr:system" => array(),
             'username' => $username,
         );
         $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
-        
+
         $this->session->expects($this->any())
             ->method('getNode')
             ->with($id)
             ->will($this->returnValue($node));
-        
+
         return $node;
     }
 
@@ -158,8 +161,8 @@ class UnitOfWorkTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
      */
     public function testScheduleInsertion()
     {
@@ -171,9 +174,9 @@ class UnitOfWorkTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleRemove
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleRemove
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
      */
     public function testScheduleInsertCancelsScheduleRemove()
     {
@@ -203,7 +206,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     public function testUuid()
     {
-        $class = new \ReflectionClass('Doctrine\ODM\PHPCR\UnitOfWork');
+        $class = new \ReflectionClass(UnitOfWork::class);
         $method = $class->getMethod('generateUuid');
         $method->setAccessible(true);
 

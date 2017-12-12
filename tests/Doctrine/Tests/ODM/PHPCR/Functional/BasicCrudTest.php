@@ -2,9 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use PHPCR\Util\UUIDHelper;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -13,10 +16,10 @@ use PHPCR\Util\NodeHelper;
 /**
  * @group functional
  */
-class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class BasicCrudTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -27,13 +30,13 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
     public function setUp()
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\User';
+        $this->type = User::class;
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -65,9 +68,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testInsertTwice()
     {
         $user = new User();
@@ -82,6 +82,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = "toast";
         $user->numbers = array(1, 2, 3);
         $user->id = '/functional/test';
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -90,7 +91,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = $this->node->addNode('userWithAlias');
         $user->setProperty('username', 'dbu');
         $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
 
         $userWithAlias = $this->dm->find(null, '/functional/userWithAlias');
@@ -194,9 +195,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($testUuid, $flushedUser->uuid);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\RuntimeException
-     */
     public function testBadUuidSetting()
     {
         $newUser = new UserWithUuid();
@@ -204,6 +202,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $newUser->id = '/functional/test';
         $newUser->uuid = 'bad-uuid';
 
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\RuntimeException::class);
         $this->dm->persist($newUser);
     }
 
@@ -219,7 +218,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User3', '/functional/test3');
+        $userNew = $this->dm->find(User3::class, '/functional/test3');
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
@@ -318,7 +317,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User2', '/functional/user');
+        $userNew = $this->dm->find(User2::class, '/functional/user');
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals($user->username, $userNew->username);
@@ -345,9 +344,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testRemoveAndInsertBeforeFlush()
     {
         $this->dm->clear();
@@ -359,6 +355,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user = new User2();
         $user->username = "test";
         $user->id = '/functional/user';
+        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -476,12 +473,12 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User5', '/functional/test');
+        $userNew = $this->dm->find(User5::class, '/functional/test');
 
         $userNew->username = "test2";
         $this->dm->flush();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User5', '/functional/test');
+        $userNew = $this->dm->find(User5::class, '/functional/test');
 
         $this->assertNotNull($userNew, "Have to hydrate user object!");
         $this->assertEquals('test2', $userNew->username);
@@ -501,7 +498,7 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\User6', '/functional/'.$user->nodename);
+        $userNew = $this->dm->find(User6::class, '/functional/'.$user->nodename);
         $this->assertEquals($userNew->nodename, $user->nodename);
     }
 
@@ -604,8 +601,6 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
     /**
      * Create a node with a bad name and explicitly persist it without
      * adding it to any parent's children collection.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNodename()
     {
@@ -615,16 +610,15 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = 'test';
         $user->nodename = 'bad/name';
         $user->parent = $functional;
-        $this->dm->persist($user);
 
-        $this->dm->flush();
+        $this->expectException(IdException::class);
+        $this->expectExceptionMessage('Nodename property "nodename" of document "Doctrine\Tests\ODM\PHPCR\Functional\User5" contains the illegal PHPCR value "bad/name"');
+        $this->dm->persist($user);
     }
 
     /**
      * Retrieve an existing node and try to move it by assigning it
      * an illegal name.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNodenameMove()
     {
@@ -638,6 +632,8 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $user->nodename = 'bad/name';
+
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 
