@@ -4,10 +4,10 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Helper;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Tools\Helper\UniqueNodeTypeHelper;
 use PHPUnit\Framework\TestCase;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 
 /**
  * Verify the behavior of the UniqueNodeTypeHelper class that is used
@@ -28,7 +28,7 @@ class UniqueNodeTypeHelperTest extends TestCase
     {
         $classMetadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('getAllMetadata'))
+            ->setMethods(['getAllMetadata'])
             ->getMock();
         $classMetadataFactory->expects($this->once())
             ->method('getAllMetadata')
@@ -36,7 +36,7 @@ class UniqueNodeTypeHelperTest extends TestCase
 
         $documentManager = $this->getMockBuilder(DocumentManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('getMetadataFactory'))
+            ->setMethods(['getMetadataFactory'])
             ->getMock();
         $documentManager->expects($this->once())
             ->method('getMetadataFactory')
@@ -62,11 +62,11 @@ class UniqueNodeTypeHelperTest extends TestCase
         $metadataC->setNodeType('nt:unstructured');
         $metadataC->setUniqueNodeType(true);
 
-        $documentManager = $this->configureDocumentManager(array(
+        $documentManager = $this->configureDocumentManager([
             $metadataA,
             $metadataB,
-            $metadataC
-        ));
+            $metadataC,
+        ]);
 
         $uniqueNodeTypeHelper = new UniqueNodeTypeHelper();
 
@@ -91,11 +91,11 @@ class UniqueNodeTypeHelperTest extends TestCase
         $metadataC = new ClassMetadata('Doctrine\PHPCR\Models\ClassC');
         $metadataA->setNodeType('nt:unstructured');
 
-        $documentManager = $this->configureDocumentManager(array(
+        $documentManager = $this->configureDocumentManager([
             $metadataA,
             $metadataB,
-            $metadataC
-        ));
+            $metadataC,
+        ]);
 
         $uniqueNodeTypeHelper = new UniqueNodeTypeHelper();
         $uniqueNodeTypeHelper->checkNodeTypeMappings($documentManager);

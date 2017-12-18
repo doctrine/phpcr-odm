@@ -23,11 +23,13 @@ use Doctrine\Common\Persistence\Mapping\MappingException as BaseMappingException
 use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 
 /**
- * Mapping exception class
+ * Mapping exception class.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
+ *
  * @link        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
@@ -160,17 +162,17 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
 
     public static function invalidTargetDocumentClass($targetDocument, $sourceDocument, $associationName)
     {
-        return new self("The target-document " . $targetDocument . " cannot be found in '" . $sourceDocument."#".$associationName."'.");
+        return new self('The target-document '.$targetDocument." cannot be found in '".$sourceDocument.'#'.$associationName."'.");
     }
 
     public static function lifecycleCallbackMethodNotFound($className, $methodName)
     {
-        return new self("Document '" . $className . "' has no method '" . $methodName . "' to be registered as lifecycle callback.");
+        return new self("Document '".$className."' has no method '".$methodName."' to be registered as lifecycle callback.");
     }
 
     public static function noTranslatorStrategy($className, $fieldNames)
     {
-        return new self("Document '" .$className."' does not have a translation strategy, but the fields ('".implode('\', \'', $fieldNames)."') have been set as translatable.");
+        return new self("Document '".$className."' does not have a translation strategy, but the fields ('".implode('\', \'', $fieldNames)."') have been set as translatable.");
     }
 
     public static function notReferenceable($className, $fieldName)

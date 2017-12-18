@@ -20,11 +20,11 @@
 namespace Doctrine\ODM\PHPCR\Tools\Console\Helper;
 
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use PHPCR\Util\Console\Helper\PhpcrHelper;
 use PHPCR\SessionInterface;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 
 /**
- * Helper class to make DocumentManager available to console command
+ * Helper class to make DocumentManager available to console command.
  */
 class DocumentManagerHelper extends PhpcrHelper
 {
@@ -34,7 +34,7 @@ class DocumentManagerHelper extends PhpcrHelper
     protected $dm;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param SessionInterface         $session
      * @param DocumentManagerInterface $dm

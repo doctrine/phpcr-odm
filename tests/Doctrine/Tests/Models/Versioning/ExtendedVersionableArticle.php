@@ -22,6 +22,7 @@ class ExtendedVersionableArticle extends FullVersionableArticle
     {
         return $this->text;
     }
+
     public function setText($text)
     {
         $this->text = $text;

@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver;
 
 /**
@@ -16,7 +14,7 @@ class YamlDriverTest extends AbstractMappingDriverTest
      */
     protected function loadDriver()
     {
-        $location = __DIR__ . '/Model/yml';
+        $location = __DIR__.'/Model/yml';
 
         return new YamlDriver($location);
     }

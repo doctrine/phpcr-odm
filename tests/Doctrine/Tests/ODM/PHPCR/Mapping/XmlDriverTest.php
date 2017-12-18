@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver;
 
 /**
@@ -16,7 +14,7 @@ class XmlDriverTest extends AbstractMappingDriverTest
      */
     protected function loadDriver()
     {
-        $location = __DIR__ . '/Model/xml';
+        $location = __DIR__.'/Model/xml';
 
         return new XmlDriver($location);
     }

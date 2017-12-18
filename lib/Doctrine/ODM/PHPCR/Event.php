@@ -44,22 +44,22 @@ final class Event
     const preRemoveTranslation = 'preRemoveTranslation';
     const postRemoveTranslation = 'postRemoveTranslation';
 
-    public static $lifecycleCallbacks = array(
-        self::prePersist => self::prePersist,
-        self::preRemove => self::preRemove ,
-        self::preUpdate => self::preUpdate,
-        self::preMove => self::preMove,
-        self::postRemove => self::postRemove,
-        self::postPersist => self::postPersist,
-        self::postUpdate => self::postUpdate,
-        self::postMove => self::postMove,
-        self::postLoad => self::postLoad,
-        self::postLoadTranslation => self::postLoadTranslation,
-        self::preCreateTranslation => self::preCreateTranslation,
-        self::preUpdateTranslation => self::preUpdateTranslation,
-        self::preRemoveTranslation => self::preRemoveTranslation,
+    public static $lifecycleCallbacks = [
+        self::prePersist            => self::prePersist,
+        self::preRemove             => self::preRemove,
+        self::preUpdate             => self::preUpdate,
+        self::preMove               => self::preMove,
+        self::postRemove            => self::postRemove,
+        self::postPersist           => self::postPersist,
+        self::postUpdate            => self::postUpdate,
+        self::postMove              => self::postMove,
+        self::postLoad              => self::postLoad,
+        self::postLoadTranslation   => self::postLoadTranslation,
+        self::preCreateTranslation  => self::preCreateTranslation,
+        self::preUpdateTranslation  => self::preUpdateTranslation,
+        self::preRemoveTranslation  => self::preRemoveTranslation,
         self::postRemoveTranslation => self::postRemoveTranslation,
-    );
+    ];
 
     private function __construct()
     {

@@ -3,13 +3,13 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\CMS\CmsGroup;
-use Doctrine\Tests\Models\CMS\CmsArticle;
-use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\ReferenceManyCollection;
+use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsTeamUser;
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 
 class MergeTest extends PHPCRFunctionalTestCase
@@ -26,7 +26,7 @@ class MergeTest extends PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getPhpcrSession()->save();
     }
@@ -128,7 +128,7 @@ class MergeTest extends PHPCRFunctionalTestCase
 
         $mergableGroup = new CmsGroup();
         $mergableGroup->id = $user->id;
-        $mergableGroup->name = "doctrine";
+        $mergableGroup->name = 'doctrine';
 
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
         $this->dm->merge($mergableGroup);

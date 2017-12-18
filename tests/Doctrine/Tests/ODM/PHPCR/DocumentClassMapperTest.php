@@ -7,12 +7,12 @@ use Doctrine\ODM\PHPCR\DocumentClassMapper;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use PHPCR\NodeInterface;
-use PHPCR\PropertyType;
-use PHPUnit\Framework\TestCase;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Jackalope\Node;
 use Jackalope\Property;
+use PHPCR\NodeInterface;
+use PHPCR\PropertyType;
+use PHPUnit\Framework\TestCase;
 
 class DocumentClassMapperTest extends Testcase
 {
@@ -87,18 +87,15 @@ class DocumentClassMapperTest extends Testcase
         $property = $this->createMock(Property::class);
         $property->expects($this->once())
             ->method('getString')
-            ->will($this->returnValue($class))
-        ;
+            ->will($this->returnValue($class));
         $this->node->expects($this->once())
             ->method('hasProperty')
             ->with('phpcr:class')
-            ->will($this->returnValue(true))
-        ;
+            ->will($this->returnValue(true));
         $this->node->expects($this->once())
             ->method('getProperty')
             ->with('phpcr:class')
-            ->will($this->returnValue($property))
-        ;
+            ->will($this->returnValue($property));
     }
 
     public function testGetClassNameNull()
@@ -153,7 +150,7 @@ class DocumentClassMapperTest extends Testcase
 
     public function testWriteMetadata()
     {
-        $parentClasses = array(self::CLASS_TEST_2, self::CLASS_TEST_3);
+        $parentClasses = [self::CLASS_TEST_2, self::CLASS_TEST_3];
 
         $this->node->expects($this->at(0))
             ->method('setProperty')
@@ -191,22 +188,20 @@ class DocumentClassMapperTest extends Testcase
         $uow->expects($this->once())
             ->method('determineDocumentId')
             ->with($generic)
-            ->will($this->returnValue('/id'))
-        ;
+            ->will($this->returnValue('/id'));
         $this->dm->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow))
-        ;
+            ->will($this->returnValue($uow));
         $this->expectException(ClassMismatchException::class);
         $this->mapper->validateClassName($this->dm, $generic, 'Other\Class');
     }
 
     public function provideExpandClassName()
     {
-        return array(
-            array('Foobar/BarFoo/Document/Foobar', 'Foobar/BarFoo/Document/Foobar', false),
-            array('Foobar:Barfoo', 'Foobar\Barfoo', true),
-        );
+        return [
+            ['Foobar/BarFoo/Document/Foobar', 'Foobar/BarFoo/Document/Foobar', false],
+            ['Foobar:Barfoo', 'Foobar\Barfoo', true],
+        ];
     }
 
     /**

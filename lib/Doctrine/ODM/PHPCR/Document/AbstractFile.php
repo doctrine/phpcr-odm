@@ -23,7 +23,7 @@ use Doctrine\ODM\PHPCR\HierarchyInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * This class represents an abstract "file"
+ * This class represents an abstract "file".
  *
  * @PHPCRODM\MappedSuperclass(mixins="mix:created")
  */
@@ -82,7 +82,7 @@ abstract class AbstractFile implements HierarchyInterface
     }
 
     /**
-     * Set the node name of the file. (only mutable on new document before the persist)
+     * Set the node name of the file. (only mutable on new document before the persist).
      *
      * @param string $name the name of the file
      *
@@ -122,7 +122,7 @@ abstract class AbstractFile implements HierarchyInterface
 
     /**
      * getter for created
-     * The created date is assigned by the content repository
+     * The created date is assigned by the content repository.
      *
      * @return \DateTime created date of the file
      */
@@ -134,7 +134,7 @@ abstract class AbstractFile implements HierarchyInterface
     /**
      * getter for createdBy
      * The createdBy is assigned by the content repository
-     * This is the name of the (jcr) user that created the node
+     * This is the name of the (jcr) user that created the node.
      *
      * @return string name of the (jcr) user who created the file
      */
@@ -144,7 +144,7 @@ abstract class AbstractFile implements HierarchyInterface
     }
 
     /**
-     * String representation
+     * String representation.
      *
      * @return string
      */

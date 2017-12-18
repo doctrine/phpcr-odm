@@ -2,10 +2,10 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
-use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
 
@@ -29,13 +29,13 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
     public function testSetPrefixAndGetPropertyName()
     {
-        $name = $this->method->invokeArgs($this->strategy, array('fr', 'field'));
+        $name = $this->method->invokeArgs($this->strategy, ['fr', 'field']);
         $this->assertEquals('test:fr-field', $name);
     }
 
     public function testSubRegion()
     {
-        $name = $this->method->invokeArgs($this->strategy, array('en_GB', 'field'));
+        $name = $this->method->invokeArgs($this->strategy, ['en_GB', 'field']);
         $this->assertEquals('test:en_GB-field', $name);
     }
 
@@ -46,18 +46,18 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
         }
 
         $classMetadata = $this->prophesize(ClassMetadata::class);
-        $document = new \stdClass;
-        $localizedPropNames = array(
-            'test:de-prop1' => 'de',
-            'test:de_at-prop2' => 'de_at',
+        $document = new \stdClass();
+        $localizedPropNames = [
+            'test:de-prop1'                                 => 'de',
+            'test:de_at-prop2'                              => 'de_at',
             'test:en_Hans_CN_nedis_rozaj_x_prv1_prv2-prop3' => 'en_Hans_CN_nedis_rozaj_x_prv1_prv2',
-            'i18n:de-asdf' => false, // prefix is incorrect
-            'asdf' => false, // no prefix
-            'de_asdf' => false, // no property name
-        );
+            'i18n:de-asdf'                                  => false, // prefix is incorrect
+            'asdf'                                          => false, // no prefix
+            'de_asdf'                                       => false, // no property name
+        ];
 
         $node = $this->prophesize(NodeInterface::class);
-        $properties = array();
+        $properties = [];
 
         foreach (array_keys($localizedPropNames) as $localizedPropName) {
             $property = $this->prophesize(PropertyInterface::class);

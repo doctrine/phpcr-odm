@@ -2,13 +2,13 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
-use Doctrine\Common\Proxy\Proxy;
 use PHPCR\PropertyType;
 
 /**
@@ -22,7 +22,8 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -36,16 +37,16 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
     {
         $this->type = Article::class;
         $this->dm = $this->createDocumentManager();
-        $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));
         $this->node = $this->resetFunctionalNode($this->dm);
         $user = $this->node->addNode('thename');
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $user->setProperty('phpcr_locale:fr-topic', 'french', PropertyType::STRING);
         $user->setProperty('phpcr_locale:fr-text', 'french text', PropertyType::STRING);
-        $user->setProperty('phpcr_locale:frnullfields', array('nullable'), PropertyType::STRING);
+        $user->setProperty('phpcr_locale:frnullfields', ['nullable'], PropertyType::STRING);
         $user->setProperty('phpcr_locale:en-topic', 'english', PropertyType::STRING);
         $user->setProperty('phpcr_locale:en-text', 'english text', PropertyType::STRING);
-        $user->setProperty('phpcr_locale:ennullfields', array('nullable'), PropertyType::STRING);
+        $user->setProperty('phpcr_locale:ennullfields', ['nullable'], PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -59,6 +60,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
 
         $this->assertNotNull($doc->parent);
         $this->assertEquals('/functional', $doc->parent->getId());
+
         return $doc;
     }
 

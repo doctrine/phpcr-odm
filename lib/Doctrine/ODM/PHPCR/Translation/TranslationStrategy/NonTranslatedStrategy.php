@@ -29,17 +29,19 @@ use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\SourceInterface;
 
 /**
- * A dummy translation strategy for non-translated fields
+ * A dummy translation strategy for non-translated fields.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
+ *
  * @link        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      David Buchmann <mail@davidbu.ch>
  */
 class NonTranslatedStrategy implements TranslationStrategyInterface
 {
     /**
-     * Identifier of this strategy
+     * Identifier of this strategy.
      */
     const NAME = 'none';
 
@@ -57,7 +59,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
@@ -77,7 +79,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
@@ -85,7 +87,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      *
      * Remove the (untranslated) fields listed in $metadata->translatableFields
      */
@@ -98,7 +100,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      *
      * This will remove all fields that are now declared as translated
      */
@@ -108,7 +110,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
     {
@@ -116,15 +118,15 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getTranslatedPropertyPath($alias, $propertyName, $locale)
     {
-        return array($alias, $propertyName);
+        return [$alias, $propertyName];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,

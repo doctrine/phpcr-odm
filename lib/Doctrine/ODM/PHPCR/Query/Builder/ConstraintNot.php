@@ -12,9 +12,9 @@ class ConstraintNot extends ConstraintFactory
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_CONSTRAINT => array(1, 1),
-        );
+        return [
+            self::NT_CONSTRAINT => [1, 1],
+        ];
     }
 
     public function getNodeType()

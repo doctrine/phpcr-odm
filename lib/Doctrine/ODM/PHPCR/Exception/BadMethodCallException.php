@@ -22,7 +22,7 @@ namespace Doctrine\ODM\PHPCR\Exception;
 use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 
 /**
- * InvalidArgumentException for the PHPCR-ODM
+ * InvalidArgumentException for the PHPCR-ODM.
  */
 class BadMethodCallException extends \BadMethodCallException implements PHPCRExceptionInterface
 {

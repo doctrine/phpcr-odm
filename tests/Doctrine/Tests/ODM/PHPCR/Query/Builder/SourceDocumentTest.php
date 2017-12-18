@@ -8,12 +8,12 @@ class SourceDocumentTest extends LeafNodeTestCase
 {
     public function provideNode()
     {
-        return array(
-            array('SourceDocument', array('FooBar', 'a'), array(
+        return [
+            ['SourceDocument', ['FooBar', 'a'], [
                 'getDocumentFqn' => 'FooBar',
-                'getAlias' => 'a',
-            )),
-        );
+                'getAlias'       => 'a',
+            ]],
+        ];
     }
 
     public function testEmptyAlias()

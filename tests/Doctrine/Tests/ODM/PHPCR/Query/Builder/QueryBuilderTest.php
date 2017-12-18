@@ -2,21 +2,21 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
 class QueryBuilderTest extends NodeTestCase
 {
     public function provideInterface()
     {
-        return array(
-            array('where', 'Where'),
-            array('andWhere', 'WhereAnd'), // andWhere adds Where if no existing Where
-            array('orWhere', 'WhereOr'), // andWhere adds Where if no existing Where
-            array('from', 'From', array('a')),
-            array('orderBy', 'OrderBy'),
-            array('select', 'Select'),
-        );
+        return [
+            ['where', 'Where'],
+            ['andWhere', 'WhereAnd'], // andWhere adds Where if no existing Where
+            ['orWhere', 'WhereOr'], // andWhere adds Where if no existing Where
+            ['from', 'From', ['a']],
+            ['orderBy', 'OrderBy'],
+            ['select', 'Select'],
+        ];
     }
 
     public function testNonExistantMethod()
@@ -88,8 +88,7 @@ class QueryBuilderTest extends NodeTestCase
             ->end()
             ->addOrderBy()
                 ->asc()->name('c')->end()
-            ->end()
-        ;
+            ->end();
     }
 
     public function testPrimaryAlias()

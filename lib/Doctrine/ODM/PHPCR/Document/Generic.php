@@ -21,12 +21,11 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use PHPCR\NodeInterface;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-
 /**
- * This class represents an arbitrary node
+ * This class represents an arbitrary node.
  *
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
@@ -60,7 +59,7 @@ class Generic
     protected $referrers;
 
     /**
-     * Id (path) of this document
+     * Id (path) of this document.
      *
      * @return string the id
      */
@@ -90,7 +89,7 @@ class Generic
     }
 
     /**
-     * Set the node name of the document. (only mutable on new document before the persist)
+     * Set the node name of the document. (only mutable on new document before the persist).
      *
      * @param string $name the name of the document
      *
@@ -128,7 +127,7 @@ class Generic
     }
 
     /**
-     * The children documents of this document
+     * The children documents of this document.
      *
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
@@ -141,7 +140,7 @@ class Generic
     }
 
     /**
-     * Sets the children
+     * Sets the children.
      *
      * @param $children ArrayCollection
      *
@@ -155,7 +154,7 @@ class Generic
     }
 
     /**
-     * Add a child to this document
+     * Add a child to this document.
      *
      * @param $child
      *
@@ -173,7 +172,7 @@ class Generic
     }
 
     /**
-     * The documents having a reference to this document
+     * The documents having a reference to this document.
      *
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
@@ -186,7 +185,7 @@ class Generic
     }
 
     /**
-     * Sets the referrers
+     * Sets the referrers.
      *
      * @param $referrers ArrayCollection
      *
@@ -200,7 +199,7 @@ class Generic
     }
 
     /**
-     * Add a referrer to this document
+     * Add a referrer to this document.
      *
      * @param $referrer
      *
@@ -218,7 +217,7 @@ class Generic
     }
 
     /**
-     * String representation
+     * String representation.
      *
      * @return string
      */

@@ -8,17 +8,19 @@ use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * The BuiltinDocumentsDriver is used internally to make sure
- * that the mapping for the built-in documents can be loaded
+ * that the mapping for the built-in documents can be loaded.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
+ *
  * @link        www.doctrine-project.org
  * @since       1.0
+ *
  * @author      Uwe Jäger <uwej711e@googlemail.com>
  */
 class BuiltinDocumentsDriver implements MappingDriver
 {
     /**
-     * namespace of built-in documents
+     * namespace of built-in documents.
      */
     const NAME_SPACE = 'Doctrine\ODM\PHPCR\Document';
 
@@ -33,7 +35,7 @@ class BuiltinDocumentsDriver implements MappingDriver
     private $builtinDriver;
 
     /**
-     * Create with a driver to wrap
+     * Create with a driver to wrap.
      *
      * @param MappingDriver $nestedDriver
      */
@@ -42,7 +44,7 @@ class BuiltinDocumentsDriver implements MappingDriver
         $this->wrappedDriver = $wrappedDriver;
 
         $reader = new AnnotationReader();
-        $this->builtinDriver = new AnnotationDriver($reader, array(realpath(__DIR__.'/../../Document')));
+        $this->builtinDriver = new AnnotationDriver($reader, [realpath(__DIR__.'/../../Document')]);
     }
 
     /**
@@ -60,7 +62,7 @@ class BuiltinDocumentsDriver implements MappingDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAllClassNames()
     {
@@ -71,7 +73,7 @@ class BuiltinDocumentsDriver implements MappingDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isTransient($className)
     {

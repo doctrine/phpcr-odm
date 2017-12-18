@@ -24,6 +24,7 @@ class SourceJoin extends AbstractNode
      * Specify the document source for the "left" side of a join.
      *
      * @factoryMethod
+     *
      * @return SourceJoinLeft
      */
     public function left()
@@ -35,6 +36,7 @@ class SourceJoin extends AbstractNode
      * Specify the document source for the "right" side of a join.
      *
      * @factoryMethod
+     *
      * @return SourceJoinRight
      */
     public function right()
@@ -46,6 +48,7 @@ class SourceJoin extends AbstractNode
      * Specify the join condition.
      *
      * @factoryMethod
+     *
      * @return SourceJoinConditionFactory
      */
     public function condition()
@@ -60,10 +63,10 @@ class SourceJoin extends AbstractNode
 
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_SOURCE_JOIN_CONDITION_FACTORY => array(1, 1),
-            self::NT_SOURCE_JOIN_LEFT => array(1, 1),
-            self::NT_SOURCE_JOIN_RIGHT => array(1, 1),
-        );
+        return [
+            self::NT_SOURCE_JOIN_CONDITION_FACTORY => [1, 1],
+            self::NT_SOURCE_JOIN_LEFT              => [1, 1],
+            self::NT_SOURCE_JOIN_RIGHT             => [1, 1],
+        ];
     }
 }

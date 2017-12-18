@@ -24,6 +24,7 @@ class OperandFactory extends OperandDynamicFactory
      * @param string $name - Name of parameter to resolve.
      *
      * @factoryMethod OperandStaticParameter
+     *
      * @return OperandFactory
      */
     public function parameter($name)
@@ -32,7 +33,7 @@ class OperandFactory extends OperandDynamicFactory
     }
 
     /**
-     * Evaluates to the given literal value::
+     * Evaluates to the given literal value::.
      *
      * <code>
      * $qb->where()->eq()->field('f.foobar')->literal('Literal Value')->end();
@@ -41,6 +42,7 @@ class OperandFactory extends OperandDynamicFactory
      * @param string $value - Literal value.
      *
      * @factoryMethod OperandStaticLiteral
+     *
      * @return OperandStaticLiteral
      */
     public function literal($value)

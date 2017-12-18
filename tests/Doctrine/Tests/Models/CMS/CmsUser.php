@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
@@ -100,9 +100,10 @@ class CmsUser
 class CmsUserRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
+     *
      * @return string
      */
     public function generateId($document, $parent = null)

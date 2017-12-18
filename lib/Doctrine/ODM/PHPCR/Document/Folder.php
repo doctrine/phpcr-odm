@@ -25,7 +25,8 @@ use Doctrine\ODM\PHPCR\HierarchyInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * This class represents a Folder in the repository, aka nt:folder
+ * This class represents a Folder in the repository, aka nt:folder.
+ *
  * @see http://wiki.apache.org/jackrabbit/nt:folder
  *
  * To add files or folders to a folder, create the new File/Folder and set
@@ -48,7 +49,7 @@ class Folder extends AbstractFile
     protected $child;
 
     /**
-     * The children File documents of this Folder document
+     * The children File documents of this Folder document.
      *
      * @return Collection list of File documents
      */
@@ -58,7 +59,7 @@ class Folder extends AbstractFile
     }
 
     /**
-     * Sets the children of this Folder document
+     * Sets the children of this Folder document.
      *
      * @param $children ArrayCollection
      *
@@ -73,7 +74,7 @@ class Folder extends AbstractFile
 
     /**
      * Add a child document that resolves to nt:hierarchyNode (like the File)
-     * to this document that resolves to nt:folder (like the Folder)
+     * to this document that resolves to nt:folder (like the Folder).
      *
      * @param $child HierarchyInterface
      *

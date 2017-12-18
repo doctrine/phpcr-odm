@@ -1,4 +1,5 @@
 <?php
+
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -19,12 +20,13 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     protected function loadDriverForTestMappingDocuments()
     {
         $annotationDriver = $this->loadDriver();
-        $annotationDriver->addPaths(array(__DIR__ . '/Model'));
+        $annotationDriver->addPaths([__DIR__.'/Model']);
+
         return $annotationDriver;
     }
 
     /**
-     * Overwriting private parent properties isn't supported with annotations
+     * Overwriting private parent properties isn't supported with annotations.
      */
     public function testParentWithPrivatePropertyMapping()
     {

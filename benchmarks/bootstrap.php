@@ -8,7 +8,7 @@
 $transport = getenv('TRANSPORT') ?: null;
 
 $phpunitFile = $transport ? sprintf('phpunit_%s.xml.dist', $transport) : 'phpunit.xml';
-$phpunitPath = __DIR__ . '/../tests/' . $phpunitFile;
+$phpunitPath = __DIR__.'/../tests/'.$phpunitFile;
 
 if (!file_exists($phpunitPath)) {
     throw new \InvalidArgumentException(sprintf(
@@ -25,4 +25,4 @@ foreach ($xpath->query('//php/var') as $varEl) {
     $GLOBALS[$varEl->getAttribute('name')] = $varEl->getAttribute('value');
 }
 
-require(__DIR__ . '/../tests/bootstrap.php');
+require __DIR__.'/../tests/bootstrap.php';

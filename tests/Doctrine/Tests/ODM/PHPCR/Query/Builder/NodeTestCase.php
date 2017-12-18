@@ -2,10 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Builder;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
-use PHPUnit\Framework\TestCase;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use PHPUnit\Framework\TestCase;
 
 abstract class NodeTestCase extends TestCase
 {
@@ -21,16 +20,16 @@ abstract class NodeTestCase extends TestCase
 
     abstract public function provideInterface();
 
-    protected function getNode($args = array())
+    protected function getNode($args = [])
     {
         $refl = new \ReflectionClass($this);
         preg_match('&^(.*?)Test&', $refl->getShortName(), $matches);
         $nodeClass = $matches[1];
         $fqn = 'Doctrine\\ODM\\PHPCR\Query\\Builder\\'.$nodeClass;
         $nodeRefl = new \ReflectionClass($fqn);
-        $inst = $nodeRefl->newInstanceArgs(array_merge(array(
-            $this->parent
-        ), $args));
+        $inst = $nodeRefl->newInstanceArgs(array_merge([
+            $this->parent,
+        ], $args));
 
         return $inst;
     }
@@ -38,11 +37,11 @@ abstract class NodeTestCase extends TestCase
     /**
      * @dataProvider provideInterface
      */
-    public function testInterface($method, $type, $args = array())
+    public function testInterface($method, $type, $args = [])
     {
         $expectedClass = 'Doctrine\\ODM\\PHPCR\\Query\\Builder\\'.$type;
 
-        $res = call_user_func_array(array($this->node, $method), $args);
+        $res = call_user_func_array([$this->node, $method], $args);
         $refl = new \ReflectionClass($expectedClass);
 
         if ($refl->isSubclassOf(AbstractLeafNode::class)) {

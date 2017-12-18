@@ -29,9 +29,9 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 class ParentIdGenerator extends IdGenerator
 {
     /**
-     * Use the name and parent fields to generate the id
+     * Use the name and parent fields to generate the id.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
     {
@@ -82,6 +82,6 @@ class ParentIdGenerator extends IdGenerator
             $id = '';
         }
 
-        return $id . '/' . $name;
+        return $id.'/'.$name;
     }
 }

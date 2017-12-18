@@ -6,15 +6,16 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  * Factory node for join conditions.
  *
  * @IgnoreAnnotation('factoryMethod');
+ *
  * @author Daniel Leech <daniel@dantleech.com>
  */
 class SourceJoinConditionFactory extends AbstractNode
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_SOURCE_JOIN_CONDITION => array(1, 1)
-        );
+        return [
+            self::NT_SOURCE_JOIN_CONDITION => [1, 1],
+        ];
     }
 
     public function getNodeType()
@@ -23,7 +24,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Descendant join condition::
+     * Descendant join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -37,9 +38,10 @@ class SourceJoinConditionFactory extends AbstractNode
      * </code>
      *
      * @param string $descendantAlias - Name of alias for descendant documents.
-     * @param string $ancestorAlias - Name of alias to match for ancestor documents.
+     * @param string $ancestorAlias   - Name of alias to match for ancestor documents.
      *
      * @factoryMethod SourceJoinConditionDescendant
+     *
      * @return SourceJoinConditionFactory
      */
     public function descendant($descendantAlias, $ancestorAlias)
@@ -50,7 +52,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Equi (equality) join condition::
+     * Equi (equality) join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -68,6 +70,7 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $field2 - Field name for second field.
      *
      * @factoryMethod SourceJoinConditionEqui
+     *
      * @return SourceJoinConditionFactory
      */
     public function equi($field1, $field2)
@@ -78,7 +81,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Child document join condition::
+     * Child document join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -90,10 +93,11 @@ class SourceJoinConditionFactory extends AbstractNode
      *  ->end();
      * </code>
      *
-     * @param string $childAlias - Name of alias for child documents.
+     * @param string $childAlias  - Name of alias for child documents.
      * @param string $parentAlias - Name of alias to match for parent documents.
      *
      * @factoryMethod SourceJoinConditionChildDocument
+     *
      * @return SourceJoinConditionFactory
      */
     public function child($childAlias, $parentAlias)
@@ -104,7 +108,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Same document join condition::
+     * Same document join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -118,11 +122,12 @@ class SourceJoinConditionFactory extends AbstractNode
      *   ->end();
      * </code>
      *
-     * @param string $alias1 - Name of first alias.
-     * @param string $alias2 - Name of first alias.
+     * @param string $alias1     - Name of first alias.
+     * @param string $alias2     - Name of first alias.
      * @param string $alias2Path - Path for documents of second alias.
      *
      * @factoryMethod SourceJoinConditionSameDocument
+     *
      * @return SourceJoinConditionFactory
      */
     public function same($alias1, $alias2, $alias2Path)

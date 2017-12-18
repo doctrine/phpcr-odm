@@ -21,7 +21,8 @@ class ProtectedPropertyTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -37,18 +38,18 @@ class ProtectedPropertyTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $session = $this->dm->getPhpcrSession();
-        if (! $session instanceof Session) {
+        if (!$session instanceof Session) {
             $this->markTestSkipped('Not a Jackalope session');
         }
 
-        $cnd = <<<CND
+        $cnd = <<<'CND'
 <test='http://test.fr'>
 [test:protected_property_test] > nt:hierarchyNode
   - reference (REFERENCE)
   - changeme (STRING)
 CND;
 
-        $cnd2 = <<<CND
+        $cnd2 = <<<'CND'
 <test='http://test.fr'>
 [test:protected_property_test2] > nt:hierarchyNode
   - reference (REFERENCE)
@@ -56,6 +57,7 @@ CND;
 CND;
 
         $ntm = $session->getWorkspace()->getNodeTypeManager();
+
         try {
             $ntm->registerNodeTypesCnd($cnd, true);
             $ntm->registerNodeTypesCnd($cnd2, true);

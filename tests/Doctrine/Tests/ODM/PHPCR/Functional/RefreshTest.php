@@ -2,12 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Common\Proxy\Proxy;
 
 class RefreshTest extends PHPCRFunctionalTestCase
 {
@@ -18,14 +18,14 @@ class RefreshTest extends PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
         $this->dm->getPhpcrSession()->save();
     }
 
     public function testBasicRefresh()
     {
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
 
@@ -41,18 +41,18 @@ class RefreshTest extends PHPCRFunctionalTestCase
 
     public function testRefreshResetsCollection()
     {
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
 
         // Add a group
-        $group1 = new CmsGroup;
+        $group1 = new CmsGroup();
         $group1->name = '12345';
         $group1->id = '/functional/group1';
         $user->addGroup($group1);
 
         // Add a group
-        $group2 = new CmsGroup;
+        $group2 = new CmsGroup();
         $group2->name = '54321';
         $group2->id = '/functional/group2';
 
@@ -93,7 +93,7 @@ class RefreshTest extends PHPCRFunctionalTestCase
 
     public function testRefreshDetached()
     {
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
 
@@ -103,19 +103,19 @@ class RefreshTest extends PHPCRFunctionalTestCase
 
     public function testRefreshCollection()
     {
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
 
         // Add a group
-        $group1 = new CmsGroup;
-        $group1->name = "12345";
+        $group1 = new CmsGroup();
+        $group1->name = '12345';
         $group1->id = '/functional/group1';
         $user->addGroup($group1);
 
         // Add a group
-        $group2 = new CmsGroup;
-        $group2->name = "54321";
+        $group2 = new CmsGroup();
+        $group2->name = '54321';
         $group2->id = '/functional/group2';
 
         $this->dm->persist($user);

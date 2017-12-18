@@ -3,14 +3,14 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\Translation;
+use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\NoLocalePropertyArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\WorkspaceInterface;
-use Doctrine\Tests\Models\Translation\Article;
 
 class TranslationTest extends PHPCRFunctionalTestCase
 {
@@ -74,10 +74,10 @@ class TranslationTest extends PHPCRFunctionalTestCase
      * Assertion shortcut:
      * Check the given $metadata contain a field mapping for $field that contains the $key and having the value $expectedValue.
      *
-     * @param string $expectedValue The expected value
-     * @param ClassMetadata $metadata The class metadata to test
-     * @param string $field The name of the field's mapping to test
-     * @param string $key The key expected to be in the field mapping
+     * @param string        $expectedValue The expected value
+     * @param ClassMetadata $metadata      The class metadata to test
+     * @param string        $field         The name of the field's mapping to test
+     * @param string        $key           The key expected to be in the field mapping
      */
     private function assertFieldMetadataEquals($expectedValue, ClassMetadata $metadata, $field, $key)
     {

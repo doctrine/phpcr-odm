@@ -40,10 +40,10 @@ abstract class AbstractNode
     const NT_WHERE_AND = 'where_and';
     const NT_WHERE_OR = 'where_or';
 
-    protected $children = array();
+    protected $children = [];
     protected $parent;
 
-    public function __construct(AbstractNode $parent = null)
+    public function __construct(self $parent = null)
     {
         $this->parent = $parent;
     }
@@ -117,9 +117,10 @@ abstract class AbstractNode
      *
      * @return AbstractNode
      */
-    public function setChild(AbstractNode $node)
+    public function setChild(self $node)
     {
         $this->removeChildrenOfType($node->getNodeType());
+
         return $this->addChild($node);
     }
 
@@ -138,7 +139,7 @@ abstract class AbstractNode
      *
      * @return AbstractNode
      */
-    public function addChild(AbstractNode $node)
+    public function addChild(self $node)
     {
         $cardinalityMap = $this->getCardinalityMap();
         $nodeType = $node->getNodeType();
@@ -199,7 +200,7 @@ abstract class AbstractNode
      */
     public function getChildren()
     {
-        $children = array();
+        $children = [];
         foreach ($this->children as $type) {
             foreach ($type as $child) {
                 $children[] = $child;
@@ -219,7 +220,7 @@ abstract class AbstractNode
     public function getChildrenOfType($type)
     {
         if (!isset($this->children[$type])) {
-            return array();
+            return [];
         }
 
         return $this->children[$type];
@@ -233,9 +234,9 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException if there are more than one or none
+     *
+     * @return AbstractNode
      */
     public function getChild()
     {
@@ -265,9 +266,9 @@ abstract class AbstractNode
      *
      * @param string $type The name of the type.
      *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException if there are more than one or none
+     *
+     * @return AbstractNode
      */
     public function getChildOfType($type)
     {
@@ -305,7 +306,7 @@ abstract class AbstractNode
     public function validate()
     {
         $cardinalityMap = $this->getCardinalityMap();
-        $typeCount = array();
+        $typeCount = [];
 
         foreach (array_keys($cardinalityMap) as $type) {
             $typeCount[$type] = 0;
@@ -340,6 +341,7 @@ abstract class AbstractNode
     public function end()
     {
         $this->validate();
+
         return $this->parent;
     }
 
@@ -376,7 +378,7 @@ abstract class AbstractNode
     {
         $refl = new \ReflectionClass($this);
 
-        $fMethods = array();
+        $fMethods = [];
         foreach ($refl->getMethods() as $rMethod) {
             $comment = $rMethod->getDocComment();
             if ($comment) {

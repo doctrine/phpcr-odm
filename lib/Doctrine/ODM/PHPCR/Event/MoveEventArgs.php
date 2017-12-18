@@ -36,7 +36,7 @@ class MoveEventArgs extends LifecycleEventArgs
     private $targetPath;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param object                   $document
      * @param DocumentManagerInterface $dm

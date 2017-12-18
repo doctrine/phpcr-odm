@@ -2,21 +2,21 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\UnitOfWork;
-use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
+use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Tests\Models\CMS\CmsArticleFolder;
+use Doctrine\Tests\Models\CMS\CmsBlogFolder;
+use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
+use Doctrine\Tests\Models\CMS\CmsBlogPost;
+use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\References\ParentNoNodenameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
-use Doctrine\Tests\Models\CMS\CmsArticleFolder;
-use Doctrine\Tests\Models\CMS\CmsGroup;
-use Doctrine\Tests\Models\CMS\CmsArticle;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Tests\Models\CMS\CmsBlogPost;
-use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
-use Doctrine\Tests\Models\CMS\CmsBlogFolder;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
@@ -86,7 +86,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $scheduledMoves = $this->uow->getScheduledMoves();
         $this->assertCount(1, $scheduledMoves);
         $this->assertEquals(32, strlen(key($scheduledMoves)), 'Size of key is 32 chars (oid)');
-        $this->assertEquals(array($user1, '/foobar'), current($scheduledMoves));
+        $this->assertEquals([$user1, '/foobar'], current($scheduledMoves));
     }
 
     public function testMoveParentNoNodeName()
@@ -159,33 +159,33 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
     public function testFetchingMultipleHierarchicalObjectsWithChildIdFirst()
     {
-        $parent           = new ParentTestObj();
+        $parent = new ParentTestObj();
         $parent->nodename = 'parent';
-        $parent->name     = 'parent';
-        $parent->parent   = $this->dm->find(null, 'functional');
+        $parent->name = 'parent';
+        $parent->parent = $this->dm->find(null, 'functional');
 
-        $child            = new ParentTestObj();
-        $child->nodename  = 'child';
-        $child->name      = 'child';
-        $child->parent    = $parent;
+        $child = new ParentTestObj();
+        $child->nodename = 'child';
+        $child->name = 'child';
+        $child->parent = $parent;
 
         $this->dm->persist($parent);
         $this->dm->persist($child);
 
         $parentId = $this->uow->getDocumentId($parent);
-        $childId  = $this->uow->getDocumentId($child);
+        $childId = $this->uow->getDocumentId($child);
 
         $this->dm->flush();
         $this->dm->clear();
 
         // this forces the objects to be loaded in an order where the $parent will become a proxy
-        $documents = $this->dm->findMany(ParentTestObj::class, array($childId, $parentId));
+        $documents = $this->dm->findMany(ParentTestObj::class, [$childId, $parentId]);
 
         $this->assertCount(2, $documents);
 
         /* @var $child ParentTestObj */
         /* @var $parent ParentTestObj */
-        $child  = $documents->first();
+        $child = $documents->first();
         $parent = $documents->last();
 
         $this->assertSame($child->parent, $parent);
@@ -251,9 +251,9 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
         $postFolder = new CmsBlogFolder();
         $postFolder->id = '/functional/posts';
-        $postFolder->posts = new ArrayCollection(array(
-            $post
-        ));
+        $postFolder->posts = new ArrayCollection([
+            $post,
+        ]);
 
         $this->dm->persist($postFolder);
         $this->dm->flush();
@@ -266,9 +266,9 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
         $postFolder = new CmsBlogFolder();
         $postFolder->id = '/functional/posts';
-        $postFolder->posts = new ArrayCollection(array(
-            $post
-        ));
+        $postFolder->posts = new ArrayCollection([
+            $post,
+        ]);
 
         $this->dm->persist($postFolder);
 
@@ -284,9 +284,9 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
         $postFolder = new CmsBlogFolder();
         $postFolder->id = '/functional/posts';
-        $postFolder->posts = new ArrayCollection(array(
-            $post
-        ));
+        $postFolder->posts = new ArrayCollection([
+            $post,
+        ]);
 
         $this->dm->persist($postFolder);
         $this->dm->flush();

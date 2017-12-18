@@ -34,7 +34,7 @@ use PHPCR\Query\QOM\SourceInterface;
 interface TranslationStrategyInterface
 {
     /**
-     * Save the translatable fields of a node
+     * Save the translatable fields of a node.
      *
      * @param array         $data     Data to save (field name => value to persist)
      * @param NodeInterface $node     The physical node in the content repository
@@ -54,7 +54,7 @@ interface TranslationStrategyInterface
      * @param ClassMetadata $metadata The Doctrine metadata of the document
      * @param string        $locale   The language to load the translations from
      *
-     * @return boolean true if the translation was completely loaded, false otherwise
+     * @return bool true if the translation was completely loaded, false otherwise
      */
     public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
 
@@ -69,7 +69,7 @@ interface TranslationStrategyInterface
     public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata);
 
     /**
-     * Remove the translated fields of a node in a given language
+     * Remove the translated fields of a node in a given language.
      *
      * The document object is not altered by this operation.
      *
@@ -81,7 +81,7 @@ interface TranslationStrategyInterface
     public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
 
     /**
-     * Get the list of locales persisted for this node
+     * Get the list of locales persisted for this node.
      *
      * @param object        $document The document that must be checked
      * @param NodeInterface $node     The Physical node in the content repository
@@ -90,6 +90,7 @@ interface TranslationStrategyInterface
      * @return array with the locales strings
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata);
+
     /**
      * Get the location of the property for the base property name in a given
      * language.
@@ -113,7 +114,7 @@ interface TranslationStrategyInterface
      * generate a different query.
      *
      * @param QueryObjectModelFactoryInterface $qomf       The PHPCR query factory.
-     * @param SourceInterface                $selector   The current selector.
+     * @param SourceInterface                  $selector   The current selector.
      * @param ConstraintInterface|null         $constraint The current constraint, may be empty.
      * @param string                           $alias      The selector alias of the main node.
      * @param string                           $locale     The language to use.

@@ -2,33 +2,30 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Where;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-
 class OperandDynamicFactoryTest extends NodeTestCase
 {
     public function provideInterface()
     {
-        return array(
-            array('fullTextSearchScore', 'OperandDynamicFullTextSearchScore', array(
+        return [
+            ['fullTextSearchScore', 'OperandDynamicFullTextSearchScore', [
                 'alias',
-            )),
-            array('length', 'OperandDynamicFullTextSearchScore', array(
+            ]],
+            ['length', 'OperandDynamicFullTextSearchScore', [
                 'alias.field',
-            )),
-            array('lowerCase', 'OperandDynamicLowerCase', array(
-            )),
-            array('upperCase', 'OperandDynamicUpperCase', array(
-            )),
-            array('name', 'OperandDynamicName', array(
+            ]],
+            ['lowerCase', 'OperandDynamicLowerCase', [
+            ]],
+            ['upperCase', 'OperandDynamicUpperCase', [
+            ]],
+            ['name', 'OperandDynamicName', [
                 'alias',
-            )),
-            array('localName', 'OperandDynamicLocalName', array(
+            ]],
+            ['localName', 'OperandDynamicLocalName', [
                 'alias',
-            )),
-            array('field', 'OperandDynamicField', array(
+            ]],
+            ['field', 'OperandDynamicField', [
                 'alias.field',
-            )),
-        );
+            ]],
+        ];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
@@ -27,7 +26,7 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
     {
         $this->listener = new ChangesetListener();
         $this->dm = $this->createDocumentManager();
-        $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
@@ -36,9 +35,9 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 
@@ -74,9 +73,9 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                array(
+                [
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 
@@ -112,9 +111,9 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 

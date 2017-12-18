@@ -5,10 +5,10 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Command;
 use Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentConvertTranslationCommand;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use PHPCR\SessionInterface;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
-use PHPUnit\Framework\TestCase;
-use PHPCR\Util\Console\Helper\PhpcrHelper;
 
 class DocumentConvertTranslationCommandTest extends TestCase
 {
@@ -39,12 +39,11 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $mockHelper
             ->expects($this->once())
             ->method('getSession')
-            ->will($this->returnValue($this->mockSession))
-        ;
+            ->will($this->returnValue($this->mockSession));
         $this->converter = $this->createMock(TranslationConverter::class);
         $this->command = new DocumentConvertTranslationCommand(null, $this->converter);
         $this->command->setHelperSet(new HelperSet(
-            array('phpcr' => $mockHelper)
+            ['phpcr' => $mockHelper]
         ));
         $this->commandTester = new CommandTester($this->command);
     }
@@ -54,25 +53,22 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $this->converter
             ->expects($this->once())
             ->method('convert')
-            ->with('Document\MyClass', array('en'), array(), 'none')
-            ->will($this->returnValue(false))
-        ;
+            ->with('Document\MyClass', ['en'], [], 'none')
+            ->will($this->returnValue(false));
         $this->converter
             ->expects($this->any())
             ->method('getLastNotices')
-            ->will($this->returnValue(array()))
-        ;
+            ->will($this->returnValue([]));
 
         $this->mockSession
             ->expects($this->once())
-            ->method('save')
-        ;
+            ->method('save');
 
-        $this->commandTester->execute(array(
+        $this->commandTester->execute([
             'classname' => 'Document\MyClass',
-            '--locales' => array('en'),
-            '--force' => true,
-        ));
+            '--locales' => ['en'],
+            '--force'   => true,
+        ]);
 
         $this->assertEquals('.'.PHP_EOL.'done'.PHP_EOL, $this->commandTester->getDisplay());
     }

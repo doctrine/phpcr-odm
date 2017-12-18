@@ -13,13 +13,13 @@ class Select extends AbstractNode
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_PROPERTY => array(0, null)
-        );
+        return [
+            self::NT_PROPERTY => [0, null],
+        ];
     }
 
     /**
-     * Field to select::
+     * Field to select::.
      *
      * <code>
      * $qb->select()
@@ -31,6 +31,7 @@ class Select extends AbstractNode
      * @param string $field - name of field to check, including alias name
      *
      * @factoryMethod
+     *
      * @return Select
      */
     public function field($field)
