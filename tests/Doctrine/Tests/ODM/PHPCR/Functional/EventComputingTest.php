@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
@@ -23,12 +22,12 @@ class EventComputingTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    protected $localePrefs = array(
-        'en' => array('de', 'fr'),
-        'fr' => array('de', 'en'),
-        'de' => array('en'),
-        'it' => array('fr', 'de', 'en'),
-    );
+    protected $localePrefs = [
+        'en' => ['de', 'fr'],
+        'fr' => ['de', 'en'],
+        'de' => ['en'],
+        'it' => ['fr', 'de', 'en'],
+    ];
 
     public function setUp()
     {
@@ -42,14 +41,14 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                array(
+                [
                     Event::prePersist,
                     Event::postPersist,
                     Event::preUpdate,
                     Event::postUpdate,
                     Event::preMove,
-                    Event::postMove
-                ),
+                    Event::postMove,
+                ],
                 $this->listener
             );
 
@@ -100,7 +99,6 @@ class EventComputingTest extends PHPCRFunctionalTestCase
 
         $this->dm->clear();
 
-
         $user = $this->dm->find(CmsUser::class, $targetPath);
 
         // the document was moved but the only changes applied in preUpdate are persisted,
@@ -118,13 +116,13 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                array(
+                [
                     Event::preCreateTranslation,
                     Event::preUpdateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
-                ),
+                ],
                 $this->listener
             );
 

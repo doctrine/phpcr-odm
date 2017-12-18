@@ -3,14 +3,14 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
-use PHPUnit\Framework\TestCase;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Tests\Models\ECommerce\ECommerceCart;
 use PHPCR\SessionInterface;
+use PHPUnit\Framework\TestCase;
 
 abstract class AbstractMappingDriverTest extends TestCase
 {
@@ -18,6 +18,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      * @return MappingDriver
      */
     abstract protected function loadDriver();
+
     /**
      * @return MappingDriver
      */
@@ -25,7 +26,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     protected function ensureIsLoaded($entityClassName)
     {
-        new $entityClassName;
+        new $entityClassName();
     }
 
     /**
@@ -99,11 +100,13 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testLoadFieldMapping()
     {
         $className = Model\FieldMappingObject::class;
+
         return $this->loadMetadataForClassName($className);
     }
 
     /**
      * @depends testLoadFieldMapping
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -141,6 +144,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -154,6 +158,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -168,6 +173,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -182,6 +188,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -196,6 +203,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -210,6 +218,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -224,6 +233,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -238,6 +248,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -252,6 +263,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -266,6 +278,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -280,6 +293,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      */
     public function testNameFieldMappings($class)
@@ -292,6 +306,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -306,6 +321,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testFieldMappings
+     *
      * @param ClassMetadata $class
      *
      * @return ClassMetadata
@@ -327,6 +343,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadNodenameMapping
+     *
      * @param ClassMetadata $class
      */
     public function testNodenameMapping($class)
@@ -344,6 +361,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadParentDocumentMapping
+     *
      * @param ClassMetadata $class
      */
     public function testParentDocumentMapping($class)
@@ -355,11 +373,13 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testLoadDepthMapping()
     {
         $className = Model\DepthMappingObject::class;
+
         return $this->loadMetadataForClassname($className);
     }
 
     /**
      * @depends testLoadDepthMapping
+     *
      * @param ClassMetadata $class
      */
     public function testDepthMapping($class)
@@ -404,6 +424,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadChildMapping
+     *
      * @param ClassMetadata $class
      */
     public function testChildMapping($class)
@@ -425,6 +446,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadChildrenMapping
+     *
      * @param ClassMetadata $class
      */
     public function testChildrenMapping($class)
@@ -434,7 +456,7 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertTrue(isset($class->mappings['all']));
         $this->assertFalse(isset($class->mappings['all']['filter']));
         $this->assertTrue(isset($class->mappings['some']));
-        $this->assertEquals(array('*some*'), $class->mappings['some']['filter']);
+        $this->assertEquals(['*some*'], $class->mappings['some']['filter']);
         $this->assertEquals(2, $class->mappings['some']['fetchDepth']);
         $this->assertEquals(3, $class->mappings['some']['cascade']);
     }
@@ -448,6 +470,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadRepositoryMapping
+     *
      * @param ClassMetadata $class
      */
     public function testRepositoryMapping($class)
@@ -465,6 +488,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadVersionableMapping
+     *
      * @param ClassMetadata $class
      */
     public function testVersionableMapping($class)
@@ -483,6 +507,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadReferenceableMapping
+     *
      * @param ClassMetadata $class
      */
     public function testReferenceableMapping($class)
@@ -499,6 +524,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadUniqueNodeTypeMapping
+     *
      * @param ClassMetadata $class
      */
     public function testUniqueNodeTypeMapping($class)
@@ -515,6 +541,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadNodeTypeMapping
+     *
      * @param ClassMetadata $class
      */
     public function testNodeTypeMapping($class)
@@ -531,21 +558,22 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadMappedSuperclassTypeMapping
+     *
      * @param ClassMetadata $class
      */
     public function testMappedSuperclassTypeMapping($class)
     {
         $this->assertTrue($class->isMappedSuperclass);
-        $this->assertEquals("phpcr:test", $class->nodeType);
+        $this->assertEquals('phpcr:test', $class->nodeType);
         $this->assertEquals(Model\DocumentRepository::class, $class->customRepositoryClassName);
-        $this->assertEquals("children", $class->translator);
-        $this->assertEquals(array('mix:one', 'mix:two'), $class->mixins);
-        $this->assertEquals("simple", $class->versionable);
+        $this->assertEquals('children', $class->translator);
+        $this->assertEquals(['mix:one', 'mix:two'], $class->mixins);
+        $this->assertEquals('simple', $class->versionable);
         $this->assertTrue($class->referenceable);
         $this->assertEquals(
             'id',
             $class->identifier,
-            'A driver should always be able to give mapping for a mapped superclass,' . PHP_EOL.
+            'A driver should always be able to give mapping for a mapped superclass,'.PHP_EOL.
             'and let classes mapped with other drivers inherit this mapping entirely.'
         );
 
@@ -572,6 +600,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadMappedSuperclassChildTypeMapping
+     *
      * @param ClassMetadata $class
      */
     public function testMappedSuperclassChildTypeMapping($class)
@@ -583,7 +612,6 @@ abstract class AbstractMappingDriverTest extends TestCase
         );
     }
 
-
     public function testLoadNodeMapping()
     {
         $className = Model\NodeMappingObject::class;
@@ -593,6 +621,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadNodeMapping
+     *
      * @param ClassMetadata $class
      */
     public function testNodeMapping($class)
@@ -609,6 +638,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadReferenceOneMapping
+     *
      * @param ClassMetadata $class
      */
     public function testReferenceOneMapping($class)
@@ -643,6 +673,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadReferenceManyMapping
+     *
      * @param ClassMetadata $class
      */
     public function testReferenceManyMapping($class)
@@ -678,6 +709,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadReferrersMapping
+     *
      * @param ClassMetadata $class
      */
     public function testReferrersMapping($class)
@@ -690,6 +722,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadReferrersMapping
+     *
      * @param ClassMetadata $class
      */
     public function testMixedReferrersMapping($class)
@@ -719,6 +752,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadTranslatorMapping
+     *
      * @param ClassMetadata $class
      */
     public function testTranslatorMapping($class)
@@ -739,6 +773,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadMixinMapping
+     *
      * @param ClassMetadata $class
      */
     public function testMixinMapping($class)
@@ -756,6 +791,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadReplaceMixinMapping
+     *
      * @param ClassMetadata $class
      */
     public function testReplaceMixinMapping($class)
@@ -773,6 +809,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadLifecycleCallbackMapping
+     *
      * @param ClassMetadata $class
      */
     public function testLifecycleCallbackMapping($class)
@@ -810,6 +847,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadUuidMapping
+     *
      * @param   $class
      */
     public function testUuidMapping($class)
@@ -846,11 +884,12 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadChildClassesMapping
+     *
      * @param ClassMetadata $class
      */
     public function testChildClassesMapping($class)
     {
-        $this->assertEquals(array('stdClass'), $class->getChildClasses());
+        $this->assertEquals(['stdClass'], $class->getChildClasses());
     }
 
     public function testLoadIsLeafMapping()
@@ -862,6 +901,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * @depends testLoadIsLeafMapping
+     *
      * @param ClassMetadata $class
      */
     public function testIsLeafMapping($class)

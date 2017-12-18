@@ -34,14 +34,14 @@ class UniqueNodeTypeHelper
      *
      * @param DocumentManagerInterface $documentManager The document manager to check mappings for.
      *
-     * @return array
-     *
      * @throws MappingException
+     *
+     * @return array
      */
     public function checkNodeTypeMappings(DocumentManagerInterface $documentManager)
     {
-        $knownNodeTypes = array();
-        $debugInformation = array();
+        $knownNodeTypes = [];
+        $debugInformation = [];
         $allMetadata = $documentManager->getMetadataFactory()->getAllMetadata();
 
         foreach ($allMetadata as $classMetadata) {
@@ -56,10 +56,10 @@ class UniqueNodeTypeHelper
 
             $knownNodeTypes[$classMetadata->getNodeType()] = $classMetadata->name;
 
-            $debugInformation[$classMetadata->name] = array(
+            $debugInformation[$classMetadata->name] = [
                 'unique_node_type' => $classMetadata->hasUniqueNodeType(),
-                'node_type' => $classMetadata->getNodeType()
-            );
+                'node_type'        => $classMetadata->getNodeType(),
+            ];
         }
 
         return $debugInformation;

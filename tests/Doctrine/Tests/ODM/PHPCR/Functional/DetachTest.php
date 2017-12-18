@@ -4,7 +4,6 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
@@ -17,7 +16,8 @@ class DetachTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -30,12 +30,12 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type = CmsUser::class;
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('lsmith');
         $user->setProperty('username', 'lsmith');
-        $user->setProperty('numbers', array(3, 1, 2));
+        $user->setProperty('numbers', [3, 1, 2]);
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }

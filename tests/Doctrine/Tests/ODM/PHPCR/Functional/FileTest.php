@@ -19,7 +19,8 @@ class FileTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -77,7 +78,7 @@ class FileTest extends PHPCRFunctionalTestCase
         $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
-        $parent->file->setFileContentFromFilesystem(dirname(__FILE__) .'/_files/foo.txt');
+        $parent->file->setFileContentFromFilesystem(dirname(__FILE__).'/_files/foo.txt');
 
         $this->dm->persist($parent);
         $this->dm->flush();

@@ -3,10 +3,10 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * Test the DocumentManager::find method.
@@ -21,7 +21,8 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -34,15 +35,15 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type = TypeUser::class;
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('note', 'test');
-        $user->setProperty('numbers', array(3, 1, 2));
-        $user->setProperty('parameters', array('bar', 'dong'));
-        $user->setProperty('parameterKey', array('foo', 'ding'));
+        $user->setProperty('numbers', [3, 1, 2]);
+        $user->setProperty('parameters', ['bar', 'dong']);
+        $user->setProperty('parameterKey', ['foo', 'ding']);
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
@@ -55,7 +56,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/user', $user->id);
 
         $this->assertEquals('lsmith', $user->username);
-        $this->assertEquals(array(3, 1, 2), $user->numbers);
+        $this->assertEquals([3, 1, 2], $user->numbers);
 
         // subsequent find must find the same object again
 
@@ -85,13 +86,13 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * TypeUser is a superclass of TypeTeamUser
+     * TypeUser is a superclass of TypeTeamUser.
      */
     public function testInheritance()
     {
         $user = new TypeTeamUser();
-        $user->username = "test";
-        $user->numbers = array(1, 2, 3);
+        $user->username = 'test';
+        $user->numbers = [1, 2, 3];
         $user->id = '/functional/test';
         $user->name = 'inheritance';
 
@@ -101,14 +102,14 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
 
         $userNew = $this->dm->find($this->type, '/functional/test');
 
-        $this->assertNotNull($userNew, "Have to hydrate user object!");
+        $this->assertNotNull($userNew, 'Have to hydrate user object!');
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
         $this->assertEquals($user->name, $userNew->name);
     }
 
     /**
-     * TypeTeamUser is not a superclass of User
+     * TypeTeamUser is not a superclass of User.
      */
     public function testNotInstanceOf()
     {
@@ -130,11 +131,11 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * TypeTeamUser is not a superclass of User
+     * TypeTeamUser is not a superclass of User.
      */
     public function testManyNotInstanceOf()
     {
-        $users = $this->dm->findMany(TypeTeamUser::class, array('/functional/user'));
+        $users = $this->dm->findMany(TypeTeamUser::class, ['/functional/user']);
 
         $this->assertCount(0, $users);
     }

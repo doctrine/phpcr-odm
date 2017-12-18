@@ -46,7 +46,7 @@ class IdException extends PHPCRException
     {
         $parentType = is_object($parentObject) ? ClassUtils::getClass($parentObject) : $parentObject;
         $message = sprintf(
-            'ParentDocument property "%s" of document of class "%s" contains an ' .
+            'ParentDocument property "%s" of document of class "%s" contains an '.
             'object for which no ID could be found',
             $parent,
             $document ? ClassUtils::getClass($document) : 'null',
@@ -76,7 +76,7 @@ class IdException extends PHPCRException
         $childNodeName)
     {
         $message = sprintf(
-            '%s discovered as new child of %s in field "%s" has a node name ' .
+            '%s discovered as new child of %s in field "%s" has a node name '.
             'mismatch. The mapping says "%s" but the child was assigned "%s".',
             $childDocument ? ClassUtils::getClass($childDocument) : 'null',
             $parentId,

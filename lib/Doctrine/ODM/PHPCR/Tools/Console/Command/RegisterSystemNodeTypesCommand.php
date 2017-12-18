@@ -19,13 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
+use Doctrine\ODM\PHPCR\NodeTypeRegistrator;
 use PHPCR\SessionInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use PHPCR\Util\Console\Command\NodeTypeRegisterCommand;
-use Doctrine\ODM\PHPCR\Translation\Translation;
-use Doctrine\ODM\PHPCR\NodeTypeRegistrator;
 
 /**
  * Command to register the phcpr-odm required node types.
@@ -41,7 +39,7 @@ class RegisterSystemNodeTypesCommand extends Command
     {
         $this->setName('doctrine:phpcr:register-system-node-types');
         $this->setDescription('Register system node types in the PHPCR repository');
-        $this->setHelp(<<<EOT
+        $this->setHelp(<<<'EOT'
 Register system node types in the PHPCR repository.
 
 This command registers the node types necessary for the ODM to work.
@@ -66,7 +64,7 @@ EOT
             return 1;
         }
 
-        $output->write(PHP_EOL.sprintf('Successfully registered system node types.') . PHP_EOL);
+        $output->write(PHP_EOL.sprintf('Successfully registered system node types.').PHP_EOL);
 
         return 0;
     }

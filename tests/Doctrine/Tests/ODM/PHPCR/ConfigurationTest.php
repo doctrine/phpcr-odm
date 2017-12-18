@@ -1,4 +1,5 @@
 <?php
+
 namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Configuration;
@@ -23,7 +24,7 @@ class ConfigurationTest extends PHPCRTestCase
 
         $config = new Configuration();
 
-        $config->setDocumentNamespaces(array('foo' => 'Documents\Bar'));
+        $config->setDocumentNamespaces(['foo' => 'Documents\Bar']);
         $this->assertEquals('Documents\Bar', $config->getDocumentNamespace('foo'));
 
         $this->expectException(PHPCRException::class);

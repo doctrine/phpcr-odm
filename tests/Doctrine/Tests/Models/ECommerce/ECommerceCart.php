@@ -12,25 +12,17 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ECommerceCart
 {
-    /**
-     */
     private $id;
 
-    /**
-     */
     private $payment;
 
-    /**
-     */
     private $customer;
 
-    /**
-     */
     private $products;
 
     public function __construct()
     {
-        $this->products = new ArrayCollection;
+        $this->products = new ArrayCollection();
     }
 
     public function getId()

@@ -2,32 +2,32 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
-use Jackalope\Query\QOM\QueryObjectModelFactory;
-use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use PHPUnit\Framework\TestCase;
-use Jackalope\FactoryInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use PHPCR\Query\QOM\PropertyExistenceInterface;
-use PHPCR\Query\QOM\JoinInterface;
-use PHPCR\Query\QOM\SelectorInterface;
-use PHPCR\Query\QOM\ColumnInterface;
-use PHPCR\Query\QOM\AndInterface;
-use PHPCR\Query\QOM\OrInterface;
-use PHPCR\Query\QOM\ComparisonInterface;
-use PHPCR\Query\QOM\PropertyValueInterface;
-use PHPCR\Query\QOM\LiteralInterface;
-use PHPCR\Query\QOM\NotInterface;
-use PHPCR\Query\QOM\NodeLocalNameInterface;
-use PHPCR\Query\QOM\SourceInterface;
-use PHPCR\Query\QOM\OrderingInterface;
-use PHPCR\Query\QOM\QueryObjectModelInterface;
-use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Jackalope\FactoryInterface;
+use Jackalope\Query\QOM\QueryObjectModelFactory;
+use PHPCR\Query\QOM\AndInterface;
+use PHPCR\Query\QOM\ColumnInterface;
+use PHPCR\Query\QOM\ComparisonInterface;
+use PHPCR\Query\QOM\JoinInterface;
+use PHPCR\Query\QOM\LiteralInterface;
+use PHPCR\Query\QOM\NodeLocalNameInterface;
+use PHPCR\Query\QOM\NotInterface;
+use PHPCR\Query\QOM\OrderingInterface;
+use PHPCR\Query\QOM\OrInterface;
+use PHPCR\Query\QOM\PropertyExistenceInterface;
+use PHPCR\Query\QOM\PropertyValueInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelInterface;
+use PHPCR\Query\QOM\SelectorInterface;
+use PHPCR\Query\QOM\SourceInterface;
+use PHPUnit\Framework\TestCase;
 
 class ConverterPhpcrTest extends TestCase
 {
@@ -80,11 +80,12 @@ class ConverterPhpcrTest extends TestCase
                 $meta->expects($me->any())
                     ->method('getFieldMapping')
                     ->will($me->returnCallback(function ($name) {
-                        $res = array(
+                        $res = [
                             'fieldName' => $name,
-                            'property' => $name.'_phpcr',
-                            'type' => 'String',
-                        );
+                            'property'  => $name.'_phpcr',
+                            'type'      => 'String',
+                        ];
+
                         return $res;
                     }));
 
@@ -133,7 +134,7 @@ class ConverterPhpcrTest extends TestCase
 
     /**
      * Return a builder with a source, as a alias is required for
-     * all methods
+     * all methods.
      */
     protected function primeBuilder()
     {
@@ -153,11 +154,11 @@ class ConverterPhpcrTest extends TestCase
 
     public function testDispatchFrom()
     {
-        $from = $this->createNode('From', array());
-        $source = $this->createNode('SourceDocument', array(
+        $from = $this->createNode('From', []);
+        $source = $this->createNode('SourceDocument', [
             'foobar',
             'alias',
-        ));
+        ]);
         $from->addChild($source);
 
         $res = $this->converter->dispatch($from);
@@ -169,11 +170,11 @@ class ConverterPhpcrTest extends TestCase
 
     public function testDispatchFromNonMapped()
     {
-        $from = $this->createNode('From', array());
-        $source = $this->createNode('SourceDocument', array(
+        $from = $this->createNode('From', []);
+        $source = $this->createNode('SourceDocument', [
             '_document_not_mapped_',
             'alias',
-        ));
+        ]);
         $from->addChild($source);
 
         $this->expectException(\RuntimeException::class);
@@ -183,12 +184,12 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideDispatchWheres()
     {
-        return array(
-            array('And'),
-            array('Or'),
-            array('And', true),
-            array('Or', true),
-        );
+        return [
+            ['And'],
+            ['Or'],
+            ['And', true],
+            ['Or', true],
+        ];
     }
 
     /**
@@ -200,14 +201,14 @@ class ConverterPhpcrTest extends TestCase
         $this->primeBuilder();
 
         if ($skipOriginalWhere) {
-            $where = $this->createNode('Where'.$logicalOp, array());
+            $where = $this->createNode('Where'.$logicalOp, []);
         } else {
-            $where = $this->createNode('Where', array());
+            $where = $this->createNode('Where', []);
         }
 
-        $constraint = $this->createNode('ConstraintFieldIsset', array(
+        $constraint = $this->createNode('ConstraintFieldIsset', [
             'alias_1.foobar',
-        ));
+        ]);
         $where->addChild($constraint);
 
         $res = $this->converter->dispatch($where);
@@ -217,10 +218,10 @@ class ConverterPhpcrTest extends TestCase
         $this->assertEquals('foobar_phpcr', $res->getPropertyName());
 
         // test add / or where (see dataProvider)
-        $whereCon = $this->createNode('Where'.$logicalOp, array());
-        $constraint = $this->createNode('ConstraintFieldIsset', array(
+        $whereCon = $this->createNode('Where'.$logicalOp, []);
+        $constraint = $this->createNode('ConstraintFieldIsset', [
             'alias_1.barfoo',
-        ));
+        ]);
         $whereCon->addChild($constraint);
 
         $res = $this->converter->dispatch($whereCon);
@@ -232,18 +233,18 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideDispatchFromJoin()
     {
-        return array(
+        return [
             // join types
-            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER),
-            array('joinLeftOuter', QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER),
-            array('joinRightOuter', QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER),
-            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER),
+            ['joinInner', QOMConstants::JCR_JOIN_TYPE_INNER],
+            ['joinLeftOuter', QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER],
+            ['joinRightOuter', QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER],
+            ['joinInner', QOMConstants::JCR_JOIN_TYPE_INNER],
 
             // conditions
-            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'child'),
-            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'descendant'),
-            array('joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'sameDocument'),
-        );
+            ['joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'child'],
+            ['joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'descendant'],
+            ['joinInner', QOMConstants::JCR_JOIN_TYPE_INNER, 'sameDocument'],
+        ];
     }
 
     /**
@@ -316,14 +317,14 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideDispatchCompositeConstraints()
     {
-        return array(
-            array('andX', PropertyExistenceInterface::class, 1),
-            array('andX', AndInterface::class, 2),
-            array('andX', AndInterface::class, 3),
-            array('orX', PropertyExistenceInterface::class, 1),
-            array('orX', OrInterface::class, 2),
-            array('orX', OrInterface::class, 3),
-        );
+        return [
+            ['andX', PropertyExistenceInterface::class, 1],
+            ['andX', AndInterface::class, 2],
+            ['andX', AndInterface::class, 3],
+            ['orX', PropertyExistenceInterface::class, 1],
+            ['orX', OrInterface::class, 2],
+            ['orX', OrInterface::class, 3],
+        ];
     }
 
     /**
@@ -356,28 +357,28 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideDisaptchConstraintsLeaf()
     {
-        return array(
-            array(
-                'ConstraintFieldIsset', array('alias_1.rop_1'),
-                'PropertyExistenceInterface'
-            ),
-            array(
-                'ConstraintFullTextSearch', array('alias_1.prop_1', 'search_expr'),
-                'FullTextSearchInterface'
-            ),
-            array(
-                'ConstraintSame', array('alias_1', '/path'),
-                'SameNodeInterface'
-            ),
-            array(
-                'ConstraintDescendant', array('alias_1', '/ancestor/path'),
-                'DescendantNodeInterface'
-            ),
-            array(
-                'ConstraintChild', array('alias_1', '/parent/path'),
-                'ChildNodeInterface'
-            ),
-        );
+        return [
+            [
+                'ConstraintFieldIsset', ['alias_1.rop_1'],
+                'PropertyExistenceInterface',
+            ],
+            [
+                'ConstraintFullTextSearch', ['alias_1.prop_1', 'search_expr'],
+                'FullTextSearchInterface',
+            ],
+            [
+                'ConstraintSame', ['alias_1', '/path'],
+                'SameNodeInterface',
+            ],
+            [
+                'ConstraintDescendant', ['alias_1', '/ancestor/path'],
+                'DescendantNodeInterface',
+            ],
+            [
+                'ConstraintChild', ['alias_1', '/parent/path'],
+                'ChildNodeInterface',
+            ],
+        ];
     }
 
     /**
@@ -397,15 +398,15 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideDispatchConstraintsComparison()
     {
-        return array(
-            array('eq', QOMConstants::JCR_OPERATOR_EQUAL_TO),
-            array('neq', QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO),
-            array('gt', QOMConstants::JCR_OPERATOR_GREATER_THAN),
-            array('gte', QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO),
-            array('lt', QOMConstants::JCR_OPERATOR_LESS_THAN),
-            array('lte', QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO),
-            array('like', QOMConstants::JCR_OPERATOR_LIKE),
-        );
+        return [
+            ['eq', QOMConstants::JCR_OPERATOR_EQUAL_TO],
+            ['neq', QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO],
+            ['gt', QOMConstants::JCR_OPERATOR_GREATER_THAN],
+            ['gte', QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO],
+            ['lt', QOMConstants::JCR_OPERATOR_LESS_THAN],
+            ['lte', QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO],
+            ['like', QOMConstants::JCR_OPERATOR_LIKE],
+        ];
     }
 
     /**
@@ -442,27 +443,27 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideTestDispatchOperands()
     {
-        return array(
+        return [
             // leaf
-            array('OperandDynamicLocalName', array('alias_1'), array(
+            ['OperandDynamicLocalName', ['alias_1'], [
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
                 },
                 'phpcr_class' => 'NodeLocalNameInterface',
-            )),
-            array('OperandDynamicName', array('alias_1'), array(
+            ]],
+            ['OperandDynamicName', ['alias_1'], [
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
                 },
                 'phpcr_class' => 'NodeNameInterface',
-            )),
-            array('OperandDynamicFullTextSearchScore', array('alias_1'), array(
+            ]],
+            ['OperandDynamicFullTextSearchScore', ['alias_1'], [
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
                 },
                 'phpcr_class' => 'FullTextSearchScoreInterface',
-            )),
-            array('OperandDynamicLength', array('alias_1.field'), array(
+            ]],
+            ['OperandDynamicLength', ['alias_1.field'], [
                 'assert' => function ($test, $node) {
                     $propertyValue = $node->getPropertyValue();
                     $test->assertInstanceOf(
@@ -473,47 +474,47 @@ class ConverterPhpcrTest extends TestCase
                     $test->assertEquals('field_phpcr', $propertyValue->getPropertyName());
                 },
                 'phpcr_class' => 'LengthInterface',
-            )),
-            array('OperandDynamicField', array('alias_1.field'), array(
+            ]],
+            ['OperandDynamicField', ['alias_1.field'], [
                 'assert' => function ($test, $node) {
                     $test->assertEquals('alias_1', $node->getSelectorName());
                     $test->assertEquals('field_phpcr', $node->getPropertyName());
                 },
                 'phpcr_class' => 'PropertyValueinterface',
-            )),
+            ]],
 
             // non-leaf
-            array('OperandDynamicLowerCase', array('alias_1'), array(
-                'phpcr_class' => 'LowerCaseInterface',
+            ['OperandDynamicLowerCase', ['alias_1'], [
+                'phpcr_class'       => 'LowerCaseInterface',
                 'add_child_operand' => true,
-                'assert' => function ($test, $node) {
+                'assert'            => function ($test, $node) {
                     $op = $node->getOperand();
                     $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
-                }
-            )),
-            array('OperandDynamicUpperCase', array('alias_1'), array(
+                },
+            ]],
+            ['OperandDynamicUpperCase', ['alias_1'], [
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
                     $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 },
                 'add_child_operand' => true,
-                'phpcr_class' => 'UpperCaseInterface',
-            )),
+                'phpcr_class'       => 'UpperCaseInterface',
+            ]],
 
             // static
-            array('OperandStaticParameter', array('variable_name'), array(
+            ['OperandStaticParameter', ['variable_name'], [
                 'assert' => function ($test, $node) {
                     $test->assertEquals('variable_name', $node->getBindVariableName());
                 },
                 'phpcr_class' => 'BindVariableValueInterface',
-            )),
-            array('OperandStaticLiteral', array('literal_value'), array(
+            ]],
+            ['OperandStaticLiteral', ['literal_value'], [
                 'assert' => function ($test, $node) {
                     $test->assertEquals('literal_value', $node->getLiteralValue());
                 },
                 'phpcr_class' => 'LiteralInterface',
-            )),
-        );
+            ]],
+        ];
     }
 
     /**
@@ -521,11 +522,11 @@ class ConverterPhpcrTest extends TestCase
      */
     public function testDispatchOperands($class, $args, $options)
     {
-        $options = array_merge(array(
-            'assert' => null,
+        $options = array_merge([
+            'assert'            => null,
             'add_child_operand' => false,
-            'phpcr_class' => null,
-        ), $options);
+            'phpcr_class'       => null,
+        ], $options);
 
         $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$options['phpcr_class'];
 
@@ -535,7 +536,7 @@ class ConverterPhpcrTest extends TestCase
 
         if ($options['add_child_operand']) {
             $operand->addChild(
-                $this->createNode('OperandDynamicLocalName', array('alias_1'))
+                $this->createNode('OperandDynamicLocalName', ['alias_1'])
             );
         }
 
@@ -551,20 +552,20 @@ class ConverterPhpcrTest extends TestCase
     public function testOrderBy()
     {
         $this->primeBuilder();
-        $order1 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
-        $order2 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
-        $order3 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_DESCENDING));
+        $order1 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_ASCENDING]);
+        $order2 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_ASCENDING]);
+        $order3 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_DESCENDING]);
 
-        $orderBy = $this->createNode('OrderBy', array());
+        $orderBy = $this->createNode('OrderBy', []);
         $orderBy->addChild($order1);
         $orderBy->addChild($order2);
 
-        $op = $this->createNode('OperandDynamicLocalName', array('alias_1'));
+        $op = $this->createNode('OperandDynamicLocalName', ['alias_1']);
         $order1->addChild($op);
         $order2->addChild($op);
         $order3->addChild($op);
 
-        $orderByAdd = $this->createNode('OrderByAdd', array());
+        $orderByAdd = $this->createNode('OrderByAdd', []);
         $orderByAdd->addChild($order3);
 
         // original adds 2 orderings
@@ -582,11 +583,11 @@ class ConverterPhpcrTest extends TestCase
 
     public function provideOrderByDynamicField()
     {
-        return array(
-            array('alias_1.ok_field', null),
-            array('alias_1.nodenameProperty', 'Cannot use nodename property "nodenameProperty" of class "MyClassName" as a dynamic operand use "localname()" instead.'),
-            array('alias_1.associationfield', 'Cannot use association property "associationfield" of class "MyClassName" as a dynamic operand.')
-        );
+        return [
+            ['alias_1.ok_field', null],
+            ['alias_1.nodenameProperty', 'Cannot use nodename property "nodenameProperty" of class "MyClassName" as a dynamic operand use "localname()" instead.'],
+            ['alias_1.associationfield', 'Cannot use association property "associationfield" of class "MyClassName" as a dynamic operand.'],
+        ];
     }
 
     /**
@@ -595,12 +596,12 @@ class ConverterPhpcrTest extends TestCase
     public function testOrderByDynamicField($field, $exception)
     {
         $this->primeBuilder();
-        $order1 = $this->createNode('Ordering', array(QOMConstants::JCR_ORDER_ASCENDING));
+        $order1 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_ASCENDING]);
 
-        $orderBy = $this->createNode('OrderBy', array());
+        $orderBy = $this->createNode('OrderBy', []);
         $orderBy->addChild($order1);
 
-        $op = $this->createNode('OperandDynamicField', array($field));
+        $op = $this->createNode('OperandDynamicField', [$field]);
         $order1->addChild($op);
 
         if (null !== $exception) {
@@ -664,6 +665,7 @@ class ConverterPhpcrTest extends TestCase
 
                 // return something ..
                 $qom = $me->createMock(QueryObjectModelInterface::class);
+
                 return $qom;
             }));
 

@@ -49,10 +49,10 @@ interface LocaleChooserInterface
      * )
      *
      * @param array $localePreference array of arrays with a preferred locale
-     *      order list for each locale
+     *                                order list for each locale
      *
      * @throws MissingTranslationException if no entry for the default locale
-     *      is found in $localePreference
+     *                                     is found in $localePreference
      */
     public function setLocalePreference($localePreference);
 
@@ -78,9 +78,9 @@ interface LocaleChooserInterface
      *                                 order, e.g. the current request locale.
      *                                 If null, the default locale is to be used.
      *
-     * @return array $preferredLocales
-     *
      * @throws MissingTranslationException
+     *
+     * @return array $preferredLocales
      */
     public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null);
 

@@ -26,7 +26,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Show information about mapped documents
+ * Show information about mapped documents.
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
@@ -37,7 +37,7 @@ class InfoDoctrineCommand extends Command
         $this
             ->setName('doctrine:phpcr:mapping:info')
             ->setDescription('Shows basic information about all mapped documents')
-            ->setHelp(<<<EOT
+            ->setHelp(<<<'EOT'
 The <info>%command.name%</info> shows basic information about which
 documents exist and possibly if their mapping information contains errors or
 not.
@@ -63,17 +63,17 @@ EOT
             );
         }
 
-        $output->writeln(sprintf("Found <info>%d</info> documents mapped in document manager:", count($documentClassNames)));
+        $output->writeln(sprintf('Found <info>%d</info> documents mapped in document manager:', count($documentClassNames)));
 
         $failure = false;
 
         foreach ($documentClassNames as $documentClassName) {
             try {
                 $documentManager->getClassMetadata($documentClassName);
-                $output->writeln(sprintf("<info>[OK]</info>   %s", $documentClassName));
+                $output->writeln(sprintf('<info>[OK]</info>   %s', $documentClassName));
             } catch (MappingException $e) {
-                $output->writeln("<error>[FAIL]</error> ".$documentClassName);
-                $output->writeln(sprintf("<comment>%s</comment>", $e->getMessage()));
+                $output->writeln('<error>[FAIL]</error> '.$documentClassName);
+                $output->writeln(sprintf('<comment>%s</comment>', $e->getMessage()));
 
                 if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
                     $this->getApplication()->renderException($e, $output);

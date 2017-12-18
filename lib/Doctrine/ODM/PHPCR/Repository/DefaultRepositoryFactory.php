@@ -26,6 +26,7 @@ use Doctrine\ODM\PHPCR\DocumentManagerInterface;
  * This factory is used to create default repository objects for entities at runtime.
  *
  * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
+ *
  * @since 1.1
  */
 class DefaultRepositoryFactory implements RepositoryFactory
@@ -35,7 +36,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
      *
      * @var array<\Doctrine\Common\Persistence\ObjectRepository>
      */
-    private $repositoryList = array();
+    private $repositoryList = [];
 
     /**
      * {@inheritdoc}
@@ -58,18 +59,18 @@ class DefaultRepositoryFactory implements RepositoryFactory
     /**
      * Create a new repository instance for a document class.
      *
-     * @param DocumentManagerInterface  $dm             The DocumentManager instance.
-     * @param string                    $documentName   The name of the document.
+     * @param DocumentManagerInterface $dm           The DocumentManager instance.
+     * @param string                   $documentName The name of the document.
      *
      * @return ObjectRepository
      */
     protected function createRepository(DocumentManagerInterface $dm, $documentName)
     {
-        $metadata            = $dm->getClassMetadata($documentName);
+        $metadata = $dm->getClassMetadata($documentName);
         $repositoryClassName = $metadata->customRepositoryClassName;
 
         if ($repositoryClassName === null) {
-            $configuration       = $dm->getConfiguration();
+            $configuration = $dm->getConfiguration();
             $repositoryClassName = $configuration->getDefaultRepositoryClassName();
         }
 

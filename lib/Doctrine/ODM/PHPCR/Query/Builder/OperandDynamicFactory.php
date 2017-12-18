@@ -18,14 +18,14 @@ class OperandDynamicFactory extends AbstractNode
 
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_OPERAND_DYNAMIC => array(1, 1),
-        );
+        return [
+            self::NT_OPERAND_DYNAMIC => [1, 1],
+        ];
     }
 
     /**
      * Represents the aliased documents rank by relevance to the full text
-     * search expression given by the "fullTextSearch" constraint::
+     * search expression given by the "fullTextSearch" constraint::.
      *
      * <code>
      * $qb->where()
@@ -45,6 +45,7 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicFullTextSearchScore
+     *
      * @return OperandDynamicFactory
      */
     public function fullTextSearchScore($alias)
@@ -53,7 +54,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Length operand resolves to length of aliased document::
+     * Length operand resolves to length of aliased document::.
      *
      * <code>
      * $qb->where()
@@ -69,6 +70,7 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $field - Name of field to check.
      *
      * @factoryMethod OperandDynamicLength
+     *
      * @return OperandDynamicFactory
      */
     public function length($field)
@@ -77,7 +79,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * LowerCase operand evaluates to lower-cased string of child operand::
+     * LowerCase operand evaluates to lower-cased string of child operand::.
      *
      * <code>
      * $qb->where()
@@ -89,6 +91,7 @@ class OperandDynamicFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod OperandDynamicLowerCase
+     *
      * @return OperandDynamicLowerCase
      */
     public function lowerCase()
@@ -97,7 +100,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * UpperCase operand evaluates to upper-cased string of child operand::
+     * UpperCase operand evaluates to upper-cased string of child operand::.
      *
      * <code>
      * $qb->where()
@@ -109,6 +112,7 @@ class OperandDynamicFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod OperandDynamicUpperCase
+     *
      * @return OperandDynamicUpperCase
      */
     public function upperCase()
@@ -137,6 +141,7 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicLocalName
+     *
      * @return OperandDynamicFactory
      */
     public function localName($alias)
@@ -164,6 +169,7 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicName
+     *
      * @return OperandDynamicFactory
      */
     public function name($alias)
@@ -172,7 +178,7 @@ class OperandDynamicFactory extends AbstractNode
     }
 
     /**
-     * Evaluates to the value of the specified field::
+     * Evaluates to the value of the specified field::.
      *
      * <code>
      * $qb->where()
@@ -186,6 +192,7 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $field - name of field to check, including alias name.
      *
      * @factoryMethod OperandDynamicField
+     *
      * @return OperandDynamicFactory
      */
     public function field($field)

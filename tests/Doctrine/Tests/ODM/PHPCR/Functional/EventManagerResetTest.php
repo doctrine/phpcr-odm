@@ -4,11 +4,11 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
- * These tests ensure that you can reset a value in a lifecycle event
+ * These tests ensure that you can reset a value in a lifecycle event.
  *
  * A use case is for example a bridge which allows you to store associations to objects in a different database
  * - In the prePersist and preUpdate event you serialize the identifier reference of the object
@@ -31,9 +31,9 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
         $this->listener = new TestResetListener();
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->dm->getEventManager()->addEventListener(array(
+        $this->dm->getEventManager()->addEventListener([
             'prePersist', 'postPersist', 'preUpdate', 'postUpdate',
-        ), $this->listener);
+        ], $this->listener);
     }
 
     public function testResetEvents()
@@ -50,12 +50,11 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
         $this->dm->persist($page);
 
-        $this->assertEquals(serialize(array('id' => $pageContent->id)), $page->content);
+        $this->assertEquals(serialize(['id' => $pageContent->id]), $page->content);
 
         $this->dm->flush();
 
         $this->assertInstanceOf(CmsPageContent::class, $page->content);
-
 
         // This is required as the originalData in the UnitOfWork doesn’t set the node of the Document
         $this->dm->clear();
@@ -69,7 +68,6 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertEquals('my-page', $pageLoaded->title);
-
 
         $pageLoaded->content = $pageContent;
 
@@ -87,7 +85,7 @@ class TestResetListener
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage && $document->content instanceof CmsPageContent) {
-            $contentReference = array('id' => $document->content->id);
+            $contentReference = ['id' => $document->content->id];
             $document->content = serialize($contentReference);
         }
     }
@@ -117,7 +115,7 @@ class TestResetListener
         }
 
         if ($document instanceof CmsPage && $document->content instanceof CmsPageContent) {
-            $contentReference = array('id' => $document->content->id);
+            $contentReference = ['id' => $document->content->id];
             $document->content = serialize($contentReference);
         }
     }
@@ -139,7 +137,6 @@ class TestResetListener
         }
     }
 }
-
 
 class CmsPageContent
 {

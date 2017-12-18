@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\EventArgs;
@@ -12,16 +11,17 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
  * A method invoker based on document lifecycle.
  *
  * @since  1.1
+ *
  * @author Fabio B. Silva      <fabio.bat.silva@gmail.com>
  * @author Maximilian Berghoff <Maximilian.Berghoff@gmx.de>
  */
 class ListenersInvoker
 {
-    const INVOKE_NONE       = 0;
+    const INVOKE_NONE = 0;
     // Actually not uses in the phpcr-odm
-    const INVOKE_LISTENERS  = 1;
-    const INVOKE_CALLBACKS  = 2;
-    const INVOKE_MANAGER    = 4;
+    const INVOKE_LISTENERS = 1;
+    const INVOKE_CALLBACKS = 2;
+    const INVOKE_MANAGER = 4;
 
     /**
      * The EventManager used for dispatching events.
@@ -47,12 +47,12 @@ class ListenersInvoker
     }
 
     /**
-     * Get the subscribed event systems
+     * Get the subscribed event systems.
      *
      * @param ClassMetadata $metadata
      * @param string        $eventName The entity lifecycle event.
      *
-     * @return integer                 Bitmask of subscribed event systems.
+     * @return int Bitmask of subscribed event systems.
      */
     public function getSubscribedSystems(ClassMetadata $metadata, $eventName)
     {
@@ -80,10 +80,10 @@ class ListenersInvoker
     /**
      * Dispatches the lifecycle event of the given entity.
      *
-     * @param ClassMetadata $metadata The entity metadata.
-     * @param string $eventName The entity lifecycle event.
-     * @param object $document The Entity on which the event occurred.
-     * @param EventArgs $event The Event args.
+     * @param ClassMetadata $metadata  The entity metadata.
+     * @param string        $eventName The entity lifecycle event.
+     * @param object        $document  The Entity on which the event occurred.
+     * @param EventArgs     $event     The Event args.
      * @param $invoke
      */
     public function invoke(ClassMetadata $metadata, $eventName, $document, EventArgs $event, $invoke)

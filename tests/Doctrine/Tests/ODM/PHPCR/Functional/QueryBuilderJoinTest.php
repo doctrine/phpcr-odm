@@ -2,15 +2,11 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\DocumentRepository;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsAddress;
+use Doctrine\Tests\Models\CMS\CmsAuditItem;
 use Doctrine\Tests\Models\CMS\CmsProfile;
 use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\CMS\CmsAuditItem;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
  * @group functional
@@ -27,19 +23,19 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $ntm = $this->dm->getPhpcrSession()->getWorkspace()->getNodeTypeManager();
         $ntm->registerNodeTypesCnd('[phpcr:cms_profile] > nt:unstructured', true);
 
-        $address1 = new CmsAddress;
+        $address1 = new CmsAddress();
         $address1->country = 'France';
         $address1->city = 'Lyon';
         $address1->zip = '65019';
         $this->dm->persist($address1);
 
-        $address2 = new CmsAddress;
+        $address2 = new CmsAddress();
         $address2->country = 'England';
         $address2->city = 'Weymouth';
         $address2->zip = 'AB1DC2';
         $this->dm->persist($address2);
 
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->username = 'dantleech';
         $user->address = $address1;
         $this->dm->persist($user);
@@ -49,17 +45,17 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $user->addProfile($profile);
         $this->dm->persist($profile);
 
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->username = 'winstonsmith';
         $user->address = $address2;
         $this->dm->persist($user);
 
-        $user = new CmsUser;
+        $user = new CmsUser();
         $user->username = 'anonymous';
         $this->dm->persist($user);
 
-        foreach (array('dantleech', 'winstonsmith', 'dantleech', null) as $i => $username) {
-            $auditItem = new CmsAuditItem;
+        foreach (['dantleech', 'winstonsmith', 'dantleech', null] as $i => $username) {
+            $auditItem = new CmsAuditItem();
             $auditItem->id = '/functional/audit'.$i;
             $auditItem->message = 'User did something 1';
             $auditItem->username = $username;
@@ -86,96 +82,96 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
 
     public function provideEquiJoinInner()
     {
-        return array(
-            array(
+        return [
+            [
                 'Inner',
                 'CmsUser', 'CmsAuditItem',
-                array('a.username' => 'dantleech'), array(
-                    array(
+                ['a.username' => 'dantleech'], [
+                    [
                         'a' => '/functional/dantleech',
                         'b' => '/functional/audit0',
-                    ),
-                    array(
+                    ],
+                    [
                         'a' => '/functional/dantleech',
                         'b' => '/functional/audit2',
-                    ),
-                ),
-            ),
-            array(
+                    ],
+                ],
+            ],
+            [
                 'Inner',
                 'CmsUser', 'CmsAuditItem',
-                array('a.username' => 'winstonsmith'), array(
-                    array(
+                ['a.username' => 'winstonsmith'], [
+                    [
                         'a' => '/functional/winstonsmith',
                         'b' => '/functional/audit1',
-                    ),
-                ),
-            ),
-            array(
+                    ],
+                ],
+            ],
+            [
                 'Inner',
                 'CmsUser', 'CmsAuditItem',
-                array('a.username' => 'nobody'), array(
-                ),
-            ),
-            array(
+                ['a.username' => 'nobody'], [
+                ],
+            ],
+            [
                 'Inner',
                 'CmsAuditItem', 'CmsUser',
-                array('a.username' => 'dantleech'), array(
-                    array(
+                ['a.username' => 'dantleech'], [
+                    [
                         'a' => '/functional/audit0',
                         'b' => '/functional/dantleech',
-                    ),
-                    array(
+                    ],
+                    [
                         'a' => '/functional/audit2',
                         'b' => '/functional/dantleech',
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
 
-            array(
+            [
                 'LeftOuter',
                 'CmsAuditItem', 'CmsUser',
-                null, array(
-                    array(
+                null, [
+                    [
                         'a' => '/functional/audit0',
                         'b' => '/functional/dantleech',
-                    ),
-                    array(
+                    ],
+                    [
                         'a' => '/functional/audit2',
                         'b' => '/functional/dantleech',
-                    ),
-                    array(
+                    ],
+                    [
                         'a' => '/functional/audit1',
                         'b' => '/functional/winstonsmith',
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
 
-            array(
+            [
                 'RightOuter',
                 'CmsUser', 'CmsAuditItem',
-                null, array(
-                    array(
+                null, [
+                    [
                         'a' => '/functional/dantleech',
                         'b' => '/functional/audit0',
-                    ),
-                    array(
+                    ],
+                    [
                         'a' => '/functional/dantleech',
                         'b' => '/functional/audit2',
-                    ),
-                    array(
+                    ],
+                    [
                         'a' => '/functional/winstonsmith',
                         'b' => '/functional/audit1',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**
      * @dataProvider provideEquiJoinInner
      */
-    public function testEquiJoinInner($joinType, $leftClass, $rightClass, $criteria = null, $expectedPaths)
+    public function testEquiJoinInner($joinType, $leftClass, $rightClass, $criteria, $expectedPaths)
     {
         $leftFqn = 'Doctrine\Tests\Models\CMS\\'.$leftClass;
         $rightFqn = 'Doctrine\Tests\Models\CMS\\'.$rightClass;

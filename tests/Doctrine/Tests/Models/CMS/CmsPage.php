@@ -2,10 +2,9 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsPageRepository", referenceable=true)
@@ -21,7 +20,7 @@ class CmsPage
     /** @PHPCRODM\Field(type="string") */
     public $title;
     /** @PHPCRODM\MixedReferrers(referenceType="hard") */
-    public $items = array();
+    public $items = [];
 
     public function getId()
     {
@@ -31,6 +30,7 @@ class CmsPage
     public function setContent($content)
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -42,6 +42,7 @@ class CmsPage
     public function setTitle($title)
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -53,6 +54,7 @@ class CmsPage
     public function setItems($items)
     {
         $this->items = $items;
+
         return $this;
     }
 
@@ -79,9 +81,10 @@ class CmsPage
 class CmsPageRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
+     *
      * @return string
      */
     public function generateId($document, $parent = null)

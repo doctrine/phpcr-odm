@@ -5,14 +5,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
-use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\Tests\Models\CMS\CmsItem;
+use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\Models\CMS\CmsPageTranslatable;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Tests\Models\CMS\CmsPage;
-use Doctrine\Tests\Models\CMS\CmsItem;
 
 class EventManagerTest extends PHPCRFunctionalTestCase
 {
@@ -26,13 +26,12 @@ class EventManagerTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-
-    protected $localePrefs = array(
-        'en' => array('de', 'fr'),
-        'fr' => array('de', 'en'),
-        'de' => array('en'),
-        'it' => array('fr', 'de', 'en'),
-    );
+    protected $localePrefs = [
+        'en' => ['de', 'fr'],
+        'fr' => ['de', 'en'],
+        'de' => ['en'],
+        'it' => ['fr', 'de', 'en'],
+    ];
 
     public function setUp()
     {
@@ -46,7 +45,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::prePersist,
                     Event::postPersist,
                     Event::preUpdate,
@@ -59,7 +58,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
                     Event::preMove,
                     Event::postMove,
                     Event::endFlush,
-                ),
+                ],
                 $this->listener
             );
 
@@ -93,7 +92,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->itemPreMove);
         $this->assertFalse($this->listener->itemPostMove);
 
-        $this->dm->move($page, '/functional/moved-' . $page->title);
+        $this->dm->move($page, '/functional/moved-'.$page->title);
 
         $this->assertFalse($this->listener->pagePreMove);
         $this->assertFalse($this->listener->pagePostMove);
@@ -153,12 +152,12 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::preCreateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
-                ),
+                ],
                 $this->listener
             );
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
@@ -250,7 +249,7 @@ class TestPersistenceListener
     public function preUpdate(PreUpdateEventArgs $e)
     {
         $document = $e->getObject();
-        if (! $document instanceof CmsPage) {
+        if (!$document instanceof CmsPage) {
             return;
         }
         $dm = $e->getObjectManager();

@@ -2,10 +2,10 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Helper;
 
-use PHPCR\NodeInterface;
-use PHPCR\Util\PathHelper;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\NodeInterface;
+use PHPCR\Util\PathHelper;
 
 /**
  * This helper collects information about what nodes will be loaded when
@@ -28,8 +28,8 @@ class PrefetchHelper
         if (!count($nodes)) {
             return;
         }
-        $uuids = array();
-        $paths = array();
+        $uuids = [];
+        $paths = [];
         $documentClassMapper = $dm->getConfiguration()->getDocumentClassMapper();
 
         foreach ($nodes as $node) {
@@ -51,10 +51,10 @@ class PrefetchHelper
     }
 
     /**
-     * Prefetch all mapped ReferenceOne annotations
+     * Prefetch all mapped ReferenceOne annotations.
      *
-     * @param ClassMetadata $class  The metadata about the document to know what to do.
-     * @param NodeInterface $node   The node to prefetch parent and childs for.
+     * @param ClassMetadata $class The metadata about the document to know what to do.
+     * @param NodeInterface $node  The node to prefetch parent and childs for.
      */
     public function prefetchReferences(ClassMetadata $class, NodeInterface $node)
     {
@@ -70,7 +70,7 @@ class PrefetchHelper
      * @param ClassMetadata $class  The metadata about the document to know what to do.
      * @param NodeInterface $node   The node to prefetch parent and childs for.
      * @param string|null   $locale The locale to also prefetch the translation
-     *      child if applicable.
+     *                              child if applicable.
      */
     public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, $locale = null)
     {
@@ -90,7 +90,7 @@ class PrefetchHelper
      */
     public function collectPrefetchReferences(ClassMetadata $class, NodeInterface $node)
     {
-        $refNodeUUIDs = array();
+        $refNodeUUIDs = [];
         foreach ($class->referenceMappings as $fieldName) {
             $mapping = $class->mappings[$fieldName];
             if (!$node->hasProperty($mapping['property'])) {
@@ -114,13 +114,13 @@ class PrefetchHelper
      * @param ClassMetadata $class  The metadata about the document to know what to do.
      * @param NodeInterface $node   The node to prefetch parent and childs for.
      * @param string|null   $locale The locale to also prefetch the translation
-     *      child if applicable.
+     *                              child if applicable.
      *
      * @return array List of absolute paths to nodes that should be prefetched.
      */
     public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, $locale = null)
     {
-        $prefetch = array();
+        $prefetch = [];
         if ($class->parentMapping && $node->getDepth() > 0) {
             $prefetch[] = PathHelper::getParentPath($node->getPath());
         }
@@ -129,7 +129,7 @@ class PrefetchHelper
             $prefetch[] = PathHelper::absolutizePath($childName, $node->getPath());
         }
         if ($locale && count($prefetch) && 'child' === $class->translator) {
-            $prefetch[] = $node->getPath() . '/phpcr_locale:'.$locale;
+            $prefetch[] = $node->getPath().'/phpcr_locale:'.$locale;
         }
 
         return $prefetch;

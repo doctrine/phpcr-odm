@@ -25,7 +25,7 @@ abstract class LeafNodeTestCase extends TestCase
     public function testNode($type, $args, $methods)
     {
         $ns = 'Doctrine\ODM\PHPCR\Query\Builder';
-        $fqn = $ns . '\\' . $type;
+        $fqn = $ns.'\\'.$type;
 
         $values = array_values($args);
         array_unshift($values, $this->parent);

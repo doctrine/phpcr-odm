@@ -19,17 +19,17 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use PHPCR\Query\QOM\OrderingInterface;
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use PHPCR\Query\QOM\ConstraintInterface;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use PHPCR\Query\QOM\ColumnInterface;
+use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\OrderingInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\SourceInterface;
 
 /**
- * Base class for PHPCR based query converters
+ * Base class for PHPCR based query converters.
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -43,12 +43,12 @@ abstract class ConverterBase implements ConverterInterface
     /**
      * @var ColumnInterface[]
      */
-    protected $columns = array();
+    protected $columns = [];
 
     /**
      * @var OrderingInterface[]
      */
-    protected $orderings = array();
+    protected $orderings = [];
 
     /**
      * @var ConstraintInterface
@@ -65,22 +65,22 @@ abstract class ConverterBase implements ConverterInterface
      * @param string $originalAlias As specified in the query source.
      * @param string $odmField      Name of ODM document property.
      *
-     * @return array first element is the real alias to use, second element is
-     *      the property name
-     *
      * @throws \Exception If a field used in the query does not exist on the document.
+     *
+     * @return array first element is the real alias to use, second element is
+     *               the property name
      */
     abstract protected function getPhpcrProperty($originalAlias, $odmField);
 
     /**
-     * Walk the source document
+     * Walk the source document.
      *
      * @param SourceDocument
      */
     abstract protected function walkSourceDocument(SourceDocument $node);
 
     /**
-     * Walk the dynamic field
+     * Walk the dynamic field.
      *
      * Implementations should map their domain field name to the PHPCR field name here.
      *
@@ -89,7 +89,7 @@ abstract class ConverterBase implements ConverterInterface
     abstract protected function walkOperandDynamicField(OperandDynamicField $node);
 
     /**
-     * Return the query object model factory
+     * Return the query object model factory.
      *
      * @return QueryObjectModelFactoryInterface
      */
@@ -103,9 +103,9 @@ abstract class ConverterBase implements ConverterInterface
      *
      * @param string $alias Alias to validate and return
      *
-     * @return string Return the alias to allow this function to be used inline
-     *
      * @throws InvalidArgumentException
+     *
+     * @return string Return the alias to allow this function to be used inline
      */
     abstract protected function validateAlias($alias);
 
@@ -148,7 +148,7 @@ abstract class ConverterBase implements ConverterInterface
 
     public function walkSelect(AbstractNode $node)
     {
-        $columns = array();
+        $columns = [];
 
         /** @var $property Field */
         foreach ($node->getChildren() as $property) {
@@ -494,7 +494,7 @@ abstract class ConverterBase implements ConverterInterface
     // ordering
     protected function walkOrderBy(OrderBy $node)
     {
-        $this->orderings = array();
+        $this->orderings = [];
 
         $orderings = $node->getChildren();
 

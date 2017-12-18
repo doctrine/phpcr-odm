@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
 use PHPCR\NodeInterface;
@@ -20,9 +19,10 @@ interface TranslationNodesWarmer
      * but the main purpose of it is to warm up all translation
      * nodes in one request to PHPCR.
      *
-     * @param NodeInterface[] $nodes
-     * @param array $locales
+     * @param NodeInterface[]  $nodes
+     * @param array            $locales
      * @param SessionInterface $session
+     *
      * @return mixed
      */
     public function getTranslationsForNodes($nodes, $locales, SessionInterface $session);

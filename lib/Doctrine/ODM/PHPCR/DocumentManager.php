@@ -19,35 +19,34 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\EventManager;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
+use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
-use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
-use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
-use Doctrine\Common\EventManager;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use PHPCR\ItemNotFoundException;
 use PHPCR\NodeInterface;
+use PHPCR\PathNotFoundException;
+use PHPCR\PropertyType;
+use PHPCR\Query\QueryInterface;
 use PHPCR\Query\RowInterface;
 use PHPCR\SessionInterface;
-use PHPCR\Query\QueryInterface;
-use PHPCR\UnsupportedRepositoryOperationException;
-use PHPCR\Util\UUIDHelper;
-use PHPCR\PropertyType;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
-use PHPCR\ItemNotFoundException;
-use PHPCR\PathNotFoundException;
+use PHPCR\Util\UUIDHelper;
 use PHPCR\Util\ValueConverter;
 
 /**
- * Document Manager
+ * Document Manager.
  *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
@@ -127,14 +126,14 @@ class DocumentManager implements DocumentManagerInterface
         $this->repositoryFactory = $this->config->getRepositoryFactory();
 
         // initialize default translation strategies
-        $this->translationStrategy = array(
+        $this->translationStrategy = [
             AttributeTranslationStrategy::NAME => new AttributeTranslationStrategy($this),
             ChildTranslationStrategy::NAME     => new ChildTranslationStrategy($this),
-        );
+        ];
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
     {
@@ -142,7 +141,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getTranslationStrategy($key)
     {
@@ -154,7 +153,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasLocaleChooserStrategy()
     {
@@ -162,19 +161,19 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLocaleChooserStrategy()
     {
         if (!isset($this->localeChooserStrategy)) {
-            throw new InvalidArgumentException("You must configure a language chooser strategy when having documents with the translatable annotation");
+            throw new InvalidArgumentException('You must configure a language chooser strategy when having documents with the translatable annotation');
         }
 
         return $this->localeChooserStrategy;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
     {
@@ -182,7 +181,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getProxyFactory()
     {
@@ -190,7 +189,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getEventManager()
     {
@@ -198,7 +197,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getPhpcrSession()
     {
@@ -220,7 +219,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMetadataFactory()
     {
@@ -228,7 +227,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getConfiguration()
     {
@@ -248,7 +247,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isOpen()
     {
@@ -256,7 +255,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getClassMetadata($className)
     {
@@ -264,7 +263,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Find the Document with the given id.
      *
@@ -287,7 +286,7 @@ class DocumentManager implements DocumentManagerInterface
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
                 } catch (ItemNotFoundException $e) {
-                    return null;
+                    return;
                 }
             } elseif (strpos($id, '/') !== 0) {
                 $id = '/'.$id;
@@ -300,29 +299,29 @@ class DocumentManager implements DocumentManagerInterface
 
                     return $document;
                 } catch (ClassMismatchException $e) {
-                    return null;
+                    return;
                 }
             }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
-            return null;
+            return;
         }
 
-        $hints = array('fallback' => true);
+        $hints = ['fallback' => true];
 
         try {
             return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
         } catch (ClassMismatchException $e) {
-            return null;
+            return;
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findMany($className, array $ids)
     {
-        $uuids = array();
+        $uuids = [];
         foreach ($ids as $key => $id) {
             if (UUIDHelper::isUUID($id)) {
                 $uuids[$id] = $key;
@@ -348,14 +347,14 @@ class DocumentManager implements DocumentManagerInterface
         }
 
         $nodes = $this->session->getNodes($ids);
-        $hints = array('fallback' => true);
+        $hints = ['fallback' => true];
         $documents = $this->unitOfWork->getOrCreateDocuments($className, $nodes, $hints);
 
         return new ArrayCollection($documents);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findTranslation($className, $id, $locale, $fallback = true)
     {
@@ -364,7 +363,7 @@ class DocumentManager implements DocumentManagerInterface
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
                 } catch (ItemNotFoundException $e) {
-                    return null;
+                    return;
                 }
             } elseif (strpos($id, '/') !== 0) {
                 $id = '/'.$id;
@@ -382,16 +381,16 @@ class DocumentManager implements DocumentManagerInterface
 
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
-            return null;
+            return;
         }
 
-        $hints = array('locale' => $locale, 'fallback' => $fallback);
+        $hints = ['locale' => $locale, 'fallback' => $fallback];
 
         return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getRepository($className)
     {
@@ -399,7 +398,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function quote($val, $type = PropertyType::STRING)
     {
@@ -411,21 +410,21 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function escapeFullText($string)
     {
-        $illegalCharacters = array(
-            '!' => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
-            '[' => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
+        $illegalCharacters = [
+            '!'  => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
+            '['  => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
             '\"' => '\\\"', '?' => '\\?', "'" => "''",
-        );
+        ];
 
         return strtr($string, $illegalCharacters);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createPhpcrQuery($statement, $language)
     {
@@ -435,7 +434,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createQuery($statement, $language)
     {
@@ -445,7 +444,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createQueryBuilder()
     {
@@ -461,7 +460,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createPhpcrQueryBuilder()
     {
@@ -471,7 +470,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
     {
@@ -479,7 +478,7 @@ class DocumentManager implements DocumentManagerInterface
 
         $result = $query->execute();
 
-        $ids = array();
+        $ids = [];
         /** @var RowInterface $row */
         foreach ($result->getRows() as $row) {
             $ids[] = $row->getPath($primarySelector);
@@ -489,7 +488,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * No PHPCR node will be created yet, this only happens on flush.
      *
@@ -517,7 +516,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function bindTranslation($document, $locale)
     {
@@ -530,7 +529,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function removeTranslation($document, $locale)
     {
@@ -543,7 +542,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLocalesFor($document, $includeFallbacks = false)
     {
@@ -556,7 +555,7 @@ class DocumentManager implements DocumentManagerInterface
         $metadata = $this->getClassMetadata(get_class($document));
         $locales = $this->unitOfWork->getLocalesFor($document);
         if ($includeFallbacks) {
-            $fallBackLocales = array();
+            $fallBackLocales = [];
             foreach ($locales as $locale) {
                 $fallBackLocales = array_merge($fallBackLocales, $this->localeChooserStrategy->getFallbackLocales($document, $metadata, $locale));
             }
@@ -568,7 +567,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isDocumentTranslatable($document)
     {
@@ -578,7 +577,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function move($document, $targetPath)
     {
@@ -595,7 +594,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function reorder($document, $srcName, $targetName, $before)
     {
@@ -608,7 +607,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Remove the previously persisted document and all its children from the tree
      *
@@ -631,7 +630,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Merge the state of the detached object into the persistence context of
      * this ObjectManager and returns the managed copy of the object.
@@ -643,12 +642,12 @@ class DocumentManager implements DocumentManagerInterface
      * this ObjectManager.
      *
      * @param object $document The document to merge over a persisted document
-     *      with the same id.
-     *
-     * @return object The managed document where $document has been merged
-     *      into. This is *not* the same instance as the parameter.
+     *                         with the same id.
      *
      * @throws InvalidArgumentException if $document is not an object.
+     *
+     * @return object The managed document where $document has been merged
+     *                into. This is *not* the same instance as the parameter.
      */
     public function merge($document)
     {
@@ -662,7 +661,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Detaches an object from the ObjectManager
      *
@@ -686,7 +685,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Refresh the given document by querying the PHPCR to get the current state.
      *
@@ -705,7 +704,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getChildren($document, $filter = null, $fetchDepth = -1, $locale = null)
     {
@@ -719,7 +718,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null)
     {
@@ -733,16 +732,16 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Flush all current changes, that is save them within the phpcr session
      * and commit that session to permanent storage.
      *
      * @param object|array|null $document optionally limit to a specific
-     *      document or an array of documents
+     *                                    document or an array of documents
      *
      * @throws InvalidArgumentException if $document is neither null nor a
-     *      document or an array of documents
+     *                                  document or an array of documents
      */
     public function flush($document = null)
     {
@@ -755,7 +754,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getReference($documentName, $id)
     {
@@ -763,7 +762,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkin($document)
     {
@@ -776,7 +775,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkout($document)
     {
@@ -789,7 +788,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkpoint($document)
     {
@@ -802,7 +801,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function restoreVersion($documentVersion, $removeExisting = true)
     {
@@ -811,7 +810,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function removeVersion($documentVersion)
     {
@@ -820,7 +819,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAllLinearVersions($document, $limit = -1)
     {
@@ -834,7 +833,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findVersionByName($className, $id, $versionName)
     {
@@ -844,15 +843,15 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Check if this repository contains the object
      *
      * @param object $document
      *
-     * @return boolean true if the repository contains the object, false otherwise
-     *
      * @throws InvalidArgumentException if $document is not an object.
+     *
+     * @return bool true if the repository contains the object, false otherwise
      */
     public function contains($document)
     {
@@ -864,7 +863,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getUnitOfWork()
     {
@@ -872,7 +871,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Clears the DocumentManager. All entities that are currently managed
      * by this DocumentManager become detached.
@@ -890,7 +889,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Closes the DocumentManager. All entities that are currently managed
      * by this DocumentManager become detached. The DocumentManager may no longer
@@ -903,7 +902,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function initializeObject($document)
     {
@@ -915,7 +914,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getNodeForDocument($document)
     {

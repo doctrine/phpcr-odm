@@ -2,13 +2,12 @@
 
 namespace Doctrine\Benchmarks\ODM\PHPCR;
 
-use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\References\ParentNoNodenameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
-use Doctrine\Tests\ODM\PHPCR\Functional\TestUser;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
  * @BeforeMethods({"setUp"})
@@ -31,9 +30,9 @@ class PersistBench extends PHPCRFunctionalTestCase
         $user1 = new CmsUser();
         $user1->username = 'dantleech';
         $address = new CmsAddress();
-        $address->city = "Springfield";
-        $address->zip = "12354";
-        $address->country = "Germany";
+        $address->city = 'Springfield';
+        $address->zip = '12354';
+        $address->country = 'Germany';
         $user1->address = $address;
 
         $this->documentManager->persist($user1);
@@ -44,18 +43,18 @@ class PersistBench extends PHPCRFunctionalTestCase
     public function benchPersistMany()
     {
         $parent1 = new ParentTestObj();
-        $parent1->nodename = "root1";
-        $parent1->name = "root1";
+        $parent1->nodename = 'root1';
+        $parent1->name = 'root1';
         $parent1->setParentDocument($this->root);
 
         $parent2 = new ParentTestObj();
-        $parent2->name = "/root2";
-        $parent2->nodename = "root2";
+        $parent2->name = '/root2';
+        $parent2->nodename = 'root2';
         $parent2->setParentDocument($this->root);
 
         $child = new ParentNoNodenameTestObj();
         $child->setParentDocument($parent1);
-        $child->name = "child";
+        $child->name = 'child';
 
         $c1 = new Comment();
         $c1->name = 'c1';
@@ -63,16 +62,16 @@ class PersistBench extends PHPCRFunctionalTestCase
         $c1->setText('deutsch');
 
         $group1 = new \Doctrine\Tests\Models\CMS\CmsGroup();
-        $group1->name = "Test!";
+        $group1->name = 'Test!';
         $group1->id = '/functional/group1';
 
         $group2 = new \Doctrine\Tests\Models\CMS\CmsGroup();
-        $group2->name = "Test!";
+        $group2->name = 'Test!';
         $group2->id = '/functional/group2';
 
         $user = new \Doctrine\Tests\Models\CMS\CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
         $user->addGroup($group1);
         $user->addGroup($group2);
 

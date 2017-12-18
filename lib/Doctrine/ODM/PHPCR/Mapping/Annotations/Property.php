@@ -20,12 +20,13 @@
 namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 
 /**
- * base class for all property types
+ * base class for all property types.
  */
 class Property
 {
     /**
-     * The PHPCR property name to use
+     * The PHPCR property name to use.
+     *
      * @var string
      */
     public $property;
@@ -36,7 +37,7 @@ class Property
     public $type = 'undefined';
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $multivalue = false;
 
@@ -46,7 +47,7 @@ class Property
     public $assoc;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $nullable = false;
 }

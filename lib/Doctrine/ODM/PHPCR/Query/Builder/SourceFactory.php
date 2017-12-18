@@ -21,23 +21,24 @@ abstract class SourceFactory extends AbstractNode
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_SOURCE => array(1, 1)
-        );
+        return [
+            self::NT_SOURCE => [1, 1],
+        ];
     }
 
     /**
      * Select documents of specified class. The alias name is mandatory
-     * and will be used to reference documents selected from this source::
+     * and will be used to reference documents selected from this source::.
      *
      * <code>
      * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')->end();
      * </code>
      *
      * @param string $documentFqn - Fully qualified class name for document.
-     * @param string $alias - Alias name.
+     * @param string $alias       - Alias name.
      *
      * @factoryMethod SourceDocument
+     *
      * @return SourceDocument
      */
     public function document($documentFqn, $alias)
@@ -46,7 +47,7 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Inner Join::
+     * Inner Join::.
      *
      * <code>
      * $qb->from('sel_1')
@@ -59,6 +60,7 @@ abstract class SourceFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod SourceJoin
+     *
      * @return SourceJoin
      */
     public function joinInner()
@@ -69,7 +71,7 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Left Outer Join::
+     * Left Outer Join::.
      *
      * <code>
      * $qb->from('sel_2')
@@ -82,6 +84,7 @@ abstract class SourceFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod SourceJoin
+     *
      * @return SourceJoin
      */
     public function joinLeftOuter()
@@ -92,7 +95,7 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Right Outer Join::
+     * Right Outer Join::.
      *
      * <code>
      * $qb->from('sel_1')
@@ -105,6 +108,7 @@ abstract class SourceFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod SourceJoin
+     *
      * @return SourceJoin
      */
     public function joinRightOuter()

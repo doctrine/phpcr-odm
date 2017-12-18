@@ -14,9 +14,9 @@ class OperandStaticFactory extends OperandFactory
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_OPERAND_STATIC => array(1, 1),
-        );
+        return [
+            self::NT_OPERAND_STATIC => [1, 1],
+        ];
     }
 
     public function getNodeType()

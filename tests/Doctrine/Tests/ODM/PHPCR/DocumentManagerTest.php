@@ -4,20 +4,18 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\PHPCRException;
-use PHPCR\ItemNotFoundException;
-use PHPCR\SessionInterface;
-use PHPCR\Transaction\UserTransactionInterface;
-use PHPCR\UnsupportedRepositoryOperationException;
-use PHPCR\Util\UUIDHelper;
-use PHPCR\WorkspaceInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\DocumentRepository;
-use PHPCR\Query\QueryManagerInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use PHPCR\ItemNotFoundException;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QueryInterface;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use PHPCR\Query\QueryManagerInterface;
+use PHPCR\SessionInterface;
+use PHPCR\Util\UUIDHelper;
+use PHPCR\WorkspaceInterface;
 
 /**
  * @group unit
@@ -30,7 +28,7 @@ class DocumentManagerTest extends PHPCRTestCase
     public function testFind()
     {
         $fakeUuid = UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass(SessionInterface::class, array('getNodeByIdentifier'));
+        $session = $this->getMockForAbstractClass(SessionInterface::class, ['getNodeByIdentifier']);
         $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
         $config = new Configuration();
 
@@ -47,7 +45,7 @@ class DocumentManagerTest extends PHPCRTestCase
     public function testFindTranslation()
     {
         $fakeUuid = UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass(SessionInterface::class, array('getNodeByIdentifier'));
+        $session = $this->getMockForAbstractClass(SessionInterface::class, ['getNodeByIdentifier']);
         $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
         $config = new Configuration();
 
@@ -109,7 +107,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session);
 
-        $obj = new \stdClass;
+        $obj = new \stdClass();
         $uow = $dm->getUnitOfWork();
 
         $method = new \ReflectionMethod($uow, 'registerDocument');
@@ -170,7 +168,6 @@ class DocumentManagerTest extends PHPCRTestCase
             ->method('getQOMFactory')
             ->will($this->returnValue($qomf));
 
-
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
         $this->assertInstanceOf(QueryBuilder::class, $qb);
@@ -182,12 +179,12 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session);
 
-        $obj = new \stdClass;
+        $obj = new \stdClass();
         $uow = $dm->getUnitOfWork();
 
         $reflectionProperty = new \ReflectionProperty($uow, 'documentIds');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($uow, array(spl_object_hash($obj) => '/foo'));
+        $reflectionProperty->setValue($uow, [spl_object_hash($obj) => '/foo']);
         $reflectionProperty->setAccessible(false);
 
         $this->assertEquals('/foo', $dm->getDocumentId($obj));
@@ -198,7 +195,7 @@ class DocumentManagerTest extends PHPCRTestCase
         /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
-        $obj = new \stdClass;
+        $obj = new \stdClass();
         $this->expectException(PHPCRException::class);
         $dm->getDocumentId($obj);
     }
@@ -209,23 +206,25 @@ class DocumentManagerGetClassMetadata extends DocumentManager
     private $callCount = 0;
 
     /**
-     * @param  string $class
+     * @param string $class
+     *
      * @return ClassMetadata
      */
     public function getClassMetadata($class)
     {
-        ++$this->callCount;
+        $this->callCount++;
         $metadata = new ClassMetadata('stdClass');
         switch ($this->callCount) {
             case '1':
                 break;
             case '2':
-                $metadata->customRepositoryClassName = "stdClass";
+                $metadata->customRepositoryClassName = 'stdClass';
                 break;
             default:
                 throw new \Exception('getClassMetadata called more than 2 times');
                 break;
         }
+
         return $metadata;
     }
 }

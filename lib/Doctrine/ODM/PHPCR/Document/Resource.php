@@ -20,11 +20,11 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use PHPCR\NodeInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\NodeInterface;
 
 /**
- * This class represents a jcr nt:resource and is used by the File document
+ * This class represents a jcr nt:resource and is used by the File document.
  *
  * @see http://wiki.apache.org/jackrabbit/nt:resource
  *
@@ -279,17 +279,17 @@ class Resource
     }
 
     /**
-     * Get mime type and encoding (RFC2045)
+     * Get mime type and encoding (RFC2045).
      *
      * @return string
      */
     public function getMime()
     {
-        return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
+        return $this->getMimeType().($this->getEncoding() ? '; charset='.$this->getEncoding() : '');
     }
 
     /**
-     * String representation
+     * String representation.
      *
      * @return string
      */

@@ -28,7 +28,7 @@ class RepositoryIdGenerator extends IdGenerator
     /**
      * Use a repository that implements RepositoryIdGenerator to generate the id.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
     {
@@ -42,7 +42,7 @@ class RepositoryIdGenerator extends IdGenerator
 
         $id = $repository->generateId($document, $parent);
         if (!$id) {
-            throw new IdException("ID could not be determined. Repository was unable to generate an ID");
+            throw new IdException('ID could not be determined. Repository was unable to generate an ID');
         }
 
         return $id;

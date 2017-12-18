@@ -33,7 +33,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     private function expandClassName(DocumentManagerInterface $dm, $className = null)
     {
         if (null === $className) {
-            return null;
+            return;
         }
 
         if (false !== strstr($className, ':')) {
@@ -44,7 +44,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, $className = null)
     {
@@ -71,7 +71,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function writeMetadata(DocumentManagerInterface $dm, NodeInterface $node, $className)
     {
@@ -89,7 +89,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function validateClassName(DocumentManagerInterface $dm, $document, $className)
     {

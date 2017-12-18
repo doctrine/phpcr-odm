@@ -28,7 +28,7 @@ use Doctrine\Common\Annotations\Annotation;
 final class Id
 {
     /**
-     * @var boolean
+     * @var bool
      */
     public $id = true;
 

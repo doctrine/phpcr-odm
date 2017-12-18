@@ -19,20 +19,22 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
+use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
-use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * The YamlDriver reads the mapping metadata from yaml schema files.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
+ *
  * @link        www.doctrine-project.org
  * @since       1.0
+ *
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
  */
@@ -53,7 +55,7 @@ class YamlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        /** @var PhpcrClassMetadata $class */
+        /* @var PhpcrClassMetadata $class */
         try {
             $element = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -87,7 +89,7 @@ class YamlDriver extends FileDriver
         }
 
         if (isset($element['mixins'])) {
-            $mixins = array();
+            $mixins = [];
             foreach ($element['mixins'] as $mixin) {
                 $mixins[] = $mixin;
             }
@@ -110,7 +112,7 @@ class YamlDriver extends FileDriver
             foreach ($element['fields'] as $fieldName => $mapping) {
                 if (is_string($mapping)) {
                     $type = $mapping;
-                    $mapping = array();
+                    $mapping = [];
                     $mapping['type'] = $type;
                 }
                 if (!isset($mapping['fieldName'])) {
@@ -121,38 +123,38 @@ class YamlDriver extends FileDriver
         }
 
         if (isset($element['uuid'])) {
-            $mapping = array(
+            $mapping = [
                 'fieldName' => $element['uuid'],
                 'uuid'      => true,
-            );
+            ];
             $class->mapField($mapping);
         }
         if (isset($element['id'])) {
             if (is_array($element['id'])) {
                 if (!isset($element['id']['fieldName'])) {
-                    throw new MappingException("Missing fieldName property for id field");
+                    throw new MappingException('Missing fieldName property for id field');
                 }
                 $fieldName = $element['id']['fieldName'];
             } else {
                 $fieldName = $element['id'];
             }
-            $mapping = array('fieldName' => $fieldName, 'id' => true);
+            $mapping = ['fieldName' => $fieldName, 'id' => true];
             if (isset($element['id']['generator']['strategy'])) {
                 $mapping['strategy'] = $element['id']['generator']['strategy'];
             }
             $class->mapId($mapping);
         }
         if (isset($element['node'])) {
-            $class->mapNode(array('fieldName' => $element['node']));
+            $class->mapNode(['fieldName' => $element['node']]);
         }
         if (isset($element['nodename'])) {
-            $class->mapNodename(array('fieldName' => $element['nodename']));
+            $class->mapNodename(['fieldName' => $element['nodename']]);
         }
         if (isset($element['parentdocument'])) {
-            $mapping = array(
+            $mapping = [
                 'fieldName' => $element['parentdocument'],
-                'cascade' => (isset($element['cascade'])) ? $this->getCascadeMode($element['cascade']) : 0,
-            );
+                'cascade'   => (isset($element['cascade'])) ? $this->getCascadeMode($element['cascade']) : 0,
+            ];
 
             $class->mapParentDocument($mapping);
         }
@@ -160,7 +162,7 @@ class YamlDriver extends FileDriver
             foreach ($element['child'] as $fieldName => $mapping) {
                 if (is_string($mapping)) {
                     $name = $mapping;
-                    $mapping = array();
+                    $mapping = [];
                     $mapping['nodeName'] = $name;
                 }
                 if (!isset($mapping['fieldName'])) {
@@ -175,7 +177,7 @@ class YamlDriver extends FileDriver
                 // TODO should we really support this syntax?
                 if (is_string($mapping)) {
                     $filter = $mapping;
-                    $mapping = array();
+                    $mapping = [];
                     $mapping['filter'] = $filter;
                 }
                 if (!isset($mapping['fieldName'])) {
@@ -208,50 +210,50 @@ class YamlDriver extends FileDriver
         }
 
         if (isset($element['locale'])) {
-            $class->mapLocale(array('fieldName' => $element['locale']));
+            $class->mapLocale(['fieldName' => $element['locale']]);
         }
 
         if (isset($element['depth'])) {
-            $class->mapDepth(array('fieldName' => $element['depth']));
+            $class->mapDepth(['fieldName' => $element['depth']]);
         }
 
         if (isset($element['mixedReferrers'])) {
             foreach ($element['mixedReferrers'] as $name => $attributes) {
-                $mapping = array(
-                    'fieldName' => $name,
+                $mapping = [
+                    'fieldName'     => $name,
                     'referenceType' => $attributes['referenceType'] ?? null,
-                );
+                ];
                 $class->mapMixedReferrers($mapping);
             }
         }
         if (isset($element['referrers'])) {
             foreach ($element['referrers'] as $name => $attributes) {
-                if (! isset($attributes['referencedBy'])) {
+                if (!isset($attributes['referencedBy'])) {
                     throw new MappingException("$className is missing the referencedBy attribute for the referrer field $name");
                 }
-                if (! isset($attributes['referringDocument'])) {
+                if (!isset($attributes['referringDocument'])) {
                     throw new MappingException("$className is missing the referringDocument attribute for the referrer field $name");
                 }
-                $mapping = array(
-                    'fieldName' => $name,
-                    'referencedBy' => $attributes['referencedBy'],
+                $mapping = [
+                    'fieldName'         => $name,
+                    'referencedBy'      => $attributes['referencedBy'],
                     'referringDocument' => $attributes['referringDocument'],
-                    'cascade' => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
-                );
+                    'cascade'           => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
+                ];
                 $class->mapReferrers($mapping);
             }
         }
         if (isset($element['versionName'])) {
-            $class->mapVersionName(array('fieldName' => $element['versionName']));
+            $class->mapVersionName(['fieldName' => $element['versionName']]);
         }
         if (isset($element['versionCreated'])) {
-            $class->mapVersionCreated(array('fieldName' => $element['versionCreated']));
+            $class->mapVersionCreated(['fieldName' => $element['versionCreated']]);
         }
 
         if (isset($element['lifecycleCallbacks'])) {
             foreach ($element['lifecycleCallbacks'] as $type => $methods) {
                 foreach ($methods as $method) {
-                    $class->addLifecycleCallback($method, constant('Doctrine\ODM\PHPCR\Event::' . $type));
+                    $class->addLifecycleCallback($method, constant('Doctrine\ODM\PHPCR\Event::'.$type));
                 }
             }
         }
@@ -270,12 +272,12 @@ class YamlDriver extends FileDriver
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
         /** @var PhpcrClassMetadata $class */
-        $mapping = array_merge(array('fieldName' => $fieldName), $reference);
+        $mapping = array_merge(['fieldName' => $fieldName], $reference);
 
         $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
         $mapping['name'] = $reference['name'] ?? null;
 
-        if (! isset($mapping['targetDocument'])) {
+        if (!isset($mapping['targetDocument'])) {
             $mapping['targetDocument'] = null;
         }
 
@@ -294,6 +296,7 @@ class YamlDriver extends FileDriver
         if (!is_file($file)) {
             throw new InvalidArgumentException(sprintf('File "%s" not found', $file));
         }
+
         return Yaml::parse(file_get_contents($file));
     }
 
@@ -302,13 +305,13 @@ class YamlDriver extends FileDriver
      *
      * @param array $cascadeElement The cascade element.
      *
-     * @return integer a bitmask of cascade options.
+     * @return int a bitmask of cascade options.
      */
     private function getCascadeMode(array $cascadeElement)
     {
         $cascade = 0;
         foreach ($cascadeElement as $cascadeMode) {
-            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode);
+            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_'.strtoupper($cascadeMode);
             if (!defined($constantName)) {
                 throw new MappingException("Cascade mode '$cascadeMode' not supported.");
             }

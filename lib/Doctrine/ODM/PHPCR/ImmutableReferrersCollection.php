@@ -20,7 +20,7 @@
 namespace Doctrine\ODM\PHPCR;
 
 /**
- * Immutable referrer collection class
+ * Immutable referrer collection class.
  *
  * This class represents a collection of referrers of a document that can be
  * mixed and thus never can be persisted.

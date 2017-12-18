@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(translator="attribute", referenceable=true)
@@ -49,7 +49,7 @@ class Article
     public $child;
 
     /** @PHPCRODM\ReferenceMany() */
-    public $relatedArticles = array();
+    public $relatedArticles = [];
 
     /** @PHPCRODM\Field(type="string", translated=true, nullable=true) */
     public $nullable;
@@ -79,6 +79,7 @@ class Article
     {
         return $this->text;
     }
+
     public function setText($text)
     {
         $this->text = $text;
@@ -93,7 +94,7 @@ class Article
     }
 
     /**
-     * Sets the children
+     * Sets the children.
      *
      * @param $children ArrayCollection
      */
@@ -103,17 +104,17 @@ class Article
     }
 
     /**
-     * Set settings
+     * Set settings.
      *
      * @param array $settings
      */
-    public function setSettings(array $settings = array())
+    public function setSettings(array $settings = [])
     {
         $this->settings = $settings;
     }
 
     /**
-     * Get settings
+     * Get settings.
      *
      * @return array $settings
      */

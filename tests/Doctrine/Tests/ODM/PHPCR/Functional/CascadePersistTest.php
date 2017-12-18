@@ -7,9 +7,9 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\Models\CMS\CmsArticlePerson;
+use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Tests\Models\CMS\CmsGroup;
 
 class CascadePersistTest extends PHPCRFunctionalTestCase
 {
@@ -20,7 +20,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
     public function setUp()
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $class = $this->dm->getClassMetadata(CmsUser::class);
@@ -220,7 +220,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $article->text = 'foo';
         $article->topic = 'bar';
         $article->id = '/functional/article_referrer';
-        $user->articlesReferrers = array($article);
+        $user->articlesReferrers = [$article];
 
         $this->dm->flush();
 
@@ -242,7 +242,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $article->text = 'foo';
         $article->topic = 'bar';
         $article->id = '/functional/article';
-        $article->user = array();
+        $article->user = [];
 
         $this->expectException(PHPCRException::class);
         $this->expectExceptionMessage('Referenced document is not stored correctly in a reference-one property. Do not use array notation');
@@ -281,7 +281,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $user->name = 'foo';
         $user->username = 'bar';
         $user->id = '/functional/user';
-        $user->groups = array('this is a bad idea');
+        $user->groups = ['this is a bad idea'];
 
         $this->expectException(PHPCRException::class);
         $this->expectExceptionMessage('A reference field may only contain mapped documents, found <string> in field "groups" of "Doctrine\Tests\Models\CMS\CmsUser');
@@ -289,7 +289,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test Referrers ManyToMany cascade Flush
+     * Test Referrers ManyToMany cascade Flush.
      */
     public function testCascadeManagedDocumentReferrerMtoMDuringFlush()
     {

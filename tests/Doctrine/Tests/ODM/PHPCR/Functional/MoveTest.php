@@ -3,10 +3,10 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\PropertyType;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\PropertyType;
 
 /**
  * @group functional
@@ -25,12 +25,12 @@ class MoveTest extends PHPCRFunctionalTestCase
     public function setUp()
     {
         $this->type = CmsUser::class;
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('lsmith');
         $user->setProperty('username', 'lsmith');
-        $user->setProperty('numbers', array(3, 1, 2));
+        $user->setProperty('numbers', [3, 1, 2]);
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
 
