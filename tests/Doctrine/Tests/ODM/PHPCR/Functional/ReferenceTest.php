@@ -511,8 +511,8 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
-        unset($refManyTestObj->references[0]);
-        unset($refManyTestObj->references[1]);
+        unset($refManyTestObj->references[0], $refManyTestObj->references[1]);
+
         $this->assertEquals(0, count($refManyTestObj->references));
         $this->dm->flush();
         $this->dm->clear();

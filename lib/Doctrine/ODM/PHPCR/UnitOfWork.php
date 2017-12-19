@@ -995,8 +995,7 @@ class UnitOfWork
                 unset($this->scheduledInserts[$oid]);
                 break;
             case self::STATE_MANAGED:
-                unset($this->scheduledMoves[$oid]);
-                unset($this->scheduledReorders[$oid]);
+                unset($this->scheduledMoves[$oid], $this->scheduledReorders[$oid]);
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
@@ -1448,8 +1447,7 @@ class UnitOfWork
 
                     $this->scheduledUpdates[$oid] = $document;
                 } elseif (empty($this->documentChangesets[$oid]['fields'])) {
-                    unset($this->documentChangesets[$oid]);
-                    unset($this->scheduledUpdates[$oid]);
+                    unset($this->documentChangesets[$oid], $this->scheduledUpdates[$oid]);
                 } else {
                     $this->documentChangesets[$oid]['reorderings'] = [];
                 }
@@ -1654,8 +1652,7 @@ class UnitOfWork
             $this->originalData[$oid] = $actualData;
             $this->scheduledUpdates[$oid] = $document;
         } elseif (empty($this->documentChangesets[$oid]['reorderings'])) {
-            unset($this->documentChangesets[$oid]);
-            unset($this->scheduledUpdates[$oid]);
+            unset($this->documentChangesets[$oid], $this->scheduledUpdates[$oid]);
         } else {
             $this->documentChangesets[$oid]['fields'] = [];
         }
@@ -3031,8 +3028,7 @@ class UnitOfWork
 
         $history->removeVersion($version->getName());
 
-        unset($this->documentVersion[$oid]);
-        unset($this->documentHistory[$oid]);
+        unset($this->documentVersion[$oid], $this->documentHistory[$oid]);
     }
 
     /**
