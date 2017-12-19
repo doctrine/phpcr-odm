@@ -146,7 +146,7 @@ class XmlDriver extends FileDriver
                 'fieldName' => (string) $xmlRoot->id->attributes()->name,
                 'id'        => true,
             ];
-            if (isset($xmlRoot->id->generator) && isset($xmlRoot->id->generator->attributes()->strategy)) {
+            if (isset($xmlRoot->id->generator, $xmlRoot->id->generator->attributes()->strategy)) {
                 $mapping['strategy'] = (string) $xmlRoot->id->generator->attributes()->strategy;
             }
             $class->mapId($mapping);

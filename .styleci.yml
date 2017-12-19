@@ -1,1 +1,4 @@
 preset: recommended
+
+enabled:
+    - combine_consecutive_issets
