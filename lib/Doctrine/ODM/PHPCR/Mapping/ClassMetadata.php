@@ -1558,7 +1558,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function mapField(array $mapping, self $inherited = null)
     {
-        $parentMapping = isset($mapping['fieldName']) && isset($this->mappings[$mapping['fieldName']])
+        $parentMapping = isset($mapping['fieldName'], $this->mappings[$mapping['fieldName']])
             ? $this->mappings[$mapping['fieldName']] : null;
 
         if (!$inherited) {

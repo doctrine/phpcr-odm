@@ -1539,15 +1539,13 @@ class UnitOfWork
             // collect assignment move operations
             $destPath = $destName = false;
 
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($changeSet[$class->parentMapping])
+            if (isset($this->originalData[$oid][$class->parentMapping], $changeSet[$class->parentMapping])
                 && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
             ) {
                 $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
             }
 
-            if (isset($this->originalData[$oid][$class->nodename])
-                && isset($changeSet[$class->nodename])
+            if (isset($this->originalData[$oid][$class->nodename], $changeSet[$class->nodename])
                 && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
             ) {
                 $destName = $changeSet[$class->nodename];
@@ -1578,8 +1576,7 @@ class UnitOfWork
                 $this->scheduleMove($document, $targetPath);
             }
 
-            if (isset($this->originalData[$oid][$class->identifier])
-                && isset($changeSet[$class->identifier])
+            if (isset($this->originalData[$oid][$class->identifier], $changeSet[$class->identifier])
                 && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
             ) {
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
