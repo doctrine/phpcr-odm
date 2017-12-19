@@ -2,3 +2,4 @@ preset: recommended
 
 enabled:
     - combine_consecutive_issets
+    - combine_consecutive_unsets
