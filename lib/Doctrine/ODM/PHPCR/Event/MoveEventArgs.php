@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
