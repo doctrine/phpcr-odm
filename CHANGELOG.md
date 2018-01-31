@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.4.4
+-----
+
+Allow installation together with Symfony 4 components.
+
 1.4.3
 -----
 
