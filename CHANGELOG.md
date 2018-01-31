@@ -18,6 +18,11 @@ Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
 
 `DocumentManager::getDocumentId()` to get the id of a managed document
 
+1.4.4
+-----
+
+Allow installation together with Symfony 4 components.
+
 1.4.3
 -----
 
