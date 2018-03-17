@@ -589,24 +589,24 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         // Check that french is now also returned even without having flushed
         $locales = $this->dm->getLocalesFor($this->doc);
         $this->assertCount(2, $locales);
-        $this->assertTrue(in_array('en', $locales));
-        $this->assertTrue(in_array('fr', $locales));
+        $this->assertContains('en', $locales);
+        $this->assertContains('fr', $locales);
 
         $this->dm->flush();
 
         $locales = $this->dm->getLocalesFor($this->doc);
         $this->assertCount(2, $locales);
-        $this->assertTrue(in_array('en', $locales));
-        $this->assertTrue(in_array('fr', $locales));
+        $this->assertContains('en', $locales);
+        $this->assertContains('fr', $locales);
 
         // A third language is bound but not yet flushed
         $this->dm->bindTranslation($this->doc, 'de');
 
         $locales = $this->dm->getLocalesFor($this->doc);
         $this->assertCount(3, $locales);
-        $this->assertTrue(in_array('en', $locales));
-        $this->assertTrue(in_array('fr', $locales));
-        $this->assertTrue(in_array('de', $locales));
+        $this->assertContains('en', $locales);
+        $this->assertContains('fr', $locales);
+        $this->assertContains('de', $locales);
     }
 
     public function testRemove()

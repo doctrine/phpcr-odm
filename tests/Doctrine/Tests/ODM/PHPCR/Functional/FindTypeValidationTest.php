@@ -115,7 +115,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     {
         $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
 
-        $this->assertTrue(null === $user, is_object($user) ? get_class($user) : $user);
+        $this->assertNull($user, is_object($user) ? get_class($user) : $user);
     }
 
     /**
@@ -127,7 +127,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf($this->type, $user);
 
         $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
-        $this->assertTrue(null === $user, is_object($user) ? get_class($user) : $user);
+        $this->assertNull($user, is_object($user) ? get_class($user) : $user);
     }
 
     /**

@@ -144,7 +144,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($ids as $id) {
-            $this->assertTrue(in_array($id, $tmpIds));
+            $this->assertContains($id, $tmpIds);
         }
     }
 
@@ -239,7 +239,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
@@ -287,7 +287,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
@@ -363,7 +363,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($ids as $id) {
-            $this->assertTrue(in_array($id, $tmpIds));
+            $this->assertContains($id, $tmpIds);
         }
     }
 
@@ -452,7 +452,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals($max, $i);
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $refNames));
+            $this->assertContains($name, $refNames);
         }
     }
 
@@ -532,7 +532,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $names = ['weakReferrerTestObj', 'hardReferrerTestObj'];
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 

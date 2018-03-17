@@ -58,7 +58,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser = $this->dm->find(CmsUser::class, $user->id);
-        $this->assertEquals(2, count($pUser->groups));
+        $this->assertCount(2, $pUser->groups);
     }
 
     public function testCascadePersistForManagedDocument()
@@ -88,7 +88,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser = $this->dm->find(CmsUser::class, $user->id);
-        $this->assertEquals(2, count($pUser->groups));
+        $this->assertCount(2, $pUser->groups);
     }
 
     public function testCascadePersistSingleDocument()
@@ -142,7 +142,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser = $this->dm->find(CmsUser::class, $user->id);
-        $this->assertEquals(2, count($pUser->groups));
+        $this->assertCount(2, $pUser->groups);
     }
 
     public function testCascadeManagedDocumentReferenceDuringFlush()
@@ -191,7 +191,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->find(CmsUser::class, '/functional/dbu');
         $this->assertNotNull($user);
-        $this->assertTrue(1 <= count($user->articlesReferrers));
+        $this->assertGreaterThanOrEqual(1, count($user->articlesReferrers));
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf(CmsArticle::class, $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);
@@ -230,7 +230,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->find(CmsUser::class, '/functional/dbu');
         $this->assertNotNull($user);
-        $this->assertTrue(1 <= count($user->articlesReferrers));
+        $this->assertGreaterThanOrEqual(1, count($user->articlesReferrers));
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf(CmsArticle::class, $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);

@@ -52,7 +52,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $uuids = [$actualUuid, $unusedUuid];
 
         $documents = $this->dm->findMany(get_class($user), $uuids);
-        $this->assertEquals(1, count($documents));
+        $this->assertCount(1, $documents);
     }
 }
 

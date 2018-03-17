@@ -42,12 +42,12 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
 
         // Check the annotation is correctly read if it is present
         $metadata = $factory->getMetadataFor(VersionableArticle::class);
-        $this->assertTrue(isset($metadata->versionable));
+        $this->assertObjectHasAttribute('versionable', $metadata);
         $this->assertEquals('simple', $metadata->versionable);
 
         // Check the annotation is not set if it is not present
         $metadata = $factory->getMetadataFor(NonVersionableArticle::class);
-        $this->assertTrue(isset($metadata->versionable));
+        $this->assertObjectHasAttribute('versionable', $metadata);
         $this->assertFalse($metadata->versionable);
     }
 

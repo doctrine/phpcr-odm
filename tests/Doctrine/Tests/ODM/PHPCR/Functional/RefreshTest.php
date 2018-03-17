@@ -63,10 +63,10 @@ class RefreshTest extends PHPCRFunctionalTestCase
 
         $user->addGroup($group2);
 
-        $this->assertEquals(2, count($user->groups));
+        $this->assertCount(2, $user->groups);
         $this->dm->refresh($user);
 
-        $this->assertEquals(1, count($user->groups));
+        $this->assertCount(1, $user->groups);
     }
 
     public function testRefreshProxy()

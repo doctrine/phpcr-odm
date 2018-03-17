@@ -51,6 +51,6 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
 
         $diff = microtime(true) - $s;
 
-        $this->assertTrue($diff < 1.0, 'Inserting '.$this->count." documents shouldn't take longer than one second, took ".$diff.' seconds.');
+        $this->assertLessThan(1.0, $diff, 'Inserting '.$this->count." documents shouldn't take longer than one second, took ".$diff.' seconds.');
     }
 }
