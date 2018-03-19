@@ -90,8 +90,8 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $users = $this->dm->getRepository(CmsUser::class)->findMany([$user1->id, $user2->id]);
-        $this->assertTrue(isset($users['/functional/beberlei']));
-        $this->assertTrue(isset($users['/functional/lsmith']));
+        $this->assertArrayHasKey('/functional/beberlei', $users);
+        $this->assertArrayHasKey('/functional/lsmith', $users);
         $this->assertInstanceOf(CmsUser::class, $users['/functional/beberlei']);
         $this->assertInstanceOf(CmsUser::class, $users['/functional/lsmith']);
         $this->assertEquals($user1->username, $users['/functional/beberlei']->username);

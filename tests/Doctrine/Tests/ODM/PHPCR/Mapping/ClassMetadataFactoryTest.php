@@ -77,7 +77,7 @@ class ClassMetadataFactoryTest extends TestCase
 
         $metadata = $cmf->getAllMetadata();
 
-        $this->assertTrue(is_array($metadata));
+        $this->assertInternalType('array', $metadata);
     }
 
     public function testCacheDriver()

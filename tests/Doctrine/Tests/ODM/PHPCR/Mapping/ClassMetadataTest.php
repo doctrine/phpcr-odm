@@ -60,7 +60,7 @@ class ClassMetadataTest extends TestCase
     {
         $cm->mapField(['fieldName' => 'id', 'id' => true, 'strategy' => 'assigned']);
 
-        $this->assertTrue(isset($cm->mappings['id']));
+        $this->assertArrayHasKey('id', $cm->mappings);
         $this->assertEquals(
             [
                 'id'         => true,
@@ -113,8 +113,8 @@ class ClassMetadataTest extends TestCase
         $cm->mapField(['fieldName' => 'username', 'property' => 'username', 'type' => 'string']);
         $cm->mapField(['fieldName' => 'created', 'property' => 'created', 'type' => 'datetime']);
 
-        $this->assertTrue(isset($cm->mappings['username']));
-        $this->assertTrue(isset($cm->mappings['created']));
+        $this->assertArrayHasKey('username', $cm->mappings);
+        $this->assertArrayHasKey('created', $cm->mappings);
 
         $this->assertEquals(
             [
@@ -260,7 +260,7 @@ class ClassMetadataTest extends TestCase
     {
         $cm->mapManyToOne(['fieldName' => 'address', 'targetDocument' => Address::class]);
 
-        $this->assertTrue(isset($cm->mappings['address']), "No 'address' in associations map.");
+        $this->assertArrayHasKey('address', $cm->mappings, "No 'address' in associations map.");
         $this->assertEquals([
             'fieldName'      => 'address',
             'targetDocument' => Address::class,
@@ -280,18 +280,18 @@ class ClassMetadataTest extends TestCase
         $cm->initializeReflection(new RuntimeReflectionService());
 
         // Test initial state
-        $this->assertTrue(count($cm->getReflectionProperties()) == 0);
+        $this->assertCount(0, $cm->getReflectionProperties());
         $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals([], $cm->parentClasses);
-        $this->assertEquals(0, count($cm->referenceMappings));
+        $this->assertCount(0, $cm->referenceMappings);
 
         // Customize state
         $cm->setParentClasses(['UserParent']);
         $cm->setCustomRepositoryClassName('CmsUserRepository');
         $cm->setNodeType('foo:bar');
         $cm->mapManyToOne(['fieldName' => 'address', 'targetDocument' => 'CmsAddress', 'mappedBy' => 'foo']);
-        $this->assertEquals(1, count($cm->referenceMappings));
+        $this->assertCount(1, $cm->referenceMappings);
 
         $serialized = serialize($cm);
         /** @var ClassMetadata $cm */
@@ -299,7 +299,7 @@ class ClassMetadataTest extends TestCase
         $cm->wakeupReflection(new RuntimeReflectionService());
 
         // Check state
-        $this->assertTrue(count($cm->getReflectionProperties()) > 0);
+        $this->assertGreaterThan(0, count($cm->getReflectionProperties()));
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
@@ -307,7 +307,7 @@ class ClassMetadataTest extends TestCase
         $this->assertEquals(CmsUserRepository::class, $cm->customRepositoryClassName);
         $this->assertEquals('foo:bar', $cm->getNodeType());
         $this->assertEquals(ClassMetadata::MANY_TO_ONE, $cm->getTypeOfField('address'));
-        $this->assertEquals(1, count($cm->referenceMappings));
+        $this->assertCount(1, $cm->referenceMappings);
         $this->assertTrue($cm->hasAssociation('address'));
         $this->assertEquals(CmsAddress::class, $cm->getAssociationTargetClass('address'));
     }
@@ -325,7 +325,7 @@ class ClassMetadataTest extends TestCase
 
         // Check properties needed for translations
         $this->assertEquals('attribute', $cm->translator);
-        $this->assertTrue(in_array('translatedField', $cm->translatableFields));
+        $this->assertContains('translatedField', $cm->translatableFields);
         $this->assertEquals('locale', $cm->localeMapping);
     }
 

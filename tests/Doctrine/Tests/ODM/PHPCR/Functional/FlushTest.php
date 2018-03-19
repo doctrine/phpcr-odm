@@ -197,7 +197,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->flush($user);
 
         $this->assertTrue($this->dm->contains($otherUser), 'Other user is not contained in DocumentManager');
-        $this->assertTrue($otherUser->id != null, 'other user has no id');
+        $this->assertNotNull($otherUser->id, 'other user has no id');
     }
 
     public function testFlushAndCascadePersist()
@@ -220,7 +220,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->flush($user);
 
         $this->assertTrue($this->dm->contains($address), 'Address is not contained in DocumentManager');
-        $this->assertTrue($address->id != null, 'address user has no id');
+        $this->assertNotNull($address->id, 'address user has no id');
     }
 
     public function testProxyIsIgnored()
@@ -245,7 +245,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->flush($user);
 
         $this->assertTrue($this->dm->contains($otherUser), 'Other user is contained in DocumentManager');
-        $this->assertTrue($otherUser->id != null, 'other user has no id');
+        $this->assertNotNull($otherUser->id, 'other user has no id');
     }
 
     public function testUuidIsSet()
