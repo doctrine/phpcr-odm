@@ -24,16 +24,24 @@ you can get timestamps on your documents by simply adding the mixins:
          */
         class SomeDocument
         {
-            /** @PHPCR\Field(type="date", property="jcr:created") */
+            /**
+             * @PHPCR\Field(type="date", property="jcr:created")
+             */
             private $created;
 
-            /** @PHPCR\Field(type="string", property="jcr:createdBy") */
+            /**
+             * @PHPCR\Field(type="string", property="jcr:createdBy")
+             */
             private $createdBy;
 
-            /** @PHPCR\Field(type="date", property="jcr:lastModified") */
+            /**
+             * @PHPCR\Field(type="date", property="jcr:lastModified")
+             */
             private $lastModified;
 
-            /** @PHPCR\Field(type="string", property="jcr:lastModifiedBy") */
+            /**
+             * @PHPCR\Field(type="string", property="jcr:lastModifiedBy")
+             */
             private $lastModifiedBy;
         }
 

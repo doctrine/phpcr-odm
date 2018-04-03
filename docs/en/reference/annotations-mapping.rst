@@ -45,27 +45,31 @@ Document
 
 Optional attributes:
 
--  **nodeType**: PHPCR type for this node, default ``nt:unstructured``.
--  **uniqueNodeType**: If this document has a unique node type, set to ``true``
-   in order to support outer joins correctly. See
-   :ref:`left outer join <_qbref_method_querybuilder_addjoinleftouter>` and
-   :ref:`right outer join <_qbref_method_querybuilder_addjoinrightouter>`.
-   To register a custom node type, use the ``phpcr:node-type:register`` console
-   command (use ``help phpcr:node-type:register`` for the syntax; see :doc:`Tools <tools>`
-   for more information). To verify that documents claiming to have unique node types
-   are truly unique, use the ``doctrine:phpcr:mapping:verify-unique-node-types`` command.
--  **repositoryClass**: Name of the repository to use for this document.
--  **versionable**: *(string)* Set to ``simple`` or ``full`` to enable versioning
-   (respectively simple or full level), ``false`` to disable versioning
-   inheritance. Implies *referenceable*. Note that not every PHPCR implementation
-   support this feature. See :doc:`Versioning <versioning>`.
--  **referenceable**: Set to true to allow this node to be referenced.
--  **translator**: Determines how translations are stored, one of ``attribute``
-   or ``child``. See :ref:`langauge mapping <multilang_mapping>`
--  **mixins**: Optional list of PHPCR mixins that will be added to the node on
-   creation. Note that if this field is present, it overwrites the same field
-   from the anchestor documents so you have to repeat mixins you want to keep
-   if you add a mixins field.
+- **nodeType**: PHPCR type for this node, default ``nt:unstructured``.
+- **uniqueNodeType**: If this document has a unique node type, set to ``true``
+  in order to support outer joins correctly. See
+  :ref:`left outer join <_qbref_method_querybuilder_addjoinleftouter>` and
+  :ref:`right outer join <_qbref_method_querybuilder_addjoinrightouter>`.
+  To register a custom node type, use the ``phpcr:node-type:register`` console
+  command (use ``help phpcr:node-type:register`` for the syntax; see :doc:`Tools <tools>`
+  for more information). To verify that documents claiming to have unique node types
+  are truly unique, use the ``doctrine:phpcr:mapping:verify-unique-node-types`` command.
+- **repositoryClass**: Name of the repository to use for this document.
+- **versionable**: *(string)* Set to ``simple`` or ``full`` to enable versioning
+  (respectively simple or full level), ``false`` to disable versioning
+  inheritance. Implies *referenceable*. Note that not every PHPCR implementation
+  support this feature. See :doc:`Versioning <versioning>`.
+- **referenceable**: Set to true to allow this node to be referenced.
+- **translator**: Determines how translations are stored, one of ``attribute``
+  or ``child``. See :ref:`langauge mapping <multilang_mapping>`
+- **mixins**: Optional list of PHPCR mixins that will be added to the node on
+  creation. Note that if this field is present, it overwrites the same field
+  from the anchestor documents so you have to repeat mixins you want to keep
+  if you add a mixins field.
+- **childClasses**: List of valid child classes (if empty any classes are
+  permitted).
+- **isLeaf**: If the document should act as a leaf (i.e. it can have no
+  children). Mutually exclusive with ``childClasses``.
 
 Minimal example::
 
@@ -90,9 +94,10 @@ Full example::
      *   referenceable=true,
      *   translator="child",
      *   mixins={"mix:created", "mix:lastModified"}
+     *   childClasses={"App\Documents\Article", "App\Documents\Page"}
      * )
      */
-    class SomeDocument
+    class Article
     {
         // ...
     }
