@@ -78,7 +78,9 @@ to be designated as an document. This can be done through the
 
         use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 
-        /** @PHPCR\Document */
+        /**
+         * @PHPCR\Document
+         */
         class MyPersistentClass
         {
             //...
