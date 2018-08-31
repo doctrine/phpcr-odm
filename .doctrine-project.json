@@ -1,0 +1,17 @@
+{
+    "active": true,
+    "name": "PHPCR ODM",
+    "slug": "phpcr-odm",
+    "docsSlug": "doctrine-phpcr-odm",
+    "versions": [
+        {
+            "name": "master",
+            "branchName": "master",
+            "slug": "latest",
+            "aliases": [
+                "current",
+                "stable"
+            ]
+        }
+    ]
+}

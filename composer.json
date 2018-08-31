@@ -1,8 +1,16 @@
 {
     "name": "doctrine/phpcr-odm",
     "type": "library",
-    "description": "Object-Document-Mapper for PHPCR",
-    "keywords": ["odm", "phpcr", "database"],
+    "description": "PHP Doctrine Content Repository Object Document Mapper (ODM) provides transparent persistence for PHP objects.",
+    "keywords": [
+        "php",
+        "content",
+        "odm",
+        "data",
+        "mapper",
+        "mapping",
+        "object"
+    ],
     "homepage": "http://www.doctrine-project.org",
     "license": "MIT",
     "authors":[
