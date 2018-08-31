@@ -11,7 +11,7 @@
         "mapping",
         "object"
     ],
-    "homepage": "http://www.doctrine-project.org",
+    "homepage": "https://www.doctrine-project.org/projects/phpcr-odm.html",
     "license": "MIT",
     "authors":[
         {"name":"Jordi Boggiano", "email":"j.boggiano@seld.be"},
