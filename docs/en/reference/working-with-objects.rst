@@ -24,7 +24,7 @@ persisted are lost.
 .. tip::
 
     The ``DocumentManager`` is very similar to the Doctrine ORM EntityManager and
-    this chapter is similar to its `corresponding ORM chapter <https://doctrine-orm.readthedocs.org/en/latest/reference/working-with-objects.html>`_.
+    this chapter is similar to its `corresponding ORM chapter <https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/working-with-objects.html>`_.
     This chapter tries to help you by highlighting the places where PHPCR-ODM
     is different from the ORM.
 
