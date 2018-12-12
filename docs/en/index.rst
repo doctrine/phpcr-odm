@@ -11,8 +11,8 @@ If this documentation is not helping to answer questions you have about
 Doctrine PHPCR ODM don't panic. You can get help from different sources:
 
 -  The `Doctrine Mailing List <http://groups.google.com/group/doctrine-user>`_
--  Internet Relay Chat (IRC) in `#doctrine on Freenode <irc://irc.freenode.net/doctrine>`_
--  Report a bug on `JIRA <http://www.doctrine-project.org/jira>`_.
+-  Slack chat room `#phpcr-odm <https://www.doctrine-project.org/slack>`_
+-  Report a bug on `GitHub <https://github.com/doctrine/phpcr-odm/issues>`_.
 
 Getting Started
 ---------------
