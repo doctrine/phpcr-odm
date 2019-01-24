@@ -1420,7 +1420,7 @@ class UnitOfWork
                 // reindex the arrays to avoid holes in the indexes
                 $originalNames = array_values($originalNames);
                 $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
-                if ($originalNames !== $childNames) {
+                if ($originalNames != $childNames) {
                     $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
                     if (empty($this->documentChangesets[$oid])) {
                         $this->documentChangesets[$oid] = ['reorderings' => [$reordering]];

@@ -201,6 +201,33 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->assertSame(['second', 'first', 'third', 'fourth'], $this->getChildrenNames($parent->getChildren()));
     }
 
+    public function testNumericNodes()
+    {
+        $parent = $this->dm->find(null, '/functional/source');
+
+        // The ChildrenCollection calls getKeys when taking a snapshot, and that can convert numeric string
+        // node names into integer node names
+        $numericNodes = ['2017', '2018'];
+        foreach ($numericNodes as $numericNode) {
+            $child = new Generic();
+            $child->setNodename($numericNode);
+            $child->setParentDocument($parent);
+            $this->dm->persist($child);
+        }
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        // Force the numeric children to load and take a snapshot.
+        $parent = $this->dm->find(null, '/functional/source');
+        $parent->getChildren()->initialize();
+        $parent->getChildren()->takeSnapshot();
+
+        // Assert that no changesets are created, as nothing has changed.
+        $this->dm->getUnitOfWork()->computeChangeSets();
+        $this->assertEmpty($this->dm->getUnitOfWork()->getScheduledUpdates());
+    }
+
     private function getChildrenNames($children)
     {
         $result = [];
