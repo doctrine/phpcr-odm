@@ -2,7 +2,7 @@ Architecture
 ============
 
 The architecture of the PHPCR-ODM is similar to that of Doctrine 2 ORM. Please read
-the ORM architecture chapter (TODO: link) to get a basic understanding of the Doctrine
+the `ORM architecture chapter <https://www.doctrine-project.org/projects/doctrine-orm/en/latest/reference/architecture.html>`_ to get a basic understanding of the Doctrine
 architecture. We will focus on some notable differences here.
 
 Doctrine PHPCR-ODM Packages
