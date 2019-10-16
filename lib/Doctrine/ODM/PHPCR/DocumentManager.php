@@ -304,6 +304,10 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function findMany($className, array $ids)
     {
+        // when loading duplicate ID's the resulting response would be a collection of unique ids,
+        // but having duplicates would also cause a lot of overhead as well as break translation loading,
+        // so pre filter unique, see https://github.com/doctrine/phpcr-odm/pull/795
+        $ids = array_unique($ids);
         $uuids = [];
         foreach ($ids as $key => $id) {
             if (UUIDHelper::isUUID($id)) {

@@ -875,4 +875,29 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $this->assertEquals('Guten tag', $trans->topic);
     }
+
+    public function testMangerIsNotDroppingTranslationWhenDuplicateIdsArePassedToFindMany()
+    {
+        $articles = ['someText', 'moreText', 'someMoreText'];
+        foreach ($articles as $article) {
+            $a = new Article();
+            $ids[] = $a->id = '/functional/'.$this->testNodeName.$article;
+            $a->topic = $article;
+            $a->text = $article;
+            $this->dm->persist($a);
+        }
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $duplicateIdsList = \array_merge($ids, $ids);
+        $documents = $this->dm->findMany($this->class, $duplicateIdsList);
+
+        $this->assertCount(count($articles), $documents);
+        foreach ($documents as $document) {
+            $this->assertSame('en', $document->locale);
+            $this->assertNotNull($document->text);
+            $this->assertNotNull('Some category', $document->topic);
+        }
+    }
 }
