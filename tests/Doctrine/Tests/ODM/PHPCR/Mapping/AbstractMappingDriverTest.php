@@ -848,7 +848,7 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @depends testLoadUuidMapping
      *
-     * @param   $class
+     * @param ClassMetadata $class
      */
     public function testUuidMapping($class)
     {
