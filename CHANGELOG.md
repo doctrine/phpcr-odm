@@ -18,6 +18,11 @@ Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
 
 `DocumentManager::getDocumentId()` to get the id of a managed document
 
+1.4.5
+-----
+
+Fix: Translations not loading with duplicate ids.
+
 1.4.4
 -----
 

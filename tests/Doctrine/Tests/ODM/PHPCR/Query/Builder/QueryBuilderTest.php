@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
 class QueryBuilderTest extends NodeTestCase
 {
