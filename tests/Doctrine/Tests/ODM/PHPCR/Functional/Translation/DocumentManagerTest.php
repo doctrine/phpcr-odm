@@ -2,15 +2,17 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\Tests\Models\Translation\Article;
-use Doctrine\Tests\Models\Translation\Comment;
-use Doctrine\Tests\Models\Translation\InvalidMapping;
-use Doctrine\Tests\Models\Translation\DerivedArticle;
-use Doctrine\Tests\Models\CMS\CmsArticle;
-use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Tests\Models\Translation\Article;
+use Doctrine\Tests\Models\Translation\ArticleCategory;
+use Doctrine\Tests\Models\Translation\ArticleWithCategory;
+use Doctrine\Tests\Models\Translation\Comment;
+use Doctrine\Tests\Models\Translation\DerivedArticle;
+use Doctrine\Tests\Models\Translation\InvalidMapping;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
@@ -880,5 +882,30 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         );
 
         $this->assertEquals('Guten tag', $trans->topic);
+    }
+
+    public function testMangerIsNotDroppingTranslationWhenDuplicateIdsArePassedToFindMany()
+    {
+        $articles = array('someText', 'moreText', 'someMoreText');
+        foreach ($articles as $article) {
+            $a = new Article();
+            $ids[] = $a->id = '/functional/'.$this->testNodeName.$article;
+            $a->topic = $article;
+            $a->text = $article;
+            $this->dm->persist($a);
+        }
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $duplicateIdsList = \array_merge($ids, $ids);
+        $documents = $this->dm->findMany($this->class, $duplicateIdsList);
+
+        $this->assertEquals(count($articles), count($documents));
+        foreach ($documents as $document) {
+            $this->assertSame('en', $document->locale);
+            $this->assertNotNull($document->text);
+            $this->assertNotNull('Some category', $document->topic);
+        }
     }
 }
