@@ -1,5 +1,13 @@
 Changelog
 =========
+
+1.4.6
+-----
+
+* Support PHP 7.3 and 7.4
+* Allow Symfony 5
+* Drop PHP 5.6 and 7.0 and hhvm
+
 1.4.5
 -----
 
