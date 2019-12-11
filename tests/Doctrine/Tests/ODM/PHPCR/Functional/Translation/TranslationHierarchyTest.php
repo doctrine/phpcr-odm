@@ -2,20 +2,22 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\Models\Translation\Article;
-use Doctrine\Tests\Models\Translation\Comment;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use PHPCR\PropertyType;
+use Doctrine\Common\Proxy\Proxy;
 
 /**
  * @group functional
  */
-class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class TranslationHierarchyTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -23,27 +25,29 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
      * Class name of the document class
      * @var string
      */
-    private $type;
+    private $type = Article::class;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    /**
+     *
+     */
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\Models\Translation\Article';
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
         $this->node = $this->resetFunctionalNode($this->dm);
         $user = $this->node->addNode('thename');
-        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:fr-topic', 'french', \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:fr-text', 'french text', \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:frnullfields', array('nullable'), \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:en-topic', 'english', \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:en-text', 'english text', \PHPCR\PropertyType::STRING);
-        $user->setProperty('phpcr_locale:ennullfields', array('nullable'), \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
+        $user->setProperty('phpcr_locale:fr-topic', 'french', PropertyType::STRING);
+        $user->setProperty('phpcr_locale:fr-text', 'french text', PropertyType::STRING);
+        $user->setProperty('phpcr_locale:frnullfields', array('nullable'), PropertyType::STRING);
+        $user->setProperty('phpcr_locale:en-topic', 'english', PropertyType::STRING);
+        $user->setProperty('phpcr_locale:en-text', 'english text', PropertyType::STRING);
+        $user->setProperty('phpcr_locale:ennullfields', array('nullable'), PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
 
@@ -117,7 +121,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         // object must be the same locale
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
-        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
+        $this->assertInstanceOf(Proxy::class, $doc->child);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('fr', $doc->child->relatedArticles[0]->locale);
@@ -127,7 +131,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'en');
 
-        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
+        $this->assertInstanceOf(Proxy::class, $doc->child);
         $this->assertEquals('en', $doc->locale);
         $this->assertEquals('en', $doc->child->locale);
         $this->assertEquals('Interesting Topic', $doc->child->topic);
@@ -142,7 +146,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
         // should give the doc and the related in french
         $child = $this->dm->findTranslation($this->type, '/functional/thename/child', 'en');
 
-        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $child->parent);
+        $this->assertInstanceOf(Proxy::class, $child->parent);
         $this->assertEquals('en', $child->locale);
 
         $this->assertEquals('fr', $child->parent->locale);
@@ -167,7 +171,7 @@ class TranslationHierarchyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
 
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
-        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $doc->child);
+        $this->assertInstanceOf(Proxy::class, $doc->child);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('Sujet interessant', $doc->child->topic);

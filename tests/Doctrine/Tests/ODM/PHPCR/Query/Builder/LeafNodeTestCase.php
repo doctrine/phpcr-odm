@@ -3,18 +3,19 @@
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use PHPUnit\Framework\TestCase;
 
-abstract class LeafNodeTestCase extends \PHPUnit_Framework_TestCase
+abstract class LeafNodeTestCase extends TestCase
 {
     /**
      * @var AbstractNode
      */
     protected $parent;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parent = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractNode'
+            AbstractNode::class
         )->setMockClassName('ParentNode')->getMockForAbstractClass();
     }
 

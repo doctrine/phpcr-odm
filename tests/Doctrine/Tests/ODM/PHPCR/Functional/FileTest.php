@@ -3,32 +3,28 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\Document\File;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 
 /**
  * @group functional
  */
-class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class FileTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * Class name of the document class
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\FileTestObj';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -80,7 +76,7 @@ class FileTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $file = $this->dm->find('Doctrine\ODM\PHPCR\Document\File', '/functional/filetest/file');
+        $file = $this->dm->find(File::class, '/functional/filetest/file');
 
         $this->assertNotNull($file);
         $this->assertNotNull($file->getCreated());

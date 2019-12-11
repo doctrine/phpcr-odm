@@ -76,6 +76,8 @@ HERE
 
         $out = implode("\n", $this->formatMapRst($map));
         $output->writeln($out);
+
+        return 0;
     }
 
     protected function formatMapRst($map)
@@ -140,7 +142,7 @@ HERE
             $nti[] = $f['humanize']($nType);
             $nti[] = $f['underline']($nType, '~');
             $nti[] = '';
-            
+
             foreach ($nClasses as $nClass) {
                 $nti[] = '* '.$f['genRef']($nClass, 'node');
             }

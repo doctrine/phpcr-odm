@@ -2,18 +2,20 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
-use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 
 /**
  * @group functional
  */
-class MoveByAssignmentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class MoveByAssignmentTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -21,16 +23,15 @@ class MoveByAssignmentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTest
      * Class name of the document class
      * @var string
      */
-    private $type;
+    private $type = CmsTeamUser::class;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\Models\CMS\CmsTeamUser';
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 

@@ -2,10 +2,16 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Proxy\Proxy;
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Document\Generic;
+use PHPCR\PropertyType;
 
 /**
  * Test for the Parent mapping.
@@ -15,7 +21,7 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 class ParentTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -23,16 +29,15 @@ class ParentTest extends PHPCRFunctionalTestCase
      * Class name of the document class
      * @var string
      */
-    private $type;
+    private $type = NameDoc::class;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\NameDoc';
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -42,7 +47,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         }
 
         $user = $this->node->addNode('thename');
-        $user->setProperty('phpcr:class', $this->type, \PHPCR\PropertyType::STRING);
+        $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
 
         $this->dm->getPhpcrSession()->save();
     }
@@ -78,23 +83,21 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals($doc->nodename, $docNew->nodename);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testParentChangeException()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->parent = new NameDoc();
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testIdChangeException()
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->id = '/different';
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
@@ -229,14 +232,12 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $referrer = $this->dm->find(null, '/functional/referrer');
-        $this->assertInstanceOf('\Doctrine\ODM\PHPCR\Document\Generic', $referrer->ref->parent);
+        $this->assertInstanceOf(Generic::class, $referrer->ref->parent);
     }
 
     /**
      * Create a node with a bad name and allow it to be discovered
      * among its parent node's children without explicity persisting it.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNameNewChild()
     {
@@ -247,6 +248,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $child->parent = $parent;
         $parent->children->add($child);
 
+        $this->expectException(IdException::class);
         $this->dm->flush();
     }
 
@@ -254,8 +256,6 @@ class ParentTest extends PHPCRFunctionalTestCase
      * Create a node with a bad name and allow it to be discovered
      * among its parent node's children while also explicitly
      * persisting it.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Id\IdException
      */
     public function testIllegalNameManagedChild()
     {
@@ -265,9 +265,9 @@ class ParentTest extends PHPCRFunctionalTestCase
         $child->nodename = 'bad/name';
         $child->parent = $parent;
         $parent->children->add($child);
-        $this->dm->persist($child);
 
-        $this->dm->flush();
+        $this->expectException(IdException::class);
+        $this->dm->persist($child);
     }
 }
 

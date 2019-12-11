@@ -1,12 +1,15 @@
 <?php
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPUnit\Framework\TestCase;
 
-class AssignedIdGeneratorTest extends \PHPUnit_Framework_TestCase
+class AssignedIdGeneratorTest extends TestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
      */
     public function testGenerate()
     {
@@ -14,13 +17,13 @@ class AssignedIdGeneratorTest extends \PHPUnit_Framework_TestCase
 
         $generator = new AssignedIdGenerator;
         $cm = new ClassMetadataProxy($id);
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
         $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
      */
     public function testGenerateNoIdException()
     {
@@ -28,14 +31,10 @@ class AssignedIdGeneratorTest extends \PHPUnit_Framework_TestCase
 
         $generator = new AssignedIdGenerator;
         $cm = new ClassMetadataProxy($id);
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
 
-        try {
-            $generator->generate(null, $cm, $dm);
-        } catch (\Exception $expected) {
-            return;
-        }
-        $this->fail('Expected \Exception not thrown');
+        $this->expectException(IdException::class);
+        $generator->generate(null, $cm, $dm);
     }
 }
 

@@ -1,25 +1,28 @@
 <?php
 
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPUnit\Framework\TestCase;
 
-class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
+class RepositoryIdGeneratorTest extends TestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
     public function testGenerate()
     {
         $id = 'moo';
         $cm = new RepositoryClassMetadataProxy($id);
-        $repository = $this->getMockBuilder('Doctrine\ODM\PHPCR\Id\RepositoryIdInterface')->getMock();
+        $repository = $this->createMock(RepositoryIdInterface::class);
         $repository
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
             ->will($this->returnValue('generatedid'))
         ;
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getRepository')
@@ -32,34 +35,29 @@ class RepositoryIdGeneratorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
     public function testGenerateNoIdException()
     {
         $id = 'moo';
         $generator = new RepositoryIdGenerator;
         $cm = new ClassMetadataProxy($id);
-        $repository = $this->getMockBuilder('Doctrine\ODM\PHPCR\Id\RepositoryIdInterface')->getMock();
+        $repository = $this->createMock(RepositoryIdInterface::class);
         $repository
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
             ->will($this->throwException(new \Exception))
         ;
-        $dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')->disableOriginalConstructor()->getMock();
+        $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getRepository')
             ->will($this->returnValue($repository))
         ;
 
-
-        try {
-            $generator->generate(null, $cm, $dm);
-        } catch (\Exception $expected) {
-            return;
-        }
-        $this->fail('Expected \Exception not thrown');
+        $this->expectException(\Exception::class);
+        $generator->generate(null, $cm, $dm);
     }
 }
 

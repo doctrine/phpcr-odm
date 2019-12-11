@@ -7,15 +7,24 @@ use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\ReferenceManyCollection;
 
-class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class MergeTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
      */
     private $dm;
 
-    public function setUp()
+    /**
+     * @var NodeInterface
+     */
+    private $node;
+
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -31,10 +40,10 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $mergedUser = $this->dm->merge($user);
 
         $this->assertNotSame($mergedUser, $user);
-        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsUser', $mergedUser);
+        $this->assertInstanceOf(CmsUser::class, $mergedUser);
         $this->assertEquals("beberlei", $mergedUser->username);
         $this->assertEquals($this->node->getPath().'/'.$mergedUser->username, $mergedUser->id, "Merged new document should have generated path");
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\ReferenceManyCollection', $mergedUser->articles);
+        $this->assertInstanceOf(ReferenceManyCollection::class, $mergedUser->articles);
     }
 
     public function testMergeManagedDocument()
@@ -78,7 +87,8 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->remove($user);
 
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException', "Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Removed document detected during merge at '/functional/beberlei'. Cannot merge with a removed document.");
         $this->dm->merge($user);
     }
 
@@ -100,12 +110,9 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->assertSame($mergedUser, $user);
         $this->assertEquals("jgalt", $mergedUser->username);
-        $this->assertInstanceOf('PHPCR\NodeInterface', $mergedUser->node);
+        $this->assertInstanceOf(NodeInterface::class, $mergedUser->node);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testMergeChangeDocumentClass()
     {
         $user = new CmsUser();
@@ -123,6 +130,7 @@ class MergeTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $mergableGroup->id = $user->id;
         $mergableGroup->name = "doctrine";
 
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->merge($mergableGroup);
     }
 

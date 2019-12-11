@@ -2,7 +2,13 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
+use PHPCR\SessionInterface;
 
 /**
  * These tests test if referrers are correctly read. For cascading
@@ -10,20 +16,20 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *
  * @group functional
  */
-class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ReferrerTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
@@ -32,7 +38,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         'fr' => array('fr', 'en'),
     );
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
@@ -135,7 +141,7 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $tmpIds = array();
         foreach ($reference->referrers as $referrer) {
-            $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\ReferrerTestObj', $referrer);
+            $this->assertInstanceOf(ReferrerTestObj::class, $referrer);
             $tmpIds[] = $referrer->id;
         }
 
@@ -588,8 +594,8 @@ class ReferrerTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     public function testMultilangReferrers()
     {
-        $this->dm->setLocaleChooserStrategy(new \Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser($this->localePrefs, 'en'));
-        $this->dm->setTranslationStrategy('attribute', new \Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy($this->dm));
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
+        $this->dm->setTranslationStrategy('attribute', new AttributeTranslationStrategy($this->dm));
 
         $referrerTestObj = new ReferrerTestObjMultilang();
         $referrerRefTestObj = new ReferrerRefTestObj();

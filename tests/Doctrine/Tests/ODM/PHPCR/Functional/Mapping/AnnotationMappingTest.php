@@ -2,28 +2,32 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Mapping;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 
 /**
  * @group functional
  */
-class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class AnnotationMappingTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -49,14 +53,13 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->dm->persist($second);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testSecondLevelInheritanceWithDuplicate()
     {
         $second = new SecondLevelWithDuplicate();
         $second->id = '/functional/second';
         $second->text = 'text test';
+
+        $this->expectException(MappingException::class);
         $this->dm->persist($second);
     }
 
@@ -105,32 +108,32 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     {
         return array(
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategy',
+                ParentIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_PARENT,
                 'parentId',
             ),
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategyDifferentOrder',
+                ParentIdStrategyDifferentOrder::class,
                 ClassMetadata::GENERATOR_TYPE_PARENT,
                 'parentId2',
             ),
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdStrategy',
+                AutoNameIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_AUTO,
                 'autoname as only has parent but not nodename',
             ),
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AssignedIdStrategy',
+                AssignedIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_ASSIGNED,
                 'assigned',
             ),
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\RepositoryIdStrategy',
+                RepositoryIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_REPOSITORY,
                 'repository'
             ),
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\StandardCase',
+                StandardCase::class,
                 ClassMetadata::GENERATOR_TYPE_ASSIGNED,
                 'standardcase',
             ),
@@ -140,12 +143,11 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     /**
      * @dataProvider invalidIdProvider
      *
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     *
      * @param string $class fqn of a class with invalid mapping
      */
-    public function testInvalidId($class)
+    public function testInvalidId(string $class)
     {
+        $this->expectException(MappingException::class);
         $this->dm->getClassMetadata($class);
     }
 
@@ -153,9 +155,9 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     {
         return array(
             array(
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdNoParentStrategy',
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdNoParentStrategy',
-                '\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\NoId',
+                ParentIdNoParentStrategy::class,
+                AutoNameIdNoParentStrategy::class,
+                NoId::class,
             )
         );
     }
@@ -168,7 +170,7 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->dm->persist($doc);
         $this->dm->flush();
         $this->dm->clear();
-        $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\ParentIdStrategy', $this->dm->find(null, '/functional/parent-strategy'));
+        $this->assertInstanceOf(ParentIdStrategy::class, $this->dm->find(null, '/functional/parent-strategy'));
     }
 
     public function testPersistAutoNameId()
@@ -179,7 +181,7 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->dm->flush();
         $id = $this->dm->getUnitOfWork()->getDocumentId($doc);
         $this->dm->clear();
-        $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\AutoNameIdStrategy', $this->dm->find(null, $id));
+        $this->assertInstanceOf(AutoNameIdStrategy::class, $this->dm->find(null, $id));
     }
 
     public function testPersistRepository()
@@ -190,7 +192,7 @@ class AnnotationMappingTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
         $this->dm->flush();
         $id = $this->dm->getUnitOfWork()->getDocumentId($doc);
         $this->dm->clear();
-        $this->assertInstanceOf('\Doctrine\Tests\ODM\PHPCR\Functional\Mapping\RepositoryIdStrategy', $this->dm->find(null, $id));
+        $this->assertInstanceOf(RepositoryIdStrategy::class, $this->dm->find(null, $id));
     }
 
     // TODO comprehensive test for all possible mapped fields in an abstract test, trying to persist and check if properly set

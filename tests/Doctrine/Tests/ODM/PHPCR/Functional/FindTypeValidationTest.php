@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
@@ -14,7 +16,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class FindTypeValidationTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -22,16 +24,15 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
      * Class name of the document class
      * @var string
      */
-    private $type;
+    private $type = TypeUser::class;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Functional\TypeUser';
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -110,9 +111,9 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
      */
     public function testNotInstanceOf()
     {
-        $user = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\TypeTeamUser', '/functional/user');
+        $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
 
-        $this->assertTrue(null === $user, is_object($user) ? get_class($user) : $user);
+        $this->assertNull($user);
     }
 
     /**
@@ -123,8 +124,8 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertInstanceOf($this->type, $user);
 
-        $user = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\TypeTeamUser', '/functional/user');
-        $this->assertTrue(null === $user, is_object($user) ? get_class($user) : $user);
+        $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
+        $this->assertNull($user);
     }
 
     /**
@@ -132,7 +133,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
      */
     public function testManyNotInstanceOf()
     {
-        $users = $this->dm->findMany('Doctrine\Tests\ODM\PHPCR\Functional\TypeTeamUser', array('/functional/user'));
+        $users = $this->dm->findMany(TypeTeamUser::class, array('/functional/user'));
 
         $this->assertCount(0, $users);
     }

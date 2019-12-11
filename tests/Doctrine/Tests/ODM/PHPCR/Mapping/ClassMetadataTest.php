@@ -2,18 +2,25 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use PHPUnit\Framework\TestCase;
+use PHPCR\RepositoryException;
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsUserRepository;
+use Doctrine\Tests\Models\CMS\CmsAddress;
 
-class ClassMetadataTest extends \PHPUnit_Framework_TestCase
+class ClassMetadataTest extends TestCase
 {
     public function testGetTypeOfField()
     {
-        $cmi = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cmi = new ClassMetadata(Person::class);
         $cmi->initializeReflection(new RuntimeReflectionService());
         $this->assertEquals(null, $cmi->getTypeOfField('some_field'));
         $cmi->mappings['some_field'] = array('type' => 'some_type');
@@ -22,10 +29,10 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     public function testClassName()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $cm->name);
-        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
+        $this->assertEquals(Person::class, $cm->name);
+        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
 
         return $cm;
     }
@@ -35,12 +42,12 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsValidNodename(ClassMetadata $cm)
     {
-        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(''));
-        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('a:b:c'));
-        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('a:'));
-        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(':a'));
-        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename(':'));
-        $this->assertInstanceOf('PHPCR\RepositoryException', $cm->isValidNodename('x/y'));
+        $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename(''));
+        $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename('a:b:c'));
+        $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename('a:'));
+        $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename(':a'));
+        $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename(':'));
+        $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename('x/y'));
 
         $cm->isValidNodename('a:b');
         $cm->isValidNodename('b');
@@ -82,21 +89,19 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testClassName
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testGetAssociationNonexisting(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->getAssociation('nonexisting');
     }
 
     /**
      * @depends testMapFieldWithId
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testGetFieldNonexisting(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->getFieldMapping('nonexisting');
     }
 
@@ -137,6 +142,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Mapping should return translated fields.
+     *
      * @depends testMapFieldWithId
      */
     public function testMapFieldWithInheritance(ClassMetadata $cmp)
@@ -147,7 +153,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $ad->loadMetadataForClass($cmp->getName(), $cmp);
 
         // Initialize subclass metadata.
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Customer');
+        $cm = new ClassMetadata(Customer::class);
         $cm->initializeReflection(new RuntimeReflectionService());
 
         // Test that the translated field is being inherited.
@@ -162,38 +168,34 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testMapField
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testMapFieldWithoutNameThrowsException(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->mapField(array());
     }
 
     /**
      * @depends testMapField
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
      */
     public function testMapNonExistingField(ClassMetadata $cm)
     {
+        $this->expectException(MappingException::class);
         $cm->mapField(array('fieldName' => 'notexisting'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testMapChildInvalidName()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Address');
+        $this->expectException(MappingException::class);
+        $cm = new ClassMetadata(Address::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $cm->mapChild(array('fieldName' => 'child', 'nodeName' => 'in/valid'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testMapChildrenInvalidFetchDepth()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $this->expectException(MappingException::class);
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $cm->mapChildren(array('fieldName' => 'address', 'fetchDepth' => 'invalid'));
     }
@@ -215,7 +217,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
         $instance1 = $cm->newInstance();
         $instance2 = $cm->newInstance();
 
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Mapping\Person', $instance1);
+        $this->assertInstanceOf(Person::class, $instance1);
         $this->assertNotSame($instance1, $instance2);
     }
 
@@ -238,29 +240,28 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
     {
         $cm = unserialize('O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":16:{s:8:"nodeType";s:15:"nt:unstructured";s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"property";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:8:"property";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:8:"property";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:8:"property";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:8:"property";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:51:"Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:14:"uniqueNodeType";b:1;s:18:"lifecycleCallbacks";a:1:{s:8:"postLoad";a:1:{i:0;s:8:"callback";}}}');
 
-        $this->assertInstanceOf('Doctrine\ODM\PHPCR\Mapping\ClassMetadata', $cm);
+        $this->assertInstanceOf(ClassMetadata::class, $cm);
 
         $this->assertEquals(array('callback'), $cm->getLifecycleCallbacks('postLoad'));
         $this->assertTrue($cm->isMappedSuperclass);
         $this->assertTrue($cm->versionable);
         $this->assertTrue($cm->uniqueNodeType);
         $this->assertTrue($cm->inheritMixins);
-        $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository', $cm->customRepositoryClassName);
+        $this->assertEquals(DocumentRepository::class, $cm->customRepositoryClassName);
     }
 
     /**
-     * @param ClassMetadata $cm
      * @depends testClassName
      */
-    public function testMapAssociationManyToOne(ClassMetadata $cm)
+    public function testMapAssociationManyToOne(ClassMetadata $cm): ClassMetadata
     {
-        $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address'));
+        $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => Address::class));
 
         $this->assertTrue(isset($cm->mappings['address']), "No 'address' in associations map.");
         $this->assertEquals(array(
             'fieldName' => 'address',
-            'targetDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Address',
-            'sourceDocument' => 'Doctrine\Tests\ODM\PHPCR\Mapping\Person',
+            'targetDocument' => Address::class,
+            'sourceDocument' => Person::class,
             'type' => ClassMetadata::MANY_TO_ONE,
             'strategy' => 'weak',
             'cascade' => null,
@@ -272,71 +273,71 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     public function testClassMetadataInstanceSerialization()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
-        $cm->initializeReflection(new \Doctrine\Common\Persistence\Mapping\RuntimeReflectionService);
+        $cm = new ClassMetadata(CmsUser::class);
+        $cm->initializeReflection(new RuntimeReflectionService);
 
         // Test initial state
         $this->assertTrue(count($cm->getReflectionProperties()) == 0);
-        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
-        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $cm->name);
+        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
+        $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals(array(), $cm->parentClasses);
-        $this->assertEquals(0, count($cm->referenceMappings));
+        $this->assertCount(0, $cm->referenceMappings);
 
         // Customize state
-        $cm->setParentClasses(array("UserParent"));
-        $cm->setCustomRepositoryClassName("CmsUserRepository");
+        $cm->setParentClasses(array('UserParent'));
+        $cm->setCustomRepositoryClassName('CmsUserRepository');
         $cm->setNodeType('foo:bar');
         $cm->mapManyToOne(array('fieldName' => 'address', 'targetDocument' => 'CmsAddress', 'mappedBy' => 'foo'));
-        $this->assertEquals(1, count($cm->referenceMappings));
+        $this->assertCount(1, $cm->referenceMappings);
 
         $serialized = serialize($cm);
         /** @var ClassMetadata $cm */
         $cm = unserialize($serialized);
-        $cm->wakeupReflection(new \Doctrine\Common\Persistence\Mapping\RuntimeReflectionService);
+        $this->assertInstanceOf(ClassMetadata::class, $cm);
+        $cm->wakeupReflection(new RuntimeReflectionService);
 
         // Check state
-        $this->assertTrue(count($cm->getReflectionProperties()) > 0);
+        $this->assertTrue(\count($cm->getReflectionProperties()) > 0);
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
-        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
-        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUser', $cm->name);
+        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
+        $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals(array('UserParent'), $cm->parentClasses);
-        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsUserRepository', $cm->customRepositoryClassName);
+        $this->assertEquals(CmsUserRepository::class, $cm->customRepositoryClassName);
         $this->assertEquals('foo:bar', $cm->getNodeType());
         $this->assertEquals(ClassMetadata::MANY_TO_ONE, $cm->getTypeOfField('address'));
-        $this->assertEquals(1, count($cm->referenceMappings));
+        $this->assertCount(1, $cm->referenceMappings);
         $this->assertTrue($cm->hasAssociation('address'));
-        $this->assertEquals('Doctrine\Tests\Models\CMS\CmsAddress', $cm->getAssociationTargetClass('address'));
+        $this->assertEquals(CmsAddress::class, $cm->getAssociationTargetClass('address'));
     }
 
     /**
-     * @param ClassMetadata $cm
      * @depends testMapField
      */
-    public function testClassMetadataInstanceSerializationTranslationProperties($cm)
+    public function testClassMetadataInstanceSerializationTranslationProperties(ClassMetadata $cm)
     {
         $serialized = serialize($cm);
         /** @var ClassMetadata $cm */
         $cm = unserialize($serialized);
-        $cm->wakeupReflection(new \Doctrine\Common\Persistence\Mapping\RuntimeReflectionService);
+        $this->assertInstanceOf(ClassMetadata::class, $cm);
+        $cm->wakeupReflection(new RuntimeReflectionService);
 
         // Check properties needed for translations
         $this->assertEquals('attribute', $cm->translator);
-        $this->assertTrue(in_array('translatedField', $cm->translatableFields));
+        $this->assertContains('translatedField', $cm->translatableFields);
         $this->assertEquals('locale', $cm->localeMapping);
     }
 
     /**
      * It should throw an exception if given a child class FQN when the
      * metadata is for a leaf.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage has been mapped as a leaf
      */
     public function testAssertValidChildClassesIsLeaf()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $childCm = new ClassMetadata('stdClass');
         $cm->setIsLeaf(true);
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('has been mapped as a leaf');
         $cm->assertValidChildClass($childCm);
     }
 
@@ -345,7 +346,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssertValidChildClassesEmpty()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $childCm = new ClassMetadata('stdClass');
         $cm->setChildClasses(array());
         $cm->assertValidChildClass($childCm);
@@ -356,7 +357,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssertValidChildClassesAllowed()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->setChildClasses(array('stdClass'));
         $childCm = new ClassMetadata('stdClass');
         $childCm->initializeReflection(new RuntimeReflectionService());
@@ -368,11 +369,11 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssertValidChildClassInstance()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
-        $childCm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Customer');
+        $childCm = new ClassMetadata(Customer::class);
         $childCm->initializeReflection(new RuntimeReflectionService());
-        $cm->setChildClasses(array('Doctrine\Tests\ODM\PHPCR\Mapping\Person'));
+        $cm->setChildClasses(array(Person::class));
         $result = $cm->assertValidChildClass($childCm);
         $this->assertNull($result);
     }
@@ -382,7 +383,7 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssertValidChildClassInterface()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $childCm = new ClassMetadata('ArrayAccess');
         $childCm->initializeReflection(new RuntimeReflectionService());
@@ -393,17 +394,17 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     /**
      * It should throw an exception if the given class is not allowed.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage does not allow children of type "stdClass"
      */
     public function testAssertValidChildClassesNotAllowed()
     {
-        $cm = new ClassMetadata('Doctrine\Tests\ODM\PHPCR\Mapping\Person');
+        $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $childCm = new ClassMetadata('stdClass');
         $childCm->initializeReflection(new RuntimeReflectionService());
-        $cm->setChildClasses(array('Doctrine\Tests\ODM\PHPCR\Mapping\Person'));
+        $cm->setChildClasses(array(Person::class));
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('does not allow children of type "stdClass"');
         $cm->assertValidChildClass($childCm);
     }
 }

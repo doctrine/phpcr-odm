@@ -2,15 +2,18 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\ODM\PHPCR\ChildrenCollection;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+use PHPUnit\Framework\AssertionFailedError;
 
 /**
  * Test for the Children mapping.
@@ -29,14 +32,14 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    private $type = 'Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildrenTestObj';
+    private $type = ChildrenTestObj::class;
 
     /**
      * @var TestResetReorderingListener
      */
     private $listener;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -347,8 +350,6 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
     /**
      * A children field must always be a collection/array. It can't be a single document.
-     *
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
      */
     public function testInsertNoArray()
     {
@@ -360,18 +361,19 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $parent->allChildren = $child;
         $this->dm->persist($parent);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testInsertNoObject()
     {
         $parent = $this->dm->find($this->type, '/functional/parent');
 
         $parent->allChildren = array('This is not an object');
         $this->dm->persist($parent);
+
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
@@ -567,7 +569,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $parent = $this->dm->find($this->type, '/functional/parent');
         $this->assertCount(4, $parent->allChildren);
 
-        /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
+        /** @var $childrenCollection ChildrenCollection */
         $childrenCollection = $parent->allChildren;
         $children = $childrenCollection->toArray();
 
@@ -671,9 +673,6 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertCount(3, $parent->allChildren);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testMoveByAssignment()
     {
         $this->createChildren();
@@ -691,12 +690,10 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $other = $this->dm->find($this->type, '/functional/other');
         $other->allChildren->add($parent->allChildren['Child A']);
 
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\PHPCRException
-     */
     public function testMoveByUpdateId()
     {
         $this->createChildren();
@@ -705,6 +702,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $child->id = '/functional/elsewhere';
 
+        $this->expectException(PHPCRException::class);
         $this->dm->flush();
     }
 }
@@ -730,7 +728,7 @@ class ChildrenTestObj
     public $aChildren;
 
     /**
-    * @var \Doctrine\ODM\PHPCR\ChildrenCollection
+    * @var ChildrenCollection
     * @PHPCR\Children(fetchDepth=2, cascade="persist")
     */
     public $allChildren;
@@ -825,7 +823,7 @@ class TestResetReorderingListener
         $document = $e->getObject();
         if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B') {
 
-            /** @var $childrenCollection \Doctrine\ODM\PHPCR\ChildrenCollection */
+            /** @var $childrenCollection ChildrenCollection */
             $childrenCollection = $document->allChildren;
             $children = $childrenCollection->toArray();
 
@@ -835,7 +833,7 @@ class TestResetReorderingListener
 
             foreach ($expectedOrder as $name) {
                 if (!isset($children[$name])) {
-                    throw new \PHPUnit_Framework_AssertionFailedError("Missing index '$name' in " . implode(', ', array_keys($children)));
+                    throw new AssertionFailedError("Missing index '$name' in " . implode(', ', array_keys($children)));
                 }
                 $childrenCollection->set($name, $children[$name]);
             }

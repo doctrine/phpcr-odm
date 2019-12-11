@@ -2,29 +2,33 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\ODM\PHPCR\Translation\Translation;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\SessionInterface;
+use PHPCR\WorkspaceInterface;
+use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 
-class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
 {
     protected $testNodeName = '__test-node__';
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
     /**
-     * @var \PHPCR\WorkspaceInterface
+     * @var WorkspaceInterface
      */
     private $workspace;
 
@@ -33,12 +37,12 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
      */
     private $metadata;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
         $this->workspace = $this->dm->getPhpcrSession()->getWorkspace();
-        $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
+        $this->metadata = $this->dm->getClassMetadata(Article::class);
     }
 
     public function tearDown()
@@ -366,7 +370,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
-        $node->setProperty('phpcr:class', 'Doctrine\Tests\Models\Translation\ChildTranslationArticle');
+        $node->setProperty('phpcr:class', ChildTranslationArticle::class);
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
@@ -382,7 +386,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->dm->flush();
 
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->from()->document(ChildTranslationArticle::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -393,7 +397,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->assertCount(0, $res);
 
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->from()->document(ChildTranslationArticle::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -405,7 +409,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $qb = $this->dm->createQueryBuilder();
         $qb->setLocale(false);
-        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->from()->document(ChildTranslationArticle::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -416,7 +420,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
         $this->assertCount(0, $res);
 
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->from()->document(ChildTranslationArticle::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -428,7 +432,7 @@ class ChildTranslationStrategyTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFuncti
 
         $qb = $this->dm->createQueryBuilder();
         $qb->setLocale('fr');
-        $qb->from()->document('Doctrine\Tests\Models\Translation\ChildTranslationArticle', 'a');
+        $qb->from()->document(ChildTranslationArticle::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')

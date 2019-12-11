@@ -2,27 +2,29 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Tools\Helper;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Tools\Helper\UniqueNodeTypeHelper;
+use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 
 /**
  * Verify the behavior of the UniqueNodeTypeHelper class that is used
  * to confirm that any documents set to use unique node types do not
  * conflict with any other mappings.
  */
-class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
+class UniqueNodeTypeHelperTest extends TestCase
 {
     /**
      * Configure a mocked DocumentManager that will return the supplied
      * set of metadata.
      *
      * @param ClassMetadata[] $metadata
-     *
-     * @return DocumentManager
      */
-    public function configureDocumentManager(array $metadata)
+    public function configureDocumentManager(array $metadata): DocumentManager
     {
-        $classMetadataFactory = $this->getMockBuilder('Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory')
+        $classMetadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(array('getAllMetadata'))
             ->getMock();
@@ -30,7 +32,7 @@ class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
             ->method('getAllMetadata')
             ->will($this->returnValue($metadata));
 
-        $documentManager = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
+        $documentManager = $this->getMockBuilder(DocumentManager::class)
             ->disableOriginalConstructor()
             ->setMethods(array('getMetadataFactory'))
             ->getMock();
@@ -44,10 +46,6 @@ class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
     /**
      * Verify that a MappingException is correctly thrown when more than
      * one document uses the same node type, but one is marked as unique.
-     *
-     * @expectedException Doctrine\ODM\PHPCR\Mapping\MappingException
-     * @expectedExceptionMessage The class "Doctrine\PHPCR\Models\ClassC" is mapped with uniqueNodeType set to true, but the
-     *     node type "nt:unstructured" is used by "Doctrine\PHPCR\Models\ClassA" as well.
      */
     public function testCheckNodeTypeMappingsWithDuplicate()
     {
@@ -69,6 +67,9 @@ class UniqueNodeTypeHelperTest extends \PHPUnit_Framework_TestCase
         ));
 
         $uniqueNodeTypeHelper = new UniqueNodeTypeHelper();
+
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('The class "Doctrine\PHPCR\Models\ClassC" is mapped with uniqueNodeType set to true, but the node type "nt:unstructured" is used by "Doctrine\PHPCR\Models\ClassA" as well.');
         $uniqueNodeTypeHelper->checkNodeTypeMappings($documentManager);
     }
 

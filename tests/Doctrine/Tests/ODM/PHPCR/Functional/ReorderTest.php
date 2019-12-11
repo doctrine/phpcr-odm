@@ -2,17 +2,19 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Document\Generic;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 /**
  * @group functional
  */
-class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ReorderTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -26,7 +28,7 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     private $childrenNames;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $repository = $this->dm->getPhpcrSession()->getRepository();
@@ -102,9 +104,8 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
     public function testReorderNoObject()
     {
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder('parent', 'first', 'second', false);
-        $this->dm->flush();
     }
 
     public function testReorderBeforeFirst()
@@ -182,13 +183,11 @@ class ReorderTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNull($parent);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testReorderAfterRemove()
     {
         $parent = $this->dm->find(null, '/functional/source');
         $this->dm->remove($parent);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder($parent, 'first', 'second', false);
     }
 

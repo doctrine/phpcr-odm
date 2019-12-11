@@ -2,26 +2,29 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefType2TestObj;
 use Doctrine\Tests\Models\References\RefType1TestObj;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 
 /**
  * @group functional
  */
-class TargetDocumentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class TargetDocumentTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -46,7 +49,7 @@ class TargetDocumentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->flush();
 
         $this->dm->clear();
-        $referer = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ReferenceManyObj', '/functional/referer');
+        $referer = $this->dm->find(ReferenceManyObj::class, '/functional/referer');
         $this->assertEquals('Referer', $referer->name);
         $this->assertCount(2, $referer->references);
         $this->assertTrue($referer->references[0] instanceof RefType1TestObj);
@@ -78,9 +81,9 @@ class TargetDocumentTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCa
         $this->dm->flush();
         $this->dm->clear();
 
-        $referer = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ReferenceOneObj', '/functional/referer1');
+        $referer = $this->dm->find(ReferenceOneObj::class, '/functional/referer1');
         $this->assertTrue($referer->reference instanceof RefType1TestObj);
-        $referer = $this->dm->find('Doctrine\Tests\ODM\PHPCR\Functional\ReferenceOneObj', '/functional/referer2');
+        $referer = $this->dm->find(ReferenceOneObj::class, '/functional/referer2');
         $this->assertTrue($referer->reference instanceof RefType2TestObj);
     }
 }

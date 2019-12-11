@@ -1,21 +1,23 @@
 <?php
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class MoveEventArgsTest extends \PHPUnit_Framework_TestCase
+class MoveEventArgsTest extends TestCase
 {
     private $object;
 
     private $dm;
 
-    /** @var  MoveEventArgs */
+    /**
+     * @var MoveEventArgs
+     */
     private $eventArgs;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dm = $this->createMock(DocumentManager::class);
         $this->object = new \stdClass;
 
         $this->eventArgs = new MoveEventArgs(

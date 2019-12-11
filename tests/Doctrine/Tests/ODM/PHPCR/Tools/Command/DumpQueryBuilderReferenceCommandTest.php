@@ -3,9 +3,10 @@
 namespace Doctrine\Tests\ODM\PHPCR\Tools\Command;
 
 use Doctrine\ODM\PHPCR\Tools\Console\Command\DumpQueryBuilderReferenceCommand;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class DumpQueryBuilderReferenceCommandTest extends \PHPUnit_Framework_TestCase
+class DumpQueryBuilderReferenceCommandTest extends TestCase
 {
     /**
      * @var DumpQueryBuilderReferenceCommand
@@ -17,7 +18,7 @@ class DumpQueryBuilderReferenceCommandTest extends \PHPUnit_Framework_TestCase
      */
     private $commandTester;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->command = new DumpQueryBuilderReferenceCommand();
         $this->commandTester = new CommandTester($this->command);
@@ -25,10 +26,6 @@ class DumpQueryBuilderReferenceCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testCommand()
     {
-        if (0 == strpos(phpversion(), '5.3')) {
-            $this->markTestSkipped('Dump reference command not compatible with PHP 5.3');
-        }
-
         $this->commandTester->execute(array());
         $res = $this->commandTester->getDisplay();
         $this->assertContains('Query Builder Reference', $res);

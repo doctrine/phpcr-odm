@@ -4,24 +4,27 @@ namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class LocaleChooserTest extends PHPCRTestCase
 {
     /**
      * @var LocaleChooser
      */
-    protected $localeChooser;
-    protected $orderEn = array('de');
-    protected $orderDe = array('en');
-    /**
-     * @var ClassMetadata|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $mockMetadata;
+    private $localeChooser;
+    private $orderEn = array('de');
+    private $orderDe = array('en');
 
-    public function setUp()
+    /**
+     * @var ClassMetadata|MockObject
+     */
+    private $mockMetadata;
+
+    public function setUp(): void
     {
-        $this->mockMetadata = $this->getMockBuilder('\Doctrine\ODM\PHPCR\Mapping\ClassMetadata')->disableOriginalConstructor()->getMock();
+        $this->mockMetadata = $this->createMock(ClassMetadata::class);
         $this->localeChooser = new LocaleChooser(array('en' => $this->orderEn, 'de' => $this->orderDe), 'en');
     }
 
@@ -48,11 +51,9 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->assertEquals(array('fr'), $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Translation\MissingTranslationException
-     */
     public function testGetFallbackLocalesNonexisting()
     {
+        $this->expectException(MissingTranslationException::class);
         $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'notexisting');
     }
 
@@ -72,11 +73,9 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->assertEquals('de', $locale);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Translation\MissingTranslationException
-     */
     public function testSetLocaleNonexisting()
     {
+        $this->expectException(MissingTranslationException::class);
         $this->localeChooser->setLocale('nonexisting');
     }
 

@@ -16,7 +16,7 @@ elif test "${SCRIPT_DIR:0:1}" != "/" ; then
   SCRIPT_DIR="$PWD/$SCRIPT_DIR"
 fi
 
-./vendor/jackalope/jackalope-jackrabbit/bin/jackrabbit.sh
+./tests/jackrabbit.sh
 
 cp ${SCRIPT_DIR}/../cli-config.jackrabbit.php.dist ${SCRIPT_DIR}/../cli-config.php
 ${SCRIPT_DIR}/../bin/phpcrodm doctrine:phpcr:register-system-node-types
