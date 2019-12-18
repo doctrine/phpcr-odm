@@ -26,8 +26,7 @@
     "require-dev": {
         "symfony/yaml": "^2.3 || ^3.0 || ^4.0 || ^5.0",
         "symfony/phpunit-bridge": "^5.0",
-        "liip/rmt": "^1.2",
-        "phpunit/phpunit": "^4.8 || ^5.7"
+        "liip/rmt": "^1.2"
     },
     "suggest": {
         "symfony/yaml": "^3.4 || ^4.3 || ^5.0",

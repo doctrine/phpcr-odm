@@ -2,13 +2,26 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-class AbstractLeafNodeTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
+
+class AbstractLeafNodeTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @var AbstractLeafNode|MockObject
+     */
+    private $leafNode;
+
+    /**
+     * @var \ReflectionClass
+     */
+    private $refl;
+
+    public function setUp(): void
     {
-        $this->leafNode = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode'
-        )->getMockForAbstractClass();
+        $this->leafNode = $this->createMock(AbstractLeafNode::class);
 
         $this->refl = new \ReflectionClass($this->leafNode);
     }
@@ -28,7 +41,8 @@ class AbstractLeafNodeTest extends \PHPUnit_Framework_TestCase
     public function testExplodeField($fieldSpec, $xpctdExceptionMessage, $xpctdRes = array())
     {
         if ($xpctdExceptionMessage) {
-            $this->setExpectedException('Doctrine\ODM\PHPCR\Exception\RuntimeException', $xpctdExceptionMessage);
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage($xpctdExceptionMessage);
         }
 
         $method = $this->refl->getMethod('explodeField');

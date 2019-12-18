@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
@@ -16,11 +17,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Tests\Models\CMS\CmsBlogPost;
 use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
 use Doctrine\Tests\Models\CMS\CmsBlogFolder;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
  * @group functional
  */
-class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class UnitOfWorkTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
@@ -32,7 +34,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      */
     private $uow;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->uow = $this->dm->getUnitOfWork();
@@ -86,7 +88,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals(32, strlen(key($scheduledMoves)), 'Size of key is 32 chars (oid)');
         $this->assertEquals(array($user1, '/foobar'), current($scheduledMoves));
     }
-    
+
     public function testMoveParentNoNodeName()
     {
         $root = $this->dm->find(null, 'functional');
@@ -177,10 +179,7 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         // this forces the objects to be loaded in an order where the $parent will become a proxy
-        $documents = $this->dm->findMany(
-            'Doctrine\Tests\Models\References\ParentTestObj',
-            array($childId, $parentId)
-        );
+        $documents = $this->dm->findMany(ParentTestObj::class, array($childId, $parentId));
 
         $this->assertCount(2, $documents);
 
@@ -193,10 +192,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertSame('parent', $parent->nodename);
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"
-     */
     public function testRequiredClassesInvalidChildren()
     {
         $articleFolder = new CmsArticleFolder();
@@ -208,6 +203,9 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $this->dm->persist($articleFolder);
         $this->dm->persist($article);
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"');
         $this->dm->flush();
     }
 
@@ -226,10 +224,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"
-     */
     public function testRequiredClassesInvalidUpdate()
     {
         $articleFolder = new CmsArticleFolder();
@@ -244,6 +238,9 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->dm->move($article, '/functional/articles/address');
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsArticleFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsGroup". Allowed child classes "Doctrine\Tests\Models\CMS\CmsArticle"');
         $this->dm->flush();
     }
 
@@ -262,10 +259,6 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"
-     */
     public function testRequiredClassesAddToChildrenInvalid()
     {
         $post = new CmsBlogInvalidChild();
@@ -278,13 +271,12 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         ));
 
         $this->dm->persist($postFolder);
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"');
         $this->dm->flush();
     }
 
-    /**
-     * @expectedException Doctrine\ODM\PHPCR\Exception\OutOfBoundsException
-     * @expectedExceptionMessage Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"
-     */
     public function testRequiredClassesAddToChildrenInvalidOnUpdate()
     {
         $post = new CmsBlogPost();
@@ -307,7 +299,9 @@ class UnitOfWorkTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $postFolder->posts->add($post);
 
         $this->dm->persist($postFolder);
+
+        $this->expectException(OutOfBoundsException::class);
+        $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"');
         $this->dm->flush();
-        $this->dm->clear();
     }
 }

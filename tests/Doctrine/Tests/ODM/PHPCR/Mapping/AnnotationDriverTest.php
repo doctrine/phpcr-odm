@@ -2,18 +2,22 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+
 /**
  * @group mapping
  */
 class AnnotationDriverTest extends AbstractMappingDriverTest
 {
-    protected function loadDriver()
+    protected function loadDriver(): MappingDriver
     {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        return new \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver($reader);
+        $reader = new AnnotationReader();
+        return new AnnotationDriver($reader);
     }
 
-    protected function loadDriverForTestMappingDocuments()
+    protected function loadDriverForTestMappingDocuments(): MappingDriver
     {
         $annotationDriver = $this->loadDriver();
         $annotationDriver->addPaths(array(__DIR__ . '/Model'));

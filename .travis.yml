@@ -17,8 +17,8 @@ cache:
 
 env:
   global:
-    # on PHP 7.2 we get deprecations about using each. they come from old phpunit versions, but we don't update phpunit for the maintenance branch.
-    - SYMFONY_DEPRECATIONS_HELPER="/.*each.*/"
+    - SYMFONY_DEPRECATIONS_HELPER="weak"
+    - SYMFONY_PHPUNIT_VERSION="7"
   matrix:
     - TRANSPORT=jackrabbit
     - TRANSPORT=doctrine_dbal
@@ -64,10 +64,11 @@ before_install:
 install:
   # this also does the composer update
   - COMPOSER_MEMORY_LIMIT=-1 ./tests/travis_${TRANSPORT}.sh
+  - vendor/bin/simple-phpunit install
 
 script:
   - composer validate --strict --no-check-lock
-  - vendor/bin/phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
+  - vendor/bin/simple-phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
   - if [ "$PHPBENCH" = "yes" ]; then php vendor/bin/phpbench run --report=all; fi;
 
 notifications:

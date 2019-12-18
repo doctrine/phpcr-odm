@@ -2,37 +2,42 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsArticle;
 
-class CascadeRefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class CascadeRefreshTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
-        $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
+        $class = $this->dm->getClassMetadata(CmsUser::class);
         $class->mappings['groups']['cascade'] = ClassMetadata::CASCADE_REFRESH;
 
-        $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsGroup');
+        $class = $this->dm->getClassMetadata(CmsGroup::class);
         $class->mappings['users']['cascade'] = ClassMetadata::CASCADE_REFRESH;
 
-        $class = $this->dm->getClassMetadata('Doctrine\Tests\Models\CMS\CmsArticle');
+        $class = $this->dm->getClassMetadata(CmsArticle::class);
         $class->mappings['user']['cascade'] = ClassMetadata::CASCADE_REFRESH;
     }
 
     public function testCascadeRefresh()
     {
-        $group1 = new \Doctrine\Tests\Models\CMS\CmsGroup();
+        $group1 = new CmsGroup();
         $group1->name = "Test!";
         $group1->id = '/functional/group1';
 
-        $user = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user = new CmsUser();
         $user->username = "beberlei";
         $user->name = "Benjamin";
         $user->addGroup($group1);

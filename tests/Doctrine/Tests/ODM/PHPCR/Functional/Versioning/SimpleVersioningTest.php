@@ -30,9 +30,9 @@ class SimpleVersionTestObj
 
 class SimpleVersioningTest extends VersioningTestAbstract
 {
-    public function setUp()
+    public function setUp(): void
     {
-        $this->typeVersion = 'Doctrine\Tests\ODM\PHPCR\Functional\Versioning\SimpleVersionTestObj';
+        $this->typeVersion = SimpleVersionTestObj::class;
         parent::setUp();
     }
 }

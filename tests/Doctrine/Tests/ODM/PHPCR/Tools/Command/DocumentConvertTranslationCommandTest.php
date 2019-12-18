@@ -5,10 +5,13 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Command;
 use Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentConvertTranslationCommand;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use PHPCR\SessionInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 
-class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
+class DocumentConvertTranslationCommandTest extends TestCase
 {
     /**
      * @var DocumentConvertTranslationCommand
@@ -21,30 +24,25 @@ class DocumentConvertTranslationCommandTest extends \PHPUnit_Framework_TestCase
     private $commandTester;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|TranslationConverter
+     * @var TranslationConverter|MockObject
      */
     private $converter;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|SessionInterface
+     * @var SessionInterface|MockObject
      */
     private $mockSession;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->mockSession = $this->getMockBuilder('PHPCR\SessionInterface')->getMock();
-        $mockHelper = $this->getMockBuilder('PHPCR\Util\Console\Helper\PhpcrHelper')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->mockSession = $this->createMock(SessionInterface::class);
+        $mockHelper = $this->createMock(PhpcrHelper::class);
         $mockHelper
             ->expects($this->once())
             ->method('getSession')
             ->will($this->returnValue($this->mockSession))
         ;
-        $this->converter = $this->getMockBuilder('Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter')
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $this->converter = $this->createMock(TranslationConverter::class);
         $this->command = new DocumentConvertTranslationCommand(null, $this->converter);
         $this->command->setHelperSet(new HelperSet(
             array('phpcr' => $mockHelper)

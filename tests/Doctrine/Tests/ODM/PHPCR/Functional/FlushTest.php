@@ -2,21 +2,25 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\Models\References\UuidTestObj;
 use Doctrine\Tests\Models\References\UuidTestTwoUuidFieldsObj;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 
 /**
  * @group functional
  */
-class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class FlushTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -24,11 +28,10 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
      * Class name of the document class
      * @var string
      */
-    private $type;
+    private $type = CmsUser::class;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\Models\CMS\CmsUser';
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->resetFunctionalNode($this->dm);
     }
@@ -167,7 +170,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $user->username = 'domnikl';
         $user->status = 'developer';
 
-        $this->setExpectedException('\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->flush($user);
     }
 
@@ -252,15 +255,13 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertNotNull($uuidObj->uuid1);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Mapping\MappingException
-     */
     public function testUuidFieldOnlySetOnce()
     {
         $uuidObj = new UuidTestTwoUuidFieldsObj;
         $uuidObj->id = '/functional/uuidObj';
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('You can only designate a single \'Uuid\' field');
         $this->dm->persist($uuidObj);
-        $this->dm->flush();
     }
 
     public function testRepeatedFlush()
@@ -294,7 +295,7 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->removeItem($user2->id);
         $this->dm->getPhpcrSession()->save();
         $this->dm->flush();
-        $this->assertInstanceOf('\PHPCR\NodeInterface', $user1->node);
+        $this->assertInstanceOf(NodeInterface::class, $user1->node);
 
         $this->assertCount(4, $group->getUsers());
         $this->dm->clear();
@@ -302,6 +303,6 @@ class FlushTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $group = $this->dm->find(null, '/functional/group');
         $group->getUsers()->first();
         $this->assertCount(2, $group->getUsers());
-        $this->assertInstanceOf('\PHPCR\NodeInterface', $group->getUsers()->first()->node);
+        $this->assertInstanceOf(NodeInterface::class, $group->getUsers()->first()->node);
     }
 }

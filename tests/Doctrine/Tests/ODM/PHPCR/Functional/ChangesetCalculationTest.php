@@ -2,12 +2,15 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\Tests\Models\CMS\CmsUser;
+use Doctrine\Tests\Models\CMS\CmsUserTranslatable;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
-class ChangesetCalculationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class ChangesetCalculationTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var ChangesetListener
@@ -15,11 +18,11 @@ class ChangesetCalculationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
     private $listener;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new ChangesetListener();
         $this->dm = $this->createDocumentManager();
@@ -39,14 +42,14 @@ class ChangesetCalculationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
             );
 
         // Create initial user
-        $user1 = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user1 = new CmsUser();
         $user1->name = 'david';
         $user1->username = 'dbu';
         $user1->status = 'active';
         $this->dm->persist($user1);
 
         // Create additional user
-        $user2 = new \Doctrine\Tests\Models\CMS\CmsUser();
+        $user2 = new CmsUser();
         $user2->name = 'lukas';
         $user2->username = 'lsmith';
         $user2->status = 'active';
@@ -77,14 +80,14 @@ class ChangesetCalculationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
             );
 
         // Create initial user
-        $user1 = new \Doctrine\Tests\Models\CMS\CmsUserTranslatable();
+        $user1 = new CmsUserTranslatable();
         $user1->name = 'david';
         $user1->username = 'dbu';
         $user1->status = 'active';
         $this->dm->persist($user1);
 
         // Create additional user
-        $user2 = new \Doctrine\Tests\Models\CMS\CmsUserTranslatable();
+        $user2 = new CmsUserTranslatable();
         $user2->name = 'lukas';
         $user2->username = 'lsmith';
         $user2->status = 'active';
@@ -115,7 +118,7 @@ class ChangesetCalculationTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctional
             );
 
         // Create initial user
-        $user1 = new \Doctrine\Tests\Models\CMS\CmsUserTranslatable();
+        $user1 = new CmsUserTranslatable();
         $user1->name = 'david';
         $user1->username = 'dbu';
         $user1->status = 'activ';

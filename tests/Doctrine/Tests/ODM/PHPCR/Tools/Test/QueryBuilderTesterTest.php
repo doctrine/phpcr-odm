@@ -4,10 +4,20 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Test;
 
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Tools\Test\QueryBuilderTester;
+use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Query\Builder\OperandDynamicField;
+use Doctrine\ODM\PHPCR\Query\Builder\OperandStaticLiteral;
 
-class QueryBuilderTesterTest extends \PHPUnit_Framework_TestCase
+class QueryBuilderTesterTest extends TestCase
 {
-    public function setUp()
+    private $qb;
+
+    /**
+     * @var QueryBuilderTester
+     */
+    private $qbTester;
+
+    public function setUp(): void
     {
         $this->qb = new QueryBuilder;
         $this->qb->where()->andX()
@@ -39,9 +49,7 @@ HERE
         $node = $this->qbTester->getNode(
             'where[0].constraint[0].constraint[1].operand_dynamic'
 );
-        $this->assertInstanceOf(
-            'Doctrine\ODM\PHPCR\Query\Builder\OperandDynamicField', $node
-        );
+        $this->assertInstanceOf(OperandDynamicField::class, $node);
         $this->assertEquals('a', $node->getAlias());
         $this->assertEquals('foo', $node->getField());
 
@@ -49,15 +57,12 @@ HERE
         $node = $this->qbTester->getNode(
             'where[0].constraint[0].constraint[1].operand_static'
         );
-        $this->assertInstanceOf(
-            'Doctrine\ODM\PHPCR\Query\Builder\OperandStaticLiteral', $node
-        );
+        $this->assertInstanceOf(OperandStaticLiteral::class, $node);
         $this->assertEquals('Bar', $node->getValue());
     }
 
     public function testGetAllNodes()
     {
-        $count = count($this->qbTester->getAllNodes());
-        $this->assertEquals(8, $count);
+        $this->assertCount(8, $this->qbTester->getAllNodes());
     }
 }

@@ -33,7 +33,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         'it' => array('fr', 'de', 'en'),
     );
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
@@ -181,7 +181,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $page = $this->dm->findTranslation('Doctrine\Tests\Models\CMS\CmsPageTranslatable', $page->id, 'en');
+        $page = $this->dm->findTranslation(CmsPageTranslatable::class, $page->id, 'en');
 
         $this->assertTrue($this->listener->postLoadTranslation);
 

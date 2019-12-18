@@ -2,12 +2,13 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
-class EventObjectUpdateTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class EventObjectUpdateTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var TestEventDocumentChanger
@@ -15,11 +16,11 @@ class EventObjectUpdateTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTes
     private $listener;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestEventDocumentChanger2();
         $this->dm = $this->createDocumentManager();

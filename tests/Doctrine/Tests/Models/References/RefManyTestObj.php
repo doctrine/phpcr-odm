@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\Models\References;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
@@ -16,6 +17,6 @@ class RefManyTestObj
 
     public function __construct()
     {
-        $this->references = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->references = new ArrayCollection();
     }
 }

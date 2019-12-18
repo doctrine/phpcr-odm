@@ -2,27 +2,29 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\PropertyType;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
+use Doctrine\Tests\Models\CMS\CmsUser;
 
 /**
  * @group functional
  */
-class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class MoveTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
-    private $type;
+    private $type = CmsUser::class;
 
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\Models\CMS\CmsUser';
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -230,7 +232,7 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $user = $this->dm->find(null, '/functional/lsmith/dbu');
-        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsTeamUser', $user);
+        $this->assertInstanceOf(CmsTeamUser::class, $user);
         $root = $this->dm->find(null, '/');
         $user->setParentDocument($root);
         $this->dm->persist($user);
@@ -238,6 +240,6 @@ class MoveTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $user = $this->dm->find(null, '/dbu');
-        $this->assertInstanceOf('Doctrine\Tests\Models\CMS\CmsTeamUser', $user);
+        $this->assertInstanceOf(CmsTeamUser::class, $user);
     }
 }

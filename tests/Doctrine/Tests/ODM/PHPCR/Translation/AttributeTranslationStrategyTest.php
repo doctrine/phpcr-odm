@@ -4,23 +4,36 @@ namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
+use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use PHPCR\NodeInterface;
+use PHPCR\PropertyInterface;
 
 class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
+    /**
+     * @var DocumentManager
+     */
     private $dm;
+
+    /**
+     * @var \ReflectionMethod
+     */
     private $method;
+
+    /**
+     * @var AttributeTranslationStrategy
+     */
     private $strategy;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->dm = $this->getMockBuilder('Doctrine\ODM\PHPCR\DocumentManager')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dm = $this->createMock(DocumentManager::class);
 
         $this->strategy = new AttributeTranslationStrategy($this->dm);
         $this->strategy->setPrefix('test');
 
-        $class = new \ReflectionClass('Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy');
+        $class = new \ReflectionClass(AttributeTranslationStrategy::class);
         $this->method = $class->getMethod('getTranslatedPropertyName');
         $this->method->setAccessible(true);
     }
@@ -39,11 +52,7 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
     public function testGetLocalesFor()
     {
-        if (version_compare(PHP_VERSION, '5.3.3', '<=')) {
-            $this->markTestSkipped('Prophesize does not work on PHP 5.3.3');
-        }
-
-        $classMetadata = $this->prophesize('Doctrine\ODM\PHPCR\Mapping\ClassMetadata');
+        $classMetadata = $this->createMock(ClassMetadata::class);
         $document = new \stdClass;
         $localizedPropNames = array(
             'test:de-prop1' => 'de',
@@ -54,17 +63,24 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
             'de_asdf' => false, // no property name
         );
 
-        $node = $this->prophesize('PHPCR\NodeInterface');
+        $node = $this->createMock(NodeInterface::class);
         $properties = array();
 
         foreach (array_keys($localizedPropNames) as $localizedPropName) {
-            $property = $this->prophesize('PHPCR\PropertyInterface');
-            $property->getName()->willReturn($localizedPropName);
-            $properties[] = $property->reveal();
+            $property = $this->createMock(PropertyInterface::class);
+            $property
+                ->expects($this->any())
+                ->method('getName')
+                ->willReturn($localizedPropName);
+            $properties[] = $property;
         }
-        $node->getProperties('test:*')->willReturn($properties);
+        $node
+            ->expects($this->once())
+            ->method('getProperties')
+            ->with('test:*')
+            ->willReturn($properties);
 
-        $locales = $this->strategy->getLocalesFor($document, $node->reveal(), $classMetadata->reveal());
+        $locales = $this->strategy->getLocalesFor($document, $node, $classMetadata);
         $expected = array_values(array_filter($localizedPropNames, function ($valid) {
             return $valid;
         }));

@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\Tests\Models\CMS\CmsPage;
 
@@ -21,11 +22,11 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
     private $listener;
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestResetListener();
         $this->dm = $this->createDocumentManager();
@@ -53,13 +54,13 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\CmsPageContent', $page->content);
+        $this->assertInstanceOf(CmsPageContent::class, $page->content);
 
 
         // This is required as the originalData in the UnitOfWork doesn’t set the node of the Document
         $this->dm->clear();
 
-        $pageLoaded = $this->dm->getRepository('Doctrine\Tests\Models\CMS\CmsPage')->find($page->id);
+        $pageLoaded = $this->dm->getRepository(CmsPage::class)->find($page->id);
 
         $pageLoaded->title = "my-page-changed";
 
@@ -76,7 +77,7 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-        $this->assertInstanceOf('Doctrine\Tests\ODM\PHPCR\Functional\CmsPageContent', $page->content);
+        $this->assertInstanceOf(CmsPageContent::class, $page->content);
     }
 }
 

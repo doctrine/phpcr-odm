@@ -2,29 +2,32 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\SessionInterface;
+use PHPCR\WorkspaceInterface;
 
 class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 {
     protected $testNodeName = '__test-node__';
 
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
     /**
-     * @var \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
     /**
-     * @var \PHPCR\WorkspaceInterface
+     * @var WorkspaceInterface
      */
     private $workspace;
 
@@ -33,15 +36,15 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
      */
     private $metadata;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
         $this->workspace = $this->dm->getPhpcrSession()->getWorkspace();
-        $this->metadata = $this->dm->getClassMetadata('Doctrine\Tests\Models\Translation\Article');
+        $this->metadata = $this->dm->getClassMetadata(Article::class);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         try {
             $this->removeTestNode();
@@ -471,7 +474,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
-        $node->setProperty('phpcr:class', 'Doctrine\Tests\Models\Translation\Article');
+        $node->setProperty('phpcr:class', Article::class);
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
@@ -487,7 +490,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
 
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->from()->document(Article::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -498,7 +501,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $res);
 
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->from()->document(Article::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -510,7 +513,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 
         $qb = $this->dm->createQueryBuilder();
         $qb->setLocale(false);
-        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->from()->document(Article::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -521,7 +524,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $res);
 
         $qb = $this->dm->createQueryBuilder();
-        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->from()->document(Article::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')
@@ -533,7 +536,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 
         $qb = $this->dm->createQueryBuilder();
         $qb->setLocale('fr');
-        $qb->from()->document('Doctrine\Tests\Models\Translation\Article', 'a');
+        $qb->from()->document(Article::class, 'a');
         $qb->where()
             ->eq()
             ->field('a.topic')

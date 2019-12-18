@@ -3,18 +3,21 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\References\ParentTestObj;
+use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Doctrine\Common\Proxy\Proxy;
 
-class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
+class RefreshTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager(array(__DIR__));
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -61,10 +64,10 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
 
         $user->addGroup($group2);
 
-        $this->assertEquals(2, count($user->groups));
+        $this->assertCount(2, $user->groups);
         $this->dm->refresh($user);
 
-        $this->assertEquals(1, count($user->groups));
+        $this->assertCount(1, $user->groups);
     }
 
     public function testRefreshProxy()
@@ -82,21 +85,20 @@ class RefreshTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $child = $this->dm->find(null, '/functional/parent/child');
-        $this->assertInstanceOf('Doctrine\Common\Proxy\Proxy', $child->parent);
+        $this->assertInstanceOf(Proxy::class, $child->parent);
         $child->parent->name = 'x';
 
         $this->dm->refresh($child->parent);
         $this->assertEquals('parent', $child->parent->name);
     }
 
-    /**
-     * @expectedException \Doctrine\ODM\PHPCR\Exception\InvalidArgumentException
-     */
     public function testRefreshDetached()
     {
         $user = new CmsUser;
         $user->id = '/functional/Guilherme';
         $user->username = 'gblanco';
+
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->refresh($user);
     }
 

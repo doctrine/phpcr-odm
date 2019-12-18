@@ -2,9 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\NodeInterface;
+use PHPCR\NodeType\ConstraintViolationException;
 
 /**
  * @group functional
@@ -12,7 +15,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class MixinTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var \Doctrine\ODM\PHPCR\DocumentManager
+     * @var DocumentManager
      */
     private $dm;
 
@@ -23,13 +26,13 @@ class MixinTest extends PHPCRFunctionalTestCase
     private $type;
 
     /**
-     * @var \PHPCR\NodeInterface
+     * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = 'Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject';
+        $this->type = MixinMappingObject::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -84,9 +87,6 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
 
-    /**
-     * @expectedException \PHPCR\NodeType\ConstraintViolationException
-     */
     public function testChangingProtectedPropertyThrowsException()
     {
         $test = new TestObject();
@@ -101,14 +101,10 @@ class MixinTest extends PHPCRFunctionalTestCase
         $test->changeMe = 'changed';
         $test->created = new \DateTime();
 
+        $this->expectException(ConstraintViolationException::class);
         $this->dm->flush();
-
-        $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
 
-    /**
-     * @expectedException \PHPCR\NodeType\ConstraintViolationException
-     */
     public function testChangingProtectedPropertyToNullThrowsException()
     {
         $test = new TestObject();
@@ -123,9 +119,8 @@ class MixinTest extends PHPCRFunctionalTestCase
         $test->changeMe = 'changed';
         $test->created = null;
 
+        $this->expectException(ConstraintViolationException::class);
         $this->dm->flush();
-
-        $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
 }
 

@@ -2,20 +2,28 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-class AbstractNodeTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
+
+class AbstractNodeTest extends TestCase
 {
-    public function setUp()
+    private $parent;
+    private $node1;
+    private $leafNode;
+
+    public function setUp(): void
     {
         $this->parent = $this->getMockBuilder(
-            'Doctrine\ODM\PHPCR\Query\Builder\AbstractNode'
+            AbstractNode::class
         )->setMockClassName('ParentNode')->getMockForAbstractClass();
 
-        $this->node1 = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractNode')
+        $this->node1 = $this->getMockBuilder(AbstractNode::class)
             ->setMockClassName('TestNode')
             ->setConstructorArgs(array($this->parent))
             ->getMockForAbstractClass();
 
-        $this->leafNode = $this->getMockBuilder('Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode')
+        $this->leafNode = $this->getMockBuilder(AbstractLeafNode::class)
             ->setMockClassName('LeafNode')
             ->setConstructorArgs(array($this->node1))
             ->getMockForAbstractClass();
@@ -28,7 +36,7 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
     {
         foreach ($data as $className) {
             $childNode = $this->getMockForAbstractClass(
-                'Doctrine\ODM\PHPCR\Query\Builder\AbstractNode',
+                AbstractNode::class,
                 array(),
                 $className
             );
@@ -136,11 +144,13 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($cardinalityMap));
 
         if ($options['exceeds_max']) {
-            $this->setExpectedException('OutOfBoundsException', 'cannot exceed');
+            $this->expectException(\OutOfBoundsException::class);
+            $this->expectExceptionMessage('cannot exceed');
         }
 
         if ($options['invalid_child']) {
-            $this->setExpectedException('OutOfBoundsException', 'cannot be appended');
+            $this->expectException(\OutOfBoundsException::class);
+            $this->expectExceptionMessage('cannot be appended');
         }
 
         $this->addChildrenToNode1($data);
@@ -212,7 +222,8 @@ class AbstractNodeTest extends \PHPUnit_Framework_TestCase
 
         if ($options['expected_exception']) {
             list($exceptionType, $exceptionMessage) = $options['expected_exception'];
-            $this->setExpectedException($exceptionType, $exceptionMessage);
+            $this->expectException($exceptionType);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $this->node1->expects($this->any())
