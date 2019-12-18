@@ -212,10 +212,10 @@ class QueryTest extends Testcase
 
     public function testGetSingleResult_withTwoResults()
     {
-        $this->expectException(QueryException::class);
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(array('ok1', 'ok2')));
+        $this->expectException(QueryException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 

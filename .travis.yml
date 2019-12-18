@@ -64,11 +64,10 @@ before_install:
 install:
   # this also does the composer update
   - COMPOSER_MEMORY_LIMIT=-1 ./tests/travis_${TRANSPORT}.sh
-  - vendor/bin/simple-phpunit install
 
 script:
   - composer validate --strict --no-check-lock
-  - vendor/bin/simple-phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
+  - vendor/bin/phpunit -c tests/phpunit_${TRANSPORT}.xml.dist
   - if [ "$PHPBENCH" = "yes" ]; then php vendor/bin/phpbench run --report=all; fi;
 
 notifications:

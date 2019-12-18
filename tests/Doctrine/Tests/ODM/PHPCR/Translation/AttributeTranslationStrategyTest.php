@@ -69,7 +69,6 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
         foreach (array_keys($localizedPropNames) as $localizedPropName) {
             $property = $this->createMock(PropertyInterface::class);
             $property
-                ->expects($this->any())
                 ->method('getName')
                 ->willReturn($localizedPropName);
             $properties[] = $property;

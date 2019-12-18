@@ -106,7 +106,6 @@ class ReorderTest extends PHPCRFunctionalTestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder('parent', 'first', 'second', false);
-        $this->dm->flush();
     }
 
     public function testReorderBeforeFirst()

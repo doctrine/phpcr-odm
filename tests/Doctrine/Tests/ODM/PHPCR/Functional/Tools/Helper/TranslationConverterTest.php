@@ -13,6 +13,7 @@ use Doctrine\Tests\ODM\PHPCR\Functional\Translation\AttributeTranslationStrategy
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
+use Doctrine\Tests\Models\Blog\Comment as BlogComment;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\Models\Translation\ChildTranslationComment;
 
@@ -254,7 +255,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateAttribute()
     {
-        $class = \Doctrine\Tests\Models\Blog\Comment::class;
+        $class = BlogComment::class;
         $field = 'title';
         $comment = $this->node->addNode('convert');
         $comment->setProperty(
@@ -345,7 +346,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateChild()
     {
-        $class = \Doctrine\Tests\Models\Blog\Comment::class;
+        $class = BlogComment::class;
         $field = 'title';
         $comment = $this->node->addNode('convert');
         $comment->setProperty('phpcr:class', $class);
@@ -456,7 +457,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateMissingPrevious()
     {
-        $class = \Doctrine\Tests\Models\Blog\Comment::class;
+        $class = BlogComment::class;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('To untranslate a document, you need to specify the previous translation strategy');
         $this->converter->convert($class, array('en'));
@@ -464,7 +465,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateMissingFields()
     {
-        $class = \Doctrine\Tests\Models\Blog\Comment::class;
+        $class = BlogComment::class;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('need to specify the fields that where previously translated');
         $this->converter->convert($class, array(), array(), 'attribute');
