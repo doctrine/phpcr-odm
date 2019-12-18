@@ -58,7 +58,7 @@ matrix:
 before_install:
   - phpenv config-rm xdebug.ini
   - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
-  - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.11; fi;
+  - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.16; fi;
   - composer global require --no-progress --no-scripts --no-plugins symfony/flex
 
 install:
