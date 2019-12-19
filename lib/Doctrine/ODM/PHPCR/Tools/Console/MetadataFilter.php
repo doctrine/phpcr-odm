@@ -25,8 +25,10 @@ namespace Doctrine\ODM\PHPCR\Tools\Console;
  * Copied from Doctrine\ODM\PHPCR\Tools\Console\MetadataFilter
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author      Jonathan Wage <jonwage@gmail.com>
@@ -37,7 +39,7 @@ class MetadataFilter extends \FilterIterator implements \Countable
     /**
      * @var array
      */
-    private $filter = array();
+    private $filter = [];
 
     /**
      * Filter Metadatas by one or more filter options.
@@ -49,7 +51,7 @@ class MetadataFilter extends \FilterIterator implements \Countable
      */
     public static function filter(array $metadatas, $filter)
     {
-        $metadatas = new MetadataFilter(new \ArrayIterator($metadatas), $filter);
+        $metadatas = new self(new \ArrayIterator($metadatas), $filter);
 
         return iterator_to_array($metadatas);
     }
@@ -70,7 +72,7 @@ class MetadataFilter extends \FilterIterator implements \Countable
      */
     public function accept()
     {
-        if (count($this->filter) == 0) {
+        if (0 == count($this->filter)) {
             return true;
         }
 
@@ -80,13 +82,13 @@ class MetadataFilter extends \FilterIterator implements \Countable
         foreach ($this->filter as $filter) {
             $pregResult = preg_match("/$filter/", $metadata->name);
 
-            if ($pregResult === false) {
+            if (false === $pregResult) {
                 throw new \RuntimeException(
                     sprintf("Error while evaluating regex '/%s/'.", $filter)
                 );
             }
 
-            if ($pregResult === 0) {
+            if (0 === $pregResult) {
                 return false;
             }
 

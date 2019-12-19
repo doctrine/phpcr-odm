@@ -5,7 +5,9 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class SourceJoinConditionDescendant extends AbstractLeafNode
 {
     protected $path;
+
     protected $descendantAlias;
+
     protected $ancestorAliasNode;
 
     /**

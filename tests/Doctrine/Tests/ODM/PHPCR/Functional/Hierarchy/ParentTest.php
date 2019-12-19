@@ -2,15 +2,14 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\Common\Proxy\Proxy;
+use Doctrine\ODM\PHPCR\Document\Generic;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
-use Doctrine\ODM\PHPCR\Document\Generic;
 use PHPCR\PropertyType;
 
 /**
@@ -27,6 +26,7 @@ class ParentTest extends PHPCRFunctionalTestCase
 
     /**
      * Class name of the document class
+     *
      * @var string
      */
     private $type = NameDoc::class;
@@ -62,6 +62,7 @@ class ParentTest extends PHPCRFunctionalTestCase
 
         $this->assertTrue($doc->parent instanceof Proxy);
         $this->assertEquals('/functional', $doc->parent->getId());
+
         return $doc;
     }
 
@@ -79,7 +80,7 @@ class ParentTest extends PHPCRFunctionalTestCase
 
         $docNew = $this->dm->find($this->type, '/functional/test');
 
-        $this->assertNotNull($docNew, "Have to hydrate user object!");
+        $this->assertNotNull($docNew, 'Have to hydrate user object!');
         $this->assertEquals($doc->nodename, $docNew->nodename);
     }
 
@@ -148,7 +149,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $grandchild->parent = $doc;
         $grandchild->nodename = 'grandchild';
 
-        $doc->children = array($grandchild);
+        $doc->children = [$grandchild];
 
         $this->dm->persist($grandchild);
 
@@ -167,7 +168,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $child->parent = $parent;
         $child->nodename = 'child';
 
-        $parent->children = array($child);
+        $parent->children = [$child];
 
         $this->dm->persist($child);
 
@@ -186,14 +187,14 @@ class ParentTest extends PHPCRFunctionalTestCase
         $child->parent = $parent;
         $child->nodename = 'child';
 
-        $parent->children = array($child);
+        $parent->children = [$child];
 
-        # the grand child document
+        // the grand child document
         $grandchild = new NameDoc();
         $grandchild->parent = $child;
         $grandchild->nodename = 'grandchild';
 
-        $child->children = array($grandchild);
+        $child->children = [$grandchild];
 
         $this->dm->persist($child);
 
@@ -278,14 +279,19 @@ class NameDoc
 {
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
+
     /** @PHPCRODM\Children(cascade="persist") */
     public $children;
+
     /** @PHPCRODM\Child(cascade="persist") */
     public $child;
 }

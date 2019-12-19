@@ -24,8 +24,10 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
 
 /**
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 abstract class AbstractTranslationStrategy implements TranslationStrategyInterface
@@ -63,7 +65,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
      * @param string $locale
      * @param string $propertyName the untranslated property name
      *
-     * @return string the property name with the translation namespace.
+     * @return string the property name with the translation namespace
      */
     public function getTranslatedPropertyName($locale, $propertyName)
     {
@@ -76,14 +78,14 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
      * @param string $locale
      * @param array  $mapping the mapping for the property
      *
-     * @return string the property name with the translation namespace.
+     * @return string the property name with the translation namespace
      */
     public function getTranslatedPropertyNameAssoc($locale, $mapping)
     {
-        return array(
+        return [
             'property' => $this->getTranslatedPropertyName($locale, $mapping['property']),
             'assoc' => $this->getTranslatedPropertyName($locale, $mapping['assoc']),
-            'assocNulls' => $this->getTranslatedPropertyName($locale, $mapping['assocNulls'])
-        );
+            'assocNulls' => $this->getTranslatedPropertyName($locale, $mapping['assocNulls']),
+        ];
     }
 }

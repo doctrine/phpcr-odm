@@ -18,6 +18,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class ConstraintFieldIsset extends AbstractLeafNode
 {
     protected $field;
+
     protected $alias;
 
     public function __construct(AbstractNode $parent, $field)

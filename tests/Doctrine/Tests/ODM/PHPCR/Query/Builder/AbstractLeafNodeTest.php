@@ -2,10 +2,10 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
-use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 
 class AbstractLeafNodeTest extends TestCase
 {
@@ -28,17 +28,17 @@ class AbstractLeafNodeTest extends TestCase
 
     public function provideTestExplodeField()
     {
-        return array(
-            array('foo.bar', false, array('foo', 'bar')),
-            array('foobar', 'Invalid field specification'),
-            array('foobar.foobar.foobar', 'Invalid field specification'),
-        );
+        return [
+            ['foo.bar', false, ['foo', 'bar']],
+            ['foobar', 'Invalid field specification'],
+            ['foobar.foobar.foobar', 'Invalid field specification'],
+        ];
     }
 
     /**
      * @dataProvider provideTestExplodeField
      */
-    public function testExplodeField($fieldSpec, $xpctdExceptionMessage, $xpctdRes = array())
+    public function testExplodeField($fieldSpec, $xpctdExceptionMessage, $xpctdRes = [])
     {
         if ($xpctdExceptionMessage) {
             $this->expectException(RuntimeException::class);

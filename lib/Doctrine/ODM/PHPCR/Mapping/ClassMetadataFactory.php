@@ -19,11 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
+use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
-use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
-use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Event;
 
 /**
@@ -31,9 +31,12 @@ use Doctrine\ODM\PHPCR\Event;
  * metadata mapping information of a class which describes how a class should be mapped
  * to a document database.
 
+ *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  */
@@ -87,6 +90,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if ($metadata) {
             return $metadata;
         }
+
         throw MappingException::classNotMapped($className);
     }
 
@@ -100,6 +104,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         if (class_exists($className)) {
             return parent::loadMetadata($className);
         }
+
         throw MappingException::classNotFound($className);
     }
 
@@ -116,7 +121,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function getFqcnFromAlias($namespaceAlias, $simpleClassName)
     {
-        return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias) . '\\' . $simpleClassName;
+        return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias).'\\'.$simpleClassName;
     }
 
     /**
@@ -125,8 +130,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * @param ClassMetadata      $class
      * @param ClassMetadata|null $parent
      * @param bool               $rootEntityFound
-     * @param array              $nonSuperclassParents All parent class names
-     *                                                 that are not marked as mapped superclasses.
+     * @param array              $nonSuperclassParents all parent class names
+     *                                                 that are not marked as mapped superclasses
      */
     protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents)
     {
@@ -183,7 +188,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
         foreach ($parentClass->referenceMappings as $fieldName) {
             $mapping = $parentClass->mappings[$fieldName];
-            if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
+            if (ClassMetadata::MANY_TO_ONE == $mapping['type']) {
                 $subClass->mapManyToOne($mapping, $parentClass);
             } else {
                 $subClass->mapManyToMany($mapping, $parentClass);
@@ -244,6 +249,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      *
      * @param ClassMetadata $class
      * @param $parent
+     *
      * @throws MappingException
      */
     protected function validateRuntimeMetadata($class, $parent)
@@ -263,6 +269,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         // verify inheritance
         // TODO
     }
+
     /**
      * {@inheritdoc}
      */
@@ -298,10 +305,10 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function isEntity(ClassMetadataInterface $class)
     {
-        return isset($class->isMappedSuperclass) && $class->isMappedSuperclass === false;
+        return isset($class->isMappedSuperclass) && false === $class->isMappedSuperclass;
     }
 }

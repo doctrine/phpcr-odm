@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 class TextSearch implements Expression
 {
     protected $field;
+
     protected $search;
 
     public function __construct($field, $search)

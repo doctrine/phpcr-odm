@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\From;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class FromTest extends NodeTestCase
@@ -10,26 +9,26 @@ class FromTest extends NodeTestCase
     /**
      * @dataProvider provideInterface
      */
-    public function testInterface($method, $type, $args = array())
+    public function testInterface($method, $type, $args = [])
     {
         $this->markTestSkipped('Joins temporarily disabled');
     }
 
     public function provideInterface()
     {
-        return array(
-            array('document', 'SourceDocument', array(
+        return [
+            ['document', 'SourceDocument', [
                 '/Fqn/To/Class', 'a',
-            )),
-            array('joinInner', 'SourceJoin', array(
+            ]],
+            ['joinInner', 'SourceJoin', [
                 QOMConstants::JCR_JOIN_TYPE_INNER,
-            )),
-            array('joinLeftOuter', 'SourceJoin', array(
+            ]],
+            ['joinLeftOuter', 'SourceJoin', [
                 QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER,
-            )),
-            array('joinRightOuter', 'SourceJoin', array(
+            ]],
+            ['joinRightOuter', 'SourceJoin', [
                 QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER,
-            )),
-        );
+            ]],
+        ];
     }
 }

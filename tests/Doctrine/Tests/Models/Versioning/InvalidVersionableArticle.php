@@ -25,6 +25,7 @@ class InvalidVersionableArticle
     {
         return $this->text;
     }
+
     public function setText($text)
     {
         $this->text = $text;

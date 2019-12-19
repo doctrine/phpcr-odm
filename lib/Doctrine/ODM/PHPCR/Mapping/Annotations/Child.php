@@ -29,6 +29,7 @@ final class Child
 {
     /**
      * PHPCR node name of the child to map
+     *
      * @var string
      */
     public $nodeName;
@@ -36,5 +37,5 @@ final class Child
     /**
      * @var array
      */
-    public $cascade = array();
+    public $cascade = [];
 }

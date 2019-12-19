@@ -36,7 +36,7 @@ abstract class AbstractLeafNode extends AbstractNode
     public function getCardinalityMap()
     {
         // no children , no cardinality map...
-        return array();
+        return [];
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class AbstractLeafNode extends AbstractNode
     {
         $parts = explode('.', $field);
 
-        if (count($parts) == 2) {
+        if (2 == count($parts)) {
             return $parts;
         }
 

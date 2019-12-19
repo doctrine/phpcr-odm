@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
@@ -14,26 +14,37 @@ class CmsUser
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $status;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticle", cascade="persist") */
     public $articles;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
     public $groups;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsProfile") */
     public $profiles;
+
     /** @PHPCRODM\Children() */
     public $children;
+
     /** @PHPCRODM\Child(nodeName="assistant", cascade="persist") */
     public $child;
+
     /** @PHPCRODM\Referrers(referencedBy="user", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
     public $articlesReferrers;
 
@@ -103,6 +114,7 @@ class CmsUserRepository extends DocumentRepository implements RepositoryIdInterf
      * Generate a document id
      *
      * @param object $document
+     *
      * @return string
      */
     public function generateId($document, $parent = null)

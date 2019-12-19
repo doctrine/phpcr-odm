@@ -29,7 +29,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="long") instead.
+ * @deprecated use @Field(type="long") instead
  */
 final class Int extends TranslatableProperty
 {

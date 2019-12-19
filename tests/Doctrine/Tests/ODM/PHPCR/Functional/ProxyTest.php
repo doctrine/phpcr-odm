@@ -2,11 +2,11 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Common\Proxy\Proxy;
 
 /**
  * @group functional
@@ -20,7 +20,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->resetFunctionalNode($this->dm);
     }
 
@@ -37,8 +37,8 @@ class ProxyTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->getReference(get_class($user), $user->id);
 
-        $this->assertTrue(isset($user->name), "User is not set on demand");
-        $this->assertEquals('Dominik', $user->name, "User is not loaded on demand");
+        $this->assertTrue(isset($user->name), 'User is not set on demand');
+        $this->assertEquals('Dominik', $user->name, 'User is not loaded on demand');
     }
 
     /**
@@ -56,7 +56,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $user = $this->dm->getReference(get_class($user), $user->id);
-        $this->assertEquals('Dominik', $user->name, "User is not loaded on demand");
+        $this->assertEquals('Dominik', $user->name, 'User is not loaded on demand');
 
         $this->assertSame($this->dm->getReference(get_class($user), $user->id), $user, 'Getting the proxy twice results in a copy');
     }
@@ -76,7 +76,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $user = $this->dm->find(null, $user->id);
-        $assistant = $this->dm->find(null, $user->id . '/assistant');
+        $assistant = $this->dm->find(null, $user->id.'/assistant');
 
         $this->assertSame($assistant, $user->child);
     }
@@ -104,7 +104,6 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('foo', $doc->nodename);
         $this->assertInstanceOf(ParentDoc::class, $doc->parent);
     }
-
 
     public function testProxyAwakesOnFields()
     {
@@ -160,6 +159,7 @@ class ParentDoc
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Children(cascade="persist") */
     public $children;
 }
@@ -171,6 +171,7 @@ class DocWithoutId
 {
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
 }
@@ -182,10 +183,13 @@ class ChildWithFields
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
+
     /** @PHPCRODM\Field(type="string") */
     public $title;
 }

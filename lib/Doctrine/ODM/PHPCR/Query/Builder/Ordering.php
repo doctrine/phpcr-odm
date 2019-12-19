@@ -14,9 +14,9 @@ class Ordering extends OperandDynamicFactory
 
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_OPERAND_DYNAMIC => array(1, 1),
-        );
+        return [
+            self::NT_OPERAND_DYNAMIC => [1, 1],
+        ];
     }
 
     public function getOrder()

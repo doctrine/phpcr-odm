@@ -29,7 +29,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="decimal") instead.
+ * @deprecated use @Field(type="decimal") instead
  */
 final class Decimal extends TranslatableProperty
 {

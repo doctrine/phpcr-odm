@@ -2,12 +2,12 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Id;
 
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Id\ParentIdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use PHPUnit\Framework\TestCase;
 use Doctrine\ODM\PHPCR\UnitOfWork;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use PHPUnit\Framework\TestCase;
 
 class ParentIdGeneratorTest extends TestCase
 {
@@ -18,8 +18,8 @@ class ParentIdGeneratorTest extends TestCase
     {
         $id = '/moo';
 
-        $generator = new ParentIdGenerator;
-        $parent = new ParentDummy;
+        $generator = new ParentIdGenerator();
+        $parent = new ParentDummy();
         $cm = new ParentClassMetadataProxy($parent, 'name', $id, new MockField($parent, '/miau'));
         $uow = $this->createMock(UnitOfWork::class);
         $uow
@@ -44,7 +44,7 @@ class ParentIdGeneratorTest extends TestCase
     {
         $id = '/moo';
 
-        $generator = new ParentIdGenerator;
+        $generator = new ParentIdGenerator();
         $cm = new ParentClassMetadataProxy(null, 'name', $id);
         $dm = $this->createMock(DocumentManager::class);
 
@@ -58,8 +58,8 @@ class ParentIdGeneratorTest extends TestCase
     {
         $id = '/moo';
 
-        $generator = new ParentIdGenerator;
-        $cm = new ParentClassMetadataProxy(new ParentDummy, '', $id);
+        $generator = new ParentIdGenerator();
+        $cm = new ParentClassMetadataProxy(new ParentDummy(), '', $id);
         $dm = $this->createMock(DocumentManager::class);
 
         $this->assertEquals($id, $generator->generate(null, $cm, $dm));
@@ -67,7 +67,7 @@ class ParentIdGeneratorTest extends TestCase
 
     public function testGenerateNoIdNoParentNoName()
     {
-        $generator = new ParentIdGenerator;
+        $generator = new ParentIdGenerator();
         $cm = new ParentClassMetadataProxy(null, '', '');
         $dm = $this->createMock(DocumentManager::class);
 
@@ -77,7 +77,7 @@ class ParentIdGeneratorTest extends TestCase
 
     public function testGenerateNoIdNoParent()
     {
-        $generator = new ParentIdGenerator;
+        $generator = new ParentIdGenerator();
         $cm = new ParentClassMetadataProxy(null, 'name', '');
         $dm = $this->createMock(DocumentManager::class);
 
@@ -87,8 +87,8 @@ class ParentIdGeneratorTest extends TestCase
 
     public function testGenerateNoIdNoName()
     {
-        $generator = new ParentIdGenerator;
-        $cm = new ParentClassMetadataProxy(new ParentDummy, '', '');
+        $generator = new ParentIdGenerator();
+        $cm = new ParentClassMetadataProxy(new ParentDummy(), '', '');
         $dm = $this->createMock(DocumentManager::class);
 
         $this->expectException(IdException::class);
@@ -97,8 +97,8 @@ class ParentIdGeneratorTest extends TestCase
 
     public function testGenerateNoParentId()
     {
-        $generator = new ParentIdGenerator;
-        $parent = new ParentDummy;
+        $generator = new ParentIdGenerator();
+        $parent = new ParentDummy();
         $cm = new ParentClassMetadataProxy($parent, 'name', '', new MockField($parent, '/miau'));
         $uow = $this->createMock(UnitOfWork::class);
         $uow
@@ -125,12 +125,17 @@ class ParentDummy
 class ParentClassMetadataProxy extends ClassMetadata
 {
     public $parentMapping = 'parent';
+
     public $nodename = 'nodename';
+
     public $identifier = 'id';
+
     public $reflFields;
 
     protected $_parent;
+
     protected $_nodename;
+
     protected $_id;
 
     public function __construct($parent, $nodename, $identifier, $mockField = null)
@@ -139,7 +144,7 @@ class ParentClassMetadataProxy extends ClassMetadata
         $this->_nodename = $nodename;
         $this->_identifier = $identifier;
 
-        $this->reflFields = array($this->identifier => $mockField);
+        $this->reflFields = [$this->identifier => $mockField];
     }
 
     public function getFieldValue($document, $field)
@@ -160,6 +165,7 @@ class ParentClassMetadataProxy extends ClassMetadata
 class MockField
 {
     private $p;
+
     private $id;
 
     public function __construct($parent, $id)
@@ -170,9 +176,10 @@ class MockField
 
     public function getValue($parent)
     {
-        if (! $this->p == $parent) {
+        if (!$this->p == $parent) {
             throw new \Exception('Wrong parent passed in getValue');
         }
+
         return $this->id;
     }
 }

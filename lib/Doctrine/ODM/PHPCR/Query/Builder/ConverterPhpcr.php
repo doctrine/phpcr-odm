@@ -19,16 +19,16 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query
@@ -58,7 +58,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var ClassMetadata[]
      */
-    protected $aliasMetadata = array();
+    protected $aliasMetadata = [];
 
     /**
      * When document sources are registered we put the translator
@@ -66,7 +66,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var TranslationStrategyInterface[]
      */
-    protected $translator = array();
+    protected $translator = [];
 
     /**
      * Ugly: We need to store the document source types so that we
@@ -100,7 +100,7 @@ class ConverterPhpcr extends ConverterBase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function qomf()
     {
@@ -108,7 +108,7 @@ class ConverterPhpcr extends ConverterBase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function validateAlias($alias)
     {
@@ -125,7 +125,7 @@ class ConverterPhpcr extends ConverterBase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function getPhpcrProperty($originalAlias, $odmField)
     {
@@ -148,7 +148,7 @@ class ConverterPhpcr extends ConverterBase
         if (empty($fieldMeta['translated'])
             || empty($this->translator[$originalAlias])
         ) {
-            return array($originalAlias, $propertyName);
+            return [$originalAlias, $propertyName];
         }
 
         $propertyPath = $this->translator[$originalAlias]->getTranslatedPropertyPath($originalAlias, $propertyName, $this->locale);
@@ -159,11 +159,11 @@ class ConverterPhpcr extends ConverterBase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getQuery(QueryBuilder $builder)
     {
-        $this->aliasWithTranslatedFields = array();
+        $this->aliasWithTranslatedFields = [];
         $this->locale = $builder->getLocale();
         if (null === $this->locale && $this->dm->hasLocaleChooserStrategy()) {
             $this->locale = $this->dm->getLocaleChooserStrategy()->getLocale();
@@ -179,12 +179,12 @@ class ConverterPhpcr extends ConverterBase
             );
         }
 
-        $dispatches = array(
+        $dispatches = [
             QBConstants::NT_FROM,
             QBConstants::NT_SELECT,
             QBConstants::NT_WHERE,
             QBConstants::NT_ORDER_BY,
-        );
+        ];
 
         foreach ($dispatches as $dispatchType) {
             $this->dispatchMany($builder->getChildrenOfType($dispatchType));
@@ -255,7 +255,7 @@ class ConverterPhpcr extends ConverterBase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function walkSourceDocument(SourceDocument $node)
     {
@@ -295,7 +295,7 @@ class ConverterPhpcr extends ConverterBase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function walkOperandDynamicField(OperandDynamicField $node)
     {
@@ -343,7 +343,7 @@ class ConverterPhpcr extends ConverterBase
                 $fieldMapping = $meta->getFieldMapping($field->getField());
                 $type = $fieldMapping['type'];
 
-                $typeMapping = array(
+                $typeMapping = [
                     'string' => 'string',
                     'long' => 'integer',
                     'decimal' => 'string',
@@ -352,7 +352,7 @@ class ConverterPhpcr extends ConverterBase
                     'path' => 'string',
                     'uri' => 'string',
                     'uuid' => 'string',
-                );
+                ];
 
                 if (array_key_exists($type, $typeMapping)) {
                     settype($value, $typeMapping[$type]);

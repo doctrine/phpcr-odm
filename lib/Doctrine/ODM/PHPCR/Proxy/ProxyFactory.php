@@ -19,16 +19,16 @@
 
 namespace Doctrine\ODM\PHPCR\Proxy;
 
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
+use Doctrine\Common\Proxy\AbstractProxyFactory;
+use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
+use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
+use Doctrine\Common\Proxy\Proxy;
+use Doctrine\Common\Proxy\ProxyDefinition;
+use Doctrine\Common\Proxy\ProxyGenerator;
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
-use Doctrine\Common\Util\ClassUtils;
-use Doctrine\Common\Proxy\AbstractProxyFactory;
-use Doctrine\Common\Proxy\ProxyGenerator;
-use Doctrine\Common\Proxy\ProxyDefinition;
-use Doctrine\Common\Proxy\Proxy;
-use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
-use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
 use ReflectionProperty;
 
 /**
@@ -44,12 +44,12 @@ use ReflectionProperty;
 class ProxyFactory extends AbstractProxyFactory
 {
     /**
-     * @var DocumentManagerInterface The DocumentManager this factory is bound to.
+     * @var DocumentManagerInterface the DocumentManager this factory is bound to
      */
     private $documentManager;
 
     /**
-     * @var string The namespace that contains all proxy classes.
+     * @var string the namespace that contains all proxy classes
      */
     private $proxyNamespace;
 
@@ -57,10 +57,10 @@ class ProxyFactory extends AbstractProxyFactory
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>DocumentManager</tt>.
      *
-     * @param DocumentManagerInterface $documentManager The DocumentManager the new factory works for.
+     * @param DocumentManagerInterface $documentManager the DocumentManager the new factory works for
      * @param string                   $proxyDir        The directory to use for the proxy classes. It must exist.
-     * @param string                   $proxyNamespace  The namespace to use for the proxy classes.
-     * @param boolean                  $autoGenerate    Whether to automatically generate proxy classes.
+     * @param string                   $proxyNamespace  the namespace to use for the proxy classes
+     * @param bool                     $autoGenerate    whether to automatically generate proxy classes
      */
     public function __construct(DocumentManagerInterface $documentManager, $proxyDir, $proxyNamespace, $autoGenerate = false)
     {
@@ -71,33 +71,33 @@ class ProxyFactory extends AbstractProxyFactory
         );
 
         $this->documentManager = $documentManager;
-        $this->proxyNamespace  = $proxyNamespace;
+        $this->proxyNamespace = $proxyNamespace;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function skipClass(BaseClassMetadata $metadata)
     {
-        if (! $metadata instanceof ClassMetadata) {
-            throw new InvalidArgumentException('Did not get the expected type of metadata but ' . get_class($metadata));
+        if (!$metadata instanceof ClassMetadata) {
+            throw new InvalidArgumentException('Did not get the expected type of metadata but '.get_class($metadata));
         }
 
         return $metadata->isMappedSuperclass || $metadata->getReflectionClass()->isAbstract();
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function createProxyDefinition($className)
     {
         $classMetadata = $this->documentManager->getClassMetadata($className);
 
         if ($classMetadata->identifier) {
-            $identifierFields = array($classMetadata->identifier);
+            $identifierFields = [$classMetadata->identifier];
             $reflectionId = $classMetadata->reflFields[$classMetadata->identifier];
         } else {
-            $identifierFields = array();
+            $identifierFields = [];
             $reflectionId = null;
         }
 
@@ -119,7 +119,7 @@ class ProxyFactory extends AbstractProxyFactory
      */
     private function createInitializer(ClassMetadata $classMetadata)
     {
-        $className       = $classMetadata->getName();
+        $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
 
         if ($classMetadata->getReflectionClass()->hasMethod('__wakeup')) {
@@ -178,7 +178,7 @@ class ProxyFactory extends AbstractProxyFactory
      */
     private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
     {
-        $className       = $classMetadata->getName();
+        $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
 
         return function (Proxy $cloned) use ($className, $classMetadata, $documentManager, $reflectionId) {

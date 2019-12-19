@@ -15,7 +15,7 @@ class AssignedIdGeneratorTest extends TestCase
     {
         $id = 'moo';
 
-        $generator = new AssignedIdGenerator;
+        $generator = new AssignedIdGenerator();
         $cm = new ClassMetadataProxy($id);
         $dm = $this->createMock(DocumentManager::class);
 
@@ -29,7 +29,7 @@ class AssignedIdGeneratorTest extends TestCase
     {
         $id = '';
 
-        $generator = new AssignedIdGenerator;
+        $generator = new AssignedIdGenerator();
         $cm = new ClassMetadataProxy($id);
         $dm = $this->createMock(DocumentManager::class);
 

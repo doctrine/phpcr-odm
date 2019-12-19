@@ -12,6 +12,7 @@ class RefManyTestObjPathStrategy
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj", cascade="persist", property="myReferences", strategy="path") */
     public $references;
 

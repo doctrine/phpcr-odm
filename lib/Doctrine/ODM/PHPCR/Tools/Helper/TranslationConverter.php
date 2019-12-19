@@ -3,14 +3,14 @@
 namespace Doctrine\ODM\PHPCR\Tools\Helper;
 
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\NonTranslatedStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
-use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
  * Migrate a field that has become translated or changed its translation
@@ -34,14 +34,14 @@ class TranslationConverter
     private $dm;
 
     /**
-     * @var int Number of documents to process per batch.
+     * @var int number of documents to process per batch
      */
     private $batchSize;
 
     /**
      * @var array
      */
-    private $notices = array();
+    private $notices = [];
 
     /**
      * @param DocumentManagerInterface $dm
@@ -91,17 +91,17 @@ class TranslationConverter
      * @param string $previousStrategyName Name of previous strategy or "none" if field was not
      *                                     previously translated
      *
-     * @return boolean true if there are more documents to convert and this method needs to be
-     *                      called again.
+     * @return bool true if there are more documents to convert and this method needs to be
+     *              called again
      *
-     * @throws PHPCRExceptionInterface if the document can not be found.
+     * @throws PHPCRExceptionInterface if the document can not be found
      *
      * @see getLastNotices()
      */
     public function convert(
         $class,
         $locales,
-        array $fields = array(),
+        array $fields = [],
         $previousStrategyName = NonTranslatedStrategy::NAME
     ) {
         /** @var ClassMetadata $currentMeta */
@@ -116,13 +116,14 @@ class TranslationConverter
             } else {
                 $message .= sprintf(' Document is currently at %s', $currentStrategyName);
             }
+
             throw new InvalidArgumentException($message);
         }
         if (!count($locales) && NonTranslatedStrategy::NAME !== $currentStrategyName) {
             throw new InvalidArgumentException('When converting to translated content, the locales must be specified.');
         }
 
-        $this->notices = array();
+        $this->notices = [];
         $translated = null;
         foreach ($fields as $field) {
             $current = !empty($currentMeta->mappings[$field]['translated']);
@@ -182,7 +183,7 @@ class TranslationConverter
         // restore meta data to the real thing
         $currentMeta->translator = NonTranslatedStrategy::NAME === $currentStrategyName ? null : $currentStrategyName;
         if (NonTranslatedStrategy::NAME === $currentStrategyName) {
-            $currentMeta->translatableFields = array();
+            $currentMeta->translatableFields = [];
             foreach ($fields as $field) {
                 unset($currentMeta->mappings[$field]['translated']);
             }
@@ -234,7 +235,7 @@ class TranslationConverter
      * @param TranslationStrategyInterface $currentStrategy    Translation strategy to save new translations
      * @param ClassMetadata                $currentMeta        Metadata for new translation strategy
      * @param array                        $fields             The fields to handle
-     * @param array                        $locales            Target locales to copy translations to.
+     * @param array                        $locales            target locales to copy translations to
      * @param bool                         $partialUntranslate Whether we are only a subset of fields back to untranslated
      */
     private function convertDocument(
@@ -249,7 +250,7 @@ class TranslationConverter
     ) {
         $node = $this->dm->getNodeForDocument($document);
 
-        $data = array();
+        $data = [];
         foreach ($fields as $field) {
             $data[$field] = $currentMeta->getFieldValue($document, $field);
         }

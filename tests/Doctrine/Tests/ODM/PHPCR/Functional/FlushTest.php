@@ -3,14 +3,14 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
-use Doctrine\Tests\Models\CMS\CmsGroup;
-use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsAddress;
+use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsTeamUser;
+use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\References\UuidTestObj;
 use Doctrine\Tests\Models\References\UuidTestTwoUuidFieldsObj;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 
@@ -26,13 +26,14 @@ class FlushTest extends PHPCRFunctionalTestCase
 
     /**
      * Class name of the document class
+     *
      * @var string
      */
     private $type = CmsUser::class;
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->resetFunctionalNode($this->dm);
     }
 
@@ -156,7 +157,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->persist($userB);
         $this->dm->persist($userC);
 
-        $this->dm->flush(array($userA, $userB, $userC));
+        $this->dm->flush([$userA, $userB, $userC]);
 
         $this->assertNotNull($userA->id);
         $this->assertNotNull($userB->id);
@@ -184,7 +185,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $otherUser = new CmsUser;
+        $otherUser = new CmsUser();
         $otherUser->name = 'Dominik2';
         $otherUser->username = 'domnikl2';
         $otherUser->status = 'developer';
@@ -194,8 +195,8 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->persist($otherUser);
         $this->dm->flush($user);
 
-        $this->assertTrue($this->dm->contains($otherUser), "Other user is not contained in DocumentManager");
-        $this->assertTrue($otherUser->id != null, "other user has no id");
+        $this->assertTrue($this->dm->contains($otherUser), 'Other user is not contained in DocumentManager');
+        $this->assertTrue(null != $otherUser->id, 'other user has no id');
     }
 
     public function testFlushAndCascadePersist()
@@ -209,16 +210,16 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $address = new CmsAddress();
-        $address->city = "Springfield";
-        $address->zip = "12354";
-        $address->country = "Germany";
+        $address->city = 'Springfield';
+        $address->zip = '12354';
+        $address->country = 'Germany';
         $address->user = $user;
         $user->address = $address;
 
         $this->dm->flush($user);
 
-        $this->assertTrue($this->dm->contains($address), "Address is not contained in DocumentManager");
-        $this->assertTrue($address->id != null, "address user has no id");
+        $this->assertTrue($this->dm->contains($address), 'Address is not contained in DocumentManager');
+        $this->assertTrue(null != $address->id, 'address user has no id');
     }
 
     public function testProxyIsIgnored()
@@ -234,7 +235,7 @@ class FlushTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->getReference(get_class($user), $user->id);
 
-        $otherUser = new CmsUser;
+        $otherUser = new CmsUser();
         $otherUser->name = 'Dominik2';
         $otherUser->username = 'domnikl2';
         $otherUser->status = 'developer';
@@ -242,13 +243,13 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->persist($otherUser);
         $this->dm->flush($user);
 
-        $this->assertTrue($this->dm->contains($otherUser), "Other user is contained in DocumentManager");
-        $this->assertTrue($otherUser->id != null, "other user has no id");
+        $this->assertTrue($this->dm->contains($otherUser), 'Other user is contained in DocumentManager');
+        $this->assertTrue(null != $otherUser->id, 'other user has no id');
     }
 
     public function testUuidIsSet()
     {
-        $uuidObj = new UuidTestObj;
+        $uuidObj = new UuidTestObj();
         $uuidObj->id = '/functional/uuidObj';
         $this->dm->persist($uuidObj);
         $this->dm->flush();
@@ -257,7 +258,7 @@ class FlushTest extends PHPCRFunctionalTestCase
 
     public function testUuidFieldOnlySetOnce()
     {
-        $uuidObj = new UuidTestTwoUuidFieldsObj;
+        $uuidObj = new UuidTestTwoUuidFieldsObj();
         $uuidObj->id = '/functional/uuidObj';
         $this->expectException(MappingException::class);
         $this->expectExceptionMessage('You can only designate a single \'Uuid\' field');

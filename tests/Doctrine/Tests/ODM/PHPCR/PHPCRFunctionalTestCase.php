@@ -5,21 +5,21 @@ namespace Doctrine\Tests\ODM\PHPCR;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ODM\PHPCR\Configuration;
-use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+use Jackalope\RepositoryFactoryDoctrineDBAL;
+use Jackalope\RepositoryFactoryJackrabbit;
 use PHPCR\RepositoryFactoryInterface;
 use PHPCR\SessionInterface;
 use PHPCR\SimpleCredentials;
 use PHPUnit\Framework\TestCase;
-use Jackalope\RepositoryFactoryJackrabbit;
-use Jackalope\RepositoryFactoryDoctrineDBAL;
 
 abstract class PHPCRFunctionalTestCase extends TestCase
 {
     /**
      * @var SessionInterface[]
      */
-    private $sessions = array();
+    private $sessions = [];
 
     public function createDocumentManager(array $paths = null)
     {
@@ -27,7 +27,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         $reader->addGlobalIgnoredName('group');
 
         if (empty($paths)) {
-            $paths = array(__DIR__ . "/../../Models");
+            $paths = [__DIR__.'/../../Models'];
         }
 
         $metaDriver = new AnnotationDriver($reader, $paths);
@@ -35,8 +35,8 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         $factoryclass = isset($GLOBALS['DOCTRINE_PHPCR_FACTORY'])
             ? $GLOBALS['DOCTRINE_PHPCR_FACTORY'] : RepositoryFactoryJackrabbit::class;
 
-        if (ltrim($factoryclass, '\\') === RepositoryFactoryDoctrineDBAL::class) {
-            $params = array();
+        if (RepositoryFactoryDoctrineDBAL::class === ltrim($factoryclass, '\\')) {
+            $params = [];
             foreach ($GLOBALS as $key => $value) {
                 if (0 === strpos($key, 'jackalope.doctrine.dbal.')) {
                     $params[substr($key, strlen('jackalope.doctrine.dbal.'))] = $value;
@@ -96,6 +96,6 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         foreach ($this->sessions as $session) {
             $session->logout();
         }
-        $this->sessions = array();
+        $this->sessions = [];
     }
 }
