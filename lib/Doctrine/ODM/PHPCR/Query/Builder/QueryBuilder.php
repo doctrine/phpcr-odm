@@ -102,9 +102,9 @@ class QueryBuilder extends AbstractNode
     public function getCardinalityMap()
     {
         return [
-            self::NT_SELECT   => [0, null],    // 1..*
-            self::NT_FROM     => [1, 1],         // 1..1
-            self::NT_WHERE    => [0, 1],        // 0..1
+            self::NT_SELECT => [0, null],    // 1..*
+            self::NT_FROM => [1, 1],         // 1..1
+            self::NT_WHERE => [0, 1],        // 0..1
             self::NT_ORDER_BY => [0, null],  // 0..*
         ];
     }

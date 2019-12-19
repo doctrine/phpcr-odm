@@ -279,7 +279,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -333,7 +333,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -349,7 +349,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($referrer->references as $reference) {
             $reference->name = 'new name '.$i;
-            $i++;
+            ++$i;
         }
 
         $this->dm->persist($referrer);
@@ -361,7 +361,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($this->session->getNode('/functional/refManyTestObj')->getProperty('myReferences')->getNode() as  $node) {
             $this->assertEquals($node->getProperty('name')->getValue(), 'new name '.$i);
-            $i++;
+            ++$i;
         }
         $this->assertEquals($i, $max);
     }
@@ -372,7 +372,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -402,7 +402,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
             } else {
                 $this->assertEquals('new name', $referrer->references[$pos]->name);
             }
-            $i++;
+            ++$i;
         }
         $this->assertEquals($max, $i);
     }
@@ -591,7 +591,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -614,7 +614,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->session->getNode('/functional')->hasNode('refTestObj'));
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $this->assertTrue($this->session->getNode('/functional')->hasNode("refRefTestObj$i"));
             $this->assertEquals("refRefTestObj$i", $this->session->getNode('/functional')->getPropertyValue("refRefTestObj$i/name"));
         }
@@ -662,7 +662,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -678,7 +678,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($referrer->references as $reference) {
             $reference->name = "new name $i";
-            $i++;
+            ++$i;
         }
 
         $this->dm->remove($referrer);
@@ -688,7 +688,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $testReferrer = $this->dm->find($this->referrerType, '/functional/refTestObj');
         $this->assertNull($testReferrer);
 
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $this->assertEquals("new name $i", $this->session->getNode("/functional/refRefTestObj$i")->getPropertyValue('name'));
         }
     }
@@ -802,7 +802,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $max = 5;
 
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -831,7 +831,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $max = 5;
 
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -860,7 +860,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $max = 5;
 
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -883,7 +883,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -906,7 +906,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $names = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             if ($i != $pos) {
                 $names[] = "refRefTestObj$i";
             }
@@ -919,7 +919,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
             if ($i != $pos) {
                 $this->assertContains($node->getProperty('name')->getValue(), $names);
             }
-            $i++;
+            ++$i;
         }
         $this->assertEquals($max - 1, $i);
     }
@@ -961,7 +961,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -977,7 +977,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($referrer->references as $reference) {
             $reference->name = "new name $i";
-            $i++;
+            ++$i;
         }
         $this->dm->flush();
         $this->dm->clear();
@@ -987,7 +987,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($referrer->references as $reference) {
             $this->assertEquals("new name $i", $reference->name);
-            $i++;
+            ++$i;
         }
     }
 
@@ -1034,7 +1034,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObjForCascade->id = '/functional/refManyTestObjForCascade';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
             $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
             $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
@@ -1043,13 +1043,13 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $j = 0;
         foreach ($refManyTestObjForCascade->references as $reference) {
-            for ($i = 0; $i < $max; $i++) {
+            for ($i = 0; $i < $max; ++$i) {
                 $newRefRefTestObj = new RefRefTestObj();
                 $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
                 $newRefRefTestObj->name = "refRefTestObj$j$i";
                 $reference->references[] = $newRefRefTestObj;
             }
-            $j++;
+            ++$j;
         }
 
         $this->dm->persist($refManyTestObjForCascade);
@@ -1059,15 +1059,15 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->session->getNode('/functional')->hasNode('refManyTestObjForCascade'));
 
         $refIds = $this->session->getNode('/functional/refManyTestObjForCascade')->getProperty('references')->getString();
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $this->assertTrue($this->session->getNode('/functional')->hasNode("refCascadeManyTestObj$i"));
             $this->assertTrue($this->session->getNode("/functional/refCascadeManyTestObj$i")->hasProperty('references'));
             $this->assertContains($this->session->getNode("/functional/refCascadeManyTestObj$i")->getIdentifier(), $refIds);
         }
 
-        for ($j = 0; $j < $max; $j++) {
+        for ($j = 0; $j < $max; ++$j) {
             $refIds = $this->session->getNode("/functional/refCascadeManyTestObj$j")->getProperty('references')->getString();
-            for ($i = 0; $i < $max; $i++) {
+            for ($i = 0; $i < $max; ++$i) {
                 $this->assertTrue($this->session->getNode('/functional')->hasNode("refRefTestObj$j$i"));
                 $this->assertEquals("refRefTestObj$j$i", $this->session->getNode("/functional/refRefTestObj$j$i")->getPropertyValue('name'));
                 $this->assertContains($this->session->getNode("/functional/refRefTestObj$j$i")->getIdentifier(), $refIds);
@@ -1081,7 +1081,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObjForCascade->id = '/functional/refManyTestObjForCascade';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
             $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
             $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
@@ -1090,13 +1090,13 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $j = 0;
         foreach ($refManyTestObjForCascade->references as $reference) {
-            for ($i = 0; $i < $max; $i++) {
+            for ($i = 0; $i < $max; ++$i) {
                 $newRefRefTestObj = new RefRefTestObj();
                 $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
                 $newRefRefTestObj->name = "refRefTestObj$j$i";
                 $reference->references[] = $newRefRefTestObj;
             }
-            $j++;
+            ++$j;
         }
 
         $this->dm->persist($refManyTestObjForCascade);
@@ -1121,7 +1121,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObjForCascade->id = '/functional/refManyTestObjForCascade';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefCascadeManyTestObj = new RefCascadeManyTestObj();
             $newRefCascadeManyTestObj->id = "/functional/refCascadeManyTestObj$i";
             $newRefCascadeManyTestObj->name = "refCascadeManyTestObj$i";
@@ -1130,13 +1130,13 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $j = 0;
         foreach ($refManyTestObjForCascade->references as $reference) {
-            for ($i = 0; $i < $max; $i++) {
+            for ($i = 0; $i < $max; ++$i) {
                 $newRefRefTestObj = new RefRefTestObj();
                 $newRefRefTestObj->id = "/functional/refRefTestObj$j$i";
                 $newRefRefTestObj->name = "refRefTestObj$j$i";
                 $reference->references[] = $newRefRefTestObj;
             }
-            $j++;
+            ++$j;
         }
 
         $this->dm->persist($refManyTestObjForCascade);
@@ -1245,7 +1245,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObj->id = '/functional/refManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newRefRefTestObj = new RefRefTestObj();
             $newRefRefTestObj->id = "/functional/refRefTestObj$i";
             $newRefRefTestObj->name = "refRefTestObj$i";
@@ -1258,7 +1258,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $documents = [];
         $hashs = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $doc = $this->dm->find($this->referencedType, "/functional/refRefTestObj$i");
             $documents[] = $doc;
             $hashs[] = spl_object_hash($doc);
@@ -1281,7 +1281,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($refDocuments as $refDocument) {
             $refDocument->name = "new name $i";
-            $i++;
+            ++$i;
         }
         $this->assertEquals(5, $i);
 
@@ -1290,7 +1290,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $i = 0;
         foreach ($documents as $document) {
             $this->assertEquals("new name $i", $document->name);
-            $i++;
+            ++$i;
         }
         $this->assertEquals(5, $i);
     }
@@ -1301,7 +1301,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $refManyTestObjForCascade->id = '/functional/refManyWithParentTestObjForCascade';
 
         $references = [];
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 3; ++$i) {
             $newRefCascadeManyTestObj = new ParentTestObj();
             $newRefCascadeManyTestObj->nodename = "ref$i";
             $newRefCascadeManyTestObj->name = "refCascadeWithParentManyTestObj$i";
@@ -1315,7 +1315,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $this->assertTrue($this->session->getNode('/functional')->hasNode('refManyWithParentTestObjForCascade'));
 
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 3; ++$i) {
             $this->assertTrue($this->session->getNode('/functional/refManyWithParentTestObjForCascade')->hasNode("ref$i"));
         }
 
@@ -1334,7 +1334,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $referrerRefManyTestObj->reference = [];
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newReferrerTestObj = new ReferenceRefTestObj();
             $newReferrerTestObj->id = "/functional/referenceRefTestObj$i";
             $newReferrerTestObj->name = "referrerTestObj$i";

@@ -221,7 +221,7 @@ class Testclass
      */
     public function callback()
     {
-        $this->callback_run++;
+        ++$this->callback_run;
     }
 }
 
@@ -240,7 +240,7 @@ class ExtendingClass extends Testclass
      */
     public function extendingCallback()
     {
-        $this->extending_run++;
+        ++$this->extending_run;
     }
 }
 

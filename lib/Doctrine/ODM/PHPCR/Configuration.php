@@ -29,12 +29,12 @@ class Configuration
      * @var array
      */
     private $attributes = [
-        'writeDoctrineMetadata'    => true,
+        'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
-        'metadataDriverImpl'       => null,
-        'metadataCacheImpl'        => null,
-        'documentClassMapper'      => null,
-        'proxyNamespace'           => 'MyPHPCRProxyNS',
+        'metadataDriverImpl' => null,
+        'metadataCacheImpl' => null,
+        'documentClassMapper' => null,
+        'proxyNamespace' => 'MyPHPCRProxyNS',
         'autoGenerateProxyClasses' => true,
     ];
 

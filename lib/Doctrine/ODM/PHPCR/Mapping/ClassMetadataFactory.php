@@ -172,7 +172,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         }
         foreach ($parentClass->referenceMappings as $fieldName) {
             $mapping = $parentClass->mappings[$fieldName];
-            if ($mapping['type'] == ClassMetadata::MANY_TO_ONE) {
+            if (ClassMetadata::MANY_TO_ONE == $mapping['type']) {
                 $subClass->mapManyToOne($mapping, $parentClass);
             } else {
                 $subClass->mapManyToMany($mapping, $parentClass);
@@ -293,6 +293,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      */
     protected function isEntity(ClassMetadataInterface $class)
     {
-        return isset($class->isMappedSuperclass) && $class->isMappedSuperclass === false;
+        return isset($class->isMappedSuperclass) && false === $class->isMappedSuperclass;
     }
 }

@@ -313,7 +313,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
                 $this->assertEquals(['a'], $result->getSelectorNames());
                 $this->assertEquals([
                     'a.username' => 'dtl',
-                    'a.name'     => 'daniel',
+                    'a.name' => 'daniel',
                 ], $values);
                 break;
             case 'sql':

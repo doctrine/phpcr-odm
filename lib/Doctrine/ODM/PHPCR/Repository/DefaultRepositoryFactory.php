@@ -52,7 +52,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
         $metadata = $dm->getClassMetadata($documentName);
         $repositoryClassName = $metadata->customRepositoryClassName;
 
-        if ($repositoryClassName === null) {
+        if (null === $repositoryClassName) {
             $configuration = $dm->getConfiguration();
             $repositoryClassName = $configuration->getDefaultRepositoryClassName();
         }

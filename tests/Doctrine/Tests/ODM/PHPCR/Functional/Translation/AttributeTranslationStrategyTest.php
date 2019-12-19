@@ -402,11 +402,11 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['text'] = 'Lorem ipsum...';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ];
         $data['customNameSettings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ];
 
         $node = $this->getTestNode();
@@ -420,11 +420,11 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['topic'] = 'Un sujet intéressant';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ];
         $data['customNameSettings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
@@ -439,22 +439,22 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals(['is-active', 'url'], array_keys($doc->getSettings()));
         $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ], $doc->getSettings());
         $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ], $doc->customNameSettings);
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
         $this->assertEquals(['is-active', 'url'], array_keys($doc->getSettings()));
         $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ], $doc->getSettings());
         $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ], $doc->customNameSettings);
     }
 
@@ -470,7 +470,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['text'] = 'Lorem ipsum...';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ];
 
         $node = $this->getTestNode();
@@ -484,7 +484,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['topic'] = 'Un sujet intéressant';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');

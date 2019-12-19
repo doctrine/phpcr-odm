@@ -143,7 +143,7 @@ class AbstractNodeTest extends TestCase
     public function testAddChildValidation($cardinalityMap, $data, $options)
     {
         $options = array_merge([
-            'exceeds_max'   => false,
+            'exceeds_max' => false,
             'invalid_child' => false,
         ], $options);
 
@@ -224,7 +224,7 @@ class AbstractNodeTest extends TestCase
     public function testValidate($cardinalityMap, $data, $options)
     {
         $options = array_merge([
-            'invalid_child'      => false,
+            'invalid_child' => false,
             'expected_exception' => false,
         ], $options);
 

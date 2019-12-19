@@ -788,7 +788,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapId(array $mapping, self $inherited = null)
     {
-        if (isset($mapping['id']) && $mapping['id'] === true) {
+        if (isset($mapping['id']) && true === $mapping['id']) {
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
@@ -1013,9 +1013,9 @@ class ClassMetadata implements ClassMetadataInterface
             throw MappingException::missingTypeDefinition($this->name, $mapping['fieldName']);
         }
 
-        if ($mapping['type'] === 'int') {
+        if ('int' === $mapping['type']) {
             $mapping['type'] = 'long';
-        } elseif ($mapping['type'] === 'float') {
+        } elseif ('float' === $mapping['type']) {
             $mapping['type'] = 'double';
         }
 
@@ -1278,7 +1278,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isIdGeneratorRepository()
     {
-        return $this->idGenerator === self::GENERATOR_TYPE_REPOSITORY;
+        return self::GENERATOR_TYPE_REPOSITORY === $this->idGenerator;
     }
 
     /**
@@ -1288,7 +1288,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isIdGeneratorNone()
     {
-        return $this->idGenerator === self::GENERATOR_TYPE_NONE;
+        return self::GENERATOR_TYPE_NONE === $this->idGenerator;
     }
 
     /**
@@ -1522,7 +1522,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function isNullable($fieldName)
     {
         $mapping = $this->getFieldMapping($fieldName);
-        if ($mapping !== false) {
+        if (false !== $mapping) {
             return isset($mapping['nullable']) && true == $mapping['nullable'];
         }
 
@@ -1545,13 +1545,13 @@ class ClassMetadata implements ClassMetadataInterface
             ? $this->mappings[$mapping['fieldName']] : null;
 
         if (!$inherited) {
-            if (isset($mapping['id']) && $mapping['id'] === true) {
+            if (isset($mapping['id']) && true === $mapping['id']) {
                 $mapping['type'] = 'string';
                 $this->setIdentifier($mapping['fieldName']);
                 if (isset($mapping['strategy'])) {
                     $this->setIdGenerator($mapping['strategy']);
                 }
-            } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
+            } elseif (isset($mapping['uuid']) && true === $mapping['uuid']) {
                 $mapping['type'] = 'string';
                 $mapping['property'] = 'jcr:uuid';
             }
@@ -1567,7 +1567,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if (isset($mapping['property']) && $mapping['property'] === 'jcr:uuid') {
+        if (isset($mapping['property']) && 'jcr:uuid' === $mapping['property']) {
             if (null !== $this->uuidFieldName) {
                 throw new MappingException(sprintf(
                     'You can only designate a single "Uuid" field in "%s"',
@@ -1838,7 +1838,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
     {
         foreach ($this->lifecycleCallbacks[$lifecycleEvent] as $callback) {
-            if ($arguments !== null) {
+            if (null !== $arguments) {
                 call_user_func_array([$document, $callback], $arguments);
             } else {
                 $document->$callback();
@@ -1870,7 +1870,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function fullyQualifiedClassName($className)
     {
-        if ($className !== null && strpos($className, '\\') === false && strlen($this->namespace) > 0) {
+        if (null !== $className && false === strpos($className, '\\') && strlen($this->namespace) > 0) {
             return $this->namespace.'\\'.$className;
         }
 

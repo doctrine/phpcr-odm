@@ -822,7 +822,7 @@ class TestResetReorderingListener
     public function preUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof ChildrenTestObj && $document->allChildren->first()->name === 'Child B') {
+        if ($document instanceof ChildrenTestObj && 'Child B' === $document->allChildren->first()->name) {
 
             /** @var $childrenCollection ChildrenCollection */
             $childrenCollection = $document->allChildren;

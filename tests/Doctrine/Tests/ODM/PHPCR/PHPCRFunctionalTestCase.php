@@ -35,7 +35,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         $factoryclass = $GLOBALS['DOCTRINE_PHPCR_FACTORY']
             ?? RepositoryFactoryJackrabbit::class;
 
-        if (ltrim($factoryclass, '\\') === RepositoryFactoryDoctrineDBAL::class) {
+        if (RepositoryFactoryDoctrineDBAL::class === ltrim($factoryclass, '\\')) {
             $params = [];
             foreach ($GLOBALS as $key => $value) {
                 if (0 === strpos($key, 'jackalope.doctrine.dbal.')) {

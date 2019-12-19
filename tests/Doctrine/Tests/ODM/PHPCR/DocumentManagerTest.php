@@ -212,7 +212,7 @@ class DocumentManagerGetClassMetadata extends DocumentManager
      */
     public function getClassMetadata($class)
     {
-        $this->callCount++;
+        ++$this->callCount;
         $metadata = new ClassMetadata('stdClass');
         switch ($this->callCount) {
             case '1':
