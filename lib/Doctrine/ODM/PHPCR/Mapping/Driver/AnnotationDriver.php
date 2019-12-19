@@ -19,10 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
@@ -32,8 +30,10 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.org
+ *
+ * @see        www.doctrine-project.org
  * @since       1.0
+ *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
@@ -46,10 +46,10 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      *
      * Document annotation classes, ordered by precedence.
      */
-    protected $entityAnnotationClasses = array(
+    protected $entityAnnotationClasses = [
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document' => 0,
         'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass' => 1,
-    );
+    ];
 
     /**
      * {@inheritdoc}
@@ -59,7 +59,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         /** @var $metadata \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         $reflClass = $metadata->getReflectionClass();
 
-        $documentAnnots = array();
+        $documentAnnots = [];
         foreach ($this->reader->getClassAnnotations($reflClass) as $annot) {
             foreach ($this->entityAnnotationClasses as $annotClass => $i) {
                 if ($annot instanceof $annotClass) {
@@ -111,7 +111,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setTranslator($documentAnnot->translator);
         }
 
-        if (array() !== $documentAnnot->childClasses) {
+        if ([] !== $documentAnnot->childClasses) {
             $metadata->setChildClasses($documentAnnot->childClasses);
         }
 
@@ -124,7 +124,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                 continue;
             }
 
-            $mapping = array();
+            $mapping = [];
             $mapping['fieldName'] = $property->getName();
 
             foreach ($this->reader->getPropertyAnnotations($property) as $fieldAnnot) {
@@ -213,13 +213,13 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      *
      * @param array $cascadeList
      *
-     * @return integer a bitmask of cascade options.
+     * @return int a bitmask of cascade options
      */
     private function getCascadeMode(array $cascadeList)
     {
         $cascade = 0;
         foreach ($cascadeList as $cascadeMode) {
-            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_' . strtoupper($cascadeMode);
+            $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_'.strtoupper($cascadeMode);
             if (!defined($constantName)) {
                 throw new MappingException("Cascade mode '$cascadeMode' not supported.");
             }

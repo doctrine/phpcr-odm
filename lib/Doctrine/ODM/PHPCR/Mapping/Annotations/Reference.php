@@ -26,6 +26,7 @@ class Reference
 {
     /**
      * The PHPCR property name to use
+     *
      * @var string
      */
     public $property;
@@ -43,5 +44,5 @@ class Reference
     /**
      * @var array
      */
-    public $cascade = array();
+    public $cascade = [];
 }

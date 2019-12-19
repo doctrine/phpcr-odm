@@ -11,10 +11,13 @@ class ParentTestObj
 {
     /** @PHPCRODM\Id(strategy="parent") */
     public $id;
+
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
 

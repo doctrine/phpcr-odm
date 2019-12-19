@@ -3,9 +3,9 @@
 namespace Doctrine\ODM\PHPCR\Tools\Test;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
 /**
  * Utility class to help making test assertions on the query
@@ -43,7 +43,7 @@ class QueryBuilderTester
     {
         $node = $this->qb;
         $parts = explode('.', $path);
-        $currentPath = array();
+        $currentPath = [];
         $currentNode = $node;
 
         $index = 0;
@@ -93,8 +93,8 @@ class QueryBuilderTester
      */
     public function dumpPaths(AbstractNode $node = null)
     {
-        $children = array();
-        $paths = array();
+        $children = [];
+        $paths = [];
 
         if (null === $node) {
             $node = $this->qb;
@@ -102,7 +102,7 @@ class QueryBuilderTester
 
         foreach ($node->getChildren() as $child) {
             if (!isset($children[$child->getNodeType()])) {
-                $children[$child->getNodeType()] = array();
+                $children[$child->getNodeType()] = [];
             }
 
             $paths[] = $this->getPath($child).' ('.$child->getName().')';
@@ -124,7 +124,7 @@ class QueryBuilderTester
      */
     public function getPath(AbstractNode $node)
     {
-        $path = array();
+        $path = [];
         $currentNode = $node;
 
         do {
@@ -144,7 +144,7 @@ class QueryBuilderTester
      */
     public function getAllNodes(AbstractNode $node = null)
     {
-        $nodes = array();
+        $nodes = [];
         if (!$node) {
             $node = $this->qb;
         }

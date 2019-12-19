@@ -20,8 +20,8 @@
 namespace Doctrine\ODM\PHPCR\Tools\Console\Helper;
 
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use PHPCR\Util\Console\Helper\PhpcrHelper;
 use PHPCR\SessionInterface;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 
 /**
  * Helper class to make DocumentManager available to console command

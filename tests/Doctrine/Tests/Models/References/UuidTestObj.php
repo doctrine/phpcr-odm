@@ -11,6 +11,7 @@ class UuidTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Uuid */
     public $uuid1;
 }

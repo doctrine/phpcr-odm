@@ -1,4 +1,5 @@
 <?php
+
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -10,6 +11,7 @@ class SimpleVersionTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
 
@@ -21,6 +23,7 @@ class SimpleVersionTestObj
 
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="long", multivalue=true) */
     public $numbers;
 

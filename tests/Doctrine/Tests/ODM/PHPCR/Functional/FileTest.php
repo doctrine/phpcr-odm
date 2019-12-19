@@ -34,7 +34,7 @@ class FileTest extends PHPCRFunctionalTestCase
         $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
-        $parent->file->setFileContentFromFilesystem(dirname(__FILE__) . '/_files/foo.txt');
+        $parent->file->setFileContentFromFilesystem(dirname(__FILE__).'/_files/foo.txt');
 
         $this->dm->persist($parent);
         $this->dm->flush();
@@ -70,7 +70,7 @@ class FileTest extends PHPCRFunctionalTestCase
         $parent = new FileTestObj();
         $parent->file = new File();
         $parent->id = '/functional/filetest';
-        $parent->file->setFileContentFromFilesystem(dirname(__FILE__) .'/_files/foo.txt');
+        $parent->file->setFileContentFromFilesystem(dirname(__FILE__).'/_files/foo.txt');
 
         $this->dm->persist($parent);
         $this->dm->flush();
@@ -90,10 +90,13 @@ class FileTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
+
     /**
      * @var File
      * @PHPCRODM\Child

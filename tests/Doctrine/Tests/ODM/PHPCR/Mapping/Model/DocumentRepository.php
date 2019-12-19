@@ -12,6 +12,6 @@ class DocumentRepository extends BaseDocumentRepository implements RepositoryIdI
 {
     public function generateId($document, $parent = null)
     {
-        return '/functional/' . rand();
+        return '/functional/'.rand();
     }
 }

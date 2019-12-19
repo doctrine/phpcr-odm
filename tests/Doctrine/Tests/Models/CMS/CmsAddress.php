@@ -4,9 +4,9 @@ namespace Documents;
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsAddressRepository", referenceable=true)
@@ -73,6 +73,7 @@ class CmsAddressRepository extends DocumentRepository implements RepositoryIdInt
      * Generate a document id
      *
      * @param object $document
+     *
      * @return string
      */
     public function generateId($document, $parent = null)

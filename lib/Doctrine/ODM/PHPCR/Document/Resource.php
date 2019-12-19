@@ -20,8 +20,8 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use PHPCR\NodeInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\NodeInterface;
 
 /**
  * This class represents a jcr nt:resource and is used by the File document
@@ -109,7 +109,7 @@ class Resource
     /**
      * The parent File document of this Resource document.
      *
-     * @return object File document that is the parent of this node.
+     * @return object file document that is the parent of this node
      */
     public function getParentDocument()
     {
@@ -119,7 +119,7 @@ class Resource
     /**
      * Kept for BC
      *
-     * @deprecated use getParentDocument instead.
+     * @deprecated use getParentDocument instead
      */
     public function getParent()
     {
@@ -129,7 +129,7 @@ class Resource
     /**
      * Set the parent document of this resource.
      *
-     * @param object $parent Document that is the parent of this node.
+     * @param object $parent document that is the parent of this node
      *
      * @return $this
      */
@@ -140,11 +140,10 @@ class Resource
         return $this;
     }
 
-
     /**
      * Kept for BC
      *
-     * @deprecated use setParentDocument instead.
+     * @deprecated use setParentDocument instead
      */
     public function setParent($parent)
     {
@@ -186,7 +185,7 @@ class Resource
      * Do not use this right after updating data before flushing, as it will
      * only look at the stored data.
      *
-     * @return int the resource size in bytes.
+     * @return int the resource size in bytes
      */
     public function getSize()
     {
@@ -306,7 +305,7 @@ class Resource
      */
     public function getMime()
     {
-        return $this->getMimeType() . ($this->getEncoding() ? '; charset=' . $this->getEncoding() : '');
+        return $this->getMimeType().($this->getEncoding() ? '; charset='.$this->getEncoding() : '');
     }
 
     /**

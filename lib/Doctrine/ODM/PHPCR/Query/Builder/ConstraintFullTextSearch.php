@@ -14,7 +14,9 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class ConstraintFullTextSearch extends AbstractLeafNode
 {
     protected $alias;
+
     protected $field;
+
     protected $fullTextSearchExpression;
 
     public function __construct(AbstractNode $parent, $field, $fullTextSearchExpression)

@@ -27,7 +27,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="date") instead.
+ * @deprecated use @Field(type="date") instead
  */
 final class Date extends TranslatableProperty
 {

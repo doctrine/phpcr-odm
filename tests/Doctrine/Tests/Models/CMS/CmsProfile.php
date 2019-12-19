@@ -65,10 +65,11 @@ class CmsProfileRepository extends DocumentRepository implements RepositoryIdInt
      * Generate a document id
      *
      * @param object $document
+     *
      * @return string
      */
     public function generateId($document, $parent = null)
     {
-        return '/functional/' . $document->user->username . '/' . $document->data;
+        return '/functional/'.$document->user->username.'/'.$document->data;
     }
 }

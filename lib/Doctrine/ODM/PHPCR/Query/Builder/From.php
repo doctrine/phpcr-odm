@@ -12,9 +12,9 @@ class From extends SourceFactory
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_SOURCE => array(1, 1),
-        );
+        return [
+            self::NT_SOURCE => [1, 1],
+        ];
     }
 
     public function getNodeType()

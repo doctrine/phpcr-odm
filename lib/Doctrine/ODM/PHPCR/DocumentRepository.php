@@ -20,11 +20,11 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
 use Doctrine\ODM\PHPCR\Query\Query;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
-use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
 
 /**
  * A DocumentRepository serves as a repository for documents with generic as well as
@@ -34,8 +34,10 @@ use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
  * write their own repositories with business-specific methods to locate documents.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
@@ -66,8 +68,8 @@ class DocumentRepository implements ObjectRepository
     /**
      * Initializes a new <tt>DocumentRepository</tt>.
      *
-     * @param DocumentManagerInterface $dm            The DocumentManager to use.
-     * @param ClassMetadata            $classMetadata The class descriptor.
+     * @param DocumentManagerInterface $dm            the DocumentManager to use
+     * @param ClassMetadata            $classMetadata the class descriptor
      */
     public function __construct($dm, ClassMetadata $class)
     {
@@ -109,11 +111,11 @@ class DocumentRepository implements ObjectRepository
     /**
      * Finds all documents in the repository.
      *
-     * @return array The entities.
+     * @return array the entities
      */
     public function findAll()
     {
-        return $this->findBy(array());
+        return $this->findBy([]);
     }
 
     /**
@@ -123,12 +125,12 @@ class DocumentRepository implements ObjectRepository
      * an InvalidArgumentException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param  array      $criteria
-     * @param  array|null $orderBy
-     * @param  int|null   $limit
-     * @param  int|null   $offset
+     * @param array      $criteria
+     * @param array|null $orderBy
+     * @param int|null   $limit
+     * @param int|null   $offset
      *
-     * @return array The objects matching the criteria.
+     * @return array the objects matching the criteria
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
@@ -146,14 +148,14 @@ class DocumentRepository implements ObjectRepository
         if ($orderBy) {
             foreach ($orderBy as $field => $order) {
                 $order = strtolower($order);
-                if (!in_array($order, array('asc', 'desc'))) {
+                if (!in_array($order, ['asc', 'desc'])) {
                     throw new InvalidArgumentException(sprintf(
                         'Invalid order specified by order, expected either "asc" or "desc", got "%s"',
                         $order
                     ));
                 }
 
-                $method = $order == 'asc' ? 'asc' : 'desc';
+                $method = 'asc' == $order ? 'asc' : 'desc';
 
                 $orderByNode->$method()->field('a.'.$field);
             }
@@ -185,9 +187,9 @@ class DocumentRepository implements ObjectRepository
      * Constraints a field for a given value
      *
      * @param ConstraintFactory $where
-     * @param string $field The field searched
-     * @param mixed $value The value to search for
-     * @param string $alias The alias used
+     * @param string            $field The field searched
+     * @param mixed             $value The value to search for
+     * @param string            $alias The alias used
      */
     protected function constraintField(ConstraintFactory $where, $field, $value, $alias)
     {
@@ -204,7 +206,7 @@ class DocumentRepository implements ObjectRepository
      * @param array $criteria
      *
      * @return object|null The first document matching the criteria or null if
-     *      none found
+     *                     none found
      */
     public function findOneBy(array $criteria)
     {
@@ -216,7 +218,7 @@ class DocumentRepository implements ObjectRepository
     /**
      * Refresh a document with the data from PHPCR.
      *
-     * @param  object $document
+     * @param object $document
      */
     public function refresh($document)
     {
@@ -304,7 +306,7 @@ class DocumentRepository implements ObjectRepository
             if (1 === count($columns)) {
                 $column = reset($columns);
                 if ('*' === $column->getColumnName() && null == $column->getPropertyName()) {
-                    $qb->setColumns(array());
+                    $qb->setColumns([]);
                     foreach ($this->class->getFieldNames() as $name) {
                         $qb->addSelect('a', $name);
                     }

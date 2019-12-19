@@ -11,8 +11,10 @@ use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
  * that the mapping for the built-in documents can be loaded
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.org
+ *
+ * @see        www.doctrine-project.org
  * @since       1.0
+ *
  * @author      Uwe Jäger <uwej711e@googlemail.com>
  */
 class BuiltinDocumentsDriver implements MappingDriver
@@ -42,7 +44,7 @@ class BuiltinDocumentsDriver implements MappingDriver
         $this->wrappedDriver = $wrappedDriver;
 
         $reader = new AnnotationReader();
-        $this->builtinDriver = new AnnotationDriver($reader, array(realpath(__DIR__.'/../../Document')));
+        $this->builtinDriver = new AnnotationDriver($reader, [realpath(__DIR__.'/../../Document')]);
     }
 
     /**
@@ -50,7 +52,7 @@ class BuiltinDocumentsDriver implements MappingDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        if (strpos($className, self::NAME_SPACE) === 0) {
+        if (0 === strpos($className, self::NAME_SPACE)) {
             $this->builtinDriver->loadMetadataForClass($className, $class);
 
             return;
@@ -60,7 +62,7 @@ class BuiltinDocumentsDriver implements MappingDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAllClassNames()
     {
@@ -71,11 +73,11 @@ class BuiltinDocumentsDriver implements MappingDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isTransient($className)
     {
-        if (strpos($className, self::NAME_SPACE) === 0) {
+        if (0 === strpos($className, self::NAME_SPACE)) {
             return $this->builtinDriver->isTransient($className);
         }
 

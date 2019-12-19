@@ -27,7 +27,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="double") instead.
+ * @deprecated use @Field(type="double") instead
  */
 final class Double extends TranslatableProperty
 {

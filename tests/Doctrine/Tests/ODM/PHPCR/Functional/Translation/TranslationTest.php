@@ -3,14 +3,14 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\Translation;
+use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\NoLocalePropertyArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\WorkspaceInterface;
-use Doctrine\Tests\Models\Translation\Article;
 
 class TranslationTest extends PHPCRFunctionalTestCase
 {

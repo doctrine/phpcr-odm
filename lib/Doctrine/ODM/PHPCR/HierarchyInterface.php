@@ -20,7 +20,7 @@ interface HierarchyInterface
     /**
      * Get the parent document.
      *
-     * @deprecated in favor of getParentDocument to avoid clashes with domain model parents.
+     * @deprecated in favor of getParentDocument to avoid clashes with domain model parents
      *
      * @return object|null
      */
@@ -38,7 +38,7 @@ interface HierarchyInterface
     /**
      * Set the parent document.
      *
-     * @deprecated in favor of getParentDocument to avoid clashes with domain model parents.
+     * @deprecated in favor of getParentDocument to avoid clashes with domain model parents
      *
      * @param object $parent
      *

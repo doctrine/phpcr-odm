@@ -3,18 +3,18 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
-use Doctrine\Tests\Models\Versioning\InvalidVersionableArticle;
+use Doctrine\Tests\Models\Versioning\ExtendedVersionableArticle;
+use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 use Doctrine\Tests\Models\Versioning\InconsistentVersionableArticle;
-use Doctrine\Tests\Models\Versioning\VersionableArticle;
+use Doctrine\Tests\Models\Versioning\InvalidVersionableArticle;
 use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
+use Doctrine\Tests\Models\Versioning\VersionableArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
-use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
-use Doctrine\Tests\Models\Versioning\ExtendedVersionableArticle;
 
 class AnnotationsTest extends PHPCRFunctionalTestCase
 {
@@ -103,7 +103,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     /**
      * Create a document, save it, and return the underlying PHPCR node.
      *
-     * @param string $name The name of the new node (will be created under root)
+     * @param string $name  The name of the new node (will be created under root)
      * @param string $class The class name of the document
      *
      * @return NodeInterface
@@ -113,7 +113,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
         $this->removeTestNode($name);
 
         $article = new $class();
-        $article->id = '/' . $name;
+        $article->id = '/'.$name;
         $article->author = 'John Doe';
         $article->topic = 'Some subject';
         $article->setText('Lorem ipsum...');
@@ -121,7 +121,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
         $this->dm->persist($article);
         $this->dm->flush();
 
-        return $this->session->getNode('/' . $name);
+        return $this->session->getNode('/'.$name);
     }
 
     /**

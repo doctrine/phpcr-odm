@@ -21,9 +21,8 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use PHPCR\NodeInterface;
-
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\NodeInterface;
 
 /**
  * This class represents an arbitrary node
@@ -106,7 +105,7 @@ class Generic
     /**
      * The parent document of this document.
      *
-     * @return object Folder document that is the parent of this node.
+     * @return object folder document that is the parent of this node
      */
     public function getParentDocument()
     {
@@ -116,7 +115,7 @@ class Generic
     /**
      * Kept for BC
      *
-     * @deprecated use getParentDocument instead.
+     * @deprecated use getParentDocument instead
      */
     public function getParent()
     {
@@ -140,7 +139,7 @@ class Generic
     /**
      * Kept for BC
      *
-     * @deprecated use setParentDocument instead.
+     * @deprecated use setParentDocument instead
      */
     public function setParent($parent)
     {

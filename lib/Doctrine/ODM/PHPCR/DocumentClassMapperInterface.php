@@ -28,17 +28,17 @@ interface DocumentClassMapperInterface
      * Determine the class name from a given node
      *
      * @param DocumentManagerInterface $dm
-     * @param NodeInterface   $node
-     * @param string          $className explicit class to use. If set, this
-     *      class or a subclass of it has to be used. If this is not possible,
-     *      an InvalidArgumentException has to be thrown.
+     * @param NodeInterface            $node
+     * @param string                   $className explicit class to use. If set, this
+     *                                            class or a subclass of it has to be used. If this is not possible,
+     *                                            an InvalidArgumentException has to be thrown.
      *
      * @return string $className if not null, the class configured for this
-     *      node if defined and the Generic document if no better class can be
-     *      found
+     *                node if defined and the Generic document if no better class can be
+     *                found
      *
      * @throws ClassMismatchException if $node represents a class that is not
-     *      a descendant of $className.
+     *                                a descendant of $className
      */
     public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, $className = null);
 

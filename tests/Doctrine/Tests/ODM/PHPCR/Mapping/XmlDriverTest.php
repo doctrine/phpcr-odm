@@ -12,7 +12,7 @@ class XmlDriverTest extends AbstractMappingDriverTest
 {
     protected function loadDriver(): MappingDriver
     {
-        $location = __DIR__ . '/Model/xml';
+        $location = __DIR__.'/Model/xml';
 
         return new XmlDriver($location);
     }

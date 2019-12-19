@@ -12,6 +12,7 @@ class RefManyTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj", cascade="persist", property="myReferences") */
     public $references;
 

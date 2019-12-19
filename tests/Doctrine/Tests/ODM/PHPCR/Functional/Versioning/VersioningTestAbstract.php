@@ -5,13 +5,13 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
+use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
+use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\ReferentialIntegrityException;
 use PHPCR\Util\PathHelper;
-use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
-use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
-use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
 use PHPCR\Version\VersionException;
 
 /**
@@ -58,22 +58,22 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
 
         $versionNode = $this->node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
-        $versionNode->setProperty('numbers', array(3, 1, 2));
+        $versionNode->setProperty('numbers', [3, 1, 2]);
         $versionNode->setProperty('phpcr:class', $this->typeVersion);
-        $versionNode->addMixin("mix:versionable");
+        $versionNode->addMixin('mix:versionable');
 
         $referenceNode = $this->node->addNode('referenceTestObj');
         $referenceNode->setProperty('content', 'reference test');
         $referenceNode->setProperty('phpcr:class', $this->typeReference);
-        $referenceNode->addMixin("mix:referenceable");
+        $referenceNode->addMixin('mix:referenceable');
 
         $this->dm->getPhpcrSession()->save();
 
         $versionNodeWithReference = $this->node->addNode('versionTestObjWithReference');
         $versionNodeWithReference->setProperty('username', 'laupifrpar');
-        $versionNodeWithReference->setProperty('numbers', array(6, 4, 5));
+        $versionNodeWithReference->setProperty('numbers', [6, 4, 5]);
         $versionNodeWithReference->setProperty('reference', $referenceNode);
-        $versionNodeWithReference->addMixin("mix:versionable");
+        $versionNodeWithReference->addMixin('mix:versionable');
 
         $this->dm->getPhpcrSession()->save();
         $this->dm = $this->createDocumentManager();
@@ -92,10 +92,10 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
 
     public function testMergeVersionable()
     {
-        $versionableArticle = new FullVersionableArticle;
+        $versionableArticle = new FullVersionableArticle();
         $versionableArticle->setText('very interesting content');
         $versionableArticle->author = 'greg0ire';
-        $versionableArticle->topic  = 'whatever';
+        $versionableArticle->topic = 'whatever';
         $versionableArticle->id = '/functional/whatever';
         $versionableArticle->versionName = 'v1';
 
@@ -210,7 +210,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $frozenDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
 
         $this->assertEquals('lsmith', $frozenDocument->username);
-        $this->assertEquals(array(3, 1, 2), $frozenDocument->numbers);
+        $this->assertEquals([3, 1, 2], $frozenDocument->numbers);
 
         $this->assertEquals($lastVersionName, $frozenDocument->versionName);
         $this->assertInstanceOf('DateTime', $frozenDocument->versionCreated);
@@ -339,6 +339,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
 
     /**
      * Check the version we removed in testRemoveVersion does not exist anymore
+     *
      * @depends testRemoveVersion
      */
     public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
@@ -361,7 +362,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->dm->persist($versionableArticle);
 
         $childArticle = new NonVersionableArticle();
-        $childArticle->setText("This is the child");
+        $childArticle->setText('This is the child');
         $childArticle->id = '/functional/children-test/child';
         $childArticle->author = 'mellowplace';
         $childArticle->topic = 'children test - child';
@@ -409,6 +410,7 @@ class ReferenceTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
 

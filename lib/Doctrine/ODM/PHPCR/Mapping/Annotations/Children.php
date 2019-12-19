@@ -33,17 +33,17 @@ final class Children
     public $filter;
 
     /**
-     *@var integer
+     *@var int
      */
     public $fetchDepth = -1;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $ignoreUntranslated = true;
 
     /**
      * @var array
      */
-    public $cascade = array();
+    public $cascade = [];
 }

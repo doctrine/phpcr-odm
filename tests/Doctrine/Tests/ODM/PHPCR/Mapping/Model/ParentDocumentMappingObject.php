@@ -13,7 +13,7 @@ class ParentDocumentMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
+
     /** @PHPCRODM\ParentDocument */
     public $parent;
 }
