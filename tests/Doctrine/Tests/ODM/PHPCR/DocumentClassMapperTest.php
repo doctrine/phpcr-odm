@@ -92,18 +92,15 @@ class DocumentClassMapperTest extends Testcase
         $property = $this->createMock(Property::class);
         $property->expects($this->once())
             ->method('getString')
-            ->will($this->returnValue($class))
-        ;
+            ->will($this->returnValue($class));
         $this->node->expects($this->once())
             ->method('hasProperty')
             ->with('phpcr:class')
-            ->will($this->returnValue(true))
-        ;
+            ->will($this->returnValue(true));
         $this->node->expects($this->once())
             ->method('getProperty')
             ->with('phpcr:class')
-            ->will($this->returnValue($property))
-        ;
+            ->will($this->returnValue($property));
     }
 
     public function testGetClassNameNull()
@@ -193,12 +190,10 @@ class DocumentClassMapperTest extends Testcase
         $uow->expects($this->once())
             ->method('determineDocumentId')
             ->with($generic)
-            ->will($this->returnValue('/id'))
-        ;
+            ->will($this->returnValue('/id'));
         $this->dm->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow))
-        ;
+            ->will($this->returnValue($uow));
         $this->expectException(ClassMismatchException::class);
         $this->mapper->validateClassName($this->dm, $generic, 'Other\Class');
     }

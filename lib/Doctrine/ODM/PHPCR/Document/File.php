@@ -43,9 +43,9 @@ class File extends AbstractFile
      *
      * @param string $filename name of the file which contents should be used
      *
-     * @return $this
-     *
      * @throws RuntimeException if the filename does not point to a file that can be read
+     *
+     * @return $this
      */
     public function setFileContentFromFilesystem($filename)
     {

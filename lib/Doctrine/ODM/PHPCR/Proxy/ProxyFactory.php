@@ -172,9 +172,9 @@ class ProxyFactory extends AbstractProxyFactory
      * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
      * @param \ReflectionProperty                       $reflectionId
      *
-     * @return \Closure
-     *
      * @throws \Doctrine\Common\Proxy\Exception\UnexpectedValueException
+     *
+     * @return \Closure
      */
     private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
     {

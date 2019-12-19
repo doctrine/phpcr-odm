@@ -87,8 +87,7 @@ class QueryBuilderTest extends NodeTestCase
             ->end()
             ->addOrderBy()
                 ->asc()->name('c')->end()
-            ->end()
-        ;
+            ->end();
     }
 
     public function testPrimaryAlias()

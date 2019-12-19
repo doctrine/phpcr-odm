@@ -51,8 +51,7 @@ final class NodeTypeRegistrator
 mixin
 - phpcr:class (STRING)
 - phpcr:classparents (STRING) multiple
-CND
-        ;
+CND;
 
         $nodeTypeManager = $session->getWorkspace()->getNodeTypeManager();
         $nodeTypeManager->registerNodeTypesCnd($cnd, true);

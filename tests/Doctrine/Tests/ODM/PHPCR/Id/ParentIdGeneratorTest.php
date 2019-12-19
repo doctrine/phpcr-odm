@@ -26,14 +26,12 @@ class ParentIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('getDocumentId')
             ->with($this->equalTo($parent))
-            ->will($this->returnValue('/miau'))
-        ;
+            ->will($this->returnValue('/miau'));
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow))
-        ;
+            ->will($this->returnValue($uow));
         $this->assertEquals('/miau/name', $generator->generate(null, $cm, $dm));
     }
 
@@ -105,14 +103,12 @@ class ParentIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('getDocumentId')
             ->with($this->equalTo($parent))
-            ->will($this->returnValue(''))
-        ;
+            ->will($this->returnValue(''));
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow))
-        ;
+            ->will($this->returnValue($uow));
 
         $this->expectException(IdException::class);
         $generator->generate(null, $cm, $dm);
@@ -157,8 +153,6 @@ class ParentClassMetadataProxy extends ClassMetadata
             case $this->identifier:
                 return $this->_identifier;
         }
-
-        return null;
     }
 }
 

@@ -33,7 +33,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
     private function expandClassName(DocumentManagerInterface $dm, $className = null)
     {
         if (null === $className) {
-            return null;
+            return;
         }
 
         if (false !== strstr($className, ':')) {

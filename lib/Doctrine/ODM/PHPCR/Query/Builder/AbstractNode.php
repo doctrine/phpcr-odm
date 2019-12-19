@@ -255,9 +255,9 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException if there are more than one or none
+     *
+     * @return AbstractNode
      */
     public function getChild()
     {
@@ -287,9 +287,9 @@ abstract class AbstractNode
      *
      * @param string $type the name of the type
      *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException if there are more than one or none
+     *
+     * @return AbstractNode
      */
     public function getChildOfType($type)
     {

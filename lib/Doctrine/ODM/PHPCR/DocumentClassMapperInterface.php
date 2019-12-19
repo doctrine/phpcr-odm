@@ -33,12 +33,12 @@ interface DocumentClassMapperInterface
      *                                            class or a subclass of it has to be used. If this is not possible,
      *                                            an InvalidArgumentException has to be thrown.
      *
+     * @throws ClassMismatchException if $node represents a class that is not
+     *                                a descendant of $className
+     *
      * @return string $className if not null, the class configured for this
      *                node if defined and the Generic document if no better class can be
      *                found
-     *
-     * @throws ClassMismatchException if $node represents a class that is not
-     *                                a descendant of $className
      */
     public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, $className = null);
 
