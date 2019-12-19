@@ -30,7 +30,7 @@ class ConstraintComparison extends OperandFactory
     {
         return [
             self::NT_OPERAND_DYNAMIC => ['1', '1'],
-            self::NT_OPERAND_STATIC  => ['1', '1'],
+            self::NT_OPERAND_STATIC => ['1', '1'],
         ];
     }
 

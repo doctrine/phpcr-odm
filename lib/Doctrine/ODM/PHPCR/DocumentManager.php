@@ -111,7 +111,7 @@ class DocumentManager implements DocumentManagerInterface
         // initialize default translation strategies
         $this->translationStrategy = [
             AttributeTranslationStrategy::NAME => new AttributeTranslationStrategy($this),
-            ChildTranslationStrategy::NAME     => new ChildTranslationStrategy($this),
+            ChildTranslationStrategy::NAME => new ChildTranslationStrategy($this),
         ];
     }
 
@@ -271,7 +271,7 @@ class DocumentManager implements DocumentManagerInterface
                 } catch (ItemNotFoundException $e) {
                     return;
                 }
-            } elseif (strpos($id, '/') !== 0) {
+            } elseif (0 !== strpos($id, '/')) {
                 $id = '/'.$id;
             }
 
@@ -312,7 +312,7 @@ class DocumentManager implements DocumentManagerInterface
         foreach ($ids as $key => $id) {
             if (UUIDHelper::isUUID($id)) {
                 $uuids[$id] = $key;
-            } elseif (strpos($id, '/') !== 0) {
+            } elseif (0 !== strpos($id, '/')) {
                 $ids[$key] = '/'.$id;
             }
         }
@@ -352,7 +352,7 @@ class DocumentManager implements DocumentManagerInterface
                 } catch (ItemNotFoundException $e) {
                     return;
                 }
-            } elseif (strpos($id, '/') !== 0) {
+            } elseif (0 !== strpos($id, '/')) {
                 $id = '/'.$id;
             }
 
@@ -402,8 +402,8 @@ class DocumentManager implements DocumentManagerInterface
     public function escapeFullText($string)
     {
         $illegalCharacters = [
-            '!'  => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
-            '['  => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
+            '!' => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
+            '[' => '\\[', ']' => '\\]', '{' => '\\{', '}' => '\\}',
             '\"' => '\\\"', '?' => '\\?', "'" => "''",
         ];
 
@@ -572,7 +572,7 @@ class DocumentManager implements DocumentManagerInterface
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
         }
 
-        if (strpos($targetPath, '/') !== 0) {
+        if (0 !== strpos($targetPath, '/')) {
             $targetPath = '/'.$targetPath;
         }
 
@@ -867,7 +867,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function clear($className = null)
     {
-        if ($className === null) {
+        if (null === $className) {
             $this->unitOfWork->clear();
         } else {
             //TODO

@@ -87,7 +87,7 @@ class YamlDriver extends FileDriver
             $class->setNodeType($element['nodeType']);
         }
 
-        if ($element['type'] === 'mappedSuperclass') {
+        if ('mappedSuperclass' === $element['type']) {
             $class->isMappedSuperclass = true;
         }
 
@@ -108,7 +108,7 @@ class YamlDriver extends FileDriver
         if (isset($element['uuid'])) {
             $mapping = [
                 'fieldName' => $element['uuid'],
-                'uuid'      => true,
+                'uuid' => true,
             ];
             $class->mapField($mapping);
         }
@@ -136,7 +136,7 @@ class YamlDriver extends FileDriver
         if (isset($element['parentdocument'])) {
             $mapping = [
                 'fieldName' => $element['parentdocument'],
-                'cascade'   => (isset($element['cascade'])) ? $this->getCascadeMode($element['cascade']) : 0,
+                'cascade' => (isset($element['cascade'])) ? $this->getCascadeMode($element['cascade']) : 0,
             ];
 
             $class->mapParentDocument($mapping);
@@ -203,7 +203,7 @@ class YamlDriver extends FileDriver
         if (isset($element['mixedReferrers'])) {
             foreach ($element['mixedReferrers'] as $name => $attributes) {
                 $mapping = [
-                    'fieldName'     => $name,
+                    'fieldName' => $name,
                     'referenceType' => $attributes['referenceType'] ?? null,
                 ];
                 $class->mapMixedReferrers($mapping);
@@ -218,10 +218,10 @@ class YamlDriver extends FileDriver
                     throw new MappingException("$className is missing the referringDocument attribute for the referrer field $name");
                 }
                 $mapping = [
-                    'fieldName'         => $name,
-                    'referencedBy'      => $attributes['referencedBy'],
+                    'fieldName' => $name,
+                    'referencedBy' => $attributes['referencedBy'],
                     'referringDocument' => $attributes['referringDocument'],
-                    'cascade'           => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
+                    'cascade' => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
                 ];
                 $class->mapReferrers($mapping);
             }
@@ -264,9 +264,9 @@ class YamlDriver extends FileDriver
             $mapping['targetDocument'] = null;
         }
 
-        if ($type === 'many') {
+        if ('many' === $type) {
             $class->mapManyToMany($mapping);
-        } elseif ($type === 'one') {
+        } elseif ('one' === $type) {
             $class->mapManyToOne($mapping);
         }
     }

@@ -267,11 +267,11 @@ HERE
                     $fParams = $this->parseDocParams($fmReflMeth);
 
                     $fMethData[$fMeth] = [
-                        'args'      => $fParams,
-                        'rType'     => $fmReturnType,
+                        'args' => $fParams,
+                        'rType' => $fmReturnType,
                         'rNodeType' => $fmNodeType,
-                        'fType'     => $fmFactoryType,
-                        'doc'       => $fMethDoc,
+                        'fType' => $fmFactoryType,
+                        'doc' => $fMethDoc,
                     ];
                 }
 
@@ -299,13 +299,13 @@ HERE
                 }
 
                 $nodeData = [
-                    'nodeType'         => $inst->getNodeType(),
-                    'parent'           => $parentName,
+                    'nodeType' => $inst->getNodeType(),
+                    'parent' => $parentName,
                     'inheritedMethods' => $inheritedMethods,
-                    'doc'              => $doc,
-                    'fMeths'           => $fMethData,
-                    'cardMap'          => $cardinalityMap,
-                    'isLeaf'           => $isLeaf,
+                    'doc' => $doc,
+                    'fMeths' => $fMethData,
+                    'cardMap' => $cardinalityMap,
+                    'isLeaf' => $isLeaf,
                 ];
 
                 $nodeMap[$refl->getShortName()] = $nodeData;
@@ -342,7 +342,7 @@ HERE
         }
 
         foreach ($reflParams as $reflParam) {
-            if ($reflParam->name == 'void') {
+            if ('void' == $reflParam->name) {
                 continue;
             }
 
@@ -392,7 +392,7 @@ HERE
             $comment = $rMethod->getDocComment();
             if (preg_match('&@factoryMethod ([A-Za-z]+)&', $comment, $matches)) {
                 $fMethods[$rMethod->name] = [
-                    'returnType'  => null,
+                    'returnType' => null,
                     'factoryType' => null,
                 ];
 

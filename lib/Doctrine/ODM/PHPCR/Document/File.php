@@ -77,7 +77,7 @@ class File extends AbstractFile
      */
     public function getContent()
     {
-        if ($this->content === null) {
+        if (null === $this->content) {
             $this->content = new Resource();
             $this->content->setLastModified(new \DateTime());
         }
@@ -128,6 +128,6 @@ class File extends AbstractFile
     {
         $content = stream_get_contents($this->getContent()->getData());
 
-        return $content !== false ? $content : '';
+        return false !== $content ? $content : '';
     }
 }

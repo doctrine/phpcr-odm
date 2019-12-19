@@ -319,7 +319,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['text'] = 'Lorem ipsum...';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ];
 
         $node = $this->getTestNode();
@@ -331,7 +331,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['topic'] = 'Un sujet intéressant';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
@@ -345,14 +345,14 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals(['is-active', 'url'], array_keys($doc->getSettings()));
         $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ], $doc->getSettings());
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
         $this->assertEquals(['is-active', 'url'], array_keys($doc->getSettings()));
         $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ], $doc->getSettings());
     }
 
@@ -367,7 +367,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['text'] = 'Lorem ipsum...';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html',
+            'url' => 'great-article-in-english.html',
         ];
 
         $node = $this->getTestNode();
@@ -381,7 +381,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $data['topic'] = 'Un sujet intéressant';
         $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html',
+            'url' => 'super-article-en-francais.html',
         ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');

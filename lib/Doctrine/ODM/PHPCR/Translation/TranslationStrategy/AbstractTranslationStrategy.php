@@ -66,8 +66,8 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     public function getTranslatedPropertyNameAssoc($locale, $mapping)
     {
         return [
-            'property'   => $this->getTranslatedPropertyName($locale, $mapping['property']),
-            'assoc'      => $this->getTranslatedPropertyName($locale, $mapping['assoc']),
+            'property' => $this->getTranslatedPropertyName($locale, $mapping['property']),
+            'assoc' => $this->getTranslatedPropertyName($locale, $mapping['assoc']),
             'assocNulls' => $this->getTranslatedPropertyName($locale, $mapping['assocNulls']),
         ];
     }

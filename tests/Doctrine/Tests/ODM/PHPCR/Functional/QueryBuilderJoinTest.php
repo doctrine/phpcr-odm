@@ -229,7 +229,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
 
         $this->assertCount(2, $phpcrRows);
         foreach ($phpcrRows as $key => $row) {
-            $this->assertEquals($key == 0 ? '/functional/dantleech' : '/functional/winstonsmith', $row->getPath('u'));
+            $this->assertEquals(0 == $key ? '/functional/dantleech' : '/functional/winstonsmith', $row->getPath('u'));
         }
     }
 }

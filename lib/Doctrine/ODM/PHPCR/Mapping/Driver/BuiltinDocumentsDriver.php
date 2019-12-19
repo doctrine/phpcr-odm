@@ -52,7 +52,7 @@ class BuiltinDocumentsDriver implements MappingDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        if (strpos($className, self::NAME_SPACE) === 0) {
+        if (0 === strpos($className, self::NAME_SPACE)) {
             $this->builtinDriver->loadMetadataForClass($className, $class);
 
             return;
@@ -77,7 +77,7 @@ class BuiltinDocumentsDriver implements MappingDriver
      */
     public function isTransient($className)
     {
-        if (strpos($className, self::NAME_SPACE) === 0) {
+        if (0 === strpos($className, self::NAME_SPACE)) {
             return $this->builtinDriver->isTransient($className);
         }
 

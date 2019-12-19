@@ -327,14 +327,14 @@ class ConverterPhpcr extends ConverterBase
                 $type = $fieldMapping['type'];
 
                 $typeMapping = [
-                    'string'  => 'string',
-                    'long'    => 'integer',
+                    'string' => 'string',
+                    'long' => 'integer',
                     'decimal' => 'string',
                     'boolean' => 'boolean',
-                    'name'    => 'string',
-                    'path'    => 'string',
-                    'uri'     => 'string',
-                    'uuid'    => 'string',
+                    'name' => 'string',
+                    'path' => 'string',
+                    'uri' => 'string',
+                    'uuid' => 'string',
                 ];
 
                 if (array_key_exists($type, $typeMapping)) {

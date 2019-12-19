@@ -33,7 +33,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      * Document annotation classes, ordered by precedence.
      */
     protected $entityAnnotationClasses = [
-        Document::class         => 0,
+        Document::class => 0,
         MappedSuperclass::class => 1,
     ];
 

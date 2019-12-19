@@ -120,7 +120,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
         $ids = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
@@ -156,7 +156,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
         $ids = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
@@ -207,7 +207,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
         $ids = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
@@ -227,14 +227,14 @@ class ReferrerTest extends PHPCRFunctionalTestCase
             $newName = 'new name '.$i;
             $names[] = $newName;
             $referrer->name = $newName;
-            $i++;
+            ++$i;
         }
 
         $this->dm->flush();
         $this->dm->clear();
 
         $tmpNames = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $tmpNames[] = $this->dm->find(null, "/functional/referrerTestObj$i")->name;
         }
 
@@ -251,7 +251,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
         $ids = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
@@ -268,21 +268,21 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $i = 0;
         $names = [];
         foreach ($reference->referrers as $referrer) {
-            if ($i !== 2) {
+            if (2 !== $i) {
                 $names[] = $referrer->name;
             } else {
                 $newName = 'new name '.$i;
                 $referrer->name = $newName;
                 $names[] = $newName;
             }
-            $i++;
+            ++$i;
         }
 
         $this->dm->flush();
         $this->dm->clear();
 
         $tmpNames = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $tmpNames[] = $this->dm->find(null, "/functional/referrerTestObj$i")->name;
         }
 
@@ -333,7 +333,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
         $ids = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
@@ -411,7 +411,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefManyTestObj->id = '/functional/referrerRefManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newReferrerTestObj = new ReferrerTestObj();
             $newReferrerTestObj->id = "/functional/referrerTestObj$i";
             $newReferrerTestObj->name = "referrerTestObj$i";
@@ -431,11 +431,11 @@ class ReferrerTest extends PHPCRFunctionalTestCase
             $name = "new name $i";
             $names[] = $name;
             $referrer->name = $name;
-            $i++;
+            ++$i;
         }
         $this->assertEquals($max, $i);
 
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
             $referrer->reference = null;
         }
@@ -445,7 +445,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $refNames = [];
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
             $refNames[] = $referrer->name;
         }
@@ -623,7 +623,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerRefManyTestObj->id = '/functional/referrerRefManyTestObj';
 
         $max = 5;
-        for ($i = 0; $i < $max; $i++) {
+        for ($i = 0; $i < $max; ++$i) {
             $newReferrerTestObj = new ReferrerTestObj2();
             $newReferrerTestObj->id = "/functional/referrerTestObj$i";
             $newReferrerTestObj->name = "referrerTestObj$i";

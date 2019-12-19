@@ -11,7 +11,7 @@ class SourceDocumentTest extends LeafNodeTestCase
         return [
             ['SourceDocument', ['FooBar', 'a'], [
                 'getDocumentFqn' => 'FooBar',
-                'getAlias'       => 'a',
+                'getAlias' => 'a',
             ]],
         ];
     }
