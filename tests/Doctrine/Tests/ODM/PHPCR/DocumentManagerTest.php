@@ -193,7 +193,6 @@ class DocumentManagerGetClassMetadata extends DocumentManager
                 break;
             default:
                 throw new \Exception('getClassMetadata called more than 2 times');
-
                 break;
         }
 

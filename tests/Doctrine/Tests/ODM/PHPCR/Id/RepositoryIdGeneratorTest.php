@@ -20,14 +20,12 @@ class RepositoryIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
-            ->will($this->returnValue('generatedid'))
-        ;
+            ->will($this->returnValue('generatedid'));
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getRepository')
-            ->will($this->returnValue($repository))
-        ;
+            ->will($this->returnValue($repository));
 
         $generator = new RepositoryIdGenerator();
 
@@ -47,14 +45,12 @@ class RepositoryIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
-            ->will($this->throwException(new \Exception()))
-        ;
+            ->will($this->throwException(new \Exception()));
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getRepository')
-            ->will($this->returnValue($repository))
-        ;
+            ->will($this->returnValue($repository));
 
         $this->expectException(\Exception::class);
         $generator->generate(null, $cm, $dm);

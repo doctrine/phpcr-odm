@@ -30,7 +30,7 @@ use Doctrine\ODM\PHPCR\Event;
  * The ClassMetadataFactory is used to create ClassMetadata objects that contain all the
  * metadata mapping information of a class which describes how a class should be mapped
  * to a document database.
-
+ *
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *

@@ -35,9 +35,9 @@ class QueryBuilderTester
      *
      * @param string $path
      *
-     * @return AbstractNode
-     *
      * @throws BadMethodCallException
+     *
+     * @return AbstractNode
      */
     public function getNode($path)
     {

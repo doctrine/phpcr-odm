@@ -40,8 +40,7 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $mockHelper
             ->expects($this->once())
             ->method('getSession')
-            ->will($this->returnValue($this->mockSession))
-        ;
+            ->will($this->returnValue($this->mockSession));
         $this->converter = $this->createMock(TranslationConverter::class);
         $this->command = new DocumentConvertTranslationCommand(null, $this->converter);
         $this->command->setHelperSet(new HelperSet(
@@ -56,18 +55,15 @@ class DocumentConvertTranslationCommandTest extends TestCase
             ->expects($this->once())
             ->method('convert')
             ->with('Document\MyClass', ['en'], [], 'none')
-            ->will($this->returnValue(false))
-        ;
+            ->will($this->returnValue(false));
         $this->converter
             ->expects($this->any())
             ->method('getLastNotices')
-            ->will($this->returnValue([]))
-        ;
+            ->will($this->returnValue([]));
 
         $this->mockSession
             ->expects($this->once())
-            ->method('save')
-        ;
+            ->method('save');
 
         $this->commandTester->execute([
             'classname' => 'Document\MyClass',
