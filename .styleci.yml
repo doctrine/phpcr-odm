@@ -1,15 +1,15 @@
 preset: recommended
 
 enabled:
-  - combine_consecutive_issets
-  - combine_consecutive_unsets
-  - pre_increment
-  - return_type_declaration
-  - unalign_double_arrow
-  - yoda_style
+    - combine_consecutive_issets
+    - combine_consecutive_unsets
+    - pre_increment
+    - return_type_declaration
+    - unalign_double_arrow
+    - yoda_style
 
 disabled:
-  - align_double_arrow
-  # we have documentation generated from phpdoc where we use "Something:" as first line
-  - phpdoc_summary
-  - post_increment
+    - align_double_arrow
+    # we have documentation generated from phpdoc where we use "Something:" as first line
+    - phpdoc_summary
+    - post_increment

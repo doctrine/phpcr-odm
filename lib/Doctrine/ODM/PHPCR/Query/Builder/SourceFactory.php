@@ -28,7 +28,7 @@ abstract class SourceFactory extends AbstractNode
 
     /**
      * Select documents of specified class. The alias name is mandatory
-     * and will be used to reference documents selected from this source.
+     * and will be used to reference documents selected from this source::.
      *
      * <code>
      * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')->end();
@@ -47,7 +47,7 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Note that his is currently disabled due to API uncertainty.
+     * Inner Join::.
      *
      * <code>
      * $qb->from('sel_1')
@@ -71,9 +71,7 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Left Outer Join.
-     *
-     * Note that his is currently disabled due to API uncertainty.
+     * Left Outer Join::.
      *
      * <code>
      * $qb->from('sel_2')
@@ -97,9 +95,7 @@ abstract class SourceFactory extends AbstractNode
     }
 
     /**
-     * Right Outer Join.
-     *
-     * Note that his is currently disabled due to API uncertainty.
+     * Right Outer Join::.
      *
      * <code>
      * $qb->from('sel_1')

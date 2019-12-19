@@ -24,7 +24,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
     public function createDocumentManager(array $paths = null)
     {
         $reader = new AnnotationReader();
-        $reader->addGlobalIgnoredName('group');
+        AnnotationReader::addGlobalIgnoredName('group');
 
         if (empty($paths)) {
             $paths = [__DIR__.'/../../Models'];
@@ -32,8 +32,8 @@ abstract class PHPCRFunctionalTestCase extends TestCase
 
         $metaDriver = new AnnotationDriver($reader, $paths);
 
-        $factoryclass = isset($GLOBALS['DOCTRINE_PHPCR_FACTORY'])
-            ? $GLOBALS['DOCTRINE_PHPCR_FACTORY'] : RepositoryFactoryJackrabbit::class;
+        $factoryclass = $GLOBALS['DOCTRINE_PHPCR_FACTORY']
+            ?? RepositoryFactoryJackrabbit::class;
 
         if (RepositoryFactoryDoctrineDBAL::class === ltrim($factoryclass, '\\')) {
             $params = [];
@@ -56,13 +56,10 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         $repository = $factory->getRepository($parameters);
         $this->assertNotNull($repository, 'There is an issue with your parameters: '.var_export(array_keys($parameters), true));
 
-        $workspace = isset($GLOBALS['DOCTRINE_PHPCR_WORKSPACE'])
-            ? $GLOBALS['DOCTRINE_PHPCR_WORKSPACE'] : 'tests';
+        $workspace = $GLOBALS['DOCTRINE_PHPCR_WORKSPACE'] ?? 'tests';
 
-        $user = isset($GLOBALS['DOCTRINE_PHPCR_USER'])
-            ? $GLOBALS['DOCTRINE_PHPCR_USER'] : '';
-        $pass = isset($GLOBALS['DOCTRINE_PHPCR_PASS'])
-            ? $GLOBALS['DOCTRINE_PHPCR_PASS'] : '';
+        $user = $GLOBALS['DOCTRINE_PHPCR_USER'] ?? '';
+        $pass = $GLOBALS['DOCTRINE_PHPCR_PASS'] ?? '';
 
         $credentials = new SimpleCredentials($user, $pass);
         $session = $repository->login($credentials, $workspace);

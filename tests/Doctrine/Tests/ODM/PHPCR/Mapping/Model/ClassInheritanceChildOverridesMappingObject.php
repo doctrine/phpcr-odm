@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * A class that represents a parent class for the purposes
- * of testing class property inheritance
+ * of testing class property inheritance.
  *
  * @PHPCRODM\Document(
  *   nodeType="nt:test-override",

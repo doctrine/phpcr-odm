@@ -11,7 +11,7 @@ use Doctrine\Tests\Models\Blog\Comment as BlogComment;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 use Doctrine\Tests\Models\Translation\ChildTranslationComment;
-use Doctrine\Tests\Models\Translation\Comment;
+use Doctrine\Tests\Models\Translation\Comment as TranslatedComment;
 use Doctrine\Tests\ODM\PHPCR\Functional\Translation\AttributeTranslationStrategyTest;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
@@ -61,7 +61,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     {
         $this->converter = new TranslationConverter($this->dm, 1);
 
-        $class = Comment::class;
+        $class = TranslatedComment::class;
         $field = 'text';
         $comment = $this->node->addNode('convert');
         $comment->setProperty($field, 'Lorem ipsum...');
@@ -98,7 +98,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test when a document already had translated fields
+     * Test when a document already had translated fields.
      */
     public function testPartialTranslateAttribute()
     {
@@ -188,7 +188,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testTranslateChild()
     {
         $class = ChildTranslationComment::class;
-        $parentClass = Comment::class;
+        $parentClass = TranslatedComment::class;
         $field = 'text';
         $comment = $this->node->addNode('convert');
         $comment->setProperty($field, 'Lorem ipsum...');
@@ -218,7 +218,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testTranslateAttributeToChild()
     {
         $class = ChildTranslationComment::class;
-        $parentClass = Comment::class;
+        $parentClass = TranslatedComment::class;
         $field = 'text';
         $comment = $this->node->addNode('convert');
         $comment->setProperty(
@@ -292,7 +292,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Just make one field of a document untranslated again
+     * Just make one field of a document untranslated again.
      */
     public function testPartialUntranslateAttribute()
     {
@@ -380,7 +380,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Just make one field of a document untranslated again
+     * Just make one field of a document untranslated again.
      */
     public function testPartialUntranslateChild()
     {
@@ -439,7 +439,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->converter = new TranslationConverter($this->dm);
 
         $class = ChildTranslationComment::class;
-        $parentClass = Comment::class;
+        $parentClass = TranslatedComment::class;
         $field = 'text';
         $comment = $this->node->addNode('convert');
         $comment->setProperty($field, 'Lorem ipsum...');
@@ -477,7 +477,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testMissingLocales()
     {
         $this->converter = new TranslationConverter($this->dm, 1);
-        $class = Comment::class;
+        $class = TranslatedComment::class;
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('locales must be specified');

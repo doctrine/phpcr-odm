@@ -24,7 +24,7 @@ class OrderBy extends AbstractNode
     }
 
     /**
-     * Add ascending ordering:
+     * Add ascending ordering::.
      *
      * <code>
      * $qb->orderBy()->asc()->field('sel_1.prop_1')->end();
@@ -40,7 +40,7 @@ class OrderBy extends AbstractNode
     }
 
     /**
-     * Add descending ordering:
+     * Add descending ordering::.
      *
      * <code>
      * $qb->orderBy()->desc()->field('sel_1.prop_1')->end();

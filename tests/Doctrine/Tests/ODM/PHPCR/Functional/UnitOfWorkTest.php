@@ -14,7 +14,7 @@ use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
 use Doctrine\Tests\Models\CMS\CmsBlogPost;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
+use Doctrine\Tests\Models\References\ParentNoNodenameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -103,7 +103,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $parent2->nodename = 'root2';
         $parent2->setParentDocument($root);
 
-        $child = new ParentNoNodeNameTestObj();
+        $child = new ParentNoNodenameTestObj();
         $child->setParentDocument($parent1);
         $child->name = 'child';
 

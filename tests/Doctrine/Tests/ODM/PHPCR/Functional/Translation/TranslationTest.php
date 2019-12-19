@@ -52,15 +52,15 @@ class TranslationTest extends PHPCRFunctionalTestCase
         $this->assertFieldMetadataEquals(true, $metadata, 'text', 'translated');
         $this->assertFieldMetadataEquals(true, $metadata, 'assoc', 'translated');
 
-        $this->assertTrue(isset($metadata->translator));
+        $this->assertObjectHasAttribute('translator', $metadata);
         $this->assertEquals('attribute', $metadata->translator);
 
-        $this->assertTrue(isset($metadata->localeMapping));
+        $this->assertObjectHasAttribute('localeMapping', $metadata);
         $this->assertEquals('locale', $metadata->localeMapping);
     }
 
     /**
-     * Test loading of a translatable document missing the @Locale annotation.
+     * Test loading of a translatable document missing the Locale annotation.
      */
     public function testLoadMissingLocaleAnnotation()
     {

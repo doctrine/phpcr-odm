@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR;
 
@@ -23,6 +6,7 @@ use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 
@@ -35,7 +19,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *
- * @see        www.doctrine-project.com
+ * @link        www.doctrine-project.com
  * @since       1.0
  *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
@@ -81,7 +65,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Find a single document by its id
+     * Find a single document by its id.
      *
      * The id may either be a PHPCR path or UUID
      *
@@ -95,7 +79,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Find many document by id
+     * Find many document by id.
      *
      * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
@@ -184,7 +168,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Constraints a field for a given value
+     * Constraints a field for a given value.
      *
      * @param ConstraintFactory $where
      * @param string            $field The field searched
@@ -252,7 +236,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * @return \Doctrine\ODM\PHPCR\Mapping\ClassMetadata
+     * @return ClassMetadata
      */
     public function getClassMetadata()
     {
@@ -260,7 +244,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Quote a string for inclusion in an SQL2 query
+     * Quote a string for inclusion in an SQL2 query.
      *
      * @param string $val
      * @param int    $type
@@ -289,7 +273,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Create a Query
+     * Create a Query.
      *
      * @param string $statement             the SQL2 statement
      * @param string $language              (see QueryInterface for list of supported types)
@@ -326,7 +310,7 @@ class DocumentRepository implements ObjectRepository
     }
 
     /**
-     * Create a QueryBuilder that is pre-populated for this repositories document
+     * Create a QueryBuilder that is pre-populated for this repositories document.
      *
      * The returned query builder will be pre-populated with the criteria
      * required to search for this repositories document class.
@@ -337,7 +321,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @param string $alias name of the alias to use, defaults to 'a'
      *
-     * @return \Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder
+     * @return QueryBuilder
      */
     public function createQueryBuilder($alias)
     {

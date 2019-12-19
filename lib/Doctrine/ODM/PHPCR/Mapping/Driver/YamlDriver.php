@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
@@ -23,6 +6,7 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -31,7 +15,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *
- * @see        www.doctrine-project.org
+ * @link        www.doctrine-project.org
  * @since       1.0
  *
  * @author      Jonathan H. Wage <jonwage@gmail.com>
@@ -54,7 +38,7 @@ class YamlDriver extends FileDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        /* @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
+        /* @var PhpcrClassMetadata $class */
         try {
             $element = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -65,7 +49,7 @@ class YamlDriver extends FileDriver
         if (!$element) {
             return;
         }
-        $element['type'] = isset($element['type']) ? $element['type'] : 'document';
+        $element['type'] = $element['type'] ?? 'document';
 
         if (isset($element['repositoryClass'])) {
             $class->setCustomRepositoryClassName($element['repositoryClass']);
@@ -220,7 +204,7 @@ class YamlDriver extends FileDriver
             foreach ($element['mixedReferrers'] as $name => $attributes) {
                 $mapping = [
                     'fieldName' => $name,
-                    'referenceType' => isset($attributes['referenceType']) ? $attributes['referenceType'] : null,
+                    'referenceType' => $attributes['referenceType'] ?? null,
                 ];
                 $class->mapMixedReferrers($mapping);
             }
@@ -270,11 +254,11 @@ class YamlDriver extends FileDriver
 
     private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
     {
-        /** @var $class \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
+        /** @var PhpcrClassMetadata $class */
         $mapping = array_merge(['fieldName' => $fieldName], $reference);
 
         $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
-        $mapping['name'] = (isset($reference['name'])) ? $reference['name'] : null;
+        $mapping['name'] = $reference['name'] ?? null;
 
         if (!isset($mapping['targetDocument'])) {
             $mapping['targetDocument'] = null;

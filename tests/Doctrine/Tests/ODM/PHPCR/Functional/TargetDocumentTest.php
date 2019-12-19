@@ -52,8 +52,8 @@ class TargetDocumentTest extends PHPCRFunctionalTestCase
         $referer = $this->dm->find(ReferenceManyObj::class, '/functional/referer');
         $this->assertEquals('Referer', $referer->name);
         $this->assertCount(2, $referer->references);
-        $this->assertTrue($referer->references[0] instanceof RefType1TestObj);
-        $this->assertTrue($referer->references[1] instanceof RefType2TestObj);
+        $this->assertInstanceOf(RefType1TestObj::class, $referer->references[0]);
+        $this->assertInstanceOf(RefType2TestObj::class, $referer->references[1]);
     }
 
     public function testReferenceOneDifferentTargetDocuments()
@@ -82,9 +82,9 @@ class TargetDocumentTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $referer = $this->dm->find(ReferenceOneObj::class, '/functional/referer1');
-        $this->assertTrue($referer->reference instanceof RefType1TestObj);
+        $this->assertInstanceOf(RefType1TestObj::class, $referer->reference);
         $referer = $this->dm->find(ReferenceOneObj::class, '/functional/referer2');
-        $this->assertTrue($referer->reference instanceof RefType2TestObj);
+        $this->assertInstanceOf(RefType2TestObj::class, $referer->reference);
     }
 }
 

@@ -23,20 +23,12 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
      * @var NodeInterface
      */
     private $node;
 
     public function setUp(): void
     {
-        $this->type = CmsUser::class;
         $this->dm = $this->createDocumentManager();
 
         $session = $this->dm->getPhpcrSession();
@@ -92,8 +84,9 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $users = $this->dm->getRepository(CmsUser::class)->findMany([$user1->id, $user2->id]);
-        $this->assertTrue(isset($users['/functional/beberlei']));
-        $this->assertTrue(isset($users['/functional/lsmith']));
+
+        $this->assertArrayHasKey('/functional/beberlei', $users);
+        $this->assertArrayHasKey('/functional/lsmith', $users);
         $this->assertInstanceOf(CmsUser::class, $users['/functional/beberlei']);
         $this->assertInstanceOf(CmsUser::class, $users['/functional/lsmith']);
         $this->assertEquals($user1->username, $users['/functional/beberlei']->username);
@@ -209,6 +202,6 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user1->username, $users1->username);
 
         $users2 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' => 'obama']);
-        $this->assertEquals(null, $users2);
+        $this->assertNull($users2);
     }
 }

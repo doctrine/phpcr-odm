@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use PHPCR\ItemNotFoundException;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
@@ -14,6 +15,7 @@ use PHPCR\Query\QueryManagerInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\WorkspaceInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @group unit
@@ -168,6 +170,33 @@ class DocumentManagerTest extends PHPCRTestCase
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
         $this->assertInstanceOf(QueryBuilder::class, $qb);
+    }
+
+    public function testGetDocumentIdReturnsValueOfUnitOfWork()
+    {
+        $session = $this->createMock(SessionInterface::class);
+
+        $dm = DocumentManager::create($session);
+
+        $obj = new \stdClass();
+        $uow = $dm->getUnitOfWork();
+
+        $reflectionProperty = new \ReflectionProperty($uow, 'documentIds');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($uow, [spl_object_hash($obj) => '/foo']);
+        $reflectionProperty->setAccessible(false);
+
+        $this->assertEquals('/foo', $dm->getDocumentId($obj));
+    }
+
+    public function testGetDocumentIdForNonManagedDocumentsReturnsNull()
+    {
+        /** @var SessionInterface|MockObject $session */
+        $session = $this->createMock(SessionInterface::class);
+        $dm = DocumentManager::create($session);
+        $obj = new \stdClass();
+        $this->expectException(PHPCRException::class);
+        $dm->getDocumentId($obj);
     }
 }
 

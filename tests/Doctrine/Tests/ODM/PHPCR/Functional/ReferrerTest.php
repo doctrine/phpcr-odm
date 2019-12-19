@@ -12,7 +12,7 @@ use PHPCR\SessionInterface;
 
 /**
  * These tests test if referrers are correctly read. For cascading
- * referrers, see CascadePersistTest
+ * referrers, see CascadePersistTest.
  *
  * @group functional
  */
@@ -144,7 +144,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($ids as $id) {
-            $this->assertTrue(in_array($id, $tmpIds));
+            $this->assertContains($id, $tmpIds);
         }
     }
 
@@ -239,7 +239,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
@@ -287,7 +287,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
@@ -363,12 +363,12 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($ids as $id) {
-            $this->assertTrue(in_array($id, $tmpIds));
+            $this->assertContains($id, $tmpIds);
         }
     }
 
     /**
-     * Remove referenced node, but change referrer node before
+     * Remove referenced node, but change referrer node before.
      */
     public function testRemoveReferrerChangeBefore()
     {
@@ -403,7 +403,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Remove referenced node, but change referrer nodes before
+     * Remove referenced node, but change referrer nodes before.
      */
     public function testRemoveReferrerManyChangeBefore()
     {
@@ -452,7 +452,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals($max, $i);
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $refNames));
+            $this->assertContains($name, $refNames);
         }
     }
 
@@ -532,7 +532,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $names = ['weakReferrerTestObj', 'hardReferrerTestObj'];
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
@@ -584,7 +584,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * There was a bug that documents translated fields where overwritten when they are re-created
+     * There was a bug that documents translated fields where overwritten when they are re-created.
      *
      * depends testCreate
      */
@@ -679,7 +679,7 @@ class WeakReferrerTestObj
     public $id;
 
     /**
-     * Should implicitly default to strategy="weak"
+     * Should implicitly default to strategy="weak".
      *
      * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", cascade="persist")
      */

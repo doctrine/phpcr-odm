@@ -27,7 +27,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     }
 
     /**
-     * Overwriting private parent properties isn't supported with annotations
+     * Overwriting private parent properties isn't supported with annotations.
      */
     public function testParentWithPrivatePropertyMapping()
     {

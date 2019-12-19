@@ -17,7 +17,7 @@ use Jackalope\Workspace;
 use PHPCR\SessionInterface;
 
 /**
- * TODO: remove Jackalope dependency
+ * TODO: remove Jackalope dependency.
  *
  * @group unit
  */

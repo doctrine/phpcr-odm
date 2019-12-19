@@ -9,8 +9,6 @@ use PHPCR\NodeInterface;
 
 class InsertPerformanceTest extends PHPCRFunctionalTestCase
 {
-    protected $count = 100;
-
     /**
      * @var DocumentManager
      */
@@ -21,11 +19,16 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
+    /**
+     * @var int
+     */
+    private $count = 100;
+
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
-        $this->count = isset($GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT']) ? $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] : 100;
+        $this->count = $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] ?? 100;
     }
 
     public function testInsertDocuments()
@@ -48,6 +51,6 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
 
         $diff = microtime(true) - $s;
 
-        $this->assertTrue($diff < 1.0, 'Inserting '.$this->count." documents shouldn't take longer than one second, took ".$diff.' seconds.');
+        $this->assertLessThan(1.0, $diff, 'Inserting '.$this->count." documents shouldn't take longer than one second, took ".$diff.' seconds.');
     }
 }

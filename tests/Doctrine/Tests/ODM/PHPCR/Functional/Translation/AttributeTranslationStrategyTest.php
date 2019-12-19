@@ -354,7 +354,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $strategy = new AttributeTranslationStrategy($this->dm);
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
-        $this->assertTrue(is_array($locales));
+        $this->assertInternalType('array', $locales);
         $this->assertCount(3, $locales);
         $this->assertContains('fr', $locales);
         $this->assertContains('en', $locales);
@@ -392,7 +392,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     /**
      * Caution : Jackalope\Property guess the property type on the first element
      * So if it's an boolean, all your array will be set to true
-     * The Array has to be an array of string
+     * The Array has to be an array of string.
      */
     public function testTranslationArrayProperties()
     {

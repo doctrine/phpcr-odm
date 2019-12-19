@@ -96,7 +96,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $col = $this->dm->getChildren($parent, '*A');
         $this->assertCount(1, $col);
-        $this->assertTrue($childA === $col->first());
+        $this->assertSame($col->first(), $childA);
 
         $this->dm->clear();
 
@@ -269,7 +269,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * New parent, insert children with parent and name strategy
+     * New parent, insert children with parent and name strategy.
      */
     public function testInsertNewNamedChild()
     {
@@ -593,7 +593,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
     /**
      * Reorder the children but reset the order in the preUpdate event
-     * Tests that the previously compute document change set gets overwritten
+     * Tests that the previously compute document change set gets overwritten.
      *
      * @depends testReorderChildren
      */
@@ -627,7 +627,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Rename the nodename of a child
+     * Rename the nodename of a child.
      */
     public function testRenameChildren()
     {
@@ -653,7 +653,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Move a child out of the children collection
+     * Move a child out of the children collection.
      */
     public function testMoveChildren()
     {
@@ -737,7 +737,7 @@ class ChildrenTestObj
 class ChildrenTestObjRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
      *

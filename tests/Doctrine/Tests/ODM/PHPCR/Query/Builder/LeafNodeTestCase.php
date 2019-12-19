@@ -14,9 +14,9 @@ abstract class LeafNodeTestCase extends TestCase
 
     public function setUp(): void
     {
-        $this->parent = $this->getMockBuilder(
-            AbstractNode::class
-        )->setMockClassName('ParentNode')->getMockForAbstractClass();
+        $this->parent = $this->getMockBuilder(AbstractNode::class)
+            ->setMockClassName('ParentNode')
+            ->getMockForAbstractClass();
     }
 
     /**

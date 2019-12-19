@@ -23,6 +23,7 @@ use Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObjectNoStrategy;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObjectNotReferenceable;
 use PHPCR\SessionInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class ClassMetadataFactoryTest extends TestCase
@@ -46,6 +47,7 @@ class ClassMetadataFactoryTest extends TestCase
 
     public function setUp(): void
     {
+        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $this->dm = DocumentManager::create($session);
     }
@@ -82,7 +84,7 @@ class ClassMetadataFactoryTest extends TestCase
 
         $metadata = $cmf->getAllMetadata();
 
-        $this->assertTrue(is_array($metadata));
+        $this->assertInternalType('array', $metadata);
     }
 
     public function testCacheDriver()

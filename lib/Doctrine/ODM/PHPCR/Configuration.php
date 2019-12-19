@@ -1,37 +1,21 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
 use PHPCR\Util\UUIDHelper;
 
 /**
- * Configuration class
+ * Configuration class.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *
- * @see        www.doctrine-project.com
+ * @link        www.doctrine-project.com
  * @since       1.0
  *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
@@ -55,7 +39,7 @@ class Configuration
     ];
 
     /**
-     * Sets if all PHPCR document metadata should be validated on read
+     * Sets if all PHPCR document metadata should be validated on read.
      *
      * @param bool $validateDoctrineMetadata
      */
@@ -65,7 +49,7 @@ class Configuration
     }
 
     /**
-     * Gets if all PHPCR document metadata should be validated on read
+     * Gets if all PHPCR document metadata should be validated on read.
      *
      * @return bool
      */
@@ -75,7 +59,7 @@ class Configuration
     }
 
     /**
-     * Sets if all PHPCR documents should automatically get doctrine metadata added on write
+     * Sets if all PHPCR documents should automatically get doctrine metadata added on write.
      *
      * @param bool $writeDoctrineMetadata
      */
@@ -85,7 +69,7 @@ class Configuration
     }
 
     /**
-     * Gets if all PHPCR documents should automatically get doctrine metadata added on write
+     * Gets if all PHPCR documents should automatically get doctrine metadata added on write.
      *
      * @return bool
      */
@@ -124,7 +108,7 @@ class Configuration
     }
 
     /**
-     * Set the document alias map
+     * Set the document alias map.
      *
      * @param array $documentNamespaces
      */
@@ -182,7 +166,7 @@ class Configuration
     /**
      * Gets the cache driver implementation that is used for metadata caching.
      *
-     * @return \Doctrine\ODM\PHPCR\DocumentClassMapperInterface
+     * @return DocumentClassMapperInterface
      */
     public function getDocumentClassMapper()
     {
@@ -196,7 +180,7 @@ class Configuration
     /**
      * Sets the cache driver implementation that is used for metadata caching.
      *
-     * @param \Doctrine\ODM\PHPCR\DocumentClassMapperInterface $documentClassMapper
+     * @param DocumentClassMapperInterface $documentClassMapper
      */
     public function setDocumentClassMapper(DocumentClassMapperInterface $documentClassMapper)
     {
@@ -289,7 +273,7 @@ class Configuration
     public function getClassMetadataFactoryName()
     {
         if (!isset($this->attributes['classMetadataFactoryName'])) {
-            $this->attributes['classMetadataFactoryName'] = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory';
+            $this->attributes['classMetadataFactoryName'] = Mapping\ClassMetadataFactory::class;
         }
 
         return $this->attributes['classMetadataFactoryName'];
@@ -303,12 +287,14 @@ class Configuration
      * @param string $className
      *
      * @throws PHPCRException If not is a ObjectRepository
+     *
+     * @return void
      */
     public function setDefaultRepositoryClassName($className)
     {
         $reflectionClass = new \ReflectionClass($className);
 
-        if (!$reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
+        if (!$reflectionClass->implementsInterface(ObjectRepository::class)) {
             throw PHPCRException::invalidDocumentRepository($className);
         }
 
@@ -324,9 +310,8 @@ class Configuration
      */
     public function getDefaultRepositoryClassName()
     {
-        return isset($this->attributes['defaultRepositoryClassName'])
-            ? $this->attributes['defaultRepositoryClassName']
-            : 'Doctrine\ODM\PHPCR\DocumentRepository';
+        return $this->attributes['defaultRepositoryClassName']
+            ?? DocumentRepository::class;
     }
 
     /**
@@ -350,9 +335,8 @@ class Configuration
      */
     public function getRepositoryFactory()
     {
-        return isset($this->attributes['repositoryFactory'])
-            ? $this->attributes['repositoryFactory']
-            : new DefaultRepositoryFactory();
+        return $this->attributes['repositoryFactory']
+            ?? new DefaultRepositoryFactory();
     }
 
     /**
@@ -376,9 +360,8 @@ class Configuration
      */
     public function getUuidGenerator()
     {
-        return (isset($this->attributes['uuidGenerator']))
-            ? $this->attributes['uuidGenerator']
-            : function () {
+        return $this->attributes['uuidGenerator']
+            ?? function () {
                 return UUIDHelper::generateUUID();
             };
     }

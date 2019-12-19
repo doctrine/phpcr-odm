@@ -62,7 +62,7 @@ class CmsProfile
 class CmsProfileRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
      *

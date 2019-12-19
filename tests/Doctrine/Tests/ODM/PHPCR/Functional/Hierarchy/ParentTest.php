@@ -25,7 +25,7 @@ class ParentTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
@@ -60,7 +60,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename', $doc->id);
         $this->assertEquals('thename', $doc->nodename);
 
-        $this->assertTrue($doc->parent instanceof Proxy);
+        $this->assertInstanceOf(Proxy::class, $doc->parent);
         $this->assertEquals('/functional', $doc->parent->getId());
 
         return $doc;
@@ -268,6 +268,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $parent->children->add($child);
 
         $this->expectException(IdException::class);
+        $this->expectExceptionMessage('Nodename property "nodename" of document "Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\NameDoc" contains the illegal PHPCR value "bad/name"');
         $this->dm->persist($child);
     }
 }

@@ -258,7 +258,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->orderBy()->asc()->localname('a.username')->end();
 
         $this->expectException(InvalidArgumentException::class);
-        $qb->getQuery()->execute();
+        $this->expectExceptionMessage('Alias name "a.username" is not known. The following aliases are valid: "a"');
+        $qb->getQuery();
     }
 
     /**

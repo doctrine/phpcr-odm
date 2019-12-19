@@ -5,7 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Mapping\Model;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * A class that uses Lifecycle Callbacks
+ * A class that uses Lifecycle Callbacks.
  *
  * @PHPCRODM\Document
  */

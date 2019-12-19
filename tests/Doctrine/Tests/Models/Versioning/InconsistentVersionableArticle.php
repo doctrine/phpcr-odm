@@ -5,7 +5,7 @@ namespace Doctrine\Tests\Models\Versioning;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
- * This document has a Version annotated field but it is not marked as versionable
+ * This document has a Version annotated field but it is not marked as versionable.
  *
  * @PHPCRODM\Document
  */

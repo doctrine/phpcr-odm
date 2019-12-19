@@ -49,31 +49,33 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
         // Check the annotation is not set if it is not present
         $metadata = $factory->getMetadataFor(NonVersionableArticle::class);
         $this->assertInstanceOf(ClassMetadata::class, $metadata);
-        $this->assertEquals(false, $metadata->versionable);
+        $this->assertFalse($metadata->versionable);
     }
 
     /**
-     * Test that using an invalid versionable annotation will not work
+     * Test that using an invalid versionable annotation will not work.
      */
     public function testLoadInvalidAnnotation()
     {
         $factory = new ClassMetadataFactory($this->dm);
+
         $this->expectException(MappingException::class);
         $factory->getMetadataFor(InvalidVersionableArticle::class);
     }
 
     /**
-     * Test that using the Version annotation on non-versionable documents will not work
+     * Test that using the Version annotation on non-versionable documents will not work.
      */
     public function testLoadInconsistentAnnotations()
     {
         $factory = new ClassMetadataFactory($this->dm);
+
         $this->expectException(MappingException::class);
         $factory->getMetadataFor(InconsistentVersionableArticle::class);
     }
 
     /**
-     * Check that persisting a node with the versionable type will add the correct mixin to the node
+     * Check that persisting a node with the versionable type will add the correct mixin to the node.
      */
     public function testAnnotationOnPersist()
     {
@@ -108,7 +110,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
      *
      * @return NodeInterface
      */
-    protected function createTestDocument($name, $class)
+    private function createTestDocument($name, $class)
     {
         $this->removeTestNode($name);
 
@@ -125,7 +127,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Remove a PHPCR node under the root node
+     * Remove a PHPCR node under the root node.
      */
     protected function removeTestNode(string $name): void
     {

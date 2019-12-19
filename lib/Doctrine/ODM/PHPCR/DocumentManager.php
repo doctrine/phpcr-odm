@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR;
 
@@ -35,16 +18,18 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrat
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use PHPCR\ItemNotFoundException;
+use PHPCR\NodeInterface;
 use PHPCR\PathNotFoundException;
 use PHPCR\PropertyType;
 use PHPCR\Query\QueryInterface;
+use PHPCR\Query\RowInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\Util\ValueConverter;
 
 /**
- * Document Manager
+ * Document Manager.
  *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
@@ -335,8 +320,8 @@ class DocumentManager implements DocumentManagerInterface
         if (!empty($uuids)) {
             $nodes = $this->session->getNodesByIdentifier(array_keys($uuids));
 
+            /** @var NodeInterface $node */
             foreach ($nodes as $node) {
-                /** @var $node \PHPCR\NodeInterface */
                 $id = $node->getPath();
                 $ids[$uuids[$node->getIdentifier()]] = $id;
                 unset($uuids[$id]);
@@ -481,8 +466,8 @@ class DocumentManager implements DocumentManagerInterface
         $result = $query->execute();
 
         $ids = [];
+        /** @var RowInterface $row */
         foreach ($result->getRows() as $row) {
-            /* @var $row \PHPCR\Query\RowInterface */
             $ids[] = $row->getPath($primarySelector);
         }
 
@@ -927,5 +912,13 @@ class DocumentManager implements DocumentManagerInterface
         $path = $this->unitOfWork->getDocumentId($document);
 
         return $this->session->getNode($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDocumentId($document)
+    {
+        return $this->unitOfWork->getDocumentId($document);
     }
 }

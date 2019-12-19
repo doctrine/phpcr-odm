@@ -25,14 +25,14 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * class name
+     * class name.
      *
      * @var string
      */
     protected $typeVersion;
 
     /**
-     * class name
+     * class name.
      *
      * @var string
      */
@@ -85,6 +85,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
             $this->typeReference,
             '/functional/referenceTestObj'
         );
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The document at path \'/functional/referenceTestObj\' is not versionable');
         $this->dm->checkin($contentNode);
@@ -176,7 +177,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test it's not possible to get a version of a non-versionable document
+     * Test it's not possible to get a version of a non-versionable document.
      */
     public function testFindVersionByNameNotVersionable()
     {
@@ -190,7 +191,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test that trying to read a non existing version fails
+     * Test that trying to read a non existing version fails.
      */
     public function testFindVersionByNameVersionDoesNotExist()
     {
@@ -276,7 +277,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Check we cannot remove the last version of a document (since it's the current version)
+     * Check we cannot remove the last version of a document (since it's the current version).
      */
     public function testRemoveLastVersion()
     {
@@ -295,7 +296,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Check we cannot remove the root version of a document
+     * Check we cannot remove the root version of a document.
      */
     public function testRemoveRootVersion()
     {
@@ -338,7 +339,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Check the version we removed in testRemoveVersion does not exist anymore
+     * Check the version we removed in testRemoveVersion does not exist anymore.
      *
      * @depends testRemoveVersion
      */
@@ -350,7 +351,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
 
     /**
      * Try to access the children of a specific version of a document and assert they
-     * are hydrated properly
+     * are hydrated properly.
      */
     public function testUnversionedChildrenOnParentVersion()
     {

@@ -22,11 +22,15 @@ class DocumentManagerDecoratorTest extends PHPCRTestCase
         $dmiMethods = array_diff($dmiMethods, ['__construct']);
         sort($dmiMethods);
 
-        $dmdMethods = get_class_methods(DocumentManagerDecorator::class);
+        $dmdMethods = get_class_methods(OwnDocumentManager::class);
         $dmdMethods = array_diff($dmdMethods, ['__construct']);
         sort($dmdMethods);
 
         $this->assertEquals($dmMethods, $dmiMethods);
         $this->assertEquals($dmMethods, $dmdMethods);
     }
+}
+
+class OwnDocumentManager extends DocumentManagerDecorator
+{
 }

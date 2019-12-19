@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -21,7 +22,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
@@ -114,6 +115,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
             $this->expectException(InvalidQueryException::class);
         }
 
+        /** @var DocumentRepository $repository */
         $repository = $this->dm->getRepository($this->type);
         $query = $repository->createQuery($statement, QueryInterface::JCR_SQL2);
         $this->assertInstanceOf(Query::class, $query);

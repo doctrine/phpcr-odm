@@ -8,7 +8,7 @@ use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 /**
- * These tests ensure that you can reset a value in a lifecycle event
+ * These tests ensure that you can reset a value in a lifecycle event.
  *
  * A use case is for example a bridge which allows you to store associations to objects in a different database
  * - In the prePersist and preUpdate event you serialize the identifier reference of the object

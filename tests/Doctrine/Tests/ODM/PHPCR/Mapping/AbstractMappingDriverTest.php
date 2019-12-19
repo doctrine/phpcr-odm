@@ -40,6 +40,7 @@ use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UniqueNodeTypeMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject;
 use PHPCR\SessionInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 abstract class AbstractMappingDriverTest extends TestCase
@@ -128,29 +129,29 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testFieldMappings(ClassMetadata $class): ClassMetadata
     {
         $this->assertCount(12, $class->fieldMappings);
-        $this->assertTrue(isset($class->mappings['string']));
+        $this->assertArrayHasKey('string', $class->mappings);
         $this->assertEquals('string', $class->mappings['string']['type']);
-        $this->assertTrue(isset($class->mappings['binary']));
+        $this->assertArrayHasKey('binary', $class->mappings);
         $this->assertEquals('binary', $class->mappings['binary']['type']);
-        $this->assertTrue(isset($class->mappings['long']));
+        $this->assertArrayHasKey('long', $class->mappings);
         $this->assertEquals('long', $class->mappings['long']['type']);
-        $this->assertTrue(isset($class->mappings['int']));
+        $this->assertArrayHasKey('int', $class->mappings);
         $this->assertEquals('long', $class->mappings['int']['type']);
-        $this->assertTrue(isset($class->mappings['decimal']));
+        $this->assertArrayHasKey('decimal', $class->mappings);
         $this->assertEquals('decimal', $class->mappings['decimal']['type']);
-        $this->assertTrue(isset($class->mappings['double']));
+        $this->assertArrayHasKey('double', $class->mappings);
         $this->assertEquals('double', $class->mappings['double']['type']);
-        $this->assertTrue(isset($class->mappings['float']));
+        $this->assertArrayHasKey('float', $class->mappings);
         $this->assertEquals('double', $class->mappings['float']['type']);
-        $this->assertTrue(isset($class->mappings['date']));
+        $this->assertArrayHasKey('date', $class->mappings);
         $this->assertEquals('date', $class->mappings['date']['type']);
-        $this->assertTrue(isset($class->mappings['boolean']));
+        $this->assertArrayHasKey('boolean', $class->mappings);
         $this->assertEquals('boolean', $class->mappings['boolean']['type']);
-        $this->assertTrue(isset($class->mappings['name']));
+        $this->assertArrayHasKey('name', $class->mappings);
         $this->assertEquals('name', $class->mappings['name']['type']);
-        $this->assertTrue(isset($class->mappings['path']));
+        $this->assertArrayHasKey('path', $class->mappings);
         $this->assertEquals('path', $class->mappings['path']['type']);
-        $this->assertTrue(isset($class->mappings['uri']));
+        $this->assertArrayHasKey('uri', $class->mappings);
         $this->assertEquals('uri', $class->mappings['uri']['type']);
 
         return $class;
@@ -308,7 +309,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testNodenameMapping(ClassMetadata $class)
     {
-        $this->assertTrue(isset($class->nodename));
+        $this->assertObjectHasAttribute('nodename', $class);
         $this->assertEquals('namefield', $class->nodename);
     }
 
@@ -322,7 +323,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testParentDocumentMapping(ClassMetadata $class)
     {
-        $this->assertTrue(isset($class->parentMapping));
+        $this->assertObjectHasAttribute('parentMapping', $class);
         $this->assertEquals('parent', $class->parentMapping);
     }
 
@@ -336,7 +337,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testDepthMapping(ClassMetadata $class)
     {
-        $this->assertNotNull($class->depthMapping);
+        $this->assertObjectHasAttribute('depthMapping', $class);
         $this->assertSame('depth', $class->depthMapping);
     }
 
@@ -351,6 +352,7 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertNotNull($class->identifier);
         $this->assertEmpty($class->fieldMappings);
 
+        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
@@ -363,6 +365,9 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertEquals('string', $class->mappings['foo']['type']);
     }
 
+    /**
+     * @return ClassMetadata
+     */
     public function testLoadChildMapping()
     {
         return $this->loadMetadataForClassname(ChildMappingObject::class);
@@ -546,7 +551,7 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testReferenceOneMapping(ClassMetadata $class)
     {
         $this->assertCount(2, $class->referenceMappings);
-        $this->assertTrue(isset($class->mappings['referenceOneWeak']));
+        $this->assertArrayHasKey('referenceOneWeak', $class->mappings);
         $this->assertCount(2, $class->getAssociationNames());
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $class->getAssociationTargetClass('referenceOneWeak'));
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $class->getAssociationTargetClass('referenceOneHard'));
@@ -577,7 +582,7 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testReferenceManyMapping(ClassMetadata $class)
     {
         $this->assertCount(2, $class->referenceMappings);
-        $this->assertTrue(isset($class->mappings['referenceManyWeak']));
+        $this->assertArrayHasKey('referenceManyWeak', $class->mappings);
         $this->assertCount(2, $class->getAssociationNames());
 
         $this->assertEquals('Doctrine\Tests\ODM\PHPCR\Mapping\Model\myDocument', $class->getAssociationTargetClass('referenceManyWeak'));
@@ -662,7 +667,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testMixinMapping(ClassMetadata $class)
     {
-        $this->assertEquals(1, count($class->mixins));
+        $this->assertCount(1, $class->mixins);
         $this->assertContains('mix:lastModified', $class->mixins);
     }
 
@@ -702,15 +707,13 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testStringExtendedMapping()
     {
-        $className = StringMappingObject::class;
-        $this->loadMetadataForClassname($className);
-
-        $className = StringExtendedMappingObject::class;
+        $this->loadMetadataForClassname(StringMappingObject::class);
+        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
         $cmf = new ClassMetadataFactory($dm);
-        $class = $cmf->getMetadataFor($className);
+        $class = $cmf->getMetadataFor(StringExtendedMappingObject::class);
 
         $this->assertInstanceOf(ClassMetadata::class, $class);
         $this->assertEquals('stringAssoc', $class->mappings['stringAssoc']['fieldName']);
@@ -726,6 +729,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testUuidMapping(ClassMetadata $class)
     {
+        $this->assertObjectHasAttribute('uuidFieldName', $class);
         $this->assertEquals('uuid', $class->uuidFieldName);
         $this->assertEquals('string', $class->mappings['uuid']['type']);
         $this->assertEquals('jcr:uuid', $class->mappings['uuid']['property']);
