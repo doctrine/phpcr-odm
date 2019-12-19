@@ -18,13 +18,12 @@ class MoveTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    private $type;
+    private $type = CmsUser::class;
 
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = CmsUser::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 

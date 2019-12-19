@@ -41,7 +41,7 @@ class ChildTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -446,10 +446,13 @@ class ChildChildTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
 }
@@ -461,10 +464,13 @@ class ChildTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
     public $child;
 }

@@ -6,21 +6,25 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class LocaleChooserTest extends PHPCRTestCase
 {
     /**
      * @var LocaleChooser
      */
-    protected $localeChooser;
-    protected $orderEn = ['de'];
-    protected $orderDe = ['en'];
-    /**
-     * @var ClassMetadata|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $mockMetadata;
+    private $localeChooser;
 
-    public function setUp()
+    private $orderEn = ['de'];
+
+    private $orderDe = ['en'];
+
+    /**
+     * @var ClassMetadata|MockObject
+     */
+    private $mockMetadata;
+
+    public function setUp(): void
     {
         $this->mockMetadata = $this->createMock(ClassMetadata::class);
         $this->localeChooser = new LocaleChooser(['en' => $this->orderEn, 'de' => $this->orderDe], 'en');

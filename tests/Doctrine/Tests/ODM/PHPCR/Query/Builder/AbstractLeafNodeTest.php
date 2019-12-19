@@ -4,12 +4,13 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class AbstractLeafNodeTest extends TestCase
 {
     /**
-     * @var AbstractLeafNode|\PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractLeafNode|MockObject
      */
     private $leafNode;
 
@@ -18,7 +19,7 @@ class AbstractLeafNodeTest extends TestCase
      */
     private $refl;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->leafNode = $this->createMock(AbstractLeafNode::class);
 

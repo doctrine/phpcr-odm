@@ -12,12 +12,16 @@ class CmsArticle
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $topic;
+
     /** @PHPCRODM\Field(type="string") */
     public $text;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
     public $user;
+
     public $comments;
 
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticlePerson") */

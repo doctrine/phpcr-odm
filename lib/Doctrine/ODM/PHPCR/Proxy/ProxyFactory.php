@@ -11,7 +11,6 @@ use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use ReflectionProperty;
 
@@ -28,12 +27,12 @@ use ReflectionProperty;
 class ProxyFactory extends AbstractProxyFactory
 {
     /**
-     * @var DocumentManagerInterface The DocumentManager this factory is bound to.
+     * @var DocumentManagerInterface the DocumentManager this factory is bound to
      */
     private $documentManager;
 
     /**
-     * @var string The namespace that contains all proxy classes.
+     * @var string the namespace that contains all proxy classes
      */
     private $proxyNamespace;
 
@@ -41,10 +40,10 @@ class ProxyFactory extends AbstractProxyFactory
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>DocumentManager</tt>.
      *
-     * @param DocumentManagerInterface $documentManager The DocumentManager the new factory works for.
+     * @param DocumentManagerInterface $documentManager the DocumentManager the new factory works for
      * @param string                   $proxyDir        The directory to use for the proxy classes. It must exist.
-     * @param string                   $proxyNamespace  The namespace to use for the proxy classes.
-     * @param bool                     $autoGenerate    Whether to automatically generate proxy classes.
+     * @param string                   $proxyNamespace  the namespace to use for the proxy classes
+     * @param bool                     $autoGenerate    whether to automatically generate proxy classes
      */
     public function __construct(DocumentManagerInterface $documentManager, $proxyDir, $proxyNamespace, $autoGenerate = false)
     {
@@ -63,7 +62,7 @@ class ProxyFactory extends AbstractProxyFactory
      */
     protected function skipClass(BaseClassMetadata $metadata)
     {
-        if (!$metadata instanceof ClassMetadata) {
+        if (!$metadata instanceof PhpcrClassMetadata) {
             throw new InvalidArgumentException('Did not get the expected type of metadata but '.get_class($metadata));
         }
 
@@ -97,11 +96,9 @@ class ProxyFactory extends AbstractProxyFactory
     /**
      * Generates a closure capable of initializing a proxy.
      *
-     * @param PhpcrClassMetadata $classMetadata
-     *
      * @return \Closure
      */
-    private function createInitializer(ClassMetadata $classMetadata)
+    private function createInitializer(PhpcrClassMetadata $classMetadata)
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
@@ -153,14 +150,11 @@ class ProxyFactory extends AbstractProxyFactory
     /**
      * Generates a closure capable of finalizing a cloned proxy.
      *
-     * @param PhpcrClassMetadata  $classMetadata
-     * @param \ReflectionProperty $reflectionId
-     *
      * @throws UnexpectedValueException
      *
      * @return \Closure
      */
-    private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
+    private function createCloner(PhpcrClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;

@@ -114,8 +114,8 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * @param ClassMetadata      $class
      * @param ClassMetadata|null $parent
      * @param bool               $rootEntityFound
-     * @param array              $nonSuperclassParents All parent class names
-     *                                                 that are not marked as mapped superclasses.
+     * @param array              $nonSuperclassParents all parent class names
+     *                                                 that are not marked as mapped superclasses
      */
     protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents)
     {

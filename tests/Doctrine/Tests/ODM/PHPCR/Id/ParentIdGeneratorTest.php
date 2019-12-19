@@ -121,12 +121,17 @@ class ParentDummy
 class ParentClassMetadataProxy extends ClassMetadata
 {
     public $parentMapping = 'parent';
+
     public $nodename = 'nodename';
+
     public $identifier = 'id';
+
     public $reflFields;
 
     protected $_parent;
+
     protected $_nodename;
+
     protected $_id;
 
     public function __construct($parent, $nodename, $identifier, $mockField = null)
@@ -154,6 +159,7 @@ class ParentClassMetadataProxy extends ClassMetadata
 class MockField
 {
     private $p;
+
     private $id;
 
     public function __construct($parent, $id)

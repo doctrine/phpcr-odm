@@ -11,6 +11,7 @@ class SimpleVersionTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
 
@@ -22,6 +23,7 @@ class SimpleVersionTestObj
 
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="long", multivalue=true) */
     public $numbers;
 
@@ -31,7 +33,7 @@ class SimpleVersionTestObj
 
 class SimpleVersioningTest extends VersioningTestAbstract
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->typeVersion = SimpleVersionTestObj::class;
         parent::setUp();

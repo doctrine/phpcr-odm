@@ -21,10 +21,8 @@ class UniqueNodeTypeHelperTest extends TestCase
      * set of metadata.
      *
      * @param ClassMetadata[] $metadata
-     *
-     * @return DocumentManager
      */
-    public function configureDocumentManager(array $metadata)
+    public function configureDocumentManager(array $metadata): DocumentManager
     {
         $classMetadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)
             ->disableOriginalConstructor()

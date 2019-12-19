@@ -28,7 +28,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
      */
     private $childrenNames;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
         $repository = $this->dm->getPhpcrSession()->getRepository();
@@ -106,7 +106,6 @@ class ReorderTest extends PHPCRFunctionalTestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder('parent', 'first', 'second', false);
-        $this->dm->flush();
     }
 
     public function testReorderBeforeFirst()
@@ -188,7 +187,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
     {
         $parent = $this->dm->find(null, '/functional/source');
         $this->dm->remove($parent);
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder($parent, 'first', 'second', false);
     }
 

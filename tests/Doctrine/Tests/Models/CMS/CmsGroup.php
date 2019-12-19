@@ -15,6 +15,7 @@ class CmsGroup
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
 

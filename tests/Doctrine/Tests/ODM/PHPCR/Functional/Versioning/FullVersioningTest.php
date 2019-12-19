@@ -11,6 +11,7 @@ class FullVersionTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
 
@@ -22,6 +23,7 @@ class FullVersionTestObj
 
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="long", multivalue=true) */
     public $numbers;
 
@@ -31,7 +33,7 @@ class FullVersionTestObj
 
 class FullVersioningTest extends VersioningTestAbstract
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->typeVersion = FullVersionTestObj::class;
         parent::setUp();

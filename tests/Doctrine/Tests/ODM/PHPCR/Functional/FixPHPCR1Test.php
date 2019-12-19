@@ -19,20 +19,12 @@ class FixPHPCR1Test extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class.
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = FileTestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -62,8 +54,10 @@ class FixPHPCR1TestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Child(cascade="persist") */
     public $file;
 }

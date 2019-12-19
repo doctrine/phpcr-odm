@@ -78,11 +78,11 @@ interface TranslationStrategyInterface
      * Get the location of the property for the base property name in a given
      * language.
      *
-     * @param string $alias        The selector alias of the main node.
-     * @param string $propertyName The base name of the translated property.
-     * @param string $locale       The requested locale.
+     * @param string $alias        the selector alias of the main node
+     * @param string $propertyName the base name of the translated property
+     * @param string $locale       the requested locale
      *
-     * @return array with first alias, then the real property name.
+     * @return array with first alias, then the real property name
      *
      * @since 1.1
      */
@@ -96,11 +96,11 @@ interface TranslationStrategyInterface
      * by reference, the strategy can alter them to let the ConverterInterface instance
      * generate a different query.
      *
-     * @param QueryObjectModelFactoryInterface $qomf       The PHPCR query factory.
-     * @param SourceInterface                  $selector   The current selector.
-     * @param ConstraintInterface|null         $constraint The current constraint, may be empty.
-     * @param string                           $alias      The selector alias of the main node.
-     * @param string                           $locale     The language to use.
+     * @param QueryObjectModelFactoryInterface $qomf       the PHPCR query factory
+     * @param SourceInterface                  $selector   the current selector
+     * @param ConstraintInterface|null         $constraint the current constraint, may be empty
+     * @param string                           $alias      the selector alias of the main node
+     * @param string                           $locale     the language to use
      *
      * @since 1.1
      */

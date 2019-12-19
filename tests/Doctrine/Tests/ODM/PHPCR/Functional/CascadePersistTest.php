@@ -18,7 +18,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);

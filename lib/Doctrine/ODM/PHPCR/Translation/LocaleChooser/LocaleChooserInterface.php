@@ -42,10 +42,10 @@ interface LocaleChooserInterface
     /**
      * Set or update the order of fallback locales for the selected locale.
      *
-     * @param string $locale  The locale to update the fallback order for.
-     * @param array  $order   An order of locales to try as fallback.
-     * @param bool   $replace Whether to append existing locales to the end or
-     *                        replace the whole fallback order.
+     * @param string $locale  the locale to update the fallback order for
+     * @param array  $order   an order of locales to try as fallback
+     * @param bool   $replace whether to append existing locales to the end or
+     *                        replace the whole fallback order
      */
     public function setFallbackLocales($locale, array $order, $replace = false);
 

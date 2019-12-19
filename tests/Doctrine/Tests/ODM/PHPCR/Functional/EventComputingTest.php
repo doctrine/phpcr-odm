@@ -29,7 +29,7 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         'it' => ['fr', 'de', 'en'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestEventDocumentChanger();
         $this->dm = $this->createDocumentManager();
@@ -66,7 +66,7 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         // Post persist data is not saved to document, so check before reloading document
-        $this->assertEquals('postpersist', $user->username);
+        $this->assertSame('postpersist', $user->username);
 
         // Be sure that document is really saved by refetching it from ODM
         $user = $this->dm->find(CmsUser::class, $user->id);
@@ -170,13 +170,21 @@ class EventComputingTest extends PHPCRFunctionalTestCase
 class TestEventDocumentChanger
 {
     public $prePersist = false;
+
     public $postPersist = false;
+
     public $preUpdate = false;
+
     public $postUpdate = false;
+
     public $preRemove = false;
+
     public $postRemove = false;
+
     public $preMove = false;
+
     public $postMove = false;
+
     public $onFlush = false;
 
     public function prePersist(LifecycleEventArgs $e)

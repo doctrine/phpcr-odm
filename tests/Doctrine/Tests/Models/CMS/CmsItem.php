@@ -13,10 +13,13 @@ class CmsItem
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(strategy="hard", cascade="persist") */
     public $documentTarget;
 

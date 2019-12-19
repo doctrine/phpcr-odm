@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver;
 
 /**
@@ -9,17 +10,14 @@ use Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver;
  */
 class YamlDriverTest extends AbstractMappingDriverTest
 {
-    /**
-     * @return YamlDriver
-     */
-    protected function loadDriver()
+    protected function loadDriver(): MappingDriver
     {
         $location = __DIR__.'/Model/yml';
 
         return new YamlDriver($location);
     }
 
-    protected function loadDriverForTestMappingDocuments()
+    protected function loadDriverForTestMappingDocuments(): MappingDriver
     {
         return $this->loadDriver();
     }

@@ -253,10 +253,9 @@ class ClassMetadataTest extends TestCase
     }
 
     /**
-     * @param ClassMetadata $cm
      * @depends testClassName
      */
-    public function testMapAssociationManyToOne(ClassMetadata $cm)
+    public function testMapAssociationManyToOne(ClassMetadata $cm): ClassMetadata
     {
         $cm->mapManyToOne(['fieldName' => 'address', 'targetDocument' => Address::class]);
 
@@ -296,9 +295,9 @@ class ClassMetadataTest extends TestCase
         $serialized = serialize($cm);
         /** @var ClassMetadata $cm */
         $cm = unserialize($serialized);
+        $this->assertInstanceOf(ClassMetadata::class, $cm);
         $cm->wakeupReflection(new RuntimeReflectionService());
 
-        // Check state
         $this->assertGreaterThan(0, count($cm->getReflectionProperties()));
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
@@ -313,14 +312,14 @@ class ClassMetadataTest extends TestCase
     }
 
     /**
-     * @param ClassMetadata $cm
      * @depends testMapField
      */
-    public function testClassMetadataInstanceSerializationTranslationProperties($cm)
+    public function testClassMetadataInstanceSerializationTranslationProperties(ClassMetadata $cm)
     {
         $serialized = serialize($cm);
         /** @var ClassMetadata $cm */
         $cm = unserialize($serialized);
+        $this->assertInstanceOf(ClassMetadata::class, $cm);
         $cm->wakeupReflection(new RuntimeReflectionService());
 
         // Check properties needed for translations

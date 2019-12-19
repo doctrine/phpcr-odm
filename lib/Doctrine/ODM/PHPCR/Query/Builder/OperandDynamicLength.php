@@ -5,6 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class OperandDynamicLength extends AbstractLeafNode
 {
     protected $alias;
+
     protected $field;
 
     public function __construct(AbstractNode $parent, $field)

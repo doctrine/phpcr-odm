@@ -7,6 +7,7 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 class SourceDocument extends AbstractLeafNode
 {
     protected $documentFqn;
+
     protected $alias;
 
     public function __construct(AbstractNode $parent, $documentFqn, $alias)

@@ -5,7 +5,9 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class SourceJoinConditionSameDocument extends AbstractLeafNode
 {
     protected $alias1Name;
+
     protected $alias2Name;
+
     protected $alias2Path;
 
     public function __construct($parent, $alias1Name, $alias2Name, $alias2Path)

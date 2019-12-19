@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
@@ -20,16 +21,15 @@ class DetachTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = CmsUser::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = CmsUser::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -66,7 +66,7 @@ class DetachTest extends PHPCRFunctionalTestCase
 
         $this->dm->detach($user);
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -90,7 +90,7 @@ class DetachTest extends PHPCRFunctionalTestCase
 
         $this->dm->detach($user);
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -101,7 +101,7 @@ class DetachTest extends PHPCRFunctionalTestCase
 
         $this->dm->detach($user);
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->move($user, '/functional/user2');
     }
 
@@ -112,7 +112,7 @@ class DetachTest extends PHPCRFunctionalTestCase
 
         $this->dm->detach($user);
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->remove($user);
     }
 

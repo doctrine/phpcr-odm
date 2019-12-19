@@ -4,14 +4,21 @@ php:
   - 7.1
   - 7.2
   - 7.3
+  - 7.4
 
 sudo: false
+
+services:
+  - mysql
 
 cache:
   directories:
     - $HOME/.composer/cache/files
 
 env:
+  global:
+    - SYMFONY_DEPRECATIONS_HELPER="weak"
+    - SYMFONY_PHPUNIT_VERSION="7"
   matrix:
     - TRANSPORT=jackrabbit
     - TRANSPORT=doctrine_dbal
@@ -20,30 +27,43 @@ matrix:
   fast_finish: true
   include:
     - php: 7.1
+      env: TRANSPORT=doctrine_dbal COMPOSER_FLAGS="--prefer-lowest"
+    - php: 7.1
       env: TRANSPORT=jackrabbit COMPOSER_FLAGS="--prefer-lowest"
-    - php: 7.2
-      env: TRANSPORT=doctrine_dbal DEPENDENCIES="symfony/lts:^3" PHPBENCH="yes"
-    - php: 7.2
-      env: TRANSPORT=jackrabbit DEPENDENCIES="symfony/lts:^3" PHPBENCH="yes"
-    - php: 7.2
-      env: TRANSPORT=doctrine_dbal COVERAGE=true DEPENDENCIES="symfony/symfony:^4.0" PHPBENCH="yes"
-    - php: 7.2
-      env: TRANSPORT=jackrabbit COVERAGE=true DEPENDENCIES="symfony/symfony:^4.0" PHPBENCH="yes"
-    - php: 7.2
+    - php: 7.4
+      env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="2.3.*"
+    - php: 7.4
+      env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="2.3.*"
+    - php: 7.4
+      env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="3.4.*"
+    - php: 7.4
+      env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="3.4.*"
+    - php: 7.4
+      env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="4.4.*"
+    - php: 7.4
+      env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="4.4.*"
+    - php: 7.4
+      env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="5.0.*"
+    - php: 7.4
+      env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="5.0.*"
+    - php: 7.4
+      env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="4.4.*" PHPBENCH="yes"
+    - php: 7.4
+      env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="4.4.*" PHPBENCH="yes"
+    - php: 7.4
       env: TRANSPORT=doctrine_dbal STABILITY="dev"
-    - php: 7.2
+    - php: 7.4
       env: TRANSPORT=jackrabbit STABILITY="dev"
 
 before_install:
-  - echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-  - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
+  - phpenv config-rm xdebug.ini
   - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
-  - if ! [ -v "$DEPENDENCIES" ]; then composer require --no-update ${DEPENDENCIES}; fi;
-  - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~1.0@dev; fi;
+  - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.16; fi;
+  - composer global require --no-progress --no-scripts --no-plugins symfony/flex
 
 install:
   # this also does the composer update
-  - ./tests/travis_${TRANSPORT}.sh
+  - COMPOSER_MEMORY_LIMIT=-1 ./tests/travis_${TRANSPORT}.sh
 
 script:
   - composer validate --strict --no-check-lock

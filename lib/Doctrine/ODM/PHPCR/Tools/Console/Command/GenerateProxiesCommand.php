@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Adapted from the Doctrine ORM command.
  *
- * @link    www.doctrine-project.org
+ * @see    www.doctrine-project.org
  * @since   PHPCR-ODM 1.1
  *
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -96,5 +96,7 @@ EOT
         } else {
             $output->write('No Metadata Classes to process.'.PHP_EOL);
         }
+
+        return 0;
     }
 }

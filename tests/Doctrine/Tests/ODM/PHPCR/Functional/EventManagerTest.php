@@ -33,7 +33,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         'it' => ['fr', 'de', 'en'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
@@ -203,27 +203,47 @@ class EventManagerTest extends PHPCRFunctionalTestCase
 class TestPersistenceListener
 {
     public $pagePrePersist = false;
+
     public $pagePostPersist = false;
+
     public $itemPrePersist = false;
+
     public $itemPostPersist = false;
+
     public $preUpdate = false;
+
     public $postUpdate = false;
+
     public $pagePreRemove = false;
+
     public $pagePostRemove = false;
+
     public $itemPreRemove = false;
+
     public $itemPostRemove = false;
+
     public $onFlush = false;
+
     public $postFlush = false;
+
     public $endFlush = false;
+
     public $preFlush = false;
+
     public $itemPreMove = false;
+
     public $itemPostMove = false;
+
     public $pagePreMove = false;
+
     public $pagePostMove = false;
 
     public $postLoadTranslation = false;
+
     public $preCreateTranslation = false;
+
     public $preRemoveTranslation = false;
+
     public $postRemoveTranslation = false;
 
     public function prePersist(LifecycleEventArgs $e)

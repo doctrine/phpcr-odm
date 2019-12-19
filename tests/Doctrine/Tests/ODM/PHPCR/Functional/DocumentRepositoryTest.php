@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Query\Builder\From;
 use Doctrine\ODM\PHPCR\Query\Builder\SourceDocument;
@@ -20,21 +21,14 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
      * @var DocumentManager
      */
     private $dm;
-    /**
-     * Class name of the document class.
-     *
-     * @var string
-     */
-    private $type;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = CmsUser::class;
         $this->dm = $this->createDocumentManager();
 
         $session = $this->dm->getPhpcrSession();
@@ -90,6 +84,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $users = $this->dm->getRepository(CmsUser::class)->findMany([$user1->id, $user2->id]);
+
         $this->assertArrayHasKey('/functional/beberlei', $users);
         $this->assertArrayHasKey('/functional/lsmith', $users);
         $this->assertInstanceOf(CmsUser::class, $users['/functional/beberlei']);
@@ -165,26 +160,25 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
 
     public function testFindByOrderNonExistentDirectionString()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' => 'beberlei'], ['username' => 'nowhere']);
     }
 
     public function testFindByOrderNodename()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
-
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' => 'beberlei'], ['nodename' => 'asc']);
     }
 
     public function testFindByOnAssociation()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['parent' => '/foo']);
     }
 
     public function testFindByOrderAssociation()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['username' => 'beberlei'], ['parent' => 'asc']);
     }
 

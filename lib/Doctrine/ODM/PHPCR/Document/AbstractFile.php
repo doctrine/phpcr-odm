@@ -47,7 +47,7 @@ abstract class AbstractFile implements HierarchyInterface
     /**
      * Get for id (the PHPCR path).
      *
-     * @return string id of the document.
+     * @return string id of the document
      */
     public function getId()
     {
@@ -81,7 +81,7 @@ abstract class AbstractFile implements HierarchyInterface
     /**
      * The parent document of this document. Could be a Folder.
      *
-     * @return object Document that is the parent of this node.
+     * @return object document that is the parent of this node
      */
     public function getParentDocument()
     {

@@ -37,8 +37,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *   ->end();
      * </code>
      *
-     * @param string $descendantAlias - Name of alias for descendant documents.
-     * @param string $ancestorAlias   - Name of alias to match for ancestor documents.
+     * @param string $descendantAlias - Name of alias for descendant documents
+     * @param string $ancestorAlias   - Name of alias to match for ancestor documents
      *
      * @factoryMethod SourceJoinConditionDescendant
      *
@@ -66,8 +66,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *
      * See: http://en.wikipedia.org/wiki/Join_%28SQL%29#Equi-join
      *
-     * @param string $field1 - Field name for first field.
-     * @param string $field2 - Field name for second field.
+     * @param string $field1 - Field name for first field
+     * @param string $field2 - Field name for second field
      *
      * @factoryMethod SourceJoinConditionEqui
      *
@@ -93,8 +93,8 @@ class SourceJoinConditionFactory extends AbstractNode
      *  ->end();
      * </code>
      *
-     * @param string $childAlias  - Name of alias for child documents.
-     * @param string $parentAlias - Name of alias to match for parent documents.
+     * @param string $childAlias  - Name of alias for child documents
+     * @param string $parentAlias - Name of alias to match for parent documents
      *
      * @factoryMethod SourceJoinConditionChildDocument
      *
@@ -122,9 +122,9 @@ class SourceJoinConditionFactory extends AbstractNode
      *   ->end();
      * </code>
      *
-     * @param string $alias1     - Name of first alias.
-     * @param string $alias2     - Name of first alias.
-     * @param string $alias2Path - Path for documents of second alias.
+     * @param string $alias1     - Name of first alias
+     * @param string $alias2     - Name of first alias
+     * @param string $alias2Path - Path for documents of second alias
      *
      * @factoryMethod SourceJoinConditionSameDocument
      *

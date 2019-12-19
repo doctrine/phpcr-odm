@@ -31,13 +31,17 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 class QueryBuilder extends AbstractNode
 {
     protected $converter;
+
     protected $firstResult;
+
     protected $maxResults;
+
     protected $locale;
+
     protected $primaryAlias;
 
     /**
-     * @return string the locale for this query.
+     * @return string the locale for this query
      */
     public function getLocale()
     {
@@ -204,8 +208,8 @@ class QueryBuilder extends AbstractNode
      *
      * Replaces any existing from source.
      *
-     * @param string $documentFqn  - Fully qualified class name for document.
-     * @param string $primaryAlias - Alias for document source and primary alias when using multiple sources.
+     * @param string $documentFqn  - Fully qualified class name for document
+     * @param string $primaryAlias - Alias for document source and primary alias when using multiple sources
      *
      * @factoryMethod From
      *

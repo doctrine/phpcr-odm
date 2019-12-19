@@ -61,8 +61,11 @@ use PHPCR\Version\VersionInterface;
 class UnitOfWork
 {
     const STATE_NEW = 1;
+
     const STATE_MANAGED = 2;
+
     const STATE_REMOVED = 3;
+
     const STATE_DETACHED = 4;
 
     /**
@@ -151,7 +154,8 @@ class UnitOfWork
 
     /**
      * List of documents that have a changed field to be updated on next flush
-     * oid => document.
+     *
+     * oid => document
      *
      * @var array
      */
@@ -159,7 +163,8 @@ class UnitOfWork
 
     /**
      * List of documents that will be inserted on next flush
-     * oid => document.
+     *
+     * oid => document
      *
      * @var array
      */
@@ -167,7 +172,8 @@ class UnitOfWork
 
     /**
      * List of documents that will be moved on next flush
-     * oid => array(document, target path).
+     *
+     * oid => array(document, target path)
      *
      * @var array
      */
@@ -175,6 +181,7 @@ class UnitOfWork
 
     /**
      * List of parent documents that have children that will be reordered on next flush
+     *
      * parent oid => list of array with records array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
      * - srcName the Nodename of the document to be moved,
@@ -187,7 +194,8 @@ class UnitOfWork
 
     /**
      * List of documents that will be removed on next flush
-     * oid => document.
+     *
+     * oid => document
      *
      * @var array
      */
@@ -322,7 +330,7 @@ class UnitOfWork
      * @param array         $hints
      *
      * @throws PHPCRExceptionInterface if $className was specified and does not match
-     *                                 the class of the document corresponding to $node.
+     *                                 the class of the document corresponding to $node
      *
      * @return object
      */
@@ -809,6 +817,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 $this->persistNew($class, $document, $overrideIdGenerator);
+
                 break;
             case self::STATE_MANAGED:
                 // TODO: Change Tracking Deferred Explicit
@@ -816,6 +825,7 @@ class UnitOfWork
             case self::STATE_REMOVED:
                 unset($this->scheduledRemovals[$oid]);
                 $this->setDocumentState($oid, self::STATE_MANAGED);
+
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document or new document with already existing id passed to persist(): '.self::objToStr($document, $this->dm));
@@ -928,9 +938,11 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 unset($this->scheduledInserts[$oid]);
+
                 break;
             case self::STATE_REMOVED:
                 unset($this->scheduledRemovals[$oid]);
+
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document passed to move(): '.self::objToStr($document, $this->dm));
@@ -976,9 +988,11 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_NEW:
                 unset($this->scheduledInserts[$oid]);
+
                 break;
             case self::STATE_MANAGED:
                 unset($this->scheduledMoves[$oid], $this->scheduledReorders[$oid]);
+
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('Detached document passed to remove(): '.self::objToStr($document, $this->dm));
@@ -1177,7 +1191,7 @@ class UnitOfWork
      * Determine the nodename of a child in a children list.
      *
      * @param string $parentId Id of the parent document
-     * @param string $nodename Name to use if we can't determine the node name otherwise.
+     * @param string $nodename name to use if we can't determine the node name otherwise
      * @param object $child    The child document
      * @param object $parent   The parent document
      *
@@ -1233,10 +1247,12 @@ class UnitOfWork
             case 'reference':
                 $mappings = $class->referenceMappings;
                 $computeMethod = 'computeReferenceChanges';
+
                 break;
             case 'referrer':
                 $mappings = $class->referrersMappings;
                 $computeMethod = 'computeReferrerChanges';
+
                 break;
             default:
                 throw new InvalidArgumentException('Unsupported association type used: '.$assocType);
@@ -1276,6 +1292,7 @@ class UnitOfWork
                                 $targetDocument,
                                 !$isNew
                             );
+
                             break;
                         case 'referrer':
                             $referringMeta = $this->dm->getClassMetadata($mapping['referringDocument']);
@@ -1290,6 +1307,7 @@ class UnitOfWork
                                 $mapping['referringDocument'],
                                 !$isNew
                             );
+
                             break;
                     }
 
@@ -1590,17 +1608,20 @@ class UnitOfWork
                     // a translation was removed
                     if (empty($data)) {
                         $translationChanges = true;
+
                         break;
                     }
                     // a translation was added
                     if (empty($this->originalTranslatedData[$oid][$localeToCheck])) {
                         $translationChanges = true;
+
                         break;
                     }
                     // a translation was changed
                     foreach ($data as $fieldName => $fieldValue) {
                         if ($this->originalTranslatedData[$oid][$localeToCheck][$fieldName] !== $fieldValue) {
                             $translationChanges = true;
+
                             break;
                         }
                     }
@@ -1645,7 +1666,7 @@ class UnitOfWork
      * Computes the changes of a child.
      *
      * @param array  $mapping  the mapping data
-     * @param mixed  $child    the child document.
+     * @param mixed  $child    the child document
      * @param string $parentId the id of the parent document
      * @param string $nodename the name of the node as specified by the mapping
      * @param mixed  $parent   the parent document
@@ -1684,6 +1705,7 @@ class UnitOfWork
                 }
 
                 $this->computeChangeSet($targetClass, $child);
+
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('A detached document was found through a child relationship during cascading a persist operation: '.self::objToStr($child, $this->dm));
@@ -1700,7 +1722,7 @@ class UnitOfWork
      * Computes the changes of a reference.
      *
      * @param array $mapping   the mapping data
-     * @param mixed $reference the referenced document.
+     * @param mixed $reference the referenced document
      */
     private function computeReferenceChanges($mapping, $reference)
     {
@@ -1714,6 +1736,7 @@ class UnitOfWork
                 }
                 $this->persistNew($targetClass, $reference);
                 $this->computeChangeSet($targetClass, $reference);
+
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('A detached document was found through a reference during cascading a persist operation: '.self::objToStr($reference, $this->dm));
@@ -1724,7 +1747,7 @@ class UnitOfWork
      * Computes the changes of a referrer.
      *
      * @param array $mapping  the mapping data
-     * @param mixed $referrer the referenced document.
+     * @param mixed $referrer the referenced document
      */
     private function computeReferrerChanges($mapping, $referrer)
     {
@@ -1738,6 +1761,7 @@ class UnitOfWork
                 }
                 $this->persistNew($targetClass, $referrer);
                 $this->computeChangeSet($targetClass, $referrer);
+
                 break;
             case self::STATE_DETACHED:
                 throw new InvalidArgumentException('A detached document was found through a referrer during cascading a persist operation: '.self::objToStr($referrer, $this->dm));
@@ -2060,7 +2084,7 @@ class UnitOfWork
      * Detaches a document from the persistence management. It's persistence will
      * no longer be managed by Doctrine.
      *
-     * @param object $document The document to detach.
+     * @param object $document the document to detach
      */
     public function detach($document)
     {
@@ -2090,6 +2114,7 @@ class UnitOfWork
         switch ($state) {
             case self::STATE_MANAGED:
                 $this->unregisterDocument($document);
+
                 break;
             case self::STATE_NEW:
             case self::STATE_DETACHED:
@@ -2530,18 +2555,22 @@ class UnitOfWork
                         if (isset($mapping['assoc'])) {
                             $this->removeAssoc($node, $mapping);
                         }
+
                         continue;
                     }
 
                     switch ($mapping['strategy']) {
                         case 'hard':
                             $strategy = PropertyType::REFERENCE;
+
                             break;
                         case 'path':
                             $strategy = PropertyType::PATH;
+
                             break;
                         default:
                             $strategy = PropertyType::WEAKREFERENCE;
+
                             break;
                     }
 
@@ -2587,7 +2616,6 @@ class UnitOfWork
                     }
                 } elseif ('referrers' === $mapping['type']) {
                     if (isset($fieldValue)) {
-
                         /*
                          * each document in referrers field is supposed to
                          * reference this document, so we have to update its
@@ -2621,6 +2649,7 @@ class UnitOfWork
                                     unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     // store the change in PHPCR
                                     $referencingNode->setProperty($referencingField['property'], $uuid, $strategy);
+
                                     break;
                                 case ClassMetadata::MANY_TO_MANY:
                                     /** @var $collection ReferenceManyCollection */
@@ -2652,6 +2681,7 @@ class UnitOfWork
 
                                     // avoid confusion later, this change to the reference collection is already saved
                                     $collection->setDirty(false);
+
                                     break;
                                 default:
                                     // in class metadata we only did a santiy check but not look at the actual mapping
@@ -2807,6 +2837,7 @@ class UnitOfWork
                                 $found = true;
                             } elseif ($found) {
                                 $dest = $name;
+
                                 break;
                             }
                         }
@@ -3050,7 +3081,7 @@ class UnitOfWork
 
     /**
      * @param object $document
-     * @param string $id       The document id to look for.
+     * @param string $id       the document id to look for
      *
      * @return string generated object hash
      */
@@ -3084,11 +3115,11 @@ class UnitOfWork
      * Tries to find a document with the given id in the identity map of
      * this UnitOfWork.
      *
-     * @param string $id            The document id to look for.
-     * @param string $rootClassName The name of the root class of the mapped document hierarchy.
+     * @param string $id            the document id to look for
+     * @param string $rootClassName the name of the root class of the mapped document hierarchy
      *
-     * @return object|false Returns the document with the specified id if it exists in
-     *                      this UnitOfWork, FALSE otherwise.
+     * @return object|false returns the document with the specified id if it exists in
+     *                      this UnitOfWork, FALSE otherwise
      */
     public function getDocumentById($id)
     {
@@ -3133,7 +3164,7 @@ class UnitOfWork
      * @param object        $document
      * @param ClassMetadata $metadata
      *
-     * @return string|null the current or stored id, or null if nothing can be found.
+     * @return string|null the current or stored id, or null if nothing can be found
      */
     public function determineDocumentId($document, ClassMetadata $metadata = null)
     {
@@ -3282,7 +3313,7 @@ class UnitOfWork
      * @param string        $locale
      *
      * @return bool whether the pending translation in language $locale was
-     *              loaded or not.
+     *              loaded or not
      *
      * @see doLoadTranslation
      */
@@ -3313,12 +3344,12 @@ class UnitOfWork
      *
      * @param object        $document
      * @param ClassMetadata $metadata
-     * @param string        $locale   The desired locale.
-     * @param bool          $fallback Whether to perform language fallback.
-     * @param bool          $refresh  Whether to force reloading the translation.
+     * @param string        $locale   the desired locale
+     * @param bool          $fallback whether to perform language fallback
+     * @param bool          $refresh  whether to force reloading the translation
      *
      * @throws MissingTranslationException if the translation in $locale is not
-     *                                     found and $fallback is false.
+     *                                     found and $fallback is false
      *
      * @return string The locale used
      *
@@ -3390,7 +3421,7 @@ class UnitOfWork
      * @param bool          $refresh
      *
      * @throws MissingTranslationException if the translation in $locale is not
-     *                                     found and $fallback is false.
+     *                                     found and $fallback is false
      */
     public function doLoadTranslation($document, ClassMetadata $metadata, $locale = null, $fallback = false, $refresh = false)
     {
@@ -3727,7 +3758,7 @@ class UnitOfWork
      *
      * @param ClassMetadata $metadata
      * @param NodeInterface $node
-     * @param object        $document The document to update autogenerated fields.
+     * @param object        $document the document to update autogenerated fields
      */
     private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document)
     {
@@ -3770,7 +3801,7 @@ class UnitOfWork
     }
 
     /**
-     * @return string a universally unique id.
+     * @return string a universally unique id
      */
     private function generateUuid()
     {

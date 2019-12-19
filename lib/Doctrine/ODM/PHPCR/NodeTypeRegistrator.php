@@ -11,8 +11,11 @@ use PHPCR\SessionInterface;
 final class NodeTypeRegistrator
 {
     private $phpcrNamespace = 'phpcr';
+
     private $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
+
     private $localeNamespace = Translation::LOCALE_NAMESPACE;
+
     private $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
 
     /**

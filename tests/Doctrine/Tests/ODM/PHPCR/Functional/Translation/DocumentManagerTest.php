@@ -4,6 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\Document\Generic;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
@@ -63,7 +65,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         'it' => ['fr', 'de', 'en'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
@@ -167,11 +169,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $this->assertEquals(['fr'], $this->dm->getLocalesFor($this->doc));
 
-        try {
-            $this->dm->removeTranslation($this->doc, 'fr');
-            $this->fail('Last translation should not be removable');
-        } catch (PHPCRException $e) {
-        }
+        // Last translation should not be removable');
+        $this->expectException(PHPCRException::class);
+        $this->dm->removeTranslation($this->doc, 'fr');
     }
 
     /**
@@ -396,8 +396,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $node->addMixin('mix:referenceable');
         $this->session->save();
 
-        $this->document = $this->dm->findTranslation($this->class, $node->getIdentifier(), 'fr');
-        $this->assertInstanceOf($this->class, $this->document);
+        $this->assertInstanceOf($this->class, $this->dm->findTranslation($this->class, $node->getIdentifier(), 'fr'));
     }
 
     /**
@@ -568,10 +567,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->persist($doc);
 
         $this->dm->flush();
+        $doc->topic = null;
 
         $this->expectException(PHPCRException::class);
-
-        $doc->topic = null;
         $this->dm->flush();
     }
 
@@ -643,7 +641,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->topic = 'foo';
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->flush();
     }
 
@@ -654,7 +653,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     {
         $this->doc = new CmsArticle();
         $this->doc->id = '/functional/'.$this->testNodeName;
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->bindTranslation($this->doc, 'en');
     }
 
@@ -779,8 +779,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $a = $this->dm->findTranslation(null, '/functional/'.$this->testNodeName, 'en');
         $a->topic = 'Hallo';
+
         // this would kill the $a->text and set it back to the english text
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Translation "de" already exists');
         $this->dm->bindTranslation($a, 'de');
     }
@@ -807,7 +808,10 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $a = $this->dm->findTranslation(null, '/functional/'.$this->testNodeName, 'en');
         $a->topic = 'Hallo';
+
         // this would kill the $a->text and set it back to the english text
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Translation "de" already exists');
         $this->dm->bindTranslation($a, 'de');
     }
 
@@ -832,8 +836,9 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
         $a = $this->dm->find(null, '/functional/'.$this->testNodeName);
         $a->topic = 'Hallo';
+
         // this would kill the $a->text and set it back to the english text
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Translation "de" already exists');
         $this->dm->bindTranslation($a, 'de');
     }

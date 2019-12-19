@@ -34,7 +34,7 @@ class TranslationConverter
     private $dm;
 
     /**
-     * @var int Number of documents to process per batch.
+     * @var int number of documents to process per batch
      */
     private $batchSize;
 
@@ -91,10 +91,10 @@ class TranslationConverter
      * @param string $previousStrategyName Name of previous strategy or "none" if field was not
      *                                     previously translated
      *
-     * @throws PHPCRExceptionInterface if the document can not be found.
+     * @throws PHPCRExceptionInterface if the document can not be found
      *
      * @return bool true if there are more documents to convert and this method needs to be
-     *              called again.
+     *              called again
      *
      * @see getLastNotices()
      */
@@ -235,7 +235,7 @@ class TranslationConverter
      * @param TranslationStrategyInterface $currentStrategy    Translation strategy to save new translations
      * @param ClassMetadata                $currentMeta        Metadata for new translation strategy
      * @param array                        $fields             The fields to handle
-     * @param array                        $locales            Target locales to copy translations to.
+     * @param array                        $locales            target locales to copy translations to
      * @param bool                         $partialUntranslate Whether we are only a subset of fields back to untranslated
      */
     private function convertDocument(

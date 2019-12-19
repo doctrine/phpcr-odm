@@ -13,6 +13,7 @@ use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
+use PHPUnit\Framework\AssertionFailedError;
 
 /**
  * Test for the Children mapping.
@@ -38,7 +39,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     private $listener;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -823,7 +824,6 @@ class TestResetReorderingListener
     {
         $document = $e->getObject();
         if ($document instanceof ChildrenTestObj && 'Child B' === $document->allChildren->first()->name) {
-
             /** @var $childrenCollection ChildrenCollection */
             $childrenCollection = $document->allChildren;
             $children = $childrenCollection->toArray();
@@ -834,7 +834,7 @@ class TestResetReorderingListener
 
             foreach ($expectedOrder as $name) {
                 if (!isset($children[$name])) {
-                    throw new \PHPUnit_Framework_AssertionFailedError("Missing index '$name' in ".implode(', ', array_keys($children)));
+                    throw new AssertionFailedError("Missing index '$name' in ".implode(', ', array_keys($children)));
                 }
                 $childrenCollection->set($name, $children[$name]);
             }

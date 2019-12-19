@@ -88,7 +88,7 @@ class Generic
     /**
      * The parent document of this document.
      *
-     * @return object Folder document that is the parent of this node.
+     * @return object folder document that is the parent of this node
      */
     public function getParentDocument()
     {

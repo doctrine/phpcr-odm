@@ -23,16 +23,15 @@ class PropertyTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = PropertyTestObj::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = PropertyTestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -124,29 +123,42 @@ class PropertyTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $string;
+
     //binary tested in its own test
+
     /** @PHPCRODM\Field(type="long") */
     public $long;
+
     /** @PHPCRODM\Field(type="long") */
     public $int;
+
     /** @PHPCRODM\Field(type="decimal") */
     public $decimal;
+
     /** @PHPCRODM\Field(type="double") */
     public $double;
+
     /** @PHPCRODM\Field(type="double") */
     public $float;
+
     /** @PHPCRODM\Field(type="date") */
     public $date;
+
     /** @PHPCRODM\Field(type="boolean") */
     public $boolean;
+
     /** @PHPCRODM\Field(type="name") */
     public $name;
+
     /** @PHPCRODM\Field(type="path") */
     public $path;
+
     /** @PHPCRODM\Field(type="uri") */
     public $uri;
 }

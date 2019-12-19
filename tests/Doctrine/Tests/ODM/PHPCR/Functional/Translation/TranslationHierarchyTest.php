@@ -26,16 +26,15 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = Article::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = Article::class;
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));
         $this->node = $this->resetFunctionalNode($this->dm);

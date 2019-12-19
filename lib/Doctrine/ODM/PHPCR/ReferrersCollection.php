@@ -14,18 +14,22 @@ use Doctrine\Common\Collections\Collection;
 class ReferrersCollection extends PersistentCollection
 {
     private $document;
+
     private $type;
+
     private $name;
+
     private $refClass;
+
     private $originalReferrerPaths;
 
     /**
-     * @param DocumentManagerInterface $dm       The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm       the DocumentManager the collection will be associated with
      * @param object                   $document The parent document instance
-     * @param string|null              $type     Type can be 'weak', 'hard' or null to get both weak and hard references.
-     * @param string|null              $name     If set, name of the referencing property.
-     * @param string|null              $locale   The locale to use.
-     * @param string|null              $refClass Class the referrer document must be instanceof.
+     * @param string|null              $type     type can be 'weak', 'hard' or null to get both weak and hard references
+     * @param string|null              $name     if set, name of the referencing property
+     * @param string|null              $locale   the locale to use
+     * @param string|null              $refClass class the referrer document must be instanceof
      */
     public function __construct(DocumentManagerInterface $dm, $document, $type = null, $name = null, $locale = null, $refClass = null)
     {
@@ -38,12 +42,12 @@ class ReferrersCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManagerInterface $dm             The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm             the DocumentManager the collection will be associated with
      * @param object                   $document       The parent document instance
      * @param array|Collection         $collection     The collection to initialize with
-     * @param string|null              $type           Type can be 'weak', 'hard' or null to get both weak and hard references.
-     * @param string|null              $name           If set, name of the referencing property.
-     * @param string|null              $refClass       Class the referrer document must be instanceof.
+     * @param string|null              $type           type can be 'weak', 'hard' or null to get both weak and hard references
+     * @param string|null              $name           if set, name of the referencing property
+     * @param string|null              $refClass       class the referrer document must be instanceof
      * @param bool                     $forceOverwrite If to force the database to be forced to the state of the collection
      *
      * @return ReferrersCollection
@@ -67,9 +71,11 @@ class ReferrersCollection extends PersistentCollection
         switch ($this->type) {
             case 'weak':
                 $referrerProperties = $node->getWeakReferences($this->name)->getArrayCopy();
+
                 break;
             case 'hard':
                 $referrerProperties = $node->getReferences($this->name)->getArrayCopy();
+
                 break;
             default:
                 $referrerProperties = $node->getWeakReferences($this->name)->getArrayCopy();
@@ -117,7 +123,7 @@ class ReferrersCollection extends PersistentCollection
      * Return the ordered list of referrer properties that existed when the
      * collection was initialized.
      *
-     * @return array absolute paths to the properties of this collection.
+     * @return array absolute paths to the properties of this collection
      */
     public function getOriginalPaths()
     {

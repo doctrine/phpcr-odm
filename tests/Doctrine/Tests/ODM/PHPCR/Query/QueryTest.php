@@ -8,6 +8,7 @@ use Doctrine\ODM\PHPCR\Query\NoResultException;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Query\QueryException;
 use PHPCR\Query\QueryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,7 +16,32 @@ use PHPUnit\Framework\TestCase;
  */
 class QueryTest extends Testcase
 {
-    public function setUp()
+    /**
+     * @var QueryInterface|MockObject
+     */
+    private $phpcrQuery;
+
+    /**
+     * @var DocumentManager|MockObject
+     */
+    private $dm;
+
+    /**
+     * @var ArrayCollection|MockObject
+     */
+    private $arrayCollection;
+
+    /**
+     * @var Query|MockObject
+     */
+    private $query;
+
+    /**
+     * @var Query|MockObject
+     */
+    private $aliasQuery;
+
+    public function setUp(): void
     {
         $this->phpcrQuery = $this->createMock(QueryInterface::class);
         $this->dm = $this->createMock(DocumentManager::class);

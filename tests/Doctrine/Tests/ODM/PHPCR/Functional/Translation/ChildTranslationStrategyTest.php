@@ -37,7 +37,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
      */
     private $metadata;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();

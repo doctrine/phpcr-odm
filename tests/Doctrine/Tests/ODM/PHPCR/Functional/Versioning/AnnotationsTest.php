@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Tests\Models\Versioning\ExtendedVersionableArticle;
@@ -27,7 +28,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
      */
     private $session;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
@@ -42,12 +43,12 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
 
         // Check the annotation is correctly read if it is present
         $metadata = $factory->getMetadataFor(VersionableArticle::class);
-        $this->assertObjectHasAttribute('versionable', $metadata);
+        $this->assertInstanceOf(ClassMetadata::class, $metadata);
         $this->assertEquals('simple', $metadata->versionable);
 
         // Check the annotation is not set if it is not present
         $metadata = $factory->getMetadataFor(NonVersionableArticle::class);
-        $this->assertObjectHasAttribute('versionable', $metadata);
+        $this->assertInstanceOf(ClassMetadata::class, $metadata);
         $this->assertFalse($metadata->versionable);
     }
 
@@ -122,19 +123,13 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
         $this->dm->persist($article);
         $this->dm->flush();
 
-        $node = $this->session->getNode('/'.$name);
-
-        return $node;
+        return $this->session->getNode('/'.$name);
     }
 
     /**
      * Remove a PHPCR node under the root node.
-     *
-     * @param string $name The name of the node to remove
-     *
-     * @return void
      */
-    private function removeTestNode($name)
+    protected function removeTestNode(string $name): void
     {
         $root = $this->session->getNode('/');
         if ($root->hasNode($name)) {

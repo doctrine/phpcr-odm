@@ -45,10 +45,10 @@ abstract class ConverterBase implements ConverterInterface
      * The alias might change if this is a translated field and the strategy
      * needs to do a join to get in the translation.
      *
-     * @param string $originalAlias As specified in the query source.
-     * @param string $odmField      Name of ODM document property.
+     * @param string $originalAlias as specified in the query source
+     * @param string $odmField      name of ODM document property
      *
-     * @throws \Exception If a field used in the query does not exist on the document.
+     * @throws \Exception if a field used in the query does not exist on the document
      *
      * @return array first element is the real alias to use, second element is
      *               the property name

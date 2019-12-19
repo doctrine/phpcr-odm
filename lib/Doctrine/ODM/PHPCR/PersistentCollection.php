@@ -19,8 +19,11 @@ use Doctrine\Common\Collections\Collection;
 abstract class PersistentCollection implements Collection
 {
     const INITIALIZED_NONE = 'not initialized';
+
     const INITIALIZED_FROM_COLLECTION = 'initialized from collection';
+
     const INITIALIZED_FROM_COLLECTION_FORCE = 'initialized from collection to force a new db state';
+
     const INITIALIZED_FROM_PHPCR = 'initialized from phpcr';
 
     /** @var ArrayCollection */
@@ -357,7 +360,7 @@ abstract class PersistentCollection implements Collection
      * Gets a boolean flag indicating whether this collection is dirty which means
      * its state needs to be synchronized with the database.
      *
-     * @return bool TRUE if the collection is dirty, FALSE otherwise.
+     * @return bool TRUE if the collection is dirty, FALSE otherwise
      */
     public function isDirty()
     {
@@ -367,7 +370,7 @@ abstract class PersistentCollection implements Collection
     /**
      * Sets a boolean flag, indicating whether this collection is dirty.
      *
-     * @param bool $dirty Whether the collection should be marked dirty or not.
+     * @param bool $dirty whether the collection should be marked dirty or not
      */
     public function setDirty($dirty)
     {

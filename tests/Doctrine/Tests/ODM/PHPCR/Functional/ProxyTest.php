@@ -18,7 +18,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->resetFunctionalNode($this->dm);
@@ -159,6 +159,7 @@ class ParentDoc
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Children(cascade="persist") */
     public $children;
 }
@@ -170,6 +171,7 @@ class DocWithoutId
 {
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
 }
@@ -181,10 +183,13 @@ class ChildWithFields
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
+
     /** @PHPCRODM\Field(type="string") */
     public $title;
 }

@@ -2,13 +2,14 @@
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
+use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
 
 class AssignedIdGeneratorTest extends TestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
      */
     public function testGenerate()
     {
@@ -22,7 +23,7 @@ class AssignedIdGeneratorTest extends TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
      */
     public function testGenerateNoIdException()
     {
@@ -32,12 +33,8 @@ class AssignedIdGeneratorTest extends TestCase
         $cm = new ClassMetadataProxy($id);
         $dm = $this->createMock(DocumentManager::class);
 
-        try {
-            $generator->generate(null, $cm, $dm);
-        } catch (\Exception $expected) {
-            return;
-        }
-        $this->fail('Expected \Exception not thrown');
+        $this->expectException(IdException::class);
+        $generator->generate(null, $cm, $dm);
     }
 }
 

@@ -6,6 +6,7 @@ use Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentConvertTranslationCommand;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use PHPCR\SessionInterface;
 use PHPCR\Util\Console\Helper\PhpcrHelper;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -23,16 +24,16 @@ class DocumentConvertTranslationCommandTest extends TestCase
     private $commandTester;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|TranslationConverter
+     * @var TranslationConverter|MockObject
      */
     private $converter;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|SessionInterface
+     * @var SessionInterface|MockObject
      */
     private $mockSession;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockSession = $this->createMock(SessionInterface::class);
         $mockHelper = $this->createMock(PhpcrHelper::class);

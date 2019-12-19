@@ -15,8 +15,8 @@ interface RepositoryFactory
     /**
      * Gets the repository for a document class.
      *
-     * @param DocumentManagerInterface $dm           The DocumentManager instance.
-     * @param string                   $documentName The name of the document.
+     * @param DocumentManagerInterface $dm           the DocumentManager instance
+     * @param string                   $documentName the name of the document
      *
      * @return ObjectRepository
      */

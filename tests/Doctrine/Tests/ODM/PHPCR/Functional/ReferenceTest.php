@@ -39,8 +39,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class.
-     *
      * @var SessionInterface
      */
     private $session;
@@ -51,15 +49,22 @@ class ReferenceTest extends PHPCRFunctionalTestCase
     private $node;
 
     private $referrerType = RefTestObj::class;
+
     private $referencedType = RefRefTestObj::class;
+
     private $referrerManyType = RefManyTestObj::class;
+
     private $referrerManyTypePathStrategy = RefManyTestObjPathStrategy::class;
+
     private $referrerManyForCascadeType = RefManyTestObjForCascade::class;
+
     private $hardReferrerType = HardRefTestObj::class;
+
     private $referrerDifType = RefDifTestObj::class;
+
     private $referrerManyWithParentForCascadeType = RefManyWithParentTestObjForCascade::class;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
@@ -764,7 +769,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->expectException(ReferentialIntegrityException::class);
         $this->dm->remove($referenced);
         $this->dm->flush();
-        $this->dm->clear();
     }
 
     public function testHardReferenceDeleteSuccess()
@@ -1366,6 +1370,7 @@ class ReferenceRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Referrers(referringDocument="ReferenceTestObj", referencedBy="reference", cascade={"persist"}) */
     public $referrers;
 }
@@ -1377,6 +1382,7 @@ class ReferenceTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="ReferenceRefTestObj", cascade={"persist", "remove"}) */
     public $reference;
 }

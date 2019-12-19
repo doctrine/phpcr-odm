@@ -3,10 +3,11 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Tools\Helper;
 
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
-use Doctrine\Tests\Models\Blog\Comment;
+use Doctrine\Tests\Models\Blog\Comment as BlogComment;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 use Doctrine\Tests\Models\Translation\ChildTranslationComment;
@@ -43,7 +44,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         'de' => ['en'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
@@ -86,13 +87,13 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertFalse($comment->hasProperty($field), 'old property was not removed');
 
         $commentDoc = $this->dm->find(null, '/functional/convert');
-        $this->assertInstanceof($class, $commentDoc);
+        $this->assertInstanceOf($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
 
         $this->dm->clear();
 
         $commentDoc = $this->dm->find(null, '/functional/convert');
-        $this->assertInstanceof($class, $commentDoc);
+        $this->assertInstanceOf($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
     }
 
@@ -254,7 +255,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateAttribute()
     {
-        $class = Comment::class;
+        $class = BlogComment::class;
         $field = 'title';
         $comment = $this->node->addNode('convert');
         $comment->setProperty(
@@ -345,7 +346,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateChild()
     {
-        $class = Comment::class;
+        $class = BlogComment::class;
         $field = 'title';
         $comment = $this->node->addNode('convert');
         $comment->setProperty('phpcr:class', $class);
@@ -456,16 +457,18 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
 
     public function testUntranslateMissingPrevious()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $class = BlogComment::class;
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('To untranslate a document, you need to specify the previous translation strategy');
-        $this->converter->convert(Comment::class, ['en']);
+        $this->converter->convert($class, ['en']);
     }
 
     public function testUntranslateMissingFields()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $class = BlogComment::class;
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('need to specify the fields that where previously translated');
-        $this->converter->convert(Comment::class, [], [], 'attribute');
+        $this->converter->convert($class, [], [], 'attribute');
     }
 
     /**
@@ -474,9 +477,10 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     public function testMissingLocales()
     {
         $this->converter = new TranslationConverter($this->dm, 1);
+        $class = TranslatedComment::class;
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('locales must be specified');
-        $this->converter->convert(TranslatedComment::class, []);
+        $this->converter->convert($class, []);
     }
 }

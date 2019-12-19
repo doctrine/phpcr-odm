@@ -53,7 +53,7 @@ class UnitOfWorkTest extends PHPCRTestCase
      */
     private $type;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!class_exists(Factory::class, true)) {
             $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
@@ -237,7 +237,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     /**
      * @see https://github.com/doctrine/phpcr-odm/issues/637
-     * @covers Doctrine\ODM\PHPCR\UnitOfWork::computeSingleDocumentChangeSet
+     * @covers \Doctrine\ODM\PHPCR\UnitOfWork::computeSingleDocumentChangeSet
      */
     public function testComputeSingleDocumentChangeSetForRemovedDocument()
     {
@@ -255,5 +255,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 class UoWUser
 {
     public $id;
+
     public $username;
 }

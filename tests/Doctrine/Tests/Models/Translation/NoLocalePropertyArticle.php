@@ -22,10 +22,12 @@ class NoLocalePropertyArticle
     public $id;
 
     // untranslated:
+
     /** @PHPCRODM\Field(type="date") */
     public $publishDate;
 
     // untranslated:
+
     /** @PHPCRODM\Field(type="string") */
     public $author;
 

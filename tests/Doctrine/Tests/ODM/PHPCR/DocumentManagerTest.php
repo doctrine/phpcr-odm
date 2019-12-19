@@ -11,11 +11,11 @@ use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use PHPCR\ItemNotFoundException;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QueryInterface;
 use PHPCR\Query\QueryManagerInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\WorkspaceInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @group unit
@@ -28,7 +28,7 @@ class DocumentManagerTest extends PHPCRTestCase
     public function testFind()
     {
         $fakeUuid = UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass(SessionInterface::class, ['getNodeByIdentifier']);
+        $session = $this->createMock(SessionInterface::class);
         $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
         $config = new Configuration();
 
@@ -45,7 +45,7 @@ class DocumentManagerTest extends PHPCRTestCase
     public function testFindTranslation()
     {
         $fakeUuid = UUIDHelper::generateUUID();
-        $session = $this->getMockForAbstractClass(SessionInterface::class, ['getNodeByIdentifier']);
+        $session = $this->createMock(SessionInterface::class);
         $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
         $config = new Configuration();
 
@@ -148,7 +148,7 @@ class DocumentManagerTest extends PHPCRTestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\DocumentManager::createQueryBuilder
+     * @covers \Doctrine\ODM\PHPCR\DocumentManager::createQueryBuilder
      */
     public function testCreateQueryBuilder()
     {
@@ -156,7 +156,6 @@ class DocumentManagerTest extends PHPCRTestCase
         $workspace = $this->createMock(WorkspaceInterface::class);
         $queryManager = $this->createMock(QueryManagerInterface::class);
         $qomf = $this->createMock(QueryObjectModelFactoryInterface::class);
-        $baseQuery = $this->createMock(QueryInterface::class);
 
         $session->expects($this->once())
             ->method('getWorkspace')
@@ -192,7 +191,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
     public function testGetDocumentIdForNonManagedDocumentsReturnsNull()
     {
-        /** @var SessionInterface|\PHPUnit_Framework_MockObject_MockObject $session */
+        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $obj = new \stdClass();
@@ -219,6 +218,7 @@ class DocumentManagerGetClassMetadata extends DocumentManager
                 break;
             case '2':
                 $metadata->customRepositoryClassName = 'stdClass';
+
                 break;
             default:
                 throw new \Exception('getClassMetadata called more than 2 times');

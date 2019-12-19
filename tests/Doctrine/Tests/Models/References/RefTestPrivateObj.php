@@ -11,6 +11,7 @@ class RefTestPrivateObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceOne(cascade="persist") */
     private $reference;
 

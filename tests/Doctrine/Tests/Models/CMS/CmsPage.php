@@ -13,12 +13,16 @@ class CmsPage
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $content;
+
     /** @PHPCRODM\Field(type="string") */
     public $title;
+
     /** @PHPCRODM\MixedReferrers(referenceType="hard") */
     public $items = [];
 

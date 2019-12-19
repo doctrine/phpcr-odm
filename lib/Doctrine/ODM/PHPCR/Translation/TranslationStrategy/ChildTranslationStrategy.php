@@ -97,7 +97,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      *                                  not yet existing
      *
      * @return bool|NodeInterface the node or false if $create is false and
-     *                            the node is not existing.
+     *                            the node is not existing
      */
     protected function getTranslationNode(NodeInterface $parentNode, $locale, $create = true)
     {

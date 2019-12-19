@@ -17,7 +17,7 @@ interface DocumentClassMapperInterface
      *                                            an InvalidArgumentException has to be thrown.
      *
      * @throws ClassMismatchException if $node represents a class that is not
-     *                                a descendant of $className.
+     *                                a descendant of $className
      *
      * @return string $className if not null, the class configured for this
      *                node if defined and the Generic document if no better class can be

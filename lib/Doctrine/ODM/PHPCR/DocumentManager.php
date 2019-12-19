@@ -220,7 +220,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * Throws an exception if the DocumentManager is closed or currently not active.
      *
-     * @throws PHPCRException If the DocumentManager is closed.
+     * @throws PHPCRException if the DocumentManager is closed
      */
     private function errorIfClosed()
     {
@@ -490,7 +490,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @param object $document the document to persist
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function persist($document)
     {
@@ -604,7 +604,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @param object $document
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function remove($document)
     {
@@ -628,10 +628,10 @@ class DocumentManager implements DocumentManagerInterface
      * The object passed to merge will *not* become associated/managed with
      * this ObjectManager.
      *
-     * @param object $document The document to merge over a persisted document
-     *                         with the same id.
+     * @param object $document the document to merge over a persisted document
+     *                         with the same id
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object
      *
      * @return object The managed document where $document has been merged
      *                into. This is *not* the same instance as the parameter.
@@ -657,9 +657,9 @@ class DocumentManager implements DocumentManagerInterface
      * Objects which previously referenced the detached object will continue to
      * reference it.
      *
-     * @param object $document The object to detach.
+     * @param object $document the object to detach
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function detach($document)
     {
@@ -678,7 +678,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @param object $document
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function refresh($document)
     {
@@ -836,7 +836,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @param object $document
      *
-     * @throws InvalidArgumentException if $document is not an object.
+     * @throws InvalidArgumentException if $document is not an object
      *
      * @return bool true if the repository contains the object, false otherwise
      */

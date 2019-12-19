@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\Tests\Models\Blog\Comment;
 use Doctrine\Tests\Models\Blog\Post;
 use Doctrine\Tests\Models\Blog\User as BlogUser;
@@ -18,14 +19,14 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @var DocumentManager
      */
-    protected $dm;
+    private $dm;
 
     /**
      * @var NodeInterface
      */
-    protected $node;
+    private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -101,9 +102,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
     protected function createQb()
     {
-        $qb = $this->dm->createQueryBuilder();
-
-        return $qb;
+        return $this->dm->createQueryBuilder();
     }
 
     public function testFrom()
@@ -174,9 +173,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
                 $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((a.[username] = 'dtl' OR a.[username] = 'js') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
+
                 break;
             case 'sql':
                 $query = "SELECT s FROM nt:unstructured AS a WHERE (a.[username] = 'dtl' OR a.[username] = 'js')";
+
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -191,9 +192,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
                 $query = "SELECT * FROM [nt:unstructured] AS a WHERE (((a.[username] = 'dtl' OR a.[username] = 'js') AND a.[name] = 'foobar') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
+
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
+
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -210,9 +213,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':
                 $query = "SELECT * FROM [nt:unstructured] AS a WHERE ((((a.[username] = 'dtl' OR a.[username] = 'js') AND a.[name] = 'foobar') OR a.[name] = 'johnsmith') AND (a.[phpcr:class] = 'Doctrine\Tests\Models\Blog\User' OR a.[phpcr:classparents] = 'Doctrine\Tests\Models\Blog\User'))";
+
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
+
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -252,7 +257,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->from('a')->document(BlogUser::class, 'a');
         $qb->orderBy()->asc()->localname('a.username')->end();
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Alias name "a.username" is not known. The following aliases are valid: "a"');
         $qb->getQuery();
     }
@@ -293,9 +298,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         case 'JCR-SQL2':
                 $this->assertEquals(['a'], $result->getSelectorNames());
                 $this->assertEquals(['a.username' => 'dtl'], $values);
+
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
+
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -315,9 +322,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
                     'a.username' => 'dtl',
                     'a.name' => 'daniel',
                 ], $values);
+
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
+
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -334,9 +343,11 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
                 $this->assertEquals([
                     'a.status' => 'query_builder',
                 ], $values);
+
                 break;
             case 'sql':
                 $this->markTestIncomplete('Not testing SQL for sql query language');
+
                 break;
             default:
                 $this->fail('Unexpected query language:'.$qb->getQuery()->getLanguage());
@@ -402,9 +413,9 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->from('a')->document(BlogUser::class, 'b');
         $qb->where()->descendant('/functional', 'a')->end();
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Alias name "a" is not known. The following aliases are valid: "b"');
-        $q = $qb->getQuery();
+        $qb->getQuery();
     }
 
     public function testConditionWithStaticLiteralOfDifferentType()

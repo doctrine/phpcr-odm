@@ -25,7 +25,7 @@ class FolderFileTest extends PHPCRFunctionalTestCase
 
     const FILE_CONTENT = 'Lorem ipsum dolor sit amet';
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);

@@ -8,6 +8,7 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Jackalope\Session;
 use PHPCR\NodeInterface;
 use PHPCR\NodeType\ConstraintViolationException;
+use PHPCR\UnsupportedRepositoryOperationException;
 
 /**
  * @see http://www.doctrine-project.org/jira/browse/PHPCR-78
@@ -32,7 +33,7 @@ class ProtectedPropertyTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -61,7 +62,7 @@ CND;
         try {
             $ntm->registerNodeTypesCnd($cnd, true);
             $ntm->registerNodeTypesCnd($cnd2, true);
-        } catch (\PHPCR\UnsupportedRepositoryOperationException $e) {
+        } catch (UnsupportedRepositoryOperationException $e) {
             $this->markTestSkipped('CND parsing not supported');
         }
     }

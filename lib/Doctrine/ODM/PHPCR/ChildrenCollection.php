@@ -16,18 +16,22 @@ use PHPCR\Util\PathHelper;
 class ChildrenCollection extends PersistentCollection
 {
     private $document;
+
     private $filter;
+
     private $fetchDepth;
+
     private $originalNodeNames;
+
     private $node;
 
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManagerInterface $dm         The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm         the DocumentManager the collection will be associated with
      * @param object                   $document   The parent document instance
      * @param string|array             $filter     Filter string or array of filter string
-     * @param int                      $fetchDepth Optional fetch depth, -1 to not override.
+     * @param int                      $fetchDepth optional fetch depth, -1 to not override
      * @param string                   $locale     The locale to use during the loading of this collection
      */
     public function __construct(DocumentManagerInterface $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
@@ -40,11 +44,11 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManagerInterface $dm             The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm             the DocumentManager the collection will be associated with
      * @param object                   $document       The parent document instance
      * @param array|Collection         $collection     The collection to initialize with
      * @param string|array             $filter         Filter string or array of filter string
-     * @param int                      $fetchDepth     Optional fetch depth, -1 to not override.
+     * @param int                      $fetchDepth     optional fetch depth, -1 to not override
      * @param bool                     $forceOverwrite If to force overwrite the state in the database to the state of the collection
      *
      * @return ChildrenCollection

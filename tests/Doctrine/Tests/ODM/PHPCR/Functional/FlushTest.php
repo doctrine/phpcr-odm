@@ -29,11 +29,10 @@ class FlushTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = CmsUser::class;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = CmsUser::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->resetFunctionalNode($this->dm);
     }

@@ -34,14 +34,21 @@ use ReflectionProperty;
 class ClassMetadata implements ClassMetadataInterface
 {
     const MANY_TO_ONE = 4;
+
     const MANY_TO_MANY = 8;
 
     const CASCADE_PERSIST = 1;
+
     const CASCADE_REMOVE = 2;
+
     const CASCADE_MERGE = 4;
+
     const CASCADE_DETACH = 8;
+
     const CASCADE_REFRESH = 16;
+
     const CASCADE_TRANSLATION = 32;
+
     const CASCADE_ALL = 255;
 
     /**
@@ -348,7 +355,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
-     * @param string $className The name of the document class the new instance is used for.
+     * @param string $className the name of the document class the new instance is used for
      */
     public function __construct($className)
     {
@@ -434,21 +441,25 @@ class ClassMetadata implements ClassMetadataInterface
                     if (!($this->parentMapping && $this->nodename)) {
                         throw MappingException::identifierRequired($this->name, 'parent and nodename');
                     }
+
                     break;
                 case self::GENERATOR_TYPE_AUTO:
                     if (!$this->parentMapping) {
                         throw MappingException::identifierRequired($this->name, 'parent');
                     }
+
                     break;
                 case self::GENERATOR_TYPE_REPOSITORY:
                     if (!$this->customRepositoryClassName) {
                         throw MappingException::repositoryRequired($this->name, $this->customRepositoryClassName);
                     }
+
                     break;
                 default:
                     if (!$this->identifier) {
                         throw MappingException::identifierRequired($this->name, 'identifier');
                     }
+
                     break;
             }
         }
@@ -457,7 +468,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Validate that childClasses is empty if isLeaf is true.
      *
-     * @throws MappingException if there is a conflict between isLeaf and childClasses.
+     * @throws MappingException if there is a conflict between isLeaf and childClasses
      */
     public function validateChildClasses()
     {
@@ -587,7 +598,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Registers a custom repository class for the document class.
      *
-     * @param string $repositoryClassName The class name of the custom repository.
+     * @param string $repositoryClassName the class name of the custom repository
      */
     public function setCustomRepositoryClassName($repositoryClassName)
     {
@@ -653,7 +664,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param string|bool $versionable A valid versionable annotation or false to disable versioning.
+     * @param string|bool $versionable a valid versionable annotation or false to disable versioning
      */
     public function setVersioned($versionable)
     {
@@ -779,7 +790,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * The namespace this Document class belongs to.
      *
-     * @return string $namespace The namespace name.
+     * @return string $namespace the namespace name
      */
     public function getNamespace()
     {
@@ -1058,7 +1069,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Finalize the mapping and make sure that it is consistent.
      *
-     * @throws MappingException if inconsistencies are discovered.
+     * @throws MappingException if inconsistencies are discovered
      */
     public function validateClassMapping()
     {
@@ -1148,7 +1159,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Determine the id strategy for this document. Only call this if no explicit
      * strategy was assigned.
      *
-     * @throws MappingException if no strategy is applicable with the mapped fields.
+     * @throws MappingException if no strategy is applicable with the mapped fields
      */
     private function determineIdStrategy()
     {
@@ -1274,7 +1285,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Checks whether the class will generate an id via the repository.
      *
-     * @return bool TRUE if the class uses the Repository generator, FALSE otherwise.
+     * @return bool TRUE if the class uses the Repository generator, FALSE otherwise
      */
     public function isIdGeneratorRepository()
     {
@@ -1284,7 +1295,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Checks whether the class uses no id generator.
      *
-     * @return bool TRUE if the class does not use any id generator, FALSE otherwise.
+     * @return bool TRUE if the class does not use any id generator, FALSE otherwise
      */
     public function isIdGeneratorNone()
     {
@@ -1505,7 +1516,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Checks whether a mapped field is inherited from an entity superclass.
      *
-     * @return bool string class name if the field is inherited, FALSE otherwise.
+     * @return bool string class name if the field is inherited, FALSE otherwise
      */
     public function isInheritedField($fieldName)
     {
@@ -1517,7 +1528,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $fieldName The field name
      *
-     * @return bool TRUE if the field is nullable, FALSE otherwise.
+     * @return bool TRUE if the field is nullable, FALSE otherwise
      */
     public function isNullable($fieldName)
     {
@@ -1537,7 +1548,7 @@ class ClassMetadata implements ClassMetadataInterface
      * - name - The Property key of this field in the PHPCR document
      * - id - True for an ID field.
      *
-     * @param array $mapping The mapping information.
+     * @param array $mapping the mapping information
      */
     public function mapField(array $mapping, self $inherited = null)
     {
@@ -1621,7 +1632,7 @@ class ClassMetadata implements ClassMetadataInterface
      *      - reflClass (ReflectionClass)
      *      - reflFields (ReflectionProperty array)
      *
-     * @return array The names of all the fields that should be serialized.
+     * @return array the names of all the fields that should be serialized
      */
     public function __sleep()
     {
@@ -1812,11 +1823,11 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets the mapping of a (regular) field that holds some data but not a
      * reference to another object.
      *
-     * @param string $fieldName The field name.
+     * @param string $fieldName the field name
      *
      * @throws MappingException
      *
-     * @return array The field mapping.
+     * @return array the field mapping
      */
     public function getFieldMapping($fieldName)
     {
@@ -1831,8 +1842,8 @@ class ClassMetadata implements ClassMetadataInterface
      * Dispatches the lifecycle event of the given document to the registered
      * lifecycle callbacks and lifecycle listeners.
      *
-     * @param string $lifecycleEvent The lifecycle event.
-     * @param object $document       The Document on which the event occurred.
+     * @param string $lifecycleEvent the lifecycle event
+     * @param object $document       the Document on which the event occurred
      * @param array  $arguments      the arguments to pass to the callback
      */
     public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
@@ -1856,7 +1867,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $fieldName
      *
-     * @return bool True if $fieldName is mapped as the uuid, false otherwise.
+     * @return bool true if $fieldName is mapped as the uuid, false otherwise
      */
     public function isUuid($fieldName)
     {

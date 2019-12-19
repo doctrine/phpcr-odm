@@ -15,19 +15,25 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 class ReferenceManyCollection extends PersistentCollection
 {
     const REFERENCE_TYPE_PATH = 'path';
+
     const REFERENCE_TYPE_UUID = 'uuid';
 
     private $document;
+
     private $property;
+
     private $referencedNodes;
+
     private $targetDocument;
+
     private $originalReferencePaths;
+
     private $referenceType;
 
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManagerInterface $dm              The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm              the DocumentManager the collection will be associated with
      * @param object                   $document        The document with the references property
      * @param string                   $property        The node property name with the multivalued references
      * @param array                    $referencedNodes An array of referenced nodes (UUID or path)
@@ -47,7 +53,7 @@ class ReferenceManyCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManagerInterface $dm             The DocumentManager the collection will be associated with.
+     * @param DocumentManagerInterface $dm             the DocumentManager the collection will be associated with
      * @param object                   $document       The document with the references property
      * @param string                   $property       The node property name with the multivalued references
      * @param array|Collection         $collection     The collection to initialize with

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class RepositoryIdGeneratorTest extends TestCase
 {
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
     public function testGenerate()
     {
@@ -33,7 +33,7 @@ class RepositoryIdGeneratorTest extends TestCase
     }
 
     /**
-     * @covers Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
+     * @covers \Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
     public function testGenerateNoIdException()
     {
@@ -52,12 +52,8 @@ class RepositoryIdGeneratorTest extends TestCase
             ->method('getRepository')
             ->will($this->returnValue($repository));
 
-        try {
-            $generator->generate(null, $cm, $dm);
-        } catch (\Exception $expected) {
-            return;
-        }
-        $this->fail('Expected \Exception not thrown');
+        $this->expectException(\Exception::class);
+        $generator->generate(null, $cm, $dm);
     }
 }
 

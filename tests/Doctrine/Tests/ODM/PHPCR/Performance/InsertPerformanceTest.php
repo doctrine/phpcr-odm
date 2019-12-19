@@ -24,7 +24,7 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
      */
     private $count = 100;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);

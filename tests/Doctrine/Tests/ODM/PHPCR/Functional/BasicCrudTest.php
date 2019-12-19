@@ -4,6 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
@@ -28,16 +30,15 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = User::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = User::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -83,7 +84,8 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $user->username = 'toast';
         $user->numbers = [1, 2, 3];
         $user->id = '/functional/test';
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -203,7 +205,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $newUser->id = '/functional/test';
         $newUser->uuid = 'bad-uuid';
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->dm->persist($newUser);
     }
 
@@ -356,7 +358,8 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $user = new User2();
         $user->username = 'test';
         $user->id = '/functional/user';
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->persist($user);
     }
 
@@ -661,16 +664,22 @@ class User
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $note;
+
     /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
+
     /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
     public $parameters;
+
     /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
     public $assocNumbers;
 }
@@ -682,6 +691,7 @@ class User2
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
 }
@@ -693,6 +703,7 @@ class User3
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
 }
@@ -704,10 +715,13 @@ class User5
 {
     /** @PHPCRODM\Nodename */
     public $nodename;
+
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
 }
@@ -752,6 +766,7 @@ class VersionTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
 

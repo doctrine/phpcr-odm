@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
@@ -27,19 +27,25 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use PHPCR\Query\QOM\QueryObjectModelInterface;
 use PHPCR\Query\QOM\SelectorInterface;
 use PHPCR\Query\QOM\SourceInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class ConverterPhpcrTest extends TestCase
 {
     /**
-     * @var FactoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractNode|MockObject
+     */
+    private $parentNode;
+
+    /**
+     * @var FactoryInterface|MockObject
      */
     private $qomfFactory;
 
     /**
-     * @var ClassMetadataFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var QueryObjectModelFactory
      */
-    private $mdf;
+    private $qomf;
 
     /**
      * @var ConverterPhpcr
@@ -51,9 +57,7 @@ class ConverterPhpcrTest extends TestCase
      */
     private $qb;
 
-    private $parentNode;
-
-    public function setUp()
+    public function setUp(): void
     {
         $me = $this;
         // note: this "factory" seems unnecessary in current jackalope
@@ -113,7 +117,7 @@ class ConverterPhpcrTest extends TestCase
                 return $meta;
             }));
 
-        /** @var DocumentManager|\PHPUnit_Framework_MockObject_MockObject $dm */
+        /** @var DocumentManager|MockObject $dm */
         $dm = $this->createMock(DocumentManager::class);
 
         $dm->expects($this->once())
@@ -124,7 +128,7 @@ class ConverterPhpcrTest extends TestCase
             ->method('getLocaleChooserStrategy')
             ->will($this->throwException(new InvalidArgumentException('')));
 
-        $this->parentNode = $this->createMock(QBConstants::class);
+        $this->parentNode = $this->createMock(AbstractNode::class);
 
         $this->converter = new ConverterPhpcr($dm, $this->qomf);
 
@@ -142,7 +146,7 @@ class ConverterPhpcrTest extends TestCase
         $this->converter->dispatch($from);
     }
 
-    protected function createNode($class, $constructorArgs)
+    protected function createNode($class, $constructorArgs): AbstractNode
     {
         array_unshift($constructorArgs, $this->parentNode);
 
@@ -262,12 +266,15 @@ class ConverterPhpcrTest extends TestCase
         switch ($joinCond) {
             case 'child':
                 $n->condition()->child('child_alias', 'parent_alias')->end();
+
                 break;
             case 'descendant':
                 $n->condition()->descendant('descendant_alias', 'ancestor_alias')->end();
+
                 break;
             case 'sameDocument':
                 $n->condition()->sameDocument('alias_1_name', 'alias_2_name', '/alias2/path')->end();
+
                 break;
             case 'equi':
             default:
@@ -276,7 +283,7 @@ class ConverterPhpcrTest extends TestCase
 
         $n->end();
 
-        $from = $this->qb->getChildOfType(QBConstants::NT_FROM);
+        $from = $this->qb->getChildOfType(AbstractNode::NT_FROM);
         $res = $this->converter->dispatch($from);
 
         $this->assertInstanceOf(JoinInterface::class, $res);
@@ -593,7 +600,7 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @dataProvider provideOrderByDynamicField
      */
-    public function testOrderByDynamicField($field, $exception)
+    public function testOrderByDynamicField($field, $exceptionMessage)
     {
         $this->primeBuilder();
         $order1 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_ASCENDING]);
@@ -604,9 +611,9 @@ class ConverterPhpcrTest extends TestCase
         $op = $this->createNode('OperandDynamicField', [$field]);
         $order1->addChild($op);
 
-        if (null !== $exception) {
+        if (null !== $exceptionMessage) {
             $this->expectException(InvalidArgumentException::class);
-            $this->expectExceptionMessage($exception);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $res = $this->converter->dispatch($orderBy);
@@ -632,7 +639,6 @@ class ConverterPhpcrTest extends TestCase
             ->will($this->returnCallback(function ($class, $args) use ($me) {
                 list($om, $source, $constraint, $orderings, $columns) = $args;
                 $me->assertInstanceOf(SourceInterface::class, $source);
-
                 // test that we append the phpcr:class and classparents constraints
                 $me->assertInstanceOf(AndInterface::class, $constraint);
                 $me->assertInstanceOf(PropertyExistenceInterface::class, $constraint->getConstraint1());
@@ -664,9 +670,7 @@ class ConverterPhpcrTest extends TestCase
                 $me->assertInstanceOf(OrderingInterface::class, $ordering);
 
                 // return something ..
-                $qom = $me->createMock(QueryObjectModelInterface::class);
-
-                return $qom;
+                return $me->createMock(QueryObjectModelInterface::class);
             }));
 
         $phpcrQuery = $this->converter->getQuery($this->qb);
@@ -682,9 +686,8 @@ class ConverterPhpcrTest extends TestCase
                 ->right()->document('barfoo', 'alias_2')->end()
                 ->condition()->child('child_alias', 'parent_alias')->end();
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('You must specify a primary alias');
-
         $this->qb->getQuery();
     }
 }

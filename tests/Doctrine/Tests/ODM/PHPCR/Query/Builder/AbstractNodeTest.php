@@ -4,30 +4,31 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class AbstractNodeTest extends TestCase
 {
     /**
-     * @var AbstractNode|\PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractNode|MockObject
      */
     private $parent;
 
     /**
-     * @var AbstractNode|\PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractNode|MockObject
      */
     private $node1;
 
     /**
-     * @var AbstractLeafNode|\PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractLeafNode|MockObject
      */
     private $leafNode;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->parent = $this->getMockBuilder(AbstractNode::class)
-            ->setMockClassName('ParentNode')
-            ->getMockForAbstractClass();
+        $this->parent = $this->getMockBuilder(
+            AbstractNode::class
+        )->setMockClassName('ParentNode')->getMockForAbstractClass();
 
         $this->node1 = $this->getMockBuilder(AbstractNode::class)
             ->setMockClassName('TestNode')
@@ -46,7 +47,7 @@ class AbstractNodeTest extends TestCase
     protected function addChildrenToNode1($data)
     {
         foreach ($data as $className) {
-            /** @var AbstractNode|\PHPUnit_Framework_MockObject_MockObject $childNode */
+            /** @var AbstractNode|MockObject $childNode */
             $childNode = $this->getMockForAbstractClass(AbstractNode::class, [], $className);
             $childNode->expects($this->once())
                 ->method('getNodeType')

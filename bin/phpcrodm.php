@@ -38,6 +38,7 @@ if (file_exists($configFile)) {
     foreach ($GLOBALS as $helperSetCandidate) {
         if ($helperSetCandidate instanceof \Symfony\Component\Console\Helper\HelperSet) {
             $helperSet = $helperSetCandidate;
+
             break;
         }
     }

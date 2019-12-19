@@ -23,16 +23,15 @@ class MoveByAssignmentTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = CmsTeamUser::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = CmsTeamUser::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 

@@ -20,7 +20,7 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestEventDocumentChanger2();
         $this->dm = $this->createDocumentManager();

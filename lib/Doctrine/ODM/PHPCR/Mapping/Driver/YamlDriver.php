@@ -286,9 +286,9 @@ class YamlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param array $cascadeElement The cascade element.
+     * @param array $cascadeElement the cascade element
      *
-     * @return int a bitmask of cascade options.
+     * @return int a bitmask of cascade options
      */
     private function getCascadeMode(array $cascadeElement)
     {

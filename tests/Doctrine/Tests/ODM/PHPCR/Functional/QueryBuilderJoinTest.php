@@ -13,10 +13,11 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
  */
 class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
 {
-    public function setUp()
+    private $dm;
+
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $transport = $this->dm->getPhpcrSession()->getTransport();
 
         $this->resetFunctionalNode($this->dm);
 

@@ -14,26 +14,37 @@ class CmsUserTranslatable
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+
     /** @PHPCRODM\Locale */
     public $locale = 'en';
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $status;
+
     /** @PHPCRODM\Field(type="string", translated=true) */
     public $username;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
     public $address;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticle", cascade="persist") */
     public $articles;
+
     /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
     public $groups;
+
     /** @PHPCRODM\Children() */
     public $children;
+
     /** @PHPCRODM\Child(nodeName="assistant", cascade="persist") */
     public $child;
+
     /** @PHPCRODM\Referrers(referencedBy="user", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
     public $articlesReferrers;
 

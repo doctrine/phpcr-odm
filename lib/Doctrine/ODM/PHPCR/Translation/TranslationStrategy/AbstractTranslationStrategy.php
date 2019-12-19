@@ -48,7 +48,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
      * @param string $locale
      * @param string $propertyName the untranslated property name
      *
-     * @return string the property name with the translation namespace.
+     * @return string the property name with the translation namespace
      */
     public function getTranslatedPropertyName($locale, $propertyName)
     {
@@ -61,7 +61,7 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
      * @param string $locale
      * @param array  $mapping the mapping for the property
      *
-     * @return string the property name with the translation namespace.
+     * @return string the property name with the translation namespace
      */
     public function getTranslatedPropertyNameAssoc($locale, $mapping)
     {

@@ -11,6 +11,7 @@ class RefType1TestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
 }

@@ -92,7 +92,7 @@ class Resource
     /**
      * The parent File document of this Resource document.
      *
-     * @return object File document that is the parent of this node.
+     * @return object file document that is the parent of this node
      */
     public function getParentDocument()
     {
@@ -102,7 +102,7 @@ class Resource
     /**
      * Set the parent document of this resource.
      *
-     * @param object $parent Document that is the parent of this node.
+     * @param object $parent document that is the parent of this node
      *
      * @return $this
      */
@@ -148,7 +148,7 @@ class Resource
      * Do not use this right after updating data before flushing, as it will
      * only look at the stored data.
      *
-     * @return int the resource size in bytes.
+     * @return int the resource size in bytes
      */
     public function getSize()
     {

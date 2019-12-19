@@ -34,8 +34,8 @@ abstract class SourceFactory extends AbstractNode
      * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')->end();
      * </code>
      *
-     * @param string $documentFqn - Fully qualified class name for document.
-     * @param string $alias       - Alias name.
+     * @param string $documentFqn - Fully qualified class name for document
+     * @param string $alias       - Alias name
      *
      * @factoryMethod SourceDocument
      *

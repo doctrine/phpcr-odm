@@ -38,7 +38,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         'fr' => ['fr', 'en'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
@@ -656,12 +656,16 @@ class HardReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="hard") */
     public $referenceToHard;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", strategy="hard") */
     public $referenceToWeak;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="hard") */
     public $referenceToAll;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
 }
@@ -673,16 +677,20 @@ class WeakReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /**
      * Should implicitly default to strategy="weak".
      *
      * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", cascade="persist")
      */
     public $referenceToWeak;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="weak", cascade="persist") */
     public $referenceToHard;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="weak", cascade="persist") */
     public $referenceToAll;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
 }
@@ -694,6 +702,7 @@ class WeakReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\MixedReferrers(referenceType="weak") */
     public $referrers;
 }
@@ -705,6 +714,7 @@ class HardReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\MixedReferrers(referenceType="hard") */
     public $referrers;
 }
@@ -716,6 +726,7 @@ class AllReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\MixedReferrers() */
     public $referrers;
 }
@@ -736,8 +747,10 @@ class ReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
 }
@@ -749,8 +762,10 @@ class OtherReferrerTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
     public $namedReference;
 }
@@ -762,8 +777,10 @@ class ReferrerTestObjMultilang
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string", translated=true) */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
     public $reference;
 
@@ -778,8 +795,10 @@ class ReferrerNamedPropTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
     public $namedReference;
 }
@@ -791,6 +810,7 @@ class ReferrerRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\MixedReferrers() */
     public $referrers;
 }
@@ -802,6 +822,7 @@ class ReferrerRefTestObj2
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Referrers(referringDocument="ReferrerTestObj2", referencedBy="reference", cascade={"persist", "remove"}) */
     public $referrers;
 }
@@ -813,6 +834,7 @@ class ReferrerTestObj2
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj2", cascade="persist") */
     public $reference;
 }

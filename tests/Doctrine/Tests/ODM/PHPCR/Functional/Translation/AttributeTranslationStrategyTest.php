@@ -36,7 +36,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
      */
     private $metadata;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
@@ -44,7 +44,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->metadata = $this->dm->getClassMetadata(Article::class);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         try {
             $this->removeTestNode();

@@ -259,8 +259,6 @@ class Configuration
      * @since 1.1
      *
      * @param string $cmfName
-     *
-     * @return void
      */
     public function setClassMetadataFactoryName($cmfName)
     {

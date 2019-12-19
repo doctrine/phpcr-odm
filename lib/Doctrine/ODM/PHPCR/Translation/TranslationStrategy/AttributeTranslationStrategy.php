@@ -68,7 +68,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      * @param ClassMetadata $metadata
      * @param string        $locale
      *
-     * @return bool Whether the node has any attribute of the desired locale.
+     * @return bool whether the node has any attribute of the desired locale
      */
     private function checkHasFields(NodeInterface $node, ClassMetadata $metadata, $locale)
     {

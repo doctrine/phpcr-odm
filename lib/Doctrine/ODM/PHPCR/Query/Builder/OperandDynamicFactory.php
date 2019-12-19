@@ -67,7 +67,7 @@ class OperandDynamicFactory extends AbstractNode
      * $qb->orderBy()->asc()->fullTextSearchScore('sel_1')->end();
      * </code>
      *
-     * @param string $field - Name of field to check.
+     * @param string $field - Name of field to check
      *
      * @factoryMethod OperandDynamicLength
      *
@@ -189,7 +189,7 @@ class OperandDynamicFactory extends AbstractNode
      * ->end();
      * </code>
      *
-     * @param string $field - name of field to check, including alias name.
+     * @param string $field - name of field to check, including alias name
      *
      * @factoryMethod OperandDynamicField
      *

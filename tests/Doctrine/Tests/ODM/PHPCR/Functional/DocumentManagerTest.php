@@ -16,18 +16,11 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class.
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);

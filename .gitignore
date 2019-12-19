@@ -1,11 +1,5 @@
-nbproject
-*~
 tests/phpunit.xml
-
 /cli-config.php
 jackrabbit/
-
 vendor/
-
 composer.lock
-composer.phar

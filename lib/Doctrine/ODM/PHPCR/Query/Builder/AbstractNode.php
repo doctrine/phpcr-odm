@@ -19,28 +19,49 @@ use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 abstract class AbstractNode
 {
     const NT_BUILDER = 'builder';
+
     const NT_CONSTRAINT = 'constraint';
+
     const NT_CONSTRAINT_FACTORY = 'constraint_factory';
+
     const NT_FROM = 'from';
+
     const NT_OPERAND_DYNAMIC = 'operand_dynamic';
+
     const NT_OPERAND_DYNAMIC_FACTORY = 'operand_dynamic_factory';
+
     const NT_OPERAND_STATIC = 'operand_static';
+
     const NT_OPERAND_FACTORY = 'operand_static_factory';
+
     const NT_ORDERING = 'ordering';
+
     const NT_ORDER_BY = 'order_by';
+
     const NT_PROPERTY = 'property';
+
     const NT_SELECT = 'select';
+
     const NT_SOURCE = 'source';
+
     const NT_SOURCE_FACTORY = 'source_factory';
+
     const NT_SOURCE_JOIN_CONDITION = 'source_join_condition';
+
     const NT_SOURCE_JOIN_CONDITION_FACTORY = 'source_join_condition_factory';
+
     const NT_SOURCE_JOIN_LEFT = 'source_join_left';
+
     const NT_SOURCE_JOIN_RIGHT = 'source_join_right';
+
     const NT_WHERE = 'where';
+
     const NT_WHERE_AND = 'where_and';
+
     const NT_WHERE_OR = 'where_or';
 
     protected $children = [];
+
     protected $parent;
 
     public function __construct(self $parent = null)
@@ -213,7 +234,7 @@ abstract class AbstractNode
     /**
      * Return children of specified type.
      *
-     * @param string $type The type name.
+     * @param string $type the type name
      *
      * @return AbstractNode[]
      */
@@ -264,7 +285,7 @@ abstract class AbstractNode
      *
      * Note: This does not take inheritance into account.
      *
-     * @param string $type The name of the type.
+     * @param string $type the name of the type
      *
      * @throws OutOfBoundsException if there are more than one or none
      *
@@ -349,10 +370,10 @@ abstract class AbstractNode
      * Catch any undefined method calls and tell the developer what
      * methods can be called.
      *
-     * @param string $methodName The requested nonexistent method.
-     * @param array  $args       The arguments that where used.
+     * @param string $methodName the requested nonexistent method
+     * @param array  $args       the arguments that where used
      *
-     * @throws BadMethodCallException if an unknown method is called.
+     * @throws BadMethodCallException if an unknown method is called
      */
     public function __call($methodName, $args)
     {

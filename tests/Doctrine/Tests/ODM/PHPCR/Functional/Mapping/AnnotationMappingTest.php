@@ -27,7 +27,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -145,7 +145,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
      *
      * @param string $class fqn of a class with invalid mapping
      */
-    public function testInvalidId($class)
+    public function testInvalidId(string $class)
     {
         $this->expectException(MappingException::class);
         $this->dm->getClassMetadata($class);
@@ -208,12 +208,16 @@ class Testclass
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $text;
+
     /** @PHPCRODM\Depth */
     public $depth;
+
     public $callback_run = 0;
 
     /**
@@ -267,6 +271,7 @@ class SecondLevelWithDuplicateOverwrite extends ExtendingClass
 {
     /** @PHPCRODM\Locale */
     public $locale;
+
     /** @PHPCRODM\Field(type="string", translated=true) */
     public $text;
 }
@@ -349,6 +354,7 @@ class ParentIdNoParentStrategy
 {
     /** @PHPCRODM\Id(strategy="parent") */
     public $id;
+
     /** @PHPCRODM\Nodename */
     public $name;
 }

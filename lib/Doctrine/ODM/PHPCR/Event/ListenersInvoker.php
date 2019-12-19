@@ -18,9 +18,13 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 class ListenersInvoker
 {
     const INVOKE_NONE = 0;
-    // Actually not uses in the phpcr-odm
+
+    // TODO: These constants are not used in phpcr-odm
+
     const INVOKE_LISTENERS = 1;
+
     const INVOKE_CALLBACKS = 2;
+
     const INVOKE_MANAGER = 4;
 
     /**
@@ -50,9 +54,9 @@ class ListenersInvoker
      * Get the subscribed event systems.
      *
      * @param ClassMetadata $metadata
-     * @param string        $eventName The entity lifecycle event.
+     * @param string        $eventName the entity lifecycle event
      *
-     * @return int Bitmask of subscribed event systems.
+     * @return int bitmask of subscribed event systems
      */
     public function getSubscribedSystems(ClassMetadata $metadata, $eventName)
     {
@@ -80,10 +84,10 @@ class ListenersInvoker
     /**
      * Dispatches the lifecycle event of the given entity.
      *
-     * @param ClassMetadata $metadata  The entity metadata.
-     * @param string        $eventName The entity lifecycle event.
-     * @param object        $document  The Entity on which the event occurred.
-     * @param EventArgs     $event     The Event args.
+     * @param ClassMetadata $metadata  the entity metadata
+     * @param string        $eventName the entity lifecycle event
+     * @param object        $document  the Entity on which the event occurred
+     * @param EventArgs     $event     the Event args
      * @param $invoke
      */
     public function invoke(ClassMetadata $metadata, $eventName, $document, EventArgs $event, $invoke)

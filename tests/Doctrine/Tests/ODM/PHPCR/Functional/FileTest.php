@@ -19,20 +19,12 @@ class FileTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class.
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = FileTestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -98,10 +90,13 @@ class FileTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
+
     /**
      * @var File
      * @PHPCRODM\Child

@@ -25,16 +25,15 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = TypeUser::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = TypeUser::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -115,7 +114,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     {
         $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
 
-        $this->assertNull($user, is_object($user) ? get_class($user) : $user);
+        $this->assertNull($user);
     }
 
     /**
@@ -127,7 +126,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf($this->type, $user);
 
         $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
-        $this->assertNull($user, is_object($user) ? get_class($user) : $user);
+        $this->assertNull($user);
     }
 
     /**
@@ -148,16 +147,22 @@ class TypeUser
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $note;
+
     /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
     public $numbers;
+
     /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
     public $parameters;
+
     /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
     public $assocNumbers;
 }

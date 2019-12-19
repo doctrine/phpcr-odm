@@ -10,7 +10,7 @@ abstract class NodeTestCase extends TestCase
 {
     protected $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parent = $this->getMockBuilder(AbstractNode::class)
             ->setMockClassName('ParentNode')

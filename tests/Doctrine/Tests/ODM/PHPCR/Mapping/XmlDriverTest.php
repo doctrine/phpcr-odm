@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver;
 
 /**
@@ -9,17 +10,14 @@ use Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver;
  */
 class XmlDriverTest extends AbstractMappingDriverTest
 {
-    /**
-     * @return XmlDriver
-     */
-    protected function loadDriver()
+    protected function loadDriver(): MappingDriver
     {
         $location = __DIR__.'/Model/xml';
 
         return new XmlDriver($location);
     }
 
-    protected function loadDriverForTestMappingDocuments()
+    protected function loadDriverForTestMappingDocuments(): MappingDriver
     {
         return $this->loadDriver();
     }

@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
@@ -42,7 +43,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->typeReference = ReferenceTestObj::class;
         $this->dm = $this->createDocumentManager();
@@ -85,7 +86,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
             '/functional/referenceTestObj'
         );
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The document at path \'/functional/referenceTestObj\' is not versionable');
         $this->dm->checkin($contentNode);
     }
@@ -185,7 +186,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $session->save();
         $id = $node->getPath();
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, $id, 'whatever');
     }
 
@@ -194,7 +195,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
      */
     public function testFindVersionByNameVersionDoesNotExist()
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', 'whatever');
     }
 
@@ -249,7 +250,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
 
         $frozenDocument = $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->persist($frozenDocument);
     }
 
@@ -344,7 +345,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
      */
     public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
     {
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
     }
 
@@ -410,6 +411,7 @@ class ReferenceTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
 

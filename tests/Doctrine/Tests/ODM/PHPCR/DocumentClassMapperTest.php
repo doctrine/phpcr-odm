@@ -12,26 +12,31 @@ use Jackalope\Node;
 use Jackalope\Property;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class DocumentClassMapperTest extends Testcase
 {
     const CLASS_GENERIC = Generic::class;
+
     const CLASS_TEST_1 = 'Test\Class1';
+
     const CLASS_TEST_2 = 'Test\Class2';
+
     const CLASS_TEST_3 = 'Test\Class3';
 
     /**
-     * @var DocumentManager|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentManager|MockObject
      */
     private $dm;
+
     /**
-     * @var NodeInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var NodeInterface|MockObject
      */
     private $node;
 
     /**
-     * @var ClassMetadata|\PHPUnit_Framework_MockObject_MockObject
+     * @var ClassMetadata|MockObject
      */
     private $metadata;
 
@@ -40,7 +45,7 @@ class DocumentClassMapperTest extends Testcase
      */
     private $mapper;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createMock(DocumentManager::class);
 
@@ -127,10 +132,7 @@ class DocumentClassMapperTest extends Testcase
 
         $className = $this->mapper->getClassName($this->dm, $this->node, BaseClass::class);
 
-        $this->assertEquals(
-            ExtendingClass::class,
-            $className
-        );
+        $this->assertEquals(ExtendingClass::class, $className);
     }
 
     public function testGetClassNameMismatch()
@@ -176,9 +178,9 @@ class DocumentClassMapperTest extends Testcase
     public function testValidateClassNameValid()
     {
         $generic = new Generic();
-        $this->assertNull(
-            $this->mapper->validateClassName($this->dm, $generic, get_class($generic))
-        );
+        $this->mapper->validateClassName($this->dm, $generic, get_class($generic));
+
+        $this->addToAssertionCount(1);
     }
 
     public function testValidateClassNameInvalid()

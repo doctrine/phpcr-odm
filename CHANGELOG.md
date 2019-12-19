@@ -18,6 +18,13 @@ Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
 
 `DocumentManager::getDocumentId()` to get the id of a managed document
 
+1.5.0
+-----
+
+* Support PHP 7.3 and 7.4
+* Allow Symfony 5
+* Drop PHP 5.6 and 7.0 and hhvm
+
 1.4.5
 -----
 

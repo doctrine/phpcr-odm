@@ -22,7 +22,7 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new ChangesetListener();
         $this->dm = $this->createDocumentManager();

@@ -29,16 +29,15 @@ class ParentTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = NameDoc::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = NameDoc::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -281,14 +280,19 @@ class NameDoc
 {
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
+
     /** @PHPCRODM\Children(cascade="persist") */
     public $children;
+
     /** @PHPCRODM\Child(cascade="persist") */
     public $child;
 }

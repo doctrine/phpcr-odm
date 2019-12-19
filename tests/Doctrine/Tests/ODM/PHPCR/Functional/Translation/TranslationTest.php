@@ -24,7 +24,7 @@ class TranslationTest extends PHPCRFunctionalTestCase
      */
     private $workspace;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->workspace = $this->dm->getPhpcrSession()->getWorkspace();
@@ -71,15 +71,9 @@ class TranslationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Assertion shortcut:
      * Check the given $metadata contain a field mapping for $field that contains the $key and having the value $expectedValue.
-     *
-     * @param string        $expectedValue The expected value
-     * @param ClassMetadata $metadata      The class metadata to test
-     * @param string        $field         The name of the field's mapping to test
-     * @param string        $key           The key expected to be in the field mapping
      */
-    private function assertFieldMetadataEquals($expectedValue, ClassMetadata $metadata, $field, $key)
+    protected function assertFieldMetadataEquals(string $expectedValue, ClassMetadata $metadata, string $field, string $key)
     {
         $mapping = $metadata->mappings[$field];
         $this->assertInternalType('array', $mapping);

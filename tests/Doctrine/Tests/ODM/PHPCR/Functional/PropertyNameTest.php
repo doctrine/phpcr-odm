@@ -22,16 +22,15 @@ class PropertyNameTest extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = TestObj::class;
 
     /**
      * @var NodeInterface
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = TestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
@@ -65,10 +64,13 @@ class TestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\Field(type="string", property="myname") */
     public $othername;
 }

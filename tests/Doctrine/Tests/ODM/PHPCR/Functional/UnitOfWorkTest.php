@@ -34,7 +34,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
      */
     private $uow;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->uow = $this->dm->getUnitOfWork();
@@ -299,6 +299,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $postFolder->posts->add($post);
 
         $this->dm->persist($postFolder);
+
         $this->expectException(OutOfBoundsException::class);
         $this->expectExceptionMessage('Document "Doctrine\Tests\Models\CMS\CmsBlogFolder" does not allow children of type "Doctrine\Tests\Models\CMS\CmsBlogInvalidChild". Allowed child classes "Doctrine\Tests\Models\CMS\CmsBlogPost"');
         $this->dm->flush();

@@ -313,9 +313,9 @@ class XmlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param SimpleXMLElement $cascadeElement cascade element.
+     * @param SimpleXMLElement $cascadeElement cascade element
      *
-     * @return int a bitmask of cascade options.
+     * @return int a bitmask of cascade options
      */
     private function getCascadeMode(SimpleXMLElement $cascadeElement)
     {

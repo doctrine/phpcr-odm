@@ -11,11 +11,22 @@ use PHPCR\PropertyInterface;
 
 class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
+    /**
+     * @var DocumentManager
+     */
     private $dm;
+
+    /**
+     * @var \ReflectionMethod
+     */
     private $method;
+
+    /**
+     * @var AttributeTranslationStrategy
+     */
     private $strategy;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createMock(DocumentManager::class);
 
@@ -41,11 +52,8 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
     public function testGetLocalesFor()
     {
-        if (version_compare(PHP_VERSION, '5.3.3', '<=')) {
-            $this->markTestSkipped('Prophesize does not work on PHP 5.3.3');
-        }
+        $classMetadata = $this->createMock(ClassMetadata::class);
 
-        $classMetadata = $this->prophesize(ClassMetadata::class);
         $document = new \stdClass();
         $localizedPropNames = [
             'test:de-prop1' => 'de',
@@ -56,17 +64,23 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
             'de_asdf' => false, // no property name
         ];
 
-        $node = $this->prophesize(NodeInterface::class);
+        $node = $this->createMock(NodeInterface::class);
         $properties = [];
 
         foreach (array_keys($localizedPropNames) as $localizedPropName) {
-            $property = $this->prophesize(PropertyInterface::class);
-            $property->getName()->willReturn($localizedPropName);
-            $properties[] = $property->reveal();
+            $property = $this->createMock(PropertyInterface::class);
+            $property
+                ->method('getName')
+                ->willReturn($localizedPropName);
+            $properties[] = $property;
         }
-        $node->getProperties('test:*')->willReturn($properties);
+        $node
+            ->expects($this->once())
+            ->method('getProperties')
+            ->with('test:*')
+            ->willReturn($properties);
 
-        $locales = $this->strategy->getLocalesFor($document, $node->reveal(), $classMetadata->reveal());
+        $locales = $this->strategy->getLocalesFor($document, $node, $classMetadata);
         $expected = array_values(array_filter($localizedPropNames, function ($valid) {
             return $valid;
         }));

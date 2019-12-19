@@ -31,7 +31,7 @@ class MixinTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->type = MixinMappingObject::class;
         $this->dm = $this->createDocumentManager();

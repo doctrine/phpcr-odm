@@ -52,8 +52,8 @@ class DocumentRepository implements ObjectRepository
     /**
      * Initializes a new <tt>DocumentRepository</tt>.
      *
-     * @param DocumentManagerInterface $dm    The DocumentManager to use.
-     * @param ClassMetadata            $class The class descriptor.
+     * @param DocumentManagerInterface $dm            the DocumentManager to use
+     * @param ClassMetadata            $classMetadata the class descriptor
      */
     public function __construct($dm, ClassMetadata $class)
     {
@@ -95,7 +95,7 @@ class DocumentRepository implements ObjectRepository
     /**
      * Finds all documents in the repository.
      *
-     * @return array The entities.
+     * @return array the entities
      */
     public function findAll()
     {
@@ -114,7 +114,7 @@ class DocumentRepository implements ObjectRepository
      * @param int|null   $limit
      * @param int|null   $offset
      *
-     * @return array The objects matching the criteria.
+     * @return array the objects matching the criteria
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {

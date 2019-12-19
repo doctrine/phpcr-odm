@@ -29,10 +29,12 @@ class Article
     public $parent;
 
     // untranslated:
+
     /** @PHPCRODM\Field(type="date", nullable=true) */
     public $publishDate;
 
     // untranslated:
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $author;
 

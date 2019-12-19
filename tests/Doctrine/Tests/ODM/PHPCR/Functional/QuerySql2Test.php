@@ -26,7 +26,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
      *
      * @var string
      */
-    private $type;
+    private $type = QuerySql2TestObj::class;
 
     /**
      * @var NodeInterface
@@ -57,9 +57,8 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
         ];
     }
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->type = QuerySql2TestObj::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -155,10 +154,13 @@ class QuerySql2TestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $username;
+
     /** @PHPCRODM\Field(type="long", multivalue=true) */
     public $numbers;
 }

@@ -26,7 +26,7 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new TestResetListener();
         $this->dm = $this->createDocumentManager();
@@ -97,7 +97,6 @@ class TestResetListener
             $contentReference = unserialize($document->content);
 
             if (false !== $contentReference && isset($contentReference['id'])) {
-
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();
                 $pageContent->id = 1;
@@ -127,7 +126,6 @@ class TestResetListener
             $contentReference = unserialize($document->content);
 
             if (false !== $contentReference && isset($contentReference['id'])) {
-
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();
                 $pageContent->id = 1;
@@ -141,6 +139,8 @@ class TestResetListener
 class CmsPageContent
 {
     public $id;
+
     public $content;
+
     public $formatter;
 }

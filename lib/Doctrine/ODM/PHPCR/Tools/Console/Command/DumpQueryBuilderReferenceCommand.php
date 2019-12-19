@@ -60,6 +60,8 @@ HERE
 
         $out = implode("\n", $this->formatMapRst($map));
         $output->writeln($out);
+
+        return 0;
     }
 
     protected function formatMapRst($map)

@@ -53,8 +53,8 @@ class PrefetchHelper
     /**
      * Prefetch all mapped ReferenceOne annotations.
      *
-     * @param ClassMetadata $class The metadata about the document to know what to do.
-     * @param NodeInterface $node  The node to prefetch parent and childs for.
+     * @param ClassMetadata $class the metadata about the document to know what to do
+     * @param NodeInterface $node  the node to prefetch parent and childs for
      */
     public function prefetchReferences(ClassMetadata $class, NodeInterface $node)
     {
@@ -67,10 +67,10 @@ class PrefetchHelper
     /**
      * Prefetch all Child mappings and the ParentDocument if annotations exist.
      *
-     * @param ClassMetadata $class  The metadata about the document to know what to do.
-     * @param NodeInterface $node   The node to prefetch parent and childs for.
-     * @param string|null   $locale The locale to also prefetch the translation
-     *                              child if applicable.
+     * @param ClassMetadata $class  the metadata about the document to know what to do
+     * @param NodeInterface $node   the node to prefetch parent and childs for
+     * @param string|null   $locale the locale to also prefetch the translation
+     *                              child if applicable
      */
     public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, $locale = null)
     {
@@ -83,10 +83,10 @@ class PrefetchHelper
     /**
      * Gather all UUIDs to pre-fetch nodes in MANY_TO_ONE mappings.
      *
-     * @param ClassMetadata $class The metadata about the document to know what to do.
-     * @param NodeInterface $node  The node to prefetch parent and childs for.
+     * @param ClassMetadata $class the metadata about the document to know what to do
+     * @param NodeInterface $node  the node to prefetch parent and childs for
      *
-     * @return array List of UUID to fetch in one go.
+     * @return array list of UUID to fetch in one go
      */
     public function collectPrefetchReferences(ClassMetadata $class, NodeInterface $node)
     {
@@ -111,12 +111,12 @@ class PrefetchHelper
      * Gather the parent and all child mappings so they can be fetched in one
      * go.
      *
-     * @param ClassMetadata $class  The metadata about the document to know what to do.
-     * @param NodeInterface $node   The node to prefetch parent and childs for.
-     * @param string|null   $locale The locale to also prefetch the translation
-     *                              child if applicable.
+     * @param ClassMetadata $class  the metadata about the document to know what to do
+     * @param NodeInterface $node   the node to prefetch parent and childs for
+     * @param string|null   $locale the locale to also prefetch the translation
+     *                              child if applicable
      *
-     * @return array List of absolute paths to nodes that should be prefetched.
+     * @return array list of absolute paths to nodes that should be prefetched
      */
     public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, $locale = null)
     {

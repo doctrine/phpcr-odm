@@ -31,15 +31,19 @@ abstract class IdGenerator
         switch ($generatorType) {
             case ClassMetadata::GENERATOR_TYPE_ASSIGNED:
                 $instance = new AssignedIdGenerator();
+
                 break;
             case ClassMetadata::GENERATOR_TYPE_REPOSITORY:
                 $instance = new RepositoryIdGenerator();
+
                 break;
             case ClassMetadata::GENERATOR_TYPE_PARENT:
                 $instance = new ParentIdGenerator();
+
                 break;
             case ClassMetadata::GENERATOR_TYPE_AUTO:
                 $instance = new AutoIdGenerator();
+
                 break;
 
             default:

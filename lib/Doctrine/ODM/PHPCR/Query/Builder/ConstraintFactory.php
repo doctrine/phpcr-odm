@@ -127,8 +127,8 @@ class ConstraintFactory extends AbstractNode
      * $qb->where()->fullTextSearch('sel_1.prop_1', 'search_expression')->end();
      * </code>
      *
-     * @param string $field                    - Name of field to check, including alias name.
-     * @param string $fullTextSearchExpression - Search expression.
+     * @param string $field                    - Name of field to check, including alias name
+     * @param string $fullTextSearchExpression - Search expression
      *
      * @factoryMethod ConstraintFullTextSearch
      *
@@ -148,8 +148,8 @@ class ConstraintFactory extends AbstractNode
      *
      * Relates to PHPCR QOM SameNodeInterface.
      *
-     * @param string $path  - Path to reference document.
-     * @param string $alias - Name of alias to use.
+     * @param string $path  - Path to reference document
+     * @param string $alias - Name of alias to use
      *
      * @factoryMethod ConstraintSame
      *
@@ -169,8 +169,8 @@ class ConstraintFactory extends AbstractNode
      *
      * Relates to PHPCR QOM DescendantNodeInterface
      *
-     * @param string $ancestorPath - Select descendants of this path.
-     * @param string $alias        - Name of alias to use.
+     * @param string $ancestorPath - Select descendants of this path
+     * @param string $alias        - Name of alias to use
      *
      * @factoryMethod ConstraintDescendant
      *
@@ -190,7 +190,7 @@ class ConstraintFactory extends AbstractNode
      *
      * Relates to PHPCR QOM ChildNodeInterface.
      *
-     * @param string $parentPath - Select children of this path.
+     * @param string $parentPath - Select children of this path
      * @param string $alias      - Name of alias to use
      *
      * @factoryMethod ConstraintChild

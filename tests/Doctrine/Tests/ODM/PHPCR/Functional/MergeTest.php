@@ -24,7 +24,7 @@ class MergeTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
@@ -130,7 +130,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $mergableGroup->id = $user->id;
         $mergableGroup->name = 'doctrine';
 
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->dm->merge($mergableGroup);
     }
 
