@@ -386,7 +386,7 @@ class UnitOfWork
 
             if ($document) {
                 if (!$refresh) {
-                    $existingDocuments++;
+                    ++$existingDocuments;
                     $documents[$id] = $document;
                 } else {
                     $overrideLocalValuesOids[$id] = spl_object_hash($document);
@@ -489,7 +489,7 @@ class UnitOfWork
             // initialize inverse side collections
             foreach ($class->referenceMappings as $fieldName) {
                 $mapping = $class->mappings[$fieldName];
-                if ($mapping['type'] === ClassMetadata::MANY_TO_ONE) {
+                if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                     if (!$node->hasProperty($mapping['property'])) {
                         continue;
                     }
@@ -510,7 +510,7 @@ class UnitOfWork
                     }
 
                     $documentState[$fieldName] = $proxy;
-                } elseif ($mapping['type'] === ClassMetadata::MANY_TO_MANY) {
+                } elseif (ClassMetadata::MANY_TO_MANY === $mapping['type']) {
                     $referencedNodes = [];
                     if ($node->hasProperty($mapping['property'])) {
                         foreach ($node->getProperty($mapping['property'])->getString() as $reference) {
@@ -712,7 +712,7 @@ class UnitOfWork
     public function bindTranslation($document, $locale)
     {
         $state = $this->getDocumentState($document);
-        if ($state !== self::STATE_MANAGED) {
+        if (self::STATE_MANAGED !== $state) {
             throw new InvalidArgumentException('Document has to be managed to be able to bind a translation '.self::objToStr($document, $this->dm));
         }
 
@@ -840,7 +840,7 @@ class UnitOfWork
             }
 
             $related = $class->reflFields[$fieldName]->getValue($document);
-            if ($related !== null) {
+            if (null !== $related) {
                 if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                     if (is_array($related) || $related instanceof Collection) {
                         throw new PHPCRException(sprintf(
@@ -858,7 +858,7 @@ class UnitOfWork
                         ));
                     }
 
-                    if ($this->getDocumentState($related) === self::STATE_NEW) {
+                    if (self::STATE_NEW === $this->getDocumentState($related)) {
                         $this->doScheduleInsert($related, $visited);
                     }
                 } else {
@@ -877,7 +877,7 @@ class UnitOfWork
                                 self::objToStr($document, $this->dm)
                             ));
                         }
-                        if ($this->getDocumentState($relatedDocument) === self::STATE_NEW) {
+                        if (self::STATE_NEW === $this->getDocumentState($relatedDocument)) {
                             $this->doScheduleInsert($relatedDocument, $visited);
                         }
                     }
@@ -890,7 +890,7 @@ class UnitOfWork
     {
         if ($class->parentMapping) {
             $parent = $class->reflFields[$class->parentMapping]->getValue($document);
-            if ($parent !== null && $this->getDocumentState($parent) === self::STATE_NEW) {
+            if (null !== $parent && self::STATE_NEW === $this->getDocumentState($parent)) {
                 if (!is_object($parent)) {
                     throw new PHPCRException(sprintf(
                         'A parent field may only contain mapped documents, found <%s> in field "%s" of "%s"',
@@ -1017,7 +1017,7 @@ class UnitOfWork
                         $this->doRemove($relatedDocument, $visited);
                     }
                 }
-            } elseif ($related !== null) {
+            } elseif (null !== $related) {
                 $this->doRemove($related, $visited);
             }
         }
@@ -1041,7 +1041,7 @@ class UnitOfWork
         $class = $this->dm->getClassMetadata(get_class($document));
         foreach ($class->childMappings as $fieldName) {
             $child = $class->reflFields[$fieldName]->getValue($document);
-            if ($child !== null) {
+            if (null !== $child) {
                 $this->purgeChildren($child);
                 $this->unregisterDocument($child);
             }
@@ -1113,7 +1113,7 @@ class UnitOfWork
     {
         $state = $this->getDocumentState($document);
 
-        if ($state !== self::STATE_MANAGED && $state !== self::STATE_REMOVED) {
+        if (self::STATE_MANAGED !== $state && self::STATE_REMOVED !== $state) {
             throw new InvalidArgumentException('Document has to be managed for single computation '.self::objToStr($document, $this->dm));
         }
 
@@ -1141,7 +1141,7 @@ class UnitOfWork
     {
         foreach ($this->identityMap as $document) {
             $state = $this->getDocumentState($document);
-            if ($state === self::STATE_MANAGED) {
+            if (self::STATE_MANAGED === $state) {
                 $class = $this->dm->getClassMetadata(get_class($document));
                 $this->computeChangeSet($class, $document);
             }
@@ -1301,7 +1301,7 @@ class UnitOfWork
                 $this->visitedCollections[$coid] = $changeSet[$fieldName];
 
                 foreach ($changeSet[$fieldName] as $association) {
-                    if ($association !== null) {
+                    if (null !== $association) {
                         $this->$computeMethod($mapping, $association);
                     }
                 }
@@ -1475,7 +1475,7 @@ class UnitOfWork
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
 
-            if ($state === self::STATE_MANAGED) {
+            if (self::STATE_MANAGED === $state) {
                 $this->computeChangeSet($parentClass, $parent);
             }
         }
@@ -1541,7 +1541,7 @@ class UnitOfWork
                         : PathHelper::getParentPath($this->getDocumentId($document));
                 }
                 if (false === $destName) {
-                    $destName = $class->nodename !== null && $changeSet[$class->nodename]
+                    $destName = null !== $class->nodename && $changeSet[$class->nodename]
                         ? $changeSet[$class->nodename]
                         : PathHelper::getNodeName($this->getDocumentId($document));
                 }
@@ -1800,7 +1800,7 @@ class UnitOfWork
         }
         $visited[$oid] = true;
 
-        if ($this->getDocumentState($document) !== self::STATE_MANAGED) {
+        if (self::STATE_MANAGED !== $this->getDocumentState($document)) {
             throw new InvalidArgumentException('Document has to be managed to be refreshed '.self::objToStr($document, $this->dm));
         }
 
@@ -1825,7 +1825,7 @@ class UnitOfWork
         if (null === $document) {
             $prop->setValue($managedCopy, null);
         } elseif (!($mapping['cascade'] & ClassMetadata::CASCADE_MERGE)) {
-            if ($this->getDocumentState($document) == self::STATE_MANAGED) {
+            if (self::STATE_MANAGED == $this->getDocumentState($document)) {
                 $prop->setValue($managedCopy, $document);
             } else {
                 $targetClass = $this->dm->getClassMetadata(get_class($document));
@@ -1868,7 +1868,7 @@ class UnitOfWork
         // an extra db-roundtrip this way. If it is not MANAGED but has an identity,
         // we need to fetch it from the db anyway in order to merge.
         // MANAGED entities are ignored by the merge operation.
-        if ($this->getDocumentState($document) == self::STATE_MANAGED) {
+        if (self::STATE_MANAGED == $this->getDocumentState($document)) {
             $managedCopy = $document;
         } else {
             $id = $this->determineDocumentId($document, $class);
@@ -1882,7 +1882,7 @@ class UnitOfWork
                 $managedCopy = $this->getDocumentById($id);
                 if ($managedCopy) {
                     // We have the document in-memory already, just make sure its not removed.
-                    if ($this->getDocumentState($managedCopy) == self::STATE_REMOVED) {
+                    if (self::STATE_REMOVED == $this->getDocumentState($managedCopy)) {
                         throw new InvalidArgumentException("Removed document detected during merge at '$id'. Cannot merge with a removed document.");
                     }
 
@@ -1901,10 +1901,10 @@ class UnitOfWork
                     $managedCopy = $this->dm->find($class->name, $id);
                 }
 
-                if ($managedCopy === null) {
+                if (null === $managedCopy) {
                     // If the identifier is ASSIGNED, it is NEW, otherwise an error
                     // since the managed document was not found.
-                    if ($class->idGenerator !== ClassMetadata::GENERATOR_TYPE_ASSIGNED) {
+                    if (ClassMetadata::GENERATOR_TYPE_ASSIGNED !== $class->idGenerator) {
                         throw new InvalidArgumentException("Document not found in merge operation: $id");
                     }
 
@@ -2012,9 +2012,9 @@ class UnitOfWork
             $visited[$managedOid] = true;
         }
 
-        if ($prevManagedCopy !== null) {
+        if (null !== $prevManagedCopy) {
             $prevClass = $this->dm->getClassMetadata(get_class($prevManagedCopy));
-            if ($assoc['type'] == ClassMetadata::MANY_TO_ONE) {
+            if (ClassMetadata::MANY_TO_ONE == $assoc['type']) {
                 $prevClass->reflFields[$assoc['fieldName']]->setValue($prevManagedCopy, $managedCopy);
             } else {
                 $prevClass->reflFields[$assoc['fieldName']]->getValue($prevManagedCopy)->add($managedCopy);
@@ -2050,7 +2050,7 @@ class UnitOfWork
                 foreach ($related as $relatedDocument) {
                     $this->doMerge($relatedDocument, $visited, $managedCopy, $mapping);
                 }
-            } elseif ($related !== null) {
+            } elseif (null !== $related) {
                 $this->doMerge($related, $visited, $managedCopy, $mapping);
             }
         }
@@ -2114,7 +2114,7 @@ class UnitOfWork
                 foreach ($related as $relatedDocument) {
                     $this->doRefresh($relatedDocument, $visited);
                 }
-            } elseif ($related !== null) {
+            } elseif (null !== $related) {
                 $this->doRefresh($related, $visited);
             }
         }
@@ -2138,7 +2138,7 @@ class UnitOfWork
                 foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
-            } elseif ($related !== null) {
+            } elseif (null !== $related) {
                 $this->doDetach($related, $visited);
             }
         }
@@ -2153,7 +2153,7 @@ class UnitOfWork
                 foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
                 }
-            } elseif ($related !== null) {
+            } elseif (null !== $related) {
                 $this->doDetach($related, $visited);
             }
         }
@@ -2171,7 +2171,7 @@ class UnitOfWork
     {
         $this->invokeGlobalEvent(Event::preFlush, new ManagerEventArgs($this->dm));
 
-        if ($document === null) {
+        if (null === $document) {
             $this->computeChangeSets();
         } elseif (is_object($document)) {
             $this->computeSingleDocumentChangeSet($document);
@@ -2549,12 +2549,12 @@ class UnitOfWork
                         if (isset($fieldValue)) {
                             $refNodesIds = [];
                             foreach ($fieldValue as $fv) {
-                                if ($fv === null) {
+                                if (null === $fv) {
                                     continue;
                                 }
 
                                 $associatedNode = $this->session->getNode($this->getDocumentId($fv));
-                                if ($strategy === PropertyType::PATH) {
+                                if (PropertyType::PATH === $strategy) {
                                     $refNodesIds[] = $associatedNode->getPath();
                                 } else {
                                     $refClass = $this->dm->getClassMetadata(get_class($fv));
@@ -2573,7 +2573,7 @@ class UnitOfWork
                         if (isset($fieldValue)) {
                             $associatedNode = $this->session->getNode($this->getDocumentId($fieldValue));
 
-                            if ($strategy === PropertyType::PATH) {
+                            if (PropertyType::PATH === $strategy) {
                                 $node->setProperty($fieldName, $associatedNode->getPath(), $strategy);
                             } else {
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
@@ -2595,7 +2595,7 @@ class UnitOfWork
                          * document
                          */
                         foreach ($fieldValue as $fv) {
-                            if ($fv === null) {
+                            if (null === $fv) {
                                 continue;
                             }
 
@@ -2608,11 +2608,11 @@ class UnitOfWork
                             $referencingField = $referencingMeta->getAssociation($mapping['referencedBy']);
 
                             $uuid = $node->getIdentifier();
-                            $strategy = $referencingField['strategy'] == 'weak' ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
+                            $strategy = 'weak' == $referencingField['strategy'] ? PropertyType::WEAKREFERENCE : PropertyType::REFERENCE;
                             switch ($referencingField['type']) {
                                 case ClassMetadata::MANY_TO_ONE:
                                     $ref = $referencingMeta->getFieldValue($fv, $referencingField['fieldName']);
-                                    if ($ref !== null && $ref !== $document) {
+                                    if (null !== $ref && $ref !== $document) {
                                         throw new PHPCRException(sprintf('Conflicting settings for referrer and reference: Document %s field %s points to %s but document %s has set first document as referrer on field %s', self::objToStr($fv, $this->dm), $referencingField['fieldName'], self::objToStr($ref, $this->dm), self::objToStr($document, $this->dm), $mapping['fieldName']));
                                     }
                                     // update the referencing document field to point to this document
@@ -2660,7 +2660,7 @@ class UnitOfWork
                         }
                     }
                 } elseif ('child' === $mapping['type']) {
-                    if ($fieldValue === null && $node->hasNode($mapping['nodeName'])) {
+                    if (null === $fieldValue && $node->hasNode($mapping['nodeName'])) {
                         $child = $node->getNode($mapping['nodeName']);
                         $childDocument = $this->getOrCreateDocument(null, $child);
                         $this->purgeChildren($childDocument);
@@ -2969,8 +2969,8 @@ class UnitOfWork
         foreach ($versions as $version) {
             /* @var $version VersionInterface */
             $result[$version->getName()] = [
-                'name'    => $version->getName(),
-                'labels'  => [],
+                'name' => $version->getName(),
+                'labels' => [],
                 'created' => $version->getCreated(),
             ];
         }
@@ -3672,7 +3672,7 @@ class UnitOfWork
     {
         return !empty($metadata->translator)
             && is_string($metadata->translator)
-            && count($metadata->translatableFields) !== 0;
+            && 0 !== count($metadata->translatableFields);
     }
 
     private static function objToStr($obj, DocumentManagerInterface $dm = null)
@@ -3711,7 +3711,7 @@ class UnitOfWork
 
         $node = $this->session->getNode($path);
 
-        $mixin = $metadata->versionable === 'simple' ?
+        $mixin = 'simple' === $metadata->versionable ?
             'mix:simpleVersionable' :
             'mix:versionable';
 
@@ -3732,13 +3732,13 @@ class UnitOfWork
     private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document)
     {
         $repository = $this->session->getRepository();
-        if ($metadata->versionable === 'full') {
+        if ('full' === $metadata->versionable) {
             if ($repository->getDescriptor(RepositoryInterface::OPTION_VERSIONING_SUPPORTED)) {
                 $node->addMixin('mix:versionable');
             } elseif ($repository->getDescriptor(RepositoryInterface::OPTION_SIMPLE_VERSIONING_SUPPORTED)) {
                 $node->addMixin('mix:simpleVersionable');
             }
-        } elseif ($metadata->versionable === 'simple'
+        } elseif ('simple' === $metadata->versionable
             && $repository->getDescriptor(RepositoryInterface::OPTION_SIMPLE_VERSIONING_SUPPORTED)
         ) {
             $node->addMixin('mix:simpleVersionable');

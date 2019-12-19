@@ -115,8 +115,8 @@ class UnitOfWorkTest extends PHPCRTestCase
 
         $nodeData = [
             'jcr:primaryType' => $primaryType,
-            'jcr:system'      => [],
-            'username'        => $username,
+            'jcr:system' => [],
+            'username' => $username,
         ];
         $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
 

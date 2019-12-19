@@ -96,7 +96,7 @@ class TestResetListener
         if ($document instanceof CmsPage) {
             $contentReference = unserialize($document->content);
 
-            if ($contentReference !== false && isset($contentReference['id'])) {
+            if (false !== $contentReference && isset($contentReference['id'])) {
 
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();
@@ -110,7 +110,7 @@ class TestResetListener
     public function preUpdate(LifecycleEventArgs $e)
     {
         $document = $e->getObject();
-        if ($document instanceof CmsPage && $document->title !== 'my-page') {
+        if ($document instanceof CmsPage && 'my-page' !== $document->title) {
             $document->title = 'my-page';
         }
 
@@ -126,7 +126,7 @@ class TestResetListener
         if ($document instanceof CmsPage) {
             $contentReference = unserialize($document->content);
 
-            if ($contentReference !== false && isset($contentReference['id'])) {
+            if (false !== $contentReference && isset($contentReference['id'])) {
 
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();

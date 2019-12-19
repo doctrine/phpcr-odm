@@ -489,7 +489,7 @@ abstract class ConverterBase implements ConverterInterface
 
             $phpcrDynOp = $this->dispatch($dynOp);
 
-            if ($ordering->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
+            if (QOMConstants::JCR_ORDER_ASCENDING == $ordering->getOrder()) {
                 $ordering = $this->qomf()->ascending($phpcrDynOp);
             } else {
                 $ordering = $this->qomf()->descending($phpcrDynOp);

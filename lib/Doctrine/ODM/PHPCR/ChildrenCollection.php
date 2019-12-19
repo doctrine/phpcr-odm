@@ -115,12 +115,12 @@ class ChildrenCollection extends PersistentCollection
             // Shortcut for new documents
             $documentState = $uow->getDocumentState($element);
 
-            if ($documentState === UnitOfWork::STATE_NEW) {
+            if (UnitOfWork::STATE_NEW === $documentState) {
                 return false;
             }
 
             // Document is scheduled for inclusion
-            if ($documentState === UnitOfWork::STATE_MANAGED && $uow->isScheduledForInsert($element)) {
+            if (UnitOfWork::STATE_MANAGED === $documentState && $uow->isScheduledForInsert($element)) {
                 return false;
             }
 

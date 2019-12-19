@@ -61,7 +61,7 @@ EOT
         $metadatas = MetadataFilter::filter($metadatas, $input->getOption('filter'));
 
         // Process destination directory
-        if (($destPath = $input->getArgument('dest-path')) === null) {
+        if (null === ($destPath = $input->getArgument('dest-path'))) {
             $destPath = $documentManager->getConfiguration()->getProxyDir();
         }
 

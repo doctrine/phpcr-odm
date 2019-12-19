@@ -158,6 +158,6 @@ class ChangesetListener
 
     public function postUpdate(LifecycleEventArgs $e)
     {
-        $this->count++;
+        ++$this->count;
     }
 }

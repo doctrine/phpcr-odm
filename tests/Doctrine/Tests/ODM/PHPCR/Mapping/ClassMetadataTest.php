@@ -63,13 +63,13 @@ class ClassMetadataTest extends TestCase
         $this->assertArrayHasKey('id', $cm->mappings);
         $this->assertEquals(
             [
-                'id'         => true,
-                'property'   => 'id',
-                'type'       => 'string',
-                'fieldName'  => 'id',
+                'id' => true,
+                'property' => 'id',
+                'type' => 'string',
+                'fieldName' => 'id',
                 'multivalue' => false,
-                'strategy'   => 'assigned',
-                'nullable'   => false,
+                'strategy' => 'assigned',
+                'nullable' => false,
             ], $cm->mappings['id']
         );
 
@@ -118,21 +118,21 @@ class ClassMetadataTest extends TestCase
 
         $this->assertEquals(
             [
-                'property'   => 'username',
-                'type'       => 'string',
-                'fieldName'  => 'username',
+                'property' => 'username',
+                'type' => 'string',
+                'fieldName' => 'username',
                 'multivalue' => false,
-                'nullable'   => false,
+                'nullable' => false,
             ],
             $cm->mappings['username']
         );
         $this->assertEquals(
             [
-                'property'   => 'created',
-                'type'       => 'datetime',
-                'fieldName'  => 'created',
+                'property' => 'created',
+                'type' => 'datetime',
+                'fieldName' => 'created',
                 'multivalue' => false,
-                'nullable'   => false,
+                'nullable' => false,
             ],
             $cm->mappings['created']
         );
@@ -158,8 +158,8 @@ class ClassMetadataTest extends TestCase
 
         // Test that the translated field is being inherited.
         $mapping = [
-            'property'   => 'translatedField',
-            'fieldName'  => 'translatedField',
+            'property' => 'translatedField',
+            'fieldName' => 'translatedField',
             'translated' => true,
         ];
         $cm->mapField($mapping, $cmp);
@@ -262,13 +262,13 @@ class ClassMetadataTest extends TestCase
 
         $this->assertArrayHasKey('address', $cm->mappings, "No 'address' in associations map.");
         $this->assertEquals([
-            'fieldName'      => 'address',
+            'fieldName' => 'address',
             'targetDocument' => Address::class,
             'sourceDocument' => Person::class,
-            'type'           => ClassMetadata::MANY_TO_ONE,
-            'strategy'       => 'weak',
-            'cascade'        => null,
-            'property'       => 'address',
+            'type' => ClassMetadata::MANY_TO_ONE,
+            'strategy' => 'weak',
+            'cascade' => null,
+            'property' => 'address',
         ], $cm->mappings['address']);
 
         return $cm;

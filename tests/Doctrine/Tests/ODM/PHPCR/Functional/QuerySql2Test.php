@@ -95,7 +95,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
      */
     public function testQuery($statement, $rowCount)
     {
-        if ($rowCount == -1) {
+        if (-1 == $rowCount) {
             // magic to tell this is an invalid query
             $this->expectException(InvalidQueryException::class);
         }
@@ -111,7 +111,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
      */
     public function testRepositoryQuery($statement, $rowCount)
     {
-        if ($rowCount == -1) {
+        if (-1 == $rowCount) {
             // magic to tell this is an invalid query
             $this->expectException(InvalidQueryException::class);
         }

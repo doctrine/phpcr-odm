@@ -98,7 +98,7 @@ class PrefetchHelper
             }
 
             if ($mapping['type'] & ClassMetadata::MANY_TO_ONE
-                && $mapping['strategy'] !== 'path'
+                && 'path' !== $mapping['strategy']
             ) {
                 $refNodeUUIDs[] = $node->getProperty($mapping['property'])->getString();
             }

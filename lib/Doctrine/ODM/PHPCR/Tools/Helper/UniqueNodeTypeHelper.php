@@ -41,7 +41,7 @@ class UniqueNodeTypeHelper
 
             $debugInformation[$classMetadata->name] = [
                 'unique_node_type' => $classMetadata->hasUniqueNodeType(),
-                'node_type'        => $classMetadata->getNodeType(),
+                'node_type' => $classMetadata->getNodeType(),
             ];
         }
 

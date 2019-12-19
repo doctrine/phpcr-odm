@@ -65,8 +65,8 @@ class SourceJoin extends AbstractNode
     {
         return [
             self::NT_SOURCE_JOIN_CONDITION_FACTORY => [1, 1],
-            self::NT_SOURCE_JOIN_LEFT              => [1, 1],
-            self::NT_SOURCE_JOIN_RIGHT             => [1, 1],
+            self::NT_SOURCE_JOIN_LEFT => [1, 1],
+            self::NT_SOURCE_JOIN_RIGHT => [1, 1],
         ];
     }
 }

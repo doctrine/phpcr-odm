@@ -50,7 +50,7 @@ class ECommerceCart
 
     public function removeCustomer()
     {
-        if ($this->customer !== null) {
+        if (null !== $this->customer) {
             $customer = $this->customer;
             $this->customer = null;
             $customer->removeCart();

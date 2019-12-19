@@ -67,7 +67,7 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $this->commandTester->execute([
             'classname' => 'Document\MyClass',
             '--locales' => ['en'],
-            '--force'   => true,
+            '--force' => true,
         ]);
 
         $this->assertEquals('.'.PHP_EOL.'done'.PHP_EOL, $this->commandTester->getDisplay());

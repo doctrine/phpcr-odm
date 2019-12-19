@@ -5,6 +5,6 @@ if (isset($metadata) && $metadata instanceof \Doctrine\ODM\PHPCR\Mapping\ClassMe
     $metadata->setVersioned('simple');
     $metadata->mapId([
         'fieldName' => 'id',
-        'id'        => true,
+        'id' => true,
     ]);
 }

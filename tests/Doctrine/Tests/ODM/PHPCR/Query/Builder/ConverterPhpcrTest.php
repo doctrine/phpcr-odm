@@ -69,7 +69,7 @@ class ConverterPhpcrTest extends TestCase
             ->will($this->returnCallback(function ($documentFqn) use ($me) {
                 $meta = $me->createMock(ClassMetadata::class);
 
-                if ($documentFqn === '_document_not_mapped_') {
+                if ('_document_not_mapped_' === $documentFqn) {
                     return $meta;
                 }
 
@@ -82,8 +82,8 @@ class ConverterPhpcrTest extends TestCase
                     ->will($me->returnCallback(function ($name) {
                         $res = [
                             'fieldName' => $name,
-                            'property'  => $name.'_phpcr',
-                            'type'      => 'String',
+                            'property' => $name.'_phpcr',
+                            'type' => 'String',
                         ];
 
                         return $res;
@@ -100,7 +100,7 @@ class ConverterPhpcrTest extends TestCase
                 $meta->expects($me->any())
                     ->method('hasAssociation')
                     ->will($me->returnCallback(function ($field) {
-                        if ($field === 'associationfield') {
+                        if ('associationfield' === $field) {
                             return true;
                         }
 
@@ -338,7 +338,7 @@ class ConverterPhpcrTest extends TestCase
         $where = $this->qb->where();
         $composite = $where->$method();
 
-        for ($i = 0; $i < $nbConstraints; $i++) {
+        for ($i = 0; $i < $nbConstraints; ++$i) {
             $composite->fieldIsset('alias_1.prop_2');
         }
 
@@ -346,7 +346,7 @@ class ConverterPhpcrTest extends TestCase
 
         $this->assertInstanceOf($expectedClass, $res);
 
-        if ($nbConstraints == 2) {
+        if (2 == $nbConstraints) {
             $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint1());
             $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint2());
         } elseif ($nbConstraints > 2) {
@@ -485,9 +485,9 @@ class ConverterPhpcrTest extends TestCase
 
             // non-leaf
             ['OperandDynamicLowerCase', ['alias_1'], [
-                'phpcr_class'       => 'LowerCaseInterface',
+                'phpcr_class' => 'LowerCaseInterface',
                 'add_child_operand' => true,
-                'assert'            => function ($test, $node) {
+                'assert' => function ($test, $node) {
                     $op = $node->getOperand();
                     $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 },
@@ -498,7 +498,7 @@ class ConverterPhpcrTest extends TestCase
                     $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 },
                 'add_child_operand' => true,
-                'phpcr_class'       => 'UpperCaseInterface',
+                'phpcr_class' => 'UpperCaseInterface',
             ]],
 
             // static
@@ -523,9 +523,9 @@ class ConverterPhpcrTest extends TestCase
     public function testDispatchOperands($class, $args, $options)
     {
         $options = array_merge([
-            'assert'            => null,
+            'assert' => null,
             'add_child_operand' => false,
-            'phpcr_class'       => null,
+            'phpcr_class' => null,
         ], $options);
 
         $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$options['phpcr_class'];

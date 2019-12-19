@@ -39,7 +39,7 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
 
         $s = microtime(true);
 
-        for ($i = 0; $i < $this->count; $i++) {
+        for ($i = 0; $i < $this->count; ++$i) {
             $user = new CmsUser();
             $user->name = 'Benjamin';
             $user->username = 'beberlei';

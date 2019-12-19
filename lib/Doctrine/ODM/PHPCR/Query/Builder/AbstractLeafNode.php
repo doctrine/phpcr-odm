@@ -55,7 +55,7 @@ abstract class AbstractLeafNode extends AbstractNode
     {
         $parts = explode('.', $field);
 
-        if (count($parts) == 2) {
+        if (2 == count($parts)) {
             return $parts;
         }
 

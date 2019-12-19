@@ -48,12 +48,12 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
         $classMetadata = $this->prophesize(ClassMetadata::class);
         $document = new \stdClass();
         $localizedPropNames = [
-            'test:de-prop1'                                 => 'de',
-            'test:de_at-prop2'                              => 'de_at',
+            'test:de-prop1' => 'de',
+            'test:de_at-prop2' => 'de_at',
             'test:en_Hans_CN_nedis_rozaj_x_prv1_prv2-prop3' => 'en_Hans_CN_nedis_rozaj_x_prv1_prv2',
-            'i18n:de-asdf'                                  => false, // prefix is incorrect
-            'asdf'                                          => false, // no prefix
-            'de_asdf'                                       => false, // no property name
+            'i18n:de-asdf' => false, // prefix is incorrect
+            'asdf' => false, // no prefix
+            'de_asdf' => false, // no property name
         ];
 
         $node = $this->prophesize(NodeInterface::class);

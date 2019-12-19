@@ -121,24 +121,24 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user2);
         $this->dm->flush();
 
-        $users1 = $this->dm->getRepository(CmsUser::class)->findBy(['username' =>'beberlei']);
+        $users1 = $this->dm->getRepository(CmsUser::class)->findBy(['username' => 'beberlei']);
         $this->assertCount(1, $users1);
         $this->assertEquals($user1->username, $users1['/functional/beberlei']->username);
 
-        $users2 = $this->dm->getRepository(CmsUser::class)->findBy(['status' =>'active']);
+        $users2 = $this->dm->getRepository(CmsUser::class)->findBy(['status' => 'active']);
         $this->assertCount(2, $users2);
 
-        $users3 = $this->dm->getRepository(CmsUser::class)->findBy(['status' =>'active'], null, 1);
+        $users3 = $this->dm->getRepository(CmsUser::class)->findBy(['status' => 'active'], null, 1);
         $this->assertCount(1, $users3);
 
-        $users4 = $this->dm->getRepository(CmsUser::class)->findBy(['status' =>'active'], ['name' => 'asc'], 2, 0);
+        $users4 = $this->dm->getRepository(CmsUser::class)->findBy(['status' => 'active'], ['name' => 'asc'], 2, 0);
         $this->assertEquals('/functional/beberlei', $users4->key());
 
-        $users5 = $this->dm->getRepository(CmsUser::class)->findBy(['status' =>'active'], ['name' => 'asc'], 2, 1);
+        $users5 = $this->dm->getRepository(CmsUser::class)->findBy(['status' => 'active'], ['name' => 'asc'], 2, 1);
         $this->assertEquals('/functional/lsmith', $users5->key());
 
         // test descending order
-        $users6 = $this->dm->getRepository(CmsUser::class)->findBy(['status' =>'active'], ['name' => 'desc']);
+        $users6 = $this->dm->getRepository(CmsUser::class)->findBy(['status' => 'active'], ['name' => 'desc']);
         $this->assertEquals('/functional/lsmith', $users6->key());
     }
 
@@ -166,26 +166,26 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
     public function testFindByOrderNonExistentDirectionString()
     {
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
-        $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' =>'beberlei'], ['username' =>'nowhere']);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' => 'beberlei'], ['username' => 'nowhere']);
     }
 
     public function testFindByOrderNodename()
     {
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
 
-        $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' =>'beberlei'], ['nodename' =>'asc']);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' => 'beberlei'], ['nodename' => 'asc']);
     }
 
     public function testFindByOnAssociation()
     {
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
-        $this->dm->getRepository(CmsTeamUser::class)->findBy(['parent' =>'/foo']);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(['parent' => '/foo']);
     }
 
     public function testFindByOrderAssociation()
     {
         $this->expectException(\Doctrine\ODM\PHPCR\Exception\InvalidArgumentException::class);
-        $this->dm->getRepository(CmsTeamUser::class)->findBy(['username' =>'beberlei'], ['parent' => 'asc']);
+        $this->dm->getRepository(CmsTeamUser::class)->findBy(['username' => 'beberlei'], ['parent' => 'asc']);
     }
 
     public function testFindOneBy()
@@ -204,10 +204,10 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user2);
         $this->dm->flush();
 
-        $users1 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' =>'beberlei']);
+        $users1 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' => 'beberlei']);
         $this->assertEquals($user1->username, $users1->username);
 
-        $users2 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' =>'obama']);
+        $users2 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' => 'obama']);
         $this->assertNull($users2);
     }
 }
