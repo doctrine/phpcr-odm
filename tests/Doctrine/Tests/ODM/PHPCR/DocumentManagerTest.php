@@ -4,16 +4,16 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use PHPCR\ItemNotFoundException;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QueryManagerInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\WorkspaceInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\DocumentRepository;
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QueryManagerInterface;
-use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 
 /**
  * @group unit
@@ -105,7 +105,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session);
 
-        $obj = new \stdClass;
+        $obj = new \stdClass();
         $uow = $dm->getUnitOfWork();
 
         $method = new \ReflectionMethod($uow, 'registerDocument');
@@ -165,7 +165,6 @@ class DocumentManagerTest extends PHPCRTestCase
             ->method('getQOMFactory')
             ->will($this->returnValue($qomf));
 
-
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
         $this->assertInstanceOf(QueryBuilder::class, $qb);
@@ -177,7 +176,8 @@ class DocumentManagerGetClassMetadata extends DocumentManager
     private $callCount = 0;
 
     /**
-     * @param  string $class
+     * @param string $class
+     *
      * @return ClassMetadata
      */
     public function getClassMetadata($class)
@@ -188,12 +188,15 @@ class DocumentManagerGetClassMetadata extends DocumentManager
             case '1':
                 break;
             case '2':
-                $metadata->customRepositoryClassName = "stdClass";
+                $metadata->customRepositoryClassName = 'stdClass';
+
                 break;
             default:
                 throw new \Exception('getClassMetadata called more than 2 times');
+
                 break;
         }
+
         return $metadata;
     }
 }

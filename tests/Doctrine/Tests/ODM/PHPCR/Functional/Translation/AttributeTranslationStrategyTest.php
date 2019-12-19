@@ -4,9 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\SessionInterface;
@@ -56,9 +56,9 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     public function testSaveTranslation()
     {
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
-        $data['text'] ='Lorem ipsum...';
+        $data['text'] = 'Lorem ipsum...';
 
         $node = $this->getTestNode();
 
@@ -73,7 +73,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         // Then test we have what we expect in the content repository
-        $node = $this->session->getNode('/' . $this->testNodeName);
+        $node = $this->session->getNode('/'.$this->testNodeName);
 
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('fr', 'topic')));
@@ -111,22 +111,22 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->getText());
         $this->assertEquals('Custom property name', $doc->customPropertyName);
-        $this->assertEquals(array(), $doc->getSettings()); // nullable
+        $this->assertEquals([], $doc->getSettings()); // nullable
 
         // Load another language and test the document has been updated
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
 
         $this->assertEquals('Sujet français', $doc->topic);
         $this->assertEquals('Texte français', $doc->getText());
-        $this->assertEquals(array(), $doc->getSettings());
+        $this->assertEquals([], $doc->getSettings());
     }
 
     public function testSubRegionSaveTranslation()
     {
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
-        $data['text'] ='Lorem ipsum...';
+        $data['text'] = 'Lorem ipsum...';
 
         $node = $this->getTestNode();
 
@@ -141,7 +141,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         // Then test we have what we expect in the content repository
-        $node = $this->session->getNode('/' . $this->testNodeName);
+        $node = $this->session->getNode('/'.$this->testNodeName);
 
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'topic')));
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en_US', 'topic')));
@@ -158,7 +158,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         // make sure getLocalesFor works as well.
         $doc = new Article();
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
-        $this->assertEquals(array('en', 'en_US'), $locales);
+        $this->assertEquals(['en', 'en_US'], $locales);
     }
 
     public function testSubRegionLoadTranslation()
@@ -184,14 +184,14 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('English topic', $doc->topic);
         $this->assertEquals('English text', $doc->getText());
         $this->assertEquals('Custom property name', $doc->customPropertyName);
-        $this->assertEquals(array(), $doc->getSettings()); // nullable
+        $this->assertEquals([], $doc->getSettings()); // nullable
 
         // Load another language and test the document has been updated
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en_US');
 
         $this->assertEquals('American topic', $doc->topic);
         $this->assertEquals('American text', $doc->getText());
-        $this->assertEquals(array(), $doc->getSettings());
+        $this->assertEquals([], $doc->getSettings());
     }
 
     public function testLoadTranslationNotNullable()
@@ -217,12 +217,12 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     public function testTranslationNullProperties()
     {
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
         $data['nullable'] = 'not null';
         $data['customPropertyName'] = 'Custom property name';
-        $data['settings'] = array('key' => 'value');
+        $data['settings'] = ['key' => 'value'];
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -231,7 +231,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $strategy->saveTranslation($data, $node, $this->metadata, 'en');
 
         // Save translation in another language
-        $data = array();
+        $data = [];
         $data['topic'] = 'Un sujet intéressant';
         $data['text'] = 'Lorem français';
         $data['customPropertyName'] = null;
@@ -239,7 +239,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
 
-        $doc = new Article;
+        $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
@@ -248,28 +248,28 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum...', $doc->getText());
         $this->assertEquals('not null', $doc->nullable);
         $this->assertEquals('Custom property name', $doc->customPropertyName);
-        $this->assertEquals(array('key' => 'value'), $doc->getSettings());
+        $this->assertEquals(['key' => 'value'], $doc->getSettings());
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
         $this->assertEquals('Un sujet intéressant', $doc->topic);
         $this->assertEquals('Lorem français', $doc->getText());
         $this->assertNull($doc->nullable);
         $this->assertNull($doc->customPropertyName);
-        $this->assertEquals(array(), $doc->getSettings());
+        $this->assertEquals([], $doc->getSettings());
 
-        $nullFields = $node->getProperty('phpcr_locale:fr' . AttributeTranslationStrategy::NULLFIELDS)->getValue();
-        $this->assertEquals(array(
+        $nullFields = $node->getProperty('phpcr_locale:fr'.AttributeTranslationStrategy::NULLFIELDS)->getValue();
+        $this->assertEquals([
             'custom-property-name',
-        ), $nullFields);
+        ], $nullFields);
     }
 
     public function testRemoveTranslation()
     {
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
-        $data['settings'] = array('setting-1' => 'one-setting');
+        $data['settings'] = ['setting-1' => 'one-setting'];
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -286,7 +286,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertTrue($node->hasProperty('phpcr_locale:frnullfields'));
 
         // Then remove the french translation
-        $doc = new Article;
+        $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
@@ -305,10 +305,10 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     public function testRemoveTranslationSubLocale()
     {
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
-        $data['settings'] = array('setting-1' => 'one-setting');
+        $data['settings'] = ['setting-1' => 'one-setting'];
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -325,7 +325,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertTrue($node->hasProperty('phpcr_locale:fr_CAnullfields'));
 
         // Then remove the french translation
-        $doc = new Article;
+        $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
@@ -368,6 +368,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->session->save();
 
         $this->dm->clear();
+
         return $node;
     }
 
@@ -385,7 +386,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 
     public static function propertyNameForLocale($locale, $property)
     {
-        return Translation::LOCALE_NAMESPACE . ':' . $locale . '-' . $property;
+        return Translation::LOCALE_NAMESPACE.':'.$locale.'-'.$property;
     }
 
     /**
@@ -396,17 +397,17 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     public function testTranslationArrayProperties()
     {
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
-        $data['settings'] = array(
+        $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html'
-        );
-        $data['customNameSettings'] = array(
+            'url' => 'great-article-in-english.html',
+        ];
+        $data['customNameSettings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html'
-        );
+            'url' => 'great-article-in-english.html',
+        ];
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -417,60 +418,60 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         // Save translation in another language
 
         $data['topic'] = 'Un sujet intéressant';
-        $data['settings'] = array(
+        $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html'
-        );
-        $data['customNameSettings'] = array(
+            'url' => 'super-article-en-francais.html',
+        ];
+        $data['customNameSettings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html'
-        );
+            'url' => 'super-article-en-francais.html',
+        ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->flush();
 
-        $doc = new Article;
+        $doc = new Article();
         $doc->author = 'John Doe';
         $doc->topic = $data['topic'];
         $doc->setText($data['text']);
         $strategy->loadTranslation($doc, $node, $this->metadata, 'en');
 
-        $this->assertEquals(array('is-active', 'url'), array_keys($doc->getSettings()));
-        $this->assertEquals(array(
+        $this->assertEquals(['is-active', 'url'], array_keys($doc->getSettings()));
+        $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html'
-        ), $doc->getSettings());
-        $this->assertEquals(array(
+            'url' => 'great-article-in-english.html',
+        ], $doc->getSettings());
+        $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html'
-        ), $doc->customNameSettings);
+            'url' => 'great-article-in-english.html',
+        ], $doc->customNameSettings);
 
         $strategy->loadTranslation($doc, $node, $this->metadata, 'fr');
-        $this->assertEquals(array('is-active', 'url'), array_keys($doc->getSettings()));
-        $this->assertEquals(array(
+        $this->assertEquals(['is-active', 'url'], array_keys($doc->getSettings()));
+        $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html'
-        ), $doc->getSettings());
-        $this->assertEquals(array(
+            'url' => 'super-article-en-francais.html',
+        ], $doc->getSettings());
+        $this->assertEquals([
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html'
-        ), $doc->customNameSettings);
+            'url' => 'super-article-en-francais.html',
+        ], $doc->customNameSettings);
     }
 
     public function testQueryBuilder()
     {
         $strategy = new AttributeTranslationStrategy($this->dm);
         $this->dm->setTranslationStrategy('attribute', $strategy);
-        $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));
 
         // First save some translations
-        $data = array();
+        $data = [];
         $data['topic'] = 'Some interesting subject';
         $data['text'] = 'Lorem ipsum...';
-        $data['settings'] = array(
+        $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'great-article-in-english.html'
-        );
+            'url' => 'great-article-in-english.html',
+        ];
 
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -481,10 +482,10 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         // Save translation in another language
 
         $data['topic'] = 'Un sujet intéressant';
-        $data['settings'] = array(
+        $data['settings'] = [
             'is-active' => 'true',
-            'url'       => 'super-article-en-francais.html'
-        );
+            'url' => 'super-article-en-francais.html',
+        ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
         $this->dm->getPhpcrSession()->save();

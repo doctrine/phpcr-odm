@@ -25,6 +25,7 @@ class NonVersionableArticle
     {
         return $this->text;
     }
+
     public function setText($text)
     {
         $this->text = $text;

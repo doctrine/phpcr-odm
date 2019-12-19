@@ -31,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DocumentMigrateClassCommand extends NodesUpdateCommand
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function configure()
     {
@@ -41,12 +41,12 @@ class DocumentMigrateClassCommand extends NodesUpdateCommand
 
             ->addArgument('classname', InputArgument::REQUIRED, 'Old class name (does not need to exist in current codebase')
             ->addArgument('new-classname', InputArgument::REQUIRED, 'New class name (must exist in current codebase')
-            ->setHelp(<<<HERE
+            ->setHelp(<<<'HERE'
 The <info>doctrine:phpcr:docment:migrate-class</info> command migrates document
 classes from the old class to the new class, updating the parent class
 information too.
 
-  <info>$ php ./app/console/phpcr doctrine:phpcr:document:migrate-class "Old\\ClassName" "New\\ClassName"</info>
+  <info>$ php ./app/console/phpcr doctrine:phpcr:document:migrate-class "Old\ClassName" "New\ClassName"</info>
 
 Note that the command only changes the class meta information, but does <comment>not</comment>
 validate whether the repository contains all required properties for your
@@ -57,7 +57,7 @@ HERE
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -83,11 +83,11 @@ HERE
             $classname
         ));
 
-        $input->setOption('apply-closure', array(
+        $input->setOption('apply-closure', [
             function ($session, $node) use ($newClassname, $documentManager, $mapper) {
                 $mapper->writeMetadata($documentManager, $node, $newClassname);
-            }
-        ));
+            },
+        ]);
 
         return parent::execute($input, $output);
     }

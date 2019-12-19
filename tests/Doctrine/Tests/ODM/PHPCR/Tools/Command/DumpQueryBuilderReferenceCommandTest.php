@@ -26,7 +26,7 @@ class DumpQueryBuilderReferenceCommandTest extends TestCase
 
     public function testCommand()
     {
-        $this->commandTester->execute(array());
+        $this->commandTester->execute([]);
         $res = $this->commandTester->getDisplay();
         $this->assertContains('Query Builder Reference', $res);
     }

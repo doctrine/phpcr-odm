@@ -1,8 +1,9 @@
 <?php
+
 namespace Doctrine\Tests\Models\Versioning;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(versionable="full")

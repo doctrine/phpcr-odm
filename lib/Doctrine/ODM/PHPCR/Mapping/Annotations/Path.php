@@ -29,7 +29,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="path") instead.
+ * @deprecated use @Field(type="path") instead
  */
 final class Path extends TranslatableProperty
 {

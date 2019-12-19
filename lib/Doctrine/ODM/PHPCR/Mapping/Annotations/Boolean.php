@@ -27,7 +27,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="boolean") instead.
+ * @deprecated use @Field(type="boolean") instead
  */
 final class Boolean extends TranslatableProperty
 {

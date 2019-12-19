@@ -3,44 +3,44 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
-use PHPUnit\Framework\TestCase;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject;
 use Doctrine\Tests\Models\ECommerce\ECommerceCart;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodenameMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentDocumentMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\DepthMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentPrivatePropertyMappingObject;
-use PHPCR\SessionInterface;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\RepositoryMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UniqueNodeTypeMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeTypeMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceParentMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceChildMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReplaceMixinMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject;
-use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ClassInheritanceParentMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\DepthMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\DocumentRepository;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\FieldMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\IsLeafObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\LifecycleCallbackMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MappedSuperclassMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodenameMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\NodeTypeMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentDocumentMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentPrivatePropertyMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ParentWithPrivatePropertyObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceableMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceManyMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferenceOneMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReferrersMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ReplaceMixinMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\RepositoryMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringExtendedMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\StringMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\TranslatorMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UniqueNodeTypeMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject;
+use PHPCR\SessionInterface;
+use PHPUnit\Framework\TestCase;
 
 abstract class AbstractMappingDriverTest extends TestCase
 {
@@ -50,7 +50,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     protected function ensureIsLoaded($entityClassName)
     {
-        new $entityClassName;
+        new $entityClassName();
     }
 
     /**
@@ -396,7 +396,7 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertArrayHasKey('all', $class->mappings);
         $this->assertArrayNotHasKey('filter', $class->mappings['all']);
         $this->assertArrayHasKey('some', $class->mappings);
-        $this->assertSame(array('*some*'), $class->mappings['some']['filter']);
+        $this->assertSame(['*some*'], $class->mappings['some']['filter']);
         $this->assertSame(2, $class->mappings['some']['fetchDepth']);
         $this->assertSame(3, $class->mappings['some']['cascade']);
     }
@@ -483,13 +483,13 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertSame('phpcr:test', $class->nodeType);
         $this->assertSame(DocumentRepository::class, $class->customRepositoryClassName);
         $this->assertSame('children', $class->translator);
-        $this->assertSame(array('mix:one', 'mix:two'), $class->mixins);
+        $this->assertSame(['mix:one', 'mix:two'], $class->mixins);
         $this->assertSame('simple', $class->versionable);
         $this->assertTrue($class->referenceable);
         $this->assertSame(
             'id',
             $class->identifier,
-            'A driver should always be able to give mapping for a mapped superclass,' . PHP_EOL.
+            'A driver should always be able to give mapping for a mapped superclass,'.PHP_EOL.
             'and let classes mapped with other drivers inherit this mapping entirely.'
         );
 
@@ -521,7 +521,6 @@ abstract class AbstractMappingDriverTest extends TestCase
             'The id mapping should be inherited'
         );
     }
-
 
     public function testLoadNodeMapping(): ClassMetadata
     {
@@ -755,7 +754,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testChildClassesMapping(ClassMetadata $class)
     {
-        $this->assertEquals(array('stdClass'), $class->getChildClasses());
+        $this->assertEquals(['stdClass'], $class->getChildClasses());
     }
 
     public function testLoadIsLeafMapping(): ClassMetadata

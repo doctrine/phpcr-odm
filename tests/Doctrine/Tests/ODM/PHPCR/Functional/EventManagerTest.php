@@ -4,14 +4,14 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\Persistence\Event\ManagerEventArgs;
-use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
-use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
 use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Event\MoveEventArgs;
+use Doctrine\ODM\PHPCR\Event\PreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
+use Doctrine\Tests\Models\CMS\CmsItem;
+use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\Models\CMS\CmsPageTranslatable;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\Tests\Models\CMS\CmsPage;
-use Doctrine\Tests\Models\CMS\CmsItem;
 
 class EventManagerTest extends PHPCRFunctionalTestCase
 {
@@ -25,13 +25,12 @@ class EventManagerTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-
-    protected $localePrefs = array(
-        'en' => array('de', 'fr'),
-        'fr' => array('de', 'en'),
-        'de' => array('en'),
-        'it' => array('fr', 'de', 'en'),
-    );
+    protected $localePrefs = [
+        'en' => ['de', 'fr'],
+        'fr' => ['de', 'en'],
+        'de' => ['en'],
+        'it' => ['fr', 'de', 'en'],
+    ];
 
     public function setUp(): void
     {
@@ -45,7 +44,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::prePersist,
                     Event::postPersist,
                     Event::preUpdate,
@@ -58,13 +57,13 @@ class EventManagerTest extends PHPCRFunctionalTestCase
                     Event::preMove,
                     Event::postMove,
                     Event::endFlush,
-                ),
+                ],
                 $this->listener
             );
 
         $page = new CmsPage();
-        $page->title = "my-page";
-        $page->content = "long story";
+        $page->title = 'my-page';
+        $page->content = 'long story';
 
         $this->dm->persist($page);
 
@@ -92,7 +91,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->listener->itemPreMove);
         $this->assertFalse($this->listener->itemPostMove);
 
-        $this->dm->move($page, '/functional/moved-' . $page->title);
+        $this->dm->move($page, '/functional/moved-'.$page->title);
 
         $this->assertFalse($this->listener->pagePreMove);
         $this->assertFalse($this->listener->pagePostMove);
@@ -107,10 +106,10 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $item = new CmsItem();
-        $item->name = "my-item";
+        $item->name = 'my-item';
         $item->documentTarget = $page;
 
-        $page->content = "short story";
+        $page->content = 'short story';
         $this->dm->persist($item);
         $page->addItem($item);
 
@@ -152,19 +151,19 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::preCreateTranslation,
                     Event::postLoadTranslation,
                     Event::preRemoveTranslation,
                     Event::postRemoveTranslation,
-                ),
+                ],
                 $this->listener
             );
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
 
         $page = new CmsPageTranslatable();
-        $page->title = "my-page";
-        $page->content = "long story";
+        $page->title = 'my-page';
+        $page->content = 'long story';
 
         $this->dm->persist($page);
         $this->assertFalse($this->listener->preCreateTranslation);
@@ -203,27 +202,47 @@ class EventManagerTest extends PHPCRFunctionalTestCase
 class TestPersistenceListener
 {
     public $pagePrePersist = false;
+
     public $pagePostPersist = false;
+
     public $itemPrePersist = false;
+
     public $itemPostPersist = false;
+
     public $preUpdate = false;
+
     public $postUpdate = false;
+
     public $pagePreRemove = false;
+
     public $pagePostRemove = false;
+
     public $itemPreRemove = false;
+
     public $itemPostRemove = false;
+
     public $onFlush = false;
+
     public $postFlush = false;
+
     public $endFlush = false;
+
     public $preFlush = false;
+
     public $itemPreMove = false;
+
     public $itemPostMove = false;
+
     public $pagePreMove = false;
+
     public $pagePostMove = false;
 
     public $postLoadTranslation = false;
+
     public $preCreateTranslation = false;
+
     public $preRemoveTranslation = false;
+
     public $postRemoveTranslation = false;
 
     public function prePersist(LifecycleEventArgs $e)
@@ -249,7 +268,7 @@ class TestPersistenceListener
     public function preUpdate(PreUpdateEventArgs $e)
     {
         $document = $e->getObject();
-        if (! $document instanceof CmsPage) {
+        if (!$document instanceof CmsPage) {
             return;
         }
         $dm = $e->getObjectManager();

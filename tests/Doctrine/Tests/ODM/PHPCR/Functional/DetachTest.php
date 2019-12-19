@@ -18,6 +18,7 @@ class DetachTest extends PHPCRFunctionalTestCase
 
     /**
      * Class name of the document class
+     *
      * @var string
      */
     private $type = CmsUser::class;
@@ -29,12 +30,12 @@ class DetachTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $user = $this->node->addNode('lsmith');
         $user->setProperty('username', 'lsmith');
-        $user->setProperty('numbers', array(3, 1, 2));
+        $user->setProperty('numbers', [3, 1, 2]);
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
     }
@@ -42,8 +43,8 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function testDetachNewObject()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->detach($user);
 
@@ -57,8 +58,8 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function testDetachedKnownObject()
     {
         $user = new CmsUser();
-        $user->username = "beberlei";
-        $user->name = "Benjamin";
+        $user->username = 'beberlei';
+        $user->name = 'Benjamin';
 
         $this->dm->persist($user);
         $this->dm->flush();
@@ -72,7 +73,7 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function testDetach()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
-        $user->username = "new-name";
+        $user->username = 'new-name';
 
         $this->dm->detach($user);
         $this->dm->flush();
@@ -85,7 +86,7 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function testDetachWithPerist()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
-        $user->username = "new-name";
+        $user->username = 'new-name';
 
         $this->dm->detach($user);
 
@@ -96,7 +97,7 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function testDetachWithMove()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
-        $user->username = "new-name";
+        $user->username = 'new-name';
 
         $this->dm->detach($user);
 
@@ -107,7 +108,7 @@ class DetachTest extends PHPCRFunctionalTestCase
     public function testDetachWithRemove()
     {
         $user = $this->dm->find($this->type, '/functional/lsmith');
-        $user->username = "new-name";
+        $user->username = 'new-name';
 
         $this->dm->detach($user);
 

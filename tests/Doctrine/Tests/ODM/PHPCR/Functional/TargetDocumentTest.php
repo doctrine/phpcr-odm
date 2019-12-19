@@ -4,8 +4,8 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
-use Doctrine\Tests\Models\References\RefType2TestObj;
 use Doctrine\Tests\Models\References\RefType1TestObj;
+use Doctrine\Tests\Models\References\RefType2TestObj;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 
@@ -95,8 +95,10 @@ class ReferenceManyObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\ReferenceMany(cascade="persist") */
     public $references;
 }
@@ -108,8 +110,10 @@ class ReferenceOneObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
+
     /** @PHPCRODM\ReferenceOne(cascade="persist") */
     public $reference;
 }

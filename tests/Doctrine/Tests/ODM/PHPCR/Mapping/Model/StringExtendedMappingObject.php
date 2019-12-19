@@ -13,6 +13,7 @@ class StringExtendedMappingObject extends StringMappingObject
 {
     /**
      * The language this document currently is in
+     *
      * @PHPCRODM\Locale
      */
     private $doclocale;

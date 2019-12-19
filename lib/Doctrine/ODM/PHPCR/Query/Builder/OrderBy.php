@@ -18,9 +18,9 @@ class OrderBy extends AbstractNode
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_ORDERING => array(0, null)
-        );
+        return [
+            self::NT_ORDERING => [0, null],
+        ];
     }
 
     /**
@@ -31,6 +31,7 @@ class OrderBy extends AbstractNode
      * </code>
      *
      * @factoryMethod Ordering
+     *
      * @return Ordering
      */
     public function asc()
@@ -46,6 +47,7 @@ class OrderBy extends AbstractNode
      * </code>
      *
      * @factoryMethod Ordering
+     *
      * @return Ordering
      */
     public function desc()

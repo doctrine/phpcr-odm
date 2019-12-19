@@ -13,7 +13,7 @@ class DepthMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
+
     /** @PHPCRODM\Depth */
     public $depth;
 }

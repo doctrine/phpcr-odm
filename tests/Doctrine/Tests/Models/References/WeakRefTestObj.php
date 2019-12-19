@@ -11,6 +11,7 @@ class WeakRefTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", strategy="weak", cascade="persist") */
     public $reference;
 }

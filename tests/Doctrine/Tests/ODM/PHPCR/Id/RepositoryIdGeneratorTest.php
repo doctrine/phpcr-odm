@@ -1,8 +1,8 @@
 <?php
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +29,7 @@ class RepositoryIdGeneratorTest extends TestCase
             ->will($this->returnValue($repository))
         ;
 
-        $generator = new RepositoryIdGenerator;
+        $generator = new RepositoryIdGenerator();
 
         $this->assertEquals('generatedid', $generator->generate(null, $cm, $dm));
     }
@@ -40,14 +40,14 @@ class RepositoryIdGeneratorTest extends TestCase
     public function testGenerateNoIdException()
     {
         $id = 'moo';
-        $generator = new RepositoryIdGenerator;
+        $generator = new RepositoryIdGenerator();
         $cm = new ClassMetadataProxy($id);
         $repository = $this->createMock(RepositoryIdInterface::class);
         $repository
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
-            ->will($this->throwException(new \Exception))
+            ->will($this->throwException(new \Exception()))
         ;
         $dm = $this->createMock(DocumentManager::class);
         $dm

@@ -44,7 +44,7 @@ class DocumentConvertTranslationCommand extends Command
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function configure()
     {
@@ -57,20 +57,20 @@ class DocumentConvertTranslationCommand extends Command
                 'Name of the previous translation strategy if there was one. Omit for converting from non-translated to translated',
                 'none'
             )
-            ->addOption('fields', null, InputOption::VALUE_IS_ARRAY|InputOption::VALUE_OPTIONAL,
+            ->addOption('fields', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'The fields to convert. If not specified, all fields configured as translated will be converted.',
-                array()
+                []
             )
-            ->addOption('locales', null, InputOption::VALUE_IS_ARRAY|InputOption::VALUE_OPTIONAL,
+            ->addOption('locales', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'Locales to copy previously untranslated fields into.',
-                array()
+                []
             )
             ->addOption('force', null, InputOption::VALUE_NONE, 'Use to bypass the confirmation dialog')
-            ->setHelp(<<<HERE
+            ->setHelp(<<<'HERE'
 The <info>doctrine:phpcr:document:convert-translation</info> command migrates translations
 from a previous format to the current mapping.
 
-  <info>$ php ./app/console/phpcr doctrine:phpcr:document:convert-translation "Document\\ClassName"</info>
+  <info>$ php ./app/console/phpcr doctrine:phpcr:document:convert-translation "Document\ClassName"</info>
 
 <comment>When some fields already where translated, you need to specify which fields to convert.</comment>
 Failing to do that would erase all fields already translated previously.
@@ -83,7 +83,7 @@ HERE
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -147,13 +147,14 @@ HERE
 
         return $this->translationConverter;
     }
+
     /**
      * Ask for confirmation with the question helper or the dialog helper for symfony < 2.5 compatibility.
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
      * @param string          $question
-     * @param boolean         $default
+     * @param bool            $default
      *
      * @return string
      */

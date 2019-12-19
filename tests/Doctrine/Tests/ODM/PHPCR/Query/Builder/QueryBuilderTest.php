@@ -8,14 +8,14 @@ class QueryBuilderTest extends NodeTestCase
 {
     public function provideInterface()
     {
-        return array(
-            array('where', 'Where'),
-            array('andWhere', 'WhereAnd'), // andWhere adds Where if no existing Where
-            array('orWhere', 'WhereOr'), // andWhere adds Where if no existing Where
-            array('from', 'From', array('a')),
-            array('orderBy', 'OrderBy'),
-            array('select', 'Select'),
-        );
+        return [
+            ['where', 'Where'],
+            ['andWhere', 'WhereAnd'], // andWhere adds Where if no existing Where
+            ['orWhere', 'WhereOr'], // andWhere adds Where if no existing Where
+            ['from', 'From', ['a']],
+            ['orderBy', 'OrderBy'],
+            ['select', 'Select'],
+        ];
     }
 
     public function testNonExistantMethod()

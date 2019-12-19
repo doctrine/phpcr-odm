@@ -14,13 +14,15 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
     protected function loadDriver(): MappingDriver
     {
         $reader = new AnnotationReader();
+
         return new AnnotationDriver($reader);
     }
 
     protected function loadDriverForTestMappingDocuments(): MappingDriver
     {
         $annotationDriver = $this->loadDriver();
-        $annotationDriver->addPaths(array(__DIR__ . '/Model'));
+        $annotationDriver->addPaths([__DIR__.'/Model']);
+
         return $annotationDriver;
     }
 

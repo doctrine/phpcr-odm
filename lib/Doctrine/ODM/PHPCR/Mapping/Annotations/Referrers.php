@@ -29,6 +29,7 @@ final class Referrers
 {
     /**
      * Name of the field in the other document referencing this document
+     *
      * @var string
      */
     public $referencedBy;
@@ -41,5 +42,5 @@ final class Referrers
     /**
      * @var array
      */
-    public $cascade = array();
+    public $cascade = [];
 }

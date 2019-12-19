@@ -2,11 +2,11 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Tools\Test;
 
+use Doctrine\ODM\PHPCR\Query\Builder\OperandDynamicField;
+use Doctrine\ODM\PHPCR\Query\Builder\OperandStaticLiteral;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Tools\Test\QueryBuilderTester;
 use PHPUnit\Framework\TestCase;
-use Doctrine\ODM\PHPCR\Query\Builder\OperandDynamicField;
-use Doctrine\ODM\PHPCR\Query\Builder\OperandStaticLiteral;
 
 class QueryBuilderTesterTest extends TestCase
 {
@@ -19,7 +19,7 @@ class QueryBuilderTesterTest extends TestCase
 
     public function setUp(): void
     {
-        $this->qb = new QueryBuilder;
+        $this->qb = new QueryBuilder();
         $this->qb->where()->andX()
             ->eq()->field('a.foo')->literal('Foo')->end()
             ->eq()->field('a.foo')->literal('Bar');
@@ -30,7 +30,7 @@ class QueryBuilderTesterTest extends TestCase
     public function testDumpPaths()
     {
         $res = $this->qbTester->dumpPaths();
-        $this->assertEquals(<<<HERE
+        $this->assertEquals(<<<'HERE'
 where (Where)
 where.constraint (ConstraintAndx)
 where.constraint.constraint (ConstraintComparison)

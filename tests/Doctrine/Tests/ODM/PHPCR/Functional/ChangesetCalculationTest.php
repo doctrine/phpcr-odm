@@ -26,7 +26,7 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
     {
         $this->listener = new ChangesetListener();
         $this->dm = $this->createDocumentManager();
-        $this->dm->setLocaleChooserStrategy(new LocaleChooser(array('en' => array('fr'), 'fr' => array('en')), 'en'));
+        $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
@@ -35,9 +35,9 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 
@@ -73,9 +73,9 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                array(
+                [
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 
@@ -111,9 +111,9 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 
@@ -158,6 +158,6 @@ class ChangesetListener
 
     public function postUpdate(LifecycleEventArgs $e)
     {
-        $this->count++;
+        ++$this->count;
     }
 }

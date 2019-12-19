@@ -13,10 +13,10 @@ class ReferenceOneMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
+
     /** @PHPCRODM\ReferenceOne(targetDocument="myDocument", strategy="weak") */
     public $referenceOneWeak;
-    
+
     /** @PHPCRODM\ReferenceOne(targetDocument="myDocument", strategy="hard") */
     public $referenceOneHard;
 }

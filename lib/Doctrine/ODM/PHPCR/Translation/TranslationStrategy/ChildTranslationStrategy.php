@@ -30,9 +30,12 @@ use PHPCR\SessionInterface;
 
 /**
  * Translation strategy that stores the translations in a child nodes of the current node.
+ *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  */
@@ -90,11 +93,11 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
     {
-        $translations = $node->getNodes(Translation::LOCALE_NAMESPACE . ':*');
-        $locales = array();
+        $translations = $node->getNodes(Translation::LOCALE_NAMESPACE.':*');
+        $locales = [];
         foreach ($translations as $name => $node) {
             if ($p = strpos($name, ':')) {
-                $locales[] = substr($name, $p+1);
+                $locales[] = substr($name, $p + 1);
             }
         }
 
@@ -107,15 +110,15 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      *
      * @param NodeInterface $parentNode
      * @param string        $locale
-     * @param boolean       $create      whether to create the node if it is
-     *      not yet existing
+     * @param bool          $create     whether to create the node if it is
+     *                                  not yet existing
      *
-     * @return boolean|NodeInterface the node or false if $create is false and
-     *      the node is not existing.
+     * @return bool|NodeInterface the node or false if $create is false and
+     *                            the node is not existing
      */
     protected function getTranslationNode(NodeInterface $parentNode, $locale, $create = true)
     {
-        $name = Translation::LOCALE_NAMESPACE . ":$locale";
+        $name = Translation::LOCALE_NAMESPACE.":$locale";
         if (!$parentNode->hasNode($name)) {
             if (!$create) {
                 return false;
@@ -129,7 +132,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * We namespace the property by putting it in a different node, the name
      * itself does not change.
@@ -140,7 +143,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * We need to select the field on the joined child node.
      */
@@ -148,11 +151,11 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
     {
         $childAlias = sprintf('_%s_%s', $locale, $alias);
 
-        return array($childAlias, $this->getTranslatedPropertyName($locale, $propertyName));
+        return [$childAlias, $this->getTranslatedPropertyName($locale, $propertyName)];
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Join document with translation children, and filter on the right child
      * node.
@@ -176,7 +179,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
         $languageConstraint = $qomf->comparison(
             $qomf->nodeName($childAlias),
             QueryObjectModelConstantsInterface::JCR_OPERATOR_EQUAL_TO,
-            $qomf->literal(Translation::LOCALE_NAMESPACE . ":$locale")
+            $qomf->literal(Translation::LOCALE_NAMESPACE.":$locale")
         );
 
         if ($constraint) {
@@ -190,11 +193,11 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getTranslationsForNodes($nodes, $locales, SessionInterface $session)
     {
-        $absolutePaths = array();
+        $absolutePaths = [];
 
         foreach ($locales as $locale) {
             foreach ($nodes as $node) {

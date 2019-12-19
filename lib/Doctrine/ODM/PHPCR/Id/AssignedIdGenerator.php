@@ -30,7 +30,7 @@ class AssignedIdGenerator extends IdGenerator
     /**
      * Use the identifier field as id and throw exception if not set.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function generate($document, ClassMetadata $cm, DocumentManagerInterface $dm, $parent = null)
     {

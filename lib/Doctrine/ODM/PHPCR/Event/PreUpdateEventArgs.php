@@ -33,13 +33,13 @@ class PreUpdateEventArgs extends BasePreUpdateEventArgs
     /**
      * Constructor.
      *
-     * @param object                    $document
-     * @param DocumentManagerInterface  $objectManager
-     * @param array                     $changeSet
+     * @param object                   $document
+     * @param DocumentManagerInterface $objectManager
+     * @param array                    $changeSet
      */
     public function __construct($document, DocumentManagerInterface $documentManager, array &$changeSet)
     {
-        $fieldChangeSet = array();
+        $fieldChangeSet = [];
         if (isset($changeSet['fields'])) {
             $fieldChangeSet = &$changeSet['fields'];
         }

@@ -27,23 +27,22 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-
     public function testComputingBetweenEvents()
     {
         $this->dm
             ->getEventManager()
             ->addEventListener(
-                array(
+                [
                     Event::postLoad,
                     Event::prePersist,
                     Event::preUpdate,
                     Event::postPersist,
                     Event::postUpdate,
-                ),
+                ],
                 $this->listener
             );
 
-        $entity = new SomeEntity;
+        $entity = new SomeEntity();
         $entity->id = '/functional/test';
         $entity->status = new \stdClass();
         $entity->status->value = 'active';
@@ -111,13 +110,13 @@ class TestEventDocumentChanger2
 {
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             'postLoad',
             'prePersist',
             'preUpdate',
             'postPersist',
             'postUpdate',
-        );
+        ];
     }
 
     protected function switchToObject(LifecycleEventArgs $args)

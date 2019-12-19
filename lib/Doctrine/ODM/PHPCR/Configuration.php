@@ -30,8 +30,10 @@ use PHPCR\Util\UUIDHelper;
  * Configuration class
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  * @author      Pascal Helfenstein <nicam@nicam.ch>
  */
@@ -40,9 +42,9 @@ class Configuration
     /**
      * Array of attributes for this configuration instance.
      *
-     * @var array $attributes
+     * @var array
      */
-    private $attributes = array(
+    private $attributes = [
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
         'metadataDriverImpl' => null,
@@ -50,12 +52,12 @@ class Configuration
         'documentClassMapper' => null,
         'proxyNamespace' => 'MyPHPCRProxyNS',
         'autoGenerateProxyClasses' => true,
-    );
+    ];
 
     /**
      * Sets if all PHPCR document metadata should be validated on read
      *
-     * @param boolean $validateDoctrineMetadata
+     * @param bool $validateDoctrineMetadata
      */
     public function setValidateDoctrineMetadata($validateDoctrineMetadata)
     {
@@ -65,7 +67,7 @@ class Configuration
     /**
      * Gets if all PHPCR document metadata should be validated on read
      *
-     * @return boolean
+     * @return bool
      */
     public function getValidateDoctrineMetadata()
     {
@@ -75,7 +77,7 @@ class Configuration
     /**
      * Sets if all PHPCR documents should automatically get doctrine metadata added on write
      *
-     * @param boolean $writeDoctrineMetadata
+     * @param bool $writeDoctrineMetadata
      */
     public function setWriteDoctrineMetadata($writeDoctrineMetadata)
     {
@@ -85,7 +87,7 @@ class Configuration
     /**
      * Gets if all PHPCR documents should automatically get doctrine metadata added on write
      *
-     * @return boolean
+     * @return bool
      */
     public function getWriteDoctrineMetadata()
     {
@@ -135,6 +137,7 @@ class Configuration
      * Sets the driver implementation that is used to retrieve mapping metadata.
      *
      * @param MappingDriver $driverImpl
+     *
      * @todo Force parameter to be a Closure to ensure lazy evaluation
      *       (as soon as a metadata cache is in effect, the driver never needs to initialize).
      */
@@ -248,7 +251,7 @@ class Configuration
      * Sets a boolean flag that indicates whether proxy classes should always be regenerated
      * during each script execution.
      *
-     * @param boolean $bool
+     * @param bool $bool
      */
     public function setAutoGenerateProxyClasses($bool)
     {
@@ -259,7 +262,7 @@ class Configuration
      * Gets a boolean flag that indicates whether proxy classes should always be regenerated
      * during each script execution.
      *
-     * @return boolean
+     * @return bool
      */
     public function getAutoGenerateProxyClasses()
     {
@@ -272,8 +275,6 @@ class Configuration
      * @since 1.1
      *
      * @param string $cmfName
-     *
-     * @return void
      */
     public function setClassMetadataFactoryName($cmfName)
     {
@@ -287,7 +288,7 @@ class Configuration
      */
     public function getClassMetadataFactoryName()
     {
-        if (! isset($this->attributes['classMetadataFactoryName'])) {
+        if (!isset($this->attributes['classMetadataFactoryName'])) {
             $this->attributes['classMetadataFactoryName'] = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory';
         }
 
@@ -301,15 +302,13 @@ class Configuration
      *
      * @param string $className
      *
-     * @return void
-     *
      * @throws PHPCRException If not is a ObjectRepository
      */
     public function setDefaultRepositoryClassName($className)
     {
         $reflectionClass = new \ReflectionClass($className);
 
-        if (! $reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
+        if (!$reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
             throw PHPCRException::invalidDocumentRepository($className);
         }
 
@@ -334,6 +333,7 @@ class Configuration
      * Set the document repository factory.
      *
      * @since 1.1
+     *
      * @param RepositoryFactory $repositoryFactory
      */
     public function setRepositoryFactory(RepositoryFactory $repositoryFactory)
@@ -345,6 +345,7 @@ class Configuration
      * Get the document repository factory.
      *
      * @since 1.1
+     *
      * @return RepositoryFactory
      */
     public function getRepositoryFactory()
@@ -358,6 +359,7 @@ class Configuration
      * Set the closure for the UUID generation.
      *
      * @since 1.1
+     *
      * @param callable $generator
      */
     public function setUuidGenerator(\Closure $generator)
@@ -369,6 +371,7 @@ class Configuration
      * Get the closure for the UUID generation.
      *
      * @since 1.1
+     *
      * @return callable a UUID generator
      */
     public function getUuidGenerator()

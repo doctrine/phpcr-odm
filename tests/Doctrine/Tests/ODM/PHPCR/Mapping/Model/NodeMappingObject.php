@@ -13,7 +13,7 @@ class NodeMappingObject
 {
     /** @PHPCRODM\Id */
     public $id;
-    
+
     /** @PHPCRODM\Node */
     public $node;
 }
