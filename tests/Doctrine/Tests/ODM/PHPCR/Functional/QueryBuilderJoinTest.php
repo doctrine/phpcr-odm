@@ -172,7 +172,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
     /**
      * @dataProvider provideEquiJoinInner
      */
-    public function testEquiJoinInner($joinType, $leftClass, $rightClass, $criteria = null, $expectedPaths)
+    public function testEquiJoinInner($joinType, $leftClass, $rightClass, $criteria, $expectedPaths)
     {
         $leftFqn = 'Doctrine\Tests\Models\CMS\\'.$leftClass;
         $rightFqn = 'Doctrine\Tests\Models\CMS\\'.$rightClass;

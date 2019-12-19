@@ -337,10 +337,10 @@ class UnitOfWork
      * @param NodeInterface $node
      * @param array         $hints
      *
-     * @return object
-     *
      * @throws PHPCRExceptionInterface if $className was specified and does not match
      *                                 the class of the document corresponding to $node
+     *
+     * @return object
      */
     public function getOrCreateDocument($className, NodeInterface $node, array &$hints = [])
     {
@@ -999,8 +999,7 @@ class UnitOfWork
 
                 break;
             case self::STATE_MANAGED:
-                unset($this->scheduledMoves[$oid]);
-                unset($this->scheduledReorders[$oid]);
+                unset($this->scheduledMoves[$oid], $this->scheduledReorders[$oid]);
 
                 break;
             case self::STATE_DETACHED:
@@ -1204,9 +1203,9 @@ class UnitOfWork
      * @param object $child    The child document
      * @param object $parent   The parent document
      *
-     * @return mixed|string
-     *
      * @throws PHPCRException
+     *
+     * @return mixed|string
      */
     private function getChildNodename($parentId, $nodename, $child, $parent)
     {
@@ -1457,8 +1456,7 @@ class UnitOfWork
 
                     $this->scheduledUpdates[$oid] = $document;
                 } elseif (empty($this->documentChangesets[$oid]['fields'])) {
-                    unset($this->documentChangesets[$oid]);
-                    unset($this->scheduledUpdates[$oid]);
+                    unset($this->documentChangesets[$oid], $this->scheduledUpdates[$oid]);
                 } else {
                     $this->documentChangesets[$oid]['reorderings'] = [];
                 }
@@ -1548,15 +1546,15 @@ class UnitOfWork
             // collect assignment move operations
             $destPath = $destName = false;
 
-            if (isset($this->originalData[$oid][$class->parentMapping])
-                && isset($changeSet[$class->parentMapping])
+            if (isset($this->originalData[$oid][$class->parentMapping], $changeSet[$class->parentMapping])
+
                 && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
             ) {
                 $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
             }
 
-            if (isset($this->originalData[$oid][$class->nodename])
-                && isset($changeSet[$class->nodename])
+            if (isset($this->originalData[$oid][$class->nodename], $changeSet[$class->nodename])
+
                 && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
             ) {
                 $destName = $changeSet[$class->nodename];
@@ -1587,8 +1585,8 @@ class UnitOfWork
                 $this->scheduleMove($document, $targetPath);
             }
 
-            if (isset($this->originalData[$oid][$class->identifier])
-                && isset($changeSet[$class->identifier])
+            if (isset($this->originalData[$oid][$class->identifier], $changeSet[$class->identifier])
+
                 && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
             ) {
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
@@ -1669,8 +1667,7 @@ class UnitOfWork
             $this->originalData[$oid] = $actualData;
             $this->scheduledUpdates[$oid] = $document;
         } elseif (empty($this->documentChangesets[$oid]['reorderings'])) {
-            unset($this->documentChangesets[$oid]);
-            unset($this->scheduledUpdates[$oid]);
+            unset($this->documentChangesets[$oid], $this->scheduledUpdates[$oid]);
         } else {
             $this->documentChangesets[$oid]['fields'] = [];
         }
@@ -2924,7 +2921,7 @@ class UnitOfWork
             $history = $versionManager->getVersionHistory($id);
         } catch (ItemNotFoundException $e) {
             // there is no document with $id
-            return null;
+            return;
         } catch (UnsupportedRepositoryOperationException $e) {
             throw new InvalidArgumentException("Document with id $id is not versionable", $e->getCode(), $e);
         }
@@ -3060,8 +3057,7 @@ class UnitOfWork
 
         $history->removeVersion($version->getName());
 
-        unset($this->documentVersion[$oid]);
-        unset($this->documentHistory[$oid]);
+        unset($this->documentVersion[$oid], $this->documentHistory[$oid]);
     }
 
     /**
@@ -3154,16 +3150,16 @@ class UnitOfWork
      *
      * @param object|string $document document instance or document object hash
      *
-     * @return string|null
-     *
      * @throws PHPCRException
+     *
+     * @return string|null
      */
     public function getDocumentId($document, $throw = true)
     {
         $oid = is_object($document) ? spl_object_hash($document) : $document;
         if (empty($this->documentIds[$oid])) {
             if (!$throw) {
-                return null;
+                return;
             }
             $msg = 'Document is not managed and has no id';
             if (is_object($document)) {
@@ -3248,9 +3244,9 @@ class UnitOfWork
      *
      * @param object $document A managed document
      *
-     * @return array list of locales of this document
-     *
      * @throws MissingTranslationException if this document is not translatable
+     *
+     * @return array list of locales of this document
      */
     public function getLocalesFor($document)
     {
@@ -3367,10 +3363,10 @@ class UnitOfWork
      * @param bool          $fallback whether to perform language fallback
      * @param bool          $refresh  whether to force reloading the translation
      *
-     * @return string The locale used
-     *
      * @throws MissingTranslationException if the translation in $locale is not
      *                                     found and $fallback is false
+     *
+     * @return string The locale used
      *
      * @see doLoadTranslation
      */
@@ -3620,8 +3616,7 @@ class UnitOfWork
 
         return isset($this->documentTranslations[$oid])
             && empty($this->documentTranslations[$oid][$locale])
-            && array_key_exists($locale, $this->documentTranslations[$oid])
-        ;
+            && array_key_exists($locale, $this->documentTranslations[$oid]);
     }
 
     /**
@@ -3689,7 +3684,7 @@ class UnitOfWork
             $metadata = $this->dm->getClassMetadata(get_class($document));
         }
         if (!$this->isDocumentTranslatable($metadata)) {
-            return null;
+            return;
         }
 
         if ($metadata->localeMapping

@@ -91,10 +91,10 @@ class TranslationConverter
      * @param string $previousStrategyName Name of previous strategy or "none" if field was not
      *                                     previously translated
      *
+     * @throws PHPCRExceptionInterface if the document can not be found
+     *
      * @return bool true if there are more documents to convert and this method needs to be
      *              called again
-     *
-     * @throws PHPCRExceptionInterface if the document can not be found
      *
      * @see getLastNotices()
      */

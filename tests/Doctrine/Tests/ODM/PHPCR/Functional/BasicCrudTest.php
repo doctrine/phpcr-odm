@@ -534,8 +534,8 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user);
         $this->assertEquals($user->parameters, $assocArray);
 
-        unset($user->parameters['foo']);
-        unset($assocArray['foo']);
+        unset($user->parameters['foo'], $assocArray['foo']);
+
         $user->parameters['boo'] = 'yah';
         $assocArray['boo'] = 'yah';
         $user->parameters['hello'] = 'welt';

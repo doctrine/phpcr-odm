@@ -54,9 +54,9 @@ class Query
      *
      * @param string $hydrationMode the mode to return the result in execute
      *
-     * @return Query this query instance
-     *
      * @throws QueryException if $hydrationMode is not known
+     *
+     * @return Query this query instance
      *
      * @see execute
      */
@@ -130,7 +130,7 @@ class Query
     public function getParameter($key)
     {
         if (!isset($this->parameters[$key])) {
-            return null;
+            return;
         }
 
         return $this->parameters[$key];
@@ -163,9 +163,9 @@ class Query
      * @param int   $hydrationMode Processing mode to be used during the hydration
      *                             process. One of the Query::HYDRATE_* constants.
      *
-     * @return mixed A Collection for HYDRATE_DOCUMENT, \PHPCR\Query\QueryResultInterface for HYDRATE_PHPCR
-     *
      * @throws QueryException if $hydrationMode is not known
+     *
+     * @return mixed A Collection for HYDRATE_DOCUMENT, \PHPCR\Query\QueryResultInterface for HYDRATE_PHPCR
      */
     public function execute($parameters = null, $hydrationMode = null)
     {
@@ -240,9 +240,9 @@ class Query
      *
      * @param int $hydrationMode
      *
-     * @return mixed
-     *
      * @throws QueryException if more than one result found
+     *
+     * @return mixed
      */
     public function getOneOrNullResult($hydrationMode = null)
     {
@@ -251,7 +251,7 @@ class Query
         if (count($result) > 1) {
             throw QueryException::nonUniqueResult();
         } elseif (count($result) <= 0) {
-            return null;
+            return;
         }
 
         return $result->first();
@@ -267,9 +267,9 @@ class Query
      *
      * @param int $hydrationMode
      *
-     * @return mixed
-     *
      * @throws QueryException if no result or more than one result found
+     *
+     * @return mixed
      */
     public function getSingleResult($hydrationMode = null)
     {

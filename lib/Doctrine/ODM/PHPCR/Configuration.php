@@ -110,9 +110,9 @@ class Configuration
      *
      * @param string $documentNamespaceAlias
      *
-     * @return string the namespace URI
-     *
      * @throws PHPCRException
+     *
+     * @return string the namespace URI
      */
     public function getDocumentNamespace($documentNamespaceAlias)
     {
@@ -380,7 +380,6 @@ class Configuration
             ? $this->attributes['uuidGenerator']
             : function () {
                 return UUIDHelper::generateUUID();
-            }
-        ;
+            };
     }
 }

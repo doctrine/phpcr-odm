@@ -404,8 +404,7 @@ class ClassMetadata implements ClassMetadataInterface
         foreach ($fieldNames as $fieldName) {
             $reflField = isset($this->mappings[$fieldName]['declared'])
                 ? new ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
-                : $this->reflClass->getProperty($fieldName)
-            ;
+                : $this->reflClass->getProperty($fieldName);
             $reflField->setAccessible(true);
             $this->reflFields[$fieldName] = $reflField;
         }
@@ -439,8 +438,6 @@ class ClassMetadata implements ClassMetadataInterface
         } catch (RepositoryException $e) {
             return $e;
         }
-
-        return null;
     }
 
     /**
@@ -958,9 +955,9 @@ class ClassMetadata implements ClassMetadataInterface
      *                                  except for child where this is name. referrers
      *                                  use false to not set anything.
      *
-     * @return mixed
-     *
      * @throws MappingException
+     *
+     * @return mixed
      */
     protected function validateAndCompleteFieldMapping(array $mapping, self $inherited = null, $isField = true, $phpcrLabel = 'property')
     {
@@ -1329,8 +1326,7 @@ class ClassMetadata implements ClassMetadataInterface
             || $this->node === $fieldName
             || $this->nodename === $fieldName
             || $this->versionNameField === $fieldName
-            || $this->versionCreatedField === $fieldName
-        ;
+            || $this->versionCreatedField === $fieldName;
     }
 
     /**
@@ -1349,14 +1345,13 @@ class ClassMetadata implements ClassMetadataInterface
     public function hasAssociation($fieldName)
     {
         return isset($this->mappings[$fieldName])
-            && in_array($this->mappings[$fieldName]['type'], [self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'])
-        ;
+            && in_array($this->mappings[$fieldName]['type'], [self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent']);
     }
 
     /**
-     * @return array the association mapping with the field of this name
-     *
      * @throws MappingException if the class has no mapping field with this name
+     *
+     * @return array the association mapping with the field of this name
      */
     public function getAssociation($fieldName)
     {
@@ -1374,8 +1369,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         return isset($this->childMappings[$fieldName])
             || $fieldName === $this->parentMapping
-            || isset($this->referenceMappings[$fieldName]) && self::MANY_TO_ONE === $this->mappings[$fieldName]['type']
-        ;
+            || isset($this->referenceMappings[$fieldName]) && self::MANY_TO_ONE === $this->mappings[$fieldName]['type'];
     }
 
     /**
@@ -1386,8 +1380,7 @@ class ClassMetadata implements ClassMetadataInterface
         return isset($this->referenceMappings[$fieldName]) && self::MANY_TO_MANY === $this->mappings[$fieldName]['type']
             || isset($this->referrersMappings[$fieldName])
             || isset($this->mixedReferrersMappings[$fieldName])
-            || isset($this->childrenMappings[$fieldName])
-        ;
+            || isset($this->childrenMappings[$fieldName]);
     }
 
     /**
@@ -1778,8 +1771,6 @@ class ClassMetadata implements ClassMetadataInterface
         if (isset($this->reflFields[$field])) {
             return $this->reflFields[$field]->getValue($document);
         }
-
-        return null;
     }
 
     /**
@@ -1788,9 +1779,9 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $fieldName the field name
      *
-     * @return array the field mapping
-     *
      * @throws MappingException
+     *
+     * @return array the field mapping
      */
     public function getFieldMapping($fieldName)
     {

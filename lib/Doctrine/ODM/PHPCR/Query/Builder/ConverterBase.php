@@ -66,10 +66,10 @@ abstract class ConverterBase implements ConverterInterface
      * @param string $originalAlias as specified in the query source
      * @param string $odmField      name of ODM document property
      *
+     * @throws \Exception if a field used in the query does not exist on the document
+     *
      * @return array first element is the real alias to use, second element is
      *               the property name
-     *
-     * @throws \Exception if a field used in the query does not exist on the document
      */
     abstract protected function getPhpcrProperty($originalAlias, $odmField);
 
@@ -104,9 +104,9 @@ abstract class ConverterBase implements ConverterInterface
      *
      * @param string $alias Alias to validate and return
      *
-     * @return string Return the alias to allow this function to be used inline
-     *
      * @throws InvalidArgumentException
+     *
+     * @return string Return the alias to allow this function to be used inline
      */
     abstract protected function validateAlias($alias);
 

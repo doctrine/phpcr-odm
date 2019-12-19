@@ -284,7 +284,7 @@ class DocumentManager implements DocumentManagerInterface
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
                 } catch (ItemNotFoundException $e) {
-                    return null;
+                    return;
                 }
             } elseif (0 !== strpos($id, '/')) {
                 $id = '/'.$id;
@@ -297,12 +297,12 @@ class DocumentManager implements DocumentManagerInterface
 
                     return $document;
                 } catch (ClassMismatchException $e) {
-                    return null;
+                    return;
                 }
             }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
-            return null;
+            return;
         }
 
         $hints = ['fallback' => true];
@@ -310,7 +310,7 @@ class DocumentManager implements DocumentManagerInterface
         try {
             return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
         } catch (ClassMismatchException $e) {
-            return null;
+            return;
         }
     }
 
@@ -365,7 +365,7 @@ class DocumentManager implements DocumentManagerInterface
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
                 } catch (ItemNotFoundException $e) {
-                    return null;
+                    return;
                 }
             } elseif (0 !== strpos($id, '/')) {
                 $id = '/'.$id;
@@ -383,7 +383,7 @@ class DocumentManager implements DocumentManagerInterface
 
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
-            return null;
+            return;
         }
 
         $hints = ['locale' => $locale, 'fallback' => $fallback];
@@ -646,10 +646,10 @@ class DocumentManager implements DocumentManagerInterface
      * @param object $document the document to merge over a persisted document
      *                         with the same id
      *
+     * @throws InvalidArgumentException if $document is not an object
+     *
      * @return object The managed document where $document has been merged
      *                into. This is *not* the same instance as the parameter.
-     *
-     * @throws InvalidArgumentException if $document is not an object
      */
     public function merge($document)
     {
@@ -851,9 +851,9 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @param object $document
      *
-     * @return bool true if the repository contains the object, false otherwise
-     *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @return bool true if the repository contains the object, false otherwise
      */
     public function contains($document)
     {

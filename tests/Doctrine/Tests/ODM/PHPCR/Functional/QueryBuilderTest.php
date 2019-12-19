@@ -433,7 +433,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->where()->eq()
             ->field('a.age')
             ->literal('99') // we pass the age here as a string type
-        ;
+;
         $q = $qb->getQuery();
         $res = $q->execute();
 
