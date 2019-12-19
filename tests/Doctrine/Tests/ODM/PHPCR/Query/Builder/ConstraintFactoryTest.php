@@ -2,56 +2,55 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use Doctrine\ODM\PHPCR\Query\Builder\Where;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class ConstraintFactoryTest extends NodeTestCase
 {
     public function provideInterface()
     {
-        return array(
-            array('andX', 'ConstraintAndx', array(
-            )),
-            array('orX', 'ConstraintOrx', array(
-            )),
-            array('fieldIsset', 'ConstraintFieldIsset', array(
+        return [
+            ['andX', 'ConstraintAndx', [
+            ]],
+            ['orX', 'ConstraintOrx', [
+            ]],
+            ['fieldIsset', 'ConstraintFieldIsset', [
                 'alias.propery_name',
-            )),
-            array('fullTextSearch', 'ConstraintFullTextSearch', array(
+            ]],
+            ['fullTextSearch', 'ConstraintFullTextSearch', [
                 'alias.field', 'full_text_expression',
-            )),
-            array('same', 'ConstraintSame', array(
+            ]],
+            ['same', 'ConstraintSame', [
                 'path', 'alias',
-            )),
-            array('descendant', 'ConstraintDescendant', array(
+            ]],
+            ['descendant', 'ConstraintDescendant', [
                 'ancestor_path', 'alias',
-            )),
-            array('child', 'ConstraintChild', array(
+            ]],
+            ['child', 'ConstraintChild', [
                 'parent_path', 'alias',
-            )),
-            array('not', 'ConstraintNot', array(
-            )),
-            array('eq', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_EQUAL_TO
-            )),
-            array('neq', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO
-            )),
-            array('lt', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_LESS_THAN
-            )),
-            array('lte', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO
-            )),
-            array('gt', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_GREATER_THAN
-            )),
-            array('gte', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO
-            )),
-            array('like', 'ConstraintComparison', array(
-                QOMConstants::JCR_OPERATOR_LIKE
-            )),
-        );
+            ]],
+            ['not', 'ConstraintNot', [
+            ]],
+            ['eq', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_EQUAL_TO,
+            ]],
+            ['neq', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO,
+            ]],
+            ['lt', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_LESS_THAN,
+            ]],
+            ['lte', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO,
+            ]],
+            ['gt', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_GREATER_THAN,
+            ]],
+            ['gte', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO,
+            ]],
+            ['like', 'ConstraintComparison', [
+                QOMConstants::JCR_OPERATOR_LIKE,
+            ]],
+        ];
     }
 }

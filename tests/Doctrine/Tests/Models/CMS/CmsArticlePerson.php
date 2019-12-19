@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 /**
  * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsArticlePersonRepository", referenceable=true)
@@ -14,8 +14,10 @@ class CmsArticlePerson
 {
     /** @PHPCRODM\Id(strategy="repository") */
     public $id;
+
     /** @PHPCRODM\Field(type="string", nullable=true) */
     public $name;
+
     /** @PHPCRODM\Referrers(referencedBy="persons", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
     public $articlesReferrers;
 
@@ -76,9 +78,10 @@ class CmsArticlePerson
 class CmsArticlePersonRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
+     *
      * @return string
      */
     public function generateId($document, $parent = null)

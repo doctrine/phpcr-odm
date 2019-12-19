@@ -48,7 +48,7 @@ class Document
     public $mixins;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $inheritMixins;
 
@@ -58,22 +58,22 @@ class Document
     public $versionable;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $referenceable;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $uniqueNodeType;
 
     /**
      * @var array
      */
-    public $childClasses = array();
+    public $childClasses = [];
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $isLeaf;
 }

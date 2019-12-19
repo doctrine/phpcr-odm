@@ -19,7 +19,8 @@ class PropertyTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type = PropertyTestObj::class;
@@ -122,29 +123,42 @@ class PropertyTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $string;
+
     //binary tested in its own test
+
     /** @PHPCRODM\Field(type="long") */
     public $long;
+
     /** @PHPCRODM\Field(type="long") */
     public $int;
+
     /** @PHPCRODM\Field(type="decimal") */
     public $decimal;
+
     /** @PHPCRODM\Field(type="double") */
     public $double;
+
     /** @PHPCRODM\Field(type="double") */
     public $float;
+
     /** @PHPCRODM\Field(type="date") */
     public $date;
+
     /** @PHPCRODM\Field(type="boolean") */
     public $boolean;
+
     /** @PHPCRODM\Field(type="name") */
     public $name;
+
     /** @PHPCRODM\Field(type="path") */
     public $path;
+
     /** @PHPCRODM\Field(type="uri") */
     public $uri;
 }

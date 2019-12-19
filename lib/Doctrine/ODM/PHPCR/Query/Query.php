@@ -2,12 +2,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query;
 
-use PHPCR\Query\QueryInterface;
-use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use PHPCR\Query\QueryInterface;
 
 /**
- * Query
+ * Query.
  *
  * Wraps the given PHPCR query object in the ODM, emulating
  * the Query object from the ORM.
@@ -17,13 +17,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Query
 {
     const HYDRATE_DOCUMENT = 1;
+
     const HYDRATE_PHPCR = 2;
 
     protected $hydrationMode = self::HYDRATE_DOCUMENT;
-    protected $parameters = array();
+
+    protected $parameters = [];
+
     protected $primaryAlias;
+
     protected $firstResult;
+
     protected $maxResults;
+
     protected $documentClass;
 
     /**
@@ -46,11 +52,11 @@ class Query
     /**
      * Defines the processing mode to be used during hydration / result set transformation.
      *
-     * @param string $hydrationMode The mode to return the result in execute.
+     * @param string $hydrationMode the mode to return the result in execute
      *
-     * @return Query This query instance.
+     * @return Query this query instance
      *
-     * @throws QueryException If $hydrationMode is not known.
+     * @throws QueryException if $hydrationMode is not known
      *
      * @see execute
      */
@@ -78,7 +84,7 @@ class Query
     /**
      * Get all defined parameters.
      *
-     * @return array The defined query parameters.
+     * @return array the defined query parameters
      */
     public function getParameters()
     {
@@ -90,7 +96,7 @@ class Query
      *
      * @param array $parameters
      *
-     * @return Query This query instance.
+     * @return Query this query instance
      */
     public function setParameters($parameters)
     {
@@ -102,10 +108,10 @@ class Query
     /**
      * Sets a query parameter.
      *
-     * @param string $key   The parameter name.
-     * @param mixed  $value The parameter value.
+     * @param string $key   the parameter name
+     * @param mixed  $value the parameter value
      *
-     * @return Query This query instance.
+     * @return Query this query instance
      */
     public function setParameter($key, $value)
     {
@@ -117,9 +123,9 @@ class Query
     /**
      * Gets a query parameter.
      *
-     * @param mixed $key The key of the bound parameter.
+     * @param mixed $key the key of the bound parameter
      *
-     * @return mixed|null The value of the bound parameter.
+     * @return mixed|null the value of the bound parameter
      */
     public function getParameter($key)
     {
@@ -131,7 +137,7 @@ class Query
     }
 
     /**
-     * Set the document class to use when using HYDRATION_DOCUMENT
+     * Set the document class to use when using HYDRATION_DOCUMENT.
      *
      * Note: This is useful in the following two cases:
      *
@@ -143,7 +149,7 @@ class Query
      *
      * @param string $documentClass FQN of document class
      *
-     * @return Query This query instance.
+     * @return Query this query instance
      */
     public function setDocumentClass($documentClass)
     {
@@ -153,13 +159,13 @@ class Query
     /**
      * Executes the query and returns the result based on the hydration mode.
      *
-     * @param array $parameters    Parameters, alternative to calling setParameters.
+     * @param array $parameters    parameters, alternative to calling setParameters
      * @param int   $hydrationMode Processing mode to be used during the hydration
      *                             process. One of the Query::HYDRATE_* constants.
      *
      * @return mixed A Collection for HYDRATE_DOCUMENT, \PHPCR\Query\QueryResultInterface for HYDRATE_PHPCR
      *
-     * @throws QueryException If $hydrationMode is not known.
+     * @throws QueryException if $hydrationMode is not known
      */
     public function execute($parameters = null, $hydrationMode = null)
     {
@@ -186,9 +192,11 @@ class Query
         switch ($this->hydrationMode) {
             case self::HYDRATE_PHPCR:
                 $data = $this->query->execute();
+
                 break;
             case self::HYDRATE_DOCUMENT:
                 $data = $this->dm->getDocumentsByPhpcrQuery($this->query, $this->documentClass, $this->primaryAlias);
+
                 break;
             default:
                 throw QueryException::hydrationModeNotKnown($this->hydrationMode);
@@ -257,7 +265,7 @@ class Query
      * If the result is not unique, a NonUniqueResultException is thrown.
      * If there is no result, a NoResultException is thrown.
      *
-     * @param integer $hydrationMode
+     * @param int $hydrationMode
      *
      * @return mixed
      *
@@ -278,8 +286,8 @@ class Query
      * Executes the query and returns an IterableResult that can be used to incrementally
      * iterate over the result.
      *
-     * @param  array   $parameters    The query parameters.
-     * @param  integer $hydrationMode The hydration mode to use.
+     * @param array $parameters    the query parameters
+     * @param int   $hydrationMode the hydration mode to use
      *
      * @return TODO \Doctrine\ORM\Internal\Hydration\IterableResult
      */
@@ -291,9 +299,9 @@ class Query
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param integer $maxResults
+     * @param int $maxResults
      *
-     * @return Query This query object.
+     * @return Query this query object
      */
     public function setMaxResults($maxResults)
     {
@@ -307,7 +315,7 @@ class Query
      * (the "limit"). Returns NULL if {@link setMaxResults} was not applied to
      * this query.
      *
-     * @return integer Maximum number of results.
+     * @return int maximum number of results
      */
     public function getMaxResults()
     {
@@ -317,9 +325,9 @@ class Query
     /**
      * Sets the position of the first result to retrieve (the "offset").
      *
-     * @param integer $firstResult The first result to return.
+     * @param int $firstResult the first result to return
      *
-     * @return Query This query object.
+     * @return Query this query object
      */
     public function setFirstResult($firstResult)
     {
@@ -333,7 +341,7 @@ class Query
      * retrieve (the "offset"). Returns NULL if {@link setFirstResult} was not
      * applied to this query.
      *
-     * @return integer The position of the first result.
+     * @return int the position of the first result
      */
     public function getFirstResult()
     {
@@ -341,9 +349,9 @@ class Query
     }
 
     /**
-     * Proxy method to return statement of the wrapped PHPCR Query
+     * Proxy method to return statement of the wrapped PHPCR Query.
      *
-     * @return string The query statement.
+     * @return string the query statement
      */
     public function getStatement()
     {
@@ -351,7 +359,7 @@ class Query
     }
 
     /**
-     * Proxy method to return language of the wrapped PHPCR Query
+     * Proxy method to return language of the wrapped PHPCR Query.
      *
      * @return string The language used
      */
@@ -361,7 +369,7 @@ class Query
     }
 
     /**
-     * Return wrapped PHPCR query object
+     * Return wrapped PHPCR query object.
      *
      * @return QueryInterface
      */

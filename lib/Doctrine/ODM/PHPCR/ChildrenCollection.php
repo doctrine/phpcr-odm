@@ -19,34 +19,37 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use PHPCR\Util\PathHelper;
+use Doctrine\Common\Collections\Collection;
 use PHPCR\NodeInterface;
+use PHPCR\Util\PathHelper;
 
 /**
- * Children collection class
+ * Children collection class.
  *
  * This class represents a collection of children of a document which phpcr
  * names match a optional filter
- *
  */
 class ChildrenCollection extends PersistentCollection
 {
     private $document;
+
     private $filter;
+
     private $fetchDepth;
+
     private $originalNodeNames;
+
     private $node;
 
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManagerInterface $dm  The DocumentManager the collection will be associated with.
-     * @param object          $document     The parent document instance
-     * @param string|array    $filter       Filter string or array of filter string
-     * @param int             $fetchDepth   Optional fetch depth, -1 to not override.
-     * @param string          $locale       The locale to use during the loading of this collection
+     * @param DocumentManagerInterface $dm         the DocumentManager the collection will be associated with
+     * @param object                   $document   The parent document instance
+     * @param string|array             $filter     Filter string or array of filter string
+     * @param int                      $fetchDepth optional fetch depth, -1 to not override
+     * @param string                   $locale     The locale to use during the loading of this collection
      */
     public function __construct(DocumentManagerInterface $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
     {
@@ -58,12 +61,12 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManagerInterface  $dm    The DocumentManager the collection will be associated with.
-     * @param object           $document       The parent document instance
-     * @param array|Collection $collection     The collection to initialize with
-     * @param string|array     $filter         Filter string or array of filter string
-     * @param int              $fetchDepth     Optional fetch depth, -1 to not override.
-     * @param bool             $forceOverwrite If to force overwrite the state in the database to the state of the collection
+     * @param DocumentManagerInterface $dm             the DocumentManager the collection will be associated with
+     * @param object                   $document       The parent document instance
+     * @param array|Collection         $collection     The collection to initialize with
+     * @param string|array             $filter         Filter string or array of filter string
+     * @param int                      $fetchDepth     optional fetch depth, -1 to not override
+     * @param bool                     $forceOverwrite If to force overwrite the state in the database to the state of the collection
      *
      * @return ChildrenCollection
      */
@@ -101,7 +104,7 @@ class ChildrenCollection extends PersistentCollection
         $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
         $uow->getPrefetchHelper()->prefetch($this->dm, $childNodes, $locale);
 
-        $childDocuments = array();
+        $childDocuments = [];
         foreach ($childNodes as $childNode) {
             $childDocuments[$childNode->getName()] = $uow->getOrCreateProxyFromNode($childNode, $locale);
         }
@@ -124,7 +127,7 @@ class ChildrenCollection extends PersistentCollection
         }
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function contains($element)
     {
         if (!$this->isInitialized()) {
@@ -133,12 +136,12 @@ class ChildrenCollection extends PersistentCollection
             // Shortcut for new documents
             $documentState = $uow->getDocumentState($element);
 
-            if ($documentState === UnitOfWork::STATE_NEW) {
+            if (UnitOfWork::STATE_NEW === $documentState) {
                 return false;
             }
 
             // Document is scheduled for inclusion
-            if ($documentState === UnitOfWork::STATE_MANAGED && $uow->isScheduledForInsert($element)) {
+            if (UnitOfWork::STATE_MANAGED === $documentState && $uow->isScheduledForInsert($element)) {
                 return false;
             }
 
@@ -148,13 +151,14 @@ class ChildrenCollection extends PersistentCollection
             }
 
             $nodeName = PathHelper::getNodeName($documentId);
+
             return in_array($nodeName, $this->getOriginalNodeNames());
         }
 
         return parent::contains($element);
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function containsKey($key)
     {
         if (!$this->isInitialized()) {
@@ -164,7 +168,7 @@ class ChildrenCollection extends PersistentCollection
         return parent::containsKey($key);
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function count()
     {
         if (!$this->isInitialized()) {
@@ -174,7 +178,7 @@ class ChildrenCollection extends PersistentCollection
         return parent::count();
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function isEmpty()
     {
         if (!$this->isInitialized()) {
@@ -184,7 +188,7 @@ class ChildrenCollection extends PersistentCollection
         return parent::isEmpty();
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function slice($offset, $length = null)
     {
         if (!$this->isInitialized()) {
@@ -203,6 +207,7 @@ class ChildrenCollection extends PersistentCollection
             });
 
             $childNodes = $this->dm->getPhpcrSession()->getNodes($nodeNames);
+
             return $this->getChildren($childNodes);
         }
 
@@ -218,7 +223,7 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * Return the ordered list of node names of children that existed when the collection was initialized
+     * Return the ordered list of node names of children that existed when the collection was initialized.
      *
      * @return array
      */
@@ -236,7 +241,7 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * Reset originalNodeNames and mark the collection as non dirty
+     * Reset originalNodeNames and mark the collection as non dirty.
      */
     public function takeSnapshot()
     {

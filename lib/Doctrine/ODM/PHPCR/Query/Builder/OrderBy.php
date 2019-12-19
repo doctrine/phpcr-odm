@@ -18,19 +18,20 @@ class OrderBy extends AbstractNode
 {
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_ORDERING => array(0, null)
-        );
+        return [
+            self::NT_ORDERING => [0, null],
+        ];
     }
 
     /**
-     * Add ascending ordering:
+     * Add ascending ordering:.
      *
      * <code>
      * $qb->orderBy()->asc()->field('sel_1.prop_1')->end();
      * </code>
      *
      * @factoryMethod Ordering
+     *
      * @return Ordering
      */
     public function asc()
@@ -39,13 +40,14 @@ class OrderBy extends AbstractNode
     }
 
     /**
-     * Add descending ordering:
+     * Add descending ordering:.
      *
      * <code>
      * $qb->orderBy()->desc()->field('sel_1.prop_1')->end();
      * </code>
      *
      * @factoryMethod Ordering
+     *
      * @return Ordering
      */
     public function desc()

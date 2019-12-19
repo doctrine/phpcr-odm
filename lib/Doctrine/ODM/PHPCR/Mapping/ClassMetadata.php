@@ -19,26 +19,28 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
+use Doctrine\Common\ClassLoader;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
+use Doctrine\Common\Persistence\Mapping\ReflectionService;
+use Doctrine\Instantiator\Instantiator;
+use Doctrine\Instantiator\InstantiatorInterface;
 use Doctrine\ODM\PHPCR\Event;
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
+use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
-use ReflectionProperty;
 use ReflectionClass;
-use Doctrine\Common\Persistence\Mapping\ReflectionService;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
-use Doctrine\Common\ClassLoader;
-use Doctrine\Instantiator\Instantiator;
-use Doctrine\Instantiator\InstantiatorInterface;
-use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
+use ReflectionProperty;
 
 /**
- * Metadata class
+ * Metadata class.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
  * @author      Jonathan H. Wage <jonwage@gmail.com>
@@ -49,14 +51,21 @@ use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 class ClassMetadata implements ClassMetadataInterface
 {
     const MANY_TO_ONE = 4;
+
     const MANY_TO_MANY = 8;
 
     const CASCADE_PERSIST = 1;
+
     const CASCADE_REMOVE = 2;
+
     const CASCADE_MERGE = 4;
+
     const CASCADE_DETACH = 8;
+
     const CASCADE_REFRESH = 16;
+
     const CASCADE_TRANSLATION = 32;
+
     const CASCADE_ALL = 255;
 
     /**
@@ -89,14 +98,14 @@ class ClassMetadata implements ClassMetadataInterface
      */
     const GENERATOR_TYPE_AUTO = 4;
 
-    protected static $validVersionableAnnotations = array('simple', 'full');
+    protected static $validVersionableAnnotations = ['simple', 'full'];
 
     /**
      * READ-ONLY: The ReflectionProperty instances of the mapped class.
      *
      * @var ReflectionProperty[]
      */
-    public $reflFields = array();
+    public $reflFields = [];
 
     /**
      * READ-ONLY: The ID generator used for generating IDs for this class.
@@ -111,12 +120,12 @@ class ClassMetadata implements ClassMetadataInterface
     public $identifier;
 
     /**
-     * READ-ONLY: The field name of the UUID field
+     * READ-ONLY: The field name of the UUID field.
      */
     public $uuidFieldName;
 
     /**
-     * READ-ONLY: The name of the document class that is stored in the phpcr:class property
+     * READ-ONLY: The name of the document class that is stored in the phpcr:class property.
      */
     public $name;
 
@@ -124,33 +133,34 @@ class ClassMetadata implements ClassMetadataInterface
      * READ-ONLY: The namespace the document class is contained in.
      *
      * @var string
+     *
      * @todo Not really needed. Usage could be localized.
      */
     public $namespace;
 
     /**
-     * READ-ONLY: The JCR Nodetype to be used for this node
+     * READ-ONLY: The JCR Nodetype to be used for this node.
      *
      * @var string
      */
     public $nodeType = 'nt:unstructured';
 
     /**
-     * READ-ONLY: The JCR Mixins to be used for this node (including inherited mixins)
+     * READ-ONLY: The JCR Mixins to be used for this node (including inherited mixins).
      *
      * @var array
      */
-    public $mixins = array();
+    public $mixins = [];
 
     /**
-     * READ-ONLY: Inherit parent class' mixins (default) or not
+     * READ-ONLY: Inherit parent class' mixins (default) or not.
      *
      * @var bool
      */
     public $inheritMixins = true;
 
     /**
-     * READ-ONLY: The field name of the node
+     * READ-ONLY: The field name of the node.
      *
      * @var string
      */
@@ -183,7 +193,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $fieldMappings = array();
+    public $fieldMappings = [];
 
     /**
      * READ-ONLY: The all mappings of the class.
@@ -199,14 +209,14 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $mappings = array();
+    public $mappings = [];
 
     /**
      * READ-ONLY: The registered lifecycle callbacks for documents of this class.
      *
      * @var array
      */
-    public $lifecycleCallbacks = array();
+    public $lifecycleCallbacks = [];
 
     /**
      * The ReflectionClass instance of the mapped class.
@@ -218,7 +228,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * READ-ONLY: Whether this class describes the mapping of a mapped superclass.
      *
-     * @var boolean
+     * @var bool
      */
     public $isMappedSuperclass = false;
 
@@ -227,81 +237,81 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $referenceMappings = array();
+    public $referenceMappings = [];
 
     /**
      * READ-ONLY: The child mappings of the class.
      *
      * @var array
      */
-    public $childMappings = array();
+    public $childMappings = [];
 
     /**
      * READ-ONLY: The children mappings of the class.
      *
      * @var array
      */
-    public $childrenMappings = array();
+    public $childrenMappings = [];
 
     /**
      * READ-ONLY: The referrers mappings of the class.
      *
      * @var array
      */
-    public $referrersMappings = array();
+    public $referrersMappings = [];
 
     /**
      * READ-ONLY: The mixed referrers (read only) mappings of the class.
      *
      * @var array
      */
-    public $mixedReferrersMappings = array();
+    public $mixedReferrersMappings = [];
 
     /**
-     * READ-ONLY: Name of the locale property
+     * READ-ONLY: Name of the locale property.
      *
      * @var string
      */
     public $localeMapping;
 
     /**
-     * READ-ONLY: Name of the depth property
+     * READ-ONLY: Name of the depth property.
      *
      * @var string
      */
     public $depthMapping;
 
     /**
-     * READ-ONLY: Name of the version name property of this document
+     * READ-ONLY: Name of the version name property of this document.
      *
      * @var string
      */
     public $versionNameField;
 
     /**
-     * READ-ONLY: Name of the version created property of this document
+     * READ-ONLY: Name of the version created property of this document.
      *
      * @var string
      */
     public $versionCreatedField;
 
     /**
-     * READ-ONLY: List of translatable fields
+     * READ-ONLY: List of translatable fields.
      *
      * @var array
      */
-    public $translatableFields = array();
+    public $translatableFields = [];
 
     /**
      * READ-ONLY: Whether this document should be versioned. If this is not false, it will
-     * be one of the values from self::validVersionableAnnotations
+     * be one of the values from self::validVersionableAnnotations.
      *
      * @var bool|string
      */
     public $versionable = false;
 
     /**
-     * READ-ONLY: determines if the document is referenceable or not
+     * READ-ONLY: determines if the document is referenceable or not.
      *
      * @var bool
      */
@@ -316,7 +326,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * READ-ONLY: Strategy key to find field translations.
-     * This is the key used for DocumentManagerInterface::getTranslationStrategy
+     * This is the key used for DocumentManagerInterface::getTranslationStrategy.
      *
      * @var string
      */
@@ -327,7 +337,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $parentClasses = array();
+    public $parentClasses = [];
 
     /**
      * READ-ONLY: Child class restrictions.
@@ -336,22 +346,22 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @var array
      */
-    public $childClasses = array();
+    public $childClasses = [];
 
     /**
      * READ-ONLY: If the document should be act as a leaf-node and therefore
      *            not be allowed children.
      *
-     * @var boolean
+     * @var bool
      */
     public $isLeaf = false;
 
     /**
-     * The inherited fields of this class
+     * The inherited fields of this class.
      *
      * @var array
      */
-    private $inheritedFields = array();
+    private $inheritedFields = [];
 
     /**
      * @var InstantiatorInterface
@@ -362,7 +372,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
      *
-     * @param string $className The name of the document class the new instance is used for.
+     * @param string $className the name of the document class the new instance is used for
      */
     public function __construct($className)
     {
@@ -441,7 +451,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function validateIdentifier()
     {
-        if (! $this->isMappedSuperclass) {
+        if (!$this->isMappedSuperclass) {
             if ($this->isIdGeneratorNone()) {
                 $this->determineIdStrategy();
             }
@@ -451,21 +461,25 @@ class ClassMetadata implements ClassMetadataInterface
                     if (!($this->parentMapping && $this->nodename)) {
                         throw MappingException::identifierRequired($this->name, 'parent and nodename');
                     }
+
                     break;
                 case self::GENERATOR_TYPE_AUTO:
                     if (!$this->parentMapping) {
                         throw MappingException::identifierRequired($this->name, 'parent');
                     }
+
                     break;
                 case self::GENERATOR_TYPE_REPOSITORY:
                     if (!$this->customRepositoryClassName) {
                         throw MappingException::repositoryRequired($this->name, $this->customRepositoryClassName);
                     }
+
                     break;
                 default:
                     if (!$this->identifier) {
                         throw MappingException::identifierRequired($this->name, 'identifier');
                     }
+
                     break;
             }
         }
@@ -474,7 +488,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Validate that childClasses is empty if isLeaf is true.
      *
-     * @throws MappingException if there is a conflict between isLeaf and childClasses.
+     * @throws MappingException if there is a conflict between isLeaf and childClasses
      */
     public function validateChildClasses()
     {
@@ -491,9 +505,10 @@ class ClassMetadata implements ClassMetadataInterface
      * metadata represents.
      *
      * @param string $classFqn
+     *
      * @throws OutOfBoundsException
      */
-    public function assertValidChildClass(ClassMetadata $class)
+    public function assertValidChildClass(self $class)
     {
         if ($this->isLeaf()) {
             throw new OutOfBoundsException(sprintf(
@@ -568,7 +583,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Validate lifecycle callbacks
+     * Validate lifecycle callbacks.
      *
      * @param ReflectionService $reflService
      *
@@ -593,7 +608,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setIdentifier($identifier)
     {
-        if ($this->identifier &&  $this->identifier !== $identifier) {
+        if ($this->identifier && $this->identifier !== $identifier) {
             throw new MappingException('Cannot map the identifier to more than one property');
         }
 
@@ -603,7 +618,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Registers a custom repository class for the document class.
      *
-     * @param string $repositoryClassName The class name of the custom repository.
+     * @param string $repositoryClassName the class name of the custom repository
      */
     public function setCustomRepositoryClassName($repositoryClassName)
     {
@@ -618,7 +633,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $lifecycleEvent
      *
-     * @return boolean
+     * @return bool
      */
     public function hasLifecycleCallbacks($lifecycleEvent)
     {
@@ -634,7 +649,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getLifecycleCallbacks($event)
     {
-        return isset($this->lifecycleCallbacks[$event]) ? $this->lifecycleCallbacks[$event] : array();
+        return isset($this->lifecycleCallbacks[$event]) ? $this->lifecycleCallbacks[$event] : [];
     }
 
     /**
@@ -666,7 +681,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param string|boolean $versionable A valid versionable annotation or false to disable versioning.
+     * @param string|bool $versionable a valid versionable annotation or false to disable versioning
      */
     public function setVersioned($versionable)
     {
@@ -681,7 +696,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setReferenceable($referenceable)
     {
-        if ($this->referenceable && ! $referenceable) {
+        if ($this->referenceable && !$referenceable) {
             throw new MappingException('Can not overwrite referenceable attribute to false in child class');
         }
         $this->referenceable = $referenceable;
@@ -724,7 +739,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Set the JCR mixins
+     * Set the JCR mixins.
      *
      * @param array $mixins
      */
@@ -744,9 +759,9 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Set whether to inherit mixins from parent
+     * Set whether to inherit mixins from parent.
      *
-     * @param boolean $inheritMixins
+     * @param bool $inheritMixins
      */
     public function setInheritMixins($inheritMixins)
     {
@@ -754,21 +769,19 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Return whether to inherit mixins from parent
+     * Return whether to inherit mixins from parent.
      *
-     * @return boolean
+     * @return bool
      */
     public function getInheritMixins()
     {
         return $this->inheritMixins;
     }
 
-
-
     /**
      * Gets the ReflectionProperties of the mapped class.
      *
-     * @return array An array of \ReflectionProperty instances.
+     * @return array an array of \ReflectionProperty instances
      */
     public function getReflectionProperties()
     {
@@ -790,16 +803,16 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * The namespace this Document class belongs to.
      *
-     * @return string $namespace The namespace name.
+     * @return string $namespace the namespace name
      */
     public function getNamespace()
     {
         return $this->namespace;
     }
 
-    public function mapId(array $mapping, ClassMetadata $inherited = null)
+    public function mapId(array $mapping, self $inherited = null)
     {
-        if (isset($mapping['id']) && $mapping['id'] === true) {
+        if (isset($mapping['id']) && true === $mapping['id']) {
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
             if (isset($mapping['strategy'])) {
@@ -810,21 +823,21 @@ class ClassMetadata implements ClassMetadataInterface
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
     }
 
-    public function mapNode(array $mapping, ClassMetadata $inherited = null)
+    public function mapNode(array $mapping, self $inherited = null)
     {
         $mapping['type'] = 'node';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->node = $mapping['fieldName'];
     }
 
-    public function mapNodename(array $mapping, ClassMetadata $inherited = null)
+    public function mapNodename(array $mapping, self $inherited = null)
     {
         $mapping['type'] = 'nodename';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->nodename = $mapping['fieldName'];
     }
 
-    public function mapParentDocument(array $mapping, ClassMetadata $inherited = null)
+    public function mapParentDocument(array $mapping, self $inherited = null)
     {
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -834,7 +847,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->parentMapping = $mapping['fieldName'];
     }
 
-    public function mapChild(array $mapping, ClassMetadata $inherited = null)
+    public function mapChild(array $mapping, self $inherited = null)
     {
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -847,7 +860,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->childMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapChildren(array $mapping, ClassMetadata $inherited = null)
+    public function mapChildren(array $mapping, self $inherited = null)
     {
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -863,7 +876,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->childrenMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapReferrers(array $mapping, ClassMetadata $inherited = null)
+    public function mapReferrers(array $mapping, self $inherited = null)
     {
         if (empty($mapping['referencedBy'])) {
             throw MappingException::referrerWithoutReferencedBy($this->name, $mapping['fieldName']);
@@ -886,14 +899,14 @@ class ClassMetadata implements ClassMetadataInterface
         $this->referrersMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapMixedReferrers(array $mapping, ClassMetadata $inherited = null)
+    public function mapMixedReferrers(array $mapping, self $inherited = null)
     {
-        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], array(null, "weak", "hard")))) {
-            throw new MappingException("You have to specify a 'referenceType' for the '" . $this->name . "' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], [null, 'weak', 'hard']))) {
+            throw new MappingException("You have to specify a 'referenceType' for the '".$this->name."' mapping which must be null, 'weak' or 'hard': ".$mapping['referenceType']);
         }
 
         if (isset($mapping['referencedBy'])) {
-            throw new MappingException('MixedReferrers has no referredBy attribute, use Referrers for this: ' . $mapping['fieldName']);
+            throw new MappingException('MixedReferrers has no referredBy attribute, use Referrers for this: '.$mapping['fieldName']);
         }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = null;
@@ -904,28 +917,28 @@ class ClassMetadata implements ClassMetadataInterface
         $this->mixedReferrersMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapLocale(array $mapping, ClassMetadata $inherited = null)
+    public function mapLocale(array $mapping, self $inherited = null)
     {
         $mapping['type'] = 'locale';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->localeMapping = $mapping['fieldName'];
     }
 
-    public function mapDepth(array $mapping, ClassMetadata $inherited = null)
+    public function mapDepth(array $mapping, self $inherited = null)
     {
         $mapping['type'] = 'depth';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->depthMapping = $mapping['fieldName'];
     }
 
-    public function mapVersionName(array $mapping, ClassMetadata $inherited = null)
+    public function mapVersionName(array $mapping, self $inherited = null)
     {
         $mapping['type'] = 'versionname';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->versionNameField = $mapping['fieldName'];
     }
 
-    public function mapVersionCreated(array $mapping, ClassMetadata $inherited = null)
+    public function mapVersionCreated(array $mapping, self $inherited = null)
     {
         $mapping['type'] = 'versioncreated';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
@@ -949,7 +962,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @throws MappingException
      */
-    protected function validateAndCompleteFieldMapping(array $mapping, ClassMetadata $inherited = null, $isField = true, $phpcrLabel = 'property')
+    protected function validateAndCompleteFieldMapping(array $mapping, self $inherited = null, $isField = true, $phpcrLabel = 'property')
     {
         if ($inherited) {
             if (!isset($mapping['inherited'])) {
@@ -1008,9 +1021,9 @@ class ClassMetadata implements ClassMetadataInterface
             throw MappingException::missingTypeDefinition($this->name, $mapping['fieldName']);
         }
 
-        if ($mapping['type'] === 'int') {
+        if ('int' === $mapping['type']) {
             $mapping['type'] = 'long';
-        } elseif ($mapping['type'] === 'float') {
+        } elseif ('float' === $mapping['type']) {
             $mapping['type'] = 'double';
         }
 
@@ -1022,7 +1035,7 @@ class ClassMetadata implements ClassMetadataInterface
         return $mapping;
     }
 
-    protected function validateAndCompleteAssociationMapping($mapping, ClassMetadata $inherited = null, $phpcrLabel = 'property')
+    protected function validateAndCompleteAssociationMapping($mapping, self $inherited = null, $phpcrLabel = 'property')
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, $phpcrLabel);
         if ($inherited) {
@@ -1035,8 +1048,8 @@ class ClassMetadata implements ClassMetadataInterface
         }
         if (empty($mapping['strategy'])) {
             $mapping['strategy'] = 'weak';
-        } elseif (!in_array($mapping['strategy'], array(null, 'weak', 'hard', 'path'))) {
-            throw new MappingException("The attribute 'strategy' for the '" . $this->name . "' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
+        } elseif (!in_array($mapping['strategy'], [null, 'weak', 'hard', 'path'])) {
+            throw new MappingException("The attribute 'strategy' for the '".$this->name."' association has to be either a null, 'weak', 'hard' or 'path': ".$mapping['strategy']);
         }
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -1049,14 +1062,14 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Finalize the mapping and make sure that it is consistent.
      *
-     * @throws MappingException if inconsistencies are discovered.
+     * @throws MappingException if inconsistencies are discovered
      */
     public function validateClassMapping()
     {
         // associative array fields need a separate property to store the keys.
         // make sure that generated or specified name does not collide with an
         // existing mapping.
-        $assocFields = array();
+        $assocFields = [];
         foreach ($this->fieldMappings as $fieldName) {
             $mapping = $this->mappings[$fieldName];
             if (empty($mapping['assoc'])) {
@@ -1075,11 +1088,11 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         if (!empty($this->versionNameField) && !$this->versionable) {
-            throw new MappingException(sprintf("You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionNameField));
+            throw new MappingException(sprintf('You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)', $this->name, $this->versionNameField));
         }
 
         if (!empty($this->versionCreatedField) && !$this->versionable) {
-            throw new MappingException(sprintf("You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)", $this->name, $this->versionCreatedField));
+            throw new MappingException(sprintf('You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)', $this->name, $this->versionCreatedField));
         }
 
         if (count($this->translatableFields)) {
@@ -1101,7 +1114,7 @@ class ClassMetadata implements ClassMetadataInterface
                     throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument class "%s" does not exist', $this->name, $mapping['fieldName'], $mapping['referringDocument']));
                 }
                 $reflection = new ReflectionClass($mapping['referringDocument']);
-                if (! $reflection->hasProperty($mapping['referencedBy'])) {
+                if (!$reflection->hasProperty($mapping['referencedBy'])) {
                     throw new MappingException(sprintf('Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no property "%s"', $this->name, $mapping['fieldName'], $mapping['referringDocument'], $mapping['referencedBy']));
                 }
             }
@@ -1114,7 +1127,7 @@ class ClassMetadata implements ClassMetadataInterface
      * Determine the id strategy for this document. Only call this if no explicit
      * strategy was assigned.
      *
-     * @throws MappingException if no strategy is applicable with the mapped fields.
+     * @throws MappingException if no strategy is applicable with the mapped fields
      */
     private function determineIdStrategy()
     {
@@ -1137,14 +1150,14 @@ class ClassMetadata implements ClassMetadataInterface
         throw new MappingException(sprintf('No id generator could be determined in "%s". Either map a parent and a nodename field and add values to them, or map the id field and configure a mapping strategy', $this->name));
     }
 
-    public function mapManyToOne($mapping, ClassMetadata $inherited = null)
+    public function mapManyToOne($mapping, self $inherited = null)
     {
         $mapping['type'] = self::MANY_TO_ONE;
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
         $this->referenceMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapManyToMany($mapping, ClassMetadata $inherited = null)
+    public function mapManyToMany($mapping, self $inherited = null)
     {
         $mapping['type'] = self::MANY_TO_MANY;
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
@@ -1159,13 +1172,13 @@ class ClassMetadata implements ClassMetadataInterface
     protected function setIdGenerator($generator)
     {
         if (is_string($generator)) {
-            $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_' . strtoupper($generator));
+            $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_'.strtoupper($generator));
         }
         $this->idGenerator = $generator;
     }
 
     /**
-     * Sets the translator strategy key
+     * Sets the translator strategy key.
      */
     public function setTranslator($translator)
     {
@@ -1173,7 +1186,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Set the mapped parent classes
+     * Set the mapped parent classes.
      *
      * @param array $parentClasses
      */
@@ -1183,7 +1196,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * Return the mapped parent classes
+     * Return the mapped parent classes.
      *
      * @return array of mapped class FQNs
      */
@@ -1233,30 +1246,29 @@ class ClassMetadata implements ClassMetadataInterface
     {
         $this->isLeaf = $isLeaf;
     }
-    
 
     /**
      * Checks whether the class will generate an id via the repository.
      *
-     * @return boolean TRUE if the class uses the Repository generator, FALSE otherwise.
+     * @return bool TRUE if the class uses the Repository generator, FALSE otherwise
      */
     public function isIdGeneratorRepository()
     {
-        return $this->idGenerator === self::GENERATOR_TYPE_REPOSITORY;
+        return self::GENERATOR_TYPE_REPOSITORY === $this->idGenerator;
     }
 
     /**
      * Checks whether the class uses no id generator.
      *
-     * @return boolean TRUE if the class does not use any id generator, FALSE otherwise.
+     * @return bool TRUE if the class does not use any id generator, FALSE otherwise
      */
     public function isIdGeneratorNone()
     {
-        return $this->idGenerator === self::GENERATOR_TYPE_NONE;
+        return self::GENERATOR_TYPE_NONE === $this->idGenerator;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -1264,11 +1276,11 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getIdentifier()
     {
-        return array($this->identifier);
+        return [$this->identifier];
     }
 
     /**
@@ -1281,11 +1293,11 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getIdentifierFieldNames()
     {
-        return array($this->identifier);
+        return [$this->identifier];
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getReflectionClass()
     {
@@ -1293,7 +1305,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isIdentifier($fieldName)
     {
@@ -1301,13 +1313,14 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasField($fieldName)
     {
         if (null === $fieldName) {
             return false;
         }
+
         return in_array($fieldName, $this->fieldMappings)
             || isset($this->inheritedFields[$fieldName])
             || $this->identifier === $fieldName
@@ -1321,7 +1334,8 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @deprecated use getFieldMapping instead
      */
     public function getField($fieldName)
@@ -1330,12 +1344,12 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasAssociation($fieldName)
     {
         return isset($this->mappings[$fieldName])
-            && in_array($this->mappings[$fieldName]['type'], array(self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'))
+            && in_array($this->mappings[$fieldName]['type'], [self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'])
         ;
     }
 
@@ -1346,7 +1360,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function getAssociation($fieldName)
     {
-        if (! $this->hasAssociation($fieldName)) {
+        if (!$this->hasAssociation($fieldName)) {
             throw MappingException::associationNotFound($this->name, $fieldName);
         }
 
@@ -1354,7 +1368,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isSingleValuedAssociation($fieldName)
     {
@@ -1365,7 +1379,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isCollectionValuedAssociation($fieldName)
     {
@@ -1377,7 +1391,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFieldNames()
     {
@@ -1411,7 +1425,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAssociationNames()
     {
@@ -1430,7 +1444,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getTypeOfField($fieldName)
     {
@@ -1439,7 +1453,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAssociationTargetClass($fieldName)
     {
@@ -1451,7 +1465,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAssociationMappedByTargetField($assocName)
     {
@@ -1459,7 +1473,7 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isAssociationInverseSide($assocName)
     {
@@ -1469,7 +1483,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Checks whether a mapped field is inherited from an entity superclass.
      *
-     * @return boolean string class name if the field is inherited, FALSE otherwise.
+     * @return bool string class name if the field is inherited, FALSE otherwise
      */
     public function isInheritedField($fieldName)
     {
@@ -1479,14 +1493,14 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Check if the field is nullable or not.
      *
-     * @param string $fieldName  The field name
+     * @param string $fieldName The field name
      *
-     * @return boolean TRUE if the field is nullable, FALSE otherwise.
+     * @return bool TRUE if the field is nullable, FALSE otherwise
      */
     public function isNullable($fieldName)
     {
         $mapping = $this->getFieldMapping($fieldName);
-        if ($mapping !== false) {
+        if (false !== $mapping) {
             return isset($mapping['nullable']) && true == $mapping['nullable'];
         }
 
@@ -1501,21 +1515,21 @@ class ClassMetadata implements ClassMetadataInterface
      * - name - The Property key of this field in the PHPCR document
      * - id - True for an ID field.
      *
-     * @param array $mapping The mapping information.
+     * @param array $mapping the mapping information
      */
-    public function mapField(array $mapping, ClassMetadata $inherited = null)
+    public function mapField(array $mapping, self $inherited = null)
     {
         $parentMapping = isset($mapping['fieldName']) && isset($this->mappings[$mapping['fieldName']])
             ? $this->mappings[$mapping['fieldName']] : null;
 
         if (!$inherited) {
-            if (isset($mapping['id']) && $mapping['id'] === true) {
+            if (isset($mapping['id']) && true === $mapping['id']) {
                 $mapping['type'] = 'string';
                 $this->setIdentifier($mapping['fieldName']);
                 if (isset($mapping['strategy'])) {
                     $this->setIdGenerator($mapping['strategy']);
                 }
-            } elseif (isset($mapping['uuid']) && $mapping['uuid'] === true) {
+            } elseif (isset($mapping['uuid']) && true === $mapping['uuid']) {
                 $mapping['type'] = 'string';
                 $mapping['property'] = 'jcr:uuid';
             }
@@ -1528,7 +1542,7 @@ class ClassMetadata implements ClassMetadataInterface
             }
         }
 
-        if (isset($mapping['property']) && $mapping['property'] == 'jcr:uuid') {
+        if (isset($mapping['property']) && 'jcr:uuid' == $mapping['property']) {
             if (null !== $this->uuidFieldName) {
                 throw new MappingException("You can only designate a single 'Uuid' field in '{$this->name}'");
             }
@@ -1579,12 +1593,12 @@ class ClassMetadata implements ClassMetadataInterface
      *      - reflClass (ReflectionClass)
      *      - reflFields (ReflectionProperty array)
      *
-     * @return array The names of all the fields that should be serialized.
+     * @return array the names of all the fields that should be serialized
      */
     public function __sleep()
     {
         // This metadata is always serialized/cached.
-        $serialized = array(
+        $serialized = [
             'nodeType',
             'identifier',
             'name',
@@ -1596,7 +1610,7 @@ class ClassMetadata implements ClassMetadataInterface
             'mixedReferrersMappings',
             'childrenMappings',
             'childMappings',
-        );
+        ];
 
         if ($this->customRepositoryClassName) {
             $serialized[] = 'customRepositoryClassName';
@@ -1732,9 +1746,9 @@ class ClassMetadata implements ClassMetadataInterface
     public function getIdentifierValues($document)
     {
         try {
-            return array($this->identifier => $this->getIdentifierValue($document));
+            return [$this->identifier => $this->getIdentifierValue($document)];
         } catch (PHPCRException $e) {
-            return array();
+            return [];
         }
     }
 
@@ -1757,7 +1771,7 @@ class ClassMetadata implements ClassMetadataInterface
      * @param string $field    the name of the field
      *
      * @return mixed|null the value of this field for the document or null if
-     *      not found
+     *                    not found
      */
     public function getFieldValue($document, $field)
     {
@@ -1772,9 +1786,9 @@ class ClassMetadata implements ClassMetadataInterface
      * Gets the mapping of a (regular) field that holds some data but not a
      * reference to another object.
      *
-     * @param string $fieldName The field name.
+     * @param string $fieldName the field name
      *
-     * @return array The field mapping.
+     * @return array the field mapping
      *
      * @throws MappingException
      */
@@ -1791,15 +1805,15 @@ class ClassMetadata implements ClassMetadataInterface
      * Dispatches the lifecycle event of the given document to the registered
      * lifecycle callbacks and lifecycle listeners.
      *
-     * @param string $lifecycleEvent The lifecycle event.
-     * @param object $document       The Document on which the event occurred.
+     * @param string $lifecycleEvent the lifecycle event
+     * @param object $document       the Document on which the event occurred
      * @param array  $arguments      the arguments to pass to the callback
      */
     public function invokeLifecycleCallbacks($lifecycleEvent, $document, array $arguments = null)
     {
         foreach ($this->lifecycleCallbacks[$lifecycleEvent] as $callback) {
-            if ($arguments !== null) {
-                call_user_func_array(array($document, $callback), $arguments);
+            if (null !== $arguments) {
+                call_user_func_array([$document, $callback], $arguments);
             } else {
                 $document->$callback();
             }
@@ -1816,7 +1830,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $fieldName
      *
-     * @return boolean True if $fieldName is mapped as the uuid, false otherwise.
+     * @return bool true if $fieldName is mapped as the uuid, false otherwise
      */
     public function isUuid($fieldName)
     {
@@ -1824,13 +1838,14 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param   string $className
-     * @return  string
+     * @param string $className
+     *
+     * @return string
      */
     public function fullyQualifiedClassName($className)
     {
-        if ($className !== null && strpos($className, '\\') === false && strlen($this->namespace) > 0) {
-            return $this->namespace . '\\' . $className;
+        if (null !== $className && false === strpos($className, '\\') && strlen($this->namespace) > 0) {
+            return $this->namespace.'\\'.$className;
         }
 
         return $className;

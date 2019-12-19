@@ -11,8 +11,10 @@ class ParentNoNodeNameTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\ParentDocument */
     public $parent;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
 

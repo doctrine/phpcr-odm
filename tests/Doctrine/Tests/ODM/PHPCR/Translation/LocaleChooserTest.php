@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Translation;
 
-use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,8 +14,10 @@ class LocaleChooserTest extends PHPCRTestCase
      * @var LocaleChooser
      */
     private $localeChooser;
-    private $orderEn = array('de');
-    private $orderDe = array('en');
+
+    private $orderEn = ['de'];
+
+    private $orderDe = ['en'];
 
     /**
      * @var ClassMetadata|MockObject
@@ -25,7 +27,7 @@ class LocaleChooserTest extends PHPCRTestCase
     public function setUp(): void
     {
         $this->mockMetadata = $this->createMock(ClassMetadata::class);
-        $this->localeChooser = new LocaleChooser(array('en' => $this->orderEn, 'de' => $this->orderDe), 'en');
+        $this->localeChooser = new LocaleChooser(['en' => $this->orderEn, 'de' => $this->orderDe], 'en');
     }
 
     public function testGetFallbackLocales()
@@ -41,14 +43,14 @@ class LocaleChooserTest extends PHPCRTestCase
 
     public function testSetFallbackLocalesMerge()
     {
-        $this->localeChooser->setFallbackLocales('de', array('fr'), false);
-        $this->assertEquals(array('fr', 'en'), $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
+        $this->localeChooser->setFallbackLocales('de', ['fr'], false);
+        $this->assertEquals(['fr', 'en'], $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
     }
 
     public function testSetFallbackLocalesReplace()
     {
-        $this->localeChooser->setFallbackLocales('de', array('fr'), true);
-        $this->assertEquals(array('fr'), $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
+        $this->localeChooser->setFallbackLocales('de', ['fr'], true);
+        $this->assertEquals(['fr'], $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
     }
 
     public function testGetFallbackLocalesNonexisting()
@@ -61,7 +63,7 @@ class LocaleChooserTest extends PHPCRTestCase
     {
         $this->localeChooser->setLocale('de'); // default should not use current locale but default locale
         $orderEn = $this->localeChooser->getDefaultLocalesOrder();
-        $this->assertEquals(array('en', 'de'), $orderEn);
+        $this->assertEquals(['en', 'de'], $orderEn);
     }
 
     public function testGetLocale()
@@ -94,8 +96,8 @@ class LocaleChooserTest extends PHPCRTestCase
 
     public function testSubRegion()
     {
-        $orderEnGB = array('en', 'de');
-        $this->localeChooser = new LocaleChooser(array('en_GB' => $orderEnGB, 'en' => $this->orderEn, 'de' => $this->orderDe), 'en');
+        $orderEnGB = ['en', 'de'];
+        $this->localeChooser = new LocaleChooser(['en_GB' => $orderEnGB, 'en' => $this->orderEn, 'de' => $this->orderDe], 'en');
 
         $order = $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'en_GB');
         $this->assertEquals($orderEnGB, $order);

@@ -18,7 +18,8 @@ class PropertyNameTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type = TestObj::class;
@@ -63,10 +64,13 @@ class TestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\Field(type="string", property="myname") */
     public $othername;
 }

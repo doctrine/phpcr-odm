@@ -27,11 +27,11 @@ class FullVersionableArticle
     /** @PHPCRODM\VersionCreated */
     public $versionCreated;
 
-
     public function getText()
     {
         return $this->text;
     }
+
     public function setText($text)
     {
         $this->text = $text;

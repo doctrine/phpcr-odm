@@ -19,18 +19,18 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use PHPCR\Query\QOM\OrderingInterface;
-use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use PHPCR\Query\QOM\ConstraintInterface;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Query\Query;
 use PHPCR\Query\QOM\ColumnInterface;
+use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\OrderingInterface;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
+use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\SourceInterface;
 
 /**
- * Base class for PHPCR based query converters
+ * Base class for PHPCR based query converters.
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
@@ -44,12 +44,12 @@ abstract class ConverterBase implements ConverterInterface
     /**
      * @var ColumnInterface[]
      */
-    protected $columns = array();
+    protected $columns = [];
 
     /**
      * @var OrderingInterface[]
      */
-    protected $orderings = array();
+    protected $orderings = [];
 
     /**
      * @var ConstraintInterface
@@ -63,25 +63,25 @@ abstract class ConverterBase implements ConverterInterface
      * The alias might change if this is a translated field and the strategy
      * needs to do a join to get in the translation.
      *
-     * @param string $originalAlias As specified in the query source.
-     * @param string $odmField      Name of ODM document property.
+     * @param string $originalAlias as specified in the query source
+     * @param string $odmField      name of ODM document property
      *
      * @return array first element is the real alias to use, second element is
-     *      the property name
+     *               the property name
      *
-     * @throws \Exception If a field used in the query does not exist on the document.
+     * @throws \Exception if a field used in the query does not exist on the document
      */
     abstract protected function getPhpcrProperty($originalAlias, $odmField);
 
     /**
-     * Walk the source document
+     * Walk the source document.
      *
      * @param SourceDocument
      */
     abstract protected function walkSourceDocument(SourceDocument $node);
 
     /**
-     * Walk the dynamic field
+     * Walk the dynamic field.
      *
      * Implementations should map their domain field name to the PHPCR field name here.
      *
@@ -90,7 +90,7 @@ abstract class ConverterBase implements ConverterInterface
     abstract protected function walkOperandDynamicField(OperandDynamicField $node);
 
     /**
-     * Return the query object model factory
+     * Return the query object model factory.
      *
      * @return QueryObjectModelFactoryInterface
      */
@@ -151,7 +151,7 @@ abstract class ConverterBase implements ConverterInterface
 
     public function walkSelect(AbstractNode $node)
     {
-        $columns = array();
+        $columns = [];
 
         /** @var $property Field */
         foreach ($node->getChildren() as $property) {
@@ -254,12 +254,14 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkSourceJoinLeft(SourceJoinLeft $node)
     {
         $left = $this->walkFrom($node);
+
         return $left;
     }
 
     protected function walkSourceJoinRight(SourceJoinRight $node)
     {
         $right = $this->walkFrom($node);
+
         return $right;
     }
 
@@ -293,6 +295,7 @@ abstract class ConverterBase implements ConverterInterface
             $node->getDescendantAlias(),
             $node->getAncestorAlias()
         );
+
         return $joinCon;
     }
 
@@ -313,6 +316,7 @@ abstract class ConverterBase implements ConverterInterface
             $this->validateAlias($node->getAlias2Name()),
             $node->getAlias2Path()
         );
+
         return $joinCon;
     }
 
@@ -523,19 +527,21 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkOperandStaticLiteral(OperandStaticLiteral $node)
     {
         $operand = $this->qomf()->literal($node->getValue());
+
         return $operand;
     }
 
     protected function walkOperandStaticParameter(OperandStaticParameter $node)
     {
         $operand = $this->qomf()->bindVariable($node->getVariableName());
+
         return $operand;
     }
 
     // ordering
     protected function walkOrderBy(OrderBy $node)
     {
-        $this->orderings = array();
+        $this->orderings = [];
 
         $orderings = $node->getChildren();
 
@@ -547,7 +553,7 @@ abstract class ConverterBase implements ConverterInterface
 
             $phpcrDynOp = $this->dispatch($dynOp);
 
-            if ($ordering->getOrder() == QOMConstants::JCR_ORDER_ASCENDING) {
+            if (QOMConstants::JCR_ORDER_ASCENDING == $ordering->getOrder()) {
                 $ordering = $this->qomf()->ascending($phpcrDynOp);
             } else {
                 $ordering = $this->qomf()->descending($phpcrDynOp);

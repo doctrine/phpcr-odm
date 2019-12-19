@@ -7,25 +7,29 @@ use Doctrine\ODM\PHPCR\DocumentClassMapper;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\UnitOfWork;
+use Jackalope\Node;
+use Jackalope\Property;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Jackalope\Node;
-use Jackalope\Property;
-use Doctrine\ODM\PHPCR\UnitOfWork;
 
 class DocumentClassMapperTest extends Testcase
 {
     const CLASS_GENERIC = Generic::class;
+
     const CLASS_TEST_1 = 'Test\Class1';
+
     const CLASS_TEST_2 = 'Test\Class2';
+
     const CLASS_TEST_3 = 'Test\Class3';
 
     /**
      * @var DocumentManager|MockObject
      */
     private $dm;
+
     /**
      * @var NodeInterface|MockObject
      */
@@ -151,7 +155,7 @@ class DocumentClassMapperTest extends Testcase
 
     public function testWriteMetadata()
     {
-        $parentClasses = array(self::CLASS_TEST_2, self::CLASS_TEST_3);
+        $parentClasses = [self::CLASS_TEST_2, self::CLASS_TEST_3];
 
         $this->node->expects($this->at(0))
             ->method('setProperty')
@@ -201,10 +205,10 @@ class DocumentClassMapperTest extends Testcase
 
     public function provideExpandClassName()
     {
-        return array(
-            array('Foobar/BarFoo/Document/Foobar', 'Foobar/BarFoo/Document/Foobar', false),
-            array('Foobar:Barfoo', 'Foobar\Barfoo', true),
-        );
+        return [
+            ['Foobar/BarFoo/Document/Foobar', 'Foobar/BarFoo/Document/Foobar', false],
+            ['Foobar:Barfoo', 'Foobar\Barfoo', true],
+        ];
     }
 
     /**

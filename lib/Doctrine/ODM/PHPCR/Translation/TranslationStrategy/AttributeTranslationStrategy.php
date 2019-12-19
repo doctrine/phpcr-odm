@@ -20,24 +20,27 @@
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use PHPCR\NodeInterface;
 use Doctrine\ODM\PHPCR\Translation\Translation;
+use PHPCR\NodeInterface;
 use PHPCR\Query\QOM\ConstraintInterface;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QOM\SourceInterface;
 
 /**
  * Translation strategy that stores the translations in attributes of the same node.
+ *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- * @link        www.doctrine-project.com
+ *
+ * @see        www.doctrine-project.com
  * @since       1.0
+ *
  * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author      David Buchmann <david@liip.ch>
  */
 class AttributeTranslationStrategy extends AbstractTranslationStrategy
 {
     /**
-     * Identifier of this strategy
+     * Identifier of this strategy.
      */
     const NAME = 'attribute';
 
@@ -49,7 +52,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
     {
         // no need to validate non-nullable condition, the UoW does that for all fields
-        $nullFields = array();
+        $nullFields = [];
         foreach ($data as $field => $propValue) {
             $mapping = $metadata->mappings[$field];
             $propName = $this->getTranslatedPropertyName($locale, $mapping['property']);
@@ -71,7 +74,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         if (empty($nullFields)) {
             $nullFields = null;
         }
-        $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, $nullFields); // no '-' to avoid name clashes
+        $node->setProperty($this->prefix.':'.$locale.self::NULLFIELDS, $nullFields); // no '-' to avoid name clashes
     }
 
     /**
@@ -82,11 +85,11 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      * @param ClassMetadata $metadata
      * @param string        $locale
      *
-     * @return bool Whether the node has any attribute of the desired locale.
+     * @return bool whether the node has any attribute of the desired locale
      */
     private function checkHasFields(NodeInterface $node, ClassMetadata $metadata, $locale)
     {
-        if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
+        if ($node->hasProperty($this->prefix.':'.$locale.self::NULLFIELDS)) {
             return true;
         }
 
@@ -128,7 +131,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 }
             } else {
                 // A null field or a missing field
-                $value = ($metadata->mappings[$field]['multivalue']) ? array() : null;
+                $value = ($metadata->mappings[$field]['multivalue']) ? [] : null;
             }
 
             $metadata->reflFields[$field]->setValue($document, $value);
@@ -158,8 +161,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             }
         }
 
-        if ($node->hasProperty($this->prefix . ':' . $locale . self::NULLFIELDS)) {
-            $node->setProperty($this->prefix . ':' . $locale . self::NULLFIELDS, null);
+        if ($node->hasProperty($this->prefix.':'.$locale.self::NULLFIELDS)) {
+            $node->setProperty($this->prefix.':'.$locale.self::NULLFIELDS, null);
         }
     }
 
@@ -183,10 +186,10 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      */
     public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
     {
-        $locales = array();
-        foreach ($node->getProperties($this->prefix . ':*') as $prop) {
+        $locales = [];
+        foreach ($node->getProperties($this->prefix.':*') as $prop) {
             $matches = null;
-            if (preg_match('/' . $this->prefix . ':([a-zA-Z1-9_]+)-/', $prop->getName(), $matches)) {
+            if (preg_match('/'.$this->prefix.':([a-zA-Z1-9_]+)-/', $prop->getName(), $matches)) {
                 if (is_array($matches) && count($matches) > 1 && !in_array($matches[1], $locales)) {
                     $locales[] = $matches[1];
                 }
@@ -197,17 +200,17 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Translated properties are on the same node, but have a different name.
      */
     public function getTranslatedPropertyPath($alias, $propertyName, $locale)
     {
-        return array($alias, $this->getTranslatedPropertyName($locale, $propertyName));
+        return [$alias, $this->getTranslatedPropertyName($locale, $propertyName)];
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * Nothing to do, the properties are on the same node.
      */

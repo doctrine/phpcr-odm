@@ -3,21 +3,21 @@
 namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Configuration;
-use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\UnitOfWork;
 use Jackalope\Factory;
 use Jackalope\Node;
-use Jackalope\Session;
-use Jackalope\ObjectManager;
-use PHPCR\SessionInterface;
-use Jackalope\Repository;
 use Jackalope\NodeType\NodeType;
 use Jackalope\NodeType\NodeTypeManager;
+use Jackalope\ObjectManager;
+use Jackalope\Repository;
+use Jackalope\Session;
 use Jackalope\Workspace;
+use PHPCR\SessionInterface;
 
 /**
- * TODO: remove Jackalope dependency
+ * TODO: remove Jackalope dependency.
  *
  * @group unit
  */
@@ -59,7 +59,7 @@ class UnitOfWorkTest extends PHPCRTestCase
             $this->markTestSkipped('The Node needs to be properly mocked/stubbed. Remove dependency to Jackalope');
         }
 
-        $this->factory = new Factory;
+        $this->factory = new Factory();
         $this->session = $this->createMock(Session::class);
 
         $this->objectManager = $this->createMock(ObjectManager::class);
@@ -71,9 +71,9 @@ class UnitOfWorkTest extends PHPCRTestCase
         $cmf = $this->dm->getMetadataFactory();
         $metadata = new ClassMetadata($this->type);
         $metadata->initializeReflection($cmf->getReflectionService());
-        $metadata->mapId(array('fieldName' => 'id', 'id' => true));
+        $metadata->mapId(['fieldName' => 'id', 'id' => true]);
         $metadata->idGenerator = ClassMetadata::GENERATOR_TYPE_ASSIGNED;
-        $metadata->mapField(array('fieldName' => 'username', 'type' => 'string'));
+        $metadata->mapField(['fieldName' => 'username', 'type' => 'string']);
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
@@ -113,11 +113,11 @@ class UnitOfWorkTest extends PHPCRTestCase
             ->with($id)
             ->will($this->returnValue(true));
 
-        $nodeData = array(
-            "jcr:primaryType" => $primaryType,
-            "jcr:system" => array(),
+        $nodeData = [
+            'jcr:primaryType' => $primaryType,
+            'jcr:system' => [],
             'username' => $username,
-        );
+        ];
         $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
 
         $this->session->expects($this->any())
@@ -167,7 +167,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     public function testScheduleInsertion()
     {
         $object = new UoWUser();
-        $object->username = "bar";
+        $object->username = 'bar';
         $object->id = '/somepath';
 
         $this->uow->scheduleInsert($object);
@@ -181,7 +181,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     public function testScheduleInsertCancelsScheduleRemove()
     {
         $object = new UoWUser();
-        $object->username = "bar";
+        $object->username = 'bar';
         $object->id = '/somepath';
 
         $this->uow->scheduleInsert($object);
@@ -242,7 +242,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     public function testComputeSingleDocumentChangeSetForRemovedDocument()
     {
         $object = new UoWUser();
-        $object->username = "bar";
+        $object->username = 'bar';
         $object->id = '/somepath';
 
         $this->uow->scheduleRemove($object);
@@ -255,5 +255,6 @@ class UnitOfWorkTest extends PHPCRTestCase
 class UoWUser
 {
     public $id;
+
     public $username;
 }

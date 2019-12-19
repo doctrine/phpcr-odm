@@ -31,7 +31,7 @@ class PHPCRException extends \Exception implements PHPCRExceptionInterface
 
     public static function documentManagerClosed()
     {
-        return new self("The DocumentManager is closed.");
+        return new self('The DocumentManager is closed.');
     }
 
     public static function cannotMoveByAssignment($objInfo)

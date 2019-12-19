@@ -36,12 +36,12 @@ abstract class AbstractLeafNode extends AbstractNode
     public function getCardinalityMap()
     {
         // no children , no cardinality map...
-        return array();
+        return [];
     }
 
     /**
      * Return the alias name and field name
-     * from the given string of form
+     * from the given string of form.
      *
      *     [alias].[field_name]
      *
@@ -55,7 +55,7 @@ abstract class AbstractLeafNode extends AbstractNode
     {
         $parts = explode('.', $field);
 
-        if (count($parts) == 2) {
+        if (2 == count($parts)) {
             return $parts;
         }
 

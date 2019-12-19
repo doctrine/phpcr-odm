@@ -11,6 +11,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class ConstraintSame extends AbstractLeafNode
 {
     protected $alias;
+
     protected $path;
 
     public function __construct(AbstractNode $parent, $alias, $path)

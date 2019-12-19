@@ -20,9 +20,9 @@
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 
 /**
  * Command to generate the official query builder reference.
@@ -43,7 +43,7 @@ class DumpQueryBuilderReferenceCommand extends Command
             ->setName('doctrine:phpcr:qb:dump-reference')
             ->addArgument('search', InputArgument::OPTIONAL)
             ->setDescription('Generate the official query builder reference in RST format')
-            ->setHelp(<<<HERE
+            ->setHelp(<<<'HERE'
 This command generates the official query builder reference in RST format, you can optionally
 pass a "search" parameter to limit the reference to only those nodes matching the given regex:
 
@@ -82,24 +82,27 @@ HERE
 
     protected function formatMapRst($map)
     {
-        $f = array(
+        $f = [
             'humanize' => function ($string) {
                 $string = str_replace('_', ' ', $string);
+
                 return ucfirst($string);
             },
             'genRef' => function ($string, $prefix) {
                 $ref = strtolower($string);
+
                 return sprintf(':ref:`%s <qbref_%s_%s>`', $string, $prefix, $ref);
             },
             'genAnc' => function ($string, $prefix) {
                 $ref = strtolower($string);
+
                 return sprintf('.. _qbref_%s_%s:', $prefix, $ref);
             },
             'underline' => function ($string, $underChar = '=') {
                 return str_repeat($underChar, strlen($string));
             },
             'formatDoc' => function ($string) {
-                $out = array();
+                $out = [];
                 $indent = 0;
                 foreach (explode("\n", $string) as $line) {
                     if (strstr($line, '<code>')) {
@@ -116,10 +119,10 @@ HERE
                 }
 
                 return implode("\n", $out);
-            }
-        );
+            },
+        ];
 
-        $out = array();
+        $out = [];
         $out[] = 'Query Builder Reference';
         $out[] = '=======================';
         $out[] = '';
@@ -131,7 +134,7 @@ HERE
         $out[] = '    All the classes here documented can be found in the namespace: ``Doctrine\ODM\PHPCR\Query\Builder``';
         $out[] = '';
 
-        $nti = array();
+        $nti = [];
         $nti[] = 'Node Type Index';
         $nti[] = '---------------';
         $nti[] = '';
@@ -175,7 +178,7 @@ HERE
                 $out[] = '**Extends**: '.$f['genRef']($nData['parent'], 'node');
                 $out[] = '';
 
-                $inheritedMethodLinks = array();
+                $inheritedMethodLinks = [];
                 foreach ($nData['inheritedMethods'] as $inheritedMethod => $inheritedMethodClass) {
                     $inheritedMethodLinks[] = $f['genRef']($inheritedMethod, 'method_'.strtolower($inheritedMethodClass));
                 }
@@ -232,9 +235,9 @@ HERE
 
     protected function buildMap()
     {
-        $map = array();
-        $nodeMap = array();
-        $nodeTypeIndex = array();
+        $map = [];
+        $nodeMap = [];
+        $nodeTypeIndex = [];
 
         $dirHandle = opendir(__DIR__.'/../../../Query/Builder');
 
@@ -257,7 +260,7 @@ HERE
 
                 $inst = $refl->newInstanceWithoutConstructor();
                 $fMethRetMap = $this->getFactoryMethodMap($refl);
-                $fMethData = array();
+                $fMethData = [];
 
                 foreach ($fMethRetMap as $fMeth => $fmData) {
                     $fmReflMeth = $refl->getMethod($fMeth);
@@ -278,13 +281,13 @@ HERE
                     $fMethDoc = $this->parseDocComment($fmReflMeth->getDocComment(), 0);
                     $fParams = $this->parseDocParams($fmReflMeth);
 
-                    $fMethData[$fMeth] = array(
+                    $fMethData[$fMeth] = [
                         'args' => $fParams,
                         'rType' => $fmReturnType,
                         'rNodeType' => $fmNodeType,
                         'fType' => $fmFactoryType,
                         'doc' => $fMethDoc,
-                    );
+                    ];
                 }
 
                 $cardinalityMap = $inst->getCardinalityMap();
@@ -292,7 +295,7 @@ HERE
                 $isLeaf = $refl->isSubclassOf('Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode');
 
                 $parentName = null;
-                $inheritedMethods = array();
+                $inheritedMethods = [];
 
                 if ($parentRefl = $refl->getParentClass()) {
                     if ($parentRefl->isInstantiable()) {
@@ -310,7 +313,7 @@ HERE
                     }
                 }
 
-                $nodeData = array(
+                $nodeData = [
                     'nodeType' => $inst->getNodeType(),
                     'parent' => $parentName,
                     'inheritedMethods' => $inheritedMethods,
@@ -318,12 +321,12 @@ HERE
                     'fMeths' => $fMethData,
                     'cardMap' => $cardinalityMap,
                     'isLeaf' => $isLeaf,
-                );
+                ];
 
                 $nodeMap[$refl->getShortName()] = $nodeData;
 
                 if (!isset($nodeTypeMap['nodeTypeMap'][$inst->getNodeType()])) {
-                    $nodeTypeMap[$inst->getNodeType()] = array();
+                    $nodeTypeMap[$inst->getNodeType()] = [];
                 }
 
                 $nodeTypeIndex[$inst->getNodeType()][] = $refl->getShortName();
@@ -340,21 +343,21 @@ HERE
 
     protected function parseDocParams($reflMethod)
     {
-        $params = array();
+        $params = [];
 
         $docComment = $reflMethod->getDocComment();
         $reflParams = $reflMethod->getParameters();
 
         // parse @params
-        $docParams = array();
+        $docParams = [];
         foreach (explode("\n", $docComment) as $line) {
             if (preg_match('&@param +([a-zA-Z]+) ?\$([a-zA-Z0-9_]+) +(.*)&', $line, $matches)) {
-                $docParams[$matches[2]] = array('type' => $matches[1], 'doc' => $matches[3]);
+                $docParams[$matches[2]] = ['type' => $matches[1], 'doc' => $matches[3]];
             }
         }
 
         foreach ($reflParams as $reflParam) {
-            if ($reflParam->name == 'void') {
+            if ('void' == $reflParam->name) {
                 continue;
             }
 
@@ -373,7 +376,7 @@ HERE
 
     protected function parseDocComment($comment, $indent = 0)
     {
-        $out = array();
+        $out = [];
         foreach (explode("\n", $comment) as $line) {
             if (strstr($line, '/**')) {
                 continue;
@@ -398,15 +401,15 @@ HERE
     protected function getFactoryMethodMap($refl)
     {
         $reflMethods = $refl->getMethods();
-        $fMethods = array();
+        $fMethods = [];
 
         foreach ($reflMethods as $rMethod) {
             $comment = $rMethod->getDocComment();
             if (preg_match('&@factoryMethod ([A-Za-z]+)&', $comment, $matches)) {
-                $fMethods[$rMethod->name] = array(
+                $fMethods[$rMethod->name] = [
                     'returnType' => null,
                     'factoryType' => null,
-                );
+                ];
 
                 if (!isset($matches[1])) {
                     throw new \Exception(sprintf(

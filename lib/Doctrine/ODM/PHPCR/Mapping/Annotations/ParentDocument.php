@@ -33,5 +33,5 @@ final class ParentDocument
     /**
      * @var array
      */
-    public $cascade = array();
+    public $cascade = [];
 }

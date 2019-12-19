@@ -11,6 +11,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class ConstraintDescendant extends AbstractLeafNode
 {
     protected $alias;
+
     protected $ancestorPath;
 
     public function __construct(AbstractNode $parent, $alias, $ancestorPath)

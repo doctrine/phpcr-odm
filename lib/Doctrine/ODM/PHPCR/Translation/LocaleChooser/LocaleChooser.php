@@ -31,7 +31,7 @@ use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 class LocaleChooser implements LocaleChooserInterface
 {
     /**
-     * locale fallback list indexed by source locale
+     * locale fallback list indexed by source locale.
      *
      * example:
      *  array(
@@ -43,7 +43,8 @@ class LocaleChooser implements LocaleChooserInterface
     protected $localePreference;
 
     /**
-     * The current locale to use
+     * The current locale to use.
+     *
      * @var string
      */
     protected $locale;
@@ -57,9 +58,9 @@ class LocaleChooser implements LocaleChooserInterface
     protected $defaultLocale;
 
     /**
-     * @param array $localePreference array of arrays with a preferred locale order list
-     *      for each locale
-     * @param string $defaultLocale the default locale to be used if locale is not set
+     * @param array  $localePreference array of arrays with a preferred locale order list
+     *                                 for each locale
+     * @param string $defaultLocale    the default locale to be used if locale is not set
      */
     public function __construct($localePreference, $defaultLocale)
     {
@@ -67,11 +68,11 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setLocalePreference($localePreference)
     {
-        if (! isset($localePreference[$this->defaultLocale])) {
+        if (!isset($localePreference[$this->defaultLocale])) {
             throw new MissingTranslationException("The supplied list of locales does not contain '$this->defaultLocale'");
         }
 
@@ -84,9 +85,9 @@ class LocaleChooser implements LocaleChooserInterface
      * Update both parameters at once to be able to specify a new defaultLocale that was previously
      * not contained in the localePreferences.
      *
-     * @param array $localePreference array of arrays with a preferred locale order list
-     *      for each locale
-     * @param string $defaultLocale the default locale to be used if locale is not set
+     * @param array  $localePreference array of arrays with a preferred locale order list
+     *                                 for each locale
+     * @param string $defaultLocale    the default locale to be used if locale is not set
      */
     public function setLocalePreferenceAndDefaultLocale($localePreference, $defaultLocale)
     {
@@ -95,7 +96,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setFallbackLocales($locale, array $order, $replace = false)
     {
@@ -111,7 +112,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null)
     {
@@ -126,7 +127,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDefaultLocalesOrder()
     {
@@ -137,7 +138,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLocale()
     {
@@ -149,13 +150,13 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
-     * @throws MissingTranslationException if the specified locale is not defined in the $localePreference array.
+     * @throws MissingTranslationException if the specified locale is not defined in the $localePreference array
      */
     public function setLocale($locale)
     {
-        if (! isset($this->localePreference[$locale])) {
+        if (!isset($this->localePreference[$locale])) {
             $localeBase = substr($locale, 0, 2);
 
             // Strip region from locale if not configured
@@ -172,7 +173,7 @@ class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDefaultLocale()
     {

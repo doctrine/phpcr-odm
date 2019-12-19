@@ -4,9 +4,9 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsArticle;
+use Doctrine\Tests\Models\CMS\CmsGroup;
+use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
 class CascadeRemoveTest extends PHPCRFunctionalTestCase
@@ -18,7 +18,7 @@ class CascadeRemoveTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
         $class = $this->dm->getClassMetadata(CmsUser::class);

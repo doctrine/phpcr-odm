@@ -1,11 +1,11 @@
 <?php
 
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Id\AutoIdGenerator;
+use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Id\ParentIdGenerator;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator;
-use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
-use Doctrine\ODM\PHPCR\Id\IdGenerator;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
 

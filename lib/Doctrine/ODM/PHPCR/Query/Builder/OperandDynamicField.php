@@ -11,6 +11,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class OperandDynamicField extends AbstractLeafNode
 {
     protected $alias;
+
     protected $field;
 
     public function __construct(AbstractNode $parent, $field)

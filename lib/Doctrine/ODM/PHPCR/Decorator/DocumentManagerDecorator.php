@@ -27,7 +27,7 @@ use PHPCR\PropertyType;
 use PHPCR\Query\QueryInterface;
 
 /**
- * Base class for DocumentManager decorators
+ * Base class for DocumentManager decorators.
  *
  * @since 1.3
  */
@@ -47,7 +47,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
     {
@@ -55,7 +55,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getTranslationStrategy($key)
     {
@@ -63,7 +63,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasLocaleChooserStrategy()
     {
@@ -71,7 +71,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLocaleChooserStrategy()
     {
@@ -79,7 +79,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
     {
@@ -87,7 +87,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getProxyFactory()
     {
@@ -95,7 +95,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getEventManager()
     {
@@ -103,7 +103,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getPhpcrSession()
     {
@@ -111,7 +111,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMetadataFactory()
     {
@@ -119,7 +119,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getConfiguration()
     {
@@ -127,7 +127,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isOpen()
     {
@@ -135,7 +135,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getClassMetadata($className)
     {
@@ -143,7 +143,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function find($className, $id)
     {
@@ -151,7 +151,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findMany($className, array $ids)
     {
@@ -159,7 +159,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findTranslation($className, $id, $locale, $fallback = true)
     {
@@ -167,7 +167,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getRepository($className)
     {
@@ -175,7 +175,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function quote($val, $type = PropertyType::STRING)
     {
@@ -183,7 +183,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function escapeFullText($string)
     {
@@ -191,7 +191,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createPhpcrQuery($statement, $language)
     {
@@ -199,7 +199,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createQuery($statement, $language)
     {
@@ -207,7 +207,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createQueryBuilder()
     {
@@ -215,7 +215,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createPhpcrQueryBuilder()
     {
@@ -223,7 +223,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
     {
@@ -231,7 +231,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function persist($document)
     {
@@ -239,7 +239,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function bindTranslation($document, $locale)
     {
@@ -247,7 +247,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function removeTranslation($document, $locale)
     {
@@ -255,7 +255,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLocalesFor($document, $includeFallbacks = false)
     {
@@ -263,7 +263,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isDocumentTranslatable($document)
     {
@@ -271,7 +271,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function move($document, $targetPath)
     {
@@ -279,7 +279,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function reorder($document, $srcName, $targetName, $before)
     {
@@ -287,7 +287,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function remove($document)
     {
@@ -295,7 +295,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function merge($document)
     {
@@ -303,7 +303,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function detach($document)
     {
@@ -311,7 +311,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function refresh($document)
     {
@@ -319,7 +319,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
     {
@@ -327,7 +327,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null)
     {
@@ -335,7 +335,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function flush($document = null)
     {
@@ -343,7 +343,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getReference($documentName, $id)
     {
@@ -351,7 +351,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkin($document)
     {
@@ -359,7 +359,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkout($document)
     {
@@ -367,7 +367,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkpoint($document)
     {
@@ -375,7 +375,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function restoreVersion($documentVersion, $removeExisting = true)
     {
@@ -383,7 +383,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function removeVersion($documentVersion)
     {
@@ -391,7 +391,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAllLinearVersions($document, $limit = -1)
     {
@@ -399,7 +399,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findVersionByName($className, $id, $versionName)
     {
@@ -407,7 +407,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function contains($document)
     {
@@ -415,7 +415,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getUnitOfWork()
     {
@@ -423,22 +423,20 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function clear($className = null)
     {
         $this->wrapped->clear($className);
     }
 
-    /**
-     */
     public function close()
     {
         return $this->wrapped->close();
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function initializeObject($document)
     {
@@ -446,7 +444,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getNodeForDocument($document)
     {

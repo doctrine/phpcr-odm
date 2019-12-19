@@ -1,13 +1,12 @@
 <?php
 
-
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
 {
@@ -17,7 +16,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -29,7 +29,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
@@ -49,7 +49,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($this->dm->find(get_class($user), $actualUuid));
         $this->assertNull($this->dm->find(get_class($user), $unusedUuid));
 
-        $uuids = array($actualUuid, $unusedUuid);
+        $uuids = [$actualUuid, $unusedUuid];
 
         $documents = $this->dm->findMany(get_class($user), $uuids);
         $this->assertEquals(1, count($documents));
@@ -58,7 +58,6 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
 
 /**
  * @PHPCRODM\Document(referenceable=true)
- *
  */
 class TestUser
 {

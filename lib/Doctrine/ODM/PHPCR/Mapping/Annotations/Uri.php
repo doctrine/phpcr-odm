@@ -29,7 +29,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  *
- * @deprecated Use @Field(type="uri") instead.
+ * @deprecated use @Field(type="uri") instead
  */
 final class Uri extends TranslatableProperty
 {

@@ -2,13 +2,13 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
-use Doctrine\Common\Proxy\Proxy;
 
 /**
  * Test for the Child mapping.
@@ -23,13 +23,15 @@ class ChildTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type = ChildTestObj::class;
 
     /**
-     * Class name of the child document class
+     * Class name of the child document class.
+     *
      * @var string
      */
     private $childType = ChildChildTestObj::class;
@@ -170,7 +172,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
         $parent->name = 'Parent';
-        $parent->child = array($child);
+        $parent->child = [$child];
         $child->name = 'Child';
         $parent->id = '/functional/childtest';
 
@@ -244,14 +246,14 @@ class ChildTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Remove the child, check that parent->child is not set afterwards
+     * Remove the child, check that parent->child is not set afterwards.
      */
     public function testRemove2()
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
         $parent->name = 'Parent';
-        $parent->id  = '/functional/childtest';
+        $parent->id = '/functional/childtest';
         $parent->child = $child;
         $child->name = 'Child';
 
@@ -273,7 +275,7 @@ class ChildTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Remove the parent node of multiple child level
+     * Remove the parent node of multiple child level.
      */
     public function testRemove3()
     {
@@ -413,27 +415,27 @@ class ChildTest extends PHPCRFunctionalTestCase
     public function testChildOfReference()
     {
         $referrerTestObj = new ChildReferrerTestObj();
-        $referrerTestObj->id = "/functional/referrerTestObj";
-        $referrerTestObj->name = "referrerTestObj";
+        $referrerTestObj->id = '/functional/referrerTestObj';
+        $referrerTestObj->name = 'referrerTestObj';
 
         $refererenceableTestObj = new ChildReferenceableTestObj();
-        $refererenceableTestObj->id = "/functional/referenceableTestObj";
-        $refererenceableTestObj->name = "referenceableTestObj";
+        $refererenceableTestObj->id = '/functional/referenceableTestObj';
+        $refererenceableTestObj->name = 'referenceableTestObj';
         $referrerTestObj->reference = $refererenceableTestObj;
 
         $this->dm->persist($referrerTestObj);
 
         $ChildTestObj = new ChildTestObj();
-        $ChildTestObj->id = "/functional/referenceableTestObj/test";
-        $ChildTestObj->name= "childTestObj";
+        $ChildTestObj->id = '/functional/referenceableTestObj/test';
+        $ChildTestObj->name = 'childTestObj';
 
         $this->dm->persist($ChildTestObj);
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find(null, "/functional/referrerTestObj");
+        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
 
-        $this->assertEquals($referrer->reference->aChild->name, "childTestObj");
+        $this->assertEquals($referrer->reference->aChild->name, 'childTestObj');
     }
 }
 
@@ -444,10 +446,13 @@ class ChildChildTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\Nodename */
     public $nodename;
 }
@@ -459,17 +464,20 @@ class ChildTestObj
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $name;
+
     /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
     public $child;
 }
 
 /**
-  * @PHPCRODM\Document()
-  */
+ * @PHPCRODM\Document()
+ */
 class ChildReferrerTestObj
 {
     /** @PHPCRODM\Id */
@@ -483,8 +491,8 @@ class ChildReferrerTestObj
 }
 
 /**
-  * @PHPCRODM\Document(referenceable=true)
-  */
+ * @PHPCRODM\Document(referenceable=true)
+ */
 class ChildReferenceableTestObj
 {
     /** @PHPCRODM\Id */

@@ -25,14 +25,14 @@ use PHPCR\RepositoryException;
 use PHPCR\Util\NodeHelper;
 
 /**
- * Generate the id using the auto naming strategy
+ * Generate the id using the auto naming strategy.
  */
 class AutoIdGenerator extends ParentIdGenerator
 {
     /**
-     * Use the parent field together with an auto generated name to generate the id
+     * Use the parent field together with an auto generated name to generate the id.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
     {
@@ -54,7 +54,7 @@ class AutoIdGenerator extends ParentIdGenerator
             $existingNames = (array) $parentNode->getNodeNames();
         } catch (RepositoryException $e) {
             // this typically happens while cascading persisting documents
-            $existingNames = array();
+            $existingNames = [];
         }
         $name = NodeHelper::generateAutoNodeName(
             $existingNames,

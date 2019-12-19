@@ -5,11 +5,11 @@ namespace Doctrine\Tests\ODM\PHPCR\Tools\Command;
 use Doctrine\ODM\PHPCR\Tools\Console\Command\DocumentConvertTranslationCommand;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use PHPCR\SessionInterface;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
-use PHPCR\Util\Console\Helper\PhpcrHelper;
 
 class DocumentConvertTranslationCommandTest extends TestCase
 {
@@ -45,7 +45,7 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $this->converter = $this->createMock(TranslationConverter::class);
         $this->command = new DocumentConvertTranslationCommand(null, $this->converter);
         $this->command->setHelperSet(new HelperSet(
-            array('phpcr' => $mockHelper)
+            ['phpcr' => $mockHelper]
         ));
         $this->commandTester = new CommandTester($this->command);
     }
@@ -55,13 +55,13 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $this->converter
             ->expects($this->once())
             ->method('convert')
-            ->with('Document\MyClass', array('en'), array(), 'none')
+            ->with('Document\MyClass', ['en'], [], 'none')
             ->will($this->returnValue(false))
         ;
         $this->converter
             ->expects($this->any())
             ->method('getLastNotices')
-            ->will($this->returnValue(array()))
+            ->will($this->returnValue([]))
         ;
 
         $this->mockSession
@@ -69,11 +69,11 @@ class DocumentConvertTranslationCommandTest extends TestCase
             ->method('save')
         ;
 
-        $this->commandTester->execute(array(
+        $this->commandTester->execute([
             'classname' => 'Document\MyClass',
-            '--locales' => array('en'),
+            '--locales' => ['en'],
             '--force' => true,
-        ));
+        ]);
 
         $this->assertEquals('.'.PHP_EOL.'done'.PHP_EOL, $this->commandTester->getDisplay());
     }

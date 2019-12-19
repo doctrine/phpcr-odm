@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use PHPCR\NodeInterface;
 use PHPCR\NodeType\ConstraintViolationException;
 
@@ -20,7 +20,8 @@ class MixinTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
+     *
      * @var string
      */
     private $type;
@@ -82,7 +83,6 @@ class MixinTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-
         $this->assertEquals($created->getTimestamp(), $this->node->getNode('protected')->getProperty('jcr:created')->getDate()->getTimestamp());
         $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
@@ -125,7 +125,7 @@ class MixinTest extends PHPCRFunctionalTestCase
 }
 
 /**
- * A class that contains mapped children via properties
+ * A class that contains mapped children via properties.
  *
  * @PHPCRODM\Document(mixins={"mix:created"})
  */

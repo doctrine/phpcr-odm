@@ -4,11 +4,11 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Mapping;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
+use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
+use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
-use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 
@@ -29,7 +29,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager(array(__DIR__));
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
@@ -65,10 +65,10 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function testSecondLevelOverwrite()
     {
-        $localePrefs = array(
-            'en' => array('en', 'de'),
-            'de' => array('de', 'en'),
-        );
+        $localePrefs = [
+            'en' => ['en', 'de'],
+            'de' => ['de', 'en'],
+        ];
 
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
 
@@ -106,38 +106,38 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function generatorTypeProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 ParentIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_PARENT,
                 'parentId',
-            ),
-            array(
+            ],
+            [
                 ParentIdStrategyDifferentOrder::class,
                 ClassMetadata::GENERATOR_TYPE_PARENT,
                 'parentId2',
-            ),
-            array(
+            ],
+            [
                 AutoNameIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_AUTO,
                 'autoname as only has parent but not nodename',
-            ),
-            array(
+            ],
+            [
                 AssignedIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_ASSIGNED,
                 'assigned',
-            ),
-            array(
+            ],
+            [
                 RepositoryIdStrategy::class,
                 ClassMetadata::GENERATOR_TYPE_REPOSITORY,
-                'repository'
-            ),
-            array(
+                'repository',
+            ],
+            [
                 StandardCase::class,
                 ClassMetadata::GENERATOR_TYPE_ASSIGNED,
                 'standardcase',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -153,13 +153,13 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function invalidIdProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 ParentIdNoParentStrategy::class,
                 AutoNameIdNoParentStrategy::class,
                 NoId::class,
-            )
-        );
+            ],
+        ];
     }
 
     public function testPersistParentId()
@@ -208,12 +208,16 @@ class Testclass
 {
     /** @PHPCRODM\Id */
     public $id;
+
     /** @PHPCRODM\Node */
     public $node;
+
     /** @PHPCRODM\Field(type="string") */
     public $text;
+
     /** @PHPCRODM\Depth */
     public $depth;
+
     public $callback_run = 0;
 
     /**
@@ -221,7 +225,7 @@ class Testclass
      */
     public function callback()
     {
-        $this->callback_run++;
+        ++$this->callback_run;
     }
 }
 
@@ -240,7 +244,7 @@ class ExtendingClass extends Testclass
      */
     public function extendingCallback()
     {
-        $this->extending_run++;
+        ++$this->extending_run;
     }
 }
 
@@ -267,6 +271,7 @@ class SecondLevelWithDuplicateOverwrite extends ExtendingClass
 {
     /** @PHPCRODM\Locale */
     public $locale;
+
     /** @PHPCRODM\Field(type="string", translated=true) */
     public $text;
 }
@@ -336,7 +341,7 @@ class Repository extends DocumentRepository implements RepositoryIdInterface
 {
     public function generateId($document, $parent = null)
     {
-        return '/functional/' . str_replace(' ', '-', $document->title);
+        return '/functional/'.str_replace(' ', '-', $document->title);
     }
 }
 
@@ -349,6 +354,7 @@ class ParentIdNoParentStrategy
 {
     /** @PHPCRODM\Id(strategy="parent") */
     public $id;
+
     /** @PHPCRODM\Nodename */
     public $name;
 }

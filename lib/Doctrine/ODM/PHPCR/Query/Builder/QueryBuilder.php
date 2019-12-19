@@ -2,10 +2,10 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
-use Doctrine\ODM\PHPCR\Query\Query;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use Doctrine\ODM\PHPCR\Query\Query;
+use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 /**
  * The Query Builder root node.
@@ -31,13 +31,17 @@ use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 class QueryBuilder extends AbstractNode
 {
     protected $converter;
+
     protected $firstResult;
+
     protected $maxResults;
+
     protected $locale;
+
     protected $primaryAlias;
 
     /**
-     * @return string the locale for this query.
+     * @return string the locale for this query
      */
     public function getLocale()
     {
@@ -59,7 +63,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * This is an NT_BUILDER
      */
@@ -97,16 +101,16 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getCardinalityMap()
     {
-        return array(
-            self::NT_SELECT => array(0, null),    // 1..*
-            self::NT_FROM => array(1, 1),         // 1..1
-            self::NT_WHERE => array(0, 1),        // 0..1
-            self::NT_ORDER_BY => array(0, null),  // 0..*
-        );
+        return [
+            self::NT_SELECT => [0, null],    // 1..*
+            self::NT_FROM => [1, 1],         // 1..1
+            self::NT_WHERE => [0, 1],        // 0..1
+            self::NT_ORDER_BY => [0, null],  // 0..*
+        ];
     }
 
     /**
@@ -121,11 +125,13 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod Where
+     *
      * @return Where
      */
     public function where($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->setChild(new Where($this));
     }
 
@@ -133,11 +139,13 @@ class QueryBuilder extends AbstractNode
      * Add additional selection criteria using the AND operator.
      *
      * @factoryMethod WhereAnd
+     *
      * @return WhereAnd
      */
     public function andWhere($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->addChild(new WhereAnd($this));
     }
 
@@ -145,11 +153,13 @@ class QueryBuilder extends AbstractNode
      * Add additional selection criteria using the OR operator.
      *
      * @factoryMethod WhereOr
+     *
      * @return WhereOr
      */
     public function orWhere($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->addChild(new WhereOr($this));
     }
 
@@ -171,6 +181,7 @@ class QueryBuilder extends AbstractNode
      * @param string $primaryAlias - Alias to use as primary source (optional for single sources)
      *
      * @factoryMethod From
+     *
      * @return From
      */
     public function from($primaryAlias = null)
@@ -181,7 +192,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Shortcut for:
+     * Shortcut for:.
      *
      * <code>
      * $qb->from()
@@ -197,10 +208,11 @@ class QueryBuilder extends AbstractNode
      *
      * Replaces any existing from source.
      *
-     * @param string $documentFqn - Fully qualified class name for document.
-     * @param string $primaryAlias - Alias for document source and primary alias when using multiple sources.
+     * @param string $documentFqn  - Fully qualified class name for document
+     * @param string $primaryAlias - Alias for document source and primary alias when using multiple sources
      *
      * @factoryMethod From
+     *
      * @return QueryBuilder
      */
     public function fromDocument($documentFqn, $primaryAlias)
@@ -210,6 +222,7 @@ class QueryBuilder extends AbstractNode
         $from = new From($this);
         $from->document($documentFqn, $primaryAlias);
         $this->setChild($from);
+
         return $from->end();
     }
 
@@ -247,11 +260,13 @@ class QueryBuilder extends AbstractNode
      * on how it should work.
      *
      * @factoryMethod Select
+     *
      * @return SourceJoin
      */
     public function addJoinLeftOuter($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->addJoin(QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER);
     }
 
@@ -272,11 +287,13 @@ class QueryBuilder extends AbstractNode
      * on how it should work.
      *
      * @factoryMethod Select
+     *
      * @return SourceJoin
      */
     public function addJoinRightOuter($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->addJoin(QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER);
     }
 
@@ -297,11 +314,13 @@ class QueryBuilder extends AbstractNode
      * on how it should work.
      *
      * @factoryMethod Select
+     *
      * @return SourceJoin
      */
     public function addJoinInner($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->addJoin(QOMConstants::JCR_JOIN_TYPE_INNER);
     }
 
@@ -320,11 +339,13 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod Select
+     *
      * @return Select
      */
     public function select($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->setChild(new Select($this));
     }
 
@@ -343,11 +364,13 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod SelectAdd
+     *
      * @return SelectAdd
      */
     public function addSelect($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->setChild(new SelectAdd($this));
     }
 
@@ -364,11 +387,13 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod OrderBy
+     *
      * @return OrderBy
      */
     public function orderBy($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->setChild(new OrderBy($this));
     }
 
@@ -376,18 +401,20 @@ class QueryBuilder extends AbstractNode
      * Add additional orderings to the builder tree.
      *
      * @factoryMethod OrderByAdd
+     *
      * @return OrderByAdd
      */
     public function addOrderBy($void = null)
     {
         $this->ensureNoArguments(__METHOD__, $void);
+
         return $this->addChild(new OrderByAdd($this));
     }
 
     /**
      * Return the offset of the first result in the resultset.
      *
-     * @return integer
+     * @return int
      */
     public function getFirstResult()
     {
@@ -397,7 +424,7 @@ class QueryBuilder extends AbstractNode
     /**
      * Set the offset of the first result in the resultset.
      *
-     * @param integer $firstResult
+     * @param int $firstResult
      */
     public function setFirstResult($firstResult)
     {
@@ -407,7 +434,7 @@ class QueryBuilder extends AbstractNode
     /**
      * Return the maximum number of results to be imposed on the generated query.
      *
-     * @return integer
+     * @return int
      */
     public function getMaxResults()
     {
@@ -417,7 +444,7 @@ class QueryBuilder extends AbstractNode
     /**
      * Set the maximum number of results to be returned by the generated query.
      *
-     * @param integer $maxResults
+     * @param int $maxResults
      */
     public function setMaxResults($maxResults)
     {

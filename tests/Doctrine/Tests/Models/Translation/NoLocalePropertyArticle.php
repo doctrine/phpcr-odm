@@ -11,7 +11,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *
  * This class is invalid as it uses an invalid key for the @PHPCRODM\Document(translator) annotation.
  * This class is supposed to throw an exception when it is read by the ODM !!!
- *
  */
 
 /**
@@ -23,10 +22,12 @@ class NoLocalePropertyArticle
     public $id;
 
     // untranslated:
+
     /** @PHPCRODM\Field(type="date") */
     public $publishDate;
 
     // untranslated:
+
     /** @PHPCRODM\Field(type="string") */
     public $author;
 

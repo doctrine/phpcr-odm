@@ -5,8 +5,11 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 class SourceJoinConditionEqui extends AbstractLeafNode
 {
     protected $property1;
+
     protected $alias1;
+
     protected $property2;
+
     protected $alias2;
 
     public function __construct($parent, $field1, $field2)
