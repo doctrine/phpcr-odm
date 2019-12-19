@@ -18,7 +18,6 @@ cache:
 env:
   global:
     - SYMFONY_DEPRECATIONS_HELPER="weak"
-    - SYMFONY_PHPUNIT_VERSION="7"
   matrix:
     - TRANSPORT=jackrabbit
     - TRANSPORT=doctrine_dbal
