@@ -22,7 +22,7 @@ namespace Doctrine\ODM\PHPCR\Tools\Console;
 /**
  * Used by CLI Tools to restrict entity-based commands to given patterns.
  *
- * Copied from Doctrine\ODM\PHPCR\Tools\Console\MetadataFilter
+ * Copied from Doctrine\ORM\Tools\Console\MetadataFilter
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  *
@@ -86,10 +86,6 @@ class MetadataFilter extends \FilterIterator implements \Countable
                 throw new \RuntimeException(
                     sprintf("Error while evaluating regex '/%s/'.", $filter)
                 );
-            }
-
-            if (0 === $pregResult) {
-                return false;
             }
 
             if ($pregResult) {
