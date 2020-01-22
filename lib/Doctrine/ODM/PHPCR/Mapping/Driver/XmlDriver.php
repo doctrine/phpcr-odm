@@ -184,7 +184,7 @@ class XmlDriver extends FileDriver
                     'filter' => isset($attributes['filter']) ? (array) $attributes->filter : null,
                     'fetchDepth' => isset($attributes['fetch-depth']) ? (int) $attributes->{'fetch-depth'} : -1,
                     'ignoreUntranslated' => !empty($attributes['ignore-untranslated']),
-            ];
+                ];
                 $class->mapChildren($mapping);
             }
         }
