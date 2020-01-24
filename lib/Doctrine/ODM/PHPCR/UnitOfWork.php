@@ -1441,7 +1441,7 @@ class UnitOfWork
                     // make sure that when the child move is already processed and another compute is triggered
                     // we don't remove that child
                     $childOid = spl_object_hash($child);
-                    if (true || !isset($this->scheduledMoves[$childOid])) {
+                    if (!isset($this->scheduledMoves[$childOid])) {
                         $this->scheduleRemove($child);
                         unset($originalNames[$key]);
                     }
