@@ -132,25 +132,25 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         // preparing
         $functional = $this->dm->find(null, 'functional');
         $root = new ParentWithChildrenTestObj();
-        $root->nodename = "root";
-        $root->name = "root";
+        $root->nodename = 'root';
+        $root->name = 'root';
         $root->setParentDocument($functional);
         $this->dm->persist($root);
 
         $parent = new ParentWithChildrenTestObj();
-        $parent->nodename = "parent";
-        $parent->name = "parent";
+        $parent->nodename = 'parent';
+        $parent->name = 'parent';
         $parent->setParentDocument($root);
         $this->dm->persist($parent);
 
         $child = new ParentTestObj();
         $child->setParentDocument($parent);
-        $child->nodename = $child->name = "child";
+        $child->nodename = $child->name = 'child';
         $this->dm->persist($child);
 
         $child2 = new ParentTestObj();
         $child2->setParentDocument($parent);
-        $child2->nodename = $child2->name = "child2";
+        $child2->nodename = $child2->name = 'child2';
         $this->dm->persist($child2);
 
         $this->dm->flush();
@@ -161,11 +161,12 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $child2 = $this->dm->find(null, '/functional/root/parent/child2');
 
         // testing
-        $this->dm->getEventManager()->addEventSubscriber(new class implements EventSubscriber {
+        $this->dm->getEventManager()->addEventSubscriber(new class() implements EventSubscriber {
             public function getSubscribedEvents()
             {
                 return [Event::preUpdate];
             }
+
             public function preUpdate()
             {
             }
@@ -177,7 +178,6 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
         $movedChild = $this->dm->find(null, '/functional/root/parent/moved-child2');
         $this->assertInstanceOf(ParentTestObj::class, $movedChild);
-
     }
 
     public function testGetScheduledReorders()
