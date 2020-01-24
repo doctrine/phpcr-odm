@@ -16,7 +16,7 @@ use Doctrine\Tests\Models\CMS\CmsBlogInvalidChild;
 use Doctrine\Tests\Models\CMS\CmsBlogPost;
 use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\References\ParentNoNodenameTestObj;
+use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\References\ParentWithChildrenTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
