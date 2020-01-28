@@ -3,7 +3,9 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Tests\Models\CMS\CmsAddress;
@@ -16,6 +18,7 @@ use Doctrine\Tests\Models\CMS\CmsGroup;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
+use Doctrine\Tests\Models\References\ParentWithChildrenTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
@@ -122,6 +125,59 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         } catch (\Exception $e) {
             $this->fail('An exception has been raised moving a child node from parent1 to parent2.');
         }
+    }
+
+    public function testMoveChildThroughNodeNameChangeWithPreUpdateListener()
+    {
+        // preparing
+        $functional = $this->dm->find(null, 'functional');
+        $root = new ParentWithChildrenTestObj();
+        $root->nodename = 'root';
+        $root->name = 'root';
+        $root->setParentDocument($functional);
+        $this->dm->persist($root);
+
+        $parent = new ParentWithChildrenTestObj();
+        $parent->nodename = 'parent';
+        $parent->name = 'parent';
+        $parent->setParentDocument($root);
+        $this->dm->persist($parent);
+
+        $child = new ParentTestObj();
+        $child->setParentDocument($parent);
+        $child->nodename = $child->name = 'child';
+        $this->dm->persist($child);
+
+        $child2 = new ParentTestObj();
+        $child2->setParentDocument($parent);
+        $child2->nodename = $child2->name = 'child2';
+        $this->dm->persist($child2);
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/root/parent');
+        $parent->children->toArray(); // force container init
+        $child2 = $this->dm->find(null, '/functional/root/parent/child2');
+
+        // testing
+        $this->dm->getEventManager()->addEventSubscriber(new class() implements EventSubscriber {
+            public function getSubscribedEvents()
+            {
+                return [Event::preUpdate];
+            }
+
+            public function preUpdate()
+            {
+            }
+        });
+        $child2->nodename = 'moved-child2';
+        $this->dm->persist($child2);
+
+        $this->dm->flush();
+
+        $movedChild = $this->dm->find(null, '/functional/root/parent/moved-child2');
+        $this->assertInstanceOf(ParentTestObj::class, $movedChild);
     }
 
     public function testGetScheduledReorders()
