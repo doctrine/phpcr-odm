@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.5.1
+-----
+
+* [Bugfix] Do not remove child when it is moved and a pre-update listener is present.
+
 1.5.0
 -----
 
