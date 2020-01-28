@@ -41,6 +41,7 @@ use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\Version\VersionHistoryInterface;
 use PHPCR\Version\VersionInterface;
+use function spl_object_hash;
 
 /**
  * Unit of work class.
@@ -1429,8 +1430,13 @@ class UnitOfWork
                 // check moved children to not accidentally remove a child that simply moved away.
                 if (!(in_array($childName, $childNames) || in_array($childName, $movedChildNames))) {
                     $child = $this->getDocumentById($id.'/'.$childName);
-                    $this->scheduleRemove($child);
-                    unset($originalNames[$key]);
+                    // make sure that when the child move is already processed and another compute is triggered
+                    // we don't remove that child
+                    $childOid = spl_object_hash($child);
+                    if (!isset($this->scheduledMoves[$childOid])) {
+                        $this->scheduleRemove($child);
+                        unset($originalNames[$key]);
+                    }
                 }
             }
 
