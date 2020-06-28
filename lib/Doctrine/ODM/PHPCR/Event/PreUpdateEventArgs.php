@@ -20,8 +20,8 @@
 
 namespace Doctrine\ODM\PHPCR\Event;
 
-use Doctrine\Common\Persistence\Event\PreUpdateEventArgs as BasePreUpdateEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\Persistence\Event\PreUpdateEventArgs as BasePreUpdateEventArgs;
 
 class PreUpdateEventArgs extends BasePreUpdateEventArgs
 {

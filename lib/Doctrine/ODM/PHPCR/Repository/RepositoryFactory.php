@@ -34,7 +34,7 @@ interface RepositoryFactory
      * @param DocumentManagerInterface $dm           the DocumentManager instance
      * @param string                   $documentName the name of the document
      *
-     * @return \Doctrine\Common\Persistence\ObjectRepository
+     * @return \Doctrine\Persistence\ObjectRepository
      */
     public function getRepository(DocumentManagerInterface $dm, $documentName);
 }

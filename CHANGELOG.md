@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Using `doctrine/persistence` is now supported
+
 1.5.1
 -----
 

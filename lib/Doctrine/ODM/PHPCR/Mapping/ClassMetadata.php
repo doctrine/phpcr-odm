@@ -20,14 +20,14 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\ClassLoader;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
-use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Instantiator\Instantiator;
 use Doctrine\Instantiator\InstantiatorInterface;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
 use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
 use Doctrine\ODM\PHPCR\PHPCRException;
+use Doctrine\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
+use Doctrine\Persistence\Mapping\ReflectionService;
 use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
 use ReflectionClass;
@@ -1842,3 +1842,5 @@ class ClassMetadata implements ClassMetadataInterface
         return $className;
     }
 }
+
+interface_exists(ReflectionService::class);

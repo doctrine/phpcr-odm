@@ -19,7 +19,6 @@
 
 namespace Doctrine\ODM\PHPCR\Proxy;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
 use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
@@ -29,6 +28,7 @@ use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 use ReflectionProperty;
 
 /**
@@ -213,3 +213,5 @@ class ProxyFactory extends AbstractProxyFactory
         };
     }
 }
+
+interface_exists(BaseClassMetadata::class);

@@ -33,7 +33,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
     /**
      * The list of DocumentRepository instances.
      *
-     * @var array<\Doctrine\Common\Persistence\ObjectRepository>
+     * @var array<\Doctrine\Persistence\ObjectRepository>
      */
     private $repositoryList = [];
 
@@ -61,7 +61,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
      * @param DocumentManagerInterface $dm           the DocumentManager instance
      * @param string                   $documentName the name of the document
      *
-     * @return \Doctrine\Common\Persistence\ObjectRepository
+     * @return \Doctrine\Persistence\ObjectRepository
      */
     protected function createRepository(DocumentManagerInterface $dm, $documentName)
     {
