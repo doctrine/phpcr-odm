@@ -65,7 +65,8 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinInner()
     {
-        return $this->addChild(new SourceJoin($this,
+        return $this->addChild(new SourceJoin(
+            $this,
             QOMConstants::JCR_JOIN_TYPE_INNER
         ));
     }
@@ -89,7 +90,8 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinLeftOuter()
     {
-        return $this->addChild(new SourceJoin($this,
+        return $this->addChild(new SourceJoin(
+            $this,
             QOMConstants::JCR_JOIN_TYPE_LEFT_OUTER
         ));
     }
@@ -113,7 +115,8 @@ abstract class SourceFactory extends AbstractNode
      */
     public function joinRightOuter()
     {
-        return $this->addChild(new SourceJoin($this,
+        return $this->addChild(new SourceJoin(
+            $this,
             QOMConstants::JCR_JOIN_TYPE_RIGHT_OUTER
         ));
     }

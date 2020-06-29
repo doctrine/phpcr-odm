@@ -23,11 +23,12 @@ class VerifyUniqueNodeTypesMappingCommand extends Command
         $this
             ->setName('doctrine:phpcr:mapping:verify-unique-node-types')
             ->setDescription('Verify that documents claiming to have unique node types are truly unique')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
 The <info>%command.name%</info> command checks all mapped PHPCR-ODM documents
 and verifies that any claiming to use unique node types are truly unique.
 EOT
-        );
+            );
     }
 
     /**

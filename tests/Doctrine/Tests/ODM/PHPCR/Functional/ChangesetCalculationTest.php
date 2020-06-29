@@ -73,11 +73,11 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                [
-                    Event::postUpdate,
-                ],
-                $this->listener
-            );
+                 [
+                     Event::postUpdate,
+                 ],
+                 $this->listener
+             );
 
         // Create initial user
         $user1 = new CmsUserTranslatable();

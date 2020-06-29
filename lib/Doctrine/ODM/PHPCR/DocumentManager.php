@@ -101,7 +101,8 @@ class DocumentManager implements DocumentManagerInterface
         $this->metadataFactory = new $metadataFactoryClassName($this);
         $this->unitOfWork = new UnitOfWork($this);
         $this->valueConverter = new ValueConverter();
-        $this->proxyFactory = new ProxyFactory($this,
+        $this->proxyFactory = new ProxyFactory(
+            $this,
             $this->config->getProxyDir(),
             $this->config->getProxyNamespace(),
             $this->config->getAutoGenerateProxyClasses()

@@ -247,15 +247,19 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
     {
         list($alias1, $phpcrProperty1) = $this->getPhpcrProperty(
-            $node->getAlias1(), $node->getProperty1()
+            $node->getAlias1(),
+            $node->getProperty1()
         );
         list($alias2, $phpcrProperty2) = $this->getPhpcrProperty(
-            $node->getAlias2(), $node->getProperty2()
+            $node->getAlias2(),
+            $node->getProperty2()
         );
 
         return $this->qomf()->equiJoinCondition(
-            $alias1, $phpcrProperty1,
-            $alias2, $phpcrProperty2
+            $alias1,
+            $phpcrProperty1,
+            $alias2,
+            $phpcrProperty2
         );
     }
 
@@ -322,7 +326,8 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkConstraintFieldIsset(ConstraintFieldIsset $node)
     {
         list($alias, $phpcrProperty) = $this->getPhpcrProperty(
-            $node->getAlias(), $node->getField()
+            $node->getAlias(),
+            $node->getField()
         );
 
         $con = $this->qomf()->propertyExistence(
@@ -336,7 +341,8 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkConstraintFullTextSearch(ConstraintFullTextSearch $node)
     {
         list($alias, $phpcrProperty) = $this->getPhpcrProperty(
-            $node->getAlias(), $node->getField()
+            $node->getAlias(),
+            $node->getField()
         );
 
         return $this->qomf()->fullTextSearch(
@@ -383,7 +389,9 @@ abstract class ConverterBase implements ConverterInterface
         $phpcrStatOp = $this->dispatch($statOp);
 
         return $this->qomf()->comparison(
-            $phpcrDynOp, $node->getOperator(), $phpcrStatOp
+            $phpcrDynOp,
+            $node->getOperator(),
+            $phpcrStatOp
         );
     }
 

@@ -70,7 +70,8 @@ class ClassMetadataTest extends TestCase
                 'multivalue' => false,
                 'strategy' => 'assigned',
                 'nullable' => false,
-            ], $cm->mappings['id']
+            ],
+            $cm->mappings['id']
         );
 
         $this->assertEquals('id', $cm->identifier);

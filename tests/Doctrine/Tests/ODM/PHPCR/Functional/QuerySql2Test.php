@@ -126,8 +126,10 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
 
     public function testQueryLimit()
     {
-        $query = $this->dm->createPhpcrQuery('SELECT * FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username',
-                                        QueryInterface::JCR_SQL2);
+        $query = $this->dm->createPhpcrQuery(
+            'SELECT * FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username',
+            QueryInterface::JCR_SQL2
+        );
         $this->assertInstanceOf(QueryInterface::class, $query);
         $query->setLimit(2);
         $result = $this->dm->getDocumentsByPhpcrQuery($query, $this->type);

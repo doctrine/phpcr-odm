@@ -298,7 +298,8 @@ abstract class AbstractNode
         if (!$children) {
             throw new OutOfBoundsException(sprintf(
                 'Expected exactly one child of type "%s", got "%s"',
-                $type, count($children)
+                $type,
+                count($children)
             ));
         }
 

@@ -643,19 +643,24 @@ class ConverterPhpcrTest extends TestCase
                 $me->assertInstanceOf(AndInterface::class, $constraint);
                 $me->assertInstanceOf(PropertyExistenceInterface::class, $constraint->getConstraint1());
                 $me->assertInstanceOf(OrInterface::class, $constraint->getConstraint2());
+
                 $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
                 $me->assertEquals(
-                    'phpcr:class', $phpcrClassConstraint->getOperand1()->getPropertyName()
+                    'phpcr:class',
+                    $phpcrClassConstraint->getOperand1()->getPropertyName()
                 );
                 $me->assertEquals(
-                    'Fooar', $phpcrClassConstraint->getOperand2()->getLiteralValue()
+                    'Fooar',
+                    $phpcrClassConstraint->getOperand2()->getLiteralValue()
                 );
                 $phpcrClassParentsConstraint = $constraint->getConstraint2()->getConstraint2();
                 $me->assertEquals(
-                    'phpcr:classparents', $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
+                    'phpcr:classparents',
+                    $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
                 );
                 $me->assertEquals(
-                    'Fooar', $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
+                    'Fooar',
+                    $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
                 );
 
                 // test columns
