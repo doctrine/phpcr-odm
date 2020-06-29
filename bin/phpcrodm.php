@@ -29,7 +29,8 @@ $helperSet = null;
 if (file_exists($configFile)) {
     if (!is_readable($configFile)) {
         trigger_error(
-            'Configuration file ['.$configFile.'] does not have read permission.', E_USER_ERROR
+            'Configuration file ['.$configFile.'] does not have read permission.',
+            E_USER_ERROR
         );
     }
 
@@ -44,7 +45,8 @@ if (file_exists($configFile)) {
     }
 } else {
     trigger_error(
-        'Configuration file ['.$configFile.'] does not exist. See https://github.com/doctrine/phpcr-odm/wiki/Command-line-tool-configuration', E_USER_ERROR
+        'Configuration file ['.$configFile.'] does not exist. See https://github.com/doctrine/phpcr-odm/wiki/Command-line-tool-configuration',
+        E_USER_ERROR
     );
 }
 

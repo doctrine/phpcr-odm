@@ -41,7 +41,8 @@ class DocumentMigrateClassCommand extends NodesUpdateCommand
 
             ->addArgument('classname', InputArgument::REQUIRED, 'Old class name (does not need to exist in current codebase')
             ->addArgument('new-classname', InputArgument::REQUIRED, 'New class name (must exist in current codebase')
-            ->setHelp(<<<'HERE'
+            ->setHelp(
+                <<<'HERE'
 The <info>doctrine:phpcr:docment:migrate-class</info> command migrates document
 classes from the old class to the new class, updating the parent class
 information too.
@@ -69,7 +70,8 @@ HERE
         $newClassname = $input->getArgument('new-classname');
 
         if (!class_exists($newClassname)) {
-            throw new \Exception(sprintf('New class name "%s" does not exist.',
+            throw new \Exception(sprintf(
+                'New class name "%s" does not exist.',
                 $newClassname
             ));
         }

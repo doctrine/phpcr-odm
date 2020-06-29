@@ -2333,18 +2333,20 @@ class UnitOfWork
         }
 
         $order = array_flip(array_values($oids));
-        uasort($oids, function ($a, $b) use ($order) {
-            // compute the node depths
-            $aCount = substr_count($a, '/');
-            $bCount = substr_count($b, '/');
+        uasort(
+            $oids,
+            function ($a, $b) use ($order) {
+                // compute the node depths
+                $aCount = substr_count($a, '/');
+                $bCount = substr_count($b, '/');
 
-            // ensure that the original order is maintained for nodes with the same depth
-            if ($aCount === $bCount) {
-                return ($order[$a] < $order[$b]) ? -1 : 1;
+                // ensure that the original order is maintained for nodes with the same depth
+                if ($aCount === $bCount) {
+                    return ($order[$a] < $order[$b]) ? -1 : 1;
+                }
+
+                return ($aCount < $bCount) ? -1 : 1;
             }
-
-            return ($aCount < $bCount) ? -1 : 1;
-        }
         );
 
         $associationChangesets = $associationUpdates = [];

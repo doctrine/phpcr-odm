@@ -498,7 +498,7 @@ class ConverterPhpcrTest extends TestCase
                     $test->assertInstanceOf(
                         NodeLocalNameInterface::class,
                         $op
-                   );
+                    );
                 },
             ]],
             ['OperandDynamicUpperCase', ['alias_1'], [
@@ -507,7 +507,7 @@ class ConverterPhpcrTest extends TestCase
                     $test->assertInstanceOf(
                         NodeLocalNameInterface::class,
                         $op
-                   );
+                    );
                 },
                 'add_child_operand' => true,
                 'phpcr_class' => 'UpperCaseInterface',
@@ -644,32 +644,40 @@ class ConverterPhpcrTest extends TestCase
             ->will($this->returnCallback(function ($class, $args) use ($me) {
                 list($om, $source, $constraint, $orderings, $columns) = $args;
                 $me->assertInstanceOf(
-                    SourceInterface::class, $source
+                    SourceInterface::class,
+                    $source
                 );
 
                 // test that we append the phpcr:class and classparents constraints
                 $me->assertInstanceOf(
-                    AndInterface::class, $constraint
+                    AndInterface::class,
+                    $constraint
                 );
                 $me->assertInstanceOf(
-                    PropertyExistenceInterface::class, $constraint->getConstraint1()
+                    PropertyExistenceInterface::class,
+                    $constraint->getConstraint1()
                 );
                 $me->assertInstanceOf(
-                    OrInterface::class, $constraint->getConstraint2()
+                    OrInterface::class,
+                    $constraint->getConstraint2()
                 );
                 $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
                 $me->assertEquals(
-                    'phpcr:class', $phpcrClassConstraint->getOperand1()->getPropertyName()
+                    'phpcr:class',
+                    $phpcrClassConstraint->getOperand1()->getPropertyName()
                 );
                 $me->assertEquals(
-                    'Fooar', $phpcrClassConstraint->getOperand2()->getLiteralValue()
+                    'Fooar',
+                    $phpcrClassConstraint->getOperand2()->getLiteralValue()
                 );
                 $phpcrClassParentsConstraint = $constraint->getConstraint2()->getConstraint2();
                 $me->assertEquals(
-                    'phpcr:classparents', $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
+                    'phpcr:classparents',
+                    $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
                 );
                 $me->assertEquals(
-                    'Fooar', $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
+                    'Fooar',
+                    $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
                 );
 
                 // test columns
@@ -677,14 +685,16 @@ class ConverterPhpcrTest extends TestCase
 
                 $column = $columns[0];
                 $me->assertInstanceOf(
-                    ColumnInterface::class, $column
+                    ColumnInterface::class,
+                    $column
                 );
 
                 // test orderings
                 $me->assertCount(1, $orderings);
                 $ordering = $orderings[0];
                 $me->assertInstanceOf(
-                    OrderingInterface::class, $ordering
+                    OrderingInterface::class,
+                    $ordering
                 );
 
                 // return something ..

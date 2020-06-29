@@ -61,7 +61,8 @@ class QueryBuilderTester
             $children = $currentNode->getChildrenOfType($nodeType);
 
             if (!$children) {
-                throw new BadMethodCallException(sprintf("No children at path \"%s\". Node has following paths: \n%s",
+                throw new BadMethodCallException(sprintf(
+                    "No children at path \"%s\". Node has following paths: \n%s",
                     implode('.', $currentPath),
                     $this->dumpPaths($node)
                 ));
