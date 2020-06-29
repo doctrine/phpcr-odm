@@ -52,15 +52,19 @@ class GenerateProxiesCommand extends Command
         ->setDescription('Generates proxy classes for document classes.')
         ->setDefinition([
             new InputOption(
-                'filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'filter',
+                null,
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'A string pattern used to match entities that should be processed.'
             ),
             new InputArgument(
-                'dest-path', InputArgument::OPTIONAL,
+                'dest-path',
+                InputArgument::OPTIONAL,
                 'The path to generate your proxy classes. If none is provided, the path from the configuration will be used.'
             ),
         ])
-        ->setHelp(<<<'EOT'
+        ->setHelp(
+            <<<'EOT'
 Generates proxy classes for entity classes.
 EOT
         );

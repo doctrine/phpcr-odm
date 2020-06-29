@@ -46,8 +46,10 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function descendant($descendantAlias, $ancestorAlias)
     {
-        return $this->addChild(new SourceJoinConditionDescendant($this,
-            $descendantAlias, $ancestorAlias
+        return $this->addChild(new SourceJoinConditionDescendant(
+            $this,
+            $descendantAlias,
+            $ancestorAlias
         ));
     }
 
@@ -75,8 +77,10 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function equi($field1, $field2)
     {
-        return $this->addChild(new SourceJoinConditionEqui($this,
-            $field1, $field2
+        return $this->addChild(new SourceJoinConditionEqui(
+            $this,
+            $field1,
+            $field2
         ));
     }
 
@@ -102,8 +106,10 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function child($childAlias, $parentAlias)
     {
-        return $this->addChild(new SourceJoinConditionChildDocument($this,
-            $childAlias, $parentAlias
+        return $this->addChild(new SourceJoinConditionChildDocument(
+            $this,
+            $childAlias,
+            $parentAlias
         ));
     }
 
@@ -132,8 +138,11 @@ class SourceJoinConditionFactory extends AbstractNode
      */
     public function same($alias1, $alias2, $alias2Path)
     {
-        return $this->addChild(new SourceJoinConditionSameDocument($this,
-            $alias1, $alias2, $alias2Path
+        return $this->addChild(new SourceJoinConditionSameDocument(
+            $this,
+            $alias1,
+            $alias2,
+            $alias2Path
         ));
     }
 }

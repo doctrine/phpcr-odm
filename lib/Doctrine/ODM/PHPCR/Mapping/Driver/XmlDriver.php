@@ -89,7 +89,8 @@ class XmlDriver extends FileDriver
             if (!in_array($value = $xmlRoot['is-leaf'], ['true', 'false'])) {
                 throw new MappingException(sprintf(
                     'Value of is-leaf must be "true" or "false", got "%s" for class "%s"',
-                    $value, $className
+                    $value,
+                    $className
                 ));
             }
 

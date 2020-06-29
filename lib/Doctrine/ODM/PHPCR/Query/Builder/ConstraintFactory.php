@@ -230,7 +230,8 @@ class ConstraintFactory extends AbstractNode
     public function eq()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_EQUAL_TO
+            $this,
+            QOMConstants::JCR_OPERATOR_EQUAL_TO
         ));
     }
 
@@ -252,7 +253,8 @@ class ConstraintFactory extends AbstractNode
     public function neq()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO
+            $this,
+            QOMConstants::JCR_OPERATOR_NOT_EQUAL_TO
         ));
     }
 
@@ -274,7 +276,8 @@ class ConstraintFactory extends AbstractNode
     public function lt()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_LESS_THAN
+            $this,
+            QOMConstants::JCR_OPERATOR_LESS_THAN
         ));
     }
 
@@ -296,7 +299,8 @@ class ConstraintFactory extends AbstractNode
     public function lte()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO
+            $this,
+            QOMConstants::JCR_OPERATOR_LESS_THAN_OR_EQUAL_TO
         ));
     }
 
@@ -318,7 +322,8 @@ class ConstraintFactory extends AbstractNode
     public function gt()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_GREATER_THAN
+            $this,
+            QOMConstants::JCR_OPERATOR_GREATER_THAN
         ));
     }
 
@@ -340,7 +345,8 @@ class ConstraintFactory extends AbstractNode
     public function gte()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO
+            $this,
+            QOMConstants::JCR_OPERATOR_GREATER_THAN_OR_EQUAL_TO
         ));
     }
 
@@ -366,7 +372,8 @@ class ConstraintFactory extends AbstractNode
     public function like()
     {
         return $this->addChild(new ConstraintComparison(
-            $this, QOMConstants::JCR_OPERATOR_LIKE
+            $this,
+            QOMConstants::JCR_OPERATOR_LIKE
         ));
     }
 }

@@ -53,20 +53,30 @@ class DocumentConvertTranslationCommand extends Command
             ->setDescription('Convert fields to translated or back to untranslated, and between different strategies after a refactoring.')
 
             ->addArgument('classname', InputArgument::REQUIRED, 'Class that has changed translation information')
-            ->addOption('previous-strategy', 'prev', InputOption::VALUE_OPTIONAL,
+            ->addOption(
+                'previous-strategy',
+                'prev',
+                InputOption::VALUE_OPTIONAL,
                 'Name of the previous translation strategy if there was one. Omit for converting from non-translated to translated',
                 'none'
             )
-            ->addOption('fields', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
+            ->addOption(
+                'fields',
+                null,
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'The fields to convert. If not specified, all fields configured as translated will be converted.',
                 []
             )
-            ->addOption('locales', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
+            ->addOption(
+                'locales',
+                null,
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'Locales to copy previously untranslated fields into.',
                 []
             )
             ->addOption('force', null, InputOption::VALUE_NONE, 'Use to bypass the confirmation dialog')
-            ->setHelp(<<<'HERE'
+            ->setHelp(
+                <<<'HERE'
 The <info>doctrine:phpcr:document:convert-translation</info> command migrates translations
 from a previous format to the current mapping.
 

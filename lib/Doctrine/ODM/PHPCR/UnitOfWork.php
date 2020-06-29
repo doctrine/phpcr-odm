@@ -2333,7 +2333,9 @@ class UnitOfWork
         }
 
         $order = array_flip(array_values($oids));
-        uasort($oids, function ($a, $b) use ($order) {
+        uasort(
+            $oids,
+            function ($a, $b) use ($order) {
             // compute the node depths
             $aCount = substr_count($a, '/');
             $bCount = substr_count($b, '/');

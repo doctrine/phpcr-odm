@@ -48,7 +48,7 @@ HERE
         // test field of 2nd part of and statement
         $node = $this->qbTester->getNode(
             'where[0].constraint[0].constraint[1].operand_dynamic'
-);
+        );
         $this->assertInstanceOf(OperandDynamicField::class, $node);
         $this->assertEquals('a', $node->getAlias());
         $this->assertEquals('foo', $node->getField());

@@ -37,14 +37,15 @@ class InfoDoctrineCommand extends Command
         $this
             ->setName('doctrine:phpcr:mapping:info')
             ->setDescription('Shows basic information about all mapped documents')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
 The <info>%command.name%</info> shows basic information about which
 documents exist and possibly if their mapping information contains errors or
 not.
 
 <info>php app/console doctrine:phpcr:mapping:info</info>
 EOT
-        );
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

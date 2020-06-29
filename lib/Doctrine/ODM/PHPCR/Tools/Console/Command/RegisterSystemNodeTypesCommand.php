@@ -38,7 +38,8 @@ class RegisterSystemNodeTypesCommand extends Command
     {
         $this->setName('doctrine:phpcr:register-system-node-types');
         $this->setDescription('Register system node types in the PHPCR repository');
-        $this->setHelp(<<<'EOT'
+        $this->setHelp(
+            <<<'EOT'
 Register system node types in the PHPCR repository.
 
 This command registers the node types necessary for the ODM to work.

@@ -41,16 +41,16 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                [
-                    Event::prePersist,
-                    Event::postPersist,
-                    Event::preUpdate,
-                    Event::postUpdate,
-                    Event::preMove,
-                    Event::postMove,
-                ],
-                $this->listener
-            );
+                 [
+                     Event::prePersist,
+                     Event::postPersist,
+                     Event::preUpdate,
+                     Event::postUpdate,
+                     Event::preMove,
+                     Event::postMove,
+                 ],
+                 $this->listener
+             );
 
         // Create initial user
         $user = new CmsUser();
@@ -116,15 +116,15 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         $this->dm
              ->getEventManager()
              ->addEventListener(
-                [
-                    Event::preCreateTranslation,
-                    Event::preUpdateTranslation,
-                    Event::postLoadTranslation,
-                    Event::preRemoveTranslation,
-                    Event::postRemoveTranslation,
-                ],
-                $this->listener
-            );
+                 [
+                     Event::preCreateTranslation,
+                     Event::preUpdateTranslation,
+                     Event::postLoadTranslation,
+                     Event::preRemoveTranslation,
+                     Event::postRemoveTranslation,
+                 ],
+                 $this->listener
+             );
 
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
         // Create initial user

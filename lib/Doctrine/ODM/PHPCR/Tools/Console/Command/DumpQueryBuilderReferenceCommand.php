@@ -43,7 +43,8 @@ class DumpQueryBuilderReferenceCommand extends Command
             ->setName('doctrine:phpcr:qb:dump-reference')
             ->addArgument('search', InputArgument::OPTIONAL)
             ->setDescription('Generate the official query builder reference in RST format')
-            ->setHelp(<<<'HERE'
+            ->setHelp(
+                <<<'HERE'
 This command generates the official query builder reference in RST format, you can optionally
 pass a "search" parameter to limit the reference to only those nodes matching the given regex:
 
@@ -53,7 +54,7 @@ Use standard unix redirection to dump the reference to a file:
 
     <info>$ ./bin/phpcrodm doctrine:phpcr:qb:dump-reference > /path/to/phpcr-odm-documentation/en/reference/query-builder-reference.rst
 HERE
-);
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -191,8 +192,11 @@ HERE
                 // dump cardinality map
                 foreach ($nData['cardMap'] as $cnType => $cnLimits) {
                     list($cMin, $cMax) = $cnLimits;
-                    $out[] = sprintf('    * **%s..%s** %s',
-                        $cMin, $cMax ? $cMax : '*', $f['genRef']($cnType, 'type')
+                    $out[] = sprintf(
+                        '    * **%s..%s** %s',
+                        $cMin,
+                        $cMax ? $cMax : '*',
+                        $f['genRef']($cnType, 'type')
                     );
                 }
                 $out[] = '';
@@ -208,7 +212,8 @@ HERE
                     $out[] = '';
                     $out[] = $f['formatDoc']($fData['doc']);
                     $out[] = '';
-                    $out[] = sprintf('**Adds**: %s (%s)',
+                    $out[] = sprintf(
+                        '**Adds**: %s (%s)',
                         $f['genRef']($fData['rNodeType'], 'node'),
                         $fData['fType']
                     );
@@ -220,8 +225,11 @@ HERE
                         $out[] = '**Arguments**:';
                         $out[] = '';
                         foreach ($fData['args'] as $argName => $arg) {
-                            $out[] = sprintf('* **$%s**: *%s* %s',
-                                $argName, $arg['type'], $arg['doc']
+                            $out[] = sprintf(
+                                '* **$%s**: *%s* %s',
+                                $argName,
+                                $arg['type'],
+                                $arg['doc']
                             );
                         }
                         $out[] = '';
@@ -364,7 +372,9 @@ HERE
             if (!isset($docParams[$reflParam->name])) {
                 throw new \Exception(sprintf(
                     'Undocummented parameter "%s" in "%s" for method "%s"',
-                    $reflParam->name, $reflMethod->class, $reflMethod->name
+                    $reflParam->name,
+                    $reflMethod->class,
+                    $reflMethod->name
                 ));
             }
 

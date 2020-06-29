@@ -139,7 +139,8 @@ class ConverterPhpcr extends ConverterBase
         } else {
             throw new \Exception(sprintf(
                 'Could not find a mapped field or association named "%s" for alias "%s"',
-                $odmField, $originalAlias
+                $odmField,
+                $originalAlias
             ));
         }
 
@@ -268,7 +269,8 @@ class ConverterPhpcr extends ConverterBase
 
         if (null === $meta->getName()) {
             throw new \RuntimeException(sprintf(
-                '%s is not a mapped document', $documentFqn
+                '%s is not a mapped document',
+                $documentFqn
             ));
         }
 

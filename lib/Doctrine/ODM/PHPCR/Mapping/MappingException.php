@@ -134,13 +134,16 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
         if (false !== ($parent = get_parent_class($entityName))) {
             return new self(sprintf(
                 'No %s specified for Document "%s" sub class of "%s". Every Document must have an identifier/path.',
-                $what, $entityName, $parent
+                $what,
+                $entityName,
+                $parent
             ));
         }
 
         return new self(sprintf(
             'No %s specified for Document "%s". Every Document must have an identifier/path.',
-            $what, $entityName
+            $what,
+            $entityName
         ));
     }
 
@@ -156,7 +159,8 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
     {
         return new self(sprintf(
             'Repository class "%s" configured on class %s does not exist',
-            $repositoryClass, $entityName
+            $repositoryClass,
+            $entityName
         ));
     }
 

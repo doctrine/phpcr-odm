@@ -378,27 +378,27 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->dm->checkpoint($versionableArticle);
 
         $firstVersion = $this->dm->findVersionByName(
-                FullVersionableArticleWithChildren::class,
-                $versionableArticle->id,
-                '1.0'
+            FullVersionableArticleWithChildren::class,
+            $versionableArticle->id,
+            '1.0'
         );
 
         $secondVersion = $this->dm->findVersionByName(
-                FullVersionableArticleWithChildren::class,
-                $versionableArticle->id,
-                '1.1'
+            FullVersionableArticleWithChildren::class,
+            $versionableArticle->id,
+            '1.1'
         );
 
         $this->assertEquals(
-                'This is the child',
-                $firstVersion->childArticles->first()->getText(),
-                'The expected child article text is correct'
+            'This is the child',
+            $firstVersion->childArticles->first()->getText(),
+            'The expected child article text is correct'
         );
 
         $this->assertEquals(
-                'modified text',
-                $secondVersion->childArticles->first()->getText(),
-                'The expected, modified, child article text is correct'
+            'modified text',
+            $secondVersion->childArticles->first()->getText(),
+            'The expected, modified, child article text is correct'
         );
     }
 }
