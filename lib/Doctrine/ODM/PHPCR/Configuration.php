@@ -20,10 +20,11 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\ObjectRepository;
 use PHPCR\Util\UUIDHelper;
 
 /**
@@ -308,7 +309,7 @@ class Configuration
     {
         $reflectionClass = new \ReflectionClass($className);
 
-        if (!$reflectionClass->implementsInterface('Doctrine\Common\Persistence\ObjectRepository')) {
+        if (!$reflectionClass->implementsInterface(ObjectRepository::class)) {
             throw PHPCRException::invalidDocumentRepository($className);
         }
 
@@ -383,3 +384,5 @@ class Configuration
             };
     }
 }
+
+interface_exists(MappingDriver::class);

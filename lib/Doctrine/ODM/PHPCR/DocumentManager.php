@@ -21,7 +21,6 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\EventManager;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;

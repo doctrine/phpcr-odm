@@ -19,8 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use Doctrine\Common\Persistence\Mapping\MappingException as BaseMappingException;
 use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
+use Doctrine\Persistence\Mapping\MappingException as BaseMappingException;
 
 /**
  * Mapping exception class

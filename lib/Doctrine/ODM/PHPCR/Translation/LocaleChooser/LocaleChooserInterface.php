@@ -19,8 +19,8 @@
 
 namespace Doctrine\ODM\PHPCR\Translation\LocaleChooser;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
+use Doctrine\Persistence\Mapping\ClassMetadata;
 
 /**
  * Interface to get the list of preferred locales.
@@ -116,3 +116,5 @@ interface LocaleChooserInterface
      */
     public function getDefaultLocale();
 }
+
+interface_exists(ClassMetadata::class);

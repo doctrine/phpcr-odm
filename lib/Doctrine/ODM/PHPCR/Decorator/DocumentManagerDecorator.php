@@ -19,10 +19,10 @@
 
 namespace Doctrine\ODM\PHPCR\Decorator;
 
-use Doctrine\Common\Persistence\ObjectManagerDecorator;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\Persistence\ObjectManagerDecorator;
 use PHPCR\PropertyType;
 use PHPCR\Query\QueryInterface;
 

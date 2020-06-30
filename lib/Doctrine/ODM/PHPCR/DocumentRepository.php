@@ -19,11 +19,11 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
 use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\Persistence\ObjectRepository;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 
 /**

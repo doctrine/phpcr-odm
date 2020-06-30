@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * @group mapping

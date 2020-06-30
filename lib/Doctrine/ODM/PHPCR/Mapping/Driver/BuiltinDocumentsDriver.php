@@ -3,8 +3,8 @@
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * The BuiltinDocumentsDriver is used internally to make sure
@@ -84,3 +84,5 @@ class BuiltinDocumentsDriver implements MappingDriver
         return $this->wrappedDriver->isTransient($className);
     }
 }
+
+interface_exists(ClassMetadata::class);
