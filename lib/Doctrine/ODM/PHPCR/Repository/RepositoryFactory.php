@@ -2,8 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Repository;
 
-use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\Persistence\ObjectRepository;
 
 /**
  * Interface for document repository factory.

@@ -11,6 +11,7 @@ use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
+use Doctrine\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 use ReflectionProperty;
 
 /**
