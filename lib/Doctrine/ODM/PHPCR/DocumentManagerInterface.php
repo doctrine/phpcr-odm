@@ -21,7 +21,6 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventManager;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
@@ -29,6 +28,7 @@ use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\Persistence\ObjectManager;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use PHPCR\Query\QueryInterface;

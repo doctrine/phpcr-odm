@@ -4,7 +4,6 @@ enabled:
     - combine_consecutive_issets
     - combine_consecutive_unsets
     - pre_increment
-    - return_type_declaration
     - unalign_double_arrow
     - yoda_style
 

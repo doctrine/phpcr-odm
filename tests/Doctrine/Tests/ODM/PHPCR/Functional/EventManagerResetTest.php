@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Tests\Models\CMS\CmsPage;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 

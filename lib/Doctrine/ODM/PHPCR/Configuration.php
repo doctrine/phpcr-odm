@@ -3,11 +3,11 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\ObjectRepository;
 use PHPCR\Util\UUIDHelper;
 
 /**
@@ -366,3 +366,5 @@ class Configuration
             };
     }
 }
+
+interface_exists(MappingDriver::class);

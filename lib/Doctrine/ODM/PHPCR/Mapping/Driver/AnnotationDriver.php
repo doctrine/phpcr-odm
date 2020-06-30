@@ -2,15 +2,15 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 use Doctrine\ODM\PHPCR\Mapping\Annotations\Document;
 use Doctrine\ODM\PHPCR\Mapping\Annotations\MappedSuperclass;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
@@ -216,3 +216,5 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         return $cascade;
     }
 }
+
+interface_exists(ClassMetadata::class);

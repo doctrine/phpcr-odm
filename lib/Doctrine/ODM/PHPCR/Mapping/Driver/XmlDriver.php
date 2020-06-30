@@ -2,11 +2,11 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\Mapping\Driver\FileDriver;
-use Doctrine\Common\Persistence\Mapping\MappingException as DoctrineMappingException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\Driver\FileDriver;
+use Doctrine\Persistence\Mapping\MappingException as DoctrineMappingException;
 use SimpleXmlElement;
 
 /**
@@ -338,3 +338,5 @@ class XmlDriver extends FileDriver
         return $cascade;
     }
 }
+
+interface_exists(ClassMetadata::class);
