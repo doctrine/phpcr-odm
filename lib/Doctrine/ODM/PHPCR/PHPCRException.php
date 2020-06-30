@@ -24,7 +24,7 @@ class PHPCRException extends \Exception implements PHPCRExceptionInterface
 
     public static function invalidDocumentRepository($className)
     {
-        return new self("Invalid repository class '".$className."'. It must be a Doctrine\Common\Persistence\ObjectRepository.");
+        return new self("Invalid repository class '".$className."'. It must be a Doctrine\Persistence\ObjectRepository.");
     }
 
     public static function childFieldIsArray($className, $fieldName)

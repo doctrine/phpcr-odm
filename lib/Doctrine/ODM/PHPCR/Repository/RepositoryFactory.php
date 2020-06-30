@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Repository;
 
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 
 /**

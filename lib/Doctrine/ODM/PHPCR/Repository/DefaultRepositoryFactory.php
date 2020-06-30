@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Repository;
 
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 
 /**
@@ -17,7 +17,7 @@ class DefaultRepositoryFactory implements RepositoryFactory
     /**
      * The list of DocumentRepository instances.
      *
-     * @var array<\Doctrine\Common\Persistence\ObjectRepository>
+     * @var array<ObjectRepository>
      */
     private $repositoryList = [];
 

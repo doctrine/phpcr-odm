@@ -3,13 +3,13 @@
 namespace Doctrine\ODM\PHPCR\Mapping;
 
 use Doctrine\Common\EventManager;
-use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
-use Doctrine\Common\Persistence\Mapping\AbstractClassMetadataFactory;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Event;
+use Doctrine\Persistence\Event\LoadClassMetadataEventArgs;
+use Doctrine\Persistence\Mapping\AbstractClassMetadataFactory;
+use Doctrine\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\ReflectionService;
 
 /**
  * The ClassMetadataFactory is used to create ClassMetadata objects that contain all the
@@ -296,3 +296,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         return isset($class->isMappedSuperclass) && false === $class->isMappedSuperclass;
     }
 }
+
+interface_exists(ClassMetadataInterface::class);
+interface_exists(ReflectionService::class);
