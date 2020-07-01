@@ -20,12 +20,12 @@ Changelog
 
 ### Improvements
 
-* Using `doctrine/persistence` is now supported
+* Allow using `doctrine/persistence`
 
-1.5.2 (unreleased)
-----------
+1.5.2
+-----
 
-* Using `doctrine/persistence` is now supported
+* Allow using `doctrine/persistence`
 
 1.5.1
 -----
