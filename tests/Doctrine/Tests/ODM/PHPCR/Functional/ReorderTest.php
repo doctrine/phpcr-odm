@@ -91,6 +91,31 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->assertSame(['second', 'first', 'fourth', 'third'], $this->getChildrenNames($parent->getChildren()));
     }
 
+    public function testReorderWithRename()
+    {
+        $first = $this->dm->find(null, '/functional/source/first');
+        $this->assertNotNull($first);
+
+        $first->setNodeName('renamed');
+        $this->dm->persist($first);
+
+        $parent = $this->dm->find(null, '/functional/source');
+
+        $children = $parent->getChildren();
+
+        $this->assertEquals($children->first()->getNodeName(), $first->getNodeName());
+        var_dump($children->first()->getNodeName());
+        var_dump($this->getChildrenNames($children));
+        $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
+
+        $this->dm->reorder($parent, 'renamed', 'second', false);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $parent = $this->dm->find(null, '/functional/source');
+        $this->assertSame(array('second', 'first', 'third', 'fourth'), $this->getChildrenNames($parent->getChildren()));
+    }
+
     public function testReorderNoop()
     {
         $parent = $this->dm->find(null, '/functional/source');
