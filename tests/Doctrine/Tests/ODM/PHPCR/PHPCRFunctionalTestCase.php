@@ -88,7 +88,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         return $node;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         foreach ($this->sessions as $session) {
             $session->logout();
