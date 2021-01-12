@@ -18,7 +18,7 @@ class PersistBench extends PHPCRFunctionalTestCase
 {
     private $root;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->documentManager = $this->createDocumentManager();
         $this->resetFunctionalNode($this->documentManager);

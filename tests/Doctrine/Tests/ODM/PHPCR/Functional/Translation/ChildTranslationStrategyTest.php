@@ -45,7 +45,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->metadata = $this->dm->getClassMetadata(Article::class);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->removeTestNode();
     }

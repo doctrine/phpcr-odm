@@ -22,6 +22,11 @@ Changelog
 
 * Allow using `doctrine/persistence`
 
+1.5.3
+-----
+
+* Support PHP 8.0
+
 1.5.2
 -----
 
