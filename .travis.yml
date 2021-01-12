@@ -5,6 +5,7 @@ php:
   - 7.2
   - 7.3
   - 7.4
+  - 8.0
 
 sudo: false
 
@@ -41,21 +42,21 @@ matrix:
       env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="4.4.*"
     - php: 7.4
       env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="4.4.*"
-    - php: 7.4
+    - php: 8.0
       env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="5.0.*"
-    - php: 7.4
+    - php: 8.0
       env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="5.0.*"
     - php: 7.4
       env: TRANSPORT=doctrine_dbal SYMFONY_REQUIRE="4.4.*" PHPBENCH="yes"
     - php: 7.4
       env: TRANSPORT=jackrabbit SYMFONY_REQUIRE="4.4.*" PHPBENCH="yes"
-    - php: 7.4
+    - php: 8.0
       env: TRANSPORT=doctrine_dbal STABILITY="dev"
-    - php: 7.4
+    - php: 8.0
       env: TRANSPORT=jackrabbit STABILITY="dev"
 
 before_install:
-  - phpenv config-rm xdebug.ini
+  - phpenv config-rm xdebug.ini || true
   - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
   - if [ "$PHPBENCH" = "yes" ]; then composer require --no-update phpbench/phpbench=~0.16; fi;
   - composer global require --no-progress --no-scripts --no-plugins symfony/flex
