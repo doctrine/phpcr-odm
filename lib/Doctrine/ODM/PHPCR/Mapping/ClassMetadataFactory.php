@@ -45,7 +45,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      * {@inheritdoc}
      */
-    protected $cacheSalt = '\$PHPCRODMCLASSMETADATA';
+    protected $cacheSalt = '__PHPCRODMCLASSMETADATA';
 
     /**
      * @var DocumentManagerInterface
