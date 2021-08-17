@@ -22,6 +22,11 @@ Changelog
 
 * Allow using `doctrine/persistence`
 
+1.5.4
+-----
+
+* Change salt string in ClassMetadataFactory to avoid invalid PSR-16 character.
+
 1.5.3
 -----
 
