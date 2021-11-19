@@ -1,0 +1,181 @@
+name: Test application
+
+on:
+    pull_request:
+    push:
+        branches:
+            - 'master'
+
+jobs:
+    phpunit-doctrine_dbal:
+        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+
+        runs-on: ubuntu-20.04
+
+        services:
+            mysql:
+                image: mysql:5.7
+                env:
+                    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+                    MYSQL_DATABASE: phpcr_odm_tests
+                ports:
+                    - 3306:3306
+                options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+        env:
+            SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
+
+        strategy:
+            fail-fast: false
+
+            matrix:
+                php-version:
+                    - '7.1'
+                    - '7.2'
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
+                dependencies: [highest]
+                symfony-require: ['']
+                include:
+                    - php-version: '7.1'
+                      dependencies: lowest
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 2.3.*
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 3.4.*
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 4.4.*
+                      php-bench: true 
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 5.0.*
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 6.0.*
+
+        steps:
+            - name: Checkout project
+              uses: actions/checkout@v2
+
+            - name: Install and configure PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  tools: 'composer:v2'
+
+            - name: Globally install symfony/flex
+              if: matrix.symfony-require != ''
+              run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
+
+            - name: Allow unstable dependencies
+              if: matrix.symfony-require == '6.0.*'
+              run: composer config minimum-stability dev
+
+            - name: Remove dev dependencies not compatible with Symfony 6
+              if: matrix.symfony-require == '6.0.*'
+              run: composer remove liip/rmt --dev --no-update --no-interaction
+
+            - name: Install Jackalope Doctrine DBAL transport
+              run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
+
+            - name: Install dependencies with Composer
+              uses: ramsey/composer-install@v1
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+                  composer-options: --prefer-dist
+
+            - name: Run configuration script
+              run: ./tests/script_doctrine_dbal.sh
+
+            - name: Execute test cases
+              run: vendor/bin/phpunit -c tests/phpunit_doctrine_dbal.xml.dist
+
+            - name: Execute PHPBench
+              if: matrix.php-bench == true
+              run: vendor/bin/phpbench run --report=all
+
+    phpunit-jackrabbit:
+        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+
+        runs-on: ubuntu-20.04
+
+        env:
+            SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
+
+        strategy:
+            fail-fast: false
+
+            matrix:
+                php-version:
+                    - '7.1'
+                    - '7.2'
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
+                dependencies: [highest]
+                symfony-require: ['']
+                include:
+                    - php-version: '7.1'
+                      dependencies: lowest
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 2.3.*
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 3.4.*
+                      php-bench: true
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 4.4.*
+                      php-bench: true 
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 5.0.*
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 6.0.*
+
+        steps:
+            - name: Checkout project
+              uses: actions/checkout@v2
+
+            - name: Install and configure PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  tools: 'composer:v2'
+
+            - name: Globally install symfony/flex
+              if: matrix.symfony-require != ''
+              run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
+
+            - name: Allow unstable dependencies
+              if: matrix.symfony-require == '6.0.*'
+              run: composer config minimum-stability dev
+
+            - name: Remove dev dependencies not compatible with Symfony 6
+              if: matrix.symfony-require == '6.0.*'
+              run: composer remove liip/rmt --dev --no-update --no-interaction
+
+            - name: Install Jackalope Jackrabbit
+              run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
+
+            - name: Install dependencies with Composer
+              uses: ramsey/composer-install@v1
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+                  composer-options: --prefer-dist
+
+            - name: Run configuration script
+              run: ./tests/script_jackrabbit.sh
+
+            - name: Execute test cases
+              run: vendor/bin/phpunit -c tests/phpunit_jackrabbit.xml.dist
+
+            - name: Execute PHPBench
+              if: matrix.php-bench == true
+              run: vendor/bin/phpbench run --report=all
