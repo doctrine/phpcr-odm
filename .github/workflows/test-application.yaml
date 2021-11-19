@@ -9,7 +9,20 @@ on:
 jobs:
     test:
         name: 'PHP ${{ matrix.php-version }} ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+
         runs-on: ubuntu-20.04
+
+        services:
+            mysql:
+                image: mysql:5.7
+                env:
+                    MYSQL_DATABASE: phpcr_odm_tests
+                    MYSQL_USER: user
+                    MYSQL_PASSWORD: password
+                    MYSQL_ROOT_PASSWORD: rootpassword
+                ports:
+                    - 33306:3306
+                options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
         env:
             SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
