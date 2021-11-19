@@ -8,7 +8,7 @@ on:
 
 jobs:
     test:
-        name: 'PHP ${{ matrix.php-version }} ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+        name: 'PHP ${{ matrix.php-version }} ${{ matrix.transport }} ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
 
         runs-on: ubuntu-20.04
 
