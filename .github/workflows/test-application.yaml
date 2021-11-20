@@ -21,13 +21,15 @@ jobs:
                     MYSQL_PASSWORD: password
                     MYSQL_ROOT_PASSWORD: rootpassword
                 ports:
-                    - 33306:3306
+                    - 3306:3306
                 options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
         env:
             SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
 
         strategy:
+            fail-fast: false
+
             matrix:
                 php-version:
                     - '7.1'
@@ -70,7 +72,7 @@ jobs:
                       dependencies: highest
                       symfony-require: 4.4.*
                       transport: jackrabbit
-                      php-bench: true
+                      php-bench: true 
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 5.0.*
