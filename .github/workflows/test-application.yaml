@@ -101,6 +101,8 @@ jobs:
             - name: Execute PHPBench
               if: matrix.php-bench == true
               run: vendor/bin/phpbench run --report=all
+              env:
+                  TRANSPORT: doctrine_dbal
 
     phpunit-jackrabbit:
         name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
@@ -187,3 +189,5 @@ jobs:
             - name: Execute PHPBench
               if: matrix.php-bench == true
               run: vendor/bin/phpbench run --report=all
+              env:
+                  TRANSPORT: jackrabbit
