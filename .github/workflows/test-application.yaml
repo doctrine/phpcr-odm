@@ -7,8 +7,8 @@ on:
             - 'master'
 
 jobs:
-    test:
-        name: 'PHP ${{ matrix.php-version }} ${{ matrix.transport }} ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+    phpunit-doctrine_dbal:
+        name: 'PHP ${{ matrix.php-version }} doctrine_dbal ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
 
         runs-on: ubuntu-20.04
 
@@ -39,56 +39,25 @@ jobs:
                     - '8.0'
                 dependencies: [highest]
                 symfony-require: ['']
-                transport: [doctrine_dbal, jackrabbit]
                 include:
                     - php-version: '7.1'
                       dependencies: lowest
-                      transport: doctrine_dbal
-                    - php-version: '7.1'
-                      dependencies: lowest
-                      transport: jackrabbit
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 2.3.*
-                      transport: doctrine_dbal
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-require: 2.3.*
-                      transport: jackrabbit
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 3.4.*
-                      transport: doctrine_dbal
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-require: 3.4.*
-                      transport: jackrabbit
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 4.4.*
-                      transport: doctrine_dbal
-                      php-bench: true
-                    - php-version: '8.0'
-                      dependencies: highest
-                      symfony-require: 4.4.*
-                      transport: jackrabbit
                       php-bench: true 
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 5.0.*
-                      transport: doctrine_dbal
-                    - php-version: '8.0'
-                      dependencies: highest
-                      symfony-require: 5.0.*
-                      transport: jackrabbit
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 6.0.*
-                      transport: doctrine_dbal
-                    - php-version: '8.0'
-                      dependencies: highest
-                      symfony-require: 6.0.*
-                      transport: jackrabbit
 
         steps:
             - name: Checkout project
@@ -113,11 +82,88 @@ jobs:
               run: composer remove liip/rmt --dev --no-update --no-interaction
 
             - name: Install Jackalope Doctrine DBAL transport
-              if: matrix.transport == 'doctrine_dbal'
               run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
 
+            - name: Install dependencies with Composer
+              uses: ramsey/composer-install@v1
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+                  composer-options: --prefer-dist
+
+            - name: Run configuration script
+              run: ./tests/script_${{ matrix.transport }}.sh
+
+            - name: Execute test cases
+              run: vendor/bin/phpunit -c tests/phpunit_${{ matrix.transport }}.xml.dist
+
+            - name: Execute PHPBench
+              if: matrix.php-bench == true
+              run: vendor/bin/phpbench run --report=all
+
+    phpunit-jackrabbit:
+        name: 'PHP ${{ matrix.php-version }} jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+
+        runs-on: ubuntu-20.04
+
+        env:
+            SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
+
+        strategy:
+            fail-fast: false
+
+            matrix:
+                php-version:
+                    - '7.1'
+                    - '7.2'
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
+                dependencies: [highest]
+                symfony-require: ['']
+                include:
+                    - php-version: '7.1'
+                      dependencies: lowest
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 2.3.*
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 3.4.*
+                      php-bench: true
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 4.4.*
+                      php-bench: true 
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 5.0.*
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 6.0.*
+
+        steps:
+            - name: Checkout project
+              uses: actions/checkout@v2
+
+            - name: Install and configure PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  tools: 'composer:v2'
+
+            - name: Globally install symfony/flex
+              if: matrix.symfony-require != ''
+              run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
+
+            - name: Allow unstable dependencies
+              if: matrix.symfony-require == '6.0.*'
+              run: composer config minimum-stability dev
+
+            - name: Remove dev dependencies not compatible with Symfony 6
+              if: matrix.symfony-require == '6.0.*'
+              run: composer remove liip/rmt --dev --no-update --no-interaction
+
             - name: Install Jackalope Jackrabbit
-              if: matrix.transport == 'jackrabbit'
               run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
 
             - name: Install dependencies with Composer
