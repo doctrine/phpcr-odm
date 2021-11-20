@@ -155,6 +155,12 @@ jobs:
                   php-version: ${{ matrix.php-version }}
                   tools: 'composer:v2'
 
+            - name: Install and configure Java
+              uses: actions/setup-java@v2
+              with:
+                  distribution: temurin
+                  java-version: '8'
+
             - name: Globally install symfony/flex
               if: matrix.symfony-require != ''
               run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
