@@ -41,22 +41,52 @@ jobs:
                 include:
                     - php-version: '7.1'
                       dependencies: lowest
+                      transport: doctrine_dbal
+                    - php-version: '7.1'
+                      dependencies: lowest
+                      transport: jackrabbit
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 2.3.*
+                      transport: doctrine_dbal
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 2.3.*
+                      transport: jackrabbit
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 3.4.*
+                      transport: doctrine_dbal
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-require: 3.4.*
+                      transport: jackrabbit
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 4.4.*
+                      transport: doctrine_dbal
+                      php-bench: true
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 4.4.*
+                      transport: jackrabbit
                       php-bench: true
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 5.0.*
+                      transport: doctrine_dbal
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 5.0.*
+                      transport: jackrabbit
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 6.0.*
+                      transport: doctrine_dbal
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-require: 6.0.*
+                      transport: jackrabbit
 
         steps:
             - name: Checkout project
