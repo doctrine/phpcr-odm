@@ -210,7 +210,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $method = $class->getMethod('generateUuid');
         $method->setAccessible(true);
 
-        $this->assertInternalType('string', $method->invoke($this->uow));
+        $this->assertIsString($method->invoke($this->uow));
 
         $config = new Configuration();
         $config->setUuidGenerator(function () {

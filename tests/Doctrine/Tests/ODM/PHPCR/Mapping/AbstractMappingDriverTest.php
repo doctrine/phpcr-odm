@@ -378,7 +378,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testChildMapping(ClassMetadata $class)
     {
-        $this->assertInternalType('array', $class->childMappings);
+        $this->assertIsArray($class->childMappings);
         $this->assertCount(2, $class->childMappings);
         $this->assertArrayHasKey('child1', $class->mappings);
         $this->assertSame('first', $class->mappings['child1']['nodeName']);
@@ -396,7 +396,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testChildrenMapping(ClassMetadata $class)
     {
-        $this->assertInternalType('array', $class->childrenMappings);
+        $this->assertIsArray($class->childrenMappings);
         $this->assertCount(2, $class->childrenMappings);
         $this->assertArrayHasKey('all', $class->mappings);
         $this->assertArrayNotHasKey('filter', $class->mappings['all']);

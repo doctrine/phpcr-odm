@@ -54,7 +54,7 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertInstanceOf('stdClass', $entity->status);
-        $this->assertAttributeNotEmpty('value', $entity->status);
+        $this->assertObjectHasAttribute('value', $entity->status);
         $this->assertEquals($entity->status->value, 'active');
         $this->assertObjectNotHasAttribute('foo', $entity->status);
 
