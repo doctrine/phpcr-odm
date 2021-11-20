@@ -806,6 +806,8 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     /**
      * A document that is not referenceable must not have a uuid mapped.
+     *
+     * @doesNotPerformAssertions
      */
     public function testUuidMappingNonReferenceable(): ClassMetadata
     {

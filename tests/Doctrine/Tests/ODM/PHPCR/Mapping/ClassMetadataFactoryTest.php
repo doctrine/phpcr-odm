@@ -158,6 +158,9 @@ class ClassMetadataFactoryTest extends TestCase
         $this->getMetadataFor(ChildClassesAndLeafObject::class);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testValidateTranslatable()
     {
         $this->getMetadataFor(TranslatorMappingObject::class);
