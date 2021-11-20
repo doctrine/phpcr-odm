@@ -46,7 +46,7 @@ jobs:
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 3.4.*
-                    - php-version: '8.0'
+                    - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 4.4.*
                       php-bench: true 
@@ -82,6 +82,10 @@ jobs:
             - name: Install Jackalope Doctrine DBAL transport
               run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
 
+            - name: Install PHPBench
+              if: matrix.php-bench == true
+              run: composer require phpbench/phpbench:"~0.16" --no-update
+
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v1
               with:
@@ -97,6 +101,8 @@ jobs:
             - name: Execute PHPBench
               if: matrix.php-bench == true
               run: vendor/bin/phpbench run --report=all
+              env:
+                  TRANSPORT: doctrine_dbal
 
     phpunit-jackrabbit:
         name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
@@ -128,7 +134,7 @@ jobs:
                       dependencies: highest
                       symfony-require: 3.4.*
                       php-bench: true
-                    - php-version: '8.0'
+                    - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 4.4.*
                       php-bench: true 
@@ -149,6 +155,12 @@ jobs:
                   php-version: ${{ matrix.php-version }}
                   tools: 'composer:v2'
 
+            - name: Install and configure Java
+              uses: actions/setup-java@v2
+              with:
+                  distribution: temurin
+                  java-version: '8'
+
             - name: Globally install symfony/flex
               if: matrix.symfony-require != ''
               run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
@@ -163,6 +175,10 @@ jobs:
 
             - name: Install Jackalope Jackrabbit
               run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
+
+            - name: Install PHPBench
+              if: matrix.php-bench == true
+              run: composer require phpbench/phpbench:"~0.16" --no-update
 
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v1
@@ -179,3 +195,5 @@ jobs:
             - name: Execute PHPBench
               if: matrix.php-bench == true
               run: vendor/bin/phpbench run --report=all
+              env:
+                  TRANSPORT: jackrabbit

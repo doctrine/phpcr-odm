@@ -20,7 +20,7 @@ if (! isset($argv[1])
 }
 
 $params = array(
-    'jackalope.jackrabbit_uri'  => 'http://localhost:8080/server/',
+    'jackalope.jackrabbit_uri'  => 'http://127.0.0.1:8080/server/',
 );
 
 $workspace = 'default';
