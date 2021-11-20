@@ -38,7 +38,7 @@
         "symfony/yaml": "^3.4 || ^4.3 || ^5.0 || ^6.0",
         "symfony/phpunit-bridge": "^5.0",
         "liip/rmt": "^1.3",
-        "phpunit/phpunit": "^7.0 || ^8.0"
+        "phpunit/phpunit": "^7.5 || ^8.0"
     },
     "suggest": {
         "symfony/yaml": "^3.4 || ^4.3 || ^5.0 || ^6.0",
