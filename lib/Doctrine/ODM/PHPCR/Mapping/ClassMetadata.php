@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping;
 
-use Doctrine\Common\ClassLoader;
 use Doctrine\Instantiator\Instantiator;
 use Doctrine\Instantiator\InstantiatorInterface;
 use Doctrine\ODM\PHPCR\Event;
@@ -541,7 +540,7 @@ class ClassMetadata implements ClassMetadataInterface
     {
         foreach ($this->referenceMappings as $fieldName) {
             $mapping = $this->mappings[$fieldName];
-            if (!empty($mapping['targetDocument']) && !ClassLoader::classExists($mapping['targetDocument'])) {
+            if (!empty($mapping['targetDocument']) && !class_exists($mapping['targetDocument']) && !interface_exists($mapping['targetDocument'])) {
                 throw MappingException::invalidTargetDocumentClass($mapping['targetDocument'], $this->name, $mapping['fieldName']);
             }
         }
@@ -1131,7 +1130,7 @@ class ClassMetadata implements ClassMetadataInterface
             foreach ($this->referrersMappings as $referrerName) {
                 $mapping = $this->mappings[$referrerName];
                 // only a santiy check with reflection. otherwise we could run into endless loops
-                if (!ClassLoader::classExists($mapping['referringDocument'])) {
+                if (!class_exists($mapping['referringDocument']) && !interface_exists($mapping['referringDocument'])) {
                     throw new MappingException(sprintf(
                         'Invalid referrer mapping on document "%s" for field "%s": The referringDocument class "%s" does not exist',
                         $this->name,

@@ -84,7 +84,7 @@ class ClassMetadataFactoryTest extends TestCase
 
         $metadata = $cmf->getAllMetadata();
 
-        $this->assertInternalType('array', $metadata);
+        $this->assertIsArray($metadata);
     }
 
     public function testCacheDriver()
@@ -158,6 +158,9 @@ class ClassMetadataFactoryTest extends TestCase
         $this->getMetadataFor(ChildClassesAndLeafObject::class);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testValidateTranslatable()
     {
         $this->getMetadataFor(TranslatorMappingObject::class);

@@ -354,7 +354,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $strategy = new AttributeTranslationStrategy($this->dm);
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
-        $this->assertInternalType('array', $locales);
+        $this->assertIsArray($locales);
         $this->assertCount(3, $locales);
         $this->assertContains('fr', $locales);
         $this->assertContains('en', $locales);

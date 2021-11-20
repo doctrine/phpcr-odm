@@ -25,8 +25,12 @@ class QueryBuilderTest extends NodeTestCase
         $this->node->foobar();
     }
 
-    // this test serves no other purpose than to demonstrate
-    // the API
+    /**
+     * this test serves no other purpose than to demonstrate
+     * the API
+     *
+     * @doesNotPerformAssertions
+     */
     public function testApi1()
     {
         $this->node

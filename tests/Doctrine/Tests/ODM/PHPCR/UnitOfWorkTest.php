@@ -163,6 +163,8 @@ class UnitOfWorkTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
      * @covers \Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
+     *
+     * @doesNotPerformAssertions
      */
     public function testScheduleInsertion()
     {
@@ -210,7 +212,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $method = $class->getMethod('generateUuid');
         $method->setAccessible(true);
 
-        $this->assertInternalType('string', $method->invoke($this->uow));
+        $this->assertIsString($method->invoke($this->uow));
 
         $config = new Configuration();
         $config->setUuidGenerator(function () {
@@ -238,6 +240,8 @@ class UnitOfWorkTest extends PHPCRTestCase
     /**
      * @see https://github.com/doctrine/phpcr-odm/issues/637
      * @covers \Doctrine\ODM\PHPCR\UnitOfWork::computeSingleDocumentChangeSet
+     *
+     * @doesNotPerformAssertions
      */
     public function testComputeSingleDocumentChangeSetForRemovedDocument()
     {
