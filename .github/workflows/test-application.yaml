@@ -8,7 +8,7 @@ on:
 
 jobs:
     phpunit-doctrine_dbal:
-        name: 'PHP ${{ matrix.php-version }} doctrine_dbal ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
 
         runs-on: ubuntu-20.04
 
@@ -91,17 +91,17 @@ jobs:
                   composer-options: --prefer-dist
 
             - name: Run configuration script
-              run: ./tests/script_${{ matrix.transport }}.sh
+              run: ./tests/script_doctrine_dbal.sh
 
             - name: Execute test cases
-              run: vendor/bin/phpunit -c tests/phpunit_${{ matrix.transport }}.xml.dist
+              run: vendor/bin/phpunit -c tests/phpunit_doctrine_dbal.xml.dist
 
             - name: Execute PHPBench
               if: matrix.php-bench == true
               run: vendor/bin/phpbench run --report=all
 
     phpunit-jackrabbit:
-        name: 'PHP ${{ matrix.php-version }} jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
 
         runs-on: ubuntu-20.04
 
@@ -173,10 +173,10 @@ jobs:
                   composer-options: --prefer-dist
 
             - name: Run configuration script
-              run: ./tests/script_${{ matrix.transport }}.sh
+              run: ./tests/script_jackrabbit.sh
 
             - name: Execute test cases
-              run: vendor/bin/phpunit -c tests/phpunit_${{ matrix.transport }}.xml.dist
+              run: vendor/bin/phpunit -c tests/phpunit_jackrabbit.xml.dist
 
             - name: Execute PHPBench
               if: matrix.php-bench == true
