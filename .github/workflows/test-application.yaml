@@ -82,6 +82,10 @@ jobs:
             - name: Install Jackalope Doctrine DBAL transport
               run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
 
+            - name: Install PHPBench
+              if: matrix.php-bench == true
+              run: composer require phpbench/phpbench:"~0.16" --no-update
+
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v1
               with:
@@ -163,6 +167,10 @@ jobs:
 
             - name: Install Jackalope Jackrabbit
               run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
+
+            - name: Install PHPBench
+              if: matrix.php-bench == true
+              run: composer require phpbench/phpbench:"~0.16" --no-update
 
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v1
