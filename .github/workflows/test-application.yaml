@@ -46,7 +46,7 @@ jobs:
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 3.4.*
-                    - php-version: '8.0'
+                    - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 4.4.*
                       php-bench: true 
@@ -132,7 +132,7 @@ jobs:
                       dependencies: highest
                       symfony-require: 3.4.*
                       php-bench: true
-                    - php-version: '8.0'
+                    - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 4.4.*
                       php-bench: true 
