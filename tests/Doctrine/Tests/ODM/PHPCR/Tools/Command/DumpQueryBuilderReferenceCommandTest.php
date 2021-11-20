@@ -28,6 +28,6 @@ class DumpQueryBuilderReferenceCommandTest extends TestCase
     {
         $this->commandTester->execute([]);
         $res = $this->commandTester->getDisplay();
-        $this->assertContains('Query Builder Reference', $res);
+        $this->assertStringContainsStringIgnoringCase('Query Builder Reference', $res);
     }
 }

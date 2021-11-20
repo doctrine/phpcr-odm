@@ -197,7 +197,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $strategy = new ChildTranslationStrategy($this->dm);
         $locales = $strategy->getLocalesFor($doc, $node, $this->metadata);
 
-        $this->assertInternalType('array', $locales);
+        $this->assertIsArray($locales);
         $this->assertCount(3, $locales);
         $this->assertContains('fr', $locales);
         $this->assertContains('en', $locales);
