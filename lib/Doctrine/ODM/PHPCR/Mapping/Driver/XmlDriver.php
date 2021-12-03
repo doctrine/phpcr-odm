@@ -295,7 +295,13 @@ class XmlDriver extends FileDriver
     protected function loadMappingFile($file)
     {
         $result = [];
+        if (\PHP_VERSION_ID < 80000) {
+            $entity = libxml_disable_entity_loader(true);
+        }
         $xmlElement = simplexml_load_string(file_get_contents($file));
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($entity);
+        }
 
         foreach (['document', 'mapped-superclass'] as $type) {
             if (isset($xmlElement->$type)) {
