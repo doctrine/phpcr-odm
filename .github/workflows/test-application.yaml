@@ -71,10 +71,6 @@ jobs:
               if: matrix.symfony-require != ''
               run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
 
-            - name: Allow unstable dependencies
-              if: matrix.symfony-require == '6.0.*'
-              run: composer config minimum-stability dev
-
             - name: Remove dev dependencies not compatible with Symfony 6
               if: matrix.symfony-require == '6.0.*'
               run: composer remove liip/rmt --dev --no-update --no-interaction
@@ -164,10 +160,6 @@ jobs:
             - name: Globally install symfony/flex
               if: matrix.symfony-require != ''
               run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
-
-            - name: Allow unstable dependencies
-              if: matrix.symfony-require == '6.0.*'
-              run: composer config minimum-stability dev
 
             - name: Remove dev dependencies not compatible with Symfony 6
               if: matrix.symfony-require == '6.0.*'
