@@ -8,7 +8,7 @@ on:
 
 jobs:
     phpunit-doctrine_dbal:
-        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
 
         runs-on: ubuntu-20.04
 
@@ -22,9 +22,6 @@ jobs:
                     - 3306:3306
                 options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-        env:
-            SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
-
         strategy:
             fail-fast: false
 
@@ -36,26 +33,27 @@ jobs:
                     - '7.4'
                     - '8.0'
                 dependencies: [highest]
-                symfony-require: ['']
+                symfony-version: ['*']
                 include:
                     - php-version: '7.1'
                       dependencies: lowest
+                      symfony-version: '*'
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-require: 2.3.*
+                      symfony-version: 2.3.*
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-require: 3.4.*
+                      symfony-version: 3.4.*
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-require: 4.4.*
+                      symfony-version: 4.4.*
                       php-bench: true
                     - php-version: '8.0'
                       dependencies: highest
-                      symfony-require: 5.0.*
+                      symfony-version: 5.0.*
                     - php-version: '8.0'
                       dependencies: highest
-                      symfony-require: 6.0.*
+                      symfony-version: 6.0.*
 
         steps:
             - name: Checkout project
@@ -66,6 +64,10 @@ jobs:
               with:
                   php-version: ${{ matrix.php-version }}
                   tools: 'composer:v2, flex'
+
+            - name: Symfony version
+              if: matrix.symfony-version != '*'
+              run: composer config extra.symfony.require ${{ matrix.symfony-version }}
 
             - name: Install Jackalope Doctrine DBAL transport
               run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
@@ -93,12 +95,9 @@ jobs:
                   TRANSPORT: doctrine_dbal
 
     phpunit-jackrabbit:
-        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} ${{ matrix.symfony-require }}'
+        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
 
         runs-on: ubuntu-20.04
-
-        env:
-            SYMFONY_REQUIRE: ${{ matrix.symfony-require }}
 
         strategy:
             fail-fast: false
@@ -111,27 +110,28 @@ jobs:
                     - '7.4'
                     - '8.0'
                 dependencies: [highest]
-                symfony-require: ['']
+                symfony-version: ['*']
                 include:
                     - php-version: '7.1'
                       dependencies: lowest
+                      symfony-version: '*'
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-require: 2.3.*
+                      symfony-version: 2.3.*
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-require: 3.4.*
+                      symfony-version: 3.4.*
                       php-bench: true
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-require: 4.4.*
+                      symfony-version: 4.4.*
                       php-bench: true
                     - php-version: '8.0'
                       dependencies: highest
-                      symfony-require: 5.0.*
+                      symfony-version: 5.0.*
                     - php-version: '8.0'
                       dependencies: highest
-                      symfony-require: 6.0.*
+                      symfony-version: 6.0.*
 
         steps:
             - name: Checkout project
@@ -142,6 +142,10 @@ jobs:
               with:
                   php-version: ${{ matrix.php-version }}
                   tools: 'composer:v2, flex'
+
+            - name: Symfony version
+              if: matrix.symfony-version != '*'
+              run: composer config extra.symfony.require ${{ matrix.symfony-version }}
 
             - name: Install and configure Java
               uses: actions/setup-java@v2
