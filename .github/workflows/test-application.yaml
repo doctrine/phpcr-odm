@@ -49,7 +49,7 @@ jobs:
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 4.4.*
-                      php-bench: true 
+                      php-bench: true
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 5.0.*
@@ -65,15 +65,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-version }}
-                  tools: 'composer:v2'
-
-            - name: Globally install symfony/flex
-              if: matrix.symfony-require != ''
-              run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
-
-            - name: Remove dev dependencies not compatible with Symfony 6
-              if: matrix.symfony-require == '6.0.*'
-              run: composer remove liip/rmt --dev --no-update --no-interaction
+                  tools: 'composer:v2, flex'
 
             - name: Install Jackalope Doctrine DBAL transport
               run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
@@ -133,7 +125,7 @@ jobs:
                     - php-version: '7.4'
                       dependencies: highest
                       symfony-require: 4.4.*
-                      php-bench: true 
+                      php-bench: true
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-require: 5.0.*
@@ -149,21 +141,13 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-version }}
-                  tools: 'composer:v2'
+                  tools: 'composer:v2, flex'
 
             - name: Install and configure Java
               uses: actions/setup-java@v2
               with:
                   distribution: temurin
                   java-version: '8'
-
-            - name: Globally install symfony/flex
-              if: matrix.symfony-require != ''
-              run: composer global require --no-progress --no-scripts --no-plugins symfony/flex
-
-            - name: Remove dev dependencies not compatible with Symfony 6
-              if: matrix.symfony-require == '6.0.*'
-              run: composer remove liip/rmt --dev --no-update --no-interaction
 
             - name: Install Jackalope Jackrabbit
               run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
