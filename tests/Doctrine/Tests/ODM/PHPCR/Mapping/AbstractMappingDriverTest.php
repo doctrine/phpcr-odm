@@ -413,7 +413,7 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertIsArray($class->childrenMappings);
         $this->assertCount(2, $class->childrenMappings);
         $this->assertArrayHasKey('all', $class->mappings);
-        $this->assertArrayNotHasKey('filter', $class->mappings['all']);
+        $this->assertNull($class->mappings['all']['filter']);
         $this->assertArrayHasKey('some', $class->mappings);
         $this->assertSame(['*some*'], $class->mappings['some']['filter']);
         $this->assertSame(2, $class->mappings['some']['fetchDepth']);
