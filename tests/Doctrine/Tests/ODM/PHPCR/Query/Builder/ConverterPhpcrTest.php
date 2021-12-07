@@ -117,6 +117,7 @@ class ConverterPhpcrTest extends TestCase
                 return $meta;
             }));
 
+        /** @var DocumentManager|MockObject $dm */
         $dm = $this->createMock(DocumentManager::class);
 
         $dm->expects($this->once())
@@ -137,7 +138,7 @@ class ConverterPhpcrTest extends TestCase
 
     /**
      * Return a builder with a source, as a alias is required for
-     * all methods
+     * all methods.
      */
     protected function primeBuilder()
     {
@@ -495,19 +496,13 @@ class ConverterPhpcrTest extends TestCase
                 'add_child_operand' => true,
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
-                    $test->assertInstanceOf(
-                        NodeLocalNameInterface::class,
-                        $op
-                    );
+                    $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 },
             ]],
             ['OperandDynamicUpperCase', ['alias_1'], [
                 'assert' => function ($test, $node) {
                     $op = $node->getOperand();
-                    $test->assertInstanceOf(
-                        NodeLocalNameInterface::class,
-                        $op
-                    );
+                    $test->assertInstanceOf(NodeLocalNameInterface::class, $op);
                 },
                 'add_child_operand' => true,
                 'phpcr_class' => 'UpperCaseInterface',
@@ -643,24 +638,12 @@ class ConverterPhpcrTest extends TestCase
             ->method('get')
             ->will($this->returnCallback(function ($class, $args) use ($me) {
                 list($om, $source, $constraint, $orderings, $columns) = $args;
-                $me->assertInstanceOf(
-                    SourceInterface::class,
-                    $source
-                );
-
+                $me->assertInstanceOf(SourceInterface::class, $source);
                 // test that we append the phpcr:class and classparents constraints
-                $me->assertInstanceOf(
-                    AndInterface::class,
-                    $constraint
-                );
-                $me->assertInstanceOf(
-                    PropertyExistenceInterface::class,
-                    $constraint->getConstraint1()
-                );
-                $me->assertInstanceOf(
-                    OrInterface::class,
-                    $constraint->getConstraint2()
-                );
+                $me->assertInstanceOf(AndInterface::class, $constraint);
+                $me->assertInstanceOf(PropertyExistenceInterface::class, $constraint->getConstraint1());
+                $me->assertInstanceOf(OrInterface::class, $constraint->getConstraint2());
+
                 $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
                 $me->assertEquals(
                     'phpcr:class',
@@ -684,18 +667,12 @@ class ConverterPhpcrTest extends TestCase
                 $me->assertCount(1, $columns);
 
                 $column = $columns[0];
-                $me->assertInstanceOf(
-                    ColumnInterface::class,
-                    $column
-                );
+                $me->assertInstanceOf(ColumnInterface::class, $column);
 
                 // test orderings
                 $me->assertCount(1, $orderings);
                 $ordering = $orderings[0];
-                $me->assertInstanceOf(
-                    OrderingInterface::class,
-                    $ordering
-                );
+                $me->assertInstanceOf(OrderingInterface::class, $ordering);
 
                 // return something ..
                 return $me->createMock(QueryObjectModelInterface::class);

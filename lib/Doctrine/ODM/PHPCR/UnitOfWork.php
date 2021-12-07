@@ -1,26 +1,10 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventArgs;
+use Doctrine\Common\EventManager;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\Event\ListenersInvoker;
@@ -50,18 +34,21 @@ use PHPCR\PathNotFoundException;
 use PHPCR\PropertyType;
 use PHPCR\RepositoryException;
 use PHPCR\RepositoryInterface;
+use PHPCR\SessionInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\Util\NodeHelper;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
+use PHPCR\Version\VersionHistoryInterface;
+use PHPCR\Version\VersionInterface;
 use function spl_object_hash;
 
 /**
- * Unit of work class
+ * Unit of work class.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *
- * @see        www.doctrine-project.com
+ * @link        www.doctrine-project.com
  * @since       1.0
  *
  * @author      Jordi Boggiano <j.boggiano@seld.be>
@@ -83,7 +70,7 @@ class UnitOfWork
     const STATE_DETACHED = 4;
 
     /**
-     * Used for versions of documents (these are unmodifiable frozen nodes)
+     * Used for versions of documents (these are unmodifiable frozen nodes).
      *
      * @var int
      */
@@ -105,16 +92,16 @@ class UnitOfWork
     private $documentIds = [];
 
     /**
-     * Track version history of the version documents we create, indexed by spl_object_hash
+     * Track version history of the version documents we create, indexed by spl_object_hash.
      *
-     * @var \PHPCR\Version\VersionHistoryInterface[]
+     * @var VersionHistoryInterface[]
      */
     private $documentHistory = [];
 
     /**
-     * Track version objects of the version documents we create, indexed by spl_object_hash
+     * Track version objects of the version documents we create, indexed by spl_object_hash.
      *
-     * @var \PHPCR\Version\VersionInterface[]
+     * @var VersionInterface[]
      */
     private $documentVersion = [];
 
@@ -135,7 +122,7 @@ class UnitOfWork
     /**
      * Hashmap of spl_object_hash => { original => locale , current => locale }
      * The original vs current locale is used to detect if the user changed the
-     * mapped locale field of a document after the last call to bindTranslation
+     * mapped locale field of a document after the last call to bindTranslation.
      *
      * @var array
      */
@@ -168,6 +155,7 @@ class UnitOfWork
 
     /**
      * List of documents that have a changed field to be updated on next flush
+     *
      * oid => document
      *
      * @var array
@@ -176,6 +164,7 @@ class UnitOfWork
 
     /**
      * List of documents that will be inserted on next flush
+     *
      * oid => document
      *
      * @var array
@@ -184,6 +173,7 @@ class UnitOfWork
 
     /**
      * List of documents that will be moved on next flush
+     *
      * oid => array(document, target path)
      *
      * @var array
@@ -192,11 +182,12 @@ class UnitOfWork
 
     /**
      * List of parent documents that have children that will be reordered on next flush
+     *
      * parent oid => list of array with records array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
      * - srcName the Nodename of the document to be moved,
      * - targetName the Nodename of the document to move srcName to
-     * - before a boolean telling whether to move srcName before or after targetName
+     * - before a boolean telling whether to move srcName before or after targetName.
      *
      * @var array
      */
@@ -204,6 +195,7 @@ class UnitOfWork
 
     /**
      * List of documents that will be removed on next flush
+     *
      * oid => document
      *
      * @var array
@@ -233,7 +225,7 @@ class UnitOfWork
     private $uuidGenerator;
 
     /**
-     * \PHPCR\SessionInterface
+     * @var SessionInterface
      */
     private $session;
 
@@ -243,7 +235,7 @@ class UnitOfWork
     private $eventListenersInvoker;
 
     /**
-     * @var \Doctrine\Common\EventManager
+     * @var EventManager
      */
     private $eventManager;
 
@@ -374,9 +366,9 @@ class UnitOfWork
      */
     public function getOrCreateDocuments($className, $nodes, array &$hints = [])
     {
-        $refresh = isset($hints['refresh']) ? $hints['refresh'] : false;
-        $locale = isset($hints['locale']) ? $hints['locale'] : null;
-        $fallback = isset($hints['fallback']) ? $hints['fallback'] : isset($locale);
+        $refresh = $hints['refresh'] ?? false;
+        $locale = $hints['locale'] ?? null;
+        $fallback = $hints['fallback'] ?? isset($locale);
         $documents = [];
         $overrideLocalValuesOids = [];
         $strategies = [];
@@ -455,7 +447,7 @@ class UnitOfWork
 
         foreach ($nodes as $node) {
             $id = $node->getPath();
-            $document = $this->getDocumentById($id) ?: (isset($documents[$id]) ? $documents[$id] : null);
+            $document = $this->getDocumentById($id) ?: ($documents[$id] ?? null);
 
             if (!$document) {
                 continue;
@@ -535,7 +527,7 @@ class UnitOfWork
                         }
                     }
 
-                    $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
+                    $targetDocument = $mapping['targetDocument'] ?? null;
                     $coll = new ReferenceManyCollection(
                         $this->dm,
                         $document,
@@ -621,7 +613,7 @@ class UnitOfWork
 
             $this->nonMappedData[$overrideLocalValuesOids[$id]] = $nonMappedData;
             foreach ($class->reflFields as $fieldName => $reflFields) {
-                $value = isset($documentState[$fieldName]) ? $documentState[$fieldName] : null;
+                $value = $documentState[$fieldName] ?? null;
                 $reflFields->setValue($document, $value);
                 $this->originalData[$overrideLocalValuesOids[$id]][$fieldName] = $value;
             }
@@ -644,7 +636,7 @@ class UnitOfWork
     }
 
     /**
-     * Get the existing document or proxy or create a new one for this PHPCR Node
+     * Get the existing document or proxy or create a new one for this PHPCR Node.
      *
      * @param NodeInterface $node
      * @param string        $locale
@@ -697,7 +689,7 @@ class UnitOfWork
     }
 
     /**
-     * Populate the proxy with actual data
+     * Populate the proxy with actual data.
      *
      * @param string $className
      * @param Proxy  $document
@@ -1051,7 +1043,7 @@ class UnitOfWork
     /**
      * recurse over all known child documents to remove them form this unit of work
      * as their parent gets removed from phpcr. If you do not, flush will try to create
-     * orphaned nodes if these documents are modified which leads to a PHPCR exception
+     * orphaned nodes if these documents are modified which leads to a PHPCR exception.
      *
      * @param object $document
      */
@@ -1082,7 +1074,7 @@ class UnitOfWork
     }
 
     /**
-     * Get the state of this document
+     * Get the state of this document.
      *
      * STATE_NEW:      the document is not persisted, but a valid mapped document
      * STATE_MANAGED:  the document is tracked and will be updated on flush
@@ -1128,7 +1120,7 @@ class UnitOfWork
     }
 
     /**
-     * Detects the changes for a single document
+     * Detects the changes for a single document.
      *
      * @param object $document
      */
@@ -1158,7 +1150,7 @@ class UnitOfWork
     }
 
     /**
-     * Detects the changes that need to be persisted
+     * Detects the changes that need to be persisted.
      */
     public function computeChangeSets()
     {
@@ -1292,7 +1284,7 @@ class UnitOfWork
                     // convert to a PersistentCollection
                     switch ($assocType) {
                         case 'reference':
-                            $targetDocument = isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null;
+                            $targetDocument = $mapping['targetDocument'] ?? null;
                             $changeSet[$fieldName] = ReferenceManyCollection::createFromCollection(
                                 $this->dm,
                                 $document,
@@ -1383,8 +1375,8 @@ class UnitOfWork
                     );
                 }
 
-                $filter = isset($mapping['filter']) ? $mapping['filter'] : null;
-                $fetchDepth = isset($mapping['fetchDepth']) ? $mapping['fetchDepth'] : null;
+                $filter = $mapping['filter'] ?? null;
+                $fetchDepth = $mapping['fetchDepth'] ?? null;
 
                 // convert to a PersistentCollection
                 $changeSet[$fieldName] = ChildrenCollection::createFromCollection(
@@ -1452,7 +1444,7 @@ class UnitOfWork
                 // reindex the arrays to avoid holes in the indexes
                 $originalNames = array_values($originalNames);
                 $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
-                if ($originalNames !== $childNames) {
+                if ($originalNames != $childNames) {
                     $reordering = NodeHelper::calculateOrderBefore($originalNames, $childNames);
                     if (empty($this->documentChangesets[$oid])) {
                         $this->documentChangesets[$oid] = ['reorderings' => [$reordering]];
@@ -1553,14 +1545,12 @@ class UnitOfWork
             $destPath = $destName = false;
 
             if (isset($this->originalData[$oid][$class->parentMapping], $changeSet[$class->parentMapping])
-
                 && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
             ) {
                 $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
             }
 
             if (isset($this->originalData[$oid][$class->nodename], $changeSet[$class->nodename])
-
                 && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
             ) {
                 $destName = $changeSet[$class->nodename];
@@ -1592,7 +1582,6 @@ class UnitOfWork
             }
 
             if (isset($this->originalData[$oid][$class->identifier], $changeSet[$class->identifier])
-
                 && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
             ) {
                 throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
@@ -1979,7 +1968,7 @@ class UnitOfWork
                             $document,
                             $mapping['property'],
                             [],
-                            isset($mapping['targetDocument']) ? $mapping['targetDocument'] : null,
+                            $mapping['targetDocument'] ?? null,
                             $locale,
                             $this->getReferenceManyCollectionTypeFromMetadata($mapping)
                         );
@@ -2204,7 +2193,7 @@ class UnitOfWork
     }
 
     /**
-     * Commits the UnitOfWork
+     * Commits the UnitOfWork.
      *
      * @param object|array|null $document optionally limit to a specific
      *                                    document or an array of documents
@@ -2234,10 +2223,6 @@ class UnitOfWork
         ) {
             $this->invokeGlobalEvent(Event::postFlush, new ManagerEventArgs($this->dm));
             $this->changesetComputed = [];
-
-            // @deprecated This is to maintain BC with the old behavior, where users may call
-            //             flush instead of PHPCR\SessionInterface#save
-            $this->session->save();
 
             return; // Nothing to do.
         }
@@ -2316,7 +2301,7 @@ class UnitOfWork
     }
 
     /**
-     * Executes all document insertions
+     * Executes all document insertions.
      *
      * @param array $documents array of all to be inserted documents
      */
@@ -2412,7 +2397,7 @@ class UnitOfWork
 
             $this->setMixins($class, $node, $document);
 
-            $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : [];
+            $fields = $this->documentChangesets[$oid]['fields'] ?? [];
             foreach ($fields as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
                 if (in_array($fieldName, $class->translatableFields)) {
@@ -2439,7 +2424,7 @@ class UnitOfWork
 
                     //populate $associationChangesets to force executeUpdates($associationUpdates)
                     //to only update association fields
-                    $data = isset($associationChangesets[$oid]['fields']) ? $associationChangesets[$oid]['fields'] : [];
+                    $data = $associationChangesets[$oid]['fields'] ?? [];
                     $data[$fieldName] = [null, $fieldValue];
                     $associationChangesets[$oid] = ['fields' => $data];
                 }
@@ -2499,7 +2484,7 @@ class UnitOfWork
     }
 
     /**
-     * Executes all document updates
+     * Executes all document updates.
      *
      * @param array $documents      array of all to be updated documents
      * @param bool  $dispatchEvents if to dispatch events
@@ -2532,7 +2517,7 @@ class UnitOfWork
                 }
             }
 
-            $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : [];
+            $fields = $this->documentChangesets[$oid]['fields'] ?? [];
             foreach ($fields as $fieldName => $data) {
                 $fieldValue = $data[1];
 
@@ -2747,7 +2732,7 @@ class UnitOfWork
     }
 
     /**
-     * Executes all document moves
+     * Executes all document moves.
      *
      * @param array $documents array of all to be moved documents
      */
@@ -2834,7 +2819,7 @@ class UnitOfWork
     }
 
     /**
-     * Execute reorderings
+     * Execute reorderings.
      *
      * @param $documents
      */
@@ -2880,7 +2865,7 @@ class UnitOfWork
     }
 
     /**
-     * Executes all document removals
+     * Executes all document removals.
      *
      * @param array $documents array of all to be removed documents
      */
@@ -2993,7 +2978,7 @@ class UnitOfWork
     }
 
     /**
-     * Get the version history information for a document
+     * Get the version history information for a document.
      *
      * TODO: implement labels once jackalope implements them, until then labels will be an empty array.
      * TODO: implement limit
@@ -3021,7 +3006,7 @@ class UnitOfWork
 
         $result = [];
         foreach ($versions as $version) {
-            /* @var $version \PHPCR\Version\VersionInterface */
+            /* @var $version VersionInterface */
             $result[$version->getName()] = [
                 'name' => $version->getName(),
                 'labels' => [],
@@ -3033,7 +3018,7 @@ class UnitOfWork
     }
 
     /**
-     * Restore the document to the state it was before
+     * Restore the document to the state it was before.
      *
      * @param string $documentVersion the version name to restore
      * @param bool   $removeExisting  how to handle identifier collisions
@@ -3053,7 +3038,7 @@ class UnitOfWork
     }
 
     /**
-     * Delete an old version of a document
+     * Delete an old version of a document.
      *
      * @param string $documentVersion the version name
      */
@@ -3154,7 +3139,7 @@ class UnitOfWork
     }
 
     /**
-     * Get the object ID for the given document
+     * Get the object ID for the given document.
      *
      * @param object|string $document document instance or document object hash
      *
@@ -3611,7 +3596,7 @@ class UnitOfWork
      * Checks if the translation was removed
      * Note it also returns true if the document isn't translated
      * or was not translated into the given locale, ie.
-     * it does not check if there is a translation for the given locale
+     * it does not check if there is a translation for the given locale.
      *
      * @param object $document
      * @param string $locale
@@ -3836,7 +3821,7 @@ class UnitOfWork
     }
 
     /**
-     * Extracts ReferenceManyCollection type from field metadata
+     * Extracts ReferenceManyCollection type from field metadata.
      *
      * @param $referenceFieldMetadata
      *
@@ -3853,7 +3838,7 @@ class UnitOfWork
 
     /**
      * Sets the fetch depth on the session if the PHPCR session instance supports it
-     * and returns the previous fetch depth value
+     * and returns the previous fetch depth value.
      *
      * @param int|null $fetchDepth
      *
@@ -3960,7 +3945,7 @@ class UnitOfWork
     }
 
     /**
-     * Create an associative array form the properties stored with the node
+     * Create an associative array form the properties stored with the node.
      *
      * @param array $properties the node's properties
      * @param array $mapping    the field's mapping information
@@ -3975,7 +3960,7 @@ class UnitOfWork
         }
 
         $keys = (array) $properties[$mapping['assoc']];
-        $nulls = isset($properties[$mapping['assocNulls']]) ? ((array) $properties[$mapping['assocNulls']]) : [];
+        $nulls = (array) ($properties[$mapping['assocNulls']] ?? []);
 
         // make sure we start with first value
         reset($values);
@@ -3993,7 +3978,7 @@ class UnitOfWork
     }
 
     /**
-     * Remove an associative array form the properties stored with the node
+     * Remove an associative array form the properties stored with the node.
      *
      * @param NodeInterface $node    the node where to store the assoc array
      * @param array         $mapping the field's mapping

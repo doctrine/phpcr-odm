@@ -10,7 +10,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 /**
  * The Query Builder root node.
  *
- * This is the node which is returned when a query builder is asked for.
+ * This is the node which is returned when a query builder is asked for::
  *
  * <code>
  * $dm = // get document manager
@@ -114,7 +114,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Where factory node is used to specify selection criteria.
+     * Where factory node is used to specify selection criteria::.
      *
      * <code>
      * $qb->where()
@@ -164,7 +164,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Set the from source for the query.
+     * Set the from source for the query::.
      *
      * <code>
      * $qb->from()->document('Foobar', 'a');
@@ -192,7 +192,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Shortcut for:
+     * Shortcut for::.
      *
      * <code>
      * $qb->from()
@@ -200,7 +200,7 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * Which becomes:
+     * Which becomes::
      *
      * <code>
      * $qb->fromDocument('Foobar', 'a')->end();
@@ -245,7 +245,7 @@ class QueryBuilder extends AbstractNode
 
     /**
      * Replace the existing source with a left outer join source using the existing
-     * source as the left operand.
+     * source as the left operand::.
      *
      * <code>
      * $qb->fromDocument('Foobar', 'a')
@@ -256,8 +256,10 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * Note that this method is currently not implemented until we can decide
-     * on how it should work.
+     * Note that for outer joins to work correctly, documents being joined to must be mapped with
+     * a node type that is unique to the repository workspace, and the ``uniqueNodeType`` property
+     * must be set to ``true`` for the document (see :ref:`<_annref_document>`). Otherwise, the join
+     * will behave as an inner join.
      *
      * @factoryMethod Select
      *
@@ -272,7 +274,7 @@ class QueryBuilder extends AbstractNode
 
     /**
      * Replace the existing source with a right outer join source using the existing
-     * source as the left operand.
+     * source as the left operand::.
      *
      * <code>
      * $qb->fromDocument('Foobar', 'a')
@@ -283,8 +285,10 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * Note that this method is currently not implemented until we can decide
-     * on how it should work.
+     * Note that for outer joins to work correctly, documents being joined to must be mapped with
+     * a node type that is unique to the repository workspace, and the ``uniqueNodeType`` property
+     * must be set to ``true`` for the document (see :ref:`<_annref_document>`). Otherwise, the join
+     * will behave as an inner join.
      *
      * @factoryMethod Select
      *
@@ -299,7 +303,7 @@ class QueryBuilder extends AbstractNode
 
     /**
      * Replace the existing source with an inner join source using the existing
-     * source as the left operand.
+     * source as the left operand::.
      *
      * <code>
      * $qb->fromDocument('Foobar', 'a')
@@ -310,8 +314,10 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * Note that this method is currently not implemented until we can decide
-     * on how it should work.
+     * Note that for outer joins to work correctly, documents being joined to must be mapped with
+     * a node type that is unique to the repository workspace, and the ``uniqueNodeType`` property
+     * must be set to ``true`` for the document (see :ref:`<_annref_document>`). Otherwise, the join
+     * will behave as an inner join.
      *
      * @factoryMethod Select
      *
@@ -328,7 +334,7 @@ class QueryBuilder extends AbstractNode
      * Method to add properties for selection to builder tree, replaces any
      * existing select.
      *
-     * Number of property nodes is unbounded.
+     * Number of property nodes is unbounded::
      *
      * <code>
      * $qb->select()
@@ -350,7 +356,7 @@ class QueryBuilder extends AbstractNode
     }
 
     /**
-     * Add additional properties to selection.
+     * Add additional properties to selection::.
      *
      * <code>
      * $qb->select()
@@ -377,7 +383,7 @@ class QueryBuilder extends AbstractNode
     /**
      * Add orderings to the builder tree.
      *
-     * Number of orderings is unbounded.
+     * Number of orderings is unbounded::
      *
      * <code>
      * $qb->orderBy()

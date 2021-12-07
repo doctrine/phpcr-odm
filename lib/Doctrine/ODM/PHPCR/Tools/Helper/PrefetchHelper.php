@@ -51,7 +51,7 @@ class PrefetchHelper
     }
 
     /**
-     * Prefetch all mapped ReferenceOne annotations
+     * Prefetch all mapped ReferenceOne annotations.
      *
      * @param ClassMetadata $class the metadata about the document to know what to do
      * @param NodeInterface $node  the node to prefetch parent and childs for

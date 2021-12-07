@@ -85,7 +85,7 @@ class CmsPage
 class CmsPageRepository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
      *

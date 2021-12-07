@@ -21,7 +21,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
@@ -85,7 +85,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * TypeUser is a superclass of TypeTeamUser
+     * TypeUser is a superclass of TypeTeamUser.
      */
     public function testInheritance()
     {
@@ -108,7 +108,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * TypeTeamUser is not a superclass of User
+     * TypeTeamUser is not a superclass of User.
      */
     public function testNotInstanceOf()
     {
@@ -130,7 +130,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * TypeTeamUser is not a superclass of User
+     * TypeTeamUser is not a superclass of User.
      */
     public function testManyNotInstanceOf()
     {

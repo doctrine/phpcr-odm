@@ -8,11 +8,11 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * The BuiltinDocumentsDriver is used internally to make sure
- * that the mapping for the built-in documents can be loaded
+ * that the mapping for the built-in documents can be loaded.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *
- * @see        www.doctrine-project.org
+ * @link        www.doctrine-project.org
  * @since       1.0
  *
  * @author      Uwe Jäger <uwej711e@googlemail.com>
@@ -20,7 +20,7 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 class BuiltinDocumentsDriver implements MappingDriver
 {
     /**
-     * namespace of built-in documents
+     * namespace of built-in documents.
      */
     const NAME_SPACE = 'Doctrine\ODM\PHPCR\Document';
 
@@ -35,7 +35,7 @@ class BuiltinDocumentsDriver implements MappingDriver
     private $builtinDriver;
 
     /**
-     * Create with a driver to wrap
+     * Create with a driver to wrap.
      *
      * @param MappingDriver $nestedDriver
      */

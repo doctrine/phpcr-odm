@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use PHPCR\Query\QueryInterface;
 
 /**
- * Query
+ * Query.
  *
  * Wraps the given PHPCR query object in the ODM, emulating
  * the Query object from the ORM.
@@ -137,7 +137,7 @@ class Query
     }
 
     /**
-     * Set the document class to use when using HYDRATION_DOCUMENT
+     * Set the document class to use when using HYDRATION_DOCUMENT.
      *
      * Note: This is useful in the following two cases:
      *
@@ -349,7 +349,7 @@ class Query
     }
 
     /**
-     * Proxy method to return statement of the wrapped PHPCR Query
+     * Proxy method to return statement of the wrapped PHPCR Query.
      *
      * @return string the query statement
      */
@@ -359,7 +359,7 @@ class Query
     }
 
     /**
-     * Proxy method to return language of the wrapped PHPCR Query
+     * Proxy method to return language of the wrapped PHPCR Query.
      *
      * @return string The language used
      */
@@ -369,7 +369,7 @@ class Query
     }
 
     /**
-     * Return wrapped PHPCR query object
+     * Return wrapped PHPCR query object.
      *
      * @return QueryInterface
      */

@@ -96,7 +96,7 @@ class Article
     }
 
     /**
-     * Sets the children
+     * Sets the children.
      *
      * @param $children ArrayCollection
      */
@@ -106,7 +106,7 @@ class Article
     }
 
     /**
-     * Set settings
+     * Set settings.
      *
      * @param array $settings
      */
@@ -116,7 +116,7 @@ class Article
     }
 
     /**
-     * Get settings
+     * Get settings.
      *
      * @return array $settings
      */

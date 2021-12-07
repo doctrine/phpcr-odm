@@ -26,11 +26,11 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
-    private $type;
+    private $type = User::class;
 
     /**
      * @var NodeInterface
@@ -39,7 +39,6 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->type = User::class;
         $this->dm = $this->createDocumentManager([__DIR__]);
         $this->node = $this->resetFunctionalNode($this->dm);
 
@@ -616,6 +615,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $user->parent = $functional;
 
         $this->expectException(IdException::class);
+        $this->expectExceptionMessage('Nodename property "nodename" of document "Doctrine\Tests\ODM\PHPCR\Functional\User5" contains the illegal PHPCR value "bad/name"');
         $this->dm->persist($user);
     }
 
@@ -738,7 +738,7 @@ class User6 extends User5
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
 {
     /**
-     * Generate a document id
+     * Generate a document id.
      *
      * @param object $document
      *

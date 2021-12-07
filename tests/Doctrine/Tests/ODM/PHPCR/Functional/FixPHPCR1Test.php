@@ -36,7 +36,7 @@ class FixPHPCR1Test extends PHPCRFunctionalTestCase
         $this->dm->persist($parent);
 
         $parent->file = new File();
-        $parent->file->setFileContentFromFilesystem(dirname(__FILE__).'/_files/foo.txt');
+        $parent->file->setFileContentFromFilesystem(__DIR__.'/_files/foo.txt');
 
         $this->dm->flush();
         $this->dm->clear();

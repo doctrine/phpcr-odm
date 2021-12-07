@@ -19,7 +19,8 @@ class ListenersInvoker
 {
     const INVOKE_NONE = 0;
 
-    // Actually not uses in the phpcr-odm
+    // TODO: These constants are not used in phpcr-odm
+
     const INVOKE_LISTENERS = 1;
 
     const INVOKE_CALLBACKS = 2;
@@ -50,7 +51,7 @@ class ListenersInvoker
     }
 
     /**
-     * Get the subscribed event systems
+     * Get the subscribed event systems.
      *
      * @param ClassMetadata $metadata
      * @param string        $eventName the entity lifecycle event

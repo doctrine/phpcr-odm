@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR;
 
@@ -24,11 +7,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Persistent collection class
+ * Persistent collection class.
  *
  * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
  *
- * @see        www.doctrine-project.com
+ * @link        www.doctrine-project.com
  * @since       1.0
  *
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
@@ -80,7 +63,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * Set the collection not dirty
+     * Set the collection not dirty.
      */
     public function takeSnapshot()
     {
@@ -355,7 +338,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * Refresh the collection form the database, all local changes are lost
+     * Refresh the collection form the database, all local changes are lost.
      */
     public function refresh()
     {
@@ -395,7 +378,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * Set the default locale for this collection
+     * Set the default locale for this collection.
      *
      * @param $locale
      */

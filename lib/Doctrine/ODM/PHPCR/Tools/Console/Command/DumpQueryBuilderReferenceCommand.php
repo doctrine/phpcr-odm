@@ -1,24 +1,8 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -106,13 +90,13 @@ HERE
                 $out = [];
                 $indent = 0;
                 foreach (explode("\n", $string) as $line) {
-                    if (strstr($line, '<code>')) {
-                        $out[] = '.. code-block:: php';
+                    if (false !== strpos($line, '<code>')) {
                         $indent = 4;
-                        $out[] = str_repeat(' ', $indent);
-                        $out[] = str_repeat(' ', $indent).'<?php';
                     } elseif (strstr($line, '</code>')) {
                         $indent = 0;
+                        $out[] = '';
+                    } elseif (0 === strlen($line)) {
+                        // do not indent empty lines
                         $out[] = '';
                     } else {
                         $out[] = str_repeat(' ', $indent).$line;
@@ -134,6 +118,7 @@ HERE
         $out[] = '';
         $out[] = '    All the classes here documented can be found in the namespace: ``Doctrine\ODM\PHPCR\Query\Builder``';
         $out[] = '';
+        $out[] = '.. Run bin/phpcr-odm doctrine:phpcr:qb:dump-reference to re-generate';
 
         $nti = [];
         $nti[] = 'Node Type Index';
@@ -183,8 +168,10 @@ HERE
                 foreach ($nData['inheritedMethods'] as $inheritedMethod => $inheritedMethodClass) {
                     $inheritedMethodLinks[] = $f['genRef']($inheritedMethod, 'method_'.strtolower($inheritedMethodClass));
                 }
-                $out[] = '**Inherited methods**: '.implode(', ', $inheritedMethodLinks);
-                $out[] = '';
+                if (count($inheritedMethodLinks)) {
+                    $out[] = '**Inherited methods**: '.implode(', ', $inheritedMethodLinks);
+                    $out[] = '';
+                }
             }
 
             if ($nData['cardMap']) {
@@ -300,7 +287,7 @@ HERE
 
                 $cardinalityMap = $inst->getCardinalityMap();
                 $doc = $this->parseDocComment($refl->getDocComment(), 0);
-                $isLeaf = $refl->isSubclassOf('Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode');
+                $isLeaf = $refl->isSubclassOf(AbstractLeafNode::class);
 
                 $parentName = null;
                 $inheritedMethods = [];

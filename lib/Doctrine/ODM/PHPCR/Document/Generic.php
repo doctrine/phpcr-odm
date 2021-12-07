@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR\Document;
 
@@ -25,7 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use PHPCR\NodeInterface;
 
 /**
- * This class represents an arbitrary node
+ * This class represents an arbitrary node.
  *
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
@@ -59,7 +42,7 @@ class Generic
     protected $referrers;
 
     /**
-     * Id (path) of this document
+     * Id (path) of this document.
      *
      * @return string the id
      */
@@ -89,7 +72,7 @@ class Generic
     }
 
     /**
-     * Set the node name of the document. (only mutable on new document before the persist)
+     * Set the node name of the document. (only mutable on new document before the persist).
      *
      * @param string $name the name of the document
      *
@@ -113,16 +96,6 @@ class Generic
     }
 
     /**
-     * Kept for BC
-     *
-     * @deprecated use getParentDocument instead
-     */
-    public function getParent()
-    {
-        return $this->getParentDocument();
-    }
-
-    /**
      * Set the parent document of this document.
      *
      * @param object $parent Document that is the parent of this node..
@@ -137,17 +110,7 @@ class Generic
     }
 
     /**
-     * Kept for BC
-     *
-     * @deprecated use setParentDocument instead
-     */
-    public function setParent($parent)
-    {
-        return $this->setParentDocument($parent);
-    }
-
-    /**
-     * The children documents of this document
+     * The children documents of this document.
      *
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
@@ -160,7 +123,7 @@ class Generic
     }
 
     /**
-     * Sets the children
+     * Sets the children.
      *
      * @param $children ArrayCollection
      *
@@ -174,7 +137,7 @@ class Generic
     }
 
     /**
-     * Add a child to this document
+     * Add a child to this document.
      *
      * @param $child
      *
@@ -192,7 +155,7 @@ class Generic
     }
 
     /**
-     * The documents having a reference to this document
+     * The documents having a reference to this document.
      *
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
@@ -205,7 +168,7 @@ class Generic
     }
 
     /**
-     * Sets the referrers
+     * Sets the referrers.
      *
      * @param $referrers ArrayCollection
      *
@@ -219,7 +182,7 @@ class Generic
     }
 
     /**
-     * Add a referrer to this document
+     * Add a referrer to this document.
      *
      * @param $referrer
      *
@@ -237,7 +200,7 @@ class Generic
     }
 
     /**
-     * String representation
+     * String representation.
      *
      * @return string
      */

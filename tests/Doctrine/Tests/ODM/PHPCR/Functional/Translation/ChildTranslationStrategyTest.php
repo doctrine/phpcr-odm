@@ -220,12 +220,12 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'fr'), 'Should succeed to load FR translation');
 
-        $this->assertEquals(null, $doc->nullable);
+        $this->assertNull($doc->nullable);
 
         $strategy = new ChildTranslationStrategy($this->dm);
         $this->assertTrue($strategy->loadTranslation($doc, $node, $this->metadata, 'de'), 'Should succeed to load DE translation');
 
-        $this->assertEquals(null, $doc->nullable);
+        $this->assertNull($doc->nullable);
     }
 
     public function testLoadTranslationMissing()
@@ -308,7 +308,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
     /**
      * Caution : Jackalope\Property guess the property type on the first element
      * So if it's an boolean, all your array will be set to true
-     * The Array has to be an array of string
+     * The Array has to be an array of string.
      */
     public function testTranslationArrayProperties()
     {
@@ -385,7 +385,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         ];
 
         $strategy->saveTranslation($data, $node, $this->metadata, 'fr');
-        $this->dm->flush();
+        $this->dm->getPhpcrSession()->save();
 
         $qb = $this->dm->createQueryBuilder();
         $qb->from()->document(ChildTranslationArticle::class, 'a');
@@ -394,7 +394,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
             ->field('a.topic')
             ->literal('Not Exist')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
@@ -405,7 +404,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
             ->field('a.topic')
             ->literal('Un sujet intéressant')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
@@ -417,7 +415,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
             ->field('a.topic')
             ->literal('Un sujet intéressant')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(0, $res);
 
@@ -428,7 +425,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
             ->field('a.topic')
             ->literal('Some interesting subject')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
 
@@ -440,7 +436,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
             ->field('a.topic')
             ->literal('Un sujet intéressant')
             ->end();
-
         $res = $qb->getQuery()->execute();
         $this->assertCount(1, $res);
     }

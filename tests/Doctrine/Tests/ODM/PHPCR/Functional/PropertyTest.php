@@ -19,7 +19,7 @@ class PropertyTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
@@ -106,7 +106,7 @@ class PropertyTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($doc->date);
         $this->assertEquals($date->getTimestamp(), $doc->date->getTimestamp());
         $this->assertNotNull($doc->boolean);
-        $this->assertEquals(true, $doc->boolean);
+        $this->assertTrue($doc->boolean);
         $this->assertNotNull($doc->name);
         $this->assertEquals('aname', $doc->name);
         $this->assertNotNull($doc->path);

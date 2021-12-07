@@ -14,7 +14,7 @@ class CmsBlogInvalidChild
     /** @PHPCRODM\Id(strategy="parent") */
     public $id;
 
-    /** @PHPCRODM\NodeName() */
+    /** @PHPCRODM\Nodename() */
     public $name;
 
     /** @PHPCRODM\ParentDocument() */

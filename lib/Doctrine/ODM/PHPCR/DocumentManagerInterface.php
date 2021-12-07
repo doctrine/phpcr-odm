@@ -29,16 +29,20 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\MissingTranslationException;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\Persistence\ObjectManager;
+use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use PHPCR\Query\QueryInterface;
+use PHPCR\RepositoryException;
+use PHPCR\SessionInterface;
+use PHPCR\UnsupportedRepositoryOperationException;
 
 /**
- * DocumentManager interface
+ * DocumentManager interface.
  */
 interface DocumentManagerInterface extends ObjectManager
 {
     /**
-     * Add or replace a translation strategy
+     * Add or replace a translation strategy.
      *
      * Note that you do not need to set the default strategies attribute and
      * child unless you want to replace them.
@@ -60,14 +64,14 @@ interface DocumentManagerInterface extends ObjectManager
     public function getTranslationStrategy($key);
 
     /**
-     * Check if a language chooser strategy is set
+     * Check if a language chooser strategy is set.
      *
      * @return bool
      */
     public function hasLocaleChooserStrategy();
 
     /**
-     * Get the assigned language chooser strategy previously set with setLocaleChooserStrategy
+     * Get the assigned language chooser strategy previously set with setLocaleChooserStrategy.
      *
      * @return LocaleChooserInterface
      */
@@ -98,7 +102,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Access the underlying PHPCR session this manager is using.
      *
-     * @return \PHPCR\SessionInterface
+     * @return SessionInterface
      */
     public function getPhpcrSession();
 
@@ -156,7 +160,7 @@ interface DocumentManagerInterface extends ObjectManager
     public function findTranslation($className, $id, $locale, $fallback = true);
 
     /**
-     * Quote a string for inclusion in an SQL2 query
+     * Quote a string for inclusion in an SQL2 query.
      *
      * @param string $val
      * @param int    $type
@@ -180,7 +184,7 @@ interface DocumentManagerInterface extends ObjectManager
 
     /**
      * Create a PHPCR Query from a query string in the specified query language to be
-     * used with getDocumentsByPhpcrQuery()
+     * used with getDocumentsByPhpcrQuery().
      *
      * Note that it is better to use {@link createQuery}, which returns a native ODM
      * query object, when working with the ODM.
@@ -192,13 +196,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string $statement The statement in the specified language
      * @param string $language  The query language
      *
-     * @return \PHPCR\Query\QueryInterface
+     * @return QueryInterface
      */
     public function createPhpcrQuery($statement, $language);
 
     /**
      * Create a ODM Query from a query string in the specified query language to be
-     * used with getDocumentsByPhpcrQuery()
+     * used with getDocumentsByPhpcrQuery().
      *
      * See \PHPCR\Query\QueryInterface for list of generally supported types
      * and check your implementation documentation if you want to use a
@@ -231,7 +235,7 @@ interface DocumentManagerInterface extends ObjectManager
     public function createPhpcrQueryBuilder();
 
     /**
-     * Get document results from a PHPCR query instance
+     * Get document results from a PHPCR query instance.
      *
      * @param QueryInterface $query           the query instance as acquired through createPhpcrQuery()
      * @param string|null    $className       document class
@@ -255,7 +259,7 @@ interface DocumentManagerInterface extends ObjectManager
     public function bindTranslation($document, $locale);
 
     /**
-     * Remove the translatable fields of the document in the specified locale
+     * Remove the translatable fields of the document in the specified locale.
      *
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
@@ -291,7 +295,7 @@ interface DocumentManagerInterface extends ObjectManager
     public function isDocumentTranslatable($document);
 
     /**
-     * Move the previously persisted document and all its children in the tree
+     * Move the previously persisted document and all its children in the tree.
      *
      * Note that this does not update the Id fields of child documents and
      * neither fields with Child/Children mappings. If you want to continue
@@ -306,7 +310,7 @@ interface DocumentManagerInterface extends ObjectManager
     public function move($document, $targetPath);
 
     /**
-     * Reorder a child of the given document
+     * Reorder a child of the given document.
      *
      * Note that this does not update the fields with Child/Children mappings.
      * If you want to continue working with the manager after a reorder, you are probably
@@ -441,12 +445,12 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $documentVersion the version document as returned by findVersionByName
      *
-     * @throws \PHPCR\RepositoryException when trying to remove the root version or the last version
+     * @throws RepositoryException when trying to remove the root version or the last version
      */
     public function removeVersion($documentVersion);
 
     /**
-     * Get the version history information for a document
+     * Get the version history information for a document.
      *
      * labels will be an empty array.
      *
@@ -471,10 +475,8 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string      $id          id of the document
      * @param string      $versionName the version name as given by getLinearPredecessors
      *
-     * @throws InvalidArgumentException                       if there is a document with $id but no
-     *                                                        version with $name
-     * @throws \PHPCR\UnsupportedRepositoryOperationException if the implementation
-     *                                                        does not support versioning
+     * @throws InvalidArgumentException                if there is a document with $id but no version with $name
+     * @throws UnsupportedRepositoryOperationException if the implementation does not support versioning
      *
      * @return object the detached document or null if the document is not found
      */
@@ -483,7 +485,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Client code should not access the UnitOfWork except in special
      * circumstances. Methods on UnitOfWork might be changed without special
-     * notice
+     * notice.
      *
      * @return UnitOfWork
      */
@@ -513,14 +515,25 @@ interface DocumentManagerInterface extends ObjectManager
     public function close();
 
     /**
-     * Return the node of the given object
+     * Return the node of the given object.
      *
      * @param object $document
      *
      * @throws InvalidArgumentException if $document is not an object
      * @throws PHPCRException           if $document is not managed
      *
-     * @return \PHPCR\NodeInterface
+     * @return NodeInterface
      */
     public function getNodeForDocument($document);
+
+    /**
+     * Get the document identifier phpcr-odm is using.
+     *
+     * @param object $document A managed document
+     *
+     * @throws PHPCRException if $document is not managed
+     *
+     * @return string
+     */
+    public function getDocumentId($document);
 }

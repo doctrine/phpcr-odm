@@ -24,7 +24,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Descendant join condition.
+     * Descendant join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -54,7 +54,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Equi (equality) join condition.
+     * Equi (equality) join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -85,7 +85,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Child document join condition.
+     * Child document join condition::.
      *
      * <code>
      *   $qb->from('alias_1')
@@ -114,7 +114,7 @@ class SourceJoinConditionFactory extends AbstractNode
     }
 
     /**
-     * Same document join condition:
+     * Same document join condition::.
      *
      * <code>
      *   $qb->from('alias_1')

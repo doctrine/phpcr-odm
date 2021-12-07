@@ -53,6 +53,7 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
     public function testGetLocalesFor()
     {
         $classMetadata = $this->createMock(ClassMetadata::class);
+
         $document = new \stdClass();
         $localizedPropNames = [
             'test:de-prop1' => 'de',

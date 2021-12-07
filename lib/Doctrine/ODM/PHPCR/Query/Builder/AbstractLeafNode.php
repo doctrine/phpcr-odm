@@ -41,7 +41,7 @@ abstract class AbstractLeafNode extends AbstractNode
 
     /**
      * Return the alias name and field name
-     * from the given string of form
+     * from the given string of form.
      *
      *     [alias].[field_name]
      *

@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR\Document;
 
@@ -24,7 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use PHPCR\NodeInterface;
 
 /**
- * This class represents a jcr nt:resource and is used by the File document
+ * This class represents a jcr nt:resource and is used by the File document.
  *
  * @see http://wiki.apache.org/jackrabbit/nt:resource
  *
@@ -117,16 +100,6 @@ class Resource
     }
 
     /**
-     * Kept for BC
-     *
-     * @deprecated use getParentDocument instead
-     */
-    public function getParent()
-    {
-        return $this->getParentDocument();
-    }
-
-    /**
      * Set the parent document of this resource.
      *
      * @param object $parent document that is the parent of this node
@@ -138,16 +111,6 @@ class Resource
         $this->parent = $parent;
 
         return $this;
-    }
-
-    /**
-     * Kept for BC
-     *
-     * @deprecated use setParentDocument instead
-     */
-    public function setParent($parent)
-    {
-        return $this->setParentDocument($parent);
     }
 
     /**
@@ -299,7 +262,7 @@ class Resource
     }
 
     /**
-     * Get mime type and encoding (RFC2045)
+     * Get mime type and encoding (RFC2045).
      *
      * @return string
      */
@@ -309,7 +272,7 @@ class Resource
     }
 
     /**
-     * String representation
+     * String representation.
      *
      * @return string
      */

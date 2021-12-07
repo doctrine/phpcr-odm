@@ -4,7 +4,7 @@
         <!-- php -r 'echo -1 & ~E_USER_DEPRECATED;' -->
         <ini name="error_reporting" value="-16385"/>
 
-        <var name="DOCTRINE_PHPCR_FACTORY" value="\Jackalope\RepositoryFactoryDoctrineDBAL" />
+        <var name="DOCTRINE_PHPCR_FACTORY" value="Jackalope\RepositoryFactoryDoctrineDBAL" />
         <var name="jackalope.doctrine.dbal.driver" value="pdo_mysql" />
         <var name="jackalope.doctrine.dbal.host" value="127.0.0.1" />
         <var name="jackalope.doctrine.dbal.user" value="root" />

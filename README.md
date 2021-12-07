@@ -7,7 +7,7 @@
 
 ## Requirements
 
-* php >= 5.3
+* PHP 7.1
 * libxml version >= 2.7.0 (due to a bug in libxml [http://bugs.php.net/bug.php?id=36501](http://bugs.php.net/bug.php?id=36501))
 * [composer](http://getcomposer.org/)
 * See also the `require` section of [composer.json](composer.json)

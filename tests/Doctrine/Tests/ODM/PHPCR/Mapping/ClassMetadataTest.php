@@ -22,7 +22,7 @@ class ClassMetadataTest extends TestCase
     {
         $cmi = new ClassMetadata(Person::class);
         $cmi->initializeReflection(new RuntimeReflectionService());
-        $this->assertEquals(null, $cmi->getTypeOfField('some_field'));
+        $this->assertNull($cmi->getTypeOfField('some_field'));
         $cmi->mappings['some_field'] = ['type' => 'some_type'];
         $this->assertEquals('some_type', $cmi->getTypeOfField('some_field'));
     }
@@ -32,7 +32,7 @@ class ClassMetadataTest extends TestCase
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $this->assertEquals(Person::class, $cm->name);
-        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
+        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
 
         return $cm;
     }
@@ -60,7 +60,7 @@ class ClassMetadataTest extends TestCase
     {
         $cm->mapField(['fieldName' => 'id', 'id' => true, 'strategy' => 'assigned']);
 
-        $this->assertTrue(isset($cm->mappings['id']));
+        $this->assertArrayHasKey('id', $cm->mappings);
         $this->assertEquals(
             [
                 'id' => true,
@@ -114,8 +114,8 @@ class ClassMetadataTest extends TestCase
         $cm->mapField(['fieldName' => 'username', 'property' => 'username', 'type' => 'string']);
         $cm->mapField(['fieldName' => 'created', 'property' => 'created', 'type' => 'datetime']);
 
-        $this->assertTrue(isset($cm->mappings['username']));
-        $this->assertTrue(isset($cm->mappings['created']));
+        $this->assertArrayHasKey('username', $cm->mappings);
+        $this->assertArrayHasKey('created', $cm->mappings);
 
         $this->assertEquals(
             [
@@ -187,17 +187,19 @@ class ClassMetadataTest extends TestCase
 
     public function testMapChildInvalidName()
     {
-        $this->expectException(MappingException::class);
         $cm = new ClassMetadata(Address::class);
         $cm->initializeReflection(new RuntimeReflectionService());
+
+        $this->expectException(MappingException::class);
         $cm->mapChild(['fieldName' => 'child', 'nodeName' => 'in/valid']);
     }
 
     public function testMapChildrenInvalidFetchDepth()
     {
-        $this->expectException(MappingException::class);
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
+
+        $this->expectException(MappingException::class);
         $cm->mapChildren(['fieldName' => 'address', 'fetchDepth' => 'invalid']);
     }
 
@@ -258,7 +260,7 @@ class ClassMetadataTest extends TestCase
     {
         $cm->mapManyToOne(['fieldName' => 'address', 'targetDocument' => Address::class]);
 
-        $this->assertTrue(isset($cm->mappings['address']), "No 'address' in associations map.");
+        $this->assertArrayHasKey('address', $cm->mappings, "No 'address' in associations map.");
         $this->assertEquals([
             'fieldName' => 'address',
             'targetDocument' => Address::class,
@@ -278,8 +280,8 @@ class ClassMetadataTest extends TestCase
         $cm->initializeReflection(new RuntimeReflectionService());
 
         // Test initial state
-        $this->assertTrue(0 == count($cm->getReflectionProperties()));
-        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
+        $this->assertCount(0, $cm->getReflectionProperties());
+        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals([], $cm->parentClasses);
         $this->assertCount(0, $cm->referenceMappings);
@@ -297,8 +299,7 @@ class ClassMetadataTest extends TestCase
         $this->assertInstanceOf(ClassMetadata::class, $cm);
         $cm->wakeupReflection(new RuntimeReflectionService());
 
-        // Check state
-        $this->assertTrue(\count($cm->getReflectionProperties()) > 0);
+        $this->assertGreaterThan(0, count($cm->getReflectionProperties()));
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
@@ -337,6 +338,7 @@ class ClassMetadataTest extends TestCase
         $cm = new ClassMetadata(Person::class);
         $childCm = new ClassMetadata('stdClass');
         $cm->setIsLeaf(true);
+
         $this->expectException(OutOfBoundsException::class);
         $this->expectExceptionMessage('has been mapped as a leaf');
         $cm->assertValidChildClass($childCm);

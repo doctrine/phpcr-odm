@@ -58,7 +58,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser = $this->dm->find(CmsUser::class, $user->id);
-        $this->assertEquals(2, count($pUser->groups));
+        $this->assertCount(2, $pUser->groups);
     }
 
     public function testCascadePersistForManagedDocument()
@@ -88,7 +88,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser = $this->dm->find(CmsUser::class, $user->id);
-        $this->assertEquals(2, count($pUser->groups));
+        $this->assertCount(2, $pUser->groups);
     }
 
     public function testCascadePersistSingleDocument()
@@ -142,7 +142,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser = $this->dm->find(CmsUser::class, $user->id);
-        $this->assertEquals(2, count($pUser->groups));
+        $this->assertCount(2, $pUser->groups);
     }
 
     public function testCascadeManagedDocumentReferenceDuringFlush()
@@ -191,7 +191,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->find(CmsUser::class, '/functional/dbu');
         $this->assertNotNull($user);
-        $this->assertTrue(1 <= count($user->articlesReferrers));
+        $this->assertGreaterThanOrEqual(1, count($user->articlesReferrers));
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf(CmsArticle::class, $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);
@@ -230,7 +230,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->find(CmsUser::class, '/functional/dbu');
         $this->assertNotNull($user);
-        $this->assertTrue(1 <= count($user->articlesReferrers));
+        $this->assertGreaterThanOrEqual(1, count($user->articlesReferrers));
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf(CmsArticle::class, $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);
@@ -245,6 +245,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $article->user = [];
 
         $this->expectException(PHPCRException::class);
+        $this->expectExceptionMessage('Referenced document is not stored correctly in a reference-one property. Do not use array notation');
         $this->dm->persist($article);
     }
 
@@ -257,6 +258,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $article->user = 'This is not an object';
 
         $this->expectException(PHPCRException::class);
+        $this->expectExceptionMessage('A reference field may only contain mapped documents, found <string> in field "user" of "Doctrine\Tests\Models\CMS\CmsArticle');
         $this->dm->persist($article);
     }
 
@@ -269,6 +271,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $user->groups = $this;
 
         $this->expectException(PHPCRException::class);
+        $this->expectExceptionMessage('Referenced documents are not stored correctly in a reference-many property. Use array notation or a (ReferenceMany)Collection');
         $this->dm->persist($user);
     }
 
@@ -281,11 +284,12 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $user->groups = ['this is a bad idea'];
 
         $this->expectException(PHPCRException::class);
+        $this->expectExceptionMessage('A reference field may only contain mapped documents, found <string> in field "groups" of "Doctrine\Tests\Models\CMS\CmsUser');
         $this->dm->persist($user);
     }
 
     /**
-     * Test Referrers ManyToMany cascade Flush
+     * Test Referrers ManyToMany cascade Flush.
      */
     public function testCascadeManagedDocumentReferrerMtoMDuringFlush()
     {

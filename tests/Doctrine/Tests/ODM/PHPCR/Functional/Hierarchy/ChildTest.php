@@ -23,14 +23,14 @@ class ChildTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
     private $type = ChildTestObj::class;
 
     /**
-     * Class name of the child document class
+     * Class name of the child document class.
      *
      * @var string
      */
@@ -246,7 +246,7 @@ class ChildTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Remove the child, check that parent->child is not set afterwards
+     * Remove the child, check that parent->child is not set afterwards.
      */
     public function testRemove2()
     {
@@ -275,7 +275,7 @@ class ChildTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Remove the parent node of multiple child level
+     * Remove the parent node of multiple child level.
      */
     public function testRemove3()
     {

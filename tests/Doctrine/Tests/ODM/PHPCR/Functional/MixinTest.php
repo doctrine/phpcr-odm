@@ -20,7 +20,7 @@ class MixinTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class
+     * Class name of the document class.
      *
      * @var string
      */
@@ -125,7 +125,7 @@ class MixinTest extends PHPCRFunctionalTestCase
 }
 
 /**
- * A class that contains mapped children via properties
+ * A class that contains mapped children via properties.
  *
  * @PHPCRODM\Document(mixins={"mix:created"})
  */

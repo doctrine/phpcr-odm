@@ -121,17 +121,17 @@ class TestEventDocumentChanger2
 
     protected function switchToObject(LifecycleEventArgs $args)
     {
-        $entity = $args->getEntity();
+        $object = $args->getObject();
         $status = new \stdClass();
-        $status->value = $entity->status;
-        $entity->status = $status;
+        $status->value = $object->status;
+        $object->status = $status;
     }
 
     protected function switchToId(LifecycleEventArgs $args)
     {
-        $entity = $args->getEntity();
+        $object = $args->getObject();
 
-        $entity->status = $entity->status->value;
+        $object->status = $object->status->value;
     }
 
     public function postLoad(LifecycleEventArgs $args)

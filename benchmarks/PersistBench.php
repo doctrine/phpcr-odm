@@ -4,7 +4,7 @@ namespace Doctrine\Benchmarks\ODM\PHPCR;
 
 use Doctrine\Tests\Models\CMS\CmsAddress;
 use Doctrine\Tests\Models\CMS\CmsUser;
-use Doctrine\Tests\Models\References\ParentNoNodeNameTestObj;
+use Doctrine\Tests\Models\References\ParentNoNodenameTestObj;
 use Doctrine\Tests\Models\References\ParentTestObj;
 use Doctrine\Tests\Models\Translation\Comment;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -52,7 +52,7 @@ class PersistBench extends PHPCRFunctionalTestCase
         $parent2->nodename = 'root2';
         $parent2->setParentDocument($this->root);
 
-        $child = new ParentNoNodeNameTestObj();
+        $child = new ParentNoNodenameTestObj();
         $child->setParentDocument($parent1);
         $child->name = 'child';
 

@@ -215,6 +215,7 @@ class QueryTest extends Testcase
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
             ->will($this->returnValue(['ok1', 'ok2']));
+
         $this->expectException(QueryException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }

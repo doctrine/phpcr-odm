@@ -1,9 +1,17 @@
 {
     "name": "doctrine/phpcr-odm",
     "type": "library",
-    "description": "Object-Document-Mapper for PHPCR",
-    "keywords": ["odm", "phpcr", "database"],
-    "homepage": "http://www.doctrine-project.org",
+    "description": "PHP Doctrine Content Repository Object Document Mapper (ODM) provides transparent persistence for PHP objects.",
+    "keywords": [
+        "php",
+        "content",
+        "odm",
+        "data",
+        "mapper",
+        "mapping",
+        "object"
+    ],
+    "homepage": "https://www.doctrine-project.org/projects/phpcr-odm.html",
     "license": "MIT",
     "authors":[
         {"name":"Jordi Boggiano", "email":"j.boggiano@seld.be"},
@@ -40,7 +48,8 @@
     "conflict": {
         "jackalope/jackalope-doctrine-dbal": "<1.1.5",
         "jackalope/jackalope-jackrabbit": "<1.3",
-        "jackalope/jackalope": "<1.3.7"
+        "jackalope/jackalope": "<1.3.7",
+        "jms/serializer": "<1.3.0"
     },
     "autoload": {
         "psr-4": { "Doctrine\\ODM\\PHPCR\\": "lib/Doctrine/ODM/PHPCR" }
@@ -51,7 +60,7 @@
     "bin": ["bin/phpcrodm", "bin/phpcrodm.php"],
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-master": "2.x-dev"
         }
     }
 }

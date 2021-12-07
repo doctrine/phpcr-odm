@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\ODM\PHPCR\Proxy;
 
@@ -27,7 +10,7 @@ use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 use ReflectionProperty;
 
@@ -79,7 +62,7 @@ class ProxyFactory extends AbstractProxyFactory
      */
     protected function skipClass(BaseClassMetadata $metadata)
     {
-        if (!$metadata instanceof ClassMetadata) {
+        if (!$metadata instanceof PhpcrClassMetadata) {
             throw new InvalidArgumentException('Did not get the expected type of metadata but '.get_class($metadata));
         }
 
@@ -111,13 +94,11 @@ class ProxyFactory extends AbstractProxyFactory
     }
 
     /**
-     * Generates a closure capable of initializing a proxy
-     *
-     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
+     * Generates a closure capable of initializing a proxy.
      *
      * @return \Closure
      */
-    private function createInitializer(ClassMetadata $classMetadata)
+    private function createInitializer(PhpcrClassMetadata $classMetadata)
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
@@ -167,16 +148,13 @@ class ProxyFactory extends AbstractProxyFactory
     }
 
     /**
-     * Generates a closure capable of finalizing a cloned proxy
+     * Generates a closure capable of finalizing a cloned proxy.
      *
-     * @param \Doctrine\ODM\PHPCR\Mapping\ClassMetadata $classMetadata
-     * @param \ReflectionProperty                       $reflectionId
-     *
-     * @throws \Doctrine\Common\Proxy\Exception\UnexpectedValueException
+     * @throws UnexpectedValueException
      *
      * @return \Closure
      */
-    private function createCloner(ClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
+    private function createCloner(PhpcrClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
