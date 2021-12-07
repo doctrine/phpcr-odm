@@ -371,7 +371,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerTestObj->reference = $referrerRefTestObj;
 
         $this->dm->persist($referrerTestObj);
-        $this->dm->flush();
+        $this->dm->flush(); // breaks during flush. dm not properly cleaned up?
         $this->dm->clear();
 
         $reference = $this->dm->find(null, '/functional/referrerRefTestObj');

@@ -133,6 +133,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         $this->initialize();
@@ -189,6 +190,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         $this->initialize();
@@ -261,6 +263,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         $this->initialize();
@@ -269,6 +272,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
+    #[\ReturnTypeWillChange] // type mixed is not available for older php versions
     public function offsetGet($offset)
     {
         $this->initialize();
@@ -277,21 +281,23 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         $this->initialize();
         $this->isDirty = true;
 
-        return $this->collection->offsetSet($offset, $value);
+        $this->collection->offsetSet($offset, $value);
     }
 
     /** {@inheritdoc} */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         $this->initialize();
         $this->isDirty = true;
 
-        return $this->collection->offsetUnset($offset);
+        $this->collection->offsetUnset($offset);
     }
 
     /** {@inheritdoc} */
