@@ -1,0 +1,179 @@
+name: Test application
+
+on:
+    pull_request:
+    push:
+        branches:
+            - 'master'
+
+jobs:
+    phpunit-doctrine_dbal:
+        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
+
+        runs-on: ubuntu-20.04
+
+        services:
+            mysql:
+                image: mysql:5.7
+                env:
+                    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+                    MYSQL_DATABASE: phpcr_odm_tests
+                ports:
+                    - 3306:3306
+                options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+        strategy:
+            fail-fast: false
+
+            matrix:
+                php-version:
+                    - '7.1'
+                    - '7.2'
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
+                dependencies: [highest]
+                symfony-version: ['*']
+                include:
+                    - php-version: '7.1'
+                      dependencies: lowest
+                      symfony-version: '*'
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: 2.3.*
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: 3.4.*
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: 4.4.*
+                      php-bench: true
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-version: 5.0.*
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-version: 6.0.*
+
+        steps:
+            - name: Checkout project
+              uses: actions/checkout@v2
+
+            - name: Install and configure PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  tools: 'composer:v2, flex'
+
+            - name: Symfony version
+              if: matrix.symfony-version != '*'
+              run: composer config extra.symfony.require ${{ matrix.symfony-version }}
+
+            - name: Install Jackalope Doctrine DBAL transport
+              run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
+
+            - name: Install PHPBench
+              if: matrix.php-bench == true
+              run: composer require phpbench/phpbench:"~0.16" --no-update
+
+            - name: Install dependencies with Composer
+              uses: ramsey/composer-install@v1
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+                  composer-options: --prefer-dist
+
+            - name: Run configuration script
+              run: ./tests/script_doctrine_dbal.sh
+
+            - name: Execute test cases
+              run: vendor/bin/phpunit -c tests/phpunit_doctrine_dbal.xml.dist
+
+            - name: Execute PHPBench
+              if: matrix.php-bench == true
+              run: vendor/bin/phpbench run --report=all
+              env:
+                  TRANSPORT: doctrine_dbal
+
+    phpunit-jackrabbit:
+        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
+
+        runs-on: ubuntu-20.04
+
+        strategy:
+            fail-fast: false
+
+            matrix:
+                php-version:
+                    - '7.1'
+                    - '7.2'
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
+                dependencies: [highest]
+                symfony-version: ['*']
+                include:
+                    - php-version: '7.1'
+                      dependencies: lowest
+                      symfony-version: '*'
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: 2.3.*
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: 3.4.*
+                      php-bench: true
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: 4.4.*
+                      php-bench: true
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-version: 5.0.*
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-version: 6.0.*
+
+        steps:
+            - name: Checkout project
+              uses: actions/checkout@v2
+
+            - name: Install and configure PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  tools: 'composer:v2, flex'
+
+            - name: Symfony version
+              if: matrix.symfony-version != '*'
+              run: composer config extra.symfony.require ${{ matrix.symfony-version }}
+
+            - name: Install and configure Java
+              uses: actions/setup-java@v2
+              with:
+                  distribution: temurin
+                  java-version: '8'
+
+            - name: Install Jackalope Jackrabbit
+              run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
+
+            - name: Install PHPBench
+              if: matrix.php-bench == true
+              run: composer require phpbench/phpbench:"~0.16" --no-update
+
+            - name: Install dependencies with Composer
+              uses: ramsey/composer-install@v1
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+                  composer-options: --prefer-dist
+
+            - name: Run configuration script
+              run: ./tests/script_jackrabbit.sh
+
+            - name: Execute test cases
+              run: vendor/bin/phpunit -c tests/phpunit_jackrabbit.xml.dist
+
+            - name: Execute PHPBench
+              if: matrix.php-bench == true
+              run: vendor/bin/phpbench run --report=all
+              env:
+                  TRANSPORT: jackrabbit
