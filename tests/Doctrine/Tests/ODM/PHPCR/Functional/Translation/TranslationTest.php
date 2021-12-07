@@ -76,7 +76,7 @@ class TranslationTest extends PHPCRFunctionalTestCase
     protected function assertFieldMetadataEquals(string $expectedValue, ClassMetadata $metadata, string $field, string $key)
     {
         $mapping = $metadata->mappings[$field];
-        $this->assertInternalType('array', $mapping);
+        $this->assertIsArray($mapping);
         $this->assertArrayHasKey($key, $mapping);
         $this->assertEquals($expectedValue, $mapping[$key]);
     }

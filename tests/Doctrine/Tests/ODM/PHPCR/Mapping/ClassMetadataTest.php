@@ -346,6 +346,8 @@ class ClassMetadataTest extends TestCase
 
     /**
      * It should return early if the mapped child classes value is an empty array (i.e. any child classes are permitted).
+     *
+     * @doesNotPerformAssertions
      */
     public function testAssertValidChildClassesEmpty()
     {
@@ -357,6 +359,8 @@ class ClassMetadataTest extends TestCase
 
     /**
      * It should return early if the given class is an allowed child class.
+     *
+     * @doesNotPerformAssertions
      */
     public function testAssertValidChildClassesAllowed()
     {

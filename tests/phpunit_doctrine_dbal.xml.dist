@@ -6,7 +6,7 @@
 
         <var name="DOCTRINE_PHPCR_FACTORY" value="Jackalope\RepositoryFactoryDoctrineDBAL" />
         <var name="jackalope.doctrine.dbal.driver" value="pdo_mysql" />
-        <var name="jackalope.doctrine.dbal.host" value="localhost" />
+        <var name="jackalope.doctrine.dbal.host" value="127.0.0.1" />
         <var name="jackalope.doctrine.dbal.user" value="root" />
         <var name="jackalope.doctrine.dbal.password" value="" />
         <var name="jackalope.doctrine.dbal.dbname" value="phpcr_odm_tests" />

@@ -22,6 +22,12 @@ Changelog
 
 * Allow using `doctrine/persistence`
 
+1.6.0
+-----
+
+* Support Symfony 6
+* Drop support for Symfony 2.3
+
 1.5.4
 -----
 

@@ -16,7 +16,7 @@ final class Children
     public $filter;
 
     /**
-     *@var int
+     * @var int
      */
     public $fetchDepth = -1;
 

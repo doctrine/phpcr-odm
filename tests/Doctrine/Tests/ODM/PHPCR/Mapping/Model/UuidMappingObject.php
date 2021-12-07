@@ -12,6 +12,6 @@ class UuidMappingObject
     /** @PHPCRODM\Id */
     public $id;
 
-    /**@PHPCRODM\Uuid()*/
+    /** @PHPCRODM\Uuid()*/
     public $uuid;
 }
