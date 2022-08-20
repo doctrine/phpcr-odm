@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\Query\Builder\SourceDocument;
 
 class SourceDocumentTest extends LeafNodeTestCase
 {
-    public function provideNode()
+    public function provideNode(): array
     {
         return [
             ['SourceDocument', ['FooBar', 'a'], [
@@ -17,7 +17,7 @@ class SourceDocumentTest extends LeafNodeTestCase
         ];
     }
 
-    public function testEmptyAlias()
+    public function testEmptyAlias(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new SourceDocument($this->parent, 'My\Fqn', '');
