@@ -29,12 +29,12 @@ class AbstractNodeTest extends TestCase
             ->setMockClassName('LeafNode')
             ->setConstructorArgs([$this->node1])
             ->getMockForAbstractClass();
-        $this->leafNode->expects($this->any())
+        $this->leafNode
             ->method('getNodeType')
-            ->will($this->returnValue('LeafNode'));
+            ->willReturn('LeafNode');
     }
 
-    protected function addChildrenToNode1($data)
+    protected function addChildrenToNode1($data): void
     {
         foreach ($data as $className) {
             $childNode = $this->getMockForAbstractClass(
@@ -44,20 +44,20 @@ class AbstractNodeTest extends TestCase
             );
             $childNode->expects($this->once())
                 ->method('getNodeType')
-                ->will($this->returnValue($className));
+                ->willReturn($className);
 
             $res = $this->node1->addChild($childNode);
             $this->assertSame($childNode, $res);
         }
     }
 
-    public function testGetName()
+    public function testGetName(): void
     {
         $res = $this->node1->getName();
         $this->assertEquals('TestNode', $res);
     }
 
-    public function provideAddChildValidation()
+    public function provideAddChildValidation(): array
     {
         return [
             // 1. Foobar bounded 1..1
@@ -134,16 +134,16 @@ class AbstractNodeTest extends TestCase
     /**
      * @dataProvider provideAddChildValidation
      */
-    public function testAddChildValidation($cardinalityMap, $data, $options)
+    public function testAddChildValidation($cardinalityMap, $data, $options): void
     {
         $options = array_merge([
             'exceeds_max' => false,
             'invalid_child' => false,
         ], $options);
 
-        $this->node1->expects($this->any())
+        $this->node1
             ->method('getCardinalityMap')
-            ->will($this->returnValue($cardinalityMap));
+            ->willReturn($cardinalityMap);
 
         if ($options['exceeds_max']) {
             $this->expectException(\OutOfBoundsException::class);
@@ -159,19 +159,19 @@ class AbstractNodeTest extends TestCase
         $this->assertCount(count($data), $this->node1->getChildren());
     }
 
-    public function testAddChildLeaf()
+    public function testAddChildLeaf(): void
     {
-        $this->node1->expects($this->any())
+        $this->node1
             ->method('getCardinalityMap')
-            ->will($this->returnValue([
+            ->willReturn([
                 'LeafNode' => [1, 1],
-            ]));
+            ]);
 
         $res = $this->node1->addChild($this->leafNode);
         $this->assertSame($this->node1, $res);
     }
 
-    public function provideValidate()
+    public function provideValidate(): array
     {
         return [
             // 1. Not enough data
@@ -214,7 +214,7 @@ class AbstractNodeTest extends TestCase
      * @depends testAddChildValidation
      * @dataProvider provideValidate
      */
-    public function testValidate($cardinalityMap, $data, $options)
+    public function testValidate($cardinalityMap, $data, $options): void
     {
         $options = array_merge([
             'invalid_child' => false,
@@ -227,24 +227,24 @@ class AbstractNodeTest extends TestCase
             $this->expectExceptionMessage($exceptionMessage);
         }
 
-        $this->node1->expects($this->any())
+        $this->node1
             ->method('getCardinalityMap')
-            ->will($this->returnValue($cardinalityMap));
+            ->willReturn($cardinalityMap);
 
         $this->addChildrenToNode1($data);
         $this->node1->validate();
     }
 
-    public function testSetChild()
+    public function testSetChild(): void
     {
-        $this->parent->expects($this->any())
+        $this->parent
             ->method('getCardinalityMap')
-            ->will($this->returnValue([
+            ->willReturn([
                 'foo' => [1, 2],
                 'bar' => [1, 2],
-            ]));
+            ]);
 
-        $this->node1->expects($this->any())
+        $this->node1
             ->method('getNodeType')
             ->will($this->onConsecutiveCalls(
                 'foo',
@@ -267,11 +267,11 @@ class AbstractNodeTest extends TestCase
         $this->assertCount(1, $this->parent->getChildrenOfType('foo'));
     }
 
-    public function testEnd()
+    public function testEnd(): void
     {
-        $this->node1->expects($this->any())
+        $this->node1
             ->method('getCardinalityMap')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
 
         $res = $this->node1->end();
         $this->assertSame($this->parent, $res);
