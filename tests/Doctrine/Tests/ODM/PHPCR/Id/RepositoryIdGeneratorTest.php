@@ -45,7 +45,7 @@ class RepositoryIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
-            ->will($this->throwException(new \Exception()));
+            ->willThrowException(new \Exception());
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())

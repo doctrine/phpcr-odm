@@ -246,13 +246,13 @@ class AbstractNodeTest extends TestCase
 
         $this->node1
             ->method('getNodeType')
-            ->will($this->onConsecutiveCalls(
+            ->willReturnOnConsecutiveCalls(
                 'foo',
                 'foo',
                 'bar',
                 'foo',
                 'foo'
-            ));
+            );
 
         $this->parent->addChild($this->node1);
         $this->parent->addChild($this->node1);

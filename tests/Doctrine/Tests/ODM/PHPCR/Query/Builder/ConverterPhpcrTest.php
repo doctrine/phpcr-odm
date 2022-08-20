@@ -121,7 +121,7 @@ class ConverterPhpcrTest extends TestCase
 
         $dm
             ->method('getLocaleChooserStrategy')
-            ->will($this->throwException(new InvalidArgumentException('')));
+            ->willThrowException(new InvalidArgumentException(''));
 
         $this->parentNode = $this->createMock(AbstractNode::class);
 

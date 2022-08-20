@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class AbstractLeafNodeTest extends TestCase
 {
     /**
-     * @var AbstractLeafNode|MockObject
+     * @var AbstractLeafNode&MockObject
      */
     private $leafNode;
 

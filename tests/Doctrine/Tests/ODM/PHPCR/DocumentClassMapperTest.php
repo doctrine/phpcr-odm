@@ -26,17 +26,17 @@ class DocumentClassMapperTest extends Testcase
     const CLASS_TEST_3 = 'Test\Class3';
 
     /**
-     * @var DocumentManager|MockObject
+     * @var DocumentManager&MockObject
      */
     private $dm;
 
     /**
-     * @var NodeInterface|MockObject
+     * @var NodeInterface&MockObject
      */
     private $node;
 
     /**
-     * @var ClassMetadata|MockObject
+     * @var ClassMetadata&MockObject
      */
     private $metadata;
 

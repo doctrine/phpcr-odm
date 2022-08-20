@@ -19,12 +19,12 @@ class DocumentConvertTranslationCommandTest extends TestCase
     private $commandTester;
 
     /**
-     * @var TranslationConverter|MockObject
+     * @var TranslationConverter&MockObject
      */
     private $converter;
 
     /**
-     * @var SessionInterface|MockObject
+     * @var SessionInterface&MockObject
      */
     private $mockSession;
 

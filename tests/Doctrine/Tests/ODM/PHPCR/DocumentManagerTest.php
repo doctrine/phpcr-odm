@@ -27,7 +27,7 @@ class DocumentManagerTest extends PHPCRTestCase
     {
         $fakeUuid = UUIDHelper::generateUUID();
         $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+        $session->expects($this->once())->method('getNodeByIdentifier')->willThrowException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid)));
         $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
@@ -44,7 +44,7 @@ class DocumentManagerTest extends PHPCRTestCase
     {
         $fakeUuid = UUIDHelper::generateUUID();
         $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+        $session->expects($this->once())->method('getNodeByIdentifier')->willThrowException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid)));
         $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
