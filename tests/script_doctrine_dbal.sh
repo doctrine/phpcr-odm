@@ -15,4 +15,4 @@ fi
 
 cp ${SCRIPT_DIR}/../cli-config.doctrine_dbal.php.dist ${SCRIPT_DIR}/../cli-config.php
 ${SCRIPT_DIR}/../bin/phpcrodm jackalope:init:dbal --force
-${SCRIPT_DIR}/../bin/phpcrodm doctrine:phpcr:register-system-node-types
+  ${SCRIPT_DIR}/../bin/phpcrodm doctrine:phpcr:register-system-node-types

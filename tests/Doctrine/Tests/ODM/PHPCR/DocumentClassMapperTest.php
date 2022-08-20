@@ -59,7 +59,7 @@ class DocumentClassMapperTest extends Testcase
         $this->mapper = new DocumentClassMapper();
     }
 
-    public function testGetClassNameGeneric()
+    public function testGetClassNameGeneric(): void
     {
         $className = $this->mapper->getClassName($this->dm, $this->node);
 
@@ -72,7 +72,7 @@ class DocumentClassMapperTest extends Testcase
     /**
      * The node has no class information on it whatsoever.
      */
-    public function testGetClassNameOnlySpecified()
+    public function testGetClassNameOnlySpecified(): void
     {
         $className = $this->mapper->getClassName($this->dm, $this->node, BaseClass::class);
 
@@ -87,23 +87,23 @@ class DocumentClassMapperTest extends Testcase
      *
      * @param string $class The phpcr:class value to use
      */
-    private function mockNodeHasClass($class)
+    private function mockNodeHasClass($class): void
     {
         $property = $this->createMock(Property::class);
         $property->expects($this->once())
             ->method('getString')
-            ->will($this->returnValue($class));
+            ->willReturn($class);
         $this->node->expects($this->once())
             ->method('hasProperty')
             ->with('phpcr:class')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $this->node->expects($this->once())
             ->method('getProperty')
             ->with('phpcr:class')
-            ->will($this->returnValue($property));
+            ->willReturn($property);
     }
 
-    public function testGetClassNameNull()
+    public function testGetClassNameNull(): void
     {
         $this->mockNodeHasClass(BaseClass::class);
         $className = $this->mapper->getClassName($this->dm, $this->node);
@@ -114,7 +114,7 @@ class DocumentClassMapperTest extends Testcase
         );
     }
 
-    public function testGetClassNameMatch()
+    public function testGetClassNameMatch(): void
     {
         $this->mockNodeHasClass(BaseClass::class);
 
@@ -126,7 +126,7 @@ class DocumentClassMapperTest extends Testcase
         );
     }
 
-    public function testGetClassNameExtend()
+    public function testGetClassNameExtend(): void
     {
         $this->mockNodeHasClass(ExtendingClass::class);
 
@@ -135,7 +135,7 @@ class DocumentClassMapperTest extends Testcase
         $this->assertEquals(ExtendingClass::class, $className);
     }
 
-    public function testGetClassNameMismatch()
+    public function testGetClassNameMismatch(): void
     {
         $this->mockNodeHasClass(BaseClass::class);
 
@@ -143,14 +143,14 @@ class DocumentClassMapperTest extends Testcase
         $this->mapper->getClassName($this->dm, $this->node, ExtendingClass::class);
     }
 
-    public function testWriteMetadataWhenClassIsGeneric()
+    public function testWriteMetadataWhenClassIsGeneric(): void
     {
         $this->node->expects($this->never())
             ->method('setProperty');
         $this->mapper->writeMetadata($this->dm, $this->node, self::CLASS_GENERIC);
     }
 
-    public function testWriteMetadata()
+    public function testWriteMetadata(): void
     {
         $parentClasses = [self::CLASS_TEST_2, self::CLASS_TEST_3];
 
@@ -161,11 +161,11 @@ class DocumentClassMapperTest extends Testcase
         $this->dm->expects($this->once())
             ->method('getClassMetadata')
             ->with(self::CLASS_TEST_1)
-            ->will($this->returnValue($this->metadata));
+            ->willReturn($this->metadata);
 
         $this->metadata->expects($this->once())
             ->method('getParentClasses')
-            ->will($this->returnValue($parentClasses));
+            ->willReturn($parentClasses);
 
         // Assert that we set the correct parent classes
         $this->node->expects($this->at(1))
@@ -175,7 +175,7 @@ class DocumentClassMapperTest extends Testcase
         $this->mapper->writeMetadata($this->dm, $this->node, self::CLASS_TEST_1);
     }
 
-    public function testValidateClassNameValid()
+    public function testValidateClassNameValid(): void
     {
         $generic = new Generic();
         $this->mapper->validateClassName($this->dm, $generic, get_class($generic));
@@ -183,22 +183,22 @@ class DocumentClassMapperTest extends Testcase
         $this->addToAssertionCount(1);
     }
 
-    public function testValidateClassNameInvalid()
+    public function testValidateClassNameInvalid(): void
     {
         $generic = new Generic();
         $uow = $this->createMock(UnitOfWork::class);
         $uow->expects($this->once())
             ->method('determineDocumentId')
             ->with($generic)
-            ->will($this->returnValue('/id'));
+            ->willReturn('/id');
         $this->dm->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow));
+            ->willReturn($uow);
         $this->expectException(ClassMismatchException::class);
         $this->mapper->validateClassName($this->dm, $generic, 'Other\Class');
     }
 
-    public function provideExpandClassName()
+    public function provideExpandClassName(): array
     {
         return [
             ['Foobar/BarFoo/Document/Foobar', 'Foobar/BarFoo/Document/Foobar', false],
@@ -209,16 +209,16 @@ class DocumentClassMapperTest extends Testcase
     /**
      * @dataProvider provideExpandClassName
      */
-    public function testExpandClassName($className, $fqClassName, $isAlias)
+    public function testExpandClassName($className, $fqClassName, $isAlias): void
     {
         if ($isAlias) {
             $this->dm->expects($this->once())
                 ->method('getClassMetadata')
                 ->with($className)
-                ->will($this->returnValue($this->metadata));
+                ->willReturn($this->metadata);
             $this->metadata->expects($this->once())
                 ->method('getName')
-                ->will($this->returnValue($fqClassName));
+                ->willReturn($fqClassName);
         }
 
         $refl = new \ReflectionClass($this->mapper);
