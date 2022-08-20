@@ -11,7 +11,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 use PHPCR\RepositoryInterface;
 use PHPUnit\Framework\AssertionFailedError;
 
@@ -27,22 +26,12 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     private $type = ChildrenTestObj::class;
-
-    /**
-     * @var TestResetReorderingListener
-     */
-    private $listener;
 
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
 
         $parent = new ChildrenTestObj();
         $parent->id = '/functional/parent';
@@ -53,7 +42,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
     }
 
-    private function createChildren()
+    private function createChildren(): void
     {
         $child = new ChildrenTestObj();
         $child->id = '/functional/parent/Child A';
@@ -79,7 +68,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
     }
 
-    public function testChildrenCollection()
+    public function testChildrenCollection(): void
     {
         $this->createChildren();
 
@@ -112,7 +101,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Child A', $parent->allChildren->key());
     }
 
-    public function testSliceChildrenCollection()
+    public function testSliceChildrenCollection(): void
     {
         $this->createChildren();
 
@@ -125,7 +114,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertEquals(['Child B', 'Child C'], array_keys($collection));
     }
 
-    public function testNoChildrenInitOnFlush()
+    public function testNoChildrenInitOnFlush(): void
     {
         $this->createChildren();
 
@@ -135,7 +124,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertFalse($parent->allChildren->isInitialized());
     }
 
-    public function testLazyLoading()
+    public function testLazyLoading(): void
     {
         $this->createChildren();
 
@@ -163,7 +152,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertTrue($parent->allChildren->isInitialized());
     }
 
-    public function testChildrenOfReference()
+    public function testChildrenOfReference(): void
     {
         $referrerTestObj = new ChildrenReferrerTestObj();
         $referrerTestObj->id = '/functional/referrerTestObj';
@@ -193,7 +182,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * New parent, insert an array of children with an assigned id.
      */
-    public function testInsertNewAssignedId()
+    public function testInsertNewAssignedId(): void
     {
         $parent = $this->dm->find($this->type, '/functional/parent');
         $new = new ChildrenTestObj();
@@ -223,7 +212,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * Existing parent without children, insert an array of children with an assigned id.
      */
-    public function testInsertExistingAssignedId()
+    public function testInsertExistingAssignedId(): void
     {
         $parent = $this->dm->find($this->type, '/functional/parent');
 
@@ -250,7 +239,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * Existing parent without children, insert children with parent and name strategy.
      */
-    public function testInsertExistingNamedChild()
+    public function testInsertExistingNamedChild(): void
     {
         $parent = $this->dm->find(null, '/functional/parent');
 
@@ -271,7 +260,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * New parent, insert children with parent and name strategy
      */
-    public function testInsertNewNamedChild()
+    public function testInsertNewNamedChild(): void
     {
         $new = new ChildrenTestObj();
         $new->id = '/functional/parent/new';
@@ -293,7 +282,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * Insert children at existing parent with custom id strategy.
      */
-    public function testInsertExistingCustomIdStrategy()
+    public function testInsertExistingCustomIdStrategy(): void
     {
         $parent = $this->dm->find($this->type, '/functional/parent');
 
@@ -317,7 +306,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * Insert child at existing parent, with autoname strategy.
      */
-    public function testInsertExistingAutoname()
+    public function testInsertExistingAutoname(): void
     {
         /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find(null, '/functional/parent');
@@ -333,7 +322,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * Insert the parent and children at the same time, autoname strategy.
      */
-    public function testInsertNewAutoname()
+    public function testInsertNewAutoname(): void
     {
         $new = new ChildrenTestObj();
         $new->id = '/functional/parent/new';
@@ -351,7 +340,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * A children field must always be a collection/array. It can't be a single document.
      */
-    public function testInsertNoArray()
+    public function testInsertNoArray(): void
     {
         $child = new ChildrenTestObj();
         $child->id = '/functional/parent/Child Create-1';
@@ -366,7 +355,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testInsertNoObject()
+    public function testInsertNoObject(): void
     {
         $parent = $this->dm->find($this->type, '/functional/parent');
 
@@ -377,7 +366,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testRemoveChildParent()
+    public function testRemoveChildParent(): void
     {
         $this->createChildren();
 
@@ -392,7 +381,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertNull($parent);
     }
 
-    public function testModifyChildren()
+    public function testModifyChildren(): void
     {
         $this->createChildren();
 
@@ -446,7 +435,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $parent->allChildren);
     }
 
-    public function testReplaceChildren()
+    public function testReplaceChildren(): void
     {
         $this->createChildren();
 
@@ -473,7 +462,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * @depends testModifyChildren
      */
-    public function testReorderChildren()
+    public function testReorderChildren(): void
     {
         if (!$this->dm
             ->getPhpcrSession()
@@ -554,7 +543,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertEquals($keys, $parent->allChildren->getKeys());
     }
 
-    public function testReorderChildrenLast()
+    public function testReorderChildrenLast(): void
     {
         if (!$this->dm
             ->getPhpcrSession()
@@ -597,12 +586,12 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      *
      * @depends testReorderChildren
      */
-    public function testResetReorderChildren()
+    public function testResetReorderChildren(): void
     {
         $this->createChildren();
 
-        $this->listener = new TestResetReorderingListener();
-        $this->dm->getEventManager()->addEventListener(['preUpdate'], $this->listener);
+        $listener = new TestResetReorderingListener();
+        $this->dm->getEventManager()->addEventListener(['preUpdate'], $listener);
 
         /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find($this->type, '/functional/parent');
@@ -623,13 +612,13 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $this->assertEquals('Child A', $parent->allChildren->first()->name);
 
-        $this->dm->getEventManager()->removeEventListener(['preUpdate'], $this->listener);
+        $this->dm->getEventManager()->removeEventListener(['preUpdate'], $listener);
     }
 
     /**
      * Rename the nodename of a child
      */
-    public function testRenameChildren()
+    public function testRenameChildren(): void
     {
         $parent = $this->dm->find($this->type, '/functional/parent');
         $child = new ChildrenParentAndNameTestObj();
@@ -655,7 +644,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     /**
      * Move a child out of the children collection
      */
-    public function testMoveChildren()
+    public function testMoveChildren(): void
     {
         $this->createChildren();
         $parent = $this->dm->find($this->type, '/functional/parent');
@@ -673,7 +662,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertCount(3, $parent->allChildren);
     }
 
-    public function testMoveByAssignment()
+    public function testMoveByAssignment(): void
     {
         $this->createChildren();
 
@@ -694,7 +683,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testMoveByUpdateId()
+    public function testMoveByUpdateId(): void
     {
         $this->createChildren();
         $parent = $this->dm->find($this->type, '/functional/parent');
@@ -820,7 +809,7 @@ class ChildrenReferenceableTestObj
 
 class TestResetReorderingListener
 {
-    public function preUpdate(LifecycleEventArgs $e)
+    public function preUpdate(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof ChildrenTestObj && 'Child B' === $document->allChildren->first()->name) {

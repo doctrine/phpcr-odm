@@ -47,7 +47,7 @@ class MoveByAssignmentTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testRenameByAssignment()
+    public function testRenameByAssignment(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/dbu');
@@ -68,7 +68,7 @@ class MoveByAssignmentTest extends PHPCRFunctionalTestCase
         $this->assertNull($user1, 'User must not exist');
     }
 
-    public function testMoveByAssignment()
+    public function testMoveByAssignment(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/dbu');
@@ -92,7 +92,7 @@ class MoveByAssignmentTest extends PHPCRFunctionalTestCase
         $this->assertNull($user1, 'User must not exist');
     }
 
-    public function testMoveAndRenameByAssignment()
+    public function testMoveAndRenameByAssignment(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/dbu');
@@ -117,7 +117,7 @@ class MoveByAssignmentTest extends PHPCRFunctionalTestCase
         $this->assertNull($user1, 'User must not exist');
     }
 
-    public function testMoveByAssignmentWithProxy()
+    public function testMoveByAssignmentWithProxy(): void
     {
         $user = $this->node->getNode('dbu')->addNode('assistant');
         $user->setProperty('username', 'foo');
