@@ -2,15 +2,15 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
-use PHPCR\NodeInterface;
+use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
 
 class SourceJoinTest extends NodeTestCase
 {
-    public function getNode($args = []): NodeInterface
+    public function getQueryNode($args = []): AbstractNode
     {
         $args[] = 'test-join-type';
 
-        return parent::getNode($args);
+        return parent::getQueryNode($args);
     }
 
     public function provideInterface(): array
