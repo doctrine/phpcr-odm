@@ -26,7 +26,7 @@ class AbstractLeafNodeTest extends TestCase
         $this->refl = new \ReflectionClass($this->leafNode);
     }
 
-    public function provideTestExplodeField()
+    public function provideTestExplodeField(): array
     {
         return [
             ['foo.bar', false, ['foo', 'bar']],
@@ -38,7 +38,7 @@ class AbstractLeafNodeTest extends TestCase
     /**
      * @dataProvider provideTestExplodeField
      */
-    public function testExplodeField($fieldSpec, $xpctdExceptionMessage, $xpctdRes = [])
+    public function testExplodeField($fieldSpec, $xpctdExceptionMessage, $xpctdRes = []): void
     {
         if ($xpctdExceptionMessage) {
             $this->expectException(RuntimeException::class);
