@@ -90,7 +90,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
 
-        $this->assertEquals('new referrer name', $reference->referrers->first()->name);
+        $this->assertSame('new referrer name', $reference->referrers->first()->name);
     }
 
     public function testCreateWithoutRef(): void
@@ -189,7 +189,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $referrer = $this->dm->find(null, '/functional/referrerTestObj');
-        $this->assertEquals('referrer changed', $referrer->name);
+        $this->assertSame('referrer changed', $referrer->name);
     }
 
     public function testUpdateMany(): void
@@ -388,7 +388,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertNull($reference);
 
         $referrer = $this->dm->find(null, '/functional/referrerTestObj');
-        $this->assertEquals('referenced changed', $referrer->name);
+        $this->assertSame('referenced changed', $referrer->name);
     }
 
     /**
@@ -422,7 +422,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
             $referrer->name = $name;
             ++$i;
         }
-        $this->assertEquals($max, $i);
+        $this->assertSame($max, $i);
 
         for ($i = 0; $i < $max; ++$i) {
             $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
@@ -438,7 +438,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
             $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
             $refNames[] = $referrer->name;
         }
-        $this->assertEquals($max, $i);
+        $this->assertSame($max, $i);
 
         foreach ($names as $name) {
             $this->assertContains($name, $refNames);
@@ -603,7 +603,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $this->assertCount(1, $referenced->referrers);
         $this->assertSame($referrer, $referenced->referrers->first());
-        $this->assertEquals('changed', $referrer->name);
+        $this->assertSame('changed', $referrer->name);
     }
 
     public function testCascadeRemoveByCollection(): void

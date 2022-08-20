@@ -52,7 +52,6 @@ class DocumentConvertTranslationCommandTest extends TestCase
             ->with('Document\MyClass', ['en'], [], 'none')
             ->willReturn(false);
         $this->converter
-            ->expects($this->any())
             ->method('getLastNotices')
             ->willReturn([]);
 
