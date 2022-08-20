@@ -49,7 +49,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
 
@@ -59,11 +59,9 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
 
         $this->assertNotNull($doc->parent);
         $this->assertEquals('/functional', $doc->parent->getId());
-
-        return $doc;
     }
 
-    public function testBindTranslation()
+    public function testBindTranslation(): void
     {
         $parent = $this->dm->find($this->type, '/functional/thename');
 
@@ -89,7 +87,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('fr', $child->locale);
     }
 
-    public function testFindTranslationPropagateLocale()
+    public function testFindTranslationPropagateLocale(): void
     {
         $child = new Article();
         $child->id = '/functional/thename/child';
@@ -153,7 +151,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('fr', $child->relatedArticles[0]->locale);
     }
 
-    public function testBindTranslationLocale()
+    public function testBindTranslationLocale(): void
     {
         $child = new Article();
         $child->id = '/functional/thename/child';
@@ -176,7 +174,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Sujet interessant', $doc->child->topic);
     }
 
-    public function testRefreshProxyUsesFallback()
+    public function testRefreshProxyUsesFallback(): void
     {
         $parent = new ParentObj();
         $parent->id = '/functional/thename/child';

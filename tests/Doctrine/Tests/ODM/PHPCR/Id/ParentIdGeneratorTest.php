@@ -14,7 +14,7 @@ class ParentIdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
-    public function testGenerate()
+    public function testGenerate(): void
     {
         $id = '/moo';
 
@@ -26,19 +26,19 @@ class ParentIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('getDocumentId')
             ->with($this->equalTo($parent))
-            ->will($this->returnValue('/miau'));
+            ->willReturn('/miau');
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow));
+            ->willReturn($uow);
         $this->assertEquals('/miau/name', $generator->generate(null, $cm, $dm));
     }
 
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
-    public function testGenerateNoParent()
+    public function testGenerateNoParent(): void
     {
         $id = '/moo';
 
@@ -52,7 +52,7 @@ class ParentIdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\ParentIdGenerator::generate
      */
-    public function testGenerateNoName()
+    public function testGenerateNoName(): void
     {
         $id = '/moo';
 
@@ -63,7 +63,7 @@ class ParentIdGeneratorTest extends TestCase
         $this->assertEquals($id, $generator->generate(null, $cm, $dm));
     }
 
-    public function testGenerateNoIdNoParentNoName()
+    public function testGenerateNoIdNoParentNoName(): void
     {
         $generator = new ParentIdGenerator();
         $cm = new ParentClassMetadataProxy(null, '', '');
@@ -73,7 +73,7 @@ class ParentIdGeneratorTest extends TestCase
         $generator->generate(null, $cm, $dm);
     }
 
-    public function testGenerateNoIdNoParent()
+    public function testGenerateNoIdNoParent(): void
     {
         $generator = new ParentIdGenerator();
         $cm = new ParentClassMetadataProxy(null, 'name', '');
@@ -83,7 +83,7 @@ class ParentIdGeneratorTest extends TestCase
         $generator->generate(null, $cm, $dm);
     }
 
-    public function testGenerateNoIdNoName()
+    public function testGenerateNoIdNoName(): void
     {
         $generator = new ParentIdGenerator();
         $cm = new ParentClassMetadataProxy(new ParentDummy(), '', '');
@@ -93,7 +93,7 @@ class ParentIdGeneratorTest extends TestCase
         $generator->generate(null, $cm, $dm);
     }
 
-    public function testGenerateNoParentId()
+    public function testGenerateNoParentId(): void
     {
         $generator = new ParentIdGenerator();
         $parent = new ParentDummy();
@@ -103,12 +103,12 @@ class ParentIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('getDocumentId')
             ->with($this->equalTo($parent))
-            ->will($this->returnValue(''));
+            ->willReturn('');
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow));
+            ->willReturn($uow);
 
         $this->expectException(IdException::class);
         $generator->generate(null, $cm, $dm);
