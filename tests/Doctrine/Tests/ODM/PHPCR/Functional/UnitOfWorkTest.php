@@ -44,7 +44,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->resetFunctionalNode($this->dm);
     }
 
-    public function testSchedules()
+    public function testSchedules(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'dantleech';
@@ -92,7 +92,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->assertEquals([$user1, '/foobar'], current($scheduledMoves));
     }
 
-    public function testMoveParentNoNodeName()
+    public function testMoveParentNoNodeName(): void
     {
         $root = $this->dm->find(null, 'functional');
 
@@ -127,7 +127,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public function testMoveChildThroughNodeNameChangeWithPreUpdateListener()
+    public function testMoveChildThroughNodeNameChangeWithPreUpdateListener(): void
     {
         // preparing
         $functional = $this->dm->find(null, 'functional');
@@ -167,7 +167,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
                 return [Event::preUpdate];
             }
 
-            public function preUpdate()
+            public function preUpdate(): void
             {
             }
         });
@@ -180,13 +180,13 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(ParentTestObj::class, $movedChild);
     }
 
-    public function testGetScheduledReorders()
+    public function testGetScheduledReorders(): void
     {
         // TODO: do some real test
         $this->assertCount(0, $this->uow->getScheduledReorders());
     }
 
-    public function testComputeChangeSetForTranslatableDocument()
+    public function testComputeChangeSetForTranslatableDocument(): void
     {
         $root = $this->dm->find(null, 'functional');
         $c1 = new Comment();
@@ -213,7 +213,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $this->uow->getScheduledUpdates());
     }
 
-    public function testFetchingMultipleHierarchicalObjectsWithChildIdFirst()
+    public function testFetchingMultipleHierarchicalObjectsWithChildIdFirst(): void
     {
         $parent = new ParentTestObj();
         $parent->nodename = 'parent';
@@ -248,7 +248,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->assertSame('parent', $parent->nodename);
     }
 
-    public function testRequiredClassesInvalidChildren()
+    public function testRequiredClassesInvalidChildren(): void
     {
         $articleFolder = new CmsArticleFolder();
         $articleFolder->id = '/functional/articles';
@@ -265,7 +265,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testRequiredClassesValidChildren()
+    public function testRequiredClassesValidChildren(): void
     {
         $articleFolder = new CmsArticleFolder();
         $articleFolder->id = '/functional/articles';
@@ -280,7 +280,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testRequiredClassesInvalidUpdate()
+    public function testRequiredClassesInvalidUpdate(): void
     {
         $articleFolder = new CmsArticleFolder();
         $articleFolder->id = '/functional/articles';
@@ -300,7 +300,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testRequiredClassesAddToChildrenValid()
+    public function testRequiredClassesAddToChildrenValid(): void
     {
         $post = new CmsBlogPost();
         $post->name = 'hello';
@@ -315,7 +315,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testRequiredClassesAddToChildrenInvalid()
+    public function testRequiredClassesAddToChildrenInvalid(): void
     {
         $post = new CmsBlogInvalidChild();
         $post->name = 'hello';
@@ -333,7 +333,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testRequiredClassesAddToChildrenInvalidOnUpdate()
+    public function testRequiredClassesAddToChildrenInvalidOnUpdate(): void
     {
         $post = new CmsBlogPost();
         $post->name = 'hello';

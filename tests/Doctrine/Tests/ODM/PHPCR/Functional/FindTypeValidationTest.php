@@ -27,17 +27,12 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
      */
     private $type = TypeUser::class;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $node = $this->resetFunctionalNode($this->dm);
 
-        $user = $this->node->addNode('user');
+        $user = $node->addNode('user');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('note', 'test');
         $user->setProperty('numbers', [3, 1, 2]);
@@ -47,7 +42,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $user = $this->dm->find($this->type, '/functional/user');
 
@@ -68,7 +63,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $this->assertSame($user, $userAgain);
     }
 
-    public function testFindWithNamespace()
+    public function testFindWithNamespace(): void
     {
         $config = $this->dm->getConfiguration();
         $config->addDocumentNamespace('Foobar', 'Doctrine\Tests\ODM\PHPCR\Functional');
@@ -77,7 +72,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user);
     }
 
-    public function testFindAutoclass()
+    public function testFindAutoclass(): void
     {
         $user = $this->dm->find(null, '/functional/user');
 
@@ -87,7 +82,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     /**
      * TypeUser is a superclass of TypeTeamUser
      */
-    public function testInheritance()
+    public function testInheritance(): void
     {
         $user = new TypeTeamUser();
         $user->username = 'test';
@@ -110,7 +105,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     /**
      * TypeTeamUser is not a superclass of User
      */
-    public function testNotInstanceOf()
+    public function testNotInstanceOf(): void
     {
         $user = $this->dm->find(TypeTeamUser::class, '/functional/user');
 
@@ -120,7 +115,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     /**
      * TypeTeamUser is not a superclass of User. Still works when loading from cache.
      */
-    public function testCacheNotInstanceOf()
+    public function testCacheNotInstanceOf(): void
     {
         $user = $this->dm->find($this->type, '/functional/user');
         $this->assertInstanceOf($this->type, $user);
@@ -132,7 +127,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     /**
      * TypeTeamUser is not a superclass of User
      */
-    public function testManyNotInstanceOf()
+    public function testManyNotInstanceOf(): void
     {
         $users = $this->dm->findMany(TypeTeamUser::class, ['/functional/user']);
 

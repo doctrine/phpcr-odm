@@ -30,7 +30,7 @@ class UniqueNodeTypeHelperTest extends TestCase
             ->getMock();
         $classMetadataFactory->expects($this->once())
             ->method('getAllMetadata')
-            ->will($this->returnValue($metadata));
+            ->willReturn($metadata);
 
         $documentManager = $this->getMockBuilder(DocumentManager::class)
             ->disableOriginalConstructor()
@@ -38,7 +38,7 @@ class UniqueNodeTypeHelperTest extends TestCase
             ->getMock();
         $documentManager->expects($this->once())
             ->method('getMetadataFactory')
-            ->will($this->returnValue($classMetadataFactory));
+            ->willReturn($classMetadataFactory);
 
         return $documentManager;
     }
@@ -47,7 +47,7 @@ class UniqueNodeTypeHelperTest extends TestCase
      * Verify that a MappingException is correctly thrown when more than
      * one document uses the same node type, but one is marked as unique.
      */
-    public function testCheckNodeTypeMappingsWithDuplicate()
+    public function testCheckNodeTypeMappingsWithDuplicate(): void
     {
         $metadataA = new ClassMetadata('Doctrine\PHPCR\Models\ClassA');
         $metadataA->setNodeType('nt:unstructured');
@@ -77,7 +77,7 @@ class UniqueNodeTypeHelperTest extends TestCase
      * Verify that no exception results from a correctly-mapped set
      * of documents.
      */
-    public function testCheckNodeTypeMappingsWithoutDuplicate()
+    public function testCheckNodeTypeMappingsWithoutDuplicate(): void
     {
         $metadataA = new ClassMetadata('Doctrine\PHPCR\Models\ClassA');
         $metadataA->setNodeType('nt:unstructured');

@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Query\Builder\ConverterInterface;
 
 class QueryBuilderTest extends NodeTestCase
 {
-    public function provideInterface()
+    public function provideInterface(): array
     {
         return [
             ['where', 'Where'],
@@ -18,7 +18,7 @@ class QueryBuilderTest extends NodeTestCase
         ];
     }
 
-    public function testNonExistantMethod()
+    public function testNonExistentMethod(): void
     {
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage('Unknown method "foobar" called on node');
@@ -31,7 +31,7 @@ class QueryBuilderTest extends NodeTestCase
      *
      * @doesNotPerformAssertions
      */
-    public function testApi1()
+    public function testApi1(): void
     {
         $this->node
             ->select()
@@ -94,7 +94,7 @@ class QueryBuilderTest extends NodeTestCase
             ->end();
     }
 
-    public function testPrimaryAlias()
+    public function testPrimaryAlias(): void
     {
         $this->node->from('f');
         $this->assertEquals('f', $this->node->getPrimaryAlias());
@@ -103,7 +103,7 @@ class QueryBuilderTest extends NodeTestCase
         $this->assertEquals('f', $this->node->getPrimaryAlias());
     }
 
-    public function testCloningQueryBuilderUniqueConverterInstance()
+    public function testCloningQueryBuilderUniqueConverterInstance(): void
     {
         $reflection = new \ReflectionClass(get_class($this->node));
         $property = $reflection->getProperty('converter');

@@ -37,7 +37,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->resetFunctionalNode($this->dm);
     }
 
-    public function testFlushSingleDocument()
+    public function testFlushSingleDocument(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'romanb';
@@ -66,7 +66,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertEquals('jwage', $check->username);
     }
 
-    public function testFlushSingleDocumentThenFlush()
+    public function testFlushSingleDocumentThenFlush(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'romanb';
@@ -89,7 +89,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertEquals('changed', $check->username);
     }
 
-    public function testFlushSingleDocumentWithParent()
+    public function testFlushSingleDocumentWithParent(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'romanb';
@@ -126,7 +126,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertEquals('changed', $user3->username);
     }
 
-    public function testFlushSingleManagedDocument()
+    public function testFlushSingleManagedDocument(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -144,7 +144,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertEquals('administrator', $user->status);
     }
 
-    public function testFlushManyExplicitDocuments()
+    public function testFlushManyExplicitDocuments(): void
     {
         $userA = new CmsUser('userA');
         $userA->username = 'userA';
@@ -164,7 +164,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($userC->id);
     }
 
-    public function testFlushSingleUnmanagedDocument()
+    public function testFlushSingleUnmanagedDocument(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -175,7 +175,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->flush($user);
     }
 
-    public function testFlushSingleAndNewDocument()
+    public function testFlushSingleAndNewDocument(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -199,7 +199,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertTrue(null != $otherUser->id, 'other user has no id');
     }
 
-    public function testFlushAndCascadePersist()
+    public function testFlushAndCascadePersist(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -222,7 +222,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertTrue(null != $address->id, 'address user has no id');
     }
 
-    public function testProxyIsIgnored()
+    public function testProxyIsIgnored(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -247,7 +247,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertTrue(null != $otherUser->id, 'other user has no id');
     }
 
-    public function testUuidIsSet()
+    public function testUuidIsSet(): void
     {
         $uuidObj = new UuidTestObj();
         $uuidObj->id = '/functional/uuidObj';
@@ -256,7 +256,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($uuidObj->uuid1);
     }
 
-    public function testUuidFieldOnlySetOnce()
+    public function testUuidFieldOnlySetOnce(): void
     {
         $uuidObj = new UuidTestTwoUuidFieldsObj();
         $uuidObj->id = '/functional/uuidObj';
@@ -265,7 +265,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->dm->persist($uuidObj);
     }
 
-    public function testRepeatedFlush()
+    public function testRepeatedFlush(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'romanb';

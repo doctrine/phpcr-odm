@@ -17,27 +17,22 @@ use PHPUnit\Framework\TestCase;
 class QueryTest extends Testcase
 {
     /**
-     * @var QueryInterface|MockObject
+     * @var QueryInterface&MockObject
      */
     private $phpcrQuery;
 
     /**
-     * @var DocumentManager|MockObject
+     * @var DocumentManager&MockObject
      */
     private $dm;
 
     /**
-     * @var ArrayCollection|MockObject
-     */
-    private $arrayCollection;
-
-    /**
-     * @var Query|MockObject
+     * @var Query&MockObject
      */
     private $query;
 
     /**
-     * @var Query|MockObject
+     * @var Query&MockObject
      */
     private $aliasQuery;
 
@@ -45,18 +40,17 @@ class QueryTest extends Testcase
     {
         $this->phpcrQuery = $this->createMock(QueryInterface::class);
         $this->dm = $this->createMock(DocumentManager::class);
-        $this->arrayCollection = $this->createMock(ArrayCollection::class);
         $this->query = new Query($this->phpcrQuery, $this->dm);
         $this->aliasQuery = new Query($this->phpcrQuery, $this->dm, 'a');
     }
 
-    public function testGetSetHydrationMode()
+    public function testGetSetHydrationMode(): void
     {
         $this->query->setHydrationMode(Query::HYDRATE_PHPCR);
         $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
-    public function testGetSetParameters()
+    public function testGetSetParameters(): void
     {
         $this->query->setParameters([
             'foo' => 'bar',
@@ -70,7 +64,7 @@ class QueryTest extends Testcase
         $this->assertEquals(['boo' => 'far', 'far' => 'boo'], $this->query->getParameters());
     }
 
-    public function testGetSetParameter()
+    public function testGetSetParameter(): void
     {
         $this->query->setParameter('foo', 'bar');
         $this->assertEquals('bar', $this->query->getParameter('foo'));
@@ -78,22 +72,22 @@ class QueryTest extends Testcase
         $this->assertNull($this->query->getParameter('boo'));
     }
 
-    public function testExecute_hydrateNone()
+    public function testExecute_hydrateNone(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue(['ok']));
+            ->willReturn(['ok']);
         $res = $this->query->execute(null, Query::HYDRATE_PHPCR);
         $this->assertInstanceOf(ArrayCollection::class, $res);
         $this->assertEquals('ok', $res->first());
     }
 
-    public function testExecute_hydrateDocument()
+    public function testExecute_hydrateDocument(): void
     {
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery)
-            ->will($this->returnValue(['ok']));
+            ->willReturn(['ok']);
 
         $res = $this->query->execute();
         $this->assertEquals('ok', $res->first());
@@ -102,12 +96,12 @@ class QueryTest extends Testcase
         $this->assertEquals('ok', $res->first());
     }
 
-    public function testExecute_hydrateDocumentWithAlias()
+    public function testExecute_hydrateDocumentWithAlias(): void
     {
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery, null, 'a')
-            ->will($this->returnValue(['ok']));
+            ->willReturn(['ok']);
 
         $res = $this->aliasQuery->execute();
         $this->assertEquals('ok', $res->first());
@@ -116,13 +110,13 @@ class QueryTest extends Testcase
         $this->assertEquals('ok', $res->first());
     }
 
-    public function testExecute_hydrateUnknown()
+    public function testExecute_hydrateUnknown(): void
     {
         $this->expectException(QueryException::class);
         $this->query->execute(null, 'unknown_hydration_mode');
     }
 
-    public function testExecute_parameters()
+    public function testExecute_parameters(): void
     {
         $this->phpcrQuery->expects($this->at(0))
             ->method('bindValue')
@@ -133,7 +127,7 @@ class QueryTest extends Testcase
         $this->query->execute(['foo' => 'bar', 'bar' => 'foo']);
     }
 
-    public function testExecute_maxResults()
+    public function testExecute_maxResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('setLimit')
@@ -142,7 +136,7 @@ class QueryTest extends Testcase
         $this->query->execute();
     }
 
-    public function testExecute_firstResult()
+    public function testExecute_firstResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('setOffset')
@@ -151,115 +145,115 @@ class QueryTest extends Testcase
         $this->query->execute();
     }
 
-    public function testGetResult()
+    public function testGetResult(): void
     {
         $res = $this->query->getResult(Query::HYDRATE_PHPCR);
         $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
-    public function testGetPhpcrNodeResult()
+    public function testGetPhpcrNodeResult(): void
     {
         $res = $this->query->getPhpcrNodeResult();
         $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
-    public function testGetOneOrNullResult_noResults()
+    public function testGetOneOrNullResult_noResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $res = $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
         $this->assertNull($res);
     }
 
-    public function testGetOneOrNullResult_withOneResult()
+    public function testGetOneOrNullResult_withOneResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue(['ok1']));
+            ->willReturn(['ok1']);
         $res = $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
         $this->assertEquals('ok1', $res);
     }
 
-    public function testGetOneOrNullResult_withTwoResults()
+    public function testGetOneOrNullResult_withTwoResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue(['ok1', 'ok2']));
+            ->willReturn(['ok1', 'ok2']);
 
         $this->expectException(QueryException::class);
         $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
     }
 
-    public function testGetSingleResult_noResult()
+    public function testGetSingleResult_noResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
 
         $this->expectException(NoResultException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
-    public function testGetSingleResult_withOneResult()
+    public function testGetSingleResult_withOneResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue(['ok1']));
+            ->willReturn(['ok1']);
         $res = $this->query->getSingleResult(Query::HYDRATE_PHPCR);
         $this->assertEquals('ok1', $res);
     }
 
-    public function testGetSingleResult_withTwoResults()
+    public function testGetSingleResult_withTwoResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
-            ->will($this->returnValue(['ok1', 'ok2']));
+            ->willReturn(['ok1', 'ok2']);
         $this->expectException(QueryException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
-    public function testIterate()
+    public function testIterate(): void
     {
         $this->expectException(QueryException::class);
         $this->query->iterate();
     }
 
-    public function testGetSetMaxResults()
+    public function testGetSetMaxResults(): void
     {
         $this->query->setMaxResults(5);
         $this->assertEquals(5, $this->query->getMaxResults());
     }
 
-    public function testGetSetFirstResult()
+    public function testGetSetFirstResult(): void
     {
         $this->query->setFirstResult(5);
         $this->assertEquals(5, $this->query->getFirstResult());
     }
 
-    public function testGetStatement()
+    public function testGetStatement(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('getStatement')
-            ->will($this->returnValue('foo'));
+            ->willReturn('foo');
         $this->assertEquals('foo', $this->query->getStatement());
     }
 
-    public function testGetLanguage()
+    public function testGetLanguage(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('getLanguage')
-            ->will($this->returnValue('foo'));
+            ->willReturn('foo');
         $this->assertEquals('foo', $this->query->getLanguage());
     }
 
-    public function testGetPhpcrQuery()
+    public function testGetPhpcrQuery(): void
     {
         $query = $this->query->getPhpcrQuery();
         $this->assertSame($this->phpcrQuery, $query);
     }
 
-    public function testSetDocumentClass()
+    public function testSetDocumentClass(): void
     {
         $this->dm->expects($this->once())
             ->method('getDocumentsByPhpcrQuery')

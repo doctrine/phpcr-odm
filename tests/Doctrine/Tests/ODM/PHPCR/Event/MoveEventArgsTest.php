@@ -28,25 +28,25 @@ class MoveEventArgsTest extends TestCase
         );
     }
 
-    public function testGetDocumentManager()
+    public function testGetDocumentManager(): void
     {
         $res = $this->eventArgs->getObjectManager();
         $this->assertSame($this->dm, $res);
     }
 
-    public function testGetDocument()
+    public function testGetDocument(): void
     {
         $res = $this->eventArgs->getObject();
         $this->assertSame($this->object, $res);
     }
 
-    public function testGetSourcePath()
+    public function testGetSourcePath(): void
     {
         $path = $this->eventArgs->getSourcePath();
         $this->assertEquals('source/path', $path);
     }
 
-    public function testGetTargetPath()
+    public function testGetTargetPath(): void
     {
         $path = $this->eventArgs->getTargetPath();
         $this->assertEquals('target/path', $path);
