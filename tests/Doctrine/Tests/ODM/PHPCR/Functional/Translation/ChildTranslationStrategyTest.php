@@ -12,7 +12,6 @@ use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
-use PHPCR\WorkspaceInterface;
 
 class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
 {

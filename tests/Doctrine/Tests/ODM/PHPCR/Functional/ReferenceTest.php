@@ -1265,7 +1265,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         asort($hashs);
 
-        $refDocuments = [];
         $refHashs = [];
         $refDocuments = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj')->references;
 

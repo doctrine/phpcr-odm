@@ -21,7 +21,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
      */
     private $sessions = [];
 
-    public function createDocumentManager(array $paths = null)
+    public function createDocumentManager(array $paths = null): DocumentManager
     {
         $reader = new AnnotationReader();
         $reader->addGlobalIgnoredName('group');
@@ -74,7 +74,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         return DocumentManager::create($session, $config);
     }
 
-    public function resetFunctionalNode(DocumentManager $dm)
+    public function resetFunctionalNode(DocumentManager $dm): \PHPCR\NodeInterface
     {
         $session = $dm->getPhpcrSession();
         $root = $session->getNode('/');

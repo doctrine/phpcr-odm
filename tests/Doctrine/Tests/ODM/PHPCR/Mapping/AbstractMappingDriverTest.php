@@ -720,7 +720,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testMixinMapping(ClassMetadata $class): void
     {
-        $this->assertEquals(1, count($class->mixins));
+        $this->assertCount(1, $class->mixins);
         $this->assertContains('mix:lastModified', $class->mixins);
     }
 

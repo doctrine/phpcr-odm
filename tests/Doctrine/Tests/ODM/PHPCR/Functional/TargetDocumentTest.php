@@ -7,7 +7,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefType1TestObj;
 use Doctrine\Tests\Models\References\RefType2TestObj;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 
 /**
  * @group functional

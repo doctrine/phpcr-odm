@@ -85,7 +85,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $col = $this->dm->getChildren($parent, '*A');
         $this->assertCount(1, $col);
-        $this->assertTrue($childA === $col->first());
+        $this->assertSame($childA, $col->first());
 
         $this->dm->clear();
 

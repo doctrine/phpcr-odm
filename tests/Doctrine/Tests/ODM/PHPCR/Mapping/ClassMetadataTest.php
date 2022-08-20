@@ -278,7 +278,7 @@ class ClassMetadataTest extends TestCase
         $cm->initializeReflection(new RuntimeReflectionService());
 
         // Test initial state
-        $this->assertTrue(0 == count($cm->getReflectionProperties()));
+        $this->assertCount(0, $cm->getReflectionProperties());
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals([], $cm->parentClasses);
@@ -298,7 +298,7 @@ class ClassMetadataTest extends TestCase
         $cm->wakeupReflection(new RuntimeReflectionService());
 
         // Check state
-        $this->assertTrue(\count($cm->getReflectionProperties()) > 0);
+        $this->assertNotEmpty($cm->getReflectionProperties());
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);

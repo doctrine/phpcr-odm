@@ -16,7 +16,6 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
  */
 class EventManagerResetTest extends PHPCRFunctionalTestCase
 {
-
     /**
      * @var DocumentManager
      */
