@@ -6,7 +6,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 
 class ConstraintFactoryTest extends NodeTestCase
 {
-    public function provideInterface()
+    public function provideInterface(): array
     {
         return [
             ['andX', 'ConstraintAndx', [
