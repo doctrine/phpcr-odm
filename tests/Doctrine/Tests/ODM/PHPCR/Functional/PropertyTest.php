@@ -36,7 +36,7 @@ class PropertyTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testPropertyname()
+    public function testPropertyname(): void
     {
         $doc = new PropertyTestObj();
         $doc->id = '/functional/p';

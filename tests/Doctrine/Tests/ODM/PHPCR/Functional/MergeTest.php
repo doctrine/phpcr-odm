@@ -31,7 +31,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testMergeNewDocument()
+    public function testMergeNewDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -46,7 +46,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(ReferenceManyCollection::class, $mergedUser->articles);
     }
 
-    public function testMergeManagedDocument()
+    public function testMergeManagedDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -60,7 +60,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->assertSame($mergedUser, $user);
     }
 
-    public function testMergeKnownDocument()
+    public function testMergeKnownDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -76,7 +76,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->assertSame($mergedUser->id, $user->id);
     }
 
-    public function testMergeRemovedDocument()
+    public function testMergeRemovedDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -92,7 +92,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->dm->merge($user);
     }
 
-    public function testMergeWithManagedDocument()
+    public function testMergeWithManagedDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -113,7 +113,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(NodeInterface::class, $mergedUser->node);
     }
 
-    public function testMergeChangeDocumentClass()
+    public function testMergeChangeDocumentClass(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -134,7 +134,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->dm->merge($mergableGroup);
     }
 
-    public function testMergeUnknownAssignedId()
+    public function testMergeUnknownAssignedId(): void
     {
         $doc = new CmsArticle();
         $doc->id = '/foo';
@@ -146,7 +146,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->assertSame($mergedDoc->id, $doc->id);
     }
 
-    public function testMergeWithChild()
+    public function testMergeWithChild(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -190,7 +190,7 @@ class MergeTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testMergeWithChildren()
+    public function testMergeWithChildren(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';

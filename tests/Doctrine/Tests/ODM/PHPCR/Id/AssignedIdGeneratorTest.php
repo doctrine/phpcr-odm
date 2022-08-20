@@ -11,7 +11,7 @@ class AssignedIdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
      */
-    public function testGenerate()
+    public function testGenerate(): void
     {
         $id = 'moo';
 
@@ -25,7 +25,7 @@ class AssignedIdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\AssignedIdGenerator::generate
      */
-    public function testGenerateNoIdException()
+    public function testGenerateNoIdException(): void
     {
         $id = '';
 

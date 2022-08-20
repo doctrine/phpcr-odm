@@ -66,7 +66,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testEquiJoinInnerOnReference()
+    public function testEquiJoinInnerOnReference(): void
     {
         $qb = $this->dm->createQueryBuilder();
         $qb->fromDocument(CmsUser::class, 'u');
@@ -81,7 +81,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
         $this->assertEquals('dantleech', $res->current()->username);
     }
 
-    public function provideEquiJoinInner()
+    public function provideEquiJoinInner(): array
     {
         return [
             [
@@ -172,7 +172,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
     /**
      * @dataProvider provideEquiJoinInner
      */
-    public function testEquiJoinInner($joinType, $leftClass, $rightClass, $criteria, $expectedPaths)
+    public function testEquiJoinInner($joinType, $leftClass, $rightClass, $criteria, $expectedPaths): void
     {
         $leftFqn = 'Doctrine\Tests\Models\CMS\\'.$leftClass;
         $rightFqn = 'Doctrine\Tests\Models\CMS\\'.$rightClass;
@@ -209,7 +209,7 @@ class QueryBuilderJoinTest extends PHPCRFunctionalTestCase
      * Verify that using an outer join on a document that is uniquely typed
      * results in the full expected result set.
      */
-    public function testUniqueNodeTypeOuterJoin()
+    public function testUniqueNodeTypeOuterJoin(): void
     {
         $qb = $this->dm->createQueryBuilder()
             ->fromDocument(CmsUser::class, 'u')

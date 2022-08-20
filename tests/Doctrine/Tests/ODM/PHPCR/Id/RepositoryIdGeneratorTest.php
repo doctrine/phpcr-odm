@@ -11,7 +11,7 @@ class RepositoryIdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
-    public function testGenerate()
+    public function testGenerate(): void
     {
         $id = 'moo';
         $cm = new RepositoryClassMetadataProxy($id);
@@ -20,12 +20,12 @@ class RepositoryIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
-            ->will($this->returnValue('generatedid'));
+            ->willReturn('generatedid');
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getRepository')
-            ->will($this->returnValue($repository));
+            ->willReturn($repository);
 
         $generator = new RepositoryIdGenerator();
 
@@ -35,7 +35,7 @@ class RepositoryIdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator::generate
      */
-    public function testGenerateNoIdException()
+    public function testGenerateNoIdException(): void
     {
         $id = 'moo';
         $generator = new RepositoryIdGenerator();
@@ -45,12 +45,12 @@ class RepositoryIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('generateId')
             ->with($this->equalTo(null))
-            ->will($this->throwException(new \Exception()));
+            ->willThrowException(new \Exception());
         $dm = $this->createMock(DocumentManager::class);
         $dm
             ->expects($this->once())
             ->method('getRepository')
-            ->will($this->returnValue($repository));
+            ->willReturn($repository);
 
         $this->expectException(\Exception::class);
         $generator->generate(null, $cm, $dm);

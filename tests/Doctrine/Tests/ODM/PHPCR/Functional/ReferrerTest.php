@@ -28,11 +28,6 @@ class ReferrerTest extends PHPCRFunctionalTestCase
      */
     private $session;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     protected $localePrefs = [
         'en' => ['en', 'fr'],
         'fr' => ['fr', 'en'],
@@ -42,10 +37,10 @@ class ReferrerTest extends PHPCRFunctionalTestCase
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -67,7 +62,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/referrerTestObj', $reference->referrers->first()->id);
     }
 
-    public function testJIRA41DonotPersistReferrersCollection()
+    public function testJIRA41DonotPersistReferrersCollection(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -98,7 +93,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('new referrer name', $reference->referrers->first()->name);
     }
 
-    public function testCreateWithoutRef()
+    public function testCreateWithoutRef(): void
     {
         $referrerTestObj = new ReferrerRefTestObj();
         $referrerTestObj->id = '/functional/referrerRefTestObj';
@@ -112,7 +107,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertCount(0, $document->referrers);
     }
 
-    public function testCreateManyRef()
+    public function testCreateManyRef(): void
     {
         $max = 5;
 
@@ -144,25 +139,23 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($ids as $id) {
-            $this->assertTrue(in_array($id, $tmpIds));
+            $this->assertContains($id, $tmpIds);
         }
     }
 
-    public function testNoReferrerInitOnFlush()
+    public function testNoReferrerInitOnFlush(): void
     {
         $max = 5;
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
-        $ids = [];
         for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
             $referrerTestObj->reference = $referrerRefTestObj;
             $this->dm->persist($referrerTestObj);
-            $ids[] = "/functional/referrerTestObj$i";
         }
 
         $this->dm->flush();
@@ -174,7 +167,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($reference->referrers->isInitialized());
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -199,21 +192,19 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('referrer changed', $referrer->name);
     }
 
-    public function testUpdateMany()
+    public function testUpdateMany(): void
     {
         $max = 5;
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
-        $ids = [];
         for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
             $referrerTestObj->reference = $referrerRefTestObj;
             $this->dm->persist($referrerTestObj);
-            $ids[] = "/functional/referrerTestObj$i";
         }
 
         $this->dm->flush();
@@ -239,25 +230,23 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
-    public function testUpdateOneInMany()
+    public function testUpdateOneInMany(): void
     {
         $max = 5;
 
         $referrerRefTestObj = new ReferrerRefTestObj();
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
 
-        $ids = [];
         for ($i = 0; $i < $max; ++$i) {
             $referrerTestObj = new ReferrerTestObj();
             $referrerTestObj->id = "/functional/referrerTestObj$i";
             $referrerTestObj->name = "referrer $i";
             $referrerTestObj->reference = $referrerRefTestObj;
             $this->dm->persist($referrerTestObj);
-            $ids[$i] = "/functional/referrerTestObj$i";
         }
 
         $this->dm->flush();
@@ -287,11 +276,11 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
-    public function testRemoveReferrer()
+    public function testRemoveReferrer(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -325,7 +314,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($reference->referrers->first());
     }
 
-    public function testRemoveReferrerOneInMany()
+    public function testRemoveReferrerOneInMany(): void
     {
         $max = 5;
 
@@ -363,14 +352,14 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         }
 
         foreach ($ids as $id) {
-            $this->assertTrue(in_array($id, $tmpIds));
+            $this->assertContains($id, $tmpIds);
         }
     }
 
     /**
      * Remove referenced node, but change referrer node before
      */
-    public function testRemoveReferrerChangeBefore()
+    public function testRemoveReferrerChangeBefore(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -405,7 +394,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
     /**
      * Remove referenced node, but change referrer nodes before
      */
-    public function testRemoveReferrerManyChangeBefore()
+    public function testRemoveReferrerManyChangeBefore(): void
     {
         $referrerRefManyTestObj = new ReferrerRefTestObj();
         $referrerRefManyTestObj->id = '/functional/referrerRefManyTestObj';
@@ -452,11 +441,11 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals($max, $i);
 
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $refNames));
+            $this->assertContains($name, $refNames);
         }
     }
 
-    public function testDeleteByRef()
+    public function testDeleteByRef(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerRefTestObj = new ReferrerRefTestObj();
@@ -482,7 +471,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->session->getNode('/functional')->hasNode('referrerTestObj'));
     }
 
-    public function testWeakHardRef()
+    public function testWeakHardRef(): void
     {
         $weakReferrerTestObj = new WeakReferrerTestObj();
         $weakReferrerTestObj->id = '/functional/weakReferrerTestObj';
@@ -532,11 +521,11 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $names = ['weakReferrerTestObj', 'hardReferrerTestObj'];
         foreach ($names as $name) {
-            $this->assertTrue(in_array($name, $tmpNames));
+            $this->assertContains($name, $tmpNames);
         }
     }
 
-    public function testNamedRef()
+    public function testNamedRef(): void
     {
         $referrerTestObj = new ReferrerTestObj();
         $referrerNamedPropTestObj = new ReferrerNamedPropTestObj();
@@ -588,7 +577,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
      *
      * depends testCreate
      */
-    public function testMultilangReferrers()
+    public function testMultilangReferrers(): void
     {
         $this->dm->setLocaleChooserStrategy(new LocaleChooser($this->localePrefs, 'en'));
         $this->dm->setTranslationStrategy('attribute', new AttributeTranslationStrategy($this->dm));
@@ -617,7 +606,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('changed', $referrer->name);
     }
 
-    public function testCascadeRemoveByCollection()
+    public function testCascadeRemoveByCollection(): void
     {
         $referrerRefManyTestObj = new ReferrerRefTestObj2();
         $referrerRefManyTestObj->id = '/functional/referrerRefManyTestObj';

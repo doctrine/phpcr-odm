@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 class FieldTest extends LeafNodeTestCase
 {
-    public function provideNode()
+    public function provideNode(): array
     {
         return [
             ['Field', ['a.FooBar'], [

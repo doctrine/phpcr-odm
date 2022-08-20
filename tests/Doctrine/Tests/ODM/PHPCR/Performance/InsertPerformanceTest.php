@@ -16,19 +16,14 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
-        $this->count = isset($GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT']) ? $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] : 100;
+        $this->resetFunctionalNode($this->dm);
+        $this->count = $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] ?? 100;
     }
 
-    public function testInsertDocuments()
+    public function testInsertDocuments(): void
     {
         if (extension_loaded('xdebug')) {
             $this->markTestSkipped('Performance-Testing with xdebug enabled makes no sense.');

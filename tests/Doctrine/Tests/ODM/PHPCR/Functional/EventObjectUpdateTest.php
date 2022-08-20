@@ -27,7 +27,7 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testComputingBetweenEvents()
+    public function testComputingBetweenEvents(): void
     {
         $this->dm
             ->getEventManager()
@@ -108,7 +108,7 @@ class SomeEntity
 
 class TestEventDocumentChanger2
 {
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'postLoad',
@@ -119,7 +119,7 @@ class TestEventDocumentChanger2
         ];
     }
 
-    protected function switchToObject(LifecycleEventArgs $args)
+    protected function switchToObject(LifecycleEventArgs $args): void
     {
         $entity = $args->getEntity();
         $status = new \stdClass();
@@ -127,34 +127,34 @@ class TestEventDocumentChanger2
         $entity->status = $status;
     }
 
-    protected function switchToId(LifecycleEventArgs $args)
+    protected function switchToId(LifecycleEventArgs $args): void
     {
         $entity = $args->getEntity();
 
         $entity->status = $entity->status->value;
     }
 
-    public function postLoad(LifecycleEventArgs $args)
+    public function postLoad(LifecycleEventArgs $args): void
     {
         $this->switchToObject($args);
     }
 
-    public function postPersist(LifecycleEventArgs $args)
+    public function postPersist(LifecycleEventArgs $args): void
     {
         $this->switchToObject($args);
     }
 
-    public function postUpdate(LifecycleEventArgs $args)
+    public function postUpdate(LifecycleEventArgs $args): void
     {
         $this->switchToObject($args);
     }
 
-    public function prePersist(LifecycleEventArgs $args)
+    public function prePersist(LifecycleEventArgs $args): void
     {
         $this->switchToId($args);
     }
 
-    public function preUpdate(LifecycleEventArgs $args)
+    public function preUpdate(LifecycleEventArgs $args): void
     {
         $this->switchToId($args);
     }

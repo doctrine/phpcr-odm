@@ -10,8 +10,8 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
-use PHPCR\WorkspaceInterface;
 
 class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
 {
@@ -28,11 +28,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
     private $session;
 
     /**
-     * @var WorkspaceInterface
-     */
-    private $workspace;
-
-    /**
      * @var ClassMetadata
      */
     private $metadata;
@@ -41,7 +36,6 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
-        $this->workspace = $this->dm->getPhpcrSession()->getWorkspace();
         $this->metadata = $this->dm->getClassMetadata(Article::class);
     }
 
@@ -50,7 +44,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->removeTestNode();
     }
 
-    public function testSaveTranslation()
+    public function testSaveTranslation(): void
     {
         // First save some translations
         $data = [];
@@ -86,7 +80,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum...', $node_fr->getPropertyValue('text'));
     }
 
-    public function testLoadTranslation()
+    public function testLoadTranslation(): void
     {
         // First save some translations
         $data = [];
@@ -131,7 +125,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals([], $doc->getSettings());
     }
 
-    public function testTranslationNullProperties()
+    public function testTranslationNullProperties(): void
     {
         // Create the node in the content repository
         $node = $this->fillTranslations();
@@ -153,7 +147,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Texte français', $doc->getText());
     }
 
-    public function testRemoveTranslation()
+    public function testRemoveTranslation(): void
     {
         $node = $this->fillTranslations();
         $doc = new Article();
@@ -170,7 +164,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertTrue($subNode_fr->hasProperty('text'));
     }
 
-    public function testRemoveAllTranslations()
+    public function testRemoveAllTranslations(): void
     {
         $node = $this->fillTranslations();
         $doc = new Article();
@@ -188,7 +182,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertTrue($subNode_de->isDeleted());
     }
 
-    public function testGetLocaleFor()
+    public function testGetLocaleFor(): void
     {
         $node = $this->fillTranslations();
 
@@ -204,7 +198,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertContains('de', $locales);
     }
 
-    public function testLoadTranslationWithNullable()
+    public function testLoadTranslationWithNullable(): void
     {
         // Create the node in the content repository
         $node = $this->fillTranslations();
@@ -228,7 +222,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals(null, $doc->nullable);
     }
 
-    public function testLoadTranslationMissing()
+    public function testLoadTranslationMissing(): void
     {
         $node = $this->fillTranslations();
 
@@ -240,7 +234,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertFalse($strategy->loadTranslation($doc, $node, $this->metadata, 'en'), 'Should fail to load english as there is no english child node');
     }
 
-    protected function fillTranslations()
+    protected function fillTranslations(): NodeInterface
     {
         $node = $this->getTestNode();
         $node->setProperty('author', 'John Doe');
@@ -265,7 +259,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         return $node;
     }
 
-    protected function getTestNode()
+    protected function getTestNode(): NodeInterface
     {
         $this->removeTestNode();
         $node = $this->session->getRootNode()->addNode($this->testNodeName);
@@ -276,7 +270,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         return $node;
     }
 
-    protected function getTranslationNode($parentNode, $locale)
+    protected function getTranslationNode(NodeInterface $parentNode, $locale): NodeInterface
     {
         $subNode = $parentNode->addNode(Translation::LOCALE_NAMESPACE.":$locale");
         $this->session->save();
@@ -286,7 +280,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         return $subNode;
     }
 
-    protected function removeTestNode()
+    protected function removeTestNode(): void
     {
         $root = $this->session->getRootNode();
         if ($root->hasNode($this->testNodeName)) {
@@ -295,12 +289,12 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public static function propertyNameForLocale($locale, $property)
+    public static function propertyNameForLocale($locale, $property): string
     {
         return Translation::LOCALE_NAMESPACE.'-'.$locale.'-'.$property;
     }
 
-    protected function nodeNameForLocale($locale)
+    protected function nodeNameForLocale($locale): string
     {
         return '/'.$this->testNodeName.'/'.Translation::LOCALE_NAMESPACE.":$locale";
     }
@@ -310,7 +304,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
      * So if it's an boolean, all your array will be set to true
      * The Array has to be an array of string
      */
-    public function testTranslationArrayProperties()
+    public function testTranslationArrayProperties(): void
     {
         // First save some translations
         $data = [];
@@ -356,7 +350,7 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         ], $doc->getSettings());
     }
 
-    public function testQueryBuilder()
+    public function testQueryBuilder(): void
     {
         $strategy = $this->dm->getTranslationStrategy('child');
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));

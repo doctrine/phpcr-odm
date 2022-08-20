@@ -14,7 +14,7 @@ class IdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
-    public function testCreateGeneratorTypeAssigned()
+    public function testCreateGeneratorTypeAssigned(): void
     {
         $generator = IdGenerator::create(ClassMetadata::GENERATOR_TYPE_ASSIGNED);
         $this->assertInstanceOf(AssignedIdGenerator::class, $generator);
@@ -23,7 +23,7 @@ class IdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
-    public function testCreateGeneratorTypeRepository()
+    public function testCreateGeneratorTypeRepository(): void
     {
         $generator = IdGenerator::create(ClassMetadata::GENERATOR_TYPE_REPOSITORY);
         $this->assertInstanceOf(RepositoryIdGenerator::class, $generator);
@@ -32,7 +32,7 @@ class IdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
-    public function testCreateGeneratorTypeParent()
+    public function testCreateGeneratorTypeParent(): void
     {
         $generator = IdGenerator::create(ClassMetadata::GENERATOR_TYPE_PARENT);
         $this->assertInstanceOf(ParentIdGenerator::class, $generator);
@@ -41,7 +41,7 @@ class IdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
-    public function testCreateGeneratorTypeAuto()
+    public function testCreateGeneratorTypeAuto(): void
     {
         $generator = IdGenerator::create(ClassMetadata::GENERATOR_TYPE_AUTO);
         $this->assertInstanceOf(AutoIdGenerator::class, $generator);
@@ -50,7 +50,7 @@ class IdGeneratorTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Id\IdGenerator::create
      */
-    public function testCreateException()
+    public function testCreateException(): void
     {
         $this->expectException(InvalidArgumentException::class);
         IdGenerator::create(null);

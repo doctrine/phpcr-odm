@@ -32,7 +32,7 @@ class TranslationTest extends PHPCRFunctionalTestCase
 
     // This test should succeed if the system node types have been registered.
     // Use bin/phpcr doctrine:phpcr:register-system-node-types to register the system node types.
-    public function testVariantNamespaceRegistered()
+    public function testVariantNamespaceRegistered(): void
     {
         $nr = $this->workspace->getNamespaceRegistry();
         $this->assertEquals(Translation::LOCALE_NAMESPACE_URI, $nr->getURI(Translation::LOCALE_NAMESPACE));
@@ -41,10 +41,11 @@ class TranslationTest extends PHPCRFunctionalTestCase
     /**
      * Test the annotations pertaining to translations are correctly loaded.
      */
-    public function testLoadAnnotations()
+    public function testLoadAnnotations(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
         $metadata = $factory->getMetadataFor(Article::class);
+        $this->assertInstanceOf(ClassMetadata::class, $metadata);
 
         $this->assertFieldMetadataEquals(false, $metadata, 'author', 'translated');
         $this->assertFieldMetadataEquals(false, $metadata, 'publishDate', 'translated');
@@ -62,7 +63,7 @@ class TranslationTest extends PHPCRFunctionalTestCase
     /**
      * Test loading of a translatable document missing the @Locale annotation.
      */
-    public function testLoadMissingLocaleAnnotation()
+    public function testLoadMissingLocaleAnnotation(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
@@ -73,7 +74,7 @@ class TranslationTest extends PHPCRFunctionalTestCase
     /**
      * Check the given $metadata contain a field mapping for $field that contains the $key and having the value $expectedValue.
      */
-    protected function assertFieldMetadataEquals(string $expectedValue, ClassMetadata $metadata, string $field, string $key)
+    protected function assertFieldMetadataEquals(string $expectedValue, ClassMetadata $metadata, string $field, string $key): void
     {
         $mapping = $metadata->mappings[$field];
         $this->assertIsArray($mapping);
