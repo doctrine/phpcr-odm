@@ -47,7 +47,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testInsertWithoutChild()
+    public function testInsertWithoutChild(): void
     {
         $parent = new ChildTestObj();
         $parent->name = 'Parent';
@@ -60,7 +60,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->node->getNode('childtest')->hasNode('test'));
     }
 
-    public function testInsertWithUnnamedChild()
+    public function testInsertWithUnnamedChild(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -74,13 +74,13 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
-        $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
+        $this->assertEquals('Child', $this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString());
     }
 
     /**
      * @depends testInsertWithUnnamedChild
      */
-    public function testProxyForChildIsUsed()
+    public function testProxyForChildIsUsed(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -98,7 +98,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(Proxy::class, $doc->child);
     }
 
-    public function testInsertAddUnnamedChildLater()
+    public function testInsertAddUnnamedChildLater(): void
     {
         $parent = new ChildTestObj();
         $parent->name = 'Parent';
@@ -118,10 +118,10 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->assertTrue($this->node->getNode('childtest')->hasNode('test'));
-        $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
+        $this->assertEquals('Child', $this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString());
     }
 
-    public function testCreateConflictingName()
+    public function testCreateConflictingName(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -141,7 +141,7 @@ class ChildTest extends PHPCRFunctionalTestCase
      * On creation, a conflicting child name is not ok. On update it is
      * allowed, so that a node can be moved away.
      */
-    public function testMoveAwayChild()
+    public function testMoveAwayChild(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -167,7 +167,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertNull($parent->child);
     }
 
-    public function testInsertArray()
+    public function testInsertArray(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -182,7 +182,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testInsertNoObject()
+    public function testInsertNoObject(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -197,7 +197,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -215,14 +215,14 @@ class ChildTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
         $this->dm->clear();
-        $this->assertNotEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child');
-        $this->assertEquals($this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString(), 'Child changed');
+        $this->assertNotEquals('Child', $this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString());
+        $this->assertEquals('Child changed', $this->node->getNode('childtest')->getNode('test')->getProperty('name')->getString());
     }
 
     /**
      * Remove the parent node, even when children are modified.
      */
-    public function testRemove1()
+    public function testRemove1(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -248,7 +248,7 @@ class ChildTest extends PHPCRFunctionalTestCase
     /**
      * Remove the child, check that parent->child is not set afterwards.
      */
-    public function testRemove2()
+    public function testRemove2(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -277,7 +277,7 @@ class ChildTest extends PHPCRFunctionalTestCase
     /**
      * Remove the parent node of multiple child level.
      */
-    public function testRemove3()
+    public function testRemove3(): void
     {
         $parent = new ChildTestObj();
         $parent->name = 'Parent';
@@ -307,7 +307,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertNull($parent);
     }
 
-    public function testChildSetNull()
+    public function testChildSetNull(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -330,7 +330,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertNull($parent->child);
     }
 
-    public function testMoveByAssignment()
+    public function testMoveByAssignment(): void
     {
         $original = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -358,7 +358,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testChildReplace()
+    public function testChildReplace(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -383,7 +383,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertEquals('new name', $parent->child->name);
     }
 
-    public function testModificationAfterPersist()
+    public function testModificationAfterPersist(): void
     {
         $parent = new ChildTestObj();
         $child = new ChildChildTestObj();
@@ -412,7 +412,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Changed', $parent->child->name);
     }
 
-    public function testChildOfReference()
+    public function testChildOfReference(): void
     {
         $referrerTestObj = new ChildReferrerTestObj();
         $referrerTestObj->id = '/functional/referrerTestObj';
@@ -435,7 +435,7 @@ class ChildTest extends PHPCRFunctionalTestCase
 
         $referrer = $this->dm->find(null, '/functional/referrerTestObj');
 
-        $this->assertEquals($referrer->reference->aChild->name, 'childTestObj');
+        $this->assertEquals('childTestObj', $referrer->reference->aChild->name);
     }
 }
 

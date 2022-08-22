@@ -24,7 +24,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->resetFunctionalNode($this->dm);
     }
 
-    public function testProxyProperty()
+    public function testProxyProperty(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -44,7 +44,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
     /**
      * @depends testProxyProperty
      */
-    public function testProxyUniqueness()
+    public function testProxyUniqueness(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -61,7 +61,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->assertSame($this->dm->getReference(get_class($user), $user->id), $user, 'Getting the proxy twice results in a copy');
     }
 
-    public function testProxyImplicit()
+    public function testProxyImplicit(): void
     {
         $user = new CmsUser();
         $user->name = 'Dominik';
@@ -81,7 +81,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->assertSame($assistant, $user->child);
     }
 
-    public function testChildWithoutId()
+    public function testChildWithoutId(): void
     {
         $node = $this->resetFunctionalNode($this->dm);
         $parentId = $node->getPath().'/parent';
@@ -105,7 +105,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(ParentDoc::class, $doc->parent);
     }
 
-    public function testProxyAwakesOnFields()
+    public function testProxyAwakesOnFields(): void
     {
         $node = $this->resetFunctionalNode($this->dm);
         $parentId = $node->getPath().'/parent';
@@ -128,7 +128,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('child', $child->title);
     }
 
-    public function testProxyAwakesOnNodeName()
+    public function testProxyAwakesOnNodeName(): void
     {
         $node = $this->resetFunctionalNode($this->dm);
         $parentId = $node->getPath().'/parent';

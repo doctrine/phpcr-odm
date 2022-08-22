@@ -52,7 +52,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testInsert()
+    public function testInsert(): void
     {
         $user = new User();
         $user->username = 'test';
@@ -70,7 +70,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
-    public function testInsertTwice()
+    public function testInsertTwice(): void
     {
         $user = new User();
         $user->username = 'test';
@@ -89,7 +89,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user);
     }
 
-    public function testFindByClass()
+    public function testFindByClass(): void
     {
         $user = $this->node->addNode('userWithAlias');
         $user->setProperty('username', 'dbu');
@@ -102,7 +102,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals('dbu', $userWithAlias->username);
     }
 
-    public function testFindById()
+    public function testFindById(): void
     {
         $user = $this->dm->find(null, '/functional/bogus');
         $this->assertNull($user);
@@ -120,7 +120,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($newUser->username, $foundUser->username);
     }
 
-    public function testFindByUuid()
+    public function testFindByUuid(): void
     {
         $generator = $this->dm->getConfiguration()->getUuidGenerator();
 
@@ -141,7 +141,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/test', $foundUser->id);
     }
 
-    public function testFindNonFlushed()
+    public function testFindNonFlushed(): void
     {
         $user = new User();
         $user->username = 'test';
@@ -156,7 +156,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
-    public function testGetUuuidAfterPersist()
+    public function testGetUuuidAfterPersist(): void
     {
         $newUser = new UserWithUuid();
         $newUser->username = 'test';
@@ -175,7 +175,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($uuidPostPersist, $flushedUser->uuid);
     }
 
-    public function testExistingUuuid()
+    public function testExistingUuuid(): void
     {
         $testUuid = UuidHelper::generateUUID();
 
@@ -198,7 +198,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($testUuid, $flushedUser->uuid);
     }
 
-    public function testBadUuidSetting()
+    public function testBadUuidSetting(): void
     {
         $newUser = new UserWithUuid();
         $newUser->username = 'test';
@@ -209,7 +209,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->persist($newUser);
     }
 
-    public function testInsertWithCustomIdStrategy()
+    public function testInsertWithCustomIdStrategy(): void
     {
         $user = new User3();
         $user->username = 'test3';
@@ -227,7 +227,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
-    public function testMultivaluePropertyWithOnlyOneValueUpdatedToMultiValue()
+    public function testMultivaluePropertyWithOnlyOneValueUpdatedToMultiValue(): void
     {
         $user = new User();
         $user->numbers = [1];
@@ -249,7 +249,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($userNew->numbers, $userNew2->numbers);
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -262,7 +262,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-    public function testRemoveWithClear()
+    public function testRemoveWithClear(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -278,7 +278,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-    public function testRemoveWithPersist()
+    public function testRemoveWithPersist(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -292,7 +292,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testRemoveNoFlush()
+    public function testRemoveNoFlush(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -303,7 +303,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testRemoveAndInsertAfterFlush()
+    public function testRemoveAndInsertAfterFlush(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -326,7 +326,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
-    public function testRemoveAndReinsert()
+    public function testRemoveAndReinsert(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -347,7 +347,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $userNew->username);
     }
 
-    public function testRemoveAndInsertBeforeFlush()
+    public function testRemoveAndInsertBeforeFlush(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/user');
@@ -363,7 +363,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user);
     }
 
-    public function testUpdate1()
+    public function testUpdate1(): void
     {
         $user = new User();
         $user->username = 'test';
@@ -408,7 +408,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, []);
     }
 
-    public function testUpdate2()
+    public function testUpdate2(): void
     {
         $user = $this->dm->find($this->type, '/functional/user');
         $user->username = 'new-name';
@@ -420,7 +420,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals('new-name', $newUser->username);
     }
 
-    public function testInsertUpdateMultiple()
+    public function testInsertUpdateMultiple(): void
     {
         $user1 = $this->dm->find($this->type, '/functional/user');
         $user1->username = 'new-name';
@@ -450,7 +450,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals('test3', $pUser3->username);
     }
 
-    public function testNullRemovesTheProperty()
+    public function testNullRemovesTheProperty(): void
     {
         $user1 = $this->dm->find($this->type, '/functional/user');
         $user1->note = null;
@@ -462,7 +462,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertNull($user2->note);
     }
 
-    public function testNoIdProperty()
+    public function testNoIdProperty(): void
     {
         $functional = $this->dm->find(null, '/functional');
 
@@ -488,7 +488,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
-    public function testAutoId()
+    public function testAutoId(): void
     {
         $functional = $this->dm->find(null, '/functional');
 
@@ -505,7 +505,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($userNew->nodename, $user->nodename);
     }
 
-    public function testAssocProperty()
+    public function testAssocProperty(): void
     {
         $user = new User();
         $user->username = 'test';
@@ -549,7 +549,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->parameters, $assocArray);
     }
 
-    public function testAssocNumberProperty()
+    public function testAssocNumberProperty(): void
     {
         $user = new User();
         $user->username = 'test';
@@ -567,7 +567,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->assocNumbers, $assocArray);
     }
 
-    public function testVersionedDocument()
+    public function testVersionedDocument(): void
     {
         $user = new VersionTestObj();
         $user->username = 'test';
@@ -584,7 +584,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->numbers, $userNew->numbers);
     }
 
-    public function testDepth()
+    public function testDepth(): void
     {
         $object = new DepthMappingObject();
         $object->id = '/functional/test';
@@ -605,7 +605,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
      * Create a node with a bad name and explicitly persist it without
      * adding it to any parent's children collection.
      */
-    public function testIllegalNodename()
+    public function testIllegalNodename(): void
     {
         $functional = $this->dm->find(null, '/functional');
 
@@ -623,7 +623,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
      * Retrieve an existing node and try to move it by assigning it
      * an illegal name.
      */
-    public function testIllegalNodenameMove()
+    public function testIllegalNodenameMove(): void
     {
         $functional = $this->dm->find(null, '/functional');
 
@@ -640,7 +640,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testChangeset()
+    public function testChangeset(): void
     {
         $user = $this->node->getNode('user');
         // the property is not nullable, but this should only be checked on saving, not on loading

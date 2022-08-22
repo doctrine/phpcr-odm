@@ -29,7 +29,7 @@ class FixPHPCR1Test extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testCreateFromFile()
+    public function testCreateFromFile(): void
     {
         $parent = new FixPHPCR1TestObj();
         $parent->id = '/functional/filetest';

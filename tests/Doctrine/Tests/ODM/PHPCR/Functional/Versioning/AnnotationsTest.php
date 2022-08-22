@@ -37,7 +37,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     /**
      * Test the annotations pertaining to versioning are correctly loaded.
      */
-    public function testLoadAnnotations()
+    public function testLoadAnnotations(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
@@ -55,7 +55,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     /**
      * Test that using an invalid versionable annotation will not work.
      */
-    public function testLoadInvalidAnnotation()
+    public function testLoadInvalidAnnotation(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
@@ -66,7 +66,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     /**
      * Test that using the Version annotation on non-versionable documents will not work.
      */
-    public function testLoadInconsistentAnnotations()
+    public function testLoadInconsistentAnnotations(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
@@ -77,7 +77,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     /**
      * Check that persisting a node with the versionable type will add the correct mixin to the node.
      */
-    public function testAnnotationOnPersist()
+    public function testAnnotationOnPersist(): void
     {
         $repository = $this->dm->getPhpcrSession()->getRepository();
         if (!$repository->getDescriptor('option.versioning.supported')) {
@@ -110,7 +110,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
      *
      * @return NodeInterface
      */
-    private function createTestDocument($name, $class)
+    private function createTestDocument(string $name, string $class): NodeInterface
     {
         $this->removeTestNode($name);
 

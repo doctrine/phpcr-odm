@@ -15,7 +15,7 @@ class ConfigurationTest extends PHPCRTestCase
      * @covers \Doctrine\ODM\PHPCR\Configuration::getDocumentNamespace
      * @covers \Doctrine\ODM\PHPCR\Configuration::setDocumentNamespaces
      */
-    public function testDocumentNamespace()
+    public function testDocumentNamespace(): void
     {
         $config = new Configuration();
 

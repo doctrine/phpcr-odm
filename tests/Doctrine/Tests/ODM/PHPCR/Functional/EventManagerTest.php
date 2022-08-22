@@ -37,10 +37,10 @@ class EventManagerTest extends PHPCRFunctionalTestCase
     {
         $this->listener = new TestPersistenceListener();
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
-    public function testTriggerEvents()
+    public function testTriggerEvents(): void
     {
         $this->dm
             ->getEventManager()
@@ -147,7 +147,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->listener->itemPostRemove);
     }
 
-    public function testTriggerTranslationEvents()
+    public function testTriggerTranslationEvents(): void
     {
         $this->dm
             ->getEventManager()
@@ -246,7 +246,7 @@ class TestPersistenceListener
 
     public $postRemoveTranslation = false;
 
-    public function prePersist(LifecycleEventArgs $e)
+    public function prePersist(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -256,7 +256,7 @@ class TestPersistenceListener
         }
     }
 
-    public function postPersist(LifecycleEventArgs $e)
+    public function postPersist(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -266,7 +266,7 @@ class TestPersistenceListener
         }
     }
 
-    public function preUpdate(PreUpdateEventArgs $e)
+    public function preUpdate(PreUpdateEventArgs $e): void
     {
         $document = $e->getObject();
         if (!$document instanceof CmsPage) {
@@ -285,12 +285,12 @@ class TestPersistenceListener
         }
     }
 
-    public function postUpdate(LifecycleEventArgs $e)
+    public function postUpdate(LifecycleEventArgs $e): void
     {
         $this->postUpdate = true;
     }
 
-    public function preRemove(LifecycleEventArgs $e)
+    public function preRemove(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -300,7 +300,7 @@ class TestPersistenceListener
         }
     }
 
-    public function postRemove(LifecycleEventArgs $e)
+    public function postRemove(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -310,7 +310,7 @@ class TestPersistenceListener
         }
     }
 
-    public function preMove(MoveEventArgs $e)
+    public function preMove(MoveEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -320,7 +320,7 @@ class TestPersistenceListener
         }
     }
 
-    public function postMove(LifecycleEventArgs $e)
+    public function postMove(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -330,17 +330,17 @@ class TestPersistenceListener
         }
     }
 
-    public function onFlush(ManagerEventArgs $e)
+    public function onFlush(ManagerEventArgs $e): void
     {
         $this->onFlush = true;
     }
 
-    public function postFlush(ManagerEventArgs $e)
+    public function postFlush(ManagerEventArgs $e): void
     {
         $this->postFlush = true;
     }
 
-    public function endFlush(ManagerEventArgs $e)
+    public function endFlush(ManagerEventArgs $e): void
     {
         $this->endFlush = true;
         $dm = $e->getObjectManager();
@@ -350,27 +350,27 @@ class TestPersistenceListener
         $dm->flush();
     }
 
-    public function preFlush(ManagerEventArgs $e)
+    public function preFlush(ManagerEventArgs $e): void
     {
         $this->preFlush = true;
     }
 
-    public function preCreateTranslation(LifecycleEventArgs $e)
+    public function preCreateTranslation(LifecycleEventArgs $e): void
     {
         $this->preCreateTranslation = true;
     }
 
-    public function postLoadTranslation(LifecycleEventArgs $e)
+    public function postLoadTranslation(LifecycleEventArgs $e): void
     {
         $this->postLoadTranslation = true;
     }
 
-    public function preRemoveTranslation(LifecycleEventArgs $e)
+    public function preRemoveTranslation(LifecycleEventArgs $e): void
     {
         $this->preRemoveTranslation = true;
     }
 
-    public function postRemoveTranslation(LifecycleEventArgs $e)
+    public function postRemoveTranslation(LifecycleEventArgs $e): void
     {
         $this->postRemoveTranslation = true;
     }

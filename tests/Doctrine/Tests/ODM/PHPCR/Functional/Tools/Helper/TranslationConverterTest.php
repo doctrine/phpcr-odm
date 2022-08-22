@@ -57,7 +57,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * Also test batch functionality. The other tests don't cover batching.
      */
-    public function testTranslateAttribute()
+    public function testTranslateAttribute(): void
     {
         $this->converter = new TranslationConverter($this->dm, 1);
 
@@ -100,7 +100,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * Test when a document already had translated fields.
      */
-    public function testPartialTranslateAttribute()
+    public function testPartialTranslateAttribute(): void
     {
         $article = new Article();
         $article->id = '/functional/convert';
@@ -144,7 +144,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * To demonstrate what happens when the fields parameter is omitted.
      */
-    public function testPartialTranslateAttributeErase()
+    public function testPartialTranslateAttributeErase(): void
     {
         $article = new Article();
         $article->id = '/functional/convert';
@@ -185,7 +185,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertNull($article->getText());
     }
 
-    public function testTranslateChild()
+    public function testTranslateChild(): void
     {
         $class = ChildTranslationComment::class;
         $parentClass = TranslatedComment::class;
@@ -215,7 +215,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
     }
 
-    public function testTranslateAttributeToChild()
+    public function testTranslateAttributeToChild(): void
     {
         $class = ChildTranslationComment::class;
         $parentClass = TranslatedComment::class;
@@ -253,7 +253,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
     }
 
-    public function testUntranslateAttribute()
+    public function testUntranslateAttribute(): void
     {
         $class = BlogComment::class;
         $field = 'title';
@@ -294,7 +294,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * Just make one field of a document untranslated again.
      */
-    public function testPartialUntranslateAttribute()
+    public function testPartialUntranslateAttribute(): void
     {
         $article = new Article();
         $article->id = '/functional/convert';
@@ -344,7 +344,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum...', $article->getText());
     }
 
-    public function testUntranslateChild()
+    public function testUntranslateChild(): void
     {
         $class = BlogComment::class;
         $field = 'title';
@@ -382,7 +382,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * Just make one field of a document untranslated again.
      */
-    public function testPartialUntranslateChild()
+    public function testPartialUntranslateChild(): void
     {
         $article = new ChildTranslationArticle();
         $article->id = '/functional/convert';
@@ -434,7 +434,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * Pass parent document and check message.
      */
-    public function testTranslateStrict()
+    public function testTranslateStrict(): void
     {
         $this->converter = new TranslationConverter($this->dm);
 
@@ -455,7 +455,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertFalse($this->session->hasPendingChanges());
     }
 
-    public function testUntranslateMissingPrevious()
+    public function testUntranslateMissingPrevious(): void
     {
         $class = BlogComment::class;
         $this->expectException(InvalidArgumentException::class);
@@ -463,7 +463,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->converter->convert($class, ['en']);
     }
 
-    public function testUntranslateMissingFields()
+    public function testUntranslateMissingFields(): void
     {
         $class = BlogComment::class;
         $this->expectException(InvalidArgumentException::class);
@@ -474,7 +474,7 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
     /**
      * Converting to translated without specifying locales.
      */
-    public function testMissingLocales()
+    public function testMissingLocales(): void
     {
         $this->converter = new TranslationConverter($this->dm, 1);
         $class = TranslatedComment::class;

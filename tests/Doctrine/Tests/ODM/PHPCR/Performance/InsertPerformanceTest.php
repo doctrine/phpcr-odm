@@ -5,7 +5,6 @@ namespace Doctrine\Tests\ODM\PHPCR\Performance;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 
 class InsertPerformanceTest extends PHPCRFunctionalTestCase
 {
@@ -14,24 +13,14 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
-    /**
-     * @var int
-     */
-    private $count = 100;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
         $this->count = $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] ?? 100;
     }
 
-    public function testInsertDocuments()
+    public function testInsertDocuments(): void
     {
         if (extension_loaded('xdebug')) {
             $this->markTestSkipped('Performance-Testing with xdebug enabled makes no sense.');

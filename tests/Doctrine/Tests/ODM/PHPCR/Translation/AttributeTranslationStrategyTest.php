@@ -12,11 +12,6 @@ use PHPCR\PropertyInterface;
 class AttributeTranslationStrategyTest extends PHPCRTestCase
 {
     /**
-     * @var DocumentManager
-     */
-    private $dm;
-
-    /**
      * @var \ReflectionMethod
      */
     private $method;
@@ -28,9 +23,9 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createMock(DocumentManager::class);
+        $dm = $this->createMock(DocumentManager::class);
 
-        $this->strategy = new AttributeTranslationStrategy($this->dm);
+        $this->strategy = new AttributeTranslationStrategy($dm);
         $this->strategy->setPrefix('test');
 
         $class = new \ReflectionClass(AttributeTranslationStrategy::class);
@@ -38,19 +33,19 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
         $this->method->setAccessible(true);
     }
 
-    public function testSetPrefixAndGetPropertyName()
+    public function testSetPrefixAndGetPropertyName(): void
     {
         $name = $this->method->invokeArgs($this->strategy, ['fr', 'field']);
         $this->assertEquals('test:fr-field', $name);
     }
 
-    public function testSubRegion()
+    public function testSubRegion(): void
     {
         $name = $this->method->invokeArgs($this->strategy, ['en_GB', 'field']);
         $this->assertEquals('test:en_GB-field', $name);
     }
 
-    public function testGetLocalesFor()
+    public function testGetLocalesFor(): void
     {
         $classMetadata = $this->createMock(ClassMetadata::class);
 

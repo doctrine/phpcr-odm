@@ -24,7 +24,7 @@ class DumpQueryBuilderReferenceCommandTest extends TestCase
         $this->commandTester = new CommandTester($this->command);
     }
 
-    public function testCommand()
+    public function testCommand(): void
     {
         $this->commandTester->execute([]);
         $res = $this->commandTester->getDisplay();

@@ -9,6 +9,7 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
 use PHPCR\WorkspaceInterface;
 
@@ -27,11 +28,6 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     private $session;
 
     /**
-     * @var WorkspaceInterface
-     */
-    private $workspace;
-
-    /**
      * @var ClassMetadata
      */
     private $metadata;
@@ -40,7 +36,6 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     {
         $this->dm = $this->createDocumentManager();
         $this->session = $this->dm->getPhpcrSession();
-        $this->workspace = $this->dm->getPhpcrSession()->getWorkspace();
         $this->metadata = $this->dm->getClassMetadata(Article::class);
     }
 
@@ -53,7 +48,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public function testSaveTranslation()
+    public function testSaveTranslation(): void
     {
         // First save some translations
         $data = [];
@@ -88,7 +83,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum...', $node->getPropertyValue(self::propertyNameForLocale('fr', 'text')));
     }
 
-    public function testLoadTranslation()
+    public function testLoadTranslation(): void
     {
         // Create the node in the content repository
         $node = $this->getTestNode();
@@ -121,7 +116,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals([], $doc->getSettings());
     }
 
-    public function testSubRegionSaveTranslation()
+    public function testSubRegionSaveTranslation(): void
     {
         // First save some translations
         $data = [];
@@ -161,7 +156,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals(['en', 'en_US'], $locales);
     }
 
-    public function testSubRegionLoadTranslation()
+    public function testSubRegionLoadTranslation(): void
     {
         // Create the node in the content repository
         $node = $this->getTestNode();
@@ -194,7 +189,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertEquals([], $doc->getSettings());
     }
 
-    public function testLoadTranslationNotNullable()
+    public function testLoadTranslationNotNullable(): void
     {
         // Create the node in the content repository
         $node = $this->getTestNode();
@@ -214,7 +209,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
      *
      * If either load or save fail fix that first, as this test uses both.
      */
-    public function testTranslationNullProperties()
+    public function testTranslationNullProperties(): void
     {
         // First save some translations
         $data = [];
@@ -263,7 +258,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         ], $nullFields);
     }
 
-    public function testRemoveTranslation()
+    public function testRemoveTranslation(): void
     {
         // First save some translations
         $data = [];
@@ -302,7 +297,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
     /**
      * @depends testRemoveTranslation
      */
-    public function testRemoveTranslationSubLocale()
+    public function testRemoveTranslationSubLocale(): void
     {
         // First save some translations
         $data = [];
@@ -338,7 +333,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertTrue($node->hasProperty(self::propertyNameForLocale('en', 'text')));
     }
 
-    public function testGetLocalesFor()
+    public function testGetLocalesFor(): void
     {
         $node = $this->getTestNode();
         $node->setProperty(self::propertyNameForLocale('en', 'topic'), 'English topic');
@@ -361,7 +356,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         $this->assertContains('de', $locales);
     }
 
-    protected function getTestNode()
+    protected function getTestNode(): NodeInterface
     {
         $this->removeTestNode();
         $node = $this->session->getRootNode()->addNode($this->testNodeName);
@@ -372,7 +367,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         return $node;
     }
 
-    protected function removeTestNode()
+    protected function removeTestNode(): void
     {
         if (!$this->session) {
             return;
@@ -384,7 +379,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public static function propertyNameForLocale($locale, $property)
+    public static function propertyNameForLocale($locale, $property): string
     {
         return Translation::LOCALE_NAMESPACE.':'.$locale.'-'.$property;
     }
@@ -394,7 +389,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
      * So if it's an boolean, all your array will be set to true
      * The Array has to be an array of string.
      */
-    public function testTranslationArrayProperties()
+    public function testTranslationArrayProperties(): void
     {
         // First save some translations
         $data = [];
@@ -458,7 +453,7 @@ class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
         ], $doc->customNameSettings);
     }
 
-    public function testQueryBuilder()
+    public function testQueryBuilder(): void
     {
         $strategy = new AttributeTranslationStrategy($this->dm);
         $this->dm->setTranslationStrategy('attribute', $strategy);

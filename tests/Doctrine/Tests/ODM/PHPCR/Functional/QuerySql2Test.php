@@ -28,12 +28,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
      */
     private $type = QuerySql2TestObj::class;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
-    public function queryStatements()
+    public function queryStatements(): array
     {
         return [
             ['SELECT username FROM [nt:unstructured] WHERE ISCHILDNODE("/functional")', 5],
@@ -45,7 +40,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
         ];
     }
 
-    public function queryRepositoryStatements()
+    public function queryRepositoryStatements(): array
     {
         return [
             ['SELECT username FROM [nt:unstructured] AS a WHERE ISCHILDNODE(a, "/functional")', 4],
@@ -60,29 +55,29 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $node = $this->resetFunctionalNode($this->dm);
 
-        $versionNode = $this->node->addNode('node1', 'nt:unstructured');
+        $versionNode = $node->addNode('node1', 'nt:unstructured');
         $versionNode->setProperty('username', 'dbu');
         $versionNode->setProperty('numbers', [3, 1, 2]);
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node2', 'nt:unstructured');
+        $versionNode = $node->addNode('node2', 'nt:unstructured');
         $versionNode->setProperty('username', 'johannes');
         $versionNode->setProperty('numbers', [3, 1, 2]);
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node3', 'nt:unstructured');
+        $versionNode = $node->addNode('node3', 'nt:unstructured');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', [3, 1, 2]);
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node4', 'nt:unstructured');
+        $versionNode = $node->addNode('node4', 'nt:unstructured');
         $versionNode->setProperty('username', 'uwe');
         $versionNode->setProperty('numbers', [3, 1, 2]);
         $versionNode->setProperty('phpcr:class', $this->type);
 
-        $versionNode = $this->node->addNode('node5', 'nt:unstructured');
+        $versionNode = $node->addNode('node5', 'nt:unstructured');
         $versionNode->setProperty('numbers', [3, 1, 2]);
 
         $this->dm->getPhpcrSession()->save();
@@ -92,9 +87,9 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
     /**
      * @dataProvider queryStatements
      */
-    public function testQuery($statement, $rowCount)
+    public function testQuery($statement, $rowCount): void
     {
-        if (-1 == $rowCount) {
+        if (-1 === $rowCount) {
             // magic to tell this is an invalid query
             $this->expectException(InvalidQueryException::class);
         }
@@ -108,9 +103,9 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
     /**
      * @dataProvider queryRepositoryStatements
      */
-    public function testRepositoryQuery($statement, $rowCount)
+    public function testRepositoryQuery($statement, $rowCount): void
     {
-        if (-1 == $rowCount) {
+        if (-1 === $rowCount) {
             // magic to tell this is an invalid query
             $this->expectException(InvalidQueryException::class);
         }
@@ -124,7 +119,7 @@ class QuerySql2Test extends PHPCRFunctionalTestCase
         $this->assertCount($rowCount, $result);
     }
 
-    public function testQueryLimit()
+    public function testQueryLimit(): void
     {
         $query = $this->dm->createPhpcrQuery(
             'SELECT * FROM [nt:unstructured] WHERE ISCHILDNODE("/functional") ORDER BY username',

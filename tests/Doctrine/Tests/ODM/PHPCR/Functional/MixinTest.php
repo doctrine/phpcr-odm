@@ -20,25 +20,17 @@ class MixinTest extends PHPCRFunctionalTestCase
     private $dm;
 
     /**
-     * Class name of the document class.
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
      * @var NodeInterface
      */
     private $node;
 
     public function setUp(): void
     {
-        $this->type = MixinMappingObject::class;
         $this->dm = $this->createDocumentManager();
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testMixin()
+    public function testMixin(): void
     {
         $mixin = new MixinMappingObject();
         $mixin->id = '/functional/mixin';
@@ -66,7 +58,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->assertEquals($lastModified, $mixin->lastModified);
     }
 
-    public function testProtectedPropertyIsCreatedAndNotChanged()
+    public function testProtectedPropertyIsCreatedAndNotChanged(): void
     {
         $test = new TestObject();
         $test->id = '/functional/protected';
@@ -87,7 +79,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->assertEquals('changed', $this->node->getNode('protected')->getProperty('change_me')->getString());
     }
 
-    public function testChangingProtectedPropertyThrowsException()
+    public function testChangingProtectedPropertyThrowsException(): void
     {
         $test = new TestObject();
         $test->id = '/functional/protected';
@@ -105,7 +97,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testChangingProtectedPropertyToNullThrowsException()
+    public function testChangingProtectedPropertyToNullThrowsException(): void
     {
         $test = new TestObject();
         $test->id = '/functional/protected';

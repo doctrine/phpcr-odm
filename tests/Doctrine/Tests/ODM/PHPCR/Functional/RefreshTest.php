@@ -20,11 +20,11 @@ class RefreshTest extends PHPCRFunctionalTestCase
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
         $this->dm->getPhpcrSession()->save();
     }
 
-    public function testBasicRefresh()
+    public function testBasicRefresh(): void
     {
         $user = new CmsUser();
         $user->id = '/functional/Guilherme';
@@ -40,7 +40,7 @@ class RefreshTest extends PHPCRFunctionalTestCase
         $this->assertEquals('gblanco', $user->username);
     }
 
-    public function testRefreshResetsCollection()
+    public function testRefreshResetsCollection(): void
     {
         $user = new CmsUser();
         $user->id = '/functional/Guilherme';
@@ -70,7 +70,7 @@ class RefreshTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $user->groups);
     }
 
-    public function testRefreshProxy()
+    public function testRefreshProxy(): void
     {
         $parent = new ParentTestObj();
         $parent->id = '/functional/parent';
@@ -92,7 +92,7 @@ class RefreshTest extends PHPCRFunctionalTestCase
         $this->assertEquals('parent', $child->parent->name);
     }
 
-    public function testRefreshDetached()
+    public function testRefreshDetached(): void
     {
         $user = new CmsUser();
         $user->id = '/functional/Guilherme';
@@ -102,7 +102,7 @@ class RefreshTest extends PHPCRFunctionalTestCase
         $this->dm->refresh($user);
     }
 
-    public function testRefreshCollection()
+    public function testRefreshCollection(): void
     {
         $user = new CmsUser();
         $user->id = '/functional/Guilherme';
