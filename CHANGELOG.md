@@ -22,6 +22,9 @@ Changelog
 
 * Allow using `doctrine/persistence`
 
+1.x
+===
+
 1.6.0
 -----
 

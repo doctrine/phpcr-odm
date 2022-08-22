@@ -4,11 +4,11 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\Tests\Models\Blog\Comment;
 use Doctrine\Tests\Models\Blog\Post;
 use Doctrine\Tests\Models\Blog\User as BlogUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 use PHPCR\Util\NodeHelper;
 
 /**
@@ -21,15 +21,10 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
         $session = $this->dm->getPhpcrSession();
 
         // comment
@@ -100,12 +95,12 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    protected function createQb()
+    protected function createQb(): QueryBuilder
     {
         return $this->dm->createQueryBuilder();
     }
 
-    public function testFrom()
+    public function testFrom(): void
     {
         $qb = $this->createQb();
         $qb->from()->document(BlogUser::class, 'a');
@@ -117,7 +112,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $res);
     }
 
-    public function testFromWithAlias()
+    public function testFromWithAlias(): void
     {
         $config = $this->dm->getConfiguration();
         $config->addDocumentNamespace('Foobar', 'Doctrine\Tests\Models\Blog');
@@ -133,7 +128,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @depends testFrom
      */
-    public function testComparison()
+    public function testComparison(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -158,7 +153,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $res);
     }
 
-    public function testComposite()
+    public function testComposite(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -230,7 +225,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @depends testFrom
      */
-    public function testOrderBy()
+    public function testOrderBy(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -251,7 +246,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @depends testFrom
      */
-    public function testOrderByNonSimpleField()
+    public function testOrderByNonSimpleField(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -275,7 +270,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         return $values;
     }
 
-    public function testSelect()
+    public function testSelect(): void
     {
         // select one property
         $qb = $this->createQb();
@@ -357,7 +352,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @depends testFrom
      */
-    public function getTextSearches()
+    public function getTextSearches(): array
     {
         return [
             ['name', 'johnsmith', 2],
@@ -368,7 +363,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @dataProvider getTextSearches
      */
-    public function testTextSearch($field, $search, $resCount)
+    public function testTextSearch($field, $search, $resCount): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -383,7 +378,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @depends testFrom
      */
-    public function testDescendant()
+    public function testDescendant(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -396,7 +391,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
     /**
      * @depends testFrom
      */
-    public function testSameNode()
+    public function testSameNode(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'a');
@@ -407,7 +402,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $res);
     }
 
-    public function testConditionWithNonExistingAlias()
+    public function testConditionWithNonExistingAlias(): void
     {
         $qb = $this->createQb();
         $qb->from('a')->document(BlogUser::class, 'b');
@@ -418,7 +413,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->getQuery();
     }
 
-    public function testConditionWithStaticLiteralOfDifferentType()
+    public function testConditionWithStaticLiteralOfDifferentType(): void
     {
         $user = new BlogUser();
         $user->id = '/functional/user/old';

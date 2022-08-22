@@ -33,7 +33,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $class->mappings['user']['cascade'] = ClassMetadata::CASCADE_PERSIST;
     }
 
-    public function testCascadePersistCollection()
+    public function testCascadePersistCollection(): void
     {
         $group1 = new CmsGroup();
         $group1->name = 'Test!';
@@ -61,7 +61,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $pUser->groups);
     }
 
-    public function testCascadePersistForManagedDocument()
+    public function testCascadePersistForManagedDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -91,7 +91,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $pUser->groups);
     }
 
-    public function testCascadePersistSingleDocument()
+    public function testCascadePersistSingleDocument(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -114,7 +114,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->id, $article->user->getId());
     }
 
-    public function testCascadeManagedDocumentCollectionDuringFlush()
+    public function testCascadeManagedDocumentCollectionDuringFlush(): void
     {
         $user = new CmsUser();
         $user->username = 'beberlei';
@@ -145,7 +145,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->assertCount(2, $pUser->groups);
     }
 
-    public function testCascadeManagedDocumentReferenceDuringFlush()
+    public function testCascadeManagedDocumentReferenceDuringFlush(): void
     {
         $article = new CmsArticle();
         $article->text = 'foo';
@@ -168,7 +168,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->id, $article->user->getId());
     }
 
-    public function testCascadeManagedDocumentReferrerDuringFlush()
+    public function testCascadeManagedDocumentReferrerDuringFlush(): void
     {
         $user = new CmsUser();
         $user->username = 'dbu';
@@ -191,7 +191,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->find(CmsUser::class, '/functional/dbu');
         $this->assertNotNull($user);
-        $this->assertGreaterThanOrEqual(1, count($user->articlesReferrers));
+        $this->assertNotEmpty($user->articlesReferrers);
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf(CmsArticle::class, $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);
@@ -209,7 +209,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
      * using a plain array instead of an ArrayCollection to be sure sloppy
      * initialization by a user does not lead to issues.
      */
-    public function testCascadeManagedDocumentReferrerDuringFlushArray()
+    public function testCascadeManagedDocumentReferrerDuringFlushArray(): void
     {
         $user = new CmsUser();
         $user->username = 'dbu';
@@ -230,13 +230,13 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->find(CmsUser::class, '/functional/dbu');
         $this->assertNotNull($user);
-        $this->assertGreaterThanOrEqual(1, count($user->articlesReferrers));
+        $this->assertNotEmpty($user->articlesReferrers);
         $savedArticle = $user->articlesReferrers->first();
         $this->assertInstanceOf(CmsArticle::class, $savedArticle);
         $this->assertEquals($article->id, $savedArticle->id);
     }
 
-    public function testCascadeReferenceArray()
+    public function testCascadeReferenceArray(): void
     {
         $article = new CmsArticle();
         $article->text = 'foo';
@@ -249,7 +249,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->persist($article);
     }
 
-    public function testCascadeReferenceNoObject()
+    public function testCascadeReferenceNoObject(): void
     {
         $article = new CmsArticle();
         $article->text = 'foo';
@@ -262,7 +262,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->persist($article);
     }
 
-    public function testCascadeReferenceManyNoArray()
+    public function testCascadeReferenceManyNoArray(): void
     {
         $user = new CmsUser();
         $user->name = 'foo';
@@ -275,7 +275,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->persist($user);
     }
 
-    public function testCascadeReferenceManyNoObject()
+    public function testCascadeReferenceManyNoObject(): void
     {
         $user = new CmsUser();
         $user->name = 'foo';
@@ -291,7 +291,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
     /**
      * Test Referrers ManyToMany cascade Flush.
      */
-    public function testCascadeManagedDocumentReferrerMtoMDuringFlush()
+    public function testCascadeManagedDocumentReferrerMtoMDuringFlush(): void
     {
         $article1 = new CmsArticle();
         $article1->text = 'foo';
@@ -325,8 +325,8 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->refresh($superman);
 
-        $this->assertEquals(1, $article1->getPersons()->count());
-        $this->assertEquals(2, $superman->getArticlesReferrers()->count());
+        $this->assertCount(1, $article1->getPersons());
+        $this->assertCount(2, $superman->getArticlesReferrers());
 
         $this->dm->clear();
     }

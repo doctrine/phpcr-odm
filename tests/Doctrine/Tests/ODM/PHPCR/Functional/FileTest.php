@@ -29,7 +29,7 @@ class FileTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testCreateFromFile()
+    public function testCreateFromFile(): void
     {
         $parent = new FileTestObj();
         $parent->file = new File();
@@ -45,7 +45,7 @@ class FileTest extends PHPCRFunctionalTestCase
         $this->assertTrue($this->node->getNode('filetest')->getNode('file')->getNode('jcr:content')->hasProperty('jcr:data'));
     }
 
-    public function testCreateFromString()
+    public function testCreateFromString(): void
     {
         $parent = new FileTestObj();
         $parent->file = new File();
@@ -65,7 +65,7 @@ class FileTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Lorem ipsum dolor sit amet', $content);
     }
 
-    public function testCreatedDate()
+    public function testCreatedDate(): void
     {
         $parent = new FileTestObj();
         $parent->file = new File();

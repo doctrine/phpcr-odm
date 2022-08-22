@@ -31,7 +31,7 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
      *
      * @doesNotPerformAssertions
      */
-    public function testParentWithPrivatePropertyMapping()
+    public function testParentWithPrivatePropertyMapping(): void
     {
     }
 }

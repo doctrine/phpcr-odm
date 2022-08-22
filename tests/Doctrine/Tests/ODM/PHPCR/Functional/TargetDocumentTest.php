@@ -7,7 +7,6 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\Models\References\RefType1TestObj;
 use Doctrine\Tests\Models\References\RefType2TestObj;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 
 /**
  * @group functional
@@ -19,18 +18,13 @@ class TargetDocumentTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
-    public function testReferenceManyDifferentTargetDocuments()
+    public function testReferenceManyDifferentTargetDocuments(): void
     {
         $ref1 = new RefType1TestObj();
         $ref1->id = '/functional/ref1';
@@ -56,7 +50,7 @@ class TargetDocumentTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(RefType2TestObj::class, $referer->references[1]);
     }
 
-    public function testReferenceOneDifferentTargetDocuments()
+    public function testReferenceOneDifferentTargetDocuments(): void
     {
         $ref1 = new RefType1TestObj();
         $ref1->id = '/functional/ref1';

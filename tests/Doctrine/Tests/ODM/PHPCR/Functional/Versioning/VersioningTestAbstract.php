@@ -38,11 +38,6 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
      */
     private $typeReference;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->typeReference = ReferenceTestObj::class;
@@ -54,22 +49,22 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
             $this->markTestSkipped('PHPCR repository does not support versioning');
         }
 
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $node = $this->resetFunctionalNode($this->dm);
 
-        $versionNode = $this->node->addNode('versionTestObj');
+        $versionNode = $node->addNode('versionTestObj');
         $versionNode->setProperty('username', 'lsmith');
         $versionNode->setProperty('numbers', [3, 1, 2]);
         $versionNode->setProperty('phpcr:class', $this->typeVersion);
         $versionNode->addMixin('mix:versionable');
 
-        $referenceNode = $this->node->addNode('referenceTestObj');
+        $referenceNode = $node->addNode('referenceTestObj');
         $referenceNode->setProperty('content', 'reference test');
         $referenceNode->setProperty('phpcr:class', $this->typeReference);
         $referenceNode->addMixin('mix:referenceable');
 
         $this->dm->getPhpcrSession()->save();
 
-        $versionNodeWithReference = $this->node->addNode('versionTestObjWithReference');
+        $versionNodeWithReference = $node->addNode('versionTestObjWithReference');
         $versionNodeWithReference->setProperty('username', 'laupifrpar');
         $versionNodeWithReference->setProperty('numbers', [6, 4, 5]);
         $versionNodeWithReference->setProperty('reference', $referenceNode);
@@ -79,7 +74,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->dm = $this->createDocumentManager();
     }
 
-    public function testCheckinOnNonVersionableNode()
+    public function testCheckinOnNonVersionableNode(): void
     {
         $contentNode = $this->dm->find(
             $this->typeReference,
@@ -91,7 +86,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->dm->checkin($contentNode);
     }
 
-    public function testMergeVersionable()
+    public function testMergeVersionable(): void
     {
         $versionableArticle = new FullVersionableArticle();
         $versionableArticle->setText('very interesting content');
@@ -109,7 +104,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->assertEquals('v2', $mergedVersionableArticle->versionName);
     }
 
-    public function testCheckin()
+    public function testCheckin(): void
     {
         $user = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkin($user);
@@ -121,7 +116,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         //$this->assertFalse($user->node->getPropertyValue('jcr:isCheckedOut'));
     }
 
-    public function testCheckout()
+    public function testCheckout(): void
     {
         $user = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkin($user);
@@ -131,7 +126,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->markTestIncomplete('this test has no assertions');
     }
 
-    public function testRestoreVersion()
+    public function testRestoreVersion(): void
     {
         $user = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkpoint($user);
@@ -151,7 +146,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->assertEquals('lsmith', $user->username);
     }
 
-    public function testGetAllLinearVersions()
+    public function testGetAllLinearVersions(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
 
@@ -179,7 +174,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     /**
      * Test it's not possible to get a version of a non-versionable document.
      */
-    public function testFindVersionByNameNotVersionable()
+    public function testFindVersionByNameNotVersionable(): void
     {
         $session = $this->dm->getPhpcrSession();
         $node = $session->getNode('/functional')->addNode('noVersionTestObj');
@@ -193,13 +188,13 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     /**
      * Test that trying to read a non existing version fails.
      */
-    public function testFindVersionByNameVersionDoesNotExist()
+    public function testFindVersionByNameVersionDoesNotExist(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', 'whatever');
     }
 
-    public function testFindVersionByName()
+    public function testFindVersionByName(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
@@ -218,7 +213,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->assertTrue(time() - $frozenDocument->versionCreated->getTimestamp() < 100);
     }
 
-    public function testFindVersionByNameWithReference()
+    public function testFindVersionByNameWithReference(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObjWithReference');
         $this->dm->checkpoint($doc); // Create a new version 1.0
@@ -239,7 +234,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->assertNull($frozenDocument->reference);
     }
 
-    public function testPersistVersionError()
+    public function testPersistVersionError(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
@@ -257,7 +252,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     /**
      * The version is detached and not tracked anymore.
      */
-    public function testModifyVersion()
+    public function testModifyVersion(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
@@ -279,7 +274,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     /**
      * Check we cannot remove the last version of a document (since it's the current version).
      */
-    public function testRemoveLastVersion()
+    public function testRemoveLastVersion(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
@@ -298,7 +293,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     /**
      * Check we cannot remove the root version of a document.
      */
-    public function testRemoveRootVersion()
+    public function testRemoveRootVersion(): void
     {
         $doc = $this->dm->find($this->typeVersion, '/functional/versionTestObj');
         $this->dm->checkpoint($doc);
@@ -343,7 +338,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
      *
      * @depends testRemoveVersion
      */
-    public function testDeletedVersionDoesNotExistAnymore($lastVersionName)
+    public function testDeletedVersionDoesNotExistAnymore($lastVersionName): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->findVersionByName($this->typeVersion, '/functional/versionTestObj', $lastVersionName);
@@ -353,7 +348,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
      * Try to access the children of a specific version of a document and assert they
      * are hydrated properly.
      */
-    public function testUnversionedChildrenOnParentVersion()
+    public function testUnversionedChildrenOnParentVersion(): void
     {
         $versionableArticle = new FullVersionableArticleWithChildren();
         $versionableArticle->author = 'mellowplace';

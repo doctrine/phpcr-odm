@@ -25,11 +25,11 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::find
      */
-    public function testFind()
+    public function testFind(): void
     {
         $fakeUuid = UUIDHelper::generateUUID();
         $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+        $session->expects($this->once())->method('getNodeByIdentifier')->willThrowException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid)));
         $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
@@ -42,11 +42,11 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::findTranslation
      */
-    public function testFindTranslation()
+    public function testFindTranslation(): void
     {
         $fakeUuid = UUIDHelper::generateUUID();
         $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())->method('getNodeByIdentifier')->will($this->throwException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid))));
+        $session->expects($this->once())->method('getNodeByIdentifier')->willThrowException(new ItemNotFoundException(sprintf('403: %s', $fakeUuid)));
         $config = new Configuration();
 
         $dm = DocumentManager::create($session, $config);
@@ -60,7 +60,7 @@ class DocumentManagerTest extends PHPCRTestCase
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::create
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::getConfiguration
      */
-    public function testNewInstanceFromConfiguration()
+    public function testNewInstanceFromConfiguration(): void
     {
         $session = $this->createMock(SessionInterface::class);
         $config = new Configuration();
@@ -74,7 +74,7 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::getMetadataFactory
      */
-    public function testGetMetadataFactory()
+    public function testGetMetadataFactory(): void
     {
         $session = $this->createMock(SessionInterface::class);
 
@@ -86,7 +86,7 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::getClassMetadata
      */
-    public function testGetClassMetadataFor()
+    public function testGetClassMetadataFor(): void
     {
         $session = $this->createMock(SessionInterface::class);
 
@@ -101,7 +101,7 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::contains
      */
-    public function testContains()
+    public function testContains(): void
     {
         $session = $this->createMock(SessionInterface::class);
 
@@ -121,7 +121,7 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::getRepository
      */
-    public function testGetRepository()
+    public function testGetRepository(): void
     {
         $session = $this->createMock(SessionInterface::class);
 
@@ -137,7 +137,7 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::escapeFullText
      */
-    public function testEscapeFullText()
+    public function testEscapeFullText(): void
     {
         $session = $this->createMock(SessionInterface::class);
 
@@ -150,7 +150,7 @@ class DocumentManagerTest extends PHPCRTestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\DocumentManager::createQueryBuilder
      */
-    public function testCreateQueryBuilder()
+    public function testCreateQueryBuilder(): void
     {
         $session = $this->createMock(SessionInterface::class);
         $workspace = $this->createMock(WorkspaceInterface::class);
@@ -159,13 +159,13 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $session->expects($this->once())
             ->method('getWorkspace')
-            ->will($this->returnValue($workspace));
+            ->willReturn($workspace);
         $workspace->expects($this->once())
             ->method('getQueryManager')
-            ->will($this->returnValue($queryManager));
+            ->willReturn($queryManager);
         $queryManager->expects($this->once())
             ->method('getQOMFactory')
-            ->will($this->returnValue($qomf));
+            ->willReturn($qomf);
 
         $dm = DocumentManager::create($session);
         $qb = $dm->createQueryBuilder();
@@ -206,10 +206,8 @@ class DocumentManagerGetClassMetadata extends DocumentManager
 
     /**
      * @param string $class
-     *
-     * @return ClassMetadata
      */
-    public function getClassMetadata($class)
+    public function getClassMetadata($class): ClassMetadata
     {
         ++$this->callCount;
         $metadata = new ClassMetadata('stdClass');
@@ -222,7 +220,6 @@ class DocumentManagerGetClassMetadata extends DocumentManager
                 break;
             default:
                 throw new \Exception('getClassMetadata called more than 2 times');
-                break;
         }
 
         return $metadata;

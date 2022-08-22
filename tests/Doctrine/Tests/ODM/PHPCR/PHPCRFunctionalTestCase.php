@@ -9,6 +9,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Jackalope\RepositoryFactoryDoctrineDBAL;
 use Jackalope\RepositoryFactoryJackrabbit;
+use PHPCR\NodeInterface;
 use PHPCR\RepositoryFactoryInterface;
 use PHPCR\SessionInterface;
 use PHPCR\SimpleCredentials;
@@ -21,19 +22,17 @@ abstract class PHPCRFunctionalTestCase extends TestCase
      */
     private $sessions = [];
 
-    public function createDocumentManager(array $paths = null)
+    public function createDocumentManager(array $paths = null): DocumentManager
     {
-        $reader = new AnnotationReader();
         AnnotationReader::addGlobalIgnoredName('group');
 
         if (empty($paths)) {
             $paths = [__DIR__.'/../../Models'];
         }
 
-        $metaDriver = new AnnotationDriver($reader, $paths);
+        $metaDriver = new AnnotationDriver(new AnnotationReader(), $paths);
 
-        $factoryclass = $GLOBALS['DOCTRINE_PHPCR_FACTORY']
-            ?? RepositoryFactoryJackrabbit::class;
+        $factoryclass = $GLOBALS['DOCTRINE_PHPCR_FACTORY'] ?? RepositoryFactoryJackrabbit::class;
 
         if (RepositoryFactoryDoctrineDBAL::class === ltrim($factoryclass, '\\')) {
             $params = [];
@@ -71,7 +70,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
         return DocumentManager::create($session, $config);
     }
 
-    public function resetFunctionalNode(DocumentManager $dm)
+    public function resetFunctionalNode(DocumentManager $dm): NodeInterface
     {
         $session = $dm->getPhpcrSession();
         $root = $session->getNode('/');

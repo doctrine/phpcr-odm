@@ -6,7 +6,6 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Jackalope\Session;
-use PHPCR\NodeInterface;
 use PHPCR\NodeType\ConstraintViolationException;
 use PHPCR\UnsupportedRepositoryOperationException;
 
@@ -21,22 +20,10 @@ class ProtectedPropertyTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * Class name of the document class.
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
 
         $session = $this->dm->getPhpcrSession();
         if (!$session instanceof Session) {
@@ -67,7 +54,7 @@ CND;
         }
     }
 
-    public function testPersistDocumentWithReferenceAndProtectedProperty()
+    public function testPersistDocumentWithReferenceAndProtectedProperty(): void
     {
         $object = new ProtectedPropertyTestObj();
         $object->id = '/functional/pp';
@@ -83,7 +70,7 @@ CND;
         $this->assertTrue(true);
     }
 
-    public function testPersistDocumentWithSeveralReferencesAndProtectedProperty()
+    public function testPersistDocumentWithSeveralReferencesAndProtectedProperty(): void
     {
         $object = new ProtectedPropertyTestObj2();
         $object->id = '/functional/pp';
@@ -99,7 +86,7 @@ CND;
         $this->assertTrue(true);
     }
 
-    public function testModificationWithProtectedProperty()
+    public function testModificationWithProtectedProperty(): void
     {
         $object = new ProtectedPropertyTestObj();
         $object->id = '/functional/pp';

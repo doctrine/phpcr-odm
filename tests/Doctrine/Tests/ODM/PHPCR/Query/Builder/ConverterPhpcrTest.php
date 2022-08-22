@@ -33,12 +33,12 @@ use PHPUnit\Framework\TestCase;
 class ConverterPhpcrTest extends TestCase
 {
     /**
-     * @var AbstractNode|MockObject
+     * @var AbstractNode&MockObject
      */
     private $parentNode;
 
     /**
-     * @var FactoryInterface|MockObject
+     * @var FactoryInterface&MockObject
      */
     private $qomfFactory;
 
@@ -68,22 +68,22 @@ class ConverterPhpcrTest extends TestCase
 
         $mdf = $this->createMock(ClassMetadataFactory::class);
 
-        $mdf->expects($this->any())
+        $mdf
             ->method('getMetadataFor')
-            ->will($this->returnCallback(function ($documentFqn) use ($me) {
+            ->willReturnCallback(function ($documentFqn) use ($me) {
                 $meta = $me->createMock(ClassMetadata::class);
 
                 if ('_document_not_mapped_' === $documentFqn) {
                     return $meta;
                 }
 
-                $meta->expects($me->any())
+                $meta
                     ->method('hasField')
-                    ->will($me->returnValue(true));
+                    ->willReturn(true);
 
-                $meta->expects($me->any())
+                $meta
                     ->method('getFieldMapping')
-                    ->will($me->returnCallback(function ($name) {
+                    ->willReturnCallback(function ($name) {
                         $res = [
                             'fieldName' => $name,
                             'property' => $name.'_phpcr',
@@ -91,42 +91,38 @@ class ConverterPhpcrTest extends TestCase
                         ];
 
                         return $res;
-                    }));
+                    });
 
-                $meta->expects($me->any())
+                $meta
                     ->method('getNodeType')
-                    ->will($me->returnValue('nt:unstructured'));
+                    ->willReturn('nt:unstructured');
 
-                $meta->expects($me->any())
+                $meta
                     ->method('getName')
-                    ->will($me->returnValue($documentFqn));
+                    ->willReturn($documentFqn);
 
-                $meta->expects($me->any())
+                $meta
                     ->method('hasAssociation')
-                    ->will($me->returnCallback(function ($field) {
-                        if ('associationfield' === $field) {
-                            return true;
-                        }
-
-                        return false;
-                    }));
+                    ->willReturnCallback(function ($field) {
+                        return 'associationfield' === $field;
+                    });
 
                 $meta->nodename = 'nodenameProperty';
                 $meta->name = 'MyClassName';
 
                 return $meta;
-            }));
+            });
 
         /** @var DocumentManager|MockObject $dm */
         $dm = $this->createMock(DocumentManager::class);
 
         $dm->expects($this->once())
             ->method('getMetadataFactory')
-            ->will($this->returnValue($mdf));
+            ->willReturn($mdf);
 
-        $dm->expects($this->any())
+        $dm
             ->method('getLocaleChooserStrategy')
-            ->will($this->throwException(new InvalidArgumentException('')));
+            ->willThrowException(new InvalidArgumentException(''));
 
         $this->parentNode = $this->createMock(AbstractNode::class);
 
@@ -140,7 +136,7 @@ class ConverterPhpcrTest extends TestCase
      * Return a builder with a source, as a alias is required for
      * all methods.
      */
-    protected function primeBuilder()
+    protected function primeBuilder(): void
     {
         $from = $this->qb->from('alias_1')->document('foobar', 'alias_1');
         $this->converter->dispatch($from);
@@ -156,7 +152,7 @@ class ConverterPhpcrTest extends TestCase
         return $refl->newInstanceArgs($constructorArgs);
     }
 
-    public function testDispatchFrom()
+    public function testDispatchFrom(): void
     {
         $from = $this->createNode('From', []);
         $source = $this->createNode('SourceDocument', [
@@ -172,7 +168,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertEquals('alias', $res->getSelectorName());
     }
 
-    public function testDispatchFromNonMapped()
+    public function testDispatchFromNonMapped(): void
     {
         $from = $this->createNode('From', []);
         $source = $this->createNode('SourceDocument', [
@@ -186,7 +182,7 @@ class ConverterPhpcrTest extends TestCase
         $this->converter->dispatch($from);
     }
 
-    public function provideDispatchWheres()
+    public function provideDispatchWheres(): array
     {
         return [
             ['And'],
@@ -200,7 +196,7 @@ class ConverterPhpcrTest extends TestCase
      * @depends testDispatchFrom
      * @dataProvider provideDispatchWheres
      */
-    public function testDispatchWheres($logicalOp, $skipOriginalWhere = false)
+    public function testDispatchWheres($logicalOp, $skipOriginalWhere = false): void
     {
         $this->primeBuilder();
 
@@ -235,7 +231,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertEquals('barfoo_phpcr', $res->getConstraint2()->getPropertyName());
     }
 
-    public function provideDispatchFromJoin()
+    public function provideDispatchFromJoin(): array
     {
         return [
             // join types
@@ -254,7 +250,7 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @dataProvider provideDispatchFromJoin
      */
-    public function testDispatchFromJoin($method, $type, $joinCond = null)
+    public function testDispatchFromJoin($method, $type, $joinCond = null): void
     {
         $this->markTestSkipped('Joins temporarily disabled');
 
@@ -295,7 +291,7 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @depends testDispatchFrom
      */
-    public function testDispatchSelect()
+    public function testDispatchSelect(): void
     {
         $this->primeBuilder();
 
@@ -322,7 +318,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertEquals('prop_3_phpcr', $res[2]->getPropertyName());
     }
 
-    public function provideDispatchCompositeConstraints()
+    public function provideDispatchCompositeConstraints(): array
     {
         return [
             ['andX', PropertyExistenceInterface::class, 1],
@@ -338,7 +334,7 @@ class ConverterPhpcrTest extends TestCase
      * @depends testDispatchFrom
      * @dataProvider provideDispatchCompositeConstraints
      */
-    public function testDispatchCompositeConstraints($method, $expectedClass, $nbConstraints)
+    public function testDispatchCompositeConstraints($method, $expectedClass, $nbConstraints): void
     {
         $this->primeBuilder();
 
@@ -362,7 +358,7 @@ class ConverterPhpcrTest extends TestCase
         }
     }
 
-    public function provideDisaptchConstraintsLeaf()
+    public function provideDisaptchConstraintsLeaf(): array
     {
         return [
             [
@@ -392,7 +388,7 @@ class ConverterPhpcrTest extends TestCase
      * @depends testDispatchFrom
      * @dataProvider provideDisaptchConstraintsLeaf
      */
-    public function testDispatchConstraintsLeaf($class, $args, $expectedClass)
+    public function testDispatchConstraintsLeaf($class, $args, $expectedClass): void
     {
         $expectedPhpcrClass = '\\PHPCR\\Query\\QOM\\'.$expectedClass;
 
@@ -403,7 +399,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertInstanceOf($expectedPhpcrClass, $res);
     }
 
-    public function provideDispatchConstraintsComparison()
+    public function provideDispatchConstraintsComparison(): array
     {
         return [
             ['eq', QOMConstants::JCR_OPERATOR_EQUAL_TO],
@@ -419,7 +415,7 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @dataProvider provideDispatchConstraintsComparison
      */
-    public function testDispatchConstraintsComparison($method, $expectedOperator)
+    public function testDispatchConstraintsComparison($method, $expectedOperator): void
     {
         $this->primeBuilder();
 
@@ -436,7 +432,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertEquals($expectedOperator, $res->getOperator());
     }
 
-    public function testDispatchConstraintsNot()
+    public function testDispatchConstraintsNot(): void
     {
         $this->primeBuilder();
         $not = $this->qb->where()
@@ -448,7 +444,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertInstanceOf(PropertyExistenceInterface::class, $res->getConstraint());
     }
 
-    public function provideTestDispatchOperands()
+    public function provideTestDispatchOperands(): array
     {
         return [
             // leaf
@@ -527,7 +523,7 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @dataProvider provideTestDispatchOperands
      */
-    public function testDispatchOperands($class, $args, $options)
+    public function testDispatchOperands($class, $args, $options): void
     {
         $options = array_merge([
             'assert' => null,
@@ -556,7 +552,7 @@ class ConverterPhpcrTest extends TestCase
         }
     }
 
-    public function testOrderBy()
+    public function testOrderBy(): void
     {
         $this->primeBuilder();
         $order1 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_ASCENDING]);
@@ -588,7 +584,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertCount(2, $res);
     }
 
-    public function provideOrderByDynamicField()
+    public function provideOrderByDynamicField(): array
     {
         return [
             ['alias_1.ok_field', null],
@@ -600,7 +596,7 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @dataProvider provideOrderByDynamicField
      */
-    public function testOrderByDynamicField($field, $exceptionMessage)
+    public function testOrderByDynamicField($field, $exceptionMessage): void
     {
         $this->primeBuilder();
         $order1 = $this->createNode('Ordering', [QOMConstants::JCR_ORDER_ASCENDING]);
@@ -620,7 +616,7 @@ class ConverterPhpcrTest extends TestCase
         $this->assertCount(1, $res);
     }
 
-    public function testGetQuery()
+    public function testGetQuery(): void
     {
         $me = $this;
 
@@ -636,7 +632,7 @@ class ConverterPhpcrTest extends TestCase
         // setup the qomf factory to expect the right parameters for createQuery
         $this->qomfFactory->expects($this->once())
             ->method('get')
-            ->will($this->returnCallback(function ($class, $args) use ($me) {
+            ->willReturnCallback(function ($class, $args) use ($me) {
                 list($om, $source, $constraint, $orderings, $columns) = $args;
                 $me->assertInstanceOf(SourceInterface::class, $source);
                 // test that we append the phpcr:class and classparents constraints
@@ -676,14 +672,14 @@ class ConverterPhpcrTest extends TestCase
 
                 // return something ..
                 return $me->createMock(QueryObjectModelInterface::class);
-            }));
+            });
 
         $phpcrQuery = $this->converter->getQuery($this->qb);
 
         $this->assertInstanceOf(Query::class, $phpcrQuery);
     }
 
-    public function testGetQueryMoreThanOneSourceNoPrimaryAlias()
+    public function testGetQueryMoreThanOneSourceNoPrimaryAlias(): void
     {
         $this->qb->from()
             ->joinInner()

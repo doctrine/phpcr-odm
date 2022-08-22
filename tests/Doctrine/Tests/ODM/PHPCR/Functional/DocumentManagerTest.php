@@ -5,7 +5,6 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
 
 class DocumentManagerTest extends PHPCRFunctionalTestCase
@@ -15,18 +14,13 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
-    public function testFindManyWithNonExistingUuuid()
+    public function testFindManyWithNonExistingUuuid(): void
     {
         $user = new TestUser();
         $user->username = 'test-name';

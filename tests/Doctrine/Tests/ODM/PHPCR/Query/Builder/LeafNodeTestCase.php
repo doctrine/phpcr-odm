@@ -19,6 +19,8 @@ abstract class LeafNodeTestCase extends TestCase
             ->getMockForAbstractClass();
     }
 
+    abstract public function provideNode(): array;
+
     /**
      * @dataProvider provideNode
      */

@@ -17,26 +17,20 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 class EventManagerResetTest extends PHPCRFunctionalTestCase
 {
     /**
-     * @var TestPersistenceListener
-     */
-    private $listener;
-
-    /**
      * @var DocumentManager
      */
     private $dm;
 
     public function setUp(): void
     {
-        $this->listener = new TestResetListener();
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
         $this->dm->getEventManager()->addEventListener([
             'prePersist', 'postPersist', 'preUpdate', 'postUpdate',
-        ], $this->listener);
+        ], new TestResetListener());
     }
 
-    public function testResetEvents()
+    public function testResetEvents(): void
     {
         $page = new CmsPage();
         $page->title = 'my-page';
@@ -81,7 +75,7 @@ class EventManagerResetTest extends PHPCRFunctionalTestCase
 
 class TestResetListener
 {
-    public function prePersist(LifecycleEventArgs $e)
+    public function prePersist(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage && $document->content instanceof CmsPageContent) {
@@ -90,7 +84,7 @@ class TestResetListener
         }
     }
 
-    public function postPersist(LifecycleEventArgs $e)
+    public function postPersist(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {
@@ -106,7 +100,7 @@ class TestResetListener
         }
     }
 
-    public function preUpdate(LifecycleEventArgs $e)
+    public function preUpdate(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage && 'my-page' !== $document->title) {
@@ -119,7 +113,7 @@ class TestResetListener
         }
     }
 
-    public function postUpdate(LifecycleEventArgs $e)
+    public function postUpdate(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         if ($document instanceof CmsPage) {

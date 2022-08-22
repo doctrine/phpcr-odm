@@ -31,7 +31,7 @@ class CascadeRefreshTest extends PHPCRFunctionalTestCase
         $class->mappings['user']['cascade'] = ClassMetadata::CASCADE_REFRESH;
     }
 
-    public function testCascadeRefresh()
+    public function testCascadeRefresh(): void
     {
         $group1 = new CmsGroup();
         $group1->name = 'Test!';
