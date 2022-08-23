@@ -5,9 +5,16 @@
     "docsSlug": "doctrine-phpcr-odm",
     "versions": [
         {
-            "name": "master",
-            "branchName": "master",
+            "name": "2.x",
+            "branchName": "2.x",
             "slug": "latest",
+            "upcoming": true
+        },
+        {
+            "name": "1.x",
+            "branchName": "1.x",
+            "slug": "1.x",
+            "current": true,
             "aliases": [
                 "current",
                 "stable"
