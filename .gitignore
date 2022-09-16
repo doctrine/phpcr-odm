@@ -1,4 +1,5 @@
 tests/phpunit.xml
+phpunit.xml
 /cli-config.php
 jackrabbit/
 vendor/
