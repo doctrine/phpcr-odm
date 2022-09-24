@@ -27,5 +27,5 @@ class Version
     /**
      * Current version of PHPCR ODM
      */
-    const VERSION = '1.6.1';
+    public const VERSION = '1.7.0';
 }
