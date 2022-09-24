@@ -4,23 +4,32 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractLeafNode;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 abstract class NodeTestCase extends TestCase
 {
+    /**
+     * @var AbstractNode
+     */
     protected $node;
+
+    /**
+     * @var AbstractNode&MockObject
+     */
+    private $parent;
 
     public function setUp(): void
     {
         $this->parent = $this->getMockBuilder(
             AbstractNode::class
         )->setMockClassName('ParentNode')->getMockForAbstractClass();
-        $this->node = $this->getNode();
+        $this->node = $this->getQueryNode();
     }
 
-    abstract public function provideInterface();
+    abstract public function provideInterface(): array;
 
-    protected function getNode($args = [])
+    protected function getQueryNode($args = []): AbstractNode
     {
         $refl = new \ReflectionClass($this);
         preg_match('&^(.*?)Test&', $refl->getShortName(), $matches);
@@ -37,7 +46,7 @@ abstract class NodeTestCase extends TestCase
     /**
      * @dataProvider provideInterface
      */
-    public function testInterface($method, $type, $args = [])
+    public function testInterface($method, $type, $args = []): void
     {
         $expectedClass = 'Doctrine\\ODM\\PHPCR\\Query\\Builder\\'.$type;
 

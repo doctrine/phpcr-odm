@@ -14,22 +14,17 @@ use Symfony\Component\Console\Tester\CommandTester;
 class DocumentConvertTranslationCommandTest extends TestCase
 {
     /**
-     * @var DocumentConvertTranslationCommand
-     */
-    private $command;
-
-    /**
      * @var CommandTester
      */
     private $commandTester;
 
     /**
-     * @var TranslationConverter|MockObject
+     * @var TranslationConverter&MockObject
      */
     private $converter;
 
     /**
-     * @var SessionInterface|MockObject
+     * @var SessionInterface&MockObject
      */
     private $mockSession;
 
@@ -40,26 +35,25 @@ class DocumentConvertTranslationCommandTest extends TestCase
         $mockHelper
             ->expects($this->once())
             ->method('getSession')
-            ->will($this->returnValue($this->mockSession));
+            ->willReturn($this->mockSession);
         $this->converter = $this->createMock(TranslationConverter::class);
-        $this->command = new DocumentConvertTranslationCommand(null, $this->converter);
-        $this->command->setHelperSet(new HelperSet(
+        $command = new DocumentConvertTranslationCommand(null, $this->converter);
+        $command->setHelperSet(new HelperSet(
             ['phpcr' => $mockHelper]
         ));
-        $this->commandTester = new CommandTester($this->command);
+        $this->commandTester = new CommandTester($command);
     }
 
-    public function testCommand()
+    public function testCommand(): void
     {
         $this->converter
             ->expects($this->once())
             ->method('convert')
             ->with('Document\MyClass', ['en'], [], 'none')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
         $this->converter
-            ->expects($this->any())
             ->method('getLastNotices')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
 
         $this->mockSession
             ->expects($this->once())

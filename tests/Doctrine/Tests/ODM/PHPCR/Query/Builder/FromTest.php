@@ -9,12 +9,12 @@ class FromTest extends NodeTestCase
     /**
      * @dataProvider provideInterface
      */
-    public function testInterface($method, $type, $args = [])
+    public function testInterface($method, $type, $args = []): void
     {
         $this->markTestSkipped('Joins temporarily disabled');
     }
 
-    public function provideInterface()
+    public function provideInterface(): array
     {
         return [
             ['document', 'SourceDocument', [

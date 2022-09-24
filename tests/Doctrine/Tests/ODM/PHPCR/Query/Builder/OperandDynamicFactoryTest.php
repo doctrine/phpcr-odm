@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Query\Builder;
 
 class OperandDynamicFactoryTest extends NodeTestCase
 {
-    public function provideInterface()
+    public function provideInterface(): array
     {
         return [
             ['fullTextSearchScore', 'OperandDynamicFullTextSearchScore', [

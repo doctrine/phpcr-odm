@@ -84,12 +84,12 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc->assoc = ['key' => 'value'];
     }
 
-    protected function getTestNode()
+    protected function getTestNode(): NodeInterface
     {
         return $this->session->getNode('/functional/'.$this->testNodeName);
     }
 
-    protected function assertDocumentStored()
+    protected function assertDocumentStored(): void
     {
         $node = $this->getTestNode();
         $this->assertNotNull($node);
@@ -103,7 +103,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('fr', $this->doc->locale);
     }
 
-    public function testPersistNew()
+    public function testPersistNew(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->flush();
@@ -123,7 +123,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('en', $this->doc->locale);
     }
 
-    public function testBindTranslation()
+    public function testBindTranslation(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -136,7 +136,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertDocumentStored();
     }
 
-    public function testRemoveTranslation()
+    public function testRemoveTranslation(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -177,7 +177,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * find translation in non-default language and then save it back has to keep language
      */
-    public function testFindTranslationAndUpdate()
+    public function testFindTranslationAndUpdate(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -203,7 +203,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * changing the locale and flushing should pick up changes automatically
      */
-    public function testUpdateLocaleAndFlush()
+    public function testUpdateLocaleAndFlush(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -229,7 +229,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Ein interessantes Thema', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('de', 'topic')));
     }
 
-    public function testFlush()
+    public function testFlush(): void
     {
         $this->dm->persist($this->doc);
 
@@ -250,7 +250,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('fr', $this->doc->locale);
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->flush();
@@ -266,7 +266,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Some interesting subject', $node->getPropertyValue(AttributeTranslationStrategyTest::propertyNameForLocale('en', 'topic')));
     }
 
-    public function testFindTranslation()
+    public function testFindTranslation(): void
     {
         $this->doc->topic = 'Un autre sujet';
         $this->doc->locale = 'fr';
@@ -283,7 +283,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * Test that children are retrieved in the parent locale
      */
-    public function testFindTranslationWithChildren()
+    public function testFindTranslationWithChildren(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -350,7 +350,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * Test that children are retrieved in the parent locale
      */
-    public function testFindTranslationWithUntranslatedChildren()
+    public function testFindTranslationWithUntranslatedChildren(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -385,7 +385,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public function testFindByUUID()
+    public function testFindByUUID(): void
     {
         $this->doc->topic = 'Un autre sujet';
         $this->doc->locale = 'fr';
@@ -403,7 +403,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * Italian translation does not exist so as defined in $this->localePrefs we
      * will get french as it has higher priority than english
      */
-    public function testFindWithLanguageFallback()
+    public function testFindWithLanguageFallback(): void
     {
         $this->dm->persist($this->doc);
         $this->doc->topic = 'Un autre sujet';
@@ -422,7 +422,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * Same as findWithLanguageFallback, but all properties are nullable.
      */
-    public function testFindWithLanguageFallbackNullable()
+    public function testFindWithLanguageFallbackNullable(): void
     {
         $doc = new Comment();
         $doc->id = '/functional/fallback-nullable';
@@ -444,7 +444,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * Italian translation does not exist so as defined in $this->localePrefs we
      * will get french as it has higher priority than english
      */
-    public function testFindTranslationWithLanguageFallback()
+    public function testFindTranslationWithLanguageFallback(): void
     {
         $this->dm->persist($this->doc);
         $this->doc->topic = 'Un autre sujet';
@@ -458,7 +458,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Un autre sujet', $this->doc->topic);
     }
 
-    public function testFindTranslationWithInvalidLanguageFallback()
+    public function testFindTranslationWithInvalidLanguageFallback(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->flush();
@@ -471,7 +471,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * Italian translation does not exist so as defined in $this->localePrefs we
      * will get french as it has higher priority than english
      */
-    public function testFindTranslationNoFallback()
+    public function testFindTranslationNoFallback(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->flush();
@@ -489,7 +489,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * Test what happens if all document fields are nullable and actually null.
      */
-    public function testTranslationOnlyNullProperties()
+    public function testTranslationOnlyNullProperties(): void
     {
         $path = $this->node->getPath().'/only-null';
         $doc = new Comment();
@@ -507,7 +507,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * We only validate when saving, never when loading. This has to find the
      * incomplete english translation.
      */
-    public function testFindNullableFieldIncomplete()
+    public function testFindNullableFieldIncomplete(): void
     {
         $node = $this->node->addNode('find');
         $node->setProperty('phpcr:class', Article::class);
@@ -529,7 +529,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * No translation whatsoever is available. All translated fields have to be
      * null as we do not validate on loading.
      */
-    public function testFindNullableFieldNone()
+    public function testFindNullableFieldNone(): void
     {
         $node = $this->node->addNode('find');
         $node->setProperty('phpcr:class', Article::class);
@@ -545,7 +545,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertNull($doc->text);
     }
 
-    public function testFlushNullableFieldNotSetInsert()
+    public function testFlushNullableFieldNotSetInsert(): void
     {
         $doc = new Article();
         $doc->id = $this->node->getPath().'/flush';
@@ -557,7 +557,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testFlushNullableFieldNotSetUpdate()
+    public function testFlushNullableFieldNotSetUpdate(): void
     {
         $doc = new Article();
         $doc->id = $this->node->getPath().'/flush';
@@ -574,7 +574,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testGetLocaleFor()
+    public function testGetLocaleFor(): void
     {
         // Only 1 language is persisted
         $this->dm->persist($this->doc);
@@ -608,7 +608,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertContains('de', $locales);
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $this->dm->persist($this->doc);
         $this->dm->bindTranslation($this->doc, 'en');
@@ -635,7 +635,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals(['en'], $locales, 'Removing a document must remove all translations');
     }
 
-    public function testInvalidTranslationStrategy()
+    public function testInvalidTranslationStrategy(): void
     {
         $this->doc = new InvalidMapping();
         $this->doc->id = '/functional/'.$this->testNodeName;
@@ -650,7 +650,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * bindTranslation with a document that is not persisted should fail
      */
-    public function testBindTranslationWithoutPersist()
+    public function testBindTranslationWithoutPersist(): void
     {
         $this->doc = new CmsArticle();
         $this->doc->id = '/functional/'.$this->testNodeName;
@@ -662,7 +662,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * bindTranslation with a document that is not translatable should fail
      */
-    public function testBindTranslationNonTranslatable()
+    public function testBindTranslationNonTranslatable(): void
     {
         $this->doc = new CmsArticle();
         $this->doc->id = '/functional/'.$this->testNodeName;
@@ -675,7 +675,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * bindTranslation with a document inheriting from a translatable document
      * should not fail
      */
-    public function testBindTranslationInherited()
+    public function testBindTranslationInherited(): void
     {
         $this->doc = new DerivedArticle();
         $this->doc->id = '/functional/'.$this->testNodeName;
@@ -684,7 +684,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('en', $this->doc->locale);
     }
 
-    public function testFindTranslationNonPersisted()
+    public function testFindTranslationNonPersisted(): void
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
@@ -725,7 +725,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
      * When loading the "it" locale, the fallback is "de" and we have a not yet
      * flushed translation for that.
      */
-    public function testFindTranslationNonPersistedFallback()
+    public function testFindTranslationNonPersistedFallback(): void
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
@@ -764,7 +764,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * The locale is only in memory.
      */
-    public function testBindTranslationMemoryOverwrite()
+    public function testBindTranslationMemoryOverwrite(): void
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
@@ -790,7 +790,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * The locale is flushed.
      */
-    public function testBindTranslationFlushedOverwrite()
+    public function testBindTranslationFlushedOverwrite(): void
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
@@ -817,7 +817,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     /**
      * The locale is not even currently loaded
      */
-    public function testBindTranslationOverwrite()
+    public function testBindTranslationOverwrite(): void
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
@@ -842,7 +842,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->bindTranslation($a, 'de');
     }
 
-    public function testAssocWithNulls()
+    public function testAssocWithNulls(): void
     {
         $assoc = ['foo' => 'bar', 'test' => null, 2 => 'huhu'];
 
@@ -860,7 +860,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals($assoc, $a->assoc);
     }
 
-    public function testAdditionalFindCallsDoNotRefresh()
+    public function testAdditionalFindCallsDoNotRefresh(): void
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
@@ -880,7 +880,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals('Guten tag', $trans->topic);
     }
 
-    public function testMangerIsNotDroppingTranslationWhenDuplicateIdsArePassedToFindMany()
+    public function testMangerIsNotDroppingTranslationWhenDuplicateIdsArePassedToFindMany(): void
     {
         $articles = ['someText', 'moreText', 'someMoreText'];
         foreach ($articles as $article) {
@@ -897,7 +897,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $duplicateIdsList = \array_merge($ids, $ids);
         $documents = $this->dm->findMany($this->class, $duplicateIdsList);
 
-        $this->assertEquals(count($articles), count($documents));
+        $this->assertCount(count($articles), $documents);
         foreach ($documents as $document) {
             $this->assertSame('en', $document->locale);
             $this->assertNotNull($document->text);

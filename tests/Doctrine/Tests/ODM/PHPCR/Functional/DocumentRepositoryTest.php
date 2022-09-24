@@ -22,21 +22,8 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * Class name of the document class
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
-        $this->type = CmsUser::class;
         $this->dm = $this->createDocumentManager();
 
         $session = $this->dm->getPhpcrSession();
@@ -45,11 +32,11 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
             $root->getNode('functional')->remove();
             $session->save();
         }
-        $this->node = $root->addNode('functional');
+        $root->addNode('functional');
         $session->save();
     }
 
-    public function testCreateQueryBuilder()
+    public function testCreateQueryBuilder(): void
     {
         $rep = $this->dm->getRepository(CmsUser::class);
         $qb = $rep->createQueryBuilder('a');
@@ -65,7 +52,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals(CmsUser::class, $source->getDocumentFqn());
     }
 
-    public function testLoadMany()
+    public function testLoadMany(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'beberlei';
@@ -107,7 +94,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/beberlei', $users->key(), 'Documents are not returned in the order they were requested');
     }
 
-    public function testFindBy()
+    public function testFindBy(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'beberlei';
@@ -144,7 +131,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/lsmith', $users6->key());
     }
 
-    public function testFindByOnNodename()
+    public function testFindByOnNodename(): void
     {
         $parent = new CmsUser();
         $parent->username = 'lsmith';
@@ -165,31 +152,31 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertEquals($user->username, $users['/functional/lsmith/beberlei']->username);
     }
 
-    public function testFindByOrderNonExistentDirectionString()
+    public function testFindByOrderNonExistentDirectionString(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' => 'beberlei'], ['username' => 'nowhere']);
     }
 
-    public function testFindByOrderNodename()
+    public function testFindByOrderNodename(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['nodename' => 'beberlei'], ['nodename' => 'asc']);
     }
 
-    public function testFindByOnAssociation()
+    public function testFindByOnAssociation(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['parent' => '/foo']);
     }
 
-    public function testFindByOrderAssociation()
+    public function testFindByOrderAssociation(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->dm->getRepository(CmsTeamUser::class)->findBy(['username' => 'beberlei'], ['parent' => 'asc']);
     }
 
-    public function testFindOneBy()
+    public function testFindOneBy(): void
     {
         $user1 = new CmsUser();
         $user1->username = 'beberlei';

@@ -23,7 +23,7 @@ class FolderFileTest extends PHPCRFunctionalTestCase
      */
     private $node;
 
-    const FILE_CONTENT = 'Lorem ipsum dolor sit amet';
+    private const FILE_CONTENT = 'Lorem ipsum dolor sit amet';
 
     public function setUp(): void
     {
@@ -31,7 +31,7 @@ class FolderFileTest extends PHPCRFunctionalTestCase
         $this->node = $this->resetFunctionalNode($this->dm);
     }
 
-    public function testCreateManual()
+    public function testCreateManual(): void
     {
         $folder = new Folder();
         $folder->setId('/functional/folder');
@@ -48,7 +48,7 @@ class FolderFileTest extends PHPCRFunctionalTestCase
         $this->assertFolderAndFile($this->node);
     }
 
-    public function testCreateCascade()
+    public function testCreateCascade(): void
     {
         $folder = new Folder();
         $folder->setId('/functional/folder');
@@ -71,7 +71,7 @@ class FolderFileTest extends PHPCRFunctionalTestCase
      *
      * @param NodeInterface $node
      */
-    private function assertFolderAndFile(NodeInterface $node)
+    private function assertFolderAndFile(NodeInterface $node): void
     {
         $this->assertTrue($node->hasNode('folder'));
         $folder = $node->getNode('folder');

@@ -33,10 +33,10 @@ class EventComputingTest extends PHPCRFunctionalTestCase
     {
         $this->listener = new TestEventDocumentChanger();
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
-    public function testComputingBetweenEvents()
+    public function testComputingBetweenEvents(): void
     {
         $this->dm
              ->getEventManager()
@@ -111,7 +111,7 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testComputingBetweenEventsWithTranslation()
+    public function testComputingBetweenEventsWithTranslation(): void
     {
         $this->dm
              ->getEventManager()
@@ -187,31 +187,31 @@ class TestEventDocumentChanger
 
     public $onFlush = false;
 
-    public function prePersist(LifecycleEventArgs $e)
+    public function prePersist(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->name = 'prepersist';
     }
 
-    public function postPersist(LifecycleEventArgs $e)
+    public function postPersist(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->username = 'postpersist';
     }
 
-    public function preUpdate(LifecycleEventArgs $e)
+    public function preUpdate(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->name = 'preupdate';
     }
 
-    public function postUpdate(LifecycleEventArgs $e)
+    public function postUpdate(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->username = 'postupdate';
     }
 
-    public function preMove(LifecycleEventArgs $e)
+    public function preMove(LifecycleEventArgs $e): void
     {
         $this->preMove = true;
         $document = $e->getObject();
@@ -219,37 +219,37 @@ class TestEventDocumentChanger
         $document->username = 'premove';
     }
 
-    public function postMove(LifecycleEventArgs $e)
+    public function postMove(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->username .= '-postmove';
     }
 
-    public function preCreateTranslation(LifecycleEventArgs $e)
+    public function preCreateTranslation(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->name = 'preCreateTranslation';
     }
 
-    public function preUpdateTranslation(LifecycleEventArgs $e)
+    public function preUpdateTranslation(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->name = 'preUpdateTranslation';
     }
 
-    public function postLoadTranslation(LifecycleEventArgs $e)
+    public function postLoadTranslation(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->username = 'loadTranslation';
     }
 
-    public function preRemoveTranslation(LifecycleEventArgs $e)
+    public function preRemoveTranslation(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->name = 'preRemoveTranslation';
     }
 
-    public function postRemoveTranslation(LifecycleEventArgs $e)
+    public function postRemoveTranslation(LifecycleEventArgs $e): void
     {
         $document = $e->getObject();
         $document->username = 'postRemoveTranslation';

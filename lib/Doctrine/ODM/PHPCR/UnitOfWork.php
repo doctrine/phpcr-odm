@@ -739,7 +739,7 @@ class UnitOfWork
         }
 
         if ($this->getCurrentLocale($document) != $locale
-            && false !== array_search($locale, $this->getLocalesFor($document))
+            && false !== array_search($locale, $this->getLocalesFor($document), true)
         ) {
             throw new RuntimeException(sprintf(
                 'Translation "%s" already exists for "%s". First load this translation if you want to change it, or remove the existing translation.',
@@ -1436,7 +1436,7 @@ class UnitOfWork
             $originalNames = $this->originalData[$oid][$fieldName]->getOriginalNodenames();
             foreach ($originalNames as $key => $childName) {
                 // check moved children to not accidentally remove a child that simply moved away.
-                if (!(in_array($childName, $childNames) || in_array($childName, $movedChildNames))) {
+                if (!(in_array($childName, $childNames, true) || in_array($childName, $movedChildNames, true))) {
                     $child = $this->getDocumentById($id.'/'.$childName);
                     // make sure that when the child move is already processed and another compute is triggered
                     // we don't remove that child
@@ -1483,7 +1483,7 @@ class UnitOfWork
         }
 
         $oid = spl_object_hash($document);
-        if (in_array($oid, $this->changesetComputed)) {
+        if (in_array($oid, $this->changesetComputed, true)) {
             return;
         }
 
@@ -2415,11 +2415,11 @@ class UnitOfWork
             $fields = isset($this->documentChangesets[$oid]['fields']) ? $this->documentChangesets[$oid]['fields'] : [];
             foreach ($fields as $fieldName => $fieldValue) {
                 // Ignore translatable fields (they will be persisted by the translation strategy)
-                if (in_array($fieldName, $class->translatableFields)) {
+                if (in_array($fieldName, $class->translatableFields, true)) {
                     continue;
                 }
 
-                if (in_array($fieldName, $class->fieldMappings)) {
+                if (in_array($fieldName, $class->fieldMappings, true)) {
                     $mapping = $class->mappings[$fieldName];
                     $type = PropertyType::valueFromName($mapping['type']);
                     if (null === $fieldValue) {
@@ -2434,7 +2434,7 @@ class UnitOfWork
                     }
 
                     $node->setProperty($mapping['property'], $fieldValue, $type);
-                } elseif (in_array($fieldName, $class->referenceMappings) || in_array($fieldName, $class->referrersMappings)) {
+                } elseif (in_array($fieldName, $class->referenceMappings, true) || in_array($fieldName, $class->referrersMappings, true)) {
                     $associationUpdates[$oid] = $document;
 
                     //populate $associationChangesets to force executeUpdates($associationUpdates)
@@ -2543,7 +2543,7 @@ class UnitOfWork
                 // do this after the preUpdate events to give listener a last
                 // chance to provide values
                 if (null === $fieldValue
-                    && in_array($fieldName, $class->fieldMappings) // only care about non-virtual fields
+                    && in_array($fieldName, $class->fieldMappings, true) // only care about non-virtual fields
                     && !$class->isNullable($fieldName)
                     && !$this->isAutocreatedProperty($class, $fieldName)
                 ) {
@@ -2551,12 +2551,12 @@ class UnitOfWork
                 }
 
                 // Ignore translatable fields (they will be persisted by the translation strategy)
-                if (in_array($fieldName, $class->translatableFields)) {
+                if (in_array($fieldName, $class->translatableFields, true)) {
                     continue;
                 }
 
                 $mapping = $class->mappings[$fieldName];
-                if (in_array($fieldName, $class->fieldMappings)) {
+                if (in_array($fieldName, $class->fieldMappings, true)) {
                     $type = PropertyType::valueFromName($mapping['type']);
                     if ($mapping['multivalue']) {
                         $value = empty($fieldValue) ? null : ($fieldValue instanceof Collection ? $fieldValue->toArray() : $fieldValue);
@@ -2689,7 +2689,7 @@ class UnitOfWork
                                     }
 
                                     if ($referencingNode->hasProperty($referencingField['property'])) {
-                                        if (!in_array($uuid, $referencingNode->getProperty($referencingField['property'])->getString())) {
+                                        if (!in_array($uuid, $referencingNode->getProperty($referencingField['property'])->getString(), true)) {
                                             if (!$collection instanceof PersistentCollection || !$collection->isDirty()) {
                                                 // update the reference collection: add us to it
                                                 $collection->add($document);
@@ -3277,12 +3277,12 @@ class UnitOfWork
 
         if (isset($this->documentTranslations[$oid])) {
             foreach ($this->documentTranslations[$oid] as $locale => $value) {
-                if (!in_array($locale, $locales)) {
+                if (!in_array($locale, $locales, true)) {
                     if ($value) {
                         $locales[] = $locale;
                     }
                 } elseif (!$value) {
-                    $key = array_search($locale, $locales);
+                    $key = array_search($locale, $locales, true);
                     unset($locales[$key]);
                 }
             }
@@ -3981,7 +3981,7 @@ class UnitOfWork
         reset($values);
         $result = [];
         foreach ($keys as $key) {
-            if (in_array($key, $nulls)) {
+            if (in_array($key, $nulls, true)) {
                 $result[$key] = null;
             } else {
                 $result[$key] = current($values);

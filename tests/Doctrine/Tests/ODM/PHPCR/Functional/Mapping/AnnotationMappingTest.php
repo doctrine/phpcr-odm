@@ -22,18 +22,13 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
-    public function testAnnotationInheritance()
+    public function testAnnotationInheritance(): void
     {
         $extending = new ExtendingClass();
         $extending->id = '/functional/extending';
@@ -46,14 +41,14 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
         $this->assertEquals(1, $extending->extending_run);
     }
 
-    public function testSecondLevelInheritance()
+    public function testSecondLevelInheritance(): void
     {
         $second = new SecondLevel();
         $second->id = '/functional/second';
         $this->dm->persist($second);
     }
 
-    public function testSecondLevelInheritanceWithDuplicate()
+    public function testSecondLevelInheritanceWithDuplicate(): void
     {
         $second = new SecondLevelWithDuplicate();
         $second->id = '/functional/second';
@@ -63,7 +58,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
         $this->dm->persist($second);
     }
 
-    public function testSecondLevelOverwrite()
+    public function testSecondLevelOverwrite(): void
     {
         $localePrefs = [
             'en' => ['en', 'de'],
@@ -98,13 +93,13 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
      * @param int    $type        the generator type constant
      * @param string $description to be used in case of failure
      */
-    public function testIdStrategy($class, $type, $description)
+    public function testIdStrategy($class, $type, $description): void
     {
         $metadata = $this->dm->getClassMetadata($class);
         $this->assertEquals($type, $metadata->idGenerator, $description);
     }
 
-    public function generatorTypeProvider()
+    public function generatorTypeProvider(): array
     {
         return [
             [
@@ -145,13 +140,13 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
      *
      * @param string $class fqn of a class with invalid mapping
      */
-    public function testInvalidId(string $class)
+    public function testInvalidId(string $class): void
     {
         $this->expectException(MappingException::class);
         $this->dm->getClassMetadata($class);
     }
 
-    public function invalidIdProvider()
+    public function invalidIdProvider(): array
     {
         return [
             [
@@ -162,7 +157,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
         ];
     }
 
-    public function testPersistParentId()
+    public function testPersistParentId(): void
     {
         $doc = new ParentIdStrategy();
         $doc->name = 'parent-strategy';
@@ -173,7 +168,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(ParentIdStrategy::class, $this->dm->find(null, '/functional/parent-strategy'));
     }
 
-    public function testPersistAutoNameId()
+    public function testPersistAutoNameId(): void
     {
         $doc = new AutoNameIdStrategy();
         $doc->parent = $this->dm->find(null, '/functional');
@@ -184,7 +179,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf(AutoNameIdStrategy::class, $this->dm->find(null, $id));
     }
 
-    public function testPersistRepository()
+    public function testPersistRepository(): void
     {
         $doc = new RepositoryIdStrategy();
         $doc->title = 'repository strategy';
@@ -223,7 +218,7 @@ class Testclass
     /**
      * @PHPCRODM\PostPersist
      */
-    public function callback()
+    public function callback(): void
     {
         ++$this->callback_run;
     }
@@ -242,7 +237,7 @@ class ExtendingClass extends Testclass
     /**
      * @PHPCRODM\PostPersist
      */
-    public function extendingCallback()
+    public function extendingCallback(): void
     {
         ++$this->extending_run;
     }

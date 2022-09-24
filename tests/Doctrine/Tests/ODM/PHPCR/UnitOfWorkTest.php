@@ -24,11 +24,6 @@ use PHPCR\SessionInterface;
 class UnitOfWorkTest extends PHPCRTestCase
 {
     /**
-     * @var DocumentManager
-     */
-    private $dm;
-
-    /**
      * @var UnitOfWork
      */
     private $uow;
@@ -65,10 +60,10 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->objectManager = $this->createMock(ObjectManager::class);
 
         $this->type = UoWUser::class;
-        $this->dm = DocumentManager::create($this->session);
-        $this->uow = new UnitOfWork($this->dm);
+        $dm = DocumentManager::create($this->session);
+        $this->uow = new UnitOfWork($dm);
 
-        $cmf = $this->dm->getMetadataFactory();
+        $cmf = $dm->getMetadataFactory();
         $metadata = new ClassMetadata($this->type);
         $metadata->initializeReflection($cmf->getReflectionService());
         $metadata->mapId(['fieldName' => 'id', 'id' => true]);
@@ -77,41 +72,41 @@ class UnitOfWorkTest extends PHPCRTestCase
         $cmf->setMetadataFor($this->type, $metadata);
     }
 
-    protected function createNode($id, $username, $primaryType = 'rep:root')
+    protected function createNode($id, $username, $primaryType = 'rep:root'): Node
     {
         $repository = $this->createMock(Repository::class);
-        $this->session->expects($this->any())
+        $this->session
             ->method('getRepository')
             ->with()
-            ->will($this->returnValue($repository));
+            ->willReturn($repository);
 
         $type = $this->createMock(NodeType::class);
-        $type->expects($this->any())
+        $type
             ->method('getName')
             ->with()
-            ->will($this->returnValue($primaryType));
+            ->willReturn($primaryType);
 
         $ntm = $this->createMock(NodeTypeManager::class);
-        $ntm->expects($this->any())
+        $ntm
             ->method('getNodeType')
             ->with()
-            ->will($this->returnValue($type));
+            ->willReturn($type);
 
         $workspace = $this->createMock(Workspace::class);
-        $workspace->expects($this->any())
+        $workspace
             ->method('getNodeTypeManager')
             ->with()
-            ->will($this->returnValue($ntm));
+            ->willReturn($ntm);
 
-        $this->session->expects($this->any())
+        $this->session
             ->method('getWorkspace')
             ->with()
-            ->will($this->returnValue($workspace));
+            ->willReturn($workspace);
 
-        $this->session->expects($this->any())
+        $this->session
                ->method('nodeExists')
             ->with($id)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $nodeData = [
             'jcr:primaryType' => $primaryType,
@@ -120,15 +115,15 @@ class UnitOfWorkTest extends PHPCRTestCase
         ];
         $node = new Node($this->factory, $nodeData, $id, $this->session, $this->objectManager);
 
-        $this->session->expects($this->any())
+        $this->session
             ->method('getNode')
             ->with($id)
-            ->will($this->returnValue($node));
+            ->willReturn($node);
 
         return $node;
     }
 
-    public function testGetOrCreateDocument()
+    public function testGetOrCreateDocument(): void
     {
         $user = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
         $this->assertInstanceOf($this->type, $user);
@@ -143,7 +138,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertEquals('/somepath', $this->uow->getDocumentId($user));
     }
 
-    public function testGetOrCreateDocumentUsingIdentityMap()
+    public function testGetOrCreateDocumentUsingIdentityMap(): void
     {
         $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
         $user2 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
@@ -151,7 +146,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertSame($user1, $user2);
     }
 
-    public function testGetDocumentById()
+    public function testGetDocumentById(): void
     {
         $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
 
@@ -166,7 +161,7 @@ class UnitOfWorkTest extends PHPCRTestCase
      *
      * @doesNotPerformAssertions
      */
-    public function testScheduleInsertion()
+    public function testScheduleInsertion(): void
     {
         $object = new UoWUser();
         $object->username = 'bar';
@@ -180,7 +175,7 @@ class UnitOfWorkTest extends PHPCRTestCase
      * @covers \Doctrine\ODM\PHPCR\UnitOfWork::scheduleInsert
      * @covers \Doctrine\ODM\PHPCR\UnitOfWork::doScheduleInsert
      */
-    public function testScheduleInsertCancelsScheduleRemove()
+    public function testScheduleInsertCancelsScheduleRemove(): void
     {
         $object = new UoWUser();
         $object->username = 'bar';
@@ -206,7 +201,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $state);
     }
 
-    public function testUuid()
+    public function testUuid(): void
     {
         $class = new \ReflectionClass(UnitOfWork::class);
         $method = $class->getMethod('generateUuid');
@@ -228,7 +223,7 @@ class UnitOfWorkTest extends PHPCRTestCase
      *
      * Test the registering of a version of a document, state should be set to STATE_FROZEN
      */
-    public function testRegisterDocumentForVersion()
+    public function testRegisterDocumentForVersion(): void
     {
         // create a node of type frozenNode (which is a version)
         $node = $this->createNode('/version/doc', 'foo', 'nt:frozenNode');
@@ -243,7 +238,7 @@ class UnitOfWorkTest extends PHPCRTestCase
      *
      * @doesNotPerformAssertions
      */
-    public function testComputeSingleDocumentChangeSetForRemovedDocument()
+    public function testComputeSingleDocumentChangeSetForRemovedDocument(): void
     {
         $object = new UoWUser();
         $object->username = 'bar';

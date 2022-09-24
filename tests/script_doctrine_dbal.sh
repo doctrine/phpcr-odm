@@ -1,6 +1,5 @@
 #!/bin/bash
 
-SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"
 
 # if the script was started from the base directory, then the
@@ -15,4 +14,4 @@ fi
 
 cp ${SCRIPT_DIR}/../cli-config.doctrine_dbal.php.dist ${SCRIPT_DIR}/../cli-config.php
 ${SCRIPT_DIR}/../bin/phpcrodm jackalope:init:dbal --force
-${SCRIPT_DIR}/../bin/phpcrodm doctrine:phpcr:register-system-node-types
+  ${SCRIPT_DIR}/../bin/phpcrodm doctrine:phpcr:register-system-node-types

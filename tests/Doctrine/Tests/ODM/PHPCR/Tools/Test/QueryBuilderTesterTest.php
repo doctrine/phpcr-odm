@@ -27,7 +27,7 @@ class QueryBuilderTesterTest extends TestCase
         $this->qbTester = new QueryBuilderTester($this->qb);
     }
 
-    public function testDumpPaths()
+    public function testDumpPaths(): void
     {
         $res = $this->qbTester->dumpPaths();
         $this->assertEquals(<<<'HERE'
@@ -43,7 +43,7 @@ HERE
         , $res);
     }
 
-    public function testGetNode()
+    public function testGetNode(): void
     {
         // test field of 2nd part of and statement
         $node = $this->qbTester->getNode(
@@ -61,7 +61,7 @@ HERE
         $this->assertEquals('Bar', $node->getValue());
     }
 
-    public function testGetAllNodes()
+    public function testGetAllNodes(): void
     {
         $this->assertCount(8, $this->qbTester->getAllNodes());
     }

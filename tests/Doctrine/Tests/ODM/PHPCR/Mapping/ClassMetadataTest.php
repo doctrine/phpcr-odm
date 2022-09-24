@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClassMetadataTest extends TestCase
 {
-    public function testGetTypeOfField()
+    public function testGetTypeOfField(): void
     {
         $cmi = new ClassMetadata(Person::class);
         $cmi->initializeReflection(new RuntimeReflectionService());
@@ -27,7 +27,7 @@ class ClassMetadataTest extends TestCase
         $this->assertEquals('some_type', $cmi->getTypeOfField('some_field'));
     }
 
-    public function testClassName()
+    public function testClassName(): ClassMetadata
     {
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
@@ -40,7 +40,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testClassName
      */
-    public function testIsValidNodename(ClassMetadata $cm)
+    public function testIsValidNodename(ClassMetadata $cm): void
     {
         $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename(''));
         $this->assertInstanceOf(RepositoryException::class, $cm->isValidNodename('a:b:c'));
@@ -56,7 +56,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testClassName
      */
-    public function testMapFieldWithId(ClassMetadata $cm)
+    public function testMapFieldWithId(ClassMetadata $cm): ClassMetadata
     {
         $cm->mapField(['fieldName' => 'id', 'id' => true, 'strategy' => 'assigned']);
 
@@ -83,7 +83,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testClassName
      */
-    public function testHasFieldNull(ClassMetadata $cm)
+    public function testHasFieldNull(ClassMetadata $cm): void
     {
         $this->assertFalse($cm->hasField(null));
     }
@@ -91,7 +91,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testClassName
      */
-    public function testGetAssociationNonexisting(ClassMetadata $cm)
+    public function testGetAssociationNonexisting(ClassMetadata $cm): void
     {
         $this->expectException(MappingException::class);
         $cm->getAssociation('nonexisting');
@@ -100,7 +100,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapFieldWithId
      */
-    public function testGetFieldNonexisting(ClassMetadata $cm)
+    public function testGetFieldNonexisting(ClassMetadata $cm): void
     {
         $this->expectException(MappingException::class);
         $cm->getFieldMapping('nonexisting');
@@ -109,7 +109,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapFieldWithId
      */
-    public function testMapField(ClassMetadata $cm)
+    public function testMapField(ClassMetadata $cm): ClassMetadata
     {
         $cm->mapField(['fieldName' => 'username', 'property' => 'username', 'type' => 'string']);
         $cm->mapField(['fieldName' => 'created', 'property' => 'created', 'type' => 'datetime']);
@@ -146,7 +146,7 @@ class ClassMetadataTest extends TestCase
      *
      * @depends testMapFieldWithId
      */
-    public function testMapFieldWithInheritance(ClassMetadata $cmp)
+    public function testMapFieldWithInheritance(ClassMetadata $cmp): void
     {
         // Load parent document metadata.
         $ar = new AnnotationReader();
@@ -170,7 +170,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapField
      */
-    public function testMapFieldWithoutNameThrowsException(ClassMetadata $cm)
+    public function testMapFieldWithoutNameThrowsException(ClassMetadata $cm): void
     {
         $this->expectException(MappingException::class);
         $cm->mapField([]);
@@ -179,13 +179,13 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapField
      */
-    public function testMapNonExistingField(ClassMetadata $cm)
+    public function testMapNonExistingField(ClassMetadata $cm): void
     {
         $this->expectException(MappingException::class);
         $cm->mapField(['fieldName' => 'notexisting']);
     }
 
-    public function testMapChildInvalidName()
+    public function testMapChildInvalidName(): void
     {
         $this->expectException(MappingException::class);
         $cm = new ClassMetadata(Address::class);
@@ -193,7 +193,7 @@ class ClassMetadataTest extends TestCase
         $cm->mapChild(['fieldName' => 'child', 'nodeName' => 'in/valid']);
     }
 
-    public function testMapChildrenInvalidFetchDepth()
+    public function testMapChildrenInvalidFetchDepth(): void
     {
         $this->expectException(MappingException::class);
         $cm = new ClassMetadata(Person::class);
@@ -204,7 +204,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapField
      */
-    public function testReflectionProperties(ClassMetadata $cm)
+    public function testReflectionProperties(ClassMetadata $cm): void
     {
         $this->assertInstanceOf('ReflectionProperty', $cm->reflFields['username']);
         $this->assertInstanceOf('ReflectionProperty', $cm->reflFields['created']);
@@ -213,7 +213,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapField
      */
-    public function testNewInstance(ClassMetadata $cm)
+    public function testNewInstance(ClassMetadata $cm): void
     {
         $instance1 = $cm->newInstance();
         $instance2 = $cm->newInstance();
@@ -225,27 +225,32 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testClassName
      */
-    public function testSerialize(ClassMetadata $cm)
+    public function testSerialize(ClassMetadata $cm): void
     {
-        $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":20:{s:8:"nodeType";s:15:"nt:unstructured";s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:2;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:8:"assigned";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"property";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:8:"property";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:8:"property";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:8:"property";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:10:"translated";b:1;s:8:"property";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:51:"Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:14:"uniqueNodeType";b:1;s:18:"lifecycleCallbacks";a:1:{s:8:"postLoad";a:1:{i:0;s:8:"callback";}}s:13:"inheritMixins";b:1;s:13:"localeMapping";s:6:"locale";s:10:"translator";s:9:"attribute";s:18:"translatableFields";a:1:{i:0;s:15:"translatedField";}}';
+        if (PHP_MAJOR_VERSION >= 8 && PHP_MINOR_VERSION >= 1) {
+            // PHP 8.1 orders fields alphabetically. Semantically both are the same.
+            $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":20:{s:8:"nodeType";s:15:"nt:unstructured";s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:2;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:8:"assigned";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"property";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:8:"property";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:8:"property";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:8:"property";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:8:"property";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;s:10:"translated";b:1;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:51:"Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository";s:18:"isMappedSuperclass";b:1;s:11:"versionable";s:6:"simple";s:14:"uniqueNodeType";b:1;s:18:"lifecycleCallbacks";a:1:{s:8:"postLoad";a:1:{i:0;s:8:"callback";}}s:13:"inheritMixins";b:1;s:13:"localeMapping";s:6:"locale";s:10:"translator";s:9:"attribute";s:18:"translatableFields";a:1:{i:0;s:15:"translatedField";}}';
+        } else {
+            $expected = 'O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":20:{s:8:"nodeType";s:15:"nt:unstructured";s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:2;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:8:"assigned";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"property";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:8:"property";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:8:"property";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:8:"property";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:10:"translated";b:1;s:8:"property";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:51:"Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository";s:18:"isMappedSuperclass";b:1;s:11:"versionable";s:6:"simple";s:14:"uniqueNodeType";b:1;s:18:"lifecycleCallbacks";a:1:{s:8:"postLoad";a:1:{i:0;s:8:"callback";}}s:13:"inheritMixins";b:1;s:13:"localeMapping";s:6:"locale";s:10:"translator";s:9:"attribute";s:18:"translatableFields";a:1:{i:0;s:15:"translatedField";}}';
+        }
 
         $cm->setCustomRepositoryClassName('DocumentRepository');
-        $cm->setVersioned(true);
+        $cm->setVersioned('simple');
         $cm->setUniqueNodeType(true);
         $cm->addLifecycleCallback('callback', 'postLoad');
         $cm->isMappedSuperclass = true;
         $this->assertEquals($expected, serialize($cm));
     }
 
-    public function testUnserialize()
+    public function testUnserialize(): void
     {
-        $cm = unserialize('O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":16:{s:8:"nodeType";s:15:"nt:unstructured";s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"property";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:8:"property";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:8:"property";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:8:"property";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:8:"property";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:51:"Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository";s:18:"isMappedSuperclass";b:1;s:11:"versionable";b:1;s:14:"uniqueNodeType";b:1;s:18:"lifecycleCallbacks";a:1:{s:8:"postLoad";a:1:{i:0;s:8:"callback";}}}');
+        $cm = unserialize('O:40:"Doctrine\ODM\PHPCR\Mapping\ClassMetadata":16:{s:8:"nodeType";s:15:"nt:unstructured";s:10:"identifier";s:2:"id";s:4:"name";s:39:"Doctrine\Tests\ODM\PHPCR\Mapping\Person";s:11:"idGenerator";i:1;s:8:"mappings";a:5:{s:2:"id";a:7:{s:9:"fieldName";s:2:"id";s:2:"id";b:1;s:8:"strategy";s:10:"repository";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;s:8:"property";s:2:"id";}s:8:"username";a:5:{s:9:"fieldName";s:8:"username";s:8:"property";s:8:"username";s:4:"type";s:6:"string";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:7:"created";a:5:{s:9:"fieldName";s:7:"created";s:8:"property";s:7:"created";s:4:"type";s:8:"datetime";s:10:"multivalue";b:0;s:8:"nullable";b:0;}s:6:"locale";a:3:{s:9:"fieldName";s:6:"locale";s:4:"type";s:6:"locale";s:8:"property";s:6:"locale";}s:15:"translatedField";a:7:{s:9:"fieldName";s:15:"translatedField";s:4:"type";s:6:"string";s:10:"translated";b:1;s:8:"property";s:15:"translatedField";s:10:"multivalue";b:0;s:5:"assoc";N;s:8:"nullable";b:0;}}s:13:"fieldMappings";a:4:{i:0;s:2:"id";i:1;s:8:"username";i:2;s:7:"created";i:3;s:15:"translatedField";}s:17:"referenceMappings";a:0:{}s:17:"referrersMappings";a:0:{}s:22:"mixedReferrersMappings";a:0:{}s:16:"childrenMappings";a:0:{}s:13:"childMappings";a:0:{}s:25:"customRepositoryClassName";s:51:"Doctrine\Tests\ODM\PHPCR\Mapping\DocumentRepository";s:18:"isMappedSuperclass";b:1;s:11:"versionable";s:6:"simple";s:14:"uniqueNodeType";b:1;s:18:"lifecycleCallbacks";a:1:{s:8:"postLoad";a:1:{i:0;s:8:"callback";}}}');
 
         $this->assertInstanceOf(ClassMetadata::class, $cm);
 
         $this->assertEquals(['callback'], $cm->getLifecycleCallbacks('postLoad'));
         $this->assertTrue($cm->isMappedSuperclass);
-        $this->assertTrue($cm->versionable);
+        $this->assertSame('simple', $cm->versionable);
         $this->assertTrue($cm->uniqueNodeType);
         $this->assertTrue($cm->inheritMixins);
         $this->assertEquals(DocumentRepository::class, $cm->customRepositoryClassName);
@@ -272,13 +277,13 @@ class ClassMetadataTest extends TestCase
         return $cm;
     }
 
-    public function testClassMetadataInstanceSerialization()
+    public function testClassMetadataInstanceSerialization(): void
     {
         $cm = new ClassMetadata(CmsUser::class);
         $cm->initializeReflection(new RuntimeReflectionService());
 
         // Test initial state
-        $this->assertTrue(0 == count($cm->getReflectionProperties()));
+        $this->assertCount(0, $cm->getReflectionProperties());
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals([], $cm->parentClasses);
@@ -298,7 +303,7 @@ class ClassMetadataTest extends TestCase
         $cm->wakeupReflection(new RuntimeReflectionService());
 
         // Check state
-        $this->assertTrue(\count($cm->getReflectionProperties()) > 0);
+        $this->assertNotEmpty($cm->getReflectionProperties());
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->namespace);
         $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
@@ -314,7 +319,7 @@ class ClassMetadataTest extends TestCase
     /**
      * @depends testMapField
      */
-    public function testClassMetadataInstanceSerializationTranslationProperties(ClassMetadata $cm)
+    public function testClassMetadataInstanceSerializationTranslationProperties(ClassMetadata $cm): void
     {
         $serialized = serialize($cm);
         /** @var ClassMetadata $cm */
@@ -332,7 +337,7 @@ class ClassMetadataTest extends TestCase
      * It should throw an exception if given a child class FQN when the
      * metadata is for a leaf.
      */
-    public function testAssertValidChildClassesIsLeaf()
+    public function testAssertValidChildClassesIsLeaf(): void
     {
         $cm = new ClassMetadata(Person::class);
         $childCm = new ClassMetadata('stdClass');
@@ -347,7 +352,7 @@ class ClassMetadataTest extends TestCase
      *
      * @doesNotPerformAssertions
      */
-    public function testAssertValidChildClassesEmpty()
+    public function testAssertValidChildClassesEmpty(): void
     {
         $cm = new ClassMetadata(Person::class);
         $childCm = new ClassMetadata('stdClass');
@@ -360,7 +365,7 @@ class ClassMetadataTest extends TestCase
      *
      * @doesNotPerformAssertions
      */
-    public function testAssertValidChildClassesAllowed()
+    public function testAssertValidChildClassesAllowed(): void
     {
         $cm = new ClassMetadata(Person::class);
         $cm->setChildClasses(['stdClass']);
@@ -372,7 +377,7 @@ class ClassMetadataTest extends TestCase
     /**
      * It should return early if the given class is an instance of an allowed class.
      */
-    public function testAssertValidChildClassInstance()
+    public function testAssertValidChildClassInstance(): void
     {
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
@@ -386,7 +391,7 @@ class ClassMetadataTest extends TestCase
     /**
      * It should return early if the given class implements an allowed interface.
      */
-    public function testAssertValidChildClassInterface()
+    public function testAssertValidChildClassInterface(): void
     {
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
@@ -400,7 +405,7 @@ class ClassMetadataTest extends TestCase
     /**
      * It should throw an exception if the given class is not allowed.
      */
-    public function testAssertValidChildClassesNotAllowed()
+    public function testAssertValidChildClassesNotAllowed(): void
     {
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());

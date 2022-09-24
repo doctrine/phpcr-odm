@@ -20,7 +20,7 @@ class LocaleChooserTest extends PHPCRTestCase
     private $orderDe = ['en'];
 
     /**
-     * @var ClassMetadata|MockObject
+     * @var ClassMetadata&MockObject
      */
     private $mockMetadata;
 
@@ -30,7 +30,7 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->localeChooser = new LocaleChooser(['en' => $this->orderEn, 'de' => $this->orderDe], 'en');
     }
 
-    public function testGetFallbackLocales()
+    public function testGetFallbackLocales(): void
     {
         $orderDe = $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de');
         $this->assertEquals($this->orderDe, $orderDe);
@@ -41,32 +41,32 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->assertEquals($this->orderDe, $orderDe);
     }
 
-    public function testSetFallbackLocalesMerge()
+    public function testSetFallbackLocalesMerge(): void
     {
         $this->localeChooser->setFallbackLocales('de', ['fr'], false);
         $this->assertEquals(['fr', 'en'], $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
     }
 
-    public function testSetFallbackLocalesReplace()
+    public function testSetFallbackLocalesReplace(): void
     {
         $this->localeChooser->setFallbackLocales('de', ['fr'], true);
         $this->assertEquals(['fr'], $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'de'));
     }
 
-    public function testGetFallbackLocalesNonexisting()
+    public function testGetFallbackLocalesNonexisting(): void
     {
         $this->expectException(MissingTranslationException::class);
         $this->localeChooser->getFallbackLocales(null, $this->mockMetadata, 'notexisting');
     }
 
-    public function testGetDefaultLocalesOrder()
+    public function testGetDefaultLocalesOrder(): void
     {
         $this->localeChooser->setLocale('de'); // default should not use current locale but default locale
         $orderEn = $this->localeChooser->getDefaultLocalesOrder();
         $this->assertEquals(['en', 'de'], $orderEn);
     }
 
-    public function testGetLocale()
+    public function testGetLocale(): void
     {
         $locale = $this->localeChooser->getLocale();
         $this->assertEquals('en', $locale);
@@ -75,26 +75,26 @@ class LocaleChooserTest extends PHPCRTestCase
         $this->assertEquals('de', $locale);
     }
 
-    public function testSetLocaleNonexisting()
+    public function testSetLocaleNonexisting(): void
     {
         $this->expectException(MissingTranslationException::class);
         $this->localeChooser->setLocale('nonexisting');
     }
 
-    public function testGetDefaultLocale()
+    public function testGetDefaultLocale(): void
     {
         $locale = $this->localeChooser->getDefaultLocale();
         $this->assertEquals('en', $locale);
     }
 
-    public function testSetLocaleRegionNotConfigured()
+    public function testSetLocaleRegionNotConfigured(): void
     {
         $this->localeChooser->setLocale('en_GB');
         $locale = $this->localeChooser->getLocale();
         $this->assertEquals('en', $locale);
     }
 
-    public function testSubRegion()
+    public function testSubRegion(): void
     {
         $orderEnGB = ['en', 'de'];
         $this->localeChooser = new LocaleChooser(['en_GB' => $orderEnGB, 'en' => $this->orderEn, 'de' => $this->orderDe], 'en');

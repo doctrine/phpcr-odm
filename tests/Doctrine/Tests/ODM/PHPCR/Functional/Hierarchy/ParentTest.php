@@ -60,13 +60,13 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename', $doc->id);
         $this->assertEquals('thename', $doc->nodename);
 
-        $this->assertTrue($doc->parent instanceof Proxy);
+        $this->assertInstanceOf(Proxy::class, $doc->parent);
         $this->assertEquals('/functional', $doc->parent->getId());
 
         return $doc;
     }
 
-    public function testInsert()
+    public function testInsert(): void
     {
         $doc = new NameDoc();
         $doc->id = '/functional/test';
@@ -84,7 +84,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals($doc->nodename, $docNew->nodename);
     }
 
-    public function testParentChangeException()
+    public function testParentChangeException(): void
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->parent = new NameDoc();
@@ -93,7 +93,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testIdChangeException()
+    public function testIdChangeException(): void
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->id = '/different';
@@ -102,7 +102,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testInsertChildWithManualPath()
+    public function testInsertChildWithManualPath(): void
     {
         $parent = new NameDoc();
         $parent->id = '/functional/parent';
@@ -117,7 +117,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
     }
 
-    public function testInsertWithParentIdStrategy()
+    public function testInsertWithParentIdStrategy(): void
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $child = new NameDoc();
@@ -132,7 +132,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename/child', $child->id);
     }
 
-    public function testInsertGrandchildWithParentIdStrategy()
+    public function testInsertGrandchildWithParentIdStrategy(): void
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $child = new NameDoc();
@@ -159,7 +159,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/thename/child/grandchild', $grandchild->id);
     }
 
-    public function testInsertChildWithNewParent()
+    public function testInsertChildWithNewParent(): void
     {
         $parent = new NameDoc();
         $parent->id = '/functional/parent';
@@ -178,7 +178,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/child', $child->id);
     }
 
-    public function testInsertGrandchildWithNewParent()
+    public function testInsertGrandchildWithNewParent(): void
     {
         $parent = new NameDoc();
         $parent->id = '/functional/parent';
@@ -207,7 +207,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/child/grandchild', $grandchild->id);
     }
 
-    public function testChildOfRoot()
+    public function testChildOfRoot(): void
     {
         $root = $this->dm->find(null, '/');
         $child = new NameDoc();
@@ -218,7 +218,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/childOfRoot', $child->id);
     }
 
-    public function testParentOfReference()
+    public function testParentOfReference(): void
     {
         $doc = $this->dm->find($this->type, '/functional/thename');
         $doc->node->addMixin('mix:referenceable');
@@ -240,7 +240,7 @@ class ParentTest extends PHPCRFunctionalTestCase
      * Create a node with a bad name and allow it to be discovered
      * among its parent node's children without explicity persisting it.
      */
-    public function testIllegalNameNewChild()
+    public function testIllegalNameNewChild(): void
     {
         $parent = $this->dm->find($this->type, '/functional/thename');
 
@@ -258,7 +258,7 @@ class ParentTest extends PHPCRFunctionalTestCase
      * among its parent node's children while also explicitly
      * persisting it.
      */
-    public function testIllegalNameManagedChild()
+    public function testIllegalNameManagedChild(): void
     {
         $parent = $this->dm->find($this->type, '/functional/thename');
 

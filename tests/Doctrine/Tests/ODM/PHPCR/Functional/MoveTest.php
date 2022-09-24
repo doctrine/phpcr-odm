@@ -20,14 +20,12 @@ class MoveTest extends PHPCRFunctionalTestCase
 
     private $type = CmsUser::class;
 
-    private $node;
-
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $node = $this->resetFunctionalNode($this->dm);
 
-        $user = $this->node->addNode('lsmith');
+        $user = $node->addNode('lsmith');
         $user->setProperty('username', 'lsmith');
         $user->setProperty('numbers', [3, 1, 2]);
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
@@ -42,7 +40,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         }
     }
 
-    public function testMove()
+    public function testMove(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -58,7 +56,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must not exist');
     }
 
-    public function testMoveWithClear()
+    public function testMoveWithClear(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -74,7 +72,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testMoveWithPersist()
+    public function testMoveWithPersist(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -89,7 +87,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testMoveFirstPersist()
+    public function testMoveFirstPersist(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -106,7 +104,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertEquals('new name', $user->username);
     }
 
-    public function testMoveThenRemove()
+    public function testMoveThenRemove(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -122,7 +120,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-    public function testMoveNoFlush()
+    public function testMoveNoFlush(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -133,7 +131,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testMoveWithChild()
+    public function testMoveWithChild(): void
     {
         $this->dm->clear();
         $user1 = $this->dm->find($this->type, '/functional/lsmith');
@@ -176,7 +174,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNotNull($user, 'User must exist');
     }
 
-    public function testRemoveThenMove()
+    public function testRemoveThenMove(): void
     {
         $this->dm->clear();
         $user = $this->dm->find($this->type, '/functional/lsmith');
@@ -193,7 +191,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertNull($user, 'User must be null after deletion');
     }
 
-    public function testMoveUpdateFields()
+    public function testMoveUpdateFields(): void
     {
         $this->dm->clear();
         $user1 = $this->dm->find($this->type, '/functional/lsmith');
@@ -221,7 +219,7 @@ class MoveTest extends PHPCRFunctionalTestCase
         $this->assertSame($user1, $user3->parent);
     }
 
-    public function testMoveToRootByParent()
+    public function testMoveToRootByParent(): void
     {
         $user2 = new CmsTeamUser();
         $user2->username = 'dbu';

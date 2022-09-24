@@ -86,7 +86,7 @@ class XmlDriver extends FileDriver
         }
 
         if (isset($xmlRoot['is-leaf'])) {
-            if (!in_array($value = $xmlRoot['is-leaf'], ['true', 'false'])) {
+            if (!in_array($value = $xmlRoot['is-leaf'], ['true', 'false'])) { // must not do strict comparison here
                 throw new MappingException(sprintf(
                     'Value of is-leaf must be "true" or "false", got "%s" for class "%s"',
                     $value,
@@ -94,7 +94,7 @@ class XmlDriver extends FileDriver
                 ));
             }
 
-            $class->setIsLeaf('true' == $value ? true : false);
+            $class->setIsLeaf('true' == $value);
         }
 
         if (isset($xmlRoot->mixins)) {
@@ -128,8 +128,8 @@ class XmlDriver extends FileDriver
                 foreach ($attributes as $key => $value) {
                     $mapping[$key] = (string) $value;
                     // convert bool fields
-                    if (in_array($key, ['id', 'multivalue', 'assoc', 'translated', 'nullable'])) {
-                        $mapping[$key] = ('true' === $mapping[$key]) ? true : false;
+                    if (in_array($key, ['id', 'multivalue', 'assoc', 'translated', 'nullable'], true)) {
+                        $mapping[$key] = 'true' === $mapping[$key];
                     }
                 }
                 if (!isset($mapping['name'])) {
