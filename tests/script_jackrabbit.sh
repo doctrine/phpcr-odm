@@ -1,6 +1,5 @@
 #!/bin/bash
 
-SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="${0%/*}"
 
 # if the script was started from the base directory, then the

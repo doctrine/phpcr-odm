@@ -439,8 +439,11 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $pUser1 = $this->dm->find($this->type, '/functional/user');
+        $this->assertInstanceOf(User::class, $pUser1);
         $pUser2 = $this->dm->find($this->type, '/functional/user2222');
+        $this->assertInstanceOf(User::class, $pUser2);
         $pUser3 = $this->dm->find($this->type, '/functional/user3333');
+        $this->assertInstanceOf(User::class, $pUser3);
 
         $this->assertEquals('/functional/user', $pUser1->id);
         $this->assertEquals('new-name', $pUser1->username);

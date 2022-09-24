@@ -25,6 +25,17 @@ Changelog
 1.x
 ===
 
+1.7.0
+-----
+
+* Test with PHP 8.1
+* Fix edge case bug that could lead to new documents being considered inserted already.
+
+1.6.1
+-----
+
+* Fix Version::VERSION constant
+
 1.6.0
 -----
 

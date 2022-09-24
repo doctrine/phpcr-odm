@@ -4,6 +4,7 @@ namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use PHPCR\PropertyInterface;
 
 /**
  * Referrer collection class.
@@ -61,7 +62,7 @@ class ReferrersCollection extends PersistentCollection
     }
 
     /**
-     * @return array
+     * @return PropertyInterface[]
      */
     private function getReferrerProperties()
     {

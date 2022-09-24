@@ -79,7 +79,7 @@ class ChildrenCollection extends PersistentCollection
     /**
      * @param $childNodes
      *
-     * @return array
+     * @return NodeInterface[]
      */
     private function getChildren($childNodes)
     {
@@ -135,7 +135,7 @@ class ChildrenCollection extends PersistentCollection
 
             $nodeName = PathHelper::getNodeName($documentId);
 
-            return in_array($nodeName, $this->getOriginalNodeNames());
+            return in_array($nodeName, $this->getOriginalNodeNames(), true);
         }
 
         return parent::contains($element);
@@ -145,7 +145,7 @@ class ChildrenCollection extends PersistentCollection
     public function containsKey($key)
     {
         if (!$this->isInitialized()) {
-            return in_array($key, $this->getOriginalNodeNames());
+            return in_array($key, $this->getOriginalNodeNames(), true);
         }
 
         return parent::containsKey($key);
@@ -177,7 +177,7 @@ class ChildrenCollection extends PersistentCollection
         if (!$this->isInitialized()) {
             $nodeNames = $this->getOriginalNodeNames();
             if (!is_numeric($offset)) {
-                $offset = array_search($offset, $nodeNames);
+                $offset = array_search($offset, $nodeNames, true);
                 if (false === $offset) {
                     return new ArrayCollection();
                 }
@@ -196,7 +196,7 @@ class ChildrenCollection extends PersistentCollection
 
         if (!is_numeric($offset)) {
             $nodeNames = $this->collection->getKeys();
-            $offset = array_search($offset, $nodeNames);
+            $offset = array_search($offset, $nodeNames, true);
             if (false === $offset) {
                 return new ArrayCollection();
             }
@@ -208,7 +208,7 @@ class ChildrenCollection extends PersistentCollection
     /**
      * Return the ordered list of node names of children that existed when the collection was initialized.
      *
-     * @return array
+     * @return string[]
      */
     public function getOriginalNodeNames()
     {

@@ -667,7 +667,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function setVersioned($versionable)
     {
-        if ($versionable && !in_array($versionable, self::$validVersionableAnnotations)) {
+        if ($versionable && !in_array($versionable, self::$validVersionableAnnotations, true)) {
             throw new MappingException(sprintf(
                 'Invalid value in "%s" for the versionable annotation: "%s"',
                 $this->name,
@@ -890,7 +890,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function mapMixedReferrers(array $mapping, self $inherited = null)
     {
-        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], [null, 'weak', 'hard']))) {
+        if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], [null, 'weak', 'hard'], true))) {
             throw new MappingException(sprintf(
                 'You have to specify a "referenceType" for the "%s" mapping which must be null, "weak" or "hard": %s',
                 $this->name,
@@ -1050,7 +1050,7 @@ class ClassMetadata implements ClassMetadataInterface
         }
         if (empty($mapping['strategy'])) {
             $mapping['strategy'] = 'weak';
-        } elseif (!in_array($mapping['strategy'], [null, 'weak', 'hard', 'path'])) {
+        } elseif (!in_array($mapping['strategy'], [null, 'weak', 'hard', 'path'], true)) {
             throw new MappingException(sprintf(
                 'The attribute "strategy" for the "%s" association has to be either a null, "weak", "hard" or "path": "%s"',
                 $this->name,
@@ -1355,7 +1355,7 @@ class ClassMetadata implements ClassMetadataInterface
             return false;
         }
 
-        return in_array($fieldName, $this->fieldMappings)
+        return in_array($fieldName, $this->fieldMappings, true)
             || isset($this->inheritedFields[$fieldName])
             || $this->identifier === $fieldName
             || $this->localeMapping === $fieldName
@@ -1372,7 +1372,7 @@ class ClassMetadata implements ClassMetadataInterface
     public function hasAssociation($fieldName)
     {
         return isset($this->mappings[$fieldName])
-            && in_array($this->mappings[$fieldName]['type'], [self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent']);
+            && in_array($this->mappings[$fieldName]['type'], [self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'], true);
     }
 
     /**
@@ -1611,7 +1611,7 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         // Add the field to the list of translatable fields
-        if (!empty($mapping['translated']) && !in_array($mapping['fieldName'], $this->translatableFields)) {
+        if (!empty($mapping['translated']) && !in_array($mapping['fieldName'], $this->translatableFields, true)) {
             $this->translatableFields[] = $mapping['fieldName'];
         }
 
