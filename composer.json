@@ -55,7 +55,10 @@
         "psr-4": { "Doctrine\\ODM\\PHPCR\\": "lib/Doctrine/ODM/PHPCR" }
     },
     "autoload-dev": {
-        "psr-4": { "Doctrine\\Benchmarks\\ODM\\PHPCR\\": "benchmarks" }
+        "psr-4": {
+            "Doctrine\\Benchmarks\\ODM\\PHPCR\\": "benchmarks",
+            "Doctrine\\Tests\\": "tests/Doctrine/Tests"
+        }
     },
     "bin": ["bin/phpcrodm", "bin/phpcrodm.php"],
     "config": {

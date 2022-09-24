@@ -85,7 +85,7 @@ class LocaleChooser implements LocaleChooserInterface
     {
         if (!$replace && isset($this->localePreference[$locale])) {
             foreach ($this->localePreference[$locale] as $oldLocale) {
-                if (!in_array($oldLocale, $order)) {
+                if (!in_array($oldLocale, $order, true)) {
                     $order[] = $oldLocale;
                 }
             }
