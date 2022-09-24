@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.6.1
+-----
+
+* Fix Version::VERSION constant
+
 1.6.0
 -----
 
