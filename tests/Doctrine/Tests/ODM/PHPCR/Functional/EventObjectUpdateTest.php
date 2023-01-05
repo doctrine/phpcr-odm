@@ -24,7 +24,6 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
     {
         $this->listener = new TestEventDocumentChanger2();
         $this->dm = $this->createDocumentManager();
-        $this->node = $this->resetFunctionalNode($this->dm);
     }
 
     public function testComputingBetweenEvents(): void

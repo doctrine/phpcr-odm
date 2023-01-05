@@ -13,11 +13,16 @@ class InsertPerformanceTest extends PHPCRFunctionalTestCase
      */
     private $dm;
 
+    /**
+     * @var int
+     */
+    private $count;
+
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager();
         $this->resetFunctionalNode($this->dm);
-        $this->count = $GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] ?? 100;
+        $this->count = (int) ($GLOBALS['DOCTRINE_PHPCR_PERFORMANCE_COUNT'] ?? 100);
     }
 
     public function testInsertDocuments(): void

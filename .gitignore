@@ -1,5 +1,6 @@
 tests/phpunit.xml
 phpunit.xml
+.phpunit.result.cache
 /cli-config.php
 jackrabbit/
 vendor/

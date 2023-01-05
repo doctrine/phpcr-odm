@@ -132,7 +132,7 @@ class ParentClassMetadataProxy extends ClassMetadata
 
     protected $_nodename;
 
-    protected $_id;
+    private $_identifier;
 
     public function __construct($parent, $nodename, $identifier, $mockField = null)
     {

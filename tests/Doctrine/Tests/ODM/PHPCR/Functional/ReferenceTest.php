@@ -797,7 +797,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
     {
         $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = '/functional/refManyTestObj';
-        $refManyTestObj->name = 'referrer';
 
         $max = 5;
 
@@ -826,7 +825,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
     {
         $refManyTestObj = new RefManyTestObjPathStrategy();
         $refManyTestObj->id = '/functional/refManyTestObjWP';
-        $refManyTestObj->name = 'referrer';
 
         $max = 5;
 
@@ -855,7 +853,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
     {
         $refManyTestObj = new RefManyTestObj();
         $refManyTestObj->id = '/functional/refManyTestObj';
-        $refManyTestObj->name = 'referrer';
 
         $max = 5;
 
@@ -932,7 +929,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $referenced->id = '/functional/refRefTestObj';
 
         $this->dm->persist($referrer);
-        $referrer->name = 'Referrer';
         $referrer->reference = $referenced;
         $referenced->name = 'Referenced';
 
@@ -997,7 +993,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
 
         $refCascadeTestObj = new RefCascadeTestObj();
         $refCascadeTestObj->id = '/functional/refCascadeTestObj';
-        $refCascadeTestObj->name = 'refCascadeTestObj';
 
         $referrer->reference = $refCascadeTestObj;
 
@@ -1335,7 +1330,6 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         for ($i = 0; $i < $max; ++$i) {
             $newReferrerTestObj = new ReferenceRefTestObj();
             $newReferrerTestObj->id = "/functional/referenceRefTestObj$i";
-            $newReferrerTestObj->name = "referrerTestObj$i";
             $referrerRefManyTestObj->reference[] = $newReferrerTestObj;
         }
 
@@ -1343,17 +1337,17 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrered = $this->dm->find(null, '/functional/referenceTestObj');
-        $this->assertCount($max, $referrered->reference);
-        $referrered->reference->remove(0);
-        $referrered->reference->remove(3);
-        $this->assertCount($max - 2, $referrered->reference);
+        $referred = $this->dm->find(null, '/functional/referenceTestObj');
+        $this->assertCount($max, $referred->reference);
+        $referred->reference->remove(0);
+        $referred->reference->remove(3);
+        $this->assertCount($max - 2, $referred->reference);
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrered = $this->dm->find(null, '/functional/referenceTestObj');
-        $this->assertCount($max - 2, $referrered->reference);
+        $referred = $this->dm->find(null, '/functional/referenceTestObj');
+        $this->assertCount($max - 2, $referred->reference);
     }
 }
 
