@@ -106,6 +106,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     protected $localeChooserStrategy;
 
+    /**
+     * @var ValueConverter
+     */
+    private $valueConverter;
+
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
         $this->session = $session;

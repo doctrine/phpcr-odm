@@ -138,7 +138,6 @@ class MergeTest extends PHPCRFunctionalTestCase
     {
         $doc = new CmsArticle();
         $doc->id = '/foo';
-        $doc->name = 'Foo';
 
         $mergedDoc = $this->dm->merge($doc);
 

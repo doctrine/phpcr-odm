@@ -27,7 +27,7 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->listener = new ChangesetListener();
         $this->dm = $this->createDocumentManager();
         $this->dm->setLocaleChooserStrategy(new LocaleChooser(['en' => ['fr'], 'fr' => ['en']], 'en'));
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
     }
 
     public function testComputeChangeset()

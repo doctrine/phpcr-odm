@@ -48,7 +48,6 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $referrerTestObj->id = '/functional/referrerTestObj';
         $referrerTestObj->name = 'referrer';
         $referrerRefTestObj->id = '/functional/referrerRefTestObj';
-        $referrerRefTestObj->name = 'referenced';
 
         $referrerTestObj->reference = $referrerRefTestObj;
 
@@ -615,7 +614,6 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         for ($i = 0; $i < $max; ++$i) {
             $newReferrerTestObj = new ReferrerTestObj2();
             $newReferrerTestObj->id = "/functional/referrerTestObj$i";
-            $newReferrerTestObj->name = "referrerTestObj$i";
             $newReferrerTestObj->reference = $referrerRefManyTestObj;
             $this->dm->persist($newReferrerTestObj);
         }
