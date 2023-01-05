@@ -21,7 +21,7 @@ class CascadePersistTest extends PHPCRFunctionalTestCase
     public function setUp(): void
     {
         $this->dm = $this->createDocumentManager([__DIR__]);
-        $this->node = $this->resetFunctionalNode($this->dm);
+        $this->resetFunctionalNode($this->dm);
 
         $class = $this->dm->getClassMetadata(CmsUser::class);
         $class->mappings['groups']['cascade'] = ClassMetadata::CASCADE_PERSIST;

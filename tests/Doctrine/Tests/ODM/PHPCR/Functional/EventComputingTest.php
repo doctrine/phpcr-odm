@@ -149,7 +149,7 @@ class EventComputingTest extends PHPCRFunctionalTestCase
         // name has been changed when translation was updated
         $this->assertEquals('preUpdateTranslation', $user->name);
 
-        $this->dm->name = 'neuer Name';
+        $user->name = 'neuer Name';
         $this->dm->bindTranslation($user, 'de');
 
         $this->dm->flush();

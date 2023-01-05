@@ -688,7 +688,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
     {
         $a = new Article();
         $a->id = '/functional/'.$this->testNodeName;
-        $a->title = 'Hello';
+        $a->topic = 'Hello';
         $this->dm->persist($a);
 
         $translations = [
