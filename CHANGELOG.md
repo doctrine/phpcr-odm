@@ -4,6 +4,12 @@ Changelog
 1.x
 ===
 
+1.7.1
+-----
+
+* Test with PHP 8.2
+* Allow installation with Doctrine Annotations 2, Collections 2 and EventManager 2.
+
 1.7.0
 -----
 
