@@ -16,4 +16,6 @@ if ($files) {
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
-AnnotationRegistry::registerLoader([$autoload, 'loadClass']);
+if (method_exists(AnnotationRegistry::class, 'registerLoader')) {
+    AnnotationRegistry::registerLoader([$autoload, 'loadClass']);
+}
