@@ -1,6 +1,6 @@
 # PHPCR ODM for Doctrine2
 
-[![Build Status](https://travis-ci.org/doctrine/phpcr-odm.svg?branch=master)](https://travis-ci.org/doctrine/phpcr-odm)
+[![Build Status](https://github.com/doctrine/phpcr-odm/actions/workflows/test-application.yaml/badge.svg?branch=1.x)](https://github.com/doctrine/phpcr-odm/actions/workflows/test-application.yaml)
 [![Latest Stable Version](https://poser.pugx.org/doctrine/phpcr-odm/version.png)](https://packagist.org/packages/doctrine/phpcr-odm)
 [![Total Downloads](https://poser.pugx.org/doctrine/phpcr-odm/d/total.png)](https://packagist.org/packages/doctrine/phpcr-odm)
 
