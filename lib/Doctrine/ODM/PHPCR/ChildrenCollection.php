@@ -70,7 +70,7 @@ class ChildrenCollection extends PersistentCollection
     {
         if (null === $this->node) {
             $path = $this->dm->getUnitOfWork()->getDocumentId($this->document);
-            $this->node = $this->dm->getPhpcrSession()->getNode($path, $fetchDepth);
+            $this->node = $this->dm->getPhpcrSession()->getNode($path, is_int($fetchDepth) ? $fetchDepth : -1);
         }
 
         return $this->node;

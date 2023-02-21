@@ -11,6 +11,7 @@ use Doctrine\ODM\PHPCR\UnitOfWork;
 use Jackalope\Node;
 use Jackalope\Property;
 use PHPCR\NodeInterface;
+use PHPCR\PropertyInterface;
 use PHPCR\PropertyType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -49,10 +50,7 @@ class DocumentClassMapperTest extends Testcase
     {
         $this->dm = $this->createMock(DocumentManager::class);
 
-        // This should be PHPCR\NodeInterface but as of time of writing PHPUnit
-        // will not Mock Traversable interfaces:
-        // https://github.com/sebastianbergmann/phpunit-mock-objects/issues/103
-        $this->node = $this->createMock(Node::class);
+        $this->node = $this->createMock(NodeInterface::class);
 
         $this->metadata = $this->createMock(ClassMetadata::class);
 
@@ -89,7 +87,7 @@ class DocumentClassMapperTest extends Testcase
      */
     private function mockNodeHasClass($class): void
     {
-        $property = $this->createMock(Property::class);
+        $property = $this->createMock(PropertyInterface::class);
         $property->expects($this->once())
             ->method('getString')
             ->willReturn($class);

@@ -1,6 +1,7 @@
 {
     "runner.path": "benchmarks",
     "runner.bootstrap": "benchmarks/bootstrap.php",
+    "runner.file_pattern": "*Bench.php",
     "report.generators": {
         "phpbench_aggregate": {
             "extends": "aggregate",
