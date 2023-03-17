@@ -27,9 +27,6 @@ jobs:
 
             matrix:
                 php-version:
-                    - '7.1'
-                    - '7.2'
-                    - '7.3'
                     - '7.4'
                     - '8.0'
                     - '8.1'
@@ -37,22 +34,16 @@ jobs:
                 dependencies: [highest]
                 symfony-version: ['*']
                 include:
-                    - php-version: '7.1'
+                    - php-version: '7.4'
                       dependencies: lowest
                       symfony-version: '*'
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-version: 2.3.*
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: 3.4.*
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: 4.4.*
+                      symfony-version: 5.4.*
                       php-bench: true
                     - php-version: '8.0'
                       dependencies: highest
-                      symfony-version: 5.0.*
+                      symfony-version: 5.4.*
                     - php-version: '8.0'
                       dependencies: highest
                       symfony-version: 6.0.*
@@ -76,7 +67,7 @@ jobs:
 
             - name: Install PHPBench
               if: matrix.php-bench == true
-              run: composer require phpbench/phpbench:"~0.16" --no-update
+              run: composer require phpbench/phpbench:"^1.0" --no-update
 
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v1
@@ -106,35 +97,26 @@ jobs:
 
             matrix:
                 php-version:
-                    - '7.1'
-                    - '7.2'
-                    - '7.3'
                     - '7.4'
                     - '8.0'
                     - '8.1'
+                    - '8.2'
                 dependencies: [highest]
                 symfony-version: ['*']
                 include:
-                    - php-version: '7.1'
+                    - php-version: '7.4'
                       dependencies: lowest
                       symfony-version: '*'
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: 2.3.*
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: 3.4.*
-                      php-bench: true
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: 4.4.*
-                      php-bench: true
                     - php-version: '8.0'
+                      dependencies: lowest
+                      symfony-version: '*'
+                    - php-version: '8.2'
                       dependencies: highest
-                      symfony-version: 5.0.*
-                    - php-version: '8.0'
+                      symfony-version: 5.4.*
+                      php-bench: true
+                    - php-version: '8.2'
                       dependencies: highest
-                      symfony-version: 6.0.*
+                      symfony-version: 6.*
 
         steps:
             - name: Checkout project
@@ -161,7 +143,7 @@ jobs:
 
             - name: Install PHPBench
               if: matrix.php-bench == true
-              run: composer require phpbench/phpbench:"~0.16" --no-update
+              run: composer require phpbench/phpbench:"^1.0" --no-update
 
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v1

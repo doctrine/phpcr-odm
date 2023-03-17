@@ -1,7 +1,7 @@
 {
-    "path": "benchmarks",
-    "bootstrap": "benchmarks/bootstrap.php",
-    "reports": {
+    "runner.path": "benchmarks",
+    "runner.bootstrap": "benchmarks/bootstrap.php",
+    "report.generators": {
         "phpbench_aggregate": {
             "extends": "aggregate",
             "cols": [ "subject", "its", "mem_peak", "worst", "mean", "mode", "best", "rstdev" ]

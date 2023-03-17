@@ -6,6 +6,9 @@ Changelog
 
 ### BC Breaks
 
+* Replaced the deprecated Doctrine Cache with PSR-6 Cache.
+  The Configuration class now expects PSR-6 Cache instances.
+
 * Removed deprecated methods HierarchyInterface::getParent/setParent.
   Use getParentDocument/setParentDocument instead.
 
@@ -21,6 +24,8 @@ Changelog
 ### Improvements
 
 * Allow using `doctrine/persistence`
+
+Dropped support for PHP < 7.4 and Symfony < 5.4.
 
 1.x
 ===
