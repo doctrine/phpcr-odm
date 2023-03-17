@@ -27,7 +27,7 @@ commands are self documenting. See the next section how to get help.
     start with only ``phpcr:`` come from the phpcr-utils and are not specific
     to Doctrine PHPCR-ODM.
 
-    If you use the PHPCR-ODM bundle in Symfony2, all commands will be prefixed
+    If you use the PHPCR-ODM bundle in Symfony, all commands will be prefixed
     with ``doctrine:phpcr``.
 
 Getting documentation of a command

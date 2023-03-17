@@ -349,7 +349,7 @@ These are all attributes of the Property annotation. The ORM knows quite a few v
 because they are used to generate the database schema. As PHPCR-ODM does not (yet) generate PHPCR
 node type definitions, there is no need for validation.
 
-If you need to validate your documents, take a look at validator components like the Symfony2 validator.
+If you need to validate your documents, take a look at validator components like the Symfony validator.
 
 Again a short list for the overview:
 

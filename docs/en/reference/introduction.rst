@@ -48,7 +48,7 @@ We do not build a web interface but simple run scripts on the command line to ke
 .. note::
     This is a simplistic document manage to illustrate the PHPCR-ODM features. If you want to build a
     custom Web Content Management System, we recommend looking into the `Symfony CMF <http://cmf.symfony.com>`_
-    which is a content management framework built on top of Doctrine PHPCR-ODM and Symfony2.
+    which is a content management framework built on top of Doctrine PHPCR-ODM and Symfony.
 
 
 Setup Project
@@ -460,7 +460,7 @@ Other helpful methods on the DocumentManager
 
 You can move a document to a different path with the ``move`` method.
 Alternatively, you can assign a different Parent and/or Nodename to move
-by assignment. The latter is for example handy with Symfony2 forms::
+by assignment. The latter is for example handy with Symfony forms::
 
     // src/manipulate.php
 

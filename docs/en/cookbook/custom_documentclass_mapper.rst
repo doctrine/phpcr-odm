@@ -79,10 +79,10 @@ custom mapper::
 
     ...
 
-Symfony2 integration
---------------------
+Symfony integration
+-------------------
 
-If you are running on Symfony2, you do not instantiate PHPCR-ODM manually.
+If you are running on Symfony, you do not instantiate PHPCR-ODM manually.
 Instead, you adjust the configuration in your service definition.
 
 Here we overwrite the ``doctrine.odm_configuration`` service to call

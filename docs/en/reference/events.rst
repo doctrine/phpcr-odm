@@ -56,7 +56,7 @@ the life-time of their registered documents.
 
 .. note::
 
-    If you use PHPCR-ODM inside Symfony2, you can use the tag
+    If you use PHPCR-ODM inside Symfony, you can use the tag
     doctrine_phpcr.event_listener to register a service as event listener.
     See the `Documentation of DoctrinePHPCRBundle <http://github.com/doctrine/DoctrinePHPCRBundle>`_
     for more information.
