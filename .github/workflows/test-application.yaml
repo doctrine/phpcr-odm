@@ -8,7 +8,7 @@ on:
 
 jobs:
     phpunit-doctrine_dbal:
-        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
+        name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.jackalope-version }} ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
 
         runs-on: ubuntu-20.04
 
@@ -33,20 +33,32 @@ jobs:
                     - '8.2'
                 dependencies: [highest]
                 symfony-version: ['*']
+                jackalope-version: ['1.*']
                 include:
                     - php-version: '7.4'
                       dependencies: lowest
                       symfony-version: '*'
                     - php-version: '7.4'
                       dependencies: highest
-                      symfony-version: 5.4.*
+                      symfony-version: '5.4.*'
                       php-bench: true
                     - php-version: '8.0'
-                      dependencies: highest
-                      symfony-version: 5.4.*
+                      dependencies: lowest
+                      symfony-version: '*'
                     - php-version: '8.0'
                       dependencies: highest
-                      symfony-version: 6.0.*
+                      symfony-version: '6.*'
+                    - php-version: '8.1'
+                      dependencies: highest
+                      symfony-version: '5.4.*'
+                    - php-version: '8.2'
+                      dependencies: highest
+                      symfony-version: '6.*'
+                    - php-version: '8.2'
+                      dependencies: highest
+                      symfony-version: '6.*'
+                      jackalope-version: '2.*'
+                      php-bench: true
 
         steps:
             - name: Checkout project
@@ -63,7 +75,7 @@ jobs:
               run: composer config extra.symfony.require ${{ matrix.symfony-version }}
 
             - name: Install Jackalope Doctrine DBAL transport
-              run: composer require jackalope/jackalope-doctrine-dbal:"~1.0" --no-update
+              run: composer require jackalope/jackalope-doctrine-dbal:"${{ matrix.jackalope-version }}" --no-update
 
             - name: Install PHPBench
               if: matrix.php-bench == true
@@ -88,7 +100,7 @@ jobs:
                   TRANSPORT: doctrine_dbal
 
     phpunit-jackrabbit:
-        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
+        name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.jackalope-version }} ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
 
         runs-on: ubuntu-20.04
 
@@ -103,20 +115,32 @@ jobs:
                     - '8.2'
                 dependencies: [highest]
                 symfony-version: ['*']
+                jackalope-version: ['1.*']
                 include:
                     - php-version: '7.4'
                       dependencies: lowest
                       symfony-version: '*'
+                    - php-version: '7.4'
+                      dependencies: highest
+                      symfony-version: '5.4.*'
+                      php-bench: true
                     - php-version: '8.0'
                       dependencies: lowest
                       symfony-version: '*'
-                    - php-version: '8.2'
+                    - php-version: '8.0'
+                      dependencies: highest
+                      symfony-version: '6.*'
+                    - php-version: '8.1'
                       dependencies: highest
                       symfony-version: 5.4.*
-                      php-bench: true
                     - php-version: '8.2'
                       dependencies: highest
-                      symfony-version: 6.*
+                      symfony-version: '6.*'
+                    - php-version: '8.2'
+                      dependencies: highest
+                      symfony-version: '6.*'
+                      jackalope-version: '2.*'
+                      php-bench: true
 
         steps:
             - name: Checkout project
@@ -139,7 +163,7 @@ jobs:
                   java-version: '8'
 
             - name: Install Jackalope Jackrabbit
-              run: composer require jackalope/jackalope-jackrabbit:~1.0 --no-update
+              run: composer require jackalope/jackalope-jackrabbit:"${{ matrix.jackalope-version }}" --no-update
 
             - name: Install PHPBench
               if: matrix.php-bench == true
