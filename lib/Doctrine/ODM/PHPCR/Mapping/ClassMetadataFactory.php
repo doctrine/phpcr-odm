@@ -58,7 +58,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $this->dm = $dm;
 
         $conf = $this->dm->getConfiguration();
-        $this->setCacheDriver($conf->getMetadataCacheImpl());
+        if ($cache = $conf->getMetadataCacheImpl()) {
+            $this->setCache($cache);
+        }
         $this->driver = $conf->getMetadataDriverImpl();
         $this->evm = $this->dm->getEventManager();
     }

@@ -2,13 +2,13 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Cache\Cache;
 use Doctrine\ODM\PHPCR\Mapping\Driver\BuiltinDocumentsDriver;
 use Doctrine\ODM\PHPCR\Repository\DefaultRepositoryFactory;
 use Doctrine\ODM\PHPCR\Repository\RepositoryFactory;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use PHPCR\Util\UUIDHelper;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Configuration class.
@@ -40,51 +40,40 @@ class Configuration
 
     /**
      * Sets if all PHPCR document metadata should be validated on read.
-     *
-     * @param bool $validateDoctrineMetadata
      */
-    public function setValidateDoctrineMetadata($validateDoctrineMetadata)
+    public function setValidateDoctrineMetadata(bool $validateDoctrineMetadata): void
     {
         $this->attributes['validateDoctrineMetadata'] = $validateDoctrineMetadata;
     }
 
     /**
      * Gets if all PHPCR document metadata should be validated on read.
-     *
-     * @return bool
      */
-    public function getValidateDoctrineMetadata()
+    public function getValidateDoctrineMetadata(): bool
     {
         return $this->attributes['validateDoctrineMetadata'];
     }
 
     /**
      * Sets if all PHPCR documents should automatically get doctrine metadata added on write.
-     *
-     * @param bool $writeDoctrineMetadata
      */
-    public function setWriteDoctrineMetadata($writeDoctrineMetadata)
+    public function setWriteDoctrineMetadata(bool $writeDoctrineMetadata): void
     {
         $this->attributes['writeDoctrineMetadata'] = $writeDoctrineMetadata;
     }
 
     /**
      * Gets if all PHPCR documents should automatically get doctrine metadata added on write.
-     *
-     * @return bool
      */
-    public function getWriteDoctrineMetadata()
+    public function getWriteDoctrineMetadata(): bool
     {
         return $this->attributes['writeDoctrineMetadata'];
     }
 
     /**
-     * Adds a namespace under a certain alias.
-     *
-     * @param string $alias
-     * @param string $namespace
+     * Adds a namespace with the specified alias.
      */
-    public function addDocumentNamespace($alias, $namespace)
+    public function addDocumentNamespace(string $alias, string $namespace): void
     {
         $this->attributes['documentNamespaces'][$alias] = $namespace;
     }
@@ -92,13 +81,9 @@ class Configuration
     /**
      * Resolves a registered namespace alias to the full namespace.
      *
-     * @param string $documentNamespaceAlias
-     *
      * @throws PHPCRException
-     *
-     * @return string the namespace URI
      */
-    public function getDocumentNamespace($documentNamespaceAlias)
+    public function getDocumentNamespace(string $documentNamespaceAlias): string
     {
         if (!isset($this->attributes['documentNamespaces'][$documentNamespaceAlias])) {
             throw PHPCRException::unknownDocumentNamespace($documentNamespaceAlias);
@@ -110,9 +95,9 @@ class Configuration
     /**
      * Set the document alias map.
      *
-     * @param array $documentNamespaces
+     * @param array<string, string> $documentNamespaces
      */
-    public function setDocumentNamespaces(array $documentNamespaces)
+    public function setDocumentNamespaces(array $documentNamespaces): void
     {
         $this->attributes['documentNamespaces'] = $documentNamespaces;
     }
@@ -120,14 +105,12 @@ class Configuration
     /**
      * Sets the driver implementation that is used to retrieve mapping metadata.
      *
-     * @param MappingDriver $driverImpl
-     *
      * @todo Force parameter to be a Closure to ensure lazy evaluation
      *       (as soon as a metadata cache is in effect, the driver never needs to initialize).
      */
-    public function setMetadataDriverImpl(MappingDriver $driverImpl, $useBuildInDocumentsDriver = true)
+    public function setMetadataDriverImpl(MappingDriver $driverImpl, bool $useBuiltInDocumentsDriver = true): void
     {
-        if ($useBuildInDocumentsDriver) {
+        if ($useBuiltInDocumentsDriver) {
             $driverImpl = new BuiltinDocumentsDriver($driverImpl);
         }
         $this->attributes['metadataDriverImpl'] = $driverImpl;
@@ -135,40 +118,29 @@ class Configuration
 
     /**
      * Gets the driver implementation that is used to retrieve mapping metadata.
-     *
-     * @return MappingDriver
      */
-    public function getMetadataDriverImpl()
+    public function getMetadataDriverImpl(): ?MappingDriver
     {
         return $this->attributes['metadataDriverImpl'];
     }
 
-    /**
-     * Sets the cache driver implementation that is used for metadata caching.
-     *
-     * @param Cache $metadataCacheImpl
-     */
-    public function setMetadataCacheImpl(Cache $metadataCacheImpl)
+    public function setMetadataCacheImpl(CacheItemPoolInterface $metadataCacheImpl): void
     {
         $this->attributes['metadataCacheImpl'] = $metadataCacheImpl;
     }
 
     /**
      * Gets the cache driver implementation that is used for the mapping metadata.
-     *
-     * @return Cache|null
      */
-    public function getMetadataCacheImpl()
+    public function getMetadataCacheImpl(): ?CacheItemPoolInterface
     {
         return $this->attributes['metadataCacheImpl'];
     }
 
     /**
      * Gets the cache driver implementation that is used for metadata caching.
-     *
-     * @return DocumentClassMapperInterface
      */
-    public function getDocumentClassMapper()
+    public function getDocumentClassMapper(): DocumentClassMapperInterface
     {
         if (empty($this->attributes['documentClassMapper'])) {
             $this->setDocumentClassMapper(new DocumentClassMapper());
@@ -179,30 +151,24 @@ class Configuration
 
     /**
      * Sets the cache driver implementation that is used for metadata caching.
-     *
-     * @param DocumentClassMapperInterface $documentClassMapper
      */
-    public function setDocumentClassMapper(DocumentClassMapperInterface $documentClassMapper)
+    public function setDocumentClassMapper(DocumentClassMapperInterface $documentClassMapper): void
     {
         $this->attributes['documentClassMapper'] = $documentClassMapper;
     }
 
     /**
      * Sets the directory where Doctrine generates any necessary proxy class files.
-     *
-     * @param string $dir
      */
-    public function setProxyDir($dir)
+    public function setProxyDir(string $dir): void
     {
         $this->attributes['proxyDir'] = $dir;
     }
 
     /**
      * Gets the directory where Doctrine generates any necessary proxy class files.
-     *
-     * @return string
      */
-    public function getProxyDir()
+    public function getProxyDir(): string
     {
         if (!isset($this->attributes['proxyDir'])) {
             $this->attributes['proxyDir'] = sys_get_temp_dir();
@@ -213,20 +179,16 @@ class Configuration
 
     /**
      * Sets the namespace for Doctrine proxy class files.
-     *
-     * @param string $namespace
      */
-    public function setProxyNamespace($namespace)
+    public function setProxyNamespace(string $namespace): void
     {
         $this->attributes['proxyNamespace'] = $namespace;
     }
 
     /**
      * Gets the namespace for Doctrine proxy class files.
-     *
-     * @return string
      */
-    public function getProxyNamespace()
+    public function getProxyNamespace(): string
     {
         return $this->attributes['proxyNamespace'];
     }
@@ -234,10 +196,8 @@ class Configuration
     /**
      * Sets a boolean flag that indicates whether proxy classes should always be regenerated
      * during each script execution.
-     *
-     * @param bool $bool
      */
-    public function setAutoGenerateProxyClasses($bool)
+    public function setAutoGenerateProxyClasses(bool $bool): void
     {
         $this->attributes['autoGenerateProxyClasses'] = $bool;
     }
@@ -245,10 +205,8 @@ class Configuration
     /**
      * Gets a boolean flag that indicates whether proxy classes should always be regenerated
      * during each script execution.
-     *
-     * @return bool
      */
-    public function getAutoGenerateProxyClasses()
+    public function getAutoGenerateProxyClasses(): bool
     {
         return $this->attributes['autoGenerateProxyClasses'];
     }
@@ -257,20 +215,16 @@ class Configuration
      * Sets a class metadata factory.
      *
      * @since 1.1
-     *
-     * @param string $cmfName
      */
-    public function setClassMetadataFactoryName($cmfName)
+    public function setClassMetadataFactoryName(string $cmfName): void
     {
         $this->attributes['classMetadataFactoryName'] = $cmfName;
     }
 
     /**
      * @since 1.1
-     *
-     * @return string
      */
-    public function getClassMetadataFactoryName()
+    public function getClassMetadataFactoryName(): string
     {
         if (!isset($this->attributes['classMetadataFactoryName'])) {
             $this->attributes['classMetadataFactoryName'] = Mapping\ClassMetadataFactory::class;
@@ -284,13 +238,9 @@ class Configuration
      *
      * @since 1.1
      *
-     * @param string $className
-     *
      * @throws PHPCRException If not is a ObjectRepository
-     *
-     * @return void
      */
-    public function setDefaultRepositoryClassName($className)
+    public function setDefaultRepositoryClassName(string $className): void
     {
         $reflectionClass = new \ReflectionClass($className);
 
@@ -305,10 +255,8 @@ class Configuration
      * Get default repository class.
      *
      * @since 1.1
-     *
-     * @return string
      */
-    public function getDefaultRepositoryClassName()
+    public function getDefaultRepositoryClassName(): string
     {
         return $this->attributes['defaultRepositoryClassName']
             ?? DocumentRepository::class;
@@ -318,10 +266,8 @@ class Configuration
      * Set the document repository factory.
      *
      * @since 1.1
-     *
-     * @param RepositoryFactory $repositoryFactory
      */
-    public function setRepositoryFactory(RepositoryFactory $repositoryFactory)
+    public function setRepositoryFactory(RepositoryFactory $repositoryFactory): void
     {
         $this->attributes['repositoryFactory'] = $repositoryFactory;
     }
@@ -330,10 +276,8 @@ class Configuration
      * Get the document repository factory.
      *
      * @since 1.1
-     *
-     * @return RepositoryFactory
      */
-    public function getRepositoryFactory()
+    public function getRepositoryFactory(): RepositoryFactory
     {
         return $this->attributes['repositoryFactory']
             ?? new DefaultRepositoryFactory();
@@ -343,10 +287,8 @@ class Configuration
      * Set the closure for the UUID generation.
      *
      * @since 1.1
-     *
-     * @param callable $generator
      */
-    public function setUuidGenerator(\Closure $generator)
+    public function setUuidGenerator(\Closure $generator): void
     {
         $this->attributes['uuidGenerator'] = $generator;
     }
@@ -355,10 +297,8 @@ class Configuration
      * Get the closure for the UUID generation.
      *
      * @since 1.1
-     *
-     * @return callable a UUID generator
      */
-    public function getUuidGenerator()
+    public function getUuidGenerator(): \Closure
     {
         return $this->attributes['uuidGenerator']
             ?? function () {
