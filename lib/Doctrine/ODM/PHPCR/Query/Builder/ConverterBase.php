@@ -4,12 +4,35 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
+use PHPCR\Query\QOM\BindVariableValueInterface;
+use PHPCR\Query\QOM\ChildNodeInterface;
+use PHPCR\Query\QOM\ChildNodeJoinConditionInterface;
 use PHPCR\Query\QOM\ColumnInterface;
+use PHPCR\Query\QOM\ComparisonInterface;
 use PHPCR\Query\QOM\ConstraintInterface;
+use PHPCR\Query\QOM\DescendantNodeInterface;
+use PHPCR\Query\QOM\DescendantNodeJoinConditionInterface;
+use PHPCR\Query\QOM\DynamicOperandInterface;
+use PHPCR\Query\QOM\EquiJoinConditionInterface;
+use PHPCR\Query\QOM\FullTextSearchInterface;
+use PHPCR\Query\QOM\FullTextSearchScoreInterface;
+use PHPCR\Query\QOM\JoinConditionInterface;
+use PHPCR\Query\QOM\JoinInterface;
+use PHPCR\Query\QOM\LengthInterface;
+use PHPCR\Query\QOM\LiteralInterface;
+use PHPCR\Query\QOM\LowerCaseInterface;
+use PHPCR\Query\QOM\NodeLocalNameInterface;
+use PHPCR\Query\QOM\NodeNameInterface;
 use PHPCR\Query\QOM\OrderingInterface;
+use PHPCR\Query\QOM\PropertyExistenceInterface;
+use PHPCR\Query\QOM\PropertyValueInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\SameNodeInterface;
+use PHPCR\Query\QOM\SelectorInterface;
 use PHPCR\Query\QOM\SourceInterface;
+use PHPCR\Query\QOM\StaticOperandInterface;
+use PHPCR\Query\QOM\UpperCaseInterface;
 
 /**
  * Base class for PHPCR based query converters.
@@ -18,25 +41,19 @@ use PHPCR\Query\QOM\SourceInterface;
  */
 abstract class ConverterBase implements ConverterInterface
 {
-    /**
-     * @var SourceInterface
-     */
-    protected $from = null;
+    protected ?SourceInterface $from = null;
 
     /**
      * @var ColumnInterface[]
      */
-    protected $columns = [];
+    protected array $columns = [];
 
     /**
      * @var OrderingInterface[]
      */
-    protected $orderings = [];
+    protected array $orderings = [];
 
-    /**
-     * @var ConstraintInterface
-     */
-    protected $constraint = null;
+    protected ?ConstraintInterface $constraint = null;
 
     /**
      * Return the PHPCR property name and alias for the given ODM document
@@ -48,33 +65,24 @@ abstract class ConverterBase implements ConverterInterface
      * @param string $originalAlias as specified in the query source
      * @param string $odmField      name of ODM document property
      *
-     * @return array first element is the real alias to use, second element is
-     *               the property name
+     * @return string[] first element is the real alias to use, second element is
+     *                  the property name
      *
      * @throws \Exception if a field used in the query does not exist on the document
      */
-    abstract protected function getPhpcrProperty($originalAlias, $odmField);
+    abstract protected function getPhpcrProperty(string $originalAlias, string $odmField): array;
+
+    abstract protected function walkSourceDocument(SourceDocument $node): SelectorInterface;
 
     /**
-     * Walk the source document.
-     *
-     * @param SourceDocument
-     */
-    abstract protected function walkSourceDocument(SourceDocument $node);
-
-    /**
-     * Walk the dynamic field.
-     *
      * Implementations should map their domain field name to the PHPCR field name here.
      */
-    abstract protected function walkOperandDynamicField(OperandDynamicField $node);
+    abstract protected function walkOperandDynamicField(OperandDynamicField $node): PropertyValueInterface;
 
     /**
      * Return the query object model factory.
-     *
-     * @return QueryObjectModelFactoryInterface
      */
-    abstract protected function qomf();
+    abstract protected function qomf(): QueryObjectModelFactoryInterface;
 
     /**
      * Check that the given alias is valid and return it.
@@ -82,20 +90,18 @@ abstract class ConverterBase implements ConverterInterface
      * This should only be called from the getQuery function AFTER
      * the document sources are known.
      *
-     * @param string $alias Alias to validate and return
-     *
-     * @return string Return the alias to allow this function to be used inline
+     * @return string Return the alias to allow this method to be chained
      *
      * @throws InvalidArgumentException
      */
-    abstract protected function validateAlias($alias);
+    abstract protected function validateAlias(string $alias): string;
 
     /**
      * Convenience method to dispatch an array of nodes.
      *
-     * @param array
+     * @param AbstractNode[] $nodes
      */
-    protected function dispatchMany($nodes)
+    protected function dispatchMany(array $nodes): void
     {
         foreach ($nodes as $node) {
             $this->dispatch($node);
@@ -109,7 +115,7 @@ abstract class ConverterBase implements ConverterInterface
      * "walk{NodeType}" in this class and then use that
      * to build the PHPCR QOM counterpart of the given node.
      *
-     * @return object - PHPCR QOM object
+     * @return object|array - PHPCR QOM object or array of objects
      */
     public function dispatch(AbstractNode $node)
     {
@@ -125,13 +131,16 @@ abstract class ConverterBase implements ConverterInterface
         return $this->$methodName($node);
     }
 
-    public function walkSelect(AbstractNode $node)
+    /**
+     * @return ColumnInterface[]
+     */
+    public function walkSelect(AbstractNode $node): array
     {
         $columns = [];
 
-        /** @var $property Field */
         foreach ($node->getChildren() as $property) {
-            list($alias, $phpcrName) = $this->getPhpcrProperty(
+            \assert($property instanceof Field);
+            [$alias, $phpcrName] = $this->getPhpcrProperty(
                 $property->getAlias(),
                 $property->getField()
             );
@@ -151,7 +160,10 @@ abstract class ConverterBase implements ConverterInterface
         return $this->columns;
     }
 
-    public function walkSelectAdd(SelectAdd $node)
+    /**
+     * @return ColumnInterface[]
+     */
+    public function walkSelectAdd(SelectAdd $node): array
     {
         $columns = $this->columns;
         $addColumns = $this->walkSelect($node);
@@ -163,26 +175,28 @@ abstract class ConverterBase implements ConverterInterface
         return $this->columns;
     }
 
-    public function walkFrom(AbstractNode $node)
+    public function walkFrom(AbstractNode $node): SourceInterface
     {
         $source = $node->getChild();
         $res = $this->dispatch($source);
+        \assert($res instanceof SourceInterface);
 
         $this->from = $res;
 
         return $this->from;
     }
 
-    public function walkWhere(Where $where)
+    public function walkWhere(Where $where): ConstraintInterface
     {
         $constraint = $where->getChild();
         $res = $this->dispatch($constraint);
+        \assert($res instanceof ConstraintInterface);
         $this->constraint = $res;
 
         return $this->constraint;
     }
 
-    public function walkWhereAnd(WhereAnd $whereAnd)
+    public function walkWhereAnd(WhereAnd $whereAnd): ConstraintInterface
     {
         if (!$this->constraint) {
             return $this->walkWhere($whereAnd);
@@ -190,6 +204,7 @@ abstract class ConverterBase implements ConverterInterface
 
         $constraint = $whereAnd->getChild();
         $res = $this->dispatch($constraint);
+        \assert($res instanceof ConstraintInterface);
         $newConstraint = $this->qomf()->andConstraint(
             $this->constraint,
             $res
@@ -199,7 +214,7 @@ abstract class ConverterBase implements ConverterInterface
         return $this->constraint;
     }
 
-    public function walkWhereOr(WhereOr $whereOr)
+    public function walkWhereOr(WhereOr $whereOr): ConstraintInterface
     {
         if (!$this->constraint) {
             return $this->walkWhere($whereOr);
@@ -207,6 +222,7 @@ abstract class ConverterBase implements ConverterInterface
 
         $constraint = $whereOr->getChild();
         $res = $this->dispatch($constraint);
+        \assert($res instanceof ConstraintInterface);
         $newConstraint = $this->qomf()->orConstraint(
             $this->constraint,
             $res
@@ -216,21 +232,24 @@ abstract class ConverterBase implements ConverterInterface
         return $this->constraint;
     }
 
-    protected function walkSourceJoin(SourceJoin $node)
+    protected function walkSourceJoin(SourceJoin $node): JoinInterface
     {
         $left = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_LEFT));
+        \assert($left instanceof SourceInterface);
         $right = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_RIGHT));
+        \assert($right instanceof SourceInterface);
         $cond = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_CONDITION_FACTORY));
+        \assert($cond instanceof JoinConditionInterface);
 
         return $this->qomf()->join($left, $right, $node->getJoinType(), $cond);
     }
 
-    protected function walkSourceJoinLeft(SourceJoinLeft $node)
+    protected function walkSourceJoinLeft(SourceJoinLeft $node): SourceInterface
     {
         return $this->walkFrom($node);
     }
 
-    protected function walkSourceJoinRight(SourceJoinRight $node)
+    protected function walkSourceJoinRight(SourceJoinRight $node): SourceInterface
     {
         return $this->walkFrom($node);
     }
@@ -240,13 +259,13 @@ abstract class ConverterBase implements ConverterInterface
         return $this->dispatch($node->getChild());
     }
 
-    protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node)
+    protected function walkSourceJoinConditionEqui(SourceJoinConditionEqui $node): EquiJoinConditionInterface
     {
-        list($alias1, $phpcrProperty1) = $this->getPhpcrProperty(
+        [$alias1, $phpcrProperty1] = $this->getPhpcrProperty(
             $node->getAlias1(),
             $node->getProperty1()
         );
-        list($alias2, $phpcrProperty2) = $this->getPhpcrProperty(
+        [$alias2, $phpcrProperty2] = $this->getPhpcrProperty(
             $node->getAlias2(),
             $node->getProperty2()
         );
@@ -259,7 +278,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkSourceJoinConditionDescendant(SourceJoinConditionDescendant $node)
+    protected function walkSourceJoinConditionDescendant(SourceJoinConditionDescendant $node): DescendantNodeJoinConditionInterface
     {
         return $this->qomf()->descendantNodeJoinCondition(
             $node->getDescendantAlias(),
@@ -267,7 +286,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkSourceJoinConditionChildDocument(SourceJoinConditionChildDocument $node)
+    protected function walkSourceJoinConditionChildDocument(SourceJoinConditionChildDocument $node): ChildNodeJoinConditionInterface
     {
         return $this->qomf()->childNodeJoinCondition(
             $node->getChildAlias(),
@@ -275,12 +294,11 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkSourceJoinConditionSameDocument(SourceJoinConditionSameDocument $node)
+    protected function walkSourceJoinConditionSameDocument(SourceJoinConditionSameDocument $node): ChildNodeJoinConditionInterface
     {
         return $this->qomf()->childNodeJoinCondition(
             $this->validateAlias($node->getAlias1Name()),
             $this->validateAlias($node->getAlias2Name()),
-            $node->getAlias2Path()
         );
     }
 
@@ -309,34 +327,32 @@ abstract class ConverterBase implements ConverterInterface
         return $phpcrComposite;
     }
 
-    protected function walkConstraintAndX(ConstraintAndX $node)
+    protected function walkConstraintAndX(ConstraintAndx $node)
     {
         return $this->doWalkConstraintComposite($node, 'andConstraint');
     }
 
-    protected function walkConstraintOrX(ConstraintOrX $node)
+    protected function walkConstraintOrX(ConstraintOrx $node)
     {
         return $this->doWalkConstraintComposite($node, 'orConstraint');
     }
 
-    protected function walkConstraintFieldIsset(ConstraintFieldIsset $node)
+    protected function walkConstraintFieldIsset(ConstraintFieldIsset $node): PropertyExistenceInterface
     {
-        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
+        [$alias, $phpcrProperty] = $this->getPhpcrProperty(
             $node->getAlias(),
             $node->getField()
         );
 
-        $con = $this->qomf()->propertyExistence(
+        return $this->qomf()->propertyExistence(
             $alias,
             $phpcrProperty
         );
-
-        return $con;
     }
 
-    protected function walkConstraintFullTextSearch(ConstraintFullTextSearch $node)
+    protected function walkConstraintFullTextSearch(ConstraintFullTextSearch $node): FullTextSearchInterface
     {
-        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
+        [$alias, $phpcrProperty] = $this->getPhpcrProperty(
             $node->getAlias(),
             $node->getField()
         );
@@ -348,7 +364,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkConstraintSame(ConstraintSame $node)
+    protected function walkConstraintSame(ConstraintSame $node): SameNodeInterface
     {
         return $this->qomf()->sameNode(
             $this->validateAlias($node->getAlias()),
@@ -356,7 +372,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkConstraintDescendant(ConstraintDescendant $node)
+    protected function walkConstraintDescendant(ConstraintDescendant $node): DescendantNodeInterface
     {
         return $this->qomf()->descendantNode(
             $this->validateAlias($node->getAlias()),
@@ -364,7 +380,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkConstraintChild(ConstraintChild $node)
+    protected function walkConstraintChild(ConstraintChild $node): ChildNodeInterface
     {
         return $this->qomf()->childNode(
             $this->validateAlias($node->getAlias()),
@@ -372,7 +388,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkConstraintComparison(ConstraintComparison $node)
+    protected function walkConstraintComparison(ConstraintComparison $node): ComparisonInterface
     {
         $dynOp = $node->getChildOfType(
             QBConstants::NT_OPERAND_DYNAMIC
@@ -382,7 +398,9 @@ abstract class ConverterBase implements ConverterInterface
         );
 
         $phpcrDynOp = $this->dispatch($dynOp);
+        \assert($phpcrDynOp instanceof DynamicOperandInterface);
         $phpcrStatOp = $this->dispatch($statOp);
+        \assert($phpcrStatOp instanceof StaticOperandInterface);
 
         return $this->qomf()->comparison(
             $phpcrDynOp,
@@ -391,36 +409,37 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkConstraintNot(ConstraintNot $node)
+    protected function walkConstraintNot(ConstraintNot $node): ConstraintInterface
     {
         $con = $node->getChildOfType(
             QBConstants::NT_CONSTRAINT
         );
 
         $phpcrCon = $this->dispatch($con);
+        \assert($phpcrCon instanceof ConstraintInterface);
 
         return $this->qomf()->notConstraint(
             $phpcrCon
         );
     }
 
-    protected function walkOperandDynamicLocalName(OperandDynamicLocalName $node)
+    protected function walkOperandDynamicLocalName(OperandDynamicLocalName $node): NodeLocalNameInterface
     {
         return $this->qomf()->nodeLocalName(
             $this->validateAlias($node->getAlias())
         );
     }
 
-    protected function walkOperandDynamicFullTextSearchScore(OperandDynamicFullTextSearchScore $node)
+    protected function walkOperandDynamicFullTextSearchScore(OperandDynamicFullTextSearchScore $node): FullTextSearchScoreInterface
     {
         return $this->qomf()->fullTextSearchScore(
             $this->validateAlias($node->getAlias())
         );
     }
 
-    protected function walkOperandDynamicLength(OperandDynamicLength $node)
+    protected function walkOperandDynamicLength(OperandDynamicLength $node): LengthInterface
     {
-        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
+        [$alias, $phpcrProperty] = $this->getPhpcrProperty(
             $node->getAlias(),
             $node->getField()
         );
@@ -435,65 +454,72 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function walkOperandDynamicName(OperandDynamicName $node)
+    protected function walkOperandDynamicName(OperandDynamicName $node): NodeNameInterface
     {
         return $this->qomf()->nodeName(
             $this->validateAlias($node->getAlias())
         );
     }
 
-    protected function walkOperandDynamicLowerCase(OperandDynamicLowerCase $node)
+    protected function walkOperandDynamicLowerCase(OperandDynamicLowerCase $node): LowerCaseInterface
     {
         $child = $node->getChildOfType(
             QBConstants::NT_OPERAND_DYNAMIC
         );
 
         $phpcrChild = $this->dispatch($child);
+        \assert($phpcrChild instanceof DynamicOperandInterface);
 
         return $this->qomf()->lowerCase(
             $phpcrChild
         );
     }
 
-    protected function walkOperandDynamicUpperCase(OperandDynamicUpperCase $node)
+    protected function walkOperandDynamicUpperCase(OperandDynamicUpperCase $node): UpperCaseInterface
     {
         $child = $node->getChildOfType(
             QBConstants::NT_OPERAND_DYNAMIC
         );
 
         $phpcrChild = $this->dispatch($child);
+        \assert($phpcrChild instanceof DynamicOperandInterface);
 
         return $this->qomf()->upperCase(
             $phpcrChild
         );
     }
 
-    protected function walkOperandStaticLiteral(OperandStaticLiteral $node)
+    protected function walkOperandStaticLiteral(OperandStaticLiteral $node): LiteralInterface
     {
         return $this->qomf()->literal($node->getValue());
     }
 
-    protected function walkOperandStaticParameter(OperandStaticParameter $node)
+    protected function walkOperandStaticParameter(OperandStaticParameter $node): BindVariableValueInterface
     {
         return $this->qomf()->bindVariable($node->getVariableName());
     }
 
     // ordering
-    protected function walkOrderBy(OrderBy $node)
+
+    /**
+     * @return OrderingInterface[]
+     */
+    protected function walkOrderBy(OrderBy $node): array
     {
         $this->orderings = [];
 
         $orderings = $node->getChildren();
 
-        /** @var $ordering Ordering */
         foreach ($orderings as $ordering) {
+            \assert($ordering instanceof Ordering);
             $dynOp = $ordering->getChildOfType(
                 QBConstants::NT_OPERAND_DYNAMIC
             );
 
             $phpcrDynOp = $this->dispatch($dynOp);
+            \assert($phpcrDynOp instanceof DynamicOperandInterface);
 
-            if (QOMConstants::JCR_ORDER_ASCENDING == $ordering->getOrder()) {
+            if (QOMConstants::JCR_ORDER_ASCENDING === $ordering->getOrder()) {
                 $ordering = $this->qomf()->ascending($phpcrDynOp);
             } else {
                 $ordering = $this->qomf()->descending($phpcrDynOp);
@@ -505,7 +531,10 @@ abstract class ConverterBase implements ConverterInterface
         return $this->orderings;
     }
 
-    protected function walkOrderByAdd(OrderBy $node)
+    /**
+     * @return OrderingInterface[]
+     */
+    protected function walkOrderByAdd(OrderBy $node): array
     {
         $this->orderings = array_merge(
             $this->orderings,

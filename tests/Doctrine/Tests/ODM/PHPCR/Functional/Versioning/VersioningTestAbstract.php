@@ -160,9 +160,9 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->assertCount(5, $versions);
 
         foreach ($versions as $key => $val) {
-            $this->assertTrue(isset($val['name']));
-            $this->assertTrue(isset($val['labels']));
-            $this->assertTrue(isset($val['created']));
+            $this->assertArrayHasKey('name', $val);
+            $this->assertArrayHasKey('labels', $val);
+            $this->assertArrayHasKey('created', $val);
 
             $this->assertEquals($key, $val['name']);
             // TODO: test once version labels are implemented

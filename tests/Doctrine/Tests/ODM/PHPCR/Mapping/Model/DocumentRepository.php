@@ -10,7 +10,7 @@ use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
  */
 class DocumentRepository extends BaseDocumentRepository implements RepositoryIdInterface
 {
-    public function generateId($document, $parent = null)
+    public function generateId(object $document, ?object $parent = null): string
     {
         return '/functional/'.rand();
     }

@@ -9,28 +9,11 @@ class Property
 {
     /**
      * The PHPCR property name to use.
-     *
-     * @var string
      */
-    public $property;
+    public string $property;
 
-    /**
-     * @var string
-     */
-    public $type = 'undefined';
-
-    /**
-     * @var bool
-     */
-    public $multivalue = false;
-
-    /**
-     * @var string
-     */
-    public $assoc;
-
-    /**
-     * @var bool
-     */
-    public $nullable = false;
+    public string $type = 'undefined';
+    public bool $multivalue = false;
+    public ?string $assoc = null;
+    public bool $nullable = false;
 }

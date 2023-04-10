@@ -10,20 +10,18 @@ use PHPCR\SessionInterface;
  */
 final class NodeTypeRegistrator
 {
-    private $phpcrNamespace = 'phpcr';
+    private string $phpcrNamespace = 'phpcr';
 
-    private $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
+    private string $phpcrNamespaceUri = 'http://www.doctrine-project.org/projects/phpcr_odm';
 
-    private $localeNamespace = Translation::LOCALE_NAMESPACE;
+    private string $localeNamespace = Translation::LOCALE_NAMESPACE;
 
-    private $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
+    private string $localeNamespaceUri = Translation::LOCALE_NAMESPACE_URI;
 
     /**
      * Register the system node types on the given session.
-     *
-     * @param SessionInterface
      */
-    public function registerNodeTypes(SessionInterface $session)
+    public function registerNodeTypes(SessionInterface $session): void
     {
         $cnd = <<<CND
 // register phpcr_locale namespace

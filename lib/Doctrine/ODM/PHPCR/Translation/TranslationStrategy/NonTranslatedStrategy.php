@@ -23,20 +23,14 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
      */
     public const NAME = 'none';
 
-    /**
-     * @var DocumentManagerInterface
-     */
-    private $dm;
+    private DocumentManagerInterface $dm;
 
     public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, ?string $locale): void
     {
         foreach ($data as $field => $propValue) {
             $mapping = $metadata->mappings[$field];
@@ -44,7 +38,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
 
             if ($mapping['multivalue'] && $propValue) {
                 $propValue = (array) $propValue;
-                if (isset($mapping['assoc'])) {
+                if (array_key_exists('assoc', $mapping) && null !== $mapping['assoc']) {
                     $propValue = $this->dm->getUnitOfWork()->processAssoc($node, $mapping, $propValue);
                 }
             }
@@ -53,10 +47,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function loadTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): bool
     {
         throw new PHPCRException('This makes no sense with the NonTranslatedStrategy');
     }
@@ -66,7 +57,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
      *
      * Remove the (untranslated) fields listed in $metadata->translatableFields
      */
-    public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata)
+    public function removeAllTranslations(object $document, NodeInterface $node, ClassMetadata $metadata): void
     {
         foreach ($metadata->translatableFields as $field) {
             $mapping = $metadata->mappings[$field];
@@ -79,37 +70,28 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
      *
      * This will remove all fields that are now declared as translated
      */
-    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function removeTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): void
     {
         throw new PHPCRException('This makes no sense with the NonTranslatedStrategy');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
+    public function getLocalesFor(object $document, NodeInterface $node, ClassMetadata $metadata): array
     {
         throw new PHPCRException('This makes no sense with the NonTranslatedStrategy');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTranslatedPropertyPath($alias, $propertyName, $locale)
+    public function getTranslatedPropertyPath(string $alias, string $propertyName, string $locale): array
     {
         return [$alias, $propertyName];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,
         SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
-        $alias,
-        $locale
-    ) {
+        string $alias,
+        string $locale
+    ): void {
         // nothing to alter
     }
 }

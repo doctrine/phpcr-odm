@@ -14,23 +14,18 @@ namespace Doctrine\ODM\PHPCR\Tools\Console;
  */
 class MetadataFilter extends \FilterIterator implements \Countable
 {
-    /**
-     * @var array
-     */
-    private $filter = [];
+    private array $filter = [];
 
     /**
      * Filter Metadatas by one or more filter options.
      *
      * @param array|string $filter
-     *
-     * @return array
      */
-    public static function filter(array $metadatas, $filter)
+    public static function filter(array $metadatas, $filter): array
     {
-        $metadatas = new self(new \ArrayIterator($metadatas), $filter);
+        $filtered = new self(new \ArrayIterator($metadatas), $filter);
 
-        return iterator_to_array($metadatas);
+        return iterator_to_array($filtered);
     }
 
     /**

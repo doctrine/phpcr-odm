@@ -97,9 +97,6 @@ class QueryBuilder extends AbstractNode
         return $this->converter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCardinalityMap()
     {
         return [
@@ -231,7 +228,7 @@ class QueryBuilder extends AbstractNode
     private function addJoin($joinType)
     {
         $from = $this->getChildOfType(QBConstants::NT_FROM);
-        $curSource = $from->getChild(QBConstants::NT_SOURCE);
+        $curSource = $from->getChild();
 
         $src = new SourceJoin($this, $joinType);
         $src->left()->addChild($curSource);

@@ -2,6 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
+use Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper;
 use Doctrine\ODM\PHPCR\Tools\Helper\UniqueNodeTypeHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,10 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class VerifyUniqueNodeTypesMappingCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -31,12 +29,12 @@ EOT
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $documentManager = $this->getHelper('phpcr')->getDocumentManager();
+        $phpcrHelper = $this->getHelper('phpcr');
+        \assert($phpcrHelper instanceof DocumentManagerHelper);
+        $documentManager = $phpcrHelper->getDocumentManager();
+        \assert(null !== $documentManager);
         $uniqueNodeTypeHelper = new UniqueNodeTypeHelper();
 
         $debugInformation = $uniqueNodeTypeHelper->checkNodeTypeMappings($documentManager);

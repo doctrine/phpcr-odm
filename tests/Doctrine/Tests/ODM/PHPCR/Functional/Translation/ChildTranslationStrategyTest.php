@@ -10,27 +10,17 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\Models\Translation\ChildTranslationArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
+use Jackalope\Node;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
 
 class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
 {
-    protected $testNodeName = '__test-node__';
+    protected string $testNodeName = '__test-node__';
 
-    /**
-     * @var DocumentManager
-     */
-    private $dm;
-
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
-     * @var ClassMetadata
-     */
-    private $metadata;
+    private DocumentManager $dm;
+    private SessionInterface $session;
+    private ClassMetadata $metadata;
 
     public function setUp(): void
     {
@@ -154,6 +144,8 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
 
         $subNode_en = $node->getNode(Translation::LOCALE_NAMESPACE.':en');
         $subNode_fr = $node->getNode(Translation::LOCALE_NAMESPACE.':fr');
+        $this->assertInstanceOf(Node::class, $subNode_en);
+        $this->assertInstanceOf(Node::class, $subNode_fr);
 
         $strategy = new ChildTranslationStrategy($this->dm);
 
@@ -172,6 +164,9 @@ class ChildTranslationStrategyTest extends PHPCRFunctionalTestCase
         $subNode_en = $node->getNode(Translation::LOCALE_NAMESPACE.':en');
         $subNode_fr = $node->getNode(Translation::LOCALE_NAMESPACE.':fr');
         $subNode_de = $node->getNode(Translation::LOCALE_NAMESPACE.':de');
+        $this->assertInstanceOf(Node::class, $subNode_en);
+        $this->assertInstanceOf(Node::class, $subNode_fr);
+        $this->assertInstanceOf(Node::class, $subNode_de);
 
         $strategy = new ChildTranslationStrategy($this->dm);
 

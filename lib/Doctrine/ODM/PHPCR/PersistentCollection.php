@@ -10,62 +10,47 @@ use Doctrine\Common\Collections\Collection;
  */
 abstract class PersistentCollection implements Collection
 {
-    public const INITIALIZED_NONE = 'not initialized';
+    protected const INITIALIZED_NONE = 'not initialized';
 
-    public const INITIALIZED_FROM_COLLECTION = 'initialized from collection';
+    protected const INITIALIZED_FROM_COLLECTION = 'initialized from collection';
 
-    public const INITIALIZED_FROM_COLLECTION_FORCE = 'initialized from collection to force a new db state';
+    protected const INITIALIZED_FROM_COLLECTION_FORCE = 'initialized from collection to force a new db state';
 
-    public const INITIALIZED_FROM_PHPCR = 'initialized from phpcr';
+    protected const INITIALIZED_FROM_PHPCR = 'initialized from phpcr';
 
-    /** @var ArrayCollection */
-    protected $collection;
+    protected ?Collection $collection = null;
 
     /**
      * Whether the collection is dirty and needs to be synchronized with the database
      * when the UnitOfWork that manages its persistent state commits.
-     *
-     * @var bool
      */
-    protected $isDirty = false;
+    protected bool $isDirty = false;
 
     /**
-     * Whether the collection has already been initialized.
-     *
-     * @var string
+     * Initialization status, one of the INITIALIZED_* constants.
      */
-    protected $initialized = self::INITIALIZED_NONE;
+    protected string $initialized = self::INITIALIZED_NONE;
 
-    /**
-     * @var DocumentManagerInterface
-     */
-    protected $dm;
+    protected DocumentManagerInterface $dm;
 
-    /**
-     * @var string
-     */
-    protected $locale;
+    protected ?string $locale = null;
 
-    /**
-     * @return bool Whether the collection was modified
-     */
-    public function changed()
+    public function __construct(DocumentManagerInterface $dm)
+    {
+        $this->dm = $dm;
+    }
+
+    public function changed(): bool
     {
         return $this->isDirty;
     }
 
-    /**
-     * Set the collection not dirty.
-     */
-    public function takeSnapshot()
+    public function takeSnapshot(): void
     {
         $this->isDirty = false;
     }
 
-    /**
-     * @return ArrayCollection The collection
-     */
-    public function unwrap()
+    public function unwrap(): Collection
     {
         if ($this->collection instanceof Collection) {
             return $this->collection;
@@ -74,8 +59,7 @@ abstract class PersistentCollection implements Collection
         return new ArrayCollection();
     }
 
-    /** {@inheritdoc} */
-    public function add($element)
+    public function add($element): bool
     {
         $this->initialize();
         $this->isDirty = true;
@@ -83,40 +67,34 @@ abstract class PersistentCollection implements Collection
         return $this->collection->add($element);
     }
 
-    /** {@inheritdoc} */
-    public function clear()
+    public function clear(): void
     {
         $this->initialize();
         $this->isDirty = true;
         $this->collection->clear();
     }
 
-    /** {@inheritdoc} */
-    public function contains($element)
+    public function contains($element): bool
     {
         $this->initialize();
 
         return $this->collection->contains($element);
     }
 
-    /** {@inheritdoc} */
-    public function containsKey($key)
+    public function containsKey($key): bool
     {
         $this->initialize();
 
         return $this->collection->containsKey($key);
     }
 
-    /** {@inheritdoc} */
-    #[\ReturnTypeWillChange]
-    public function count()
+    public function count(): int
     {
         $this->initialize();
 
         return $this->collection->count();
     }
 
-    /** {@inheritdoc} */
     public function current()
     {
         $this->initialize();
@@ -124,23 +102,20 @@ abstract class PersistentCollection implements Collection
         return $this->collection->current();
     }
 
-    /** {@inheritdoc} */
-    public function exists(\Closure $p)
+    public function exists(\Closure $p): bool
     {
         $this->initialize();
 
         return $this->collection->exists($p);
     }
 
-    /** {@inheritdoc} */
-    public function filter(\Closure $p)
+    public function filter(\Closure $p): Collection
     {
         $this->initialize();
 
         return $this->collection->filter($p);
     }
 
-    /** {@inheritdoc} */
     public function first()
     {
         $this->initialize();
@@ -148,15 +123,13 @@ abstract class PersistentCollection implements Collection
         return $this->collection->first();
     }
 
-    /** {@inheritdoc} */
-    public function forAll(\Closure $p)
+    public function forAll(\Closure $p): bool
     {
         $this->initialize();
 
         return $this->collection->forAll($p);
     }
 
-    /** {@inheritdoc} */
     public function get($key)
     {
         $this->initialize();
@@ -164,32 +137,27 @@ abstract class PersistentCollection implements Collection
         return $this->collection->get($key);
     }
 
-    /** {@inheritdoc} */
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         $this->initialize();
 
         return $this->collection->getIterator();
     }
 
-    /** {@inheritdoc} */
-    public function getKeys()
+    public function getKeys(): array
     {
         $this->initialize();
 
         return $this->collection->getKeys();
     }
 
-    /** {@inheritdoc} */
-    public function getValues()
+    public function getValues(): array
     {
         $this->initialize();
 
         return $this->collection->getValues();
     }
 
-    /** {@inheritdoc} */
     public function indexOf($element)
     {
         $this->initialize();
@@ -197,15 +165,13 @@ abstract class PersistentCollection implements Collection
         return $this->collection->indexOf($element);
     }
 
-    /** {@inheritdoc} */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         $this->initialize();
 
         return $this->collection->isEmpty();
     }
 
-    /** {@inheritdoc} */
     public function key()
     {
         $this->initialize();
@@ -213,7 +179,6 @@ abstract class PersistentCollection implements Collection
         return $this->collection->key();
     }
 
-    /** {@inheritdoc} */
     public function last()
     {
         $this->initialize();
@@ -221,15 +186,13 @@ abstract class PersistentCollection implements Collection
         return $this->collection->last();
     }
 
-    /** {@inheritdoc} */
-    public function map(\Closure $func)
+    public function map(\Closure $func): Collection
     {
         $this->initialize();
 
         return $this->collection->map($func);
     }
 
-    /** {@inheritdoc} */
     public function next()
     {
         $this->initialize();
@@ -237,16 +200,13 @@ abstract class PersistentCollection implements Collection
         return $this->collection->next();
     }
 
-    /** {@inheritdoc} */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         $this->initialize();
 
         return $this->collection->offsetExists($offset);
     }
 
-    /** {@inheritdoc} */
     #[\ReturnTypeWillChange] // type mixed is not available for older php versions
     public function offsetGet($offset)
     {
@@ -255,9 +215,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->offsetGet($offset);
     }
 
-    /** {@inheritdoc} */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->initialize();
         $this->isDirty = true;
@@ -265,9 +223,7 @@ abstract class PersistentCollection implements Collection
         $this->collection->offsetSet($offset, $value);
     }
 
-    /** {@inheritdoc} */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->initialize();
         $this->isDirty = true;
@@ -275,15 +231,13 @@ abstract class PersistentCollection implements Collection
         $this->collection->offsetUnset($offset);
     }
 
-    /** {@inheritdoc} */
-    public function partition(\Closure $p)
+    public function partition(\Closure $p): array
     {
         $this->initialize();
 
         return $this->collection->partition($p);
     }
 
-    /** {@inheritdoc} */
     public function remove($key)
     {
         $this->initialize();
@@ -292,8 +246,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->remove($key);
     }
 
-    /** {@inheritdoc} */
-    public function removeElement($element)
+    public function removeElement($element): bool
     {
         $this->initialize();
         $this->isDirty = true;
@@ -301,15 +254,13 @@ abstract class PersistentCollection implements Collection
         return $this->collection->removeElement($element);
     }
 
-    /** {@inheritdoc} */
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         $this->initialize();
         $this->isDirty = true;
         $this->collection->set($key, $value);
     }
 
-    /** {@inheritdoc} */
     public function slice($offset, $length = null)
     {
         $this->initialize();
@@ -317,20 +268,14 @@ abstract class PersistentCollection implements Collection
         return $this->collection->slice($offset, $length);
     }
 
-    /** {@inheritdoc} */
-    public function toArray()
+    public function toArray(): array
     {
         $this->initialize();
 
         return $this->collection->toArray();
     }
 
-    /**
-     * Returns a string representation of this object.
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return __CLASS__.'@'.spl_object_hash($this);
     }
@@ -338,18 +283,13 @@ abstract class PersistentCollection implements Collection
     /**
      * Refresh the collection form the database, all local changes are lost.
      */
-    public function refresh()
+    public function refresh(): void
     {
         $this->initialized = self::INITIALIZED_NONE;
         $this->initialize();
     }
 
-    /**
-     * Checks whether this collection has been initialized.
-     *
-     * @return bool
-     */
-    public function isInitialized()
+    public function isInitialized(): bool
     {
         return self::INITIALIZED_NONE !== $this->initialized;
     }
@@ -357,10 +297,8 @@ abstract class PersistentCollection implements Collection
     /**
      * Gets a boolean flag indicating whether this collection is dirty which means
      * its state needs to be synchronized with the database.
-     *
-     * @return bool TRUE if the collection is dirty, FALSE otherwise
      */
-    public function isDirty()
+    public function isDirty(): bool
     {
         return $this->isDirty;
     }
@@ -370,7 +308,7 @@ abstract class PersistentCollection implements Collection
      *
      * @param bool $dirty whether the collection should be marked dirty or not
      */
-    public function setDirty($dirty)
+    public function setDirty(bool $dirty): void
     {
         $this->isDirty = $dirty;
     }
@@ -378,7 +316,7 @@ abstract class PersistentCollection implements Collection
     /**
      * Set the default locale for this collection.
      */
-    public function setLocale($locale)
+    public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
     }
@@ -387,7 +325,7 @@ abstract class PersistentCollection implements Collection
      * @param array|Collection $collection     The collection to initialize with
      * @param bool             $forceOverwrite If to force the database to be forced to the state of the collection
      */
-    protected function initializeFromCollection($collection, $forceOverwrite = false)
+    protected function initializeFromCollection($collection, bool $forceOverwrite = false): void
     {
         $this->collection = is_array($collection) ? new ArrayCollection($collection) : $collection;
         $this->initialized = $forceOverwrite ? self::INITIALIZED_FROM_COLLECTION_FORCE : self::INITIALIZED_FROM_COLLECTION;
@@ -398,5 +336,5 @@ abstract class PersistentCollection implements Collection
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */
-    abstract public function initialize();
+    abstract public function initialize(): void;
 }

@@ -28,25 +28,16 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterf
  */
 class TranslationConverter
 {
-    /**
-     * @var DocumentManagerInterface
-     */
-    private $dm;
+    private DocumentManagerInterface $dm;
 
     /**
      * @var int number of documents to process per batch
      */
-    private $batchSize;
+    private int $batchSize;
 
-    /**
-     * @var array
-     */
-    private $notices = [];
+    private array $notices = [];
 
-    /**
-     * @param int $batchSize
-     */
-    public function __construct(DocumentManagerInterface $dm, $batchSize = 200)
+    public function __construct(DocumentManagerInterface $dm, int $batchSize = 200)
     {
         $this->dm = $dm;
         $this->batchSize = $batchSize;
@@ -82,13 +73,12 @@ class TranslationConverter
      * that could not be converted by calling getLastNotices() after each call
      * to convert().
      *
-     * @param string $class                FQN of the document class
-     * @param array  $locales              Locales to copy previously untranslated fields into.
-     *                                     Ignored when untranslating a document.
-     * @param array  $fields               List of fields to convert. Required when making a
-     *                                     field not translated anymore
-     * @param string $previousStrategyName Name of previous strategy or "none" if field was not
-     *                                     previously translated
+     * @param string[] $locales              Locales to copy previously untranslated fields into.
+     *                                       Ignored when untranslating a document.
+     * @param string[] $fields               List of fields to convert. Required when making a
+     *                                       field not translated anymore
+     * @param string   $previousStrategyName Name of previous strategy or "none" if field was not
+     *                                       previously translated
      *
      * @return bool true if there are more documents to convert and this method needs to be
      *              called again
@@ -98,13 +88,12 @@ class TranslationConverter
      * @see getLastNotices()
      */
     public function convert(
-        $class,
-        $locales,
+        string $documentClass,
+        array $locales,
         array $fields = [],
-        $previousStrategyName = NonTranslatedStrategy::NAME
-    ) {
-        /** @var ClassMetadata $currentMeta */
-        $currentMeta = $this->dm->getClassMetadata($class);
+        string $previousStrategyName = NonTranslatedStrategy::NAME
+    ): bool {
+        $currentMeta = $this->dm->getClassMetadata($documentClass);
         $currentStrategyName = $currentMeta->translator ?: NonTranslatedStrategy::NAME;
 
         // sanity check strategies
@@ -171,7 +160,7 @@ class TranslationConverter
         }
 
         $qb = $this->dm->createQueryBuilder();
-        $or = $qb->fromDocument($class, 'd')
+        $or = $qb->fromDocument($documentClass, 'd')
             ->where()->orX();
         foreach ($fields as $field) {
             $or->fieldIsset('d.'.$field);
@@ -195,7 +184,7 @@ class TranslationConverter
         $previousMeta->translatableFields = $fields;
 
         foreach ($documents as $document) {
-            if (ClassUtils::getClass($document) !== $class) {
+            if (ClassUtils::getClass($document) !== $documentClass) {
                 $path = $this->dm->getUnitOfWork()->getDocumentId($document);
                 $this->notices[$path] = ClassUtils::getClass($document);
 
@@ -220,9 +209,9 @@ class TranslationConverter
      * Get list of child documents that had to be skipped because their class
      * was not an exact match with the class being converted.
      *
-     * @return array Map of path => class
+     * @return array Map of path => class name
      */
-    public function getLastNotices()
+    public function getLastNotices(): array
     {
         return $this->notices;
     }
@@ -233,20 +222,20 @@ class TranslationConverter
      * @param ClassMetadata                $previousMeta       Metadata for old translation strategy
      * @param TranslationStrategyInterface $currentStrategy    Translation strategy to save new translations
      * @param ClassMetadata                $currentMeta        Metadata for new translation strategy
-     * @param array                        $fields             The fields to handle
-     * @param array                        $locales            target locales to copy translations to
+     * @param string[]                     $fields             The fields to handle
+     * @param string[]                     $locales            target locales to copy translations to
      * @param bool                         $partialUntranslate Whether we are only a subset of fields back to untranslated
      */
     private function convertDocument(
-        $document,
+        object $document,
         TranslationStrategyInterface $previousStrategy,
         ClassMetadata $previousMeta,
         TranslationStrategyInterface $currentStrategy,
         ClassMetadata $currentMeta,
         array $fields,
         array $locales,
-        $partialUntranslate
-    ) {
+        bool $partialUntranslate
+    ): void {
         $node = $this->dm->getNodeForDocument($document);
 
         $data = [];

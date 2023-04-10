@@ -7,13 +7,5 @@ namespace Doctrine\ODM\PHPCR\Id;
  */
 interface RepositoryIdInterface
 {
-    /**
-     * Generate a document id.
-     *
-     * @param object $document
-     * @param object $parent
-     *
-     * @return string the id for this document
-     */
-    public function generateId($document, $parent = null);
+    public function generateId(object $document, ?object $parent = null): string;
 }

@@ -2,9 +2,13 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
+use Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper;
 use Doctrine\ODM\PHPCR\Tools\Helper\TranslationConverter;
 use PHPCR\SessionInterface;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\DialogHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,7 +22,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class DocumentConvertTranslationCommand extends Command
 {
-    private $translationConverter;
+    private ?TranslationConverter $translationConverter;
 
     public function __construct($name = null, TranslationConverter $translationConverter = null)
     {
@@ -26,10 +30,7 @@ class DocumentConvertTranslationCommand extends Command
         $this->translationConverter = $translationConverter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('doctrine:phpcr:document:convert-translation')
@@ -75,10 +76,7 @@ HERE
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $class = $input->getArgument('classname');
         $locales = $input->getOption('locales');
@@ -98,8 +96,10 @@ HERE
             return 1;
         }
 
-        /** @var $session SessionInterface */
-        $session = $this->getHelper('phpcr')->getSession();
+        $helper = $this->getHelper('phpcr');
+        \assert($helper instanceof PhpcrHelper);
+        $session = $helper->getSession();
+        \assert($session instanceof SessionInterface);
         $converter = $this->getTranslationConverter();
         $previous = $input->getOption('previous-strategy');
         $fields = $input->getOption('fields');
@@ -127,15 +127,14 @@ HERE
         return 0;
     }
 
-    /**
-     * @return TranslationConverter
-     */
-    private function getTranslationConverter()
+    private function getTranslationConverter(): TranslationConverter
     {
         if (!$this->translationConverter) {
-            $this->translationConverter = new TranslationConverter(
-                $this->getHelper('phpcr')->getDocumentManager()
-            );
+            $phpcrHelper = $this->getHelper('phpcr');
+            \assert($phpcrHelper instanceof DocumentManagerHelper);
+            $documentManager = $phpcrHelper->getDocumentManager();
+            \assert(null !== $documentManager);
+            $this->translationConverter = new TranslationConverter($documentManager);
         }
 
         return $this->translationConverter;
@@ -143,20 +142,20 @@ HERE
 
     /**
      * Ask for confirmation with the question helper or the dialog helper for symfony < 2.5 compatibility.
-     *
-     * @param string $question
-     * @param bool   $default
-     *
-     * @return string
      */
-    private function askConfirmation(InputInterface $input, OutputInterface $output, $question, $default = true)
+    private function askConfirmation(InputInterface $input, OutputInterface $output, string $question, bool $default = true): string
     {
         if ($this->getHelperSet()->has('question')) {
-            $question = new ConfirmationQuestion($question, $default);
+            $questionHelper = $this->getHelper('question');
+            \assert($questionHelper instanceof QuestionHelper);
+            $questionDialog = new ConfirmationQuestion($question, $default);
 
-            return $this->getHelper('question')->ask($input, $output, $question);
+            return $questionHelper->ask($input, $output, $questionDialog);
         }
 
-        return $this->getHelper('dialog')->askConfirmation($output, $question, $default);
+        $dialogHelper = $this->getHelper('dialog');
+        \assert($dialogHelper instanceof DialogHelper);
+
+        return $dialogHelper->askConfirmation($output, $question, $default);
     }
 }

@@ -11,7 +11,7 @@ use Doctrine\Persistence\Mapping\ClassMetadata;
  * @author brian@liip.ch
  * @author david@liip.ch
  */
-class LocaleChooser implements LocaleChooserInterface
+final class LocaleChooser implements LocaleChooserInterface
 {
     /**
      * locale fallback list indexed by source locale.
@@ -23,39 +23,32 @@ class LocaleChooser implements LocaleChooserInterface
      *    'de' => array('de', 'fr', 'en'),
      *  )
      */
-    protected $localePreference;
+    private array $localePreference;
 
     /**
      * The current locale to use.
-     *
-     * @var string
      */
-    protected $locale;
+    private ?string $locale = null;
 
     /**
      * The default locale of the system used for getDefaultLocalesOrder
      * and as fallback if locale is not set.
-     *
-     * @var string
      */
-    protected $defaultLocale;
+    private string $defaultLocale;
 
     /**
      * @param array  $localePreference array of arrays with a preferred locale order list
      *                                 for each locale
      * @param string $defaultLocale    the default locale to be used if locale is not set
      */
-    public function __construct($localePreference, $defaultLocale)
+    public function __construct(array $localePreference, string $defaultLocale)
     {
         $this->setLocalePreferenceAndDefaultLocale($localePreference, $defaultLocale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setLocalePreference($localePreference)
+    public function setLocalePreference(array $localePreference): void
     {
-        if (!isset($localePreference[$this->defaultLocale])) {
+        if (!array_key_exists($this->defaultLocale, $localePreference)) {
             throw new MissingTranslationException("The supplied list of locales does not contain '$this->defaultLocale'");
         }
 
@@ -72,18 +65,15 @@ class LocaleChooser implements LocaleChooserInterface
      *                                 for each locale
      * @param string $defaultLocale    the default locale to be used if locale is not set
      */
-    public function setLocalePreferenceAndDefaultLocale($localePreference, $defaultLocale)
+    public function setLocalePreferenceAndDefaultLocale(array $localePreference, string $defaultLocale): void
     {
         $this->defaultLocale = $defaultLocale;
         $this->setLocalePreference($localePreference);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFallbackLocales($locale, array $order, $replace = false)
+    public function setFallbackLocales(string $locale, array $order, bool $replace): void
     {
-        if (!$replace && isset($this->localePreference[$locale])) {
+        if (!$replace && array_key_exists($locale, $this->localePreference)) {
             foreach ($this->localePreference[$locale] as $oldLocale) {
                 if (!in_array($oldLocale, $order, true)) {
                     $order[] = $oldLocale;
@@ -94,10 +84,7 @@ class LocaleChooser implements LocaleChooserInterface
         $this->localePreference[$locale] = $order;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null)
+    public function getFallbackLocales(?object $document, ClassMetadata $metadata, string $forLocale = null): array
     {
         if (is_null($forLocale)) {
             return $this->localePreference[$this->getLocale()];
@@ -109,10 +96,7 @@ class LocaleChooser implements LocaleChooserInterface
         throw new MissingTranslationException("There is no language fallback for language '$forLocale'");
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefaultLocalesOrder()
+    public function getDefaultLocalesOrder(): array
     {
         $locales = $this->localePreference[$this->defaultLocale];
         array_unshift($locales, $this->defaultLocale);
@@ -120,16 +104,9 @@ class LocaleChooser implements LocaleChooserInterface
         return $locales;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocale()
+    public function getLocale(): string
     {
-        if (empty($this->locale)) {
-            return $this->defaultLocale;
-        }
-
-        return $this->locale;
+        return $this->locale ?: $this->defaultLocale;
     }
 
     /**
@@ -137,9 +114,9 @@ class LocaleChooser implements LocaleChooserInterface
      *
      * @throws MissingTranslationException if the specified locale is not defined in the $localePreference array
      */
-    public function setLocale($locale)
+    public function setLocale(string $locale): void
     {
-        if (!isset($this->localePreference[$locale])) {
+        if (!array_key_exists($locale, $this->localePreference)) {
             $localeBase = substr($locale, 0, 2);
 
             // Strip region from locale if not configured
@@ -155,10 +132,7 @@ class LocaleChooser implements LocaleChooserInterface
         $this->locale = $locale;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefaultLocale()
+    public function getDefaultLocale(): string
     {
         return $this->defaultLocale;
     }

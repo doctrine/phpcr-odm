@@ -29,14 +29,7 @@ class CmsTeamUser extends CmsUser
 
 class CmsTeamUserRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    /**
-     * Generate a document id.
-     *
-     * @param object $document
-     *
-     * @return string
-     */
-    public function generateId($document, $parent = null)
+    public function generateId(object $document, ?object $parent = null): string
     {
         return $document->parent->id.'/'.$document->username;
     }

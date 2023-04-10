@@ -37,7 +37,7 @@ interface LocaleChooserInterface
      * @throws MissingTranslationException if no entry for the default locale
      *                                     is found in $localePreference
      */
-    public function setLocalePreference($localePreference);
+    public function setLocalePreference(array $localePreference): void;
 
     /**
      * Set or update the order of fallback locales for the selected locale.
@@ -47,7 +47,7 @@ interface LocaleChooserInterface
      * @param bool   $replace whether to append existing locales to the end or
      *                        replace the whole fallback order
      */
-    public function setFallbackLocales($locale, array $order, $replace = false);
+    public function setFallbackLocales(string $locale, array $order, bool $replace): void;
 
     /**
      * Gets an ordered list of locales to try as fallback for a locale.
@@ -55,31 +55,26 @@ interface LocaleChooserInterface
      * Example return value with param $forLocale = 'en':
      *     array('fr', 'de')
      *
-     * @param object        $document  The document object
      * @param ClassMetadata $metadata  The metadata of the document class
      * @param string|null   $forLocale Locale for which you want the fallback
      *                                 order, e.g. the current request locale.
      *                                 If null, the default locale is to be used.
      *
-     * @return array $preferredLocales
+     * @return string[] $preferredLocales
      *
      * @throws MissingTranslationException
      */
-    public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null);
+    public function getFallbackLocales(?object $document, ClassMetadata $metadata, ?string $forLocale = null): array;
 
     /**
      * Get the locale of the current session.
-     *
-     * @return string locale
      */
-    public function getLocale();
+    public function getLocale(): string;
 
     /**
      * Set the locale of the current session.
-     *
-     * @param string $locale
      */
-    public function setLocale($locale);
+    public function setLocale(string $locale): void;
 
     /**
      * Get the ordered list of locales for the default locale without any
@@ -87,17 +82,15 @@ interface LocaleChooserInterface
      *
      * This list has to include the default locale as first element.
      *
-     * @return array preferred locale order for the default locale
+     * @return string[] preferred locale order for the default locale
      */
-    public function getDefaultLocalesOrder();
+    public function getDefaultLocalesOrder(): array;
 
     /**
      * Get the default locale of this application. This should never change,
      * regardless of the current session or context.
-     *
-     * @return string defaultLocale
      */
-    public function getDefaultLocale();
+    public function getDefaultLocale(): string;
 }
 
 interface_exists(ClassMetadata::class);

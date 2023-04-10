@@ -517,8 +517,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
         $this->dm->clear();
 
-        /** @var $doc Article */
         $doc = $this->dm->find(null, $this->node->getPath().'/find');
+        $this->assertInstanceOf(Article::class, $doc);
 
         $this->assertEquals('en', $doc->locale);
         $this->assertEquals('title', $doc->topic);
@@ -537,8 +537,8 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
         $this->dm->clear();
 
-        /** @var $doc Article */
         $doc = $this->dm->find(null, $this->node->getPath().'/find');
+        $this->assertInstanceOf(Article::class, $doc);
 
         $this->assertEquals('en', $doc->locale);
         $this->assertNull($doc->topic);

@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper;
 use PHPCR\Util\Console\Command\NodesUpdateCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,10 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DocumentMigrateClassCommand extends NodesUpdateCommand
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('doctrine:phpcr:document:migrate-class')
@@ -40,10 +37,7 @@ HERE
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // we do not want to expose the parent options, but use the arguments and
         // options to pass information to the parent.
@@ -59,8 +53,10 @@ HERE
             ));
         }
 
-        /** @var $documentManager DocumentManager */
-        $documentManager = $this->getHelper('phpcr')->getDocumentManager();
+        $phpcrHelper = $this->getHelper('phpcr');
+        \assert($phpcrHelper instanceof DocumentManagerHelper);
+        $documentManager = $phpcrHelper->getDocumentManager();
+        \assert(null !== $documentManager);
         $mapper = $documentManager->getConfiguration()->getDocumentClassMapper();
 
         $input->setOption('query', sprintf(

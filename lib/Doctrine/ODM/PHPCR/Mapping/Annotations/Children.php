@@ -12,22 +12,14 @@ use Doctrine\Common\Annotations\Annotation;
 final class Children
 {
     /**
-     * @var array
+     * @var array or string or null, but we can't annotate that here, it confuses the annotation parser
      */
     public $filter;
+    public int $fetchDepth = -1;
+    public bool $ignoreUntranslated = true;
 
     /**
-     * @var int
-     */
-    public $fetchDepth = -1;
-
-    /**
-     * @var bool
-     */
-    public $ignoreUntranslated = true;
-
-    /**
-     * @var array
+     * @var array or string, but we can't annotate that here, it confuses the annotation parser
      */
     public $cascade = [];
 }

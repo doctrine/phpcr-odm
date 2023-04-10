@@ -9,23 +9,14 @@ class Reference
 {
     /**
      * The PHPCR property name to use.
-     *
-     * @var string
      */
-    public $property;
+    public string $property;
+
+    public string $targetDocument;
+    public string $strategy = 'weak';
 
     /**
-     * @var string
-     */
-    public $targetDocument;
-
-    /**
-     * @var string
-     */
-    public $strategy = 'weak';
-
-    /**
-     * @var array
+     * @var array or string, but we can't annotate that here, it confuses the annotation parser
      */
     public $cascade = [];
 }

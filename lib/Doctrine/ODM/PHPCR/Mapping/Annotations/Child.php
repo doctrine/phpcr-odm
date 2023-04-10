@@ -13,13 +13,11 @@ final class Child
 {
     /**
      * PHPCR node name of the child to map.
-     *
-     * @var string
      */
-    public $nodeName;
+    public string $nodeName;
 
     /**
-     * @var array
+     * @var array or string, but we can't annotate that here, it confuses the annotation parser
      */
     public $cascade = [];
 }

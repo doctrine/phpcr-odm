@@ -10,17 +10,12 @@ use Doctrine\ODM\PHPCR\Translation\Translation;
  */
 abstract class AbstractTranslationStrategy implements TranslationStrategyInterface
 {
-    /**
-     * @var DocumentManagerInterface
-     */
-    protected $dm;
+    protected DocumentManagerInterface $dm;
 
     /**
      * Prefix to namespace properties or child nodes.
-     *
-     * @var string
      */
-    protected $prefix = Translation::LOCALE_NAMESPACE;
+    protected string $prefix = Translation::LOCALE_NAMESPACE;
 
     public function __construct(DocumentManagerInterface $dm)
     {
@@ -29,10 +24,8 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
 
     /**
      * Set the namespace alias for translation extra properties.
-     *
-     * @param string $prefix
      */
-    public function setPrefix($prefix)
+    public function setPrefix(string $prefix): void
     {
         $this->prefix = $prefix;
     }
@@ -40,12 +33,11 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     /**
      * Determine the locale specific property name.
      *
-     * @param string $locale
      * @param string $propertyName the untranslated property name
      *
      * @return string the property name with the translation namespace
      */
-    public function getTranslatedPropertyName($locale, $propertyName)
+    public function getTranslatedPropertyName(string $locale, string $propertyName): string
     {
         return sprintf('%s:%s-%s', $this->prefix, $locale, $propertyName);
     }
@@ -53,12 +45,9 @@ abstract class AbstractTranslationStrategy implements TranslationStrategyInterfa
     /**
      * Determine the locale specific property names for an assoc property.
      *
-     * @param string $locale
-     * @param array  $mapping the mapping for the property
-     *
-     * @return string the property name with the translation namespace
+     * @return array{"property": string, "assoc": string, "assocNulls": string}
      */
-    public function getTranslatedPropertyNameAssoc($locale, $mapping)
+    public function getTranslatedPropertyNameAssoc(string $locale, array $mapping): array
     {
         return [
             'property' => $this->getTranslatedPropertyName($locale, $mapping['property']),

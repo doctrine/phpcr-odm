@@ -11,7 +11,7 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
  */
 class AnnotationDriverTest extends AbstractMappingDriverTest
 {
-    protected function loadDriver(): MappingDriver
+    protected function loadDriver(): AnnotationDriver
     {
         $reader = new AnnotationReader();
 

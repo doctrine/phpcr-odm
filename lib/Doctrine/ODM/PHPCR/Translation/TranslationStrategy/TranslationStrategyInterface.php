@@ -22,9 +22,9 @@ interface TranslationStrategyInterface
      * @param array         $data     Data to save (field name => value to persist)
      * @param NodeInterface $node     The physical node in the content repository
      * @param ClassMetadata $metadata The Doctrine metadata of the document
-     * @param string        $locale   The language to persist the translations to
+     * @param string|null   $locale   The language to persist the translations to
      */
-    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale);
+    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, ?string $locale): void;
 
     /**
      * Load the translatable fields of a node.
@@ -39,7 +39,7 @@ interface TranslationStrategyInterface
      *
      * @return bool true if the translation was completely loaded, false otherwise
      */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
+    public function loadTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): bool;
 
     /**
      * Removes all the translated fields for all translations of this node.
@@ -49,7 +49,7 @@ interface TranslationStrategyInterface
      * @param NodeInterface $node     The physical node in the content repository
      * @param ClassMetadata $metadata The Doctrine metadata of the document
      */
-    public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata);
+    public function removeAllTranslations(object $document, NodeInterface $node, ClassMetadata $metadata): void;
 
     /**
      * Remove the translated fields of a node in a given language.
@@ -61,7 +61,7 @@ interface TranslationStrategyInterface
      * @param ClassMetadata $metadata The Doctrine metadata of the document
      * @param string        $locale   The language to remove
      */
-    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale);
+    public function removeTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): void;
 
     /**
      * Get the list of locales persisted for this node.
@@ -70,9 +70,9 @@ interface TranslationStrategyInterface
      * @param NodeInterface $node     The Physical node in the content repository
      * @param ClassMetadata $metadata The Doctrine metadata of the document
      *
-     * @return array with the locales strings
+     * @return string[]
      */
-    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata);
+    public function getLocalesFor(object $document, NodeInterface $node, ClassMetadata $metadata): array;
 
     /**
      * Get the location of the property for the base property name in a given
@@ -86,7 +86,7 @@ interface TranslationStrategyInterface
      *
      * @since 1.1
      */
-    public function getTranslatedPropertyPath($alias, $propertyName, $locale);
+    public function getTranslatedPropertyPath(string $alias, string $propertyName, string $locale): array;
 
     /**
      * This method allows a translation strategy to alter the query to
@@ -96,11 +96,11 @@ interface TranslationStrategyInterface
      * by reference, the strategy can alter them to let the ConverterInterface instance
      * generate a different query.
      *
-     * @param QueryObjectModelFactoryInterface $qomf       the PHPCR query factory
-     * @param SourceInterface                  $selector   the current selector
-     * @param ConstraintInterface|null         $constraint the current constraint, may be empty
-     * @param string                           $alias      the selector alias of the main node
-     * @param string                           $locale     the language to use
+     * @param QueryObjectModelFactoryInterface $qomf        the PHPCR query factory
+     * @param SourceInterface                  &$selector   the current selector
+     * @param ConstraintInterface|null         &$constraint the current constraint, may be empty
+     * @param string                           $alias       the selector alias of the main node
+     * @param string                           $locale      the language to use
      *
      * @since 1.1
      */
@@ -108,7 +108,7 @@ interface TranslationStrategyInterface
         QueryObjectModelFactoryInterface $qomf,
         SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
-        $alias,
-        $locale
-    );
+        string $alias,
+        string $locale
+    ): void;
 }

@@ -7,8 +7,5 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
  */
 class TranslatableProperty extends Property
 {
-    /**
-     * @var bool
-     */
-    public $translated = false;
+    public bool $translated = false;
 }

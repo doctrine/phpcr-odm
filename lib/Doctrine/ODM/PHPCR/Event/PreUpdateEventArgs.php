@@ -7,21 +7,12 @@ use Doctrine\Persistence\Event\PreUpdateEventArgs as BasePreUpdateEventArgs;
 
 class PreUpdateEventArgs extends BasePreUpdateEventArgs
 {
-    /**
-     * @var array
-     */
-    private $documentChangeSet;
+    private array $documentChangeSet;
 
-    /**
-     * Constructor.
-     *
-     * @param object                   $document
-     * @param DocumentManagerInterface $objectManager
-     */
-    public function __construct($document, DocumentManagerInterface $documentManager, array &$changeSet)
+    public function __construct(object $document, DocumentManagerInterface $documentManager, array &$changeSet)
     {
         $fieldChangeSet = [];
-        if (isset($changeSet['fields'])) {
+        if (array_key_exists('fields', $changeSet)) {
             $fieldChangeSet = &$changeSet['fields'];
         }
 
@@ -36,10 +27,8 @@ class PreUpdateEventArgs extends BasePreUpdateEventArgs
      * Currently this structure contains 2 keys:
      *  'fields' - changes to field values
      *  'reorderings' - changes in the order of collections
-     *
-     * @return array
      */
-    public function getDocumentChangeSet()
+    public function getDocumentChangeSet(): array
     {
         return $this->documentChangeSet;
     }

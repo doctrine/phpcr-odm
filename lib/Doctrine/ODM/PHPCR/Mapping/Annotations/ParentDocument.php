@@ -15,7 +15,7 @@ use Doctrine\Common\Annotations\Annotation;
 final class ParentDocument
 {
     /**
-     * @var array
+     * @var array or string, but we can't annotate that here, it confuses the annotation parser
      */
     public $cascade = [];
 }

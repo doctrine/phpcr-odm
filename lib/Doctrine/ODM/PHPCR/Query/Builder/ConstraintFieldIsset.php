@@ -23,7 +23,7 @@ class ConstraintFieldIsset extends AbstractLeafNode
 
     public function __construct(AbstractNode $parent, $field)
     {
-        list($alias, $field) = $this->explodeField($field);
+        [$alias, $field] = $this->explodeField($field);
         $this->field = $field;
         $this->alias = $alias;
         parent::__construct($parent);

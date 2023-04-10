@@ -125,8 +125,8 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        /** @var $reference ReferrerRefTestObj */
         $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $this->assertInstanceOf(ReferrerRefTestObj::class, $reference);
 
         $this->assertCount($max, $reference->referrers);
 

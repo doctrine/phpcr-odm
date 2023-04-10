@@ -1,0 +1,42 @@
+parameters:
+    ignoreErrors:
+        # cannot reproduce locally and seems to make no sense to me
+        - "#Condition \"TMaybeContained is mixed\" in conditional return type is always true\\.#"
+
+        # a bunch of problems with the query builder type safety
+        - '#Call to an undefined method Doctrine\\ODM\\PHPCR\\Query\\Builder\\OperandDynamicFactory::literal\(\)\.#'
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:right\\(\\)\\.$#"
+            count: 1
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/ConverterPhpcrTest.php
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:foobar\\(\\)\\.$#"
+            count: 1
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:from\\(\\)\\.$#"
+            count: 1
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:fromDocument\\(\\)\\.$#"
+            count: 1
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:getPrimaryAlias\\(\\)\\.$#"
+            count: 2
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:select\\(\\)\\.$#"
+            count: 1
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php
+
+        -
+            message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:setConverter\\(\\)\\.$#"
+            count: 1
+            path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php

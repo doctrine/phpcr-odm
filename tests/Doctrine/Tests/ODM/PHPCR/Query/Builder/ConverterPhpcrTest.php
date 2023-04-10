@@ -35,27 +35,18 @@ class ConverterPhpcrTest extends TestCase
     /**
      * @var AbstractNode&MockObject
      */
-    private $parentNode;
+    private AbstractNode $parentNode;
 
     /**
      * @var FactoryInterface&MockObject
      */
-    private $qomfFactory;
+    private FactoryInterface $qomfFactory;
 
-    /**
-     * @var QueryObjectModelFactory
-     */
-    private $qomf;
+    private QueryObjectModelFactory $qomf;
 
-    /**
-     * @var ConverterPhpcr
-     */
-    private $converter;
+    private ConverterPhpcr $converter;
 
-    /**
-     * @var QueryBuilder
-     */
-    private $qb;
+    private QueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -171,11 +162,10 @@ class ConverterPhpcrTest extends TestCase
     public function testDispatchFromNonMapped(): void
     {
         $from = $this->createNode('From', []);
-        $source = $this->createNode('SourceDocument', [
+        $from->addChild($this->createNode('SourceDocument', [
             '_document_not_mapped_',
             'alias',
-        ]);
-        $from->addChild($source);
+        ]));
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('_document_not_mapped_ is not a mapped document');
@@ -636,7 +626,7 @@ class ConverterPhpcrTest extends TestCase
         $this->qomfFactory->expects($this->once())
             ->method('get')
             ->willReturnCallback(function ($class, $args) use ($me) {
-                list($om, $source, $constraint, $orderings, $columns) = $args;
+                [$om, $source, $constraint, $orderings, $columns] = $args;
                 $me->assertInstanceOf(SourceInterface::class, $source);
                 // test that we append the phpcr:class and classparents constraints
                 $me->assertInstanceOf(AndInterface::class, $constraint);
@@ -644,22 +634,32 @@ class ConverterPhpcrTest extends TestCase
                 $me->assertInstanceOf(OrInterface::class, $constraint->getConstraint2());
 
                 $phpcrClassConstraint = $constraint->getConstraint2()->getConstraint1();
+                $this->assertInstanceOf(ComparisonInterface::class, $phpcrClassConstraint);
+                $operand1 = $phpcrClassConstraint->getOperand1();
+                $this->assertInstanceOf(PropertyValueInterface::class, $operand1);
                 $me->assertEquals(
                     'phpcr:class',
-                    $phpcrClassConstraint->getOperand1()->getPropertyName()
+                    $operand1->getPropertyName()
                 );
+                $operand2 = $phpcrClassConstraint->getOperand2();
+                $this->assertInstanceOf(LiteralInterface::class, $operand2);
                 $me->assertEquals(
                     'Fooar',
-                    $phpcrClassConstraint->getOperand2()->getLiteralValue()
+                    $operand2->getLiteralValue()
                 );
                 $phpcrClassParentsConstraint = $constraint->getConstraint2()->getConstraint2();
+                $this->assertInstanceOf(ComparisonInterface::class, $phpcrClassParentsConstraint);
+                $operand1 = $phpcrClassParentsConstraint->getOperand1();
+                $this->assertInstanceOf(PropertyValueInterface::class, $operand1);
                 $me->assertEquals(
                     'phpcr:classparents',
-                    $phpcrClassParentsConstraint->getOperand1()->getPropertyName()
+                    $operand1->getPropertyName()
                 );
+                $operand2 = $phpcrClassParentsConstraint->getOperand2();
+                $this->assertInstanceOf(LiteralInterface::class, $operand2);
                 $me->assertEquals(
                     'Fooar',
-                    $phpcrClassParentsConstraint->getOperand2()->getLiteralValue()
+                    $operand2->getLiteralValue()
                 );
 
                 // test columns

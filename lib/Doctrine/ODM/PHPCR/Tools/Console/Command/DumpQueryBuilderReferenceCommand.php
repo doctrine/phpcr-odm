@@ -19,9 +19,7 @@ class DumpQueryBuilderReferenceCommand extends Command
 {
     public const QB_NS = 'Doctrine\\ODM\\PHPCR\\Query\\Builder';
 
-    protected $formatString;
-
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('doctrine:phpcr:qb:dump-reference')
@@ -41,12 +39,8 @@ HERE
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (version_compare(PHP_VERSION, '5.4', '<')) {
-            throw new \Exception('Dump reference needs at least PHP 5.4');
-        }
-
         $search = $input->getArgument('search');
 
         $map = $this->buildMap();
@@ -65,7 +59,7 @@ HERE
         return 0;
     }
 
-    protected function formatMapRst($map)
+    protected function formatMapRst(array $map): array
     {
         $f = [
             'humanize' => function ($string) {
@@ -92,10 +86,10 @@ HERE
                 foreach (explode("\n", $string) as $line) {
                     if (false !== strpos($line, '<code>')) {
                         $indent = 4;
-                    } elseif (strstr($line, '</code>')) {
+                    } elseif (false !== strpos($line, '</code>')) {
                         $indent = 0;
                         $out[] = '';
-                    } elseif (0 === strlen($line)) {
+                    } elseif ('' === $line) {
                         // do not indent empty lines
                         $out[] = '';
                     } else {
@@ -178,11 +172,11 @@ HERE
                 $out[] = '**Child Cardinality**:';
                 // dump cardinality map
                 foreach ($nData['cardMap'] as $cnType => $cnLimits) {
-                    list($cMin, $cMax) = $cnLimits;
+                    [$cMin, $cMax] = $cnLimits;
                     $out[] = sprintf(
                         '    * **%s..%s** %s',
                         $cMin,
-                        $cMax ? $cMax : '*',
+                        $cMax ?: '*',
                         $f['genRef']($cnType, 'type')
                     );
                 }
@@ -228,7 +222,7 @@ HERE
         return $out;
     }
 
-    protected function buildMap()
+    protected function buildMap(): array
     {
         $map = [];
         $nodeMap = [];
@@ -262,12 +256,9 @@ HERE
                     $fmFactoryType = $fmData['factoryType'];
                     $fmReturnType = $fmData['returnType'];
 
-                    if ($fmReflMeth->class != $refl->name) {
+                    if ($fmReflMeth->class !== $refl->name) {
                         continue;
                     }
-
-                    $fMethRefl = new \ReflectionClass(self::QB_NS.'\\'.$fmReturnType);
-                    $fMethInst = $fMethRefl->newInstanceWithoutConstructor();
 
                     $fFactoryRefl = new \ReflectionClass(self::QB_NS.'\\'.$fmFactoryType);
                     $fFactoryInst = $fFactoryRefl->newInstanceWithoutConstructor();
@@ -292,18 +283,15 @@ HERE
                 $parentName = null;
                 $inheritedMethods = [];
 
-                if ($parentRefl = $refl->getParentClass()) {
-                    if ($parentRefl->isInstantiable()) {
-                        $parentName = $parentRefl->getShortName();
+                if (($parentRefl = $refl->getParentClass()) && $parentRefl->isInstantiable()) {
+                    $parentName = $parentRefl->getShortName();
 
-                        $parentInst = $parentRefl->newInstanceWithoutConstructor();
-                        $parentMethods = $this->getFactoryMethodMap($parentRefl);
-                        foreach (array_keys($parentMethods) as $parentMethod) {
-                            $parentReflMeth = $parentRefl->getMethod($parentMethod);
+                    $parentMethods = $this->getFactoryMethodMap($parentRefl);
+                    foreach (array_keys($parentMethods) as $parentMethod) {
+                        $parentReflMeth = $parentRefl->getMethod($parentMethod);
 
-                            if ($parentReflMeth->class != $refl->name) {
-                                $inheritedMethods[$parentReflMeth->name] = $parentReflMeth->getDeclaringClass()->getShortName();
-                            }
+                        if ($parentReflMeth->class !== $refl->name) {
+                            $inheritedMethods[$parentReflMeth->name] = $parentReflMeth->getDeclaringClass()->getShortName();
                         }
                     }
                 }
@@ -319,11 +307,6 @@ HERE
                 ];
 
                 $nodeMap[$refl->getShortName()] = $nodeData;
-
-                if (!isset($nodeTypeMap['nodeTypeMap'][$inst->getNodeType()])) {
-                    $nodeTypeMap[$inst->getNodeType()] = [];
-                }
-
                 $nodeTypeIndex[$inst->getNodeType()][] = $refl->getShortName();
             }
         }
@@ -336,7 +319,7 @@ HERE
         return $map;
     }
 
-    protected function parseDocParams($reflMethod)
+    protected function parseDocParams(\ReflectionMethod $reflMethod): array
     {
         $params = [];
 
@@ -352,11 +335,11 @@ HERE
         }
 
         foreach ($reflParams as $reflParam) {
-            if ('void' == $reflParam->name) {
+            if ('void' === $reflParam->name) {
                 continue;
             }
 
-            if (!isset($docParams[$reflParam->name])) {
+            if (!array_key_exists($reflParam->name, $docParams)) {
                 throw new \Exception(sprintf(
                     'Undocummented parameter "%s" in "%s" for method "%s"',
                     $reflParam->name,
@@ -371,31 +354,31 @@ HERE
         return $params;
     }
 
-    protected function parseDocComment($comment, $indent = 0)
+    protected function parseDocComment(string $comment, int $indent = 0): string
     {
         $out = [];
         foreach (explode("\n", $comment) as $line) {
-            if (strstr($line, '/**')) {
+            if (false !== strpos($line, '/**')) {
                 continue;
             }
 
-            if (strstr($line, '*/')) {
+            if (false !== strpos($line, '*/')) {
                 break;
             }
 
-            if (strstr($line, '@')) {
+            if (false !== strpos($line, '@')) {
                 continue;
             }
 
             $line = preg_replace('& *\* ?&', '', $line);
 
-            $out[] = $line = str_repeat(' ', $indent).$line;
+            $out[] = str_repeat(' ', $indent).$line;
         }
 
         return trim(implode("\n", $out));
     }
 
-    protected function getFactoryMethodMap($refl)
+    private function getFactoryMethodMap(\ReflectionClass $refl): array
     {
         $reflMethods = $refl->getMethods();
         $fMethods = [];
@@ -408,7 +391,7 @@ HERE
                     'factoryType' => null,
                 ];
 
-                if (!isset($matches[1])) {
+                if (!array_key_exists(1, $matches)) {
                     throw new \Exception(sprintf(
                         'Expected annotation for factoryMethod "%s" to declare a child type.',
                         $rMethod->name
@@ -420,7 +403,7 @@ HERE
                 $fMethods[$rMethod->name]['factoryType'] = $factoryType;
 
                 if (preg_match('&@return ([A-Za-z]+)&', $comment, $matches)) {
-                    if (!isset($matches[1])) {
+                    if (!array_key_exists(1, $matches)) {
                         throw new \Exception(sprintf(
                             'Expected docblock for factoryMethod "%s" to declare a return type.',
                             $rMethod->name

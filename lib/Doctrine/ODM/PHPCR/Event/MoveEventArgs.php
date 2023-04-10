@@ -7,24 +7,13 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 class MoveEventArgs extends LifecycleEventArgs
 {
-    /**
-     * @var string
-     */
-    private $sourcePath;
+    private string $sourcePath;
+    private string $targetPath;
 
     /**
-     * @var string
+     * The paths are absolute paths including the document name.
      */
-    private $targetPath;
-
-    /**
-     * Constructor.
-     *
-     * @param object $document
-     * @param string $sourcePath Path the document is moved from
-     * @param string $targetPath Path the document is moved to, including target name
-     */
-    public function __construct($document, DocumentManagerInterface $dm, $sourcePath, $targetPath)
+    public function __construct(object $document, DocumentManagerInterface $dm, string $sourcePath, string $targetPath)
     {
         parent::__construct($document, $dm);
         $this->sourcePath = $sourcePath;
@@ -32,23 +21,17 @@ class MoveEventArgs extends LifecycleEventArgs
     }
 
     /**
-     * Get the path this document is being moved away from, including the
-     * document name.
-     *
-     * @return string
+     * Get the path this document is being moved away from, including the document name.
      */
-    public function getSourcePath()
+    public function getSourcePath(): string
     {
         return $this->sourcePath;
     }
 
     /**
-     * Get the path this document is being moved to, including the new document
-     * name.
-     *
-     * @return string
+     * Get the path this document is being moved to, including the new document name.
      */
-    public function getTargetPath()
+    public function getTargetPath(): string
     {
         return $this->targetPath;
     }

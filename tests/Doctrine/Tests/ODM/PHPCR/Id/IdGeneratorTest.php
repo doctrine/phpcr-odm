@@ -1,5 +1,7 @@
 <?php
 
+namespace Doctrine\Tests\ODM\PHPCR\Id;
+
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Id\AutoIdGenerator;
@@ -53,6 +55,6 @@ class IdGeneratorTest extends TestCase
     public function testCreateException(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        IdGenerator::create(null);
+        IdGenerator::create(42);
     }
 }

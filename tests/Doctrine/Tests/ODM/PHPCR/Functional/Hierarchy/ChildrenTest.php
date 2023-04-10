@@ -8,6 +8,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+use Doctrine\ODM\PHPCR\PersistentCollection;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -21,12 +22,9 @@ use PHPUnit\Framework\AssertionFailedError;
  */
 class ChildrenTest extends PHPCRFunctionalTestCase
 {
-    /**
-     * @var DocumentManager
-     */
-    private $dm;
+    private DocumentManager $dm;
 
-    private $type = ChildrenTestObj::class;
+    private string $type = ChildrenTestObj::class;
 
     public function setUp(): void
     {
@@ -129,6 +127,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->createChildren();
 
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf($this->type, $parent);
 
         // lazy loaded
         $this->assertCount(0, $parent->aChildren->unwrap());
@@ -145,6 +144,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         // loaded
         $parent->aChildren[] = new ChildrenTestObj();
         $this->assertCount(2, $parent->aChildren);
+        $this->assertInstanceOf(PersistentCollection::class, $parent->aChildren);
         $this->assertTrue($parent->aChildren->isInitialized());
 
         $parent->allChildren->remove('Child C');
@@ -308,8 +308,8 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     public function testInsertExistingAutoname(): void
     {
-        /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find(null, '/functional/parent');
+        $this->assertInstanceOf(ChildrenTestObj::class, $parent);
         $parent->allChildren->add(new ChildrenAutonameTestObj());
 
         $this->dm->flush();
@@ -334,6 +334,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $parent = $this->dm->find(null, '/functional/parent/new');
+        $this->assertInstanceOf(ChildrenTestObj::class, $parent);
         $this->assertCount(1, $parent->allChildren);
     }
 
@@ -439,8 +440,8 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     {
         $this->createChildren();
 
-        /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf($this->type, $parent);
         $this->assertCount(4, $parent->allChildren);
 
         $parent->allChildren->remove('Child A');
@@ -556,9 +557,9 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->createChildren();
 
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf($this->type, $parent);
         $this->assertCount(4, $parent->allChildren);
 
-        /** @var $childrenCollection ChildrenCollection */
         $childrenCollection = $parent->allChildren;
         $children = $childrenCollection->toArray();
 
@@ -593,8 +594,8 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $listener = new TestResetReorderingListener();
         $this->dm->getEventManager()->addEventListener(['preUpdate'], $listener);
 
-        /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf($this->type, $parent);
 
         $this->assertEquals('Child A', $parent->allChildren->first()->name);
 
@@ -672,8 +673,8 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        /** @var $parent ChildrenTestObj */
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf($this->type, $parent);
         $this->assertCount(4, $parent->allChildren);
 
         $other = $this->dm->find($this->type, '/functional/other');
@@ -726,14 +727,7 @@ class ChildrenTestObj
 
 class ChildrenTestObjRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    /**
-     * Generate a document id.
-     *
-     * @param object $document
-     *
-     * @return string
-     */
-    public function generateId($document, $parent = null)
+    public function generateId(object $document, ?object $parent = null): string
     {
         if ($document->id) {
             return $document->id;
@@ -814,7 +808,6 @@ class TestResetReorderingListener
     {
         $document = $e->getObject();
         if ($document instanceof ChildrenTestObj && 'Child B' === $document->allChildren->first()->name) {
-            /** @var $childrenCollection ChildrenCollection */
             $childrenCollection = $document->allChildren;
             $children = $childrenCollection->toArray();
 
@@ -823,7 +816,7 @@ class TestResetReorderingListener
             $expectedOrder = ['Child A', 'Child B', 'Child C', 'Child D'];
 
             foreach ($expectedOrder as $name) {
-                if (!isset($children[$name])) {
+                if (!array_key_exists($name, $children)) {
                     throw new AssertionFailedError("Missing index '$name' in ".implode(', ', array_keys($children)));
                 }
                 $childrenCollection->set($name, $children[$name]);

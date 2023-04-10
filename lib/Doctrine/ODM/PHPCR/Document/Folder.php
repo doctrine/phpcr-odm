@@ -20,25 +20,26 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class Folder extends AbstractFile
 {
     /**
-     * @var ArrayCollection
-     *
      * @PHPCRODM\Children(cascade="all")
      */
-    protected $children;
+    protected Collection $children;
 
     /**
-     * @var AbstractFile
-     *
      * @PHPCRODM\Child(cascade="all")
      */
-    protected $child;
+    protected AbstractFile $child;
+
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+    }
 
     /**
-     * The children File documents of this Folder document.
+     * Files and folders inside this folder.
      *
-     * @return Collection list of File documents
+     * @return Collection<HierarchyInterface>
      */
-    public function getChildren()
+    public function getChildren(): Collection
     {
         return $this->children;
     }
@@ -46,11 +47,11 @@ class Folder extends AbstractFile
     /**
      * Sets the children of this Folder document.
      *
-     * @param $children ArrayCollection
+     * Children must be 'nt:hierarchyNode', typically extending AbstractFile (Folder or File).
      *
-     * @return $this
+     * @param Collection<HierarchyInterface> $children
      */
-    public function setChildren(ArrayCollection $children)
+    public function setChildren(Collection $children): self
     {
         $this->children = $children;
 
@@ -58,19 +59,10 @@ class Folder extends AbstractFile
     }
 
     /**
-     * Add a child document that resolves to nt:hierarchyNode (like the File)
-     * to this document that resolves to nt:folder (like the Folder).
-     *
-     * @param $child HierarchyInterface
-     *
-     * @return $this
+     * Add a child document that resolves to nt:hierarchyNode (like the File or Folder).
      */
-    public function addChild(HierarchyInterface $child)
+    public function addChild(HierarchyInterface $child): self
     {
-        if (null === $this->children) {
-            $this->children = new ArrayCollection();
-        }
-
         $this->children->add($child);
 
         return $this;

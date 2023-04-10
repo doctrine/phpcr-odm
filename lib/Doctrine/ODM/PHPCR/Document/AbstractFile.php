@@ -4,6 +4,7 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\HierarchyInterface;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use PHPCR\NodeInterface;
 
 /**
  * This class represents an abstract "file".
@@ -12,32 +13,40 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  */
 abstract class AbstractFile implements HierarchyInterface
 {
-    /** @PHPCRODM\Id(strategy="parent") */
-    protected $id;
+    /**
+     * @PHPCRODM\Id(strategy="parent")
+     */
+    protected string $id;
 
-    /** @PHPCRODM\Node */
-    protected $node;
+    /**
+     * @PHPCRODM\Node
+     */
+    protected NodeInterface $node;
 
-    /** @PHPCRODM\Nodename */
-    protected $nodename;
+    /**
+     * @PHPCRODM\Nodename
+     */
+    protected string $nodename = '';
 
-    /** @PHPCRODM\ParentDocument */
-    protected $parent;
+    /**
+     * @PHPCRODM\ParentDocument
+     */
+    protected ?object $parent;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
-    protected $created;
+    /**
+     * @PHPCRODM\Field(type="date", property="jcr:created")
+     */
+    protected ?\DateTimeInterface $created = null;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
-    protected $createdBy;
+    /**
+     * @PHPCRODM\Field(type="string", property="jcr:createdBy")
+     */
+    protected ?string $createdBy = null;
 
     /**
      * Set the id (the PHPCR path).
-     *
-     * @param string $id of the node
-     *
-     * @return $this
      */
-    public function setId($id)
+    public function setId(string $id): self
     {
         $this->id = $id;
 
@@ -46,32 +55,24 @@ abstract class AbstractFile implements HierarchyInterface
 
     /**
      * Get for id (the PHPCR path).
-     *
-     * @return string id of the document
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
     /**
      * The node name of the file.
-     *
-     * @return string
      */
-    public function getNodename()
+    public function getNodename(): string
     {
         return $this->nodename;
     }
 
     /**
      * Set the node name of the file. (only mutable on new document before the persist).
-     *
-     * @param string $name the name of the file
-     *
-     * @return $this
      */
-    public function setNodename($name)
+    public function setNodename(string $name): self
     {
         $this->nodename = $name;
 
@@ -80,10 +81,8 @@ abstract class AbstractFile implements HierarchyInterface
 
     /**
      * The parent document of this document. Could be a Folder.
-     *
-     * @return object document that is the parent of this node
      */
-    public function getParentDocument()
+    public function getParentDocument(): ?object
     {
         return $this->parent;
     }
@@ -93,10 +92,8 @@ abstract class AbstractFile implements HierarchyInterface
      *
      * @param object $parent Document that is the parent of this node. Could be
      *                       a Folder or otherwise resolve to nt:folder
-     *
-     * @return $this
      */
-    public function setParentDocument($parent)
+    public function setParentDocument(object $parent): self
     {
         $this->parent = $parent;
 
@@ -104,35 +101,24 @@ abstract class AbstractFile implements HierarchyInterface
     }
 
     /**
-     * getter for created
      * The created date is assigned by the content repository.
-     *
-     * @return \DateTime created date of the file
      */
-    public function getCreated()
+    public function getCreated(): ?\DateTimeInterface
     {
         return $this->created;
     }
 
     /**
-     * getter for createdBy
      * The createdBy is assigned by the content repository
      * This is the name of the (jcr) user that created the node.
-     *
-     * @return string name of the (jcr) user who created the file
      */
-    public function getCreatedBy()
+    public function getCreatedBy(): ?string
     {
         return $this->createdBy;
     }
 
-    /**
-     * String representation.
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->nodename;
+        return $this->nodename;
     }
 }

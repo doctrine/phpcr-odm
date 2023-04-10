@@ -13,7 +13,7 @@ class RepositoryIdGenerator extends IdGenerator
      *
      * {@inheritdoc}
      */
-    public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
+    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent = null): string
     {
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;

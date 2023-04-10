@@ -16,7 +16,7 @@ class OperandDynamicField extends AbstractLeafNode
 
     public function __construct(AbstractNode $parent, $field)
     {
-        list($alias, $field) = $this->explodeField($field);
+        [$alias, $field] = $this->explodeField($field);
         $this->alias = $alias;
         $this->field = $field;
         parent::__construct($parent);

@@ -3,7 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
 use Doctrine\ODM\PHPCR\NodeTypeRegistrator;
-use PHPCR\SessionInterface;
+use PHPCR\Util\Console\Helper\PhpcrHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,10 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RegisterSystemNodeTypesCommand extends Command
 {
-    /**
-     * @see Command
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('doctrine:phpcr:register-system-node-types');
         $this->setDescription('Register system node types in the PHPCR repository');
@@ -31,13 +28,11 @@ EOT
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var SessionInterface $session */
-        $session = $this->getHelper('phpcr')->getSession();
+        $phpcrHelper = $this->getHelper('phpcr');
+        \assert($phpcrHelper instanceof PhpcrHelper);
+        $session = $phpcrHelper->getSession();
         $registrator = new NodeTypeRegistrator();
 
         try {

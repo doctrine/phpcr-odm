@@ -16,22 +16,14 @@ use PHPCR\PropertyType;
  */
 class TranslationHierarchyTest extends PHPCRFunctionalTestCase
 {
-    /**
-     * @var DocumentManager
-     */
-    private $dm;
+    private DocumentManager $dm;
 
     /**
      * Class name of the document class.
-     *
-     * @var string
      */
-    private $type = Article::class;
+    private string $type = Article::class;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
+    private NodeInterface $node;
 
     public function setUp(): void
     {
@@ -119,6 +111,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
         $this->assertInstanceOf(Proxy::class, $doc->child);
+        $this->assertInstanceOf(Article::class, $doc->child);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('fr', $doc->child->relatedArticles[0]->locale);
@@ -129,6 +122,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'en');
 
         $this->assertInstanceOf(Proxy::class, $doc->child);
+        $this->assertInstanceOf(Article::class, $doc->child);
         $this->assertEquals('en', $doc->locale);
         $this->assertEquals('en', $doc->child->locale);
         $this->assertEquals('Interesting Topic', $doc->child->topic);
@@ -144,6 +138,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $child = $this->dm->findTranslation($this->type, '/functional/thename/child', 'en');
 
         $this->assertInstanceOf(Proxy::class, $child->parent);
+        $this->assertInstanceOf(Article::class, $child->parent);
         $this->assertEquals('en', $child->locale);
 
         $this->assertEquals('fr', $child->parent->locale);
@@ -169,6 +164,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
         $doc = $this->dm->findTranslation($this->type, '/functional/thename', 'fr');
 
         $this->assertInstanceOf(Proxy::class, $doc->child);
+        $this->assertInstanceOf(Article::class, $doc->child);
         $this->assertEquals('fr', $doc->locale);
         $this->assertEquals('fr', $doc->child->locale);
         $this->assertEquals('Sujet interessant', $doc->child->topic);

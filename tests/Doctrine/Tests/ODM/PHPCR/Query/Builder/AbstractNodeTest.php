@@ -230,7 +230,7 @@ class AbstractNodeTest extends TestCase
         ], $options);
 
         if ($options['expected_exception']) {
-            list($exceptionType, $exceptionMessage) = $options['expected_exception'];
+            [$exceptionType, $exceptionMessage] = $options['expected_exception'];
             $this->expectException($exceptionType);
             $this->expectExceptionMessage($exceptionMessage);
         }

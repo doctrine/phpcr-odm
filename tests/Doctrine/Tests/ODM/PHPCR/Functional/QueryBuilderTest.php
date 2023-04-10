@@ -263,9 +263,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
      */
     protected function cleanValues($values)
     {
-        if (isset($values['a.jcr:primaryType'])) {
-            unset($values['a.jcr:primaryType']);
-        }
+        unset($values['a.jcr:primaryType']);
 
         return $values;
     }
@@ -286,8 +284,8 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $rows = $result->getRows();
         $values = $rows->current()->getValues('a');
         $values = $this->cleanValues($values);
-
-        $this->assertEquals(1, $rows->count());
+        $this->assertInstanceOf(\Countable::class, $rows);
+        $this->assertCount(1, $rows);
 
         switch ($qb->getQuery()->getLanguage()) {
             case 'JCR-SQL2':

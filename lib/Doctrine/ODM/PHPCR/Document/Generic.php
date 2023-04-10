@@ -17,70 +17,70 @@ use PHPCR\NodeInterface;
  */
 class Generic
 {
-    /** @PHPCRODM\Id(strategy="parent") */
-    protected $id;
-
-    /** @PHPCRODM\Node */
-    protected $node;
-
-    /** @PHPCRODM\Nodename */
-    protected $nodename;
-
-    /** @PHPCRODM\ParentDocument */
-    protected $parent;
+    /**
+     * @PHPCRODM\Id(strategy="parent")
+     */
+    protected string $id;
 
     /**
-     * @var Collection
-     *
+     * @PHPCRODM\Node
+     */
+    protected NodeInterface $node;
+
+    /**
+     * @PHPCRODM\Nodename
+     */
+    protected string $nodename = '';
+
+    /**
+     * @PHPCRODM\ParentDocument
+     */
+    protected ?object $parent = null;
+
+    /**
      * @PHPCRODM\Children
      */
-    protected $children;
+    protected Collection $children;
 
     /**
-     * @var Collection
-     *
      * @PHPCRODM\MixedReferrers
      */
-    protected $referrers;
+    protected Collection $referrers;
+
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+        $this->referrers = new ArrayCollection();
+    }
 
     /**
      * Id (path) of this document.
-     *
-     * @return string the id
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
     /**
      * The node of for document.
-     *
-     * @return NodeInterface
      */
-    public function getNode()
+    public function getNode(): NodeInterface
     {
         return $this->node;
     }
 
     /**
      * The node name of the document.
-     *
-     * @return string
      */
-    public function getNodename()
+    public function getNodename(): string
     {
         return $this->nodename;
     }
 
     /**
      * Set the node name of the document. (only mutable on new document before the persist).
-     *
-     * @param string $name the name of the document
-     *
-     * @return $this
      */
-    public function setNodename($name)
+    public function setNodename(string $name): self
     {
         $this->nodename = $name;
 
@@ -89,22 +89,16 @@ class Generic
 
     /**
      * The parent document of this document.
-     *
-     * @return object folder document that is the parent of this node
      */
-    public function getParentDocument()
+    public function getParentDocument(): ?object
     {
         return $this->parent;
     }
 
     /**
      * Set the parent document of this document.
-     *
-     * @param object $parent Document that is the parent of this node..
-     *
-     * @return $this
      */
-    public function setParentDocument($parent)
+    public function setParentDocument(object $parent): self
     {
         $this->parent = $parent;
 
@@ -116,22 +110,13 @@ class Generic
      *
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
-     *
-     * @return Collection
      */
-    public function getChildren()
+    public function getChildren(): Collection
     {
         return $this->children;
     }
 
-    /**
-     * Sets the children.
-     *
-     * @param $children ArrayCollection
-     *
-     * @return $this
-     */
-    public function setChildren(ArrayCollection $children)
+    public function setChildren(Collection $children): self
     {
         $this->children = $children;
 
@@ -140,15 +125,9 @@ class Generic
 
     /**
      * Add a child to this document.
-     *
-     * @return $this
      */
-    public function addChild($child)
+    public function addChild(object $child): self
     {
-        if (null === $this->children) {
-            $this->children = new ArrayCollection();
-        }
-
         $this->children->add($child);
 
         return $this;
@@ -159,51 +138,28 @@ class Generic
      *
      * If there is information on the document type, the documents are of the
      * specified type, otherwise they will be Generic documents
-     *
-     * @return Collection
      */
-    public function getReferrers()
+    public function getReferrers(): Collection
     {
         return $this->referrers;
     }
 
-    /**
-     * Sets the referrers.
-     *
-     * @param $referrers ArrayCollection
-     *
-     * @return $this;
-     */
-    public function setReferrers(ArrayCollection $referrers)
+    public function setReferrers(Collection $referrers): self
     {
         $this->referrers = $referrers;
 
         return $this;
     }
 
-    /**
-     * Add a referrer to this document.
-     *
-     * @return $this;
-     */
-    public function addReferrer($referrer)
+    public function addReferrer(object $referrer): self
     {
-        if (null === $this->referrers) {
-            $this->referrers = new ArrayCollection();
-        }
-
         $this->referrers->add($referrer);
 
         return $this;
     }
 
-    /**
-     * String representation.
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->nodename;
+        return $this->nodename;
     }
 }

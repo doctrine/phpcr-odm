@@ -10,6 +10,7 @@ use Doctrine\Common\Proxy\ProxyDefinition;
 use Doctrine\Common\Proxy\ProxyGenerator;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
 
@@ -25,26 +26,15 @@ use Doctrine\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
  */
 class ProxyFactory extends AbstractProxyFactory
 {
-    /**
-     * @var DocumentManagerInterface the DocumentManager this factory is bound to
-     */
-    private $documentManager;
+    private DocumentManagerInterface $documentManager;
+    private string $proxyNamespace;
 
     /**
-     * @var string the namespace that contains all proxy classes
+     * @param string $proxyDir       Path to store the proxy classes. The path must already exist
+     * @param string $proxyNamespace The namespace to use for the proxy classes
+     * @param bool   $autoGenerate   Whether to automatically generate proxy classes
      */
-    private $proxyNamespace;
-
-    /**
-     * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
-     * connected to the given <tt>DocumentManager</tt>.
-     *
-     * @param DocumentManagerInterface $documentManager the DocumentManager the new factory works for
-     * @param string                   $proxyDir        The directory to use for the proxy classes. It must exist.
-     * @param string                   $proxyNamespace  the namespace to use for the proxy classes
-     * @param bool                     $autoGenerate    whether to automatically generate proxy classes
-     */
-    public function __construct(DocumentManagerInterface $documentManager, $proxyDir, $proxyNamespace, $autoGenerate = false)
+    public function __construct(DocumentManagerInterface $documentManager, string $proxyDir, string $proxyNamespace, bool $autoGenerate = false)
     {
         parent::__construct(
             new ProxyGenerator($proxyDir, $proxyNamespace),
@@ -56,10 +46,7 @@ class ProxyFactory extends AbstractProxyFactory
         $this->proxyNamespace = $proxyNamespace;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function skipClass(BaseClassMetadata $metadata)
+    protected function skipClass(BaseClassMetadata $metadata): bool
     {
         if (!$metadata instanceof PhpcrClassMetadata) {
             throw new InvalidArgumentException('Did not get the expected type of metadata but '.get_class($metadata));
@@ -68,10 +55,7 @@ class ProxyFactory extends AbstractProxyFactory
         return $metadata->isMappedSuperclass || $metadata->getReflectionClass()->isAbstract();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function createProxyDefinition($className)
+    protected function createProxyDefinition($className): ProxyDefinition
     {
         $classMetadata = $this->documentManager->getClassMetadata($className);
 
@@ -94,16 +78,14 @@ class ProxyFactory extends AbstractProxyFactory
 
     /**
      * Generates a closure capable of initializing a proxy.
-     *
-     * @return \Closure
      */
-    private function createInitializer(PhpcrClassMetadata $classMetadata)
+    private function createInitializer(PhpcrClassMetadata $classMetadata): \Closure
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
 
         if ($classMetadata->getReflectionClass()->hasMethod('__wakeup')) {
-            return function (Proxy $proxy) use ($className, $documentManager) {
+            return static function (Proxy $proxy) use ($className, $documentManager) {
                 $proxy->__setInitializer(null);
                 $proxy->__setCloner(null);
 
@@ -115,17 +97,20 @@ class ProxyFactory extends AbstractProxyFactory
 
                 foreach ($properties as $propertyName => $property) {
                     if (!isset($proxy->$propertyName)) {
-                        $proxy->$propertyName = $properties[$propertyName];
+                        $proxy->$propertyName = $property;
                     }
                 }
 
                 $proxy->__setInitialized(true);
-                $proxy->__wakeup();
-                $documentManager->getRepository($className)->refreshDocumentForProxy($proxy);
+                $proxy->__wakeup(); /** @phpstan-ignore-line we check for existence with the reflection class */
+                $repository = $documentManager->getRepository($className);
+                if ($repository instanceof DocumentRepository || method_exists($repository, 'refreshDocumentForProxy')) {
+                    $repository->refreshDocumentForProxy($proxy);
+                }
             };
         }
 
-        return function (Proxy $proxy) use ($className, $documentManager) {
+        return static function (Proxy $proxy) use ($className, $documentManager) {
             $proxy->__setInitializer(null);
             $proxy->__setCloner(null);
 
@@ -137,28 +122,29 @@ class ProxyFactory extends AbstractProxyFactory
 
             foreach ($properties as $propertyName => $property) {
                 if (!isset($proxy->$propertyName)) {
-                    $proxy->$propertyName = $properties[$propertyName];
+                    $proxy->$propertyName = $property;
                 }
             }
 
             $proxy->__setInitialized(true);
-            $documentManager->getRepository($className)->refreshDocumentForProxy($proxy);
+            $repository = $documentManager->getRepository($className);
+            if ($repository instanceof DocumentRepository || method_exists($repository, 'refreshDocumentForProxy')) {
+                $repository->refreshDocumentForProxy($proxy);
+            }
         };
     }
 
     /**
      * Generates a closure capable of finalizing a cloned proxy.
      *
-     * @return \Closure
-     *
      * @throws UnexpectedValueException
      */
-    private function createCloner(PhpcrClassMetadata $classMetadata, \ReflectionProperty $reflectionId = null)
+    private function createCloner(PhpcrClassMetadata $classMetadata, \ReflectionProperty $reflectionId = null): \Closure
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;
 
-        return function (Proxy $cloned) use ($className, $classMetadata, $documentManager, $reflectionId) {
+        return static function (Proxy $cloned) use ($className, $classMetadata, $documentManager, $reflectionId) {
             if ($cloned->__isInitialized()) {
                 return;
             }

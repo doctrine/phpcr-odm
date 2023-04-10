@@ -11,7 +11,7 @@ use Doctrine\ODM\PHPCR\PHPCRException;
  */
 class CascadeException extends PHPCRException
 {
-    public static function newDocumentFound($documentString)
+    public static function newDocumentFound(string $documentString): self
     {
         return new self('A new document was found through a relationship that was not'
                         ." configured to cascade persist operations: $documentString."

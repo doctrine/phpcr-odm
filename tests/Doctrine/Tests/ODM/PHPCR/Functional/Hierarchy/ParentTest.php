@@ -61,6 +61,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->assertEquals('thename', $doc->nodename);
 
         $this->assertInstanceOf(Proxy::class, $doc->parent);
+        $this->assertInstanceOf($this->type, $doc);
         $this->assertEquals('/functional', $doc->parent->getId());
 
         return $doc;

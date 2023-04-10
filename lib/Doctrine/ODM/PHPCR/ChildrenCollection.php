@@ -15,26 +15,31 @@ use PHPCR\Util\PathHelper;
  */
 class ChildrenCollection extends PersistentCollection
 {
-    private $document;
+    private object $document;
 
+    /**
+     * @var array|string|null
+     */
     private $filter;
 
-    private $fetchDepth;
+    private int $fetchDepth;
 
-    private $originalNodeNames;
+    /**
+     * @var string[]
+     */
+    private array $originalNodeNames;
 
-    private $node;
+    private NodeInterface $node;
 
     /**
      * Creates a new persistent collection.
      *
-     * @param DocumentManagerInterface $dm         the DocumentManager the collection will be associated with
-     * @param object                   $document   The parent document instance
-     * @param string|array             $filter     Filter string or array of filter string
-     * @param int                      $fetchDepth optional fetch depth, -1 to not override
-     * @param string                   $locale     The locale to use during the loading of this collection
+     * @param object       $document   The parent document instance
+     * @param string|array $filter     Filter string or array of filter string
+     * @param int          $fetchDepth Optional fetch depth, -1 to not override
+     * @param string|null  $locale     The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManagerInterface $dm, $document, $filter = null, $fetchDepth = -1, $locale = null)
+    public function __construct(DocumentManagerInterface $dm, object $document, $filter = null, int $fetchDepth = -1, ?string $locale = null)
     {
         $this->dm = $dm;
         $this->document = $document;
@@ -44,16 +49,10 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * @param DocumentManagerInterface $dm             the DocumentManager the collection will be associated with
-     * @param object                   $document       The parent document instance
-     * @param array|Collection         $collection     The collection to initialize with
-     * @param string|array             $filter         Filter string or array of filter string
-     * @param int                      $fetchDepth     optional fetch depth, -1 to not override
-     * @param bool                     $forceOverwrite If to force overwrite the state in the database to the state of the collection
-     *
-     * @return ChildrenCollection
+     * @param array|Collection $collection The collection to initialize with
+     * @param string|array     $filter     Filter string or array of filter string
      */
-    public static function createFromCollection(DocumentManagerInterface $dm, $document, $collection, $filter = null, $fetchDepth = -1, $forceOverwrite = false)
+    public static function createFromCollection(DocumentManagerInterface $dm, object $document, $collection, $filter = null, int $fetchDepth = -1, bool $forceOverwrite = false): self
     {
         $childrenCollection = new self($dm, $document, $filter, $fetchDepth);
         $childrenCollection->initializeFromCollection($collection, $forceOverwrite);
@@ -61,12 +60,9 @@ class ChildrenCollection extends PersistentCollection
         return $childrenCollection;
     }
 
-    /**
-     * @return NodeInterface
-     */
-    private function getNode($fetchDepth)
+    private function getNode(int $fetchDepth): NodeInterface
     {
-        if (null === $this->node) {
+        if (!isset($this->node)) {
             $path = $this->dm->getUnitOfWork()->getDocumentId($this->document);
             $this->node = $this->dm->getPhpcrSession()->getNode($path, is_int($fetchDepth) ? $fetchDepth : -1);
         }
@@ -77,7 +73,7 @@ class ChildrenCollection extends PersistentCollection
     /**
      * @return NodeInterface[]
      */
-    private function getChildren($childNodes)
+    private function getChildren($childNodes): array
     {
         $uow = $this->dm->getUnitOfWork();
         $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
@@ -201,9 +197,9 @@ class ChildrenCollection extends PersistentCollection
      *
      * @return string[]
      */
-    public function getOriginalNodeNames()
+    public function getOriginalNodeNames(): array
     {
-        if (null === $this->originalNodeNames) {
+        if (!isset($this->originalNodeNames)) {
             if (self::INITIALIZED_FROM_COLLECTION === $this->initialized) {
                 $this->originalNodeNames = $this->collection->getKeys();
             } else {
@@ -217,13 +213,13 @@ class ChildrenCollection extends PersistentCollection
     /**
      * Reset originalNodeNames and mark the collection as non dirty.
      */
-    public function takeSnapshot()
+    public function takeSnapshot(): void
     {
-        if (is_array($this->originalNodeNames)) {
+        if (isset($this->originalNodeNames)) {
             if ($this->isInitialized()) {
                 $this->originalNodeNames = $this->collection->getKeys();
             } else {
-                $this->originalNodeNames = null;
+                unset($this->originalNodeNames);
             }
         }
 

@@ -96,12 +96,6 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
     }
 
-    public function testReorderNoObject(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->dm->reorder('parent', 'first', 'second', false);
-    }
-
     public function testReorderBeforeFirst(): void
     {
         $parent = $this->dm->find(null, '/functional/source');

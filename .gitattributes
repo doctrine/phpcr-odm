@@ -1,0 +1,5 @@
+/tests
+/.*
+/phpbench.json.dist
+/phpstan.neon
+/RMT

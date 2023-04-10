@@ -18,26 +18,26 @@ class Resource
     /**
      * @PHPCRODM\Id
      */
-    protected $id;
+    protected string $id;
 
     /**
-     * @var NodeInterface
-     *
      * @PHPCRODM\Node
      */
-    protected $node;
+    protected NodeInterface $node;
 
     /**
      * @PHPCRODM\Nodename
      */
-    protected $nodename;
+    protected string $nodename = '';
 
     /**
      * @PHPCRODM\ParentDocument
      */
-    protected $parent;
+    protected object $parent;
 
     /**
+     * A PHP resource.
+     *
      * @PHPCRODM\Field(type="binary", property="jcr:data")
      */
     protected $data;
@@ -45,29 +45,27 @@ class Resource
     /**
      * @PHPCRODM\Field(type="string", property="jcr:mimeType")
      */
-    protected $mimeType = 'application/octet-stream';
+    protected string $mimeType = 'application/octet-stream';
 
     /**
      * @PHPCRODM\Field(type="string", property="jcr:encoding", nullable=true)
      */
-    protected $encoding;
+    protected ?string $encoding = null;
 
     /**
      * @PHPCRODM\Field(type="date", property="jcr:lastModified")
      */
-    protected $lastModified;
+    protected ?\DateTimeInterface $lastModified = null;
 
     /**
      * @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy")
      */
-    protected $lastModifiedBy;
+    protected ?string $lastModifiedBy = null;
 
     /**
      * The node name of the file.
-     *
-     * @return string
      */
-    public function getNodename()
+    public function getNodename(): string
     {
         return $this->nodename;
     }
@@ -79,10 +77,8 @@ class Resource
      * child, this must be "jcr:content".
      *
      * @param string $name the name of the resource
-     *
-     * @return $this
      */
-    public function setNodename($name)
+    public function setNodename(string $name): self
     {
         $this->nodename = $name;
 
@@ -94,19 +90,12 @@ class Resource
      *
      * @return object file document that is the parent of this node
      */
-    public function getParentDocument()
+    public function getParentDocument(): object
     {
         return $this->parent;
     }
 
-    /**
-     * Set the parent document of this resource.
-     *
-     * @param object $parent document that is the parent of this node
-     *
-     * @return $this
-     */
-    public function setParentDocument($parent)
+    public function setParentDocument(object $parent): self
     {
         $this->parent = $parent;
 
@@ -115,12 +104,8 @@ class Resource
 
     /**
      * Set the data from a binary stream.
-     *
-     * @param stream $data the contents of this resource
-     *
-     * @return $this
      */
-    public function setData($data)
+    public function setData($data): self
     {
         $this->data = $data;
 
@@ -129,8 +114,6 @@ class Resource
 
     /**
      * Get the binary data stream of this resource.
-     *
-     * @param stream
      */
     public function getData()
     {
@@ -150,7 +133,7 @@ class Resource
      *
      * @return int the resource size in bytes
      */
-    public function getSize()
+    public function getSize(): int
     {
         if (null === $this->node) {
             throw new BadMethodCallException('Do not call Resource::getSize on unsaved objects, as it only reads the stored size.');
@@ -159,38 +142,22 @@ class Resource
         return $this->node->getProperty('jcr:data')->getLength();
     }
 
-    /**
-     * Set the mime type information for this resource.
-     *
-     * @param string $mimeType
-     *
-     * @return $this
-     */
-    public function setMimeType($mimeType)
+    public function setMimeType(string $mimeType): self
     {
         $this->mimeType = $mimeType;
 
         return $this;
     }
 
-    /**
-     * Get the mime type information of this resource.
-     *
-     * @return string
-     */
-    public function getMimeType()
+    public function getMimeType(): string
     {
         return $this->mimeType;
     }
 
     /**
      * Set the encoding information for the data stream.
-     *
-     * @param string $encoding
-     *
-     * @return $this
      */
-    public function setEncoding($encoding)
+    public function setEncoding(string $encoding): self
     {
         $this->encoding = $encoding;
 
@@ -199,10 +166,8 @@ class Resource
 
     /**
      * Get the optional encoding information for the data stream.
-     *
-     * @return string|null the encoding of this resource
      */
-    public function getEncoding()
+    public function getEncoding(): ?string
     {
         return $this->encoding;
     }
@@ -211,25 +176,16 @@ class Resource
      * Set the last modified date manually.
      *
      * This might be updated automatically by some PHPCR implementations, but
-     * it is not required by the specification.
-     *
-     * @param \DateTime $lastModified
-     *
-     * @return $this
+     * it is not guaranteed by the specification.
      */
-    public function setLastModified($lastModified)
+    public function setLastModified(\DateTimeInterface $lastModified): self
     {
         $this->lastModified = $lastModified;
 
         return $this;
     }
 
-    /**
-     * Get the last modified date.
-     *
-     * @return \DateTime
-     */
-    public function getLastModified()
+    public function getLastModified(): ?\DateTimeInterface
     {
         return $this->lastModified;
     }
@@ -238,13 +194,9 @@ class Resource
      * Set the jcr username of the user that last modified this resource.
      *
      * This might be updated automatically by some PHPCR implementations, but
-     * it is not required by the specification.
-     *
-     * @param string $lastModifiedBy
-     *
-     * @return $this
+     * it is not guaranteed by the specification.
      */
-    public function setLastModifiedBy($lastModifiedBy)
+    public function setLastModifiedBy(string $lastModifiedBy): self
     {
         $this->lastModifiedBy = $lastModifiedBy;
 
@@ -253,31 +205,22 @@ class Resource
 
     /**
      * Get the jcr username of the user that last modified this resource.
-     *
-     * @return string
      */
-    public function getLastModifiedBy()
+    public function getLastModifiedBy(): ?string
     {
         return $this->lastModifiedBy;
     }
 
     /**
      * Get mime type and encoding (RFC2045).
-     *
-     * @return string
      */
-    public function getMime()
+    public function getMime(): string
     {
         return $this->getMimeType().($this->getEncoding() ? '; charset='.$this->getEncoding() : '');
     }
 
-    /**
-     * String representation.
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->nodename;
+        return $this->nodename;
     }
 }
