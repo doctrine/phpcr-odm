@@ -12,6 +12,11 @@ JAR=jackrabbit-standalone-$VERSION.jar
 # download jackrabbit jar from archive, as the dist only contains the latest
 # stable versions
 if [ ! -f "$DIR/$JAR" ]; then
+    if ! [ -x "$(command -v wget)" ]; then
+      echo 'Error: wget is not installed.' >&2
+      exit 1
+    fi
+
     wget http://archive.apache.org/dist/jackrabbit/$VERSION/$JAR
 fi
 
