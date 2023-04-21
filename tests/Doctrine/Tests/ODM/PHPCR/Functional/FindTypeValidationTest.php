@@ -5,7 +5,6 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 
 /**

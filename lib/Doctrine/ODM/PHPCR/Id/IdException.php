@@ -47,7 +47,7 @@ class IdException extends PHPCRException
         $parentType = is_object($parentObject) ? ClassUtils::getClass($parentObject) : $parentObject;
         $message = sprintf(
             'ParentDocument property "%s" of document of class "%s" contains an '.
-            'object for which no ID could be found',
+            'object with class %s for which no ID could be found',
             $parent,
             $document ? ClassUtils::getClass($document) : 'null',
             $parentType

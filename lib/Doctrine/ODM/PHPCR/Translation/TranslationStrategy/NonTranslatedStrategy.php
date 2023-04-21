@@ -14,28 +14,20 @@ use PHPCR\Query\QOM\SourceInterface;
 /**
  * A dummy translation strategy for non-translated fields.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      David Buchmann <mail@davidbu.ch>
+ * @author David Buchmann <mail@davidbu.ch>
  */
 class NonTranslatedStrategy implements TranslationStrategyInterface
 {
     /**
      * Identifier of this strategy.
      */
-    const NAME = 'none';
+    public const NAME = 'none';
 
     /**
      * @var DocumentManagerInterface
      */
     private $dm;
 
-    /**
-     * @param DocumentManagerInterface $dm
-     */
     public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;

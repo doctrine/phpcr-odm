@@ -14,20 +14,15 @@ use PHPCR\SessionInterface;
 /**
  * Translation strategy that stores the translations in a child nodes of the current node.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
- * @author      David Buchmann <david@liip.ch>
+ * @author Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author David Buchmann <david@liip.ch>
  */
 class ChildTranslationStrategy extends AttributeTranslationStrategy implements TranslationNodesWarmer
 {
     /**
      * Identifier of this strategy.
      */
-    const NAME = 'child';
+    public const NAME = 'child';
 
     /**
      * {@inheritdoc}
@@ -91,10 +86,9 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      * Get the child node with the translation. If create is true, the child
      * node is created if not existing.
      *
-     * @param NodeInterface $parentNode
-     * @param string        $locale
-     * @param bool          $create     whether to create the node if it is
-     *                                  not yet existing
+     * @param string $locale
+     * @param bool   $create whether to create the node if it is
+     *                       not yet existing
      *
      * @return bool|NodeInterface the node or false if $create is false and
      *                            the node is not existing

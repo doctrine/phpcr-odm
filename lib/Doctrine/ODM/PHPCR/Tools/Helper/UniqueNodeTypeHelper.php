@@ -17,9 +17,9 @@ class UniqueNodeTypeHelper
      *
      * @param DocumentManagerInterface $documentManager the document manager to check mappings for
      *
-     * @throws MappingException
-     *
      * @return array
+     *
+     * @throws MappingException
      */
     public function checkNodeTypeMappings(DocumentManagerInterface $documentManager)
     {

@@ -11,7 +11,6 @@ use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
-use PHPCR\WorkspaceInterface;
 
 class AttributeTranslationStrategyTest extends PHPCRFunctionalTestCase
 {

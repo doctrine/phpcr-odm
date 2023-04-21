@@ -6,15 +6,8 @@ use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
 use Doctrine\Persistence\Mapping\MappingException as BaseMappingException;
 
 /**
- * Mapping exception class.
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Lukas Kahwe Smith <smith@pooteeweet.org>
  */
 class MappingException extends BaseMappingException implements PHPCRExceptionInterface
 {

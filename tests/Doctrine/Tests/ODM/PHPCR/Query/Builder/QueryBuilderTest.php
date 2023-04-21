@@ -27,7 +27,7 @@ class QueryBuilderTest extends NodeTestCase
 
     /**
      * this test serves no other purpose than to demonstrate
-     * the API
+     * the API.
      *
      * @doesNotPerformAssertions
      */

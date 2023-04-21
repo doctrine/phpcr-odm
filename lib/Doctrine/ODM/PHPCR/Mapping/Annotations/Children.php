@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations\Annotation;
 
 /**
  * @Annotation
+ *
  * @Target("PROPERTY")
  */
 final class Children

@@ -107,8 +107,6 @@ class Article
 
     /**
      * Set settings.
-     *
-     * @param array $settings
      */
     public function setSettings(array $settings = [])
     {

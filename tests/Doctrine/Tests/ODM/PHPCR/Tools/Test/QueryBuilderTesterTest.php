@@ -40,7 +40,7 @@ where.constraint.constraint (ConstraintComparison)
 where.constraint.constraint.operand_dynamic (OperandDynamicField)
 where.constraint.constraint.operand_static (OperandStaticLiteral)
 HERE
-        , $res);
+            , $res);
     }
 
     public function testGetNode(): void

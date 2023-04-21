@@ -9,6 +9,7 @@ use Doctrine\Common\Annotations\Annotation;
  * Parent is a reserved keyword in php, thus we use ParentDocument as name.
  *
  * @Annotation
+ *
  * @Target("PROPERTY")
  */
 final class ParentDocument

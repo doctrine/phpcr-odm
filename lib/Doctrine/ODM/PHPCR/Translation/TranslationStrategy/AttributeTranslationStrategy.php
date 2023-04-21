@@ -12,22 +12,17 @@ use PHPCR\Query\QOM\SourceInterface;
 /**
  * Translation strategy that stores the translations in attributes of the same node.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
- * @author      David Buchmann <david@liip.ch>
+ * @author Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author David Buchmann <david@liip.ch>
  */
 class AttributeTranslationStrategy extends AbstractTranslationStrategy
 {
     /**
      * Identifier of this strategy.
      */
-    const NAME = 'attribute';
+    public const NAME = 'attribute';
 
-    const NULLFIELDS = 'nullfields';
+    public const NULLFIELDS = 'nullfields';
 
     /**
      * {@inheritdoc}
@@ -64,9 +59,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
      * Helper method to detect if there is any translated field at all, to
      * not null all fields if the locale does not exist.
      *
-     * @param NodeInterface $node
-     * @param ClassMetadata $metadata
-     * @param string        $locale
+     * @param string $locale
      *
      * @return bool whether the node has any attribute of the desired locale
      */

@@ -16,6 +16,7 @@ class File extends AbstractFile
 {
     /**
      * @var resource
+     *
      * @PHPCRODM\Child(nodeName="jcr:content", cascade="all")
      */
     protected $content;
@@ -26,9 +27,9 @@ class File extends AbstractFile
      *
      * @param string $filename name of the file which contents should be used
      *
-     * @throws RuntimeException if the filename does not point to a file that can be read
-     *
      * @return $this
+     *
+     * @throws RuntimeException if the filename does not point to a file that can be read
      */
     public function setFileContentFromFilesystem($filename)
     {
@@ -56,8 +57,6 @@ class File extends AbstractFile
 
     /**
      * Set the content for this file from the given Resource.
-     *
-     * @param resource $content
      *
      * @return $this
      */

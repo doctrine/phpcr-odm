@@ -18,47 +18,47 @@ use Doctrine\ODM\PHPCR\Exception\OutOfBoundsException;
  */
 abstract class AbstractNode
 {
-    const NT_BUILDER = 'builder';
+    public const NT_BUILDER = 'builder';
 
-    const NT_CONSTRAINT = 'constraint';
+    public const NT_CONSTRAINT = 'constraint';
 
-    const NT_CONSTRAINT_FACTORY = 'constraint_factory';
+    public const NT_CONSTRAINT_FACTORY = 'constraint_factory';
 
-    const NT_FROM = 'from';
+    public const NT_FROM = 'from';
 
-    const NT_OPERAND_DYNAMIC = 'operand_dynamic';
+    public const NT_OPERAND_DYNAMIC = 'operand_dynamic';
 
-    const NT_OPERAND_DYNAMIC_FACTORY = 'operand_dynamic_factory';
+    public const NT_OPERAND_DYNAMIC_FACTORY = 'operand_dynamic_factory';
 
-    const NT_OPERAND_STATIC = 'operand_static';
+    public const NT_OPERAND_STATIC = 'operand_static';
 
-    const NT_OPERAND_FACTORY = 'operand_static_factory';
+    public const NT_OPERAND_FACTORY = 'operand_static_factory';
 
-    const NT_ORDERING = 'ordering';
+    public const NT_ORDERING = 'ordering';
 
-    const NT_ORDER_BY = 'order_by';
+    public const NT_ORDER_BY = 'order_by';
 
-    const NT_PROPERTY = 'property';
+    public const NT_PROPERTY = 'property';
 
-    const NT_SELECT = 'select';
+    public const NT_SELECT = 'select';
 
-    const NT_SOURCE = 'source';
+    public const NT_SOURCE = 'source';
 
-    const NT_SOURCE_FACTORY = 'source_factory';
+    public const NT_SOURCE_FACTORY = 'source_factory';
 
-    const NT_SOURCE_JOIN_CONDITION = 'source_join_condition';
+    public const NT_SOURCE_JOIN_CONDITION = 'source_join_condition';
 
-    const NT_SOURCE_JOIN_CONDITION_FACTORY = 'source_join_condition_factory';
+    public const NT_SOURCE_JOIN_CONDITION_FACTORY = 'source_join_condition_factory';
 
-    const NT_SOURCE_JOIN_LEFT = 'source_join_left';
+    public const NT_SOURCE_JOIN_LEFT = 'source_join_left';
 
-    const NT_SOURCE_JOIN_RIGHT = 'source_join_right';
+    public const NT_SOURCE_JOIN_RIGHT = 'source_join_right';
 
-    const NT_WHERE = 'where';
+    public const NT_WHERE = 'where';
 
-    const NT_WHERE_AND = 'where_and';
+    public const NT_WHERE_AND = 'where_and';
 
-    const NT_WHERE_OR = 'where_or';
+    public const NT_WHERE_OR = 'where_or';
 
     protected $children = [];
 
@@ -134,8 +134,6 @@ abstract class AbstractNode
      * @see removeChildrenOfType
      * @see addChild
      *
-     * @param AbstractNode $node
-     *
      * @return AbstractNode
      */
     public function setChild(self $node)
@@ -156,9 +154,9 @@ abstract class AbstractNode
      * The given node will be returned EXCEPT when the current
      * node is a leaf node, in which case we return the parent.
      *
-     * @throws OutOfBoundsException
-     *
      * @return AbstractNode
+     *
+     * @throws OutOfBoundsException
      */
     public function addChild(self $node)
     {
@@ -255,9 +253,9 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
-     * @throws OutOfBoundsException if there are more than one or none
-     *
      * @return AbstractNode
+     *
+     * @throws OutOfBoundsException if there are more than one or none
      */
     public function getChild()
     {
@@ -287,9 +285,9 @@ abstract class AbstractNode
      *
      * @param string $type the name of the type
      *
-     * @throws OutOfBoundsException if there are more than one or none
-     *
      * @return AbstractNode
+     *
+     * @throws OutOfBoundsException if there are more than one or none
      */
     public function getChildOfType($type)
     {

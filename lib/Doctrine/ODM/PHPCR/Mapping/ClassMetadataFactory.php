@@ -16,13 +16,8 @@ use Doctrine\Persistence\Mapping\ReflectionService;
  * metadata mapping information of a class which describes how a class should be mapped
  * to a document database.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Lukas Kahwe Smith <smith@pooteeweet.org>
  */
 class ClassMetadataFactory extends AbstractClassMetadataFactory
 {
@@ -148,9 +143,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * Set the document level options of the parent class to the subclass.
      *
      * This has to be done before loading the data of the subclass.
-     *
-     * @param ClassMetadata $subClass
-     * @param ClassMetadata $parentClass
      */
     private function addInheritedDocumentOptions(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
@@ -163,9 +155,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
 
     /**
      * Adds inherited fields to the subclass mapping.
-     *
-     * @param ClassMetadata $subClass
-     * @param ClassMetadata $parentClass
      */
     private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
     {
@@ -234,7 +223,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * Validate runtime metadata is correctly defined.
      *
      * @param ClassMetadata $class
-     * @param $parent
      *
      * @throws MappingException
      */

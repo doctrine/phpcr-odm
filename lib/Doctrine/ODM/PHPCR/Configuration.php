@@ -11,15 +11,8 @@ use PHPCR\Util\UUIDHelper;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
- * Configuration class.
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Jordi Boggiano <j.boggiano@seld.be>
- * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author Jordi Boggiano <j.boggiano@seld.be>
+ * @author Pascal Helfenstein <nicam@nicam.ch>
  */
 class Configuration
 {

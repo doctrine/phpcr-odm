@@ -146,11 +146,11 @@ class FlushTest extends PHPCRFunctionalTestCase
 
     public function testFlushManyExplicitDocuments(): void
     {
-        $userA = new CmsUser('userA');
+        $userA = new CmsUser();
         $userA->username = 'userA';
-        $userB = new CmsUser('userB');
+        $userB = new CmsUser();
         $userB->username = 'userB';
-        $userC = new CmsUser('userC');
+        $userC = new CmsUser();
         $userC->username = 'userC';
 
         $this->dm->persist($userA);

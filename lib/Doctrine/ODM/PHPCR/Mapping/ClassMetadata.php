@@ -12,53 +12,44 @@ use Doctrine\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Persistence\Mapping\ReflectionService;
 use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
-use ReflectionClass;
-use ReflectionProperty;
 
 /**
- * Metadata class.
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
- * @author      Jonathan H. Wage <jonwage@gmail.com>
- * @author      Roman Borschel <roman@code-factory.org>
- * @author      David Buchmann <david@liip.ch>
- * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @author  Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @author  Jonathan H. Wage <jonwage@gmail.com>
+ * @author  Roman Borschel <roman@code-factory.org>
+ * @author  David Buchmann <david@liip.ch>
+ * @author  Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class ClassMetadata implements ClassMetadataInterface
 {
-    const MANY_TO_ONE = 4;
+    public const MANY_TO_ONE = 4;
 
-    const MANY_TO_MANY = 8;
+    public const MANY_TO_MANY = 8;
 
-    const CASCADE_PERSIST = 1;
+    public const CASCADE_PERSIST = 1;
 
-    const CASCADE_REMOVE = 2;
+    public const CASCADE_REMOVE = 2;
 
-    const CASCADE_MERGE = 4;
+    public const CASCADE_MERGE = 4;
 
-    const CASCADE_DETACH = 8;
+    public const CASCADE_DETACH = 8;
 
-    const CASCADE_REFRESH = 16;
+    public const CASCADE_REFRESH = 16;
 
-    const CASCADE_TRANSLATION = 32;
+    public const CASCADE_TRANSLATION = 32;
 
-    const CASCADE_ALL = 255;
+    public const CASCADE_ALL = 255;
 
     /**
      * No strategy has been set so far.
      */
-    const GENERATOR_TYPE_NONE = 0;
+    public const GENERATOR_TYPE_NONE = 0;
 
     /**
      * The repository will be asked to generate the id.
      */
-    const GENERATOR_TYPE_REPOSITORY = 1;
+    public const GENERATOR_TYPE_REPOSITORY = 1;
 
     /**
      * Doctrine will not generate any id for us and you are responsible for
@@ -66,26 +57,26 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * Be aware that in PHPCR, the parent of a node must exist.
      */
-    const GENERATOR_TYPE_ASSIGNED = 2;
+    public const GENERATOR_TYPE_ASSIGNED = 2;
 
     /**
      * The document uses the parent and name mapping to find its location in
      * the tree.
      */
-    const GENERATOR_TYPE_PARENT = 3;
+    public const GENERATOR_TYPE_PARENT = 3;
 
     /**
      * The document uses the parent mapping to find its location in the tree
      * and will use the PHPCR addNodeAutoNamed feature for the node name.
      */
-    const GENERATOR_TYPE_AUTO = 4;
+    public const GENERATOR_TYPE_AUTO = 4;
 
     protected static $validVersionableAnnotations = ['simple', 'full'];
 
     /**
      * READ-ONLY: The ReflectionProperty instances of the mapped class.
      *
-     * @var ReflectionProperty[]
+     * @var \ReflectionProperty[]
      */
     public $reflFields = [];
 
@@ -364,8 +355,6 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Initializes a new ClassMetadata instance that will hold the
      * object-relational mapping metadata of the class with the given name.
-     *
-     * @param ReflectionService $reflService
      */
     public function initializeReflection(ReflectionService $reflService)
     {
@@ -375,8 +364,6 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Restores some state that can not be serialized/unserialized.
-     *
-     * @param ReflectionService $reflService
      */
     public function wakeupReflection(ReflectionService $reflService)
     {
@@ -385,7 +372,7 @@ class ClassMetadata implements ClassMetadataInterface
         $fieldNames = array_merge($this->getFieldNames(), $this->getAssociationNames());
         foreach ($fieldNames as $fieldName) {
             $reflField = isset($this->mappings[$fieldName]['declared'])
-                ? new ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
+                ? new \ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
                 : $this->reflClass->getProperty($fieldName);
             $reflField->setAccessible(true);
             $this->reflFields[$fieldName] = $reflField;
@@ -450,7 +437,7 @@ class ClassMetadata implements ClassMetadataInterface
                     break;
                 case self::GENERATOR_TYPE_REPOSITORY:
                     if (!$this->customRepositoryClassName) {
-                        throw MappingException::repositoryRequired($this->name, $this->customRepositoryClassName);
+                        throw MappingException::repositoryRequired($this->name);
                     }
 
                     break;
@@ -564,8 +551,6 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Validate lifecycle callbacks.
      *
-     * @param ReflectionService $reflService
-     *
      * @throws MappingException if a declared callback does not exist
      */
     public function validateLifecycleCallbacks(ReflectionService $reflService)
@@ -654,8 +639,6 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Sets the lifecycle callbacks for documents of this class.
      * Any previously registered callbacks are overwritten.
-     *
-     * @param array $callbacks
      */
     public function setLifecycleCallbacks(array $callbacks)
     {
@@ -947,16 +930,15 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param array         $mapping
      * @param ClassMetadata $inherited  same field of parent document, if any
      * @param bool          $isField    whether this is a field or an association
      * @param string        $phpcrLabel the name for the phpcr thing. usually property,
      *                                  except for child where this is name. referrers
      *                                  use false to not set anything.
      *
-     * @throws MappingException
-     *
      * @return mixed
+     *
+     * @throws MappingException
      */
     protected function validateAndCompleteFieldMapping(array $mapping, self $inherited = null, $isField = true, $phpcrLabel = 'property')
     {
@@ -1138,7 +1120,7 @@ class ClassMetadata implements ClassMetadataInterface
                         $mapping['referringDocument']
                     ));
                 }
-                $reflection = new ReflectionClass($mapping['referringDocument']);
+                $reflection = new \ReflectionClass($mapping['referringDocument']);
                 if (!$reflection->hasProperty($mapping['referencedBy'])) {
                     throw new MappingException(sprintf(
                         'Invalid referrer mapping on document "%s" for field "%s": The referringDocument "%s" has no property "%s"',
@@ -1376,9 +1358,9 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @throws MappingException if the class has no mapping field with this name
-     *
      * @return array the association mapping with the field of this name
+     *
+     * @throws MappingException if the class has no mapping field with this name
      */
     public function getAssociation($fieldName)
     {
@@ -1824,9 +1806,9 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param string $fieldName the field name
      *
-     * @throws MappingException
-     *
      * @return array the field mapping
+     *
+     * @throws MappingException
      */
     public function getFieldMapping($fieldName)
     {

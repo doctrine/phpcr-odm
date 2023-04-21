@@ -7,22 +7,16 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\FileDriver;
 use Doctrine\Persistence\Mapping\MappingException as DoctrineMappingException;
-use SimpleXmlElement;
 
 /**
  * XmlDriver is a metadata driver that enables mapping through XML files.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.org
- * @since       1.0
- *
- * @author      Jonathan H. Wage <jonwage@gmail.com>
- * @author      Roman Borschel <roman@code-factory.org>
+ * @author Jonathan H. Wage <jonwage@gmail.com>
+ * @author Roman Borschel <roman@code-factory.org>
  */
 class XmlDriver extends FileDriver
 {
-    const DEFAULT_FILE_EXTENSION = '.dcm.xml';
+    public const DEFAULT_FILE_EXTENSION = '.dcm.xml';
 
     /**
      * {@inheritdoc}
@@ -270,9 +264,8 @@ class XmlDriver extends FileDriver
     }
 
     /**
-     * @param PhpcrClassMetadata $class
-     * @param \SimpleXMLElement  $reference
-     * @param string             $type
+     * @param \SimpleXMLElement $reference
+     * @param string            $type
      */
     private function addReferenceMapping(PhpcrClassMetadata $class, $reference, $type)
     {
@@ -318,11 +311,11 @@ class XmlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param SimpleXMLElement $cascadeElement cascade element
+     * @param \SimpleXMLElement $cascadeElement cascade element
      *
      * @return int a bitmask of cascade options
      */
-    private function getCascadeMode(SimpleXMLElement $cascadeElement)
+    private function getCascadeMode(\SimpleXMLElement $cascadeElement)
     {
         $cascade = 0;
         foreach ($cascadeElement->children() as $action) {

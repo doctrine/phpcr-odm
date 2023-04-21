@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
-use Doctrine\Tests\Models\ECommerce\ECommerceCart;
+use Doctrine\Tests\Models\CMS\CmsArticle;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildClassesObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\ChildrenMappingObject;
@@ -104,7 +104,7 @@ abstract class AbstractMappingDriverTest extends TestCase
 
     public function testGetAllClassNamesReturnsOnlyTheAppropriateClasses(): void
     {
-        $extraneousClassName = ECommerceCart::class;
+        $extraneousClassName = CmsArticle::class;
         $this->ensureIsLoaded($extraneousClassName);
 
         $driver = $this->loadDriverForTestMappingDocuments();
@@ -377,8 +377,6 @@ abstract class AbstractMappingDriverTest extends TestCase
     }
 
     /**
-     * @return ClassMetadata
-     *
      * @doesNotPerformAssertions
      */
     public function testLoadChildMapping(): ClassMetadata

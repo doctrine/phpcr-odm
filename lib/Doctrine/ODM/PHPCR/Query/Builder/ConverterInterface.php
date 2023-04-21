@@ -14,8 +14,6 @@ interface ConverterInterface
      * in this class, which are subsequently used to create a PHPCR QOM object which
      * is embedded in an ODM Query object.
      *
-     * @param QueryBuilder $queryBuilder
-     *
      * @return QueryInterface
      */
     public function getQuery(QueryBuilder $queryBuilder);

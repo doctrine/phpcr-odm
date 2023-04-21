@@ -21,12 +21,14 @@ class Folder extends AbstractFile
 {
     /**
      * @var ArrayCollection
+     *
      * @PHPCRODM\Children(cascade="all")
      */
     protected $children;
 
     /**
      * @var AbstractFile
+     *
      * @PHPCRODM\Child(cascade="all")
      */
     protected $child;

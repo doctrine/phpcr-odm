@@ -19,9 +19,8 @@ interface TranslationNodesWarmer
      * but the main purpose of it is to warm up all translation
      * nodes in one request to PHPCR.
      *
-     * @param NodeInterface[]  $nodes
-     * @param array            $locales
-     * @param SessionInterface $session
+     * @param NodeInterface[] $nodes
+     * @param array           $locales
      *
      * @return mixed
      */

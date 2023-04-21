@@ -144,10 +144,8 @@ HERE
     /**
      * Ask for confirmation with the question helper or the dialog helper for symfony < 2.5 compatibility.
      *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     * @param string          $question
-     * @param bool            $default
+     * @param string $question
+     * @param bool   $default
      *
      * @return string
      */

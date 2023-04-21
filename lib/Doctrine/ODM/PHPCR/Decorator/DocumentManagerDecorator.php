@@ -21,9 +21,6 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
      */
     protected $wrapped;
 
-    /**
-     * @param DocumentManagerInterface $wrapped
-     */
     public function __construct(DocumentManagerInterface $wrapped)
     {
         $this->wrapped = $wrapped;

@@ -10,7 +10,6 @@ use Doctrine\ODM\PHPCR\Query\Builder\SourceDocument;
 use Doctrine\Tests\Models\CMS\CmsTeamUser;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 
 /**
  * @group functional

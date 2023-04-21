@@ -99,6 +99,7 @@ class FileTestObj
 
     /**
      * @var File
+     *
      * @PHPCRODM\Child
      */
     public $file;

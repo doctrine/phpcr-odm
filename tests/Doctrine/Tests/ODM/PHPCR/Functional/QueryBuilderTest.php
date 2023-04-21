@@ -290,7 +290,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $this->assertEquals(1, $rows->count());
 
         switch ($qb->getQuery()->getLanguage()) {
-        case 'JCR-SQL2':
+            case 'JCR-SQL2':
                 $this->assertEquals(['a'], $result->getSelectorNames());
                 $this->assertEquals(['a.username' => 'dtl'], $values);
 
@@ -429,7 +429,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
         $qb->where()->eq()
             ->field('a.age')
             ->literal('99') // we pass the age here as a string type
-;
+        ;
         $q = $qb->getQuery();
         $res = $q->execute();
 
