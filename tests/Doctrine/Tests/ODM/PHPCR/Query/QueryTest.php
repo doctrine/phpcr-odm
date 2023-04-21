@@ -72,7 +72,7 @@ class QueryTest extends Testcase
         $this->assertNull($this->query->getParameter('boo'));
     }
 
-    public function testExecute_hydrateNone(): void
+    public function testExecuteHydrateNone(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
@@ -82,7 +82,7 @@ class QueryTest extends Testcase
         $this->assertEquals('ok', $res->first());
     }
 
-    public function testExecute_hydrateDocument(): void
+    public function testExecuteHydrateDocument(): void
     {
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
@@ -96,7 +96,7 @@ class QueryTest extends Testcase
         $this->assertEquals('ok', $res->first());
     }
 
-    public function testExecute_hydrateDocumentWithAlias(): void
+    public function testExecuteHydrateDocumentWithAlias(): void
     {
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
@@ -110,13 +110,13 @@ class QueryTest extends Testcase
         $this->assertEquals('ok', $res->first());
     }
 
-    public function testExecute_hydrateUnknown(): void
+    public function testExecuteHydrateUnknown(): void
     {
         $this->expectException(QueryException::class);
         $this->query->execute(null, 'unknown_hydration_mode');
     }
 
-    public function testExecute_parameters(): void
+    public function testExecuteParameters(): void
     {
         $this->phpcrQuery->expects($this->at(0))
             ->method('bindValue')
@@ -127,7 +127,7 @@ class QueryTest extends Testcase
         $this->query->execute(['foo' => 'bar', 'bar' => 'foo']);
     }
 
-    public function testExecute_maxResults(): void
+    public function testExecuteMaxResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('setLimit')
@@ -136,7 +136,7 @@ class QueryTest extends Testcase
         $this->query->execute();
     }
 
-    public function testExecute_firstResult(): void
+    public function testExecuteFirstResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('setOffset')
@@ -157,7 +157,7 @@ class QueryTest extends Testcase
         $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
-    public function testGetOneOrNullResult_noResults(): void
+    public function testGetOneOrNullResultNoResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
@@ -166,7 +166,7 @@ class QueryTest extends Testcase
         $this->assertNull($res);
     }
 
-    public function testGetOneOrNullResult_withOneResult(): void
+    public function testGetOneOrNullResultWithOneResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
@@ -175,7 +175,7 @@ class QueryTest extends Testcase
         $this->assertEquals('ok1', $res);
     }
 
-    public function testGetOneOrNullResult_withTwoResults(): void
+    public function testGetOneOrNullResultWithTwoResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
@@ -185,7 +185,7 @@ class QueryTest extends Testcase
         $this->query->getOneOrNullResult(Query::HYDRATE_PHPCR);
     }
 
-    public function testGetSingleResult_noResult(): void
+    public function testGetSingleResultNoResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
@@ -195,7 +195,7 @@ class QueryTest extends Testcase
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
     }
 
-    public function testGetSingleResult_withOneResult(): void
+    public function testGetSingleResultWithOneResult(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')
@@ -204,7 +204,7 @@ class QueryTest extends Testcase
         $this->assertEquals('ok1', $res);
     }
 
-    public function testGetSingleResult_withTwoResults(): void
+    public function testGetSingleResultWithTwoResults(): void
     {
         $this->phpcrQuery->expects($this->once())
             ->method('execute')

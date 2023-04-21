@@ -15,9 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Adapted from the Doctrine ORM command.
  *
- * @see    www.doctrine-project.org
- * @since   PHPCR-ODM 1.1
- *
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author  Jonathan Wage <jonwage@gmail.com>

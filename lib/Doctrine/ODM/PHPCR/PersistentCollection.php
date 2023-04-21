@@ -2,29 +2,21 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Closure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Persistent collection class.
- *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 abstract class PersistentCollection implements Collection
 {
-    const INITIALIZED_NONE = 'not initialized';
+    public const INITIALIZED_NONE = 'not initialized';
 
-    const INITIALIZED_FROM_COLLECTION = 'initialized from collection';
+    public const INITIALIZED_FROM_COLLECTION = 'initialized from collection';
 
-    const INITIALIZED_FROM_COLLECTION_FORCE = 'initialized from collection to force a new db state';
+    public const INITIALIZED_FROM_COLLECTION_FORCE = 'initialized from collection to force a new db state';
 
-    const INITIALIZED_FROM_PHPCR = 'initialized from phpcr';
+    public const INITIALIZED_FROM_PHPCR = 'initialized from phpcr';
 
     /** @var ArrayCollection */
     protected $collection;
@@ -133,7 +125,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
-    public function exists(Closure $p)
+    public function exists(\Closure $p)
     {
         $this->initialize();
 
@@ -141,7 +133,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
-    public function filter(Closure $p)
+    public function filter(\Closure $p)
     {
         $this->initialize();
 
@@ -157,7 +149,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
-    public function forAll(Closure $p)
+    public function forAll(\Closure $p)
     {
         $this->initialize();
 
@@ -230,7 +222,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
-    public function map(Closure $func)
+    public function map(\Closure $func)
     {
         $this->initialize();
 
@@ -284,7 +276,7 @@ abstract class PersistentCollection implements Collection
     }
 
     /** {@inheritdoc} */
-    public function partition(Closure $p)
+    public function partition(\Closure $p)
     {
         $this->initialize();
 
@@ -385,8 +377,6 @@ abstract class PersistentCollection implements Collection
 
     /**
      * Set the default locale for this collection.
-     *
-     * @param $locale
      */
     public function setLocale($locale)
     {

@@ -25,7 +25,6 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationNodesWarmer;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\Event\ManagerEventArgs;
 use Doctrine\Persistence\Event\OnClearEventArgs;
-use Iterator;
 use Jackalope\Session as JackalopeSession;
 use PHPCR\ItemNotFoundException;
 use PHPCR\NodeInterface;
@@ -41,40 +40,36 @@ use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\Version\VersionHistoryInterface;
 use PHPCR\Version\VersionInterface;
+
 use function spl_object_hash;
 
 /**
- * Unit of work class.
+ * The unit of work keeps track of all pending operations.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Jordi Boggiano <j.boggiano@seld.be>
- * @author      Pascal Helfenstein <nicam@nicam.ch>
- * @author      Lukas Kahwe Smith <smith@pooteeweet.org>
- * @author      Brian King <brian@liip.ch>
- * @author      David Buchmann <david@liip.ch>
- * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
- * @author      Maximilian Berghoff <Maximilian.Berghoff@gmx.de>
+ * @author Jordi Boggiano <j.boggiano@seld.be>
+ * @author Pascal Helfenstein <nicam@nicam.ch>
+ * @author Lukas Kahwe Smith <smith@pooteeweet.org>
+ * @author Brian King <brian@liip.ch>
+ * @author David Buchmann <david@liip.ch>
+ * @author Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author Maximilian Berghoff <Maximilian.Berghoff@gmx.de>
  */
 class UnitOfWork
 {
-    const STATE_NEW = 1;
+    public const STATE_NEW = 1;
 
-    const STATE_MANAGED = 2;
+    public const STATE_MANAGED = 2;
 
-    const STATE_REMOVED = 3;
+    public const STATE_REMOVED = 3;
 
-    const STATE_DETACHED = 4;
+    public const STATE_DETACHED = 4;
 
     /**
      * Used for versions of documents (these are unmodifiable frozen nodes).
      *
      * @var int
      */
-    const STATE_FROZEN = 5;
+    public const STATE_FROZEN = 5;
 
     /**
      * @var DocumentManagerInterface
@@ -154,7 +149,7 @@ class UnitOfWork
     private $documentChangesets = [];
 
     /**
-     * List of documents that have a changed field to be updated on next flush
+     * List of documents that have a changed field to be updated on next flush.
      *
      * oid => document
      *
@@ -163,7 +158,7 @@ class UnitOfWork
     private $scheduledUpdates = [];
 
     /**
-     * List of documents that will be inserted on next flush
+     * List of documents that will be inserted on next flush.
      *
      * oid => document
      *
@@ -172,7 +167,7 @@ class UnitOfWork
     private $scheduledInserts = [];
 
     /**
-     * List of documents that will be moved on next flush
+     * List of documents that will be moved on next flush.
      *
      * oid => array(document, target path)
      *
@@ -181,7 +176,7 @@ class UnitOfWork
     private $scheduledMoves = [];
 
     /**
-     * List of parent documents that have children that will be reordered on next flush
+     * List of parent documents that have children that will be reordered on next flush.
      *
      * parent oid => list of array with records array(parent document, srcName, targetName, before) with
      * - parent document the document of the child to be reordered
@@ -194,7 +189,7 @@ class UnitOfWork
     private $scheduledReorders = [];
 
     /**
-     * List of documents that will be removed on next flush
+     * List of documents that will be removed on next flush.
      *
      * oid => document
      *
@@ -261,9 +256,6 @@ class UnitOfWork
      */
     private $useFetchDepth;
 
-    /**
-     * @param DocumentManagerInterface $dm
-     */
     public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;
@@ -326,14 +318,12 @@ class UnitOfWork
      * - prefetch: if set to false, do not attempt to prefetch related data.
      *      (This makes sense when the caller already did this beforehand.)
      *
-     * @param null|string   $className
-     * @param NodeInterface $node
-     * @param array         $hints
+     * @param string|null $className
+     *
+     * @return object
      *
      * @throws PHPCRExceptionInterface if $className was specified and does not match
      *                                 the class of the document corresponding to $node
-     *
-     * @return object
      */
     public function getOrCreateDocument($className, NodeInterface $node, array &$hints = [])
     {
@@ -355,14 +345,13 @@ class UnitOfWork
      * - prefetch: if set to false, do not attempt to prefetch related data.
      *      (This makes sense when the caller already did this beforehand.)
      *
-     * @param null|string    $className
-     * @param Iterator|array $nodes
-     * @param array          $hints
+     * @param string|null     $className
+     * @param \Iterator|array $nodes
+     *
+     * @return array
      *
      * @throws Exception\InvalidArgumentException
      * @throws PHPCRException
-     *
-     * @return array
      */
     public function getOrCreateDocuments($className, $nodes, array &$hints = [])
     {
@@ -375,7 +364,7 @@ class UnitOfWork
         $nodesByStrategy = [];
         $allLocales = [];
 
-        //prepare array of document ordered by the nodes path
+        // prepare array of document ordered by the nodes path
         $existingDocuments = 0;
         foreach ($nodes as $node) {
             $requestedClassName = $className;
@@ -398,7 +387,7 @@ class UnitOfWork
                     ++$existingDocuments;
                     $documents[$id] = $document;
                 } else {
-                    $overrideLocalValuesOids[$id] = spl_object_hash($document);
+                    $overrideLocalValuesOids[$id] = \spl_object_hash($document);
                 }
 
                 try {
@@ -638,8 +627,7 @@ class UnitOfWork
     /**
      * Get the existing document or proxy or create a new one for this PHPCR Node.
      *
-     * @param NodeInterface $node
-     * @param string        $locale
+     * @param string $locale
      *
      * @return object
      */
@@ -692,7 +680,6 @@ class UnitOfWork
      * Populate the proxy with actual data.
      *
      * @param string $className
-     * @param Proxy  $document
      */
     public function refreshDocumentForProxy($className, Proxy $document)
     {
@@ -700,7 +687,7 @@ class UnitOfWork
 
         $hints = ['refresh' => true, 'fallback' => true];
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($this->documentLocales[$oid]['current'])) {
             $hints['locale'] = $this->documentLocales[$oid]['current'];
         }
@@ -744,13 +731,12 @@ class UnitOfWork
     }
 
     /**
-     * @param object        $document
-     * @param string        $locale
-     * @param ClassMetadata $class
+     * @param object $document
+     * @param string $locale
      */
     private function doBindTranslation($document, $locale, ClassMetadata $class)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         // only trigger the events if we bind a new translation
         if (empty($this->documentTranslations[$oid][$locale])
@@ -800,7 +786,7 @@ class UnitOfWork
             ));
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         // To avoid recursion loops (over children and parents)
         if (isset($visited[$oid])) {
             return;
@@ -932,7 +918,7 @@ class UnitOfWork
 
     public function scheduleMove($document, $targetPath)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         $state = $this->getDocumentState($document);
 
@@ -955,7 +941,7 @@ class UnitOfWork
 
     public function scheduleReorder($document, $srcName, $targetName, $before)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         $state = $this->getDocumentState($document);
         switch ($state) {
@@ -979,7 +965,7 @@ class UnitOfWork
 
     private function doRemove($document, &$visited)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($visited[$oid])) {
             return;
         }
@@ -1069,7 +1055,7 @@ class UnitOfWork
      */
     private function setDocumentState($document, $state)
     {
-        $oid = is_object($document) ? spl_object_hash($document) : $document;
+        $oid = is_object($document) ? \spl_object_hash($document) : $document;
         $this->documentState[$oid] = $state;
     }
 
@@ -1087,7 +1073,7 @@ class UnitOfWork
      */
     public function getDocumentState($document)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (!isset($this->documentState[$oid])) {
             // this will only use the metadata if id is mapped
             $id = $this->determineDocumentId($document);
@@ -1116,7 +1102,7 @@ class UnitOfWork
      */
     public function isScheduledForInsert($document)
     {
-        return isset($this->scheduledInserts[spl_object_hash($document)]);
+        return isset($this->scheduledInserts[\spl_object_hash($document)]);
     }
 
     /**
@@ -1142,7 +1128,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (!isset($this->scheduledInserts[$oid])) {
             $class = $this->dm->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
@@ -1166,8 +1152,7 @@ class UnitOfWork
     /**
      * Get a documents actual data, flattening all the objects to arrays.
      *
-     * @param ClassMetadata $class
-     * @param object        $document
+     * @param object $document
      *
      * @return array
      */
@@ -1196,9 +1181,9 @@ class UnitOfWork
      * @param object $child    The child document
      * @param object $parent   The parent document
      *
-     * @throws PHPCRException
-     *
      * @return mixed|string
+     *
+     * @throws PHPCRException
      */
     private function getChildNodename($parentId, $nodename, $child, $parent)
     {
@@ -1316,7 +1301,7 @@ class UnitOfWork
                     $this->originalData[$oid][$fieldName] = $changeSet[$fieldName];
                 }
 
-                $coid = spl_object_hash($changeSet[$fieldName]);
+                $coid = \spl_object_hash($changeSet[$fieldName]);
                 $this->visitedCollections[$coid] = $changeSet[$fieldName];
 
                 foreach ($changeSet[$fieldName] as $association) {
@@ -1395,7 +1380,7 @@ class UnitOfWork
             $mapping = $class->mappings[$fieldName];
             $childNames = $movedChildNames = [];
 
-            $coid = spl_object_hash($changeSet[$fieldName]);
+            $coid = \spl_object_hash($changeSet[$fieldName]);
             $this->visitedCollections[$coid] = $changeSet[$fieldName];
 
             foreach ($changeSet[$fieldName] as $originalNodename => $child) {
@@ -1432,7 +1417,7 @@ class UnitOfWork
                     $child = $this->getDocumentById($id.'/'.$childName);
                     // make sure that when the child move is already processed and another compute is triggered
                     // we don't remove that child
-                    $childOid = spl_object_hash($child);
+                    $childOid = \spl_object_hash($child);
                     if (!isset($this->scheduledMoves[$childOid])) {
                         $this->scheduleRemove($child);
                         unset($originalNames[$key]);
@@ -1440,7 +1425,7 @@ class UnitOfWork
                 }
             }
 
-            if (!empty($childNames) && isset($originalNames)) {
+            if (count($childNames) > 0) {
                 // reindex the arrays to avoid holes in the indexes
                 $originalNames = array_values($originalNames);
                 $originalNames = array_merge($originalNames, array_diff($childNames, $originalNames));
@@ -1465,8 +1450,7 @@ class UnitOfWork
     /**
      * Computes changeset for a given document.
      *
-     * @param ClassMetadata $class
-     * @param object        $document
+     * @param object $document
      */
     public function computeChangeSet(ClassMetadata $class, $document)
     {
@@ -1474,7 +1458,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (in_array($oid, $this->changesetComputed, true)) {
             return;
         }
@@ -1608,7 +1592,7 @@ class UnitOfWork
 
         $translationChanges = false;
         if ($this->isDocumentTranslatable($class)) {
-            $oid = spl_object_hash($document);
+            $oid = \spl_object_hash($document);
             if (isset($this->documentTranslations[$oid])) {
                 foreach ($this->documentTranslations[$oid] as $localeToCheck => $data) {
                     // a translation was removed
@@ -1780,8 +1764,7 @@ class UnitOfWork
      * This method is either called through `DocumentManager#persist()` or during `DocumentManager#flush()`,
      * when persistence by reachability is applied.
      *
-     * @param ClassMetadata $class
-     * @param object        $document
+     * @param object $document
      */
     public function persistNew(ClassMetadata $class, $document, $overrideIdGenerator = null, $parent = null)
     {
@@ -1824,7 +1807,7 @@ class UnitOfWork
 
     private function doRefresh($document, &$visited)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($visited[$oid])) {
             return;
         }
@@ -1884,7 +1867,7 @@ class UnitOfWork
 
     private function doMerge($document, array &$visited, $prevManagedCopy = null, $assoc = null)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($visited[$oid])) {
             return $document; // Prevent infinite recursion
         }
@@ -1944,7 +1927,7 @@ class UnitOfWork
                 }
             }
 
-            $managedOid = spl_object_hash($managedCopy);
+            $managedOid = \spl_object_hash($managedCopy);
 
             // Merge state of $document into existing (managed) document
             foreach ($class->reflFields as $fieldName => $prop) {
@@ -2059,10 +2042,8 @@ class UnitOfWork
     /**
      * Cascades a merge operation to associated entities.
      *
-     * @param ClassMetadata $class
-     * @param object        $document
-     * @param object        $managedCopy
-     * @param array         $visited
+     * @param object $document
+     * @param object $managedCopy
      */
     private function cascadeMerge(ClassMetadata $class, $document, $managedCopy, array &$visited)
     {
@@ -2102,11 +2083,10 @@ class UnitOfWork
      * Executes a detach operation on the given document.
      *
      * @param object $document
-     * @param array  $visited
      */
     private function doDetach($document, array &$visited)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($visited[$oid])) {
             return; // Prevent infinite recursion
         }
@@ -2155,7 +2135,6 @@ class UnitOfWork
      * Cascades a detach operation to associated documents.
      *
      * @param object $document
-     * @param array  $visited
      */
     private function cascadeDetach(ClassMetadata $class, $document, array &$visited)
     {
@@ -2262,7 +2241,7 @@ class UnitOfWork
                     $utx->rollback();
                 }
             } catch (\Exception $innerException) {
-                //TODO: log error while closing dm after error: $innerException->getMessage
+                // TODO: log error while closing dm after error: $innerException->getMessage
             }
 
             throw $e;
@@ -2281,7 +2260,7 @@ class UnitOfWork
         } else {
             $documents = is_array($document) ? $document : [$document];
             foreach ($documents as $doc) {
-                $oid = spl_object_hash($doc);
+                $oid = \spl_object_hash($doc);
                 if (isset($this->documentLocales[$oid])) {
                     $this->documentLocales[$oid]['original'] = $this->documentLocales[$oid]['current'];
                 }
@@ -2422,8 +2401,8 @@ class UnitOfWork
                 } elseif (in_array($fieldName, $class->referenceMappings, true) || in_array($fieldName, $class->referrersMappings, true)) {
                     $associationUpdates[$oid] = $document;
 
-                    //populate $associationChangesets to force executeUpdates($associationUpdates)
-                    //to only update association fields
+                    // populate $associationChangesets to force executeUpdates($associationUpdates)
+                    // to only update association fields
                     $data = $associationChangesets[$oid]['fields'] ?? [];
                     $data[$fieldName] = [null, $fieldValue];
                     $associationChangesets[$oid] = ['fields' => $data];
@@ -2451,8 +2430,7 @@ class UnitOfWork
     /**
      * Identify whether a PHPCR property is autocreated or not.
      *
-     * @param ClassMetadata $class
-     * @param string        $fieldName
+     * @param string $fieldName
      *
      * @return bool
      */
@@ -2654,7 +2632,7 @@ class UnitOfWork
                                     // update the referencing document field to point to this document
                                     $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $document);
                                     // and make sure the reference is not deleted in this change because the field could be null
-                                    unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                    unset($this->documentChangesets[\spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     // store the change in PHPCR
                                     $referencingNode->setProperty($referencingField['property'], $uuid, $strategy);
 
@@ -2667,7 +2645,7 @@ class UnitOfWork
                                     }
                                     if ($collection) {
                                         // make sure the reference is not deleted in this change because the field could be null
-                                        unset($this->documentChangesets[spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
+                                        unset($this->documentChangesets[\spl_object_hash($fv)]['fields'][$referencingField['fieldName']]);
                                     } else {
                                         $collection = new ReferenceManyCollection($this->dm, $fv, $referencingField['property'], [$node], $class->name, null, $this->getReferenceManyCollectionTypeFromMetadata($mapping));
                                         $referencingMeta->setFieldValue($fv, $referencingField['fieldName'], $collection);
@@ -2820,8 +2798,6 @@ class UnitOfWork
 
     /**
      * Execute reorderings.
-     *
-     * @param $documents
      */
     private function executeReorders($documents)
     {
@@ -2929,7 +2905,7 @@ class UnitOfWork
         $hints = ['versionName' => $versionName, 'ignoreHardReferenceNotFound' => true];
         $frozenDocument = $this->getOrCreateDocument($className, $node, $hints);
 
-        $oid = spl_object_hash($frozenDocument);
+        $oid = \spl_object_hash($frozenDocument);
         $this->documentHistory[$oid] = $history;
         $this->documentVersion[$oid] = $version;
 
@@ -3027,7 +3003,7 @@ class UnitOfWork
      */
     public function restoreVersion($documentVersion, $removeExisting)
     {
-        $oid = spl_object_hash($documentVersion);
+        $oid = \spl_object_hash($documentVersion);
         $history = $this->documentHistory[$oid];
         $version = $this->documentVersion[$oid];
         $document = $this->dm->find(null, $history->getVersionableIdentifier());
@@ -3044,7 +3020,7 @@ class UnitOfWork
      */
     public function removeVersion($documentVersion)
     {
-        $oid = spl_object_hash($documentVersion);
+        $oid = \spl_object_hash($documentVersion);
         $history = $this->documentHistory[$oid];
         $version = $this->documentVersion[$oid];
 
@@ -3061,7 +3037,7 @@ class UnitOfWork
      */
     private function unregisterDocument($document)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         if (isset($this->documentIds[$oid])) {
             unset($this->identityMap[$this->documentIds[$oid]]);
@@ -3095,7 +3071,7 @@ class UnitOfWork
      */
     public function registerDocument($document, $id)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         $this->documentIds[$oid] = $id;
         $this->identityMap[$id] = $document;
 
@@ -3114,7 +3090,7 @@ class UnitOfWork
      */
     public function contains($document)
     {
-        $oid = is_object($document) ? spl_object_hash($document) : $document;
+        $oid = is_object($document) ? \spl_object_hash($document) : $document;
 
         return isset($this->documentIds[$oid]) && !isset($this->scheduledRemovals[$oid]);
     }
@@ -3143,13 +3119,13 @@ class UnitOfWork
      *
      * @param object|string $document document instance or document object hash
      *
-     * @throws PHPCRException
-     *
      * @return string|null
+     *
+     * @throws PHPCRException
      */
     public function getDocumentId($document, $throw = true)
     {
-        $oid = is_object($document) ? spl_object_hash($document) : $document;
+        $oid = is_object($document) ? \spl_object_hash($document) : $document;
         if (empty($this->documentIds[$oid])) {
             if (!$throw) {
                 return;
@@ -3237,9 +3213,9 @@ class UnitOfWork
      *
      * @param object $document A managed document
      *
-     * @throws MissingTranslationException if this document is not translatable
-     *
      * @return array list of locales of this document
+     *
+     * @throws MissingTranslationException if this document is not translatable
      */
     public function getLocalesFor($document)
     {
@@ -3248,7 +3224,7 @@ class UnitOfWork
             throw new MissingTranslationException('This document is not translatable: : '.self::objToStr($document, $this->dm));
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if ($this->contains($oid)) {
             try {
                 $node = $this->session->getNode($this->getDocumentId($document));
@@ -3284,7 +3260,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (!empty($this->documentTranslations[$oid])) {
             $strategy = $this->dm->getTranslationStrategy($metadata->translator);
             foreach ($this->documentTranslations[$oid] as $locale => $data) {
@@ -3316,9 +3292,8 @@ class UnitOfWork
      * Load an in-memory bound translation if there is one in the requested
      * locale. Does not attempt any fallback.
      *
-     * @param object        $document
-     * @param ClassMetadata $metadata
-     * @param string        $locale
+     * @param object $document
+     * @param string $locale
      *
      * @return bool whether the pending translation in language $locale was
      *              loaded or not
@@ -3327,7 +3302,7 @@ class UnitOfWork
      */
     protected function doLoadPendingTranslation($document, ClassMetadata $metadata, $locale)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         if (!isset($this->documentTranslations[$oid][$locale])) {
             return false;
@@ -3350,22 +3325,21 @@ class UnitOfWork
      * fields are set to null and the requested locale is considered to be the
      * one found.
      *
-     * @param object        $document
-     * @param ClassMetadata $metadata
-     * @param string        $locale   the desired locale
-     * @param bool          $fallback whether to perform language fallback
-     * @param bool          $refresh  whether to force reloading the translation
+     * @param object $document
+     * @param string $locale   the desired locale
+     * @param bool   $fallback whether to perform language fallback
+     * @param bool   $refresh  whether to force reloading the translation
+     *
+     * @return string The locale used
      *
      * @throws MissingTranslationException if the translation in $locale is not
      *                                     found and $fallback is false
-     *
-     * @return string The locale used
      *
      * @see doLoadTranslation
      */
     protected function doLoadDatabaseTranslation($document, ClassMetadata $metadata, $locale, $fallback, $refresh)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         $strategy = $this->dm->getTranslationStrategy($metadata->translator);
 
@@ -3422,11 +3396,10 @@ class UnitOfWork
      * If the document is not translatable, this method returns immediately
      * and without error.
      *
-     * @param object        $document
-     * @param ClassMetadata $metadata
-     * @param string        $locale   The locale to use or null if the default locale should be used
-     * @param bool          $fallback Whether to do try other languages
-     * @param bool          $refresh
+     * @param object $document
+     * @param string $locale   The locale to use or null if the default locale should be used
+     * @param bool   $fallback Whether to do try other languages
+     * @param bool   $refresh
      *
      * @throws MissingTranslationException if the translation in $locale is not
      *                                     found and $fallback is false
@@ -3439,7 +3412,7 @@ class UnitOfWork
 
         $currentLocale = $this->getCurrentLocale($document, $metadata);
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (null === $locale || $locale === $currentLocale) {
             // current locale is already loaded and not removed
             if (!$refresh && isset($this->documentTranslations[$oid][$currentLocale])) {
@@ -3531,7 +3504,6 @@ class UnitOfWork
 
     /**
      * @param object $document
-     * @param array  $mapping
      * @param string $locale
      */
     private function cascadeDoLoadTranslation($document, array $mapping, $locale)
@@ -3587,7 +3559,7 @@ class UnitOfWork
             $document->__load();
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         $this->documentTranslations[$oid][$locale] = null;
         $this->setLocale($document, $metadata, null);
     }
@@ -3605,7 +3577,7 @@ class UnitOfWork
      */
     private function isTranslationRemoved($document, $locale)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         return isset($this->documentTranslations[$oid])
             && empty($this->documentTranslations[$oid][$locale])
@@ -3613,8 +3585,7 @@ class UnitOfWork
     }
 
     /**
-     * @param object        $document
-     * @param ClassMetadata $metadata
+     * @param object $document
      *
      * @throws PHPCRException
      */
@@ -3630,9 +3601,8 @@ class UnitOfWork
     }
 
     /**
-     * @param object        $document
-     * @param ClassMetadata $metadata
-     * @param string        $locale
+     * @param object $document
+     * @param string $locale
      */
     private function setLocale($document, ClassMetadata $metadata, $locale)
     {
@@ -3640,7 +3610,7 @@ class UnitOfWork
             return;
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (empty($this->documentLocales[$oid])) {
             $this->documentLocales[$oid] = ['original' => $locale];
         }
@@ -3689,7 +3659,7 @@ class UnitOfWork
             }
         }
 
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($this->documentLocales[$oid]['current'])) {
             return $this->documentLocales[$oid]['current'];
         }
@@ -3718,7 +3688,7 @@ class UnitOfWork
     {
         $string = method_exists($obj, '__toString')
             ? (string) $obj
-            : ClassUtils::getClass($obj).'@'.spl_object_hash($obj);
+            : ClassUtils::getClass($obj).'@'.\spl_object_hash($obj);
 
         if ($dm) {
             try {
@@ -3765,7 +3735,6 @@ class UnitOfWork
      * Set the mapped mixins.
      *
      * @param ClassMetadata $metadata
-     * @param NodeInterface $node
      * @param object        $document the document to update autogenerated fields
      */
     private function setMixins(Mapping\ClassMetadata $metadata, NodeInterface $node, $document)
@@ -3822,8 +3791,6 @@ class UnitOfWork
 
     /**
      * Extracts ReferenceManyCollection type from field metadata.
-     *
-     * @param $referenceFieldMetadata
      *
      * @return string
      */
@@ -3995,9 +3962,6 @@ class UnitOfWork
 
     /**
      * To invoke a global invent without using the ListenersInvoker.
-     *
-     * @param $eventName
-     * @param EventArgs $event
      */
     public function invokeGlobalEvent($eventName, EventArgs $event)
     {
@@ -4010,8 +3974,7 @@ class UnitOfWork
      * If the parent node has child restrictions, ensure that the given
      * class name is within them.
      *
-     * @param NodeInterface $parentNode
-     * @param string        $classFqn
+     * @param string $classFqn
      */
     private function validateChildClass(NodeInterface $parentNode, ClassMetadata $class)
     {

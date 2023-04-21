@@ -107,8 +107,6 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
      *
      * @param string $name  The name of the new node (will be created under root)
      * @param string $class The class name of the document
-     *
-     * @return NodeInterface
      */
     private function createTestDocument(string $name, string $class): NodeInterface
     {

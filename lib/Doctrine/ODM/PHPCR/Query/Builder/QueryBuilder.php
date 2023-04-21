@@ -80,9 +80,6 @@ class QueryBuilder extends AbstractNode
         return $this->getConverter()->getQuery($this);
     }
 
-    /**
-     * @param ConverterInterface $converter
-     */
     public function setConverter(ConverterInterface $converter)
     {
         $this->converter = $converter;

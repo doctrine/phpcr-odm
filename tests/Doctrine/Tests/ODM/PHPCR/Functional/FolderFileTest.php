@@ -68,8 +68,6 @@ class FolderFileTest extends PHPCRFunctionalTestCase
     /**
      * Assert that $node has a folder child that is an nt:folder and has a
      * child * called file that is an nt:file.
-     *
-     * @param NodeInterface $node
      */
     private function assertFolderAndFile(NodeInterface $node): void
     {

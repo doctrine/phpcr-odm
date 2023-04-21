@@ -6,12 +6,7 @@ use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 
 /**
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 abstract class AbstractTranslationStrategy implements TranslationStrategyInterface
 {

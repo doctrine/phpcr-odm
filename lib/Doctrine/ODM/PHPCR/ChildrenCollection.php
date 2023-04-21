@@ -62,8 +62,6 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * @param $fetchDepth
-     *
      * @return NodeInterface
      */
     private function getNode($fetchDepth)
@@ -77,8 +75,6 @@ class ChildrenCollection extends PersistentCollection
     }
 
     /**
-     * @param $childNodes
-     *
      * @return NodeInterface[]
      */
     private function getChildren($childNodes)
@@ -99,7 +95,7 @@ class ChildrenCollection extends PersistentCollection
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */
-    public function initialize()
+    public function initialize(): void
     {
         if (!$this->isInitialized()) {
             $this->getOriginalNodeNames();
@@ -110,8 +106,7 @@ class ChildrenCollection extends PersistentCollection
         }
     }
 
-    /** {@inheritdoc} */
-    public function contains($element)
+    public function contains($element): bool
     {
         if (!$this->isInitialized()) {
             $uow = $this->dm->getUnitOfWork();
@@ -141,8 +136,7 @@ class ChildrenCollection extends PersistentCollection
         return parent::contains($element);
     }
 
-    /** {@inheritdoc} */
-    public function containsKey($key)
+    public function containsKey($key): bool
     {
         if (!$this->isInitialized()) {
             return in_array($key, $this->getOriginalNodeNames(), true);
@@ -151,8 +145,7 @@ class ChildrenCollection extends PersistentCollection
         return parent::containsKey($key);
     }
 
-    /** {@inheritdoc} */
-    public function count()
+    public function count(): int
     {
         if (!$this->isInitialized()) {
             return count($this->getOriginalNodeNames());
@@ -161,8 +154,7 @@ class ChildrenCollection extends PersistentCollection
         return parent::count();
     }
 
-    /** {@inheritdoc} */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if (!$this->isInitialized()) {
             return !$this->count();
@@ -171,7 +163,6 @@ class ChildrenCollection extends PersistentCollection
         return parent::isEmpty();
     }
 
-    /** {@inheritdoc} */
     public function slice($offset, $length = null)
     {
         if (!$this->isInitialized()) {

@@ -194,6 +194,7 @@ class ConverterPhpcrTest extends TestCase
 
     /**
      * @depends testDispatchFrom
+     *
      * @dataProvider provideDispatchWheres
      */
     public function testDispatchWheres($logicalOp, $skipOriginalWhere = false): void
@@ -332,6 +333,7 @@ class ConverterPhpcrTest extends TestCase
 
     /**
      * @depends testDispatchFrom
+     *
      * @dataProvider provideDispatchCompositeConstraints
      */
     public function testDispatchCompositeConstraints($method, $expectedClass, $nbConstraints): void
@@ -386,6 +388,7 @@ class ConverterPhpcrTest extends TestCase
 
     /**
      * @depends testDispatchFrom
+     *
      * @dataProvider provideDisaptchConstraintsLeaf
      */
     public function testDispatchConstraintsLeaf($class, $args, $expectedClass): void

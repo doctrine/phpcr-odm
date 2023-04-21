@@ -12,7 +12,6 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\Persistence\Mapping\ClassMetadata as BaseClassMetadata;
-use ReflectionProperty;
 
 /**
  * This factory is used to create proxy objects for entities at runtime.
@@ -150,11 +149,11 @@ class ProxyFactory extends AbstractProxyFactory
     /**
      * Generates a closure capable of finalizing a cloned proxy.
      *
-     * @throws UnexpectedValueException
-     *
      * @return \Closure
+     *
+     * @throws UnexpectedValueException
      */
-    private function createCloner(PhpcrClassMetadata $classMetadata, ReflectionProperty $reflectionId = null)
+    private function createCloner(PhpcrClassMetadata $classMetadata, \ReflectionProperty $reflectionId = null)
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;

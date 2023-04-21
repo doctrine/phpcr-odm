@@ -17,17 +17,12 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
  * This class is designed for inheritance and users can subclass this class to
  * write their own repositories with business-specific methods to locate documents.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Jordi Boggiano <j.boggiano@seld.be>
- * @author      Pascal Helfenstein <nicam@nicam.ch>
+ * @author Jordi Boggiano <j.boggiano@seld.be>
+ * @author Pascal Helfenstein <nicam@nicam.ch>
  */
 class DocumentRepository implements ObjectRepository
 {
-    const QUERY_REPLACE_WITH_FIELDNAMES = 1;
+    public const QUERY_REPLACE_WITH_FIELDNAMES = 1;
 
     /**
      * @var DocumentManagerInterface
@@ -109,10 +104,8 @@ class DocumentRepository implements ObjectRepository
      * an InvalidArgumentException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param array      $criteria
-     * @param array|null $orderBy
-     * @param int|null   $limit
-     * @param int|null   $offset
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return array the objects matching the criteria
      */
@@ -170,10 +163,9 @@ class DocumentRepository implements ObjectRepository
     /**
      * Constraints a field for a given value.
      *
-     * @param ConstraintFactory $where
-     * @param string            $field The field searched
-     * @param mixed             $value The value to search for
-     * @param string            $alias The alias used
+     * @param string $field The field searched
+     * @param mixed  $value The value to search for
+     * @param string $alias The alias used
      */
     protected function constraintField(ConstraintFactory $where, $field, $value, $alias)
     {
@@ -186,8 +178,6 @@ class DocumentRepository implements ObjectRepository
 
     /**
      * Finds a single document by a set of criteria.
-     *
-     * @param array $criteria
      *
      * @return object|null The first document matching the criteria or null if
      *                     none found

@@ -31,12 +31,14 @@ class Generic
 
     /**
      * @var Collection
+     *
      * @PHPCRODM\Children
      */
     protected $children;
 
     /**
      * @var Collection
+     *
      * @PHPCRODM\MixedReferrers
      */
     protected $referrers;
@@ -139,8 +141,6 @@ class Generic
     /**
      * Add a child to this document.
      *
-     * @param $child
-     *
      * @return $this
      */
     public function addChild($child)
@@ -183,8 +183,6 @@ class Generic
 
     /**
      * Add a referrer to this document.
-     *
-     * @param $referrer
      *
      * @return $this;
      */

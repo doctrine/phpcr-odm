@@ -359,7 +359,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $i = 0;
-        foreach ($this->session->getNode('/functional/refManyTestObj')->getProperty('myReferences')->getNode() as  $node) {
+        foreach ($this->session->getNode('/functional/refManyTestObj')->getProperty('myReferences')->getNode() as $node) {
             $this->assertEquals($node->getProperty('name')->getValue(), 'new name '.$i);
             ++$i;
         }
@@ -396,7 +396,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $referrer = $this->dm->find($this->referrerManyType, '/functional/refManyTestObj');
 
         $i = 0;
-        foreach ($this->session->getNode('/functional/refManyTestObj')->getProperty('myReferences')->getNode() as  $node) {
+        foreach ($this->session->getNode('/functional/refManyTestObj')->getProperty('myReferences')->getNode() as $node) {
             if ($i !== $pos) {
                 $this->assertEquals("refRefTestObj$i", $node->getProperty('name')->getValue());
             } else {
@@ -911,7 +911,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->assertCount($max - 1, $names);
 
         $i = 0;
-        foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('myReferences')->getNode() as  $node) {
+        foreach ($this->session->getNode('/functional')->getNode('refManyTestObj')->getProperty('myReferences')->getNode() as $node) {
             if ($i !== $pos) {
                 $this->assertContains($node->getProperty('name')->getValue(), $names);
             }

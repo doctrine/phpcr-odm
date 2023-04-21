@@ -181,7 +181,6 @@ class AbstractNodeTest extends TestCase
     public function provideValidate(): array
     {
         return [
-
             // 1. Not enough data
             // INVALID
             [
@@ -220,6 +219,7 @@ class AbstractNodeTest extends TestCase
 
     /**
      * @depends testAddChildValidation
+     *
      * @dataProvider provideValidate
      */
     public function testValidate($cardinalityMap, $data, $options): void

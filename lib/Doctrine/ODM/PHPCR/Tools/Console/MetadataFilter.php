@@ -7,15 +7,10 @@ namespace Doctrine\ODM\PHPCR\Tools\Console;
  *
  * Copied from Doctrine\ORM\Tools\Console\MetadataFilter
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- *
- * @link        www.doctrine-project.com
- * @since       1.0
- *
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author      Jonathan Wage <jonwage@gmail.com>
- * @author      Roman Borschel <roman@code-factory.org>
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author Jonathan Wage <jonwage@gmail.com>
+ * @author Roman Borschel <roman@code-factory.org>
  */
 class MetadataFilter extends \FilterIterator implements \Countable
 {
@@ -27,7 +22,6 @@ class MetadataFilter extends \FilterIterator implements \Countable
     /**
      * Filter Metadatas by one or more filter options.
      *
-     * @param array        $metadatas
      * @param array|string $filter
      *
      * @return array
@@ -40,8 +34,7 @@ class MetadataFilter extends \FilterIterator implements \Countable
     }
 
     /**
-     * @param \ArrayIterator $metadata
-     * @param array|string   $filter
+     * @param array|string $filter
      */
     public function __construct(\ArrayIterator $metadata, $filter)
     {
@@ -50,12 +43,9 @@ class MetadataFilter extends \FilterIterator implements \Countable
         parent::__construct($metadata);
     }
 
-    /**
-     * @return bool
-     */
-    public function accept()
+    public function accept(): bool
     {
-        if (0 == count($this->filter)) {
+        if (0 === count($this->filter)) {
             return true;
         }
 
@@ -79,10 +69,7 @@ class MetadataFilter extends \FilterIterator implements \Countable
         return false;
     }
 
-    /**
-     * @return int
-     */
-    public function count()
+    public function count(): int
     {
         return count($this->getInnerIterator());
     }

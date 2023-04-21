@@ -13,17 +13,12 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * The YamlDriver reads the mapping metadata from yaml schema files.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.org
- * @since       1.0
- *
- * @author      Jonathan H. Wage <jonwage@gmail.com>
- * @author      Roman Borschel <roman@code-factory.org>
+ * @author Jonathan H. Wage <jonwage@gmail.com>
+ * @author Roman Borschel <roman@code-factory.org>
  */
 class YamlDriver extends FileDriver
 {
-    const DEFAULT_FILE_EXTENSION = '.dcm.yml';
+    public const DEFAULT_FILE_EXTENSION = '.dcm.yml';
 
     /**
      * {@inheritdoc}

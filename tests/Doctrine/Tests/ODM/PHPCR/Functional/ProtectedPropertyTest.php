@@ -11,6 +11,7 @@ use PHPCR\UnsupportedRepositoryOperationException;
 
 /**
  * @see http://www.doctrine-project.org/jira/browse/PHPCR-78
+ *
  * @group functional
  */
 class ProtectedPropertyTest extends PHPCRFunctionalTestCase

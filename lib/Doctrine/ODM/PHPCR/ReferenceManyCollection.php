@@ -14,9 +14,9 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
  */
 class ReferenceManyCollection extends PersistentCollection
 {
-    const REFERENCE_TYPE_PATH = 'path';
+    public const REFERENCE_TYPE_PATH = 'path';
 
-    const REFERENCE_TYPE_UUID = 'uuid';
+    public const REFERENCE_TYPE_UUID = 'uuid';
 
     private $document;
 
@@ -103,7 +103,7 @@ class ReferenceManyCollection extends PersistentCollection
             $this->originalReferencePaths = [];
             foreach ($referencedNodes as $referencedNode) {
                 $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
-                if (isset($targetDocument) && !$proxy instanceof $this->targetDocument) {
+                if ($this->targetDocument && !is_a($proxy, $this->targetDocument)) {
                     throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$this->targetDocument}' but got '".ClassUtils::getClass($proxy)."'.");
                 }
                 $referencedDocs[] = $proxy;
@@ -115,8 +115,7 @@ class ReferenceManyCollection extends PersistentCollection
         }
     }
 
-    /** {@inheritdoc} */
-    public function count()
+    public function count(): int
     {
         if (!$this->isInitialized()) {
             return count($this->referencedNodes);
@@ -125,11 +124,10 @@ class ReferenceManyCollection extends PersistentCollection
         return parent::count();
     }
 
-    /** {@inheritdoc} */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if (!$this->isInitialized()) {
-            return !$this->count();
+            return 0 === $this->count();
         }
 
         return parent::isEmpty();

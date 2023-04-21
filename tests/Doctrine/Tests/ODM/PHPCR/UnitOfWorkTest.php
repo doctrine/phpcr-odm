@@ -234,6 +234,7 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     /**
      * @see https://github.com/doctrine/phpcr-odm/issues/637
+     *
      * @covers \Doctrine\ODM\PHPCR\UnitOfWork::computeSingleDocumentChangeSet
      *
      * @doesNotPerformAssertions

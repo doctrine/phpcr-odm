@@ -11,5 +11,5 @@ use Doctrine\Common\Collections\Expr\Comparison as BaseComparison;
  */
 class Comparison extends BaseComparison
 {
-    const LIKE = 'like';
+    public const LIKE = 'like';
 }

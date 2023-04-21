@@ -195,9 +195,8 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * Factory method for a Document Manager.
      *
-     * @param SessionInterface $session
-     * @param Configuration    $config
-     * @param EventManager     $evm
+     * @param Configuration $config
+     * @param EventManager  $evm
      *
      * @return DocumentManager
      */
@@ -262,7 +261,7 @@ class DocumentManager implements DocumentManagerInterface
      * If the document is translatable, then the language chooser strategy is
      * used to load the best suited language for the translatable fields.
      *
-     * @param null|string $className optional object class name to use
+     * @param string|null $className optional object class name to use
      * @param string      $id        the path or uuid of the document to find
      *
      * @return object|null the document if found, otherwise null
@@ -636,10 +635,10 @@ class DocumentManager implements DocumentManagerInterface
      * @param object $document the document to merge over a persisted document
      *                         with the same id
      *
-     * @throws InvalidArgumentException if $document is not an object
-     *
      * @return object The managed document where $document has been merged
      *                into. This is *not* the same instance as the parameter.
+     *
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function merge($document)
     {
@@ -841,9 +840,9 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @param object $document
      *
-     * @throws InvalidArgumentException if $document is not an object
-     *
      * @return bool true if the repository contains the object, false otherwise
+     *
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function contains($document)
     {
@@ -875,7 +874,7 @@ class DocumentManager implements DocumentManagerInterface
         if (null === $className) {
             $this->unitOfWork->clear();
         } else {
-            //TODO
+            // TODO
             throw new PHPCRException('DocumentManager#clear($className) not yet implemented.');
         }
     }

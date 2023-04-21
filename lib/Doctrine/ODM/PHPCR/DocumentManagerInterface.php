@@ -57,9 +57,9 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param string $key The name of the translation strategy
      *
-     * @throws InvalidArgumentException if there is no strategy registered with the given key
-     *
      * @return TranslationStrategyInterface
+     *
+     * @throws InvalidArgumentException if there is no strategy registered with the given key
      */
     public function getTranslationStrategy($key);
 
@@ -82,8 +82,6 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * Note that there can be only one strategy per session. This is required if you have
      * multilanguage documents and not used if you don't have multilanguage.
-     *
-     * @param LocaleChooserInterface $strategy
      */
     public function setLocaleChooserStrategy(LocaleChooserInterface $strategy);
 
@@ -121,7 +119,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Finds many documents by id.
      *
-     * @param null|string $className Only return documents that match the
+     * @param string|null $className Only return documents that match the
      *                               specified class. All others are treated as not found.
      * @param array       $ids       List of repository paths and/or uuids to
      *                               find documents. Non-existing ids are ignored.
@@ -145,17 +143,17 @@ interface DocumentManagerInterface extends ObjectManager
      * Note that this will be the same object as you got with a previous
      * find/findTranslation call - we can't allow copies of objects to exist.
      *
-     * @param null|string $className The class name to find the translation for
+     * @param string|null $className The class name to find the translation for
      * @param string      $id        The identifier of the class (path or uuid)
      * @param string      $locale    the language to try to load
      * @param bool        $fallback  set to true if the language fallback mechanism should be used
+     *
+     * @return object the translated document
      *
      * @throws PHPCRException              if $className is specified and does not match
      *                                     the class of the document that was found at $id
      * @throws MissingTranslationException if $fallback is false and the
      *                                     translation was not found
-     *
-     * @return object the translated document
      */
     public function findTranslation($className, $id, $locale, $fallback = true);
 
@@ -227,7 +225,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Create lower level PHPCR query builder.
      *
-     * NOTE: The ODM QueryBuilder (@link createQueryBuilder) is prefered over
+     * NOTE: The ODM QueryBuilder (@see createQueryBuilder) is prefered over
      *       the PHPCR QueryBuilder when working with the ODM.
      *
      * @return QueryBuilder
@@ -275,10 +273,10 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document         the document to get the locales for
      * @param bool   $includeFallbacks whether to include the available language fallbacks
      *
+     * @return array of strings with all locales existing for this particular document
+     *
      * @throws InvalidArgumentException    if $document is not an object
      * @throws MissingTranslationException if the document is not translatable
-     *
-     * @return array of strings with all locales existing for this particular document
      */
     public function getLocalesFor($document, $includeFallbacks = false);
 
@@ -338,9 +336,9 @@ interface DocumentManagerInterface extends ObjectManager
      * @param int          $fetchDepth optional fetch depth
      * @param string       $locale     the locale to use during the loading of this collection
      *
-     * @throws InvalidArgumentException if $document is not an object
-     *
      * @return ChildrenCollection collection of child documents
+     *
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null);
 
@@ -362,9 +360,9 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string      $locale   the locale to use during the loading of this collection
      * @param string|null $refClass class the referrer document must be instanceof
      *
-     * @throws InvalidArgumentException if $document is not an object
-     *
      * @return ReferrersCollection collection of referrer documents
+     *
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null);
 
@@ -457,10 +455,10 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document the document of which to get the version history
      * @param int    $limit    an optional limit to only get the latest $limit information
      *
-     * @throws InvalidArgumentException if $document is not an object
-     *
      * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
      *               oldest version first
+     *
+     * @throws InvalidArgumentException if $document is not an object
      */
     public function getAllLinearVersions($document, $limit = -1);
 
@@ -471,14 +469,14 @@ interface DocumentManagerInterface extends ObjectManager
      * The id of the returned document representing this version is not the id
      * of the original document.
      *
-     * @param null|string $className
+     * @param string|null $className
      * @param string      $id          id of the document
      * @param string      $versionName the version name as given by getLinearPredecessors
      *
+     * @return object the detached document or null if the document is not found
+     *
      * @throws InvalidArgumentException                if there is a document with $id but no version with $name
      * @throws UnsupportedRepositoryOperationException if the implementation does not support versioning
-     *
-     * @return object the detached document or null if the document is not found
      */
     public function findVersionByName($className, $id, $versionName);
 
@@ -519,10 +517,10 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $document
      *
+     * @return NodeInterface
+     *
      * @throws InvalidArgumentException if $document is not an object
      * @throws PHPCRException           if $document is not managed
-     *
-     * @return NodeInterface
      */
     public function getNodeForDocument($document);
 
@@ -531,9 +529,9 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $document A managed document
      *
-     * @throws PHPCRException if $document is not managed
-     *
      * @return string
+     *
+     * @throws PHPCRException if $document is not managed
      */
     public function getDocumentId($document);
 }

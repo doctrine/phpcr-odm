@@ -160,7 +160,7 @@ class ReferrersCollection extends PersistentCollection
                     }
                 }
             } else {
-                $this->originalPaths = null;
+                $this->originalReferrerPaths = null;
             }
         }
 

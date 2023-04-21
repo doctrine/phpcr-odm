@@ -4,45 +4,45 @@ namespace Doctrine\ODM\PHPCR;
 
 final class Event
 {
-    const prePersist = 'prePersist';
+    public const prePersist = 'prePersist';
 
-    const preRemove = 'preRemove';
+    public const preRemove = 'preRemove';
 
-    const preUpdate = 'preUpdate';
+    public const preUpdate = 'preUpdate';
 
-    const preMove = 'preMove';
+    public const preMove = 'preMove';
 
-    const postRemove = 'postRemove';
+    public const postRemove = 'postRemove';
 
-    const postPersist = 'postPersist';
+    public const postPersist = 'postPersist';
 
-    const postUpdate = 'postUpdate';
+    public const postUpdate = 'postUpdate';
 
-    const postMove = 'postMove';
+    public const postMove = 'postMove';
 
-    const postLoad = 'postLoad';
+    public const postLoad = 'postLoad';
 
-    const preFlush = 'preFlush';
+    public const preFlush = 'preFlush';
 
-    const postFlush = 'postFlush';
+    public const postFlush = 'postFlush';
 
-    const endFlush = 'endFlush';
+    public const endFlush = 'endFlush';
 
-    const onFlush = 'onFlush';
+    public const onFlush = 'onFlush';
 
-    const onClear = 'onClear';
+    public const onClear = 'onClear';
 
-    const loadClassMetadata = 'loadClassMetadata';
+    public const loadClassMetadata = 'loadClassMetadata';
 
-    const postLoadTranslation = 'postLoadTranslation';
+    public const postLoadTranslation = 'postLoadTranslation';
 
-    const preCreateTranslation = 'preCreateTranslation';
+    public const preCreateTranslation = 'preCreateTranslation';
 
-    const preUpdateTranslation = 'preUpdateTranslation';
+    public const preUpdateTranslation = 'preUpdateTranslation';
 
-    const preRemoveTranslation = 'preRemoveTranslation';
+    public const preRemoveTranslation = 'preRemoveTranslation';
 
-    const postRemoveTranslation = 'postRemoveTranslation';
+    public const postRemoveTranslation = 'postRemoveTranslation';
 
     public static $lifecycleCallbacks = [
         self::prePersist => self::prePersist,

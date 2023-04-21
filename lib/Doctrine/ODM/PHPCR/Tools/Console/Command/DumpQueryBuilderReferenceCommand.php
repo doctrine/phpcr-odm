@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DumpQueryBuilderReferenceCommand extends Command
 {
-    const QB_NS = 'Doctrine\\ODM\\PHPCR\\Query\\Builder';
+    public const QB_NS = 'Doctrine\\ODM\\PHPCR\\Query\\Builder';
 
     protected $formatString;
 

@@ -219,7 +219,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->doc = $this->dm->findTranslation(null, '/functional/'.$this->testNodeName, 'de');
         $this->doc->topic = 'Ein interessantes Thema';
 
-        //set locale explicitly
+        // set locale explicitly
         $this->doc->locale = 'de';
         $this->dm->flush();
 

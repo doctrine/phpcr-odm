@@ -20,10 +20,9 @@ class MoveEventArgs extends LifecycleEventArgs
     /**
      * Constructor.
      *
-     * @param object                   $document
-     * @param DocumentManagerInterface $dm
-     * @param string                   $sourcePath Path the document is moved from
-     * @param string                   $targetPath Path the document is moved to, including target name
+     * @param object $document
+     * @param string $sourcePath Path the document is moved from
+     * @param string $targetPath Path the document is moved to, including target name
      */
     public function __construct($document, DocumentManagerInterface $dm, $sourcePath, $targetPath)
     {

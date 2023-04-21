@@ -18,13 +18,13 @@ use PHPUnit\Framework\TestCase;
 
 class DocumentClassMapperTest extends Testcase
 {
-    const CLASS_GENERIC = Generic::class;
+    public const CLASS_GENERIC = Generic::class;
 
-    const CLASS_TEST_1 = 'Test\Class1';
+    public const CLASS_TEST_1 = 'Test\Class1';
 
-    const CLASS_TEST_2 = 'Test\Class2';
+    public const CLASS_TEST_2 = 'Test\Class2';
 
-    const CLASS_TEST_3 = 'Test\Class3';
+    public const CLASS_TEST_3 = 'Test\Class3';
 
     /**
      * @var DocumentManager&MockObject

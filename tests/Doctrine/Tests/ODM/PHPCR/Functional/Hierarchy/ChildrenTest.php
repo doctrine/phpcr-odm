@@ -718,6 +718,7 @@ class ChildrenTestObj
 
     /**
      * @var ChildrenCollection
+     *
      * @PHPCR\Children(fetchDepth=2, cascade="persist")
      */
     public $allChildren;

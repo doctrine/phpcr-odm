@@ -17,7 +17,6 @@ class PreUpdateEventArgs extends BasePreUpdateEventArgs
      *
      * @param object                   $document
      * @param DocumentManagerInterface $objectManager
-     * @param array                    $changeSet
      */
     public function __construct($document, DocumentManagerInterface $documentManager, array &$changeSet)
     {

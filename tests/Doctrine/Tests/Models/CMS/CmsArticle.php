@@ -40,9 +40,6 @@ class CmsArticle
         $this->user = $author;
     }
 
-    /**
-     * @param CmsArticlePerson $person
-     */
     public function addPerson(CmsArticlePerson $person)
     {
         $this->persons->add($person);

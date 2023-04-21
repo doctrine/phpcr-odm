@@ -15,15 +15,10 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
  *
- * @license     http://www.opensource.org/licenses/MIT-license.php MIT license
- *
- * @link        www.doctrine-project.org
- * @since       1.0
- *
- * @author      Jordi Boggiano <j.boggiano@seld.be>
- * @author      Pascal Helfenstein <nicam@nicam.ch>
- * @author      Daniel Barsotti <daniel.barsotti@liip.ch>
- * @author      David Buchmann <david@liip.ch>
+ * @author Jordi Boggiano <j.boggiano@seld.be>
+ * @author Pascal Helfenstein <nicam@nicam.ch>
+ * @author Daniel Barsotti <daniel.barsotti@liip.ch>
+ * @author David Buchmann <david@liip.ch>
  */
 class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
 {
@@ -175,7 +170,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                 foreach ($this->reader->getMethodAnnotations($method) as $annot) {
                     if ($annot instanceof ODM\PrePersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::prePersist);
-                    } elseif ($annot instanceof  ODM\PostPersist) {
+                    } elseif ($annot instanceof ODM\PostPersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postPersist);
                     } elseif ($annot instanceof ODM\PreUpdate) {
                         $metadata->addLifecycleCallback($method->getName(), Event::preUpdate);
@@ -185,7 +180,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
                         $metadata->addLifecycleCallback($method->getName(), Event::preRemove);
                     } elseif ($annot instanceof ODM\PostRemove) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postRemove);
-                    } elseif ($annot instanceof  ODM\PostLoad) {
+                    } elseif ($annot instanceof ODM\PostLoad) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postLoad);
                     }
                 }
@@ -197,8 +192,6 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
 
     /**
      * Gathers a list of cascade options found in the given cascade element.
-     *
-     * @param array $cascadeList
      *
      * @return int a bitmask of cascade options
      */

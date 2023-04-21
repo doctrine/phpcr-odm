@@ -130,7 +130,7 @@ class PropertyTestObj
     /** @PHPCRODM\Field(type="string") */
     public $string;
 
-    //binary tested in its own test
+    // binary tested in its own test
 
     /** @PHPCRODM\Field(type="long") */
     public $long;

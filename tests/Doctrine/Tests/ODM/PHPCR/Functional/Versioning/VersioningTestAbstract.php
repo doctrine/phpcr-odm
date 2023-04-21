@@ -113,7 +113,7 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->assertTrue($user->node->isNodeType('mix:simpleVersionable'));
 
         // TODO: understand why jcr:isCheckedOut is true for a checked in node
-        //$this->assertFalse($user->node->getPropertyValue('jcr:isCheckedOut'));
+        // $this->assertFalse($user->node->getPropertyValue('jcr:isCheckedOut'));
     }
 
     public function testCheckout(): void

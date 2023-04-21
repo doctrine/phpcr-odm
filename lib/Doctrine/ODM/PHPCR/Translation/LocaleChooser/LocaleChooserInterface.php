@@ -61,9 +61,9 @@ interface LocaleChooserInterface
      *                                 order, e.g. the current request locale.
      *                                 If null, the default locale is to be used.
      *
-     * @throws MissingTranslationException
-     *
      * @return array $preferredLocales
+     *
+     * @throws MissingTranslationException
      */
     public function getFallbackLocales($document, ClassMetadata $metadata, $forLocale = null);
 
