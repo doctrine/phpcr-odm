@@ -28,38 +28,52 @@ Thanks to
 
 ## Running the tests
 
-There are separate test sets for the `doctrine-dbal` and the `jackrabbit` backend.
+There are separate test setups for the `doctrine-dbal` and the `jackrabbit` PHPCR implementations.
+Before installing the composer dependencies, you will need to prepare the database for storage and
+choose a `phpcr/phpcr-implementation`.
+Doing so will change the `composer.json` file - please make sure you do not check in this change
+into version control.
 
-1. Before installing dependencies you need to add `phpcr/phpcr-implementation` package. It will also require
-   implementations for virtual packages  that match the backend you want to test, resulting in a change in your
-   `composer.json`. Make sure you do not check in this change into version control.
-   1. For `jackrabbit` run following command:
-    ```
-        composer require jackalope/jackalope-jackrabbit:2.* --no-update
-    ```
-   2. For `dbal`  run following command:
-    ```
-        composer require jackalope/jackalope-doctrine-dbal:2.* --no-update
-    ```
-2. Next install all dependencies with:
-    ```
-        composer install
-    ```
-3. To install the dependencies that can't be installed with Composer you need to 
-    1. For `jackrabbit`, make sure that you `Java` and `wget` is installed, and next run following command:
+### Setting up to test with Jackrabbit
+
+1. Make sure you have `java` and `wget` installed, then run this script to install and start jackrabbit:
     ```
         tests/script_jackrabbit.sh
     ```
-    2. For `dbal`, make sure that MySQL is installed, and next run following command:
+2. Require the PHPCR implementation:
+   ```
+        composer require jackalope/jackalope-jackrabbit --no-update
     ```
-        tests/script_doctrine_dbal.sh
+3. Now you can install all dependencies with:
     ```
-4. Now you can run the tests
-    1. For `jackrabbit`, make sure that you `Java` and `wget` is installed, and next run following command:
+        composer install
+    ```
+4. Now you can run the tests:
     ```
     vendor/bin/phpunit -c tests/phpunit_jackrabbit.xml.dist
     ```
-    2. For `dbal`, make sure that MySQL is installed, and next run following command:
+   You can also copy the phpunit dist file to `./phpunit.xml` to have it selected by default, or
+   if you need to customize any configuration options.
+
+### Setting up to test with Doctrine-DBAL
+
+1. For `doctrine-dbal`, make sure that MySQL is installed. If the connection parameters in
+   `cli-config.doctrine_dbal.php.dist` are not correct, manually create `cli-config.php` and adjust
+   the options as needed. Then run the script to initialize the repository in the database:
+    ```
+        tests/script_doctrine_dbal.sh
+    ```
+2. Require the PHPCR implementation
+    ```
+        composer require jackalope/jackalope-doctrine-dbal --no-update
+    ```
+3. Now you can install all dependencies with:
+    ```
+        composer install
+    ```
+4. Now you can run the tests:
     ```
     vendor/bin/phpunit -c tests/phpunit_doctrine_dbal.xml.dist
     ```
+   You can also copy the phpunit dist file to `./phpunit.xml` to have it selected by default, or
+   if you need to customize any configuration options.
