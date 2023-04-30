@@ -28,7 +28,7 @@ Thanks to
 
 ## Running the tests
 
-There are separate test sets for `dbal` and `jackrabbit` backends. 
+There are separate test sets for the `doctrine-dbal` and the `jackrabbit` backend.
 
 1. Before installing dependencies you need to add `phpcr/phpcr-implementation` package. It will also require
    implementations for virtual packages  that match the backend you want to test, resulting in a change in your
