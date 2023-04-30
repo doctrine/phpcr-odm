@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 SCRIPT_DIR="${0%/*}"
 
