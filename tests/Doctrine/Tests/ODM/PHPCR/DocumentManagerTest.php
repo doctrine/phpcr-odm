@@ -6,9 +6,9 @@ use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
-use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\Tests\ODM\PHPCR\Mapping\Model\BarfooRepository;
 use PHPCR\ItemNotFoundException;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
 use PHPCR\Query\QueryManagerInterface;
@@ -80,7 +80,11 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session);
 
-        $this->assertInstanceOf(ClassMetadataFactory::class, $dm->getMetadataFactory());
+        $factory = $dm->getMetadataFactory();
+        $reflection = new \ReflectionClass($factory);
+        $property = $reflection->getProperty('dm');
+        $property->setAccessible(true);
+        $this->assertSame($dm, $property->getValue($factory));
     }
 
     /**
@@ -128,7 +132,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $dm = new DocumentManagerGetClassMetadata($session);
 
         $this->assertInstanceOf(DocumentRepository::class, $dm->getRepository('foo'));
-        $this->assertInstanceOf('stdClass', $dm->getRepository('foo2'));
+        $this->assertInstanceOf(BarfooRepository::class, $dm->getRepository('foo2'));
 
         // call again to test the cache
         $this->assertInstanceOf(DocumentRepository::class, $dm->getRepository('foo'));
@@ -144,7 +148,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $dm = DocumentManager::create($session);
 
         $string = $dm->escapeFullText('Some{String}Wit"h[]Illegal^^^Chara\cte?rs:!');
-        $this->assertEquals($string, 'Some\{String\}Wit"h\[\]Illegal\^\^\^Chara\cte\?rs\:\!');
+        $this->assertEquals('Some\{String\}Wit"h\[\]Illegal\^\^\^Chara\cte\?rs\:\!', $string);
     }
 
     /**
@@ -172,7 +176,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $this->assertInstanceOf(QueryBuilder::class, $qb);
     }
 
-    public function testGetDocumentIdReturnsValueOfUnitOfWork()
+    public function testGetDocumentIdReturnsValueOfUnitOfWork(): void
     {
         $session = $this->createMock(SessionInterface::class);
 
@@ -186,10 +190,10 @@ class DocumentManagerTest extends PHPCRTestCase
         $reflectionProperty->setValue($uow, [spl_object_hash($obj) => '/foo']);
         $reflectionProperty->setAccessible(false);
 
-        $this->assertEquals('/foo', $dm->getDocumentId($obj));
+        $this->assertSame('/foo', $dm->getDocumentId($obj));
     }
 
-    public function testGetDocumentIdForNonManagedDocumentsReturnsNull()
+    public function testGetDocumentIdForNonManagedDocumentsReturnsNull(): void
     {
         /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
@@ -202,12 +206,9 @@ class DocumentManagerTest extends PHPCRTestCase
 
 class DocumentManagerGetClassMetadata extends DocumentManager
 {
-    private $callCount = 0;
+    private int $callCount = 0;
 
-    /**
-     * @param string $class
-     */
-    public function getClassMetadata($class): ClassMetadata
+    public function getClassMetadata($className): ClassMetadata
     {
         ++$this->callCount;
         $metadata = new ClassMetadata('stdClass');
@@ -215,7 +216,7 @@ class DocumentManagerGetClassMetadata extends DocumentManager
             case '1':
                 break;
             case '2':
-                $metadata->customRepositoryClassName = 'stdClass';
+                $metadata->customRepositoryClassName = BarfooRepository::class;
 
                 break;
             default:

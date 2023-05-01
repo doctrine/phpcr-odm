@@ -18,9 +18,6 @@ class XmlDriver extends FileDriver
 {
     public const DEFAULT_FILE_EXTENSION = '.dcm.xml';
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($locator, $fileExtension = self::DEFAULT_FILE_EXTENSION)
     {
         parent::__construct($locator, $fileExtension);
@@ -31,7 +28,7 @@ class XmlDriver extends FileDriver
      *
      * @param PhpcrClassMetadata $class
      */
-    public function loadMetadataForClass($className, ClassMetadata $class)
+    public function loadMetadataForClass($className, ClassMetadata $class): void
     {
         try {
             $xmlRoot = $this->getElement($className);
@@ -65,7 +62,7 @@ class XmlDriver extends FileDriver
         }
 
         if (isset($xmlRoot['is-leaf'])) {
-            if (!in_array($value = $xmlRoot['is-leaf'], ['true', 'false'])) { // must not do strict comparison here
+            if (!in_array($value = (string) $xmlRoot['is-leaf'], ['true', 'false'])) { // must not do strict comparison here
                 throw new MappingException(sprintf(
                     'Value of is-leaf must be "true" or "false", got "%s" for class "%s"',
                     $value,
@@ -73,7 +70,7 @@ class XmlDriver extends FileDriver
                 ));
             }
 
-            $class->setIsLeaf('true' == $value);
+            $class->setIsLeaf('true' === $value);
         }
 
         if (isset($xmlRoot->mixins)) {
@@ -88,7 +85,7 @@ class XmlDriver extends FileDriver
             $class->setMixins($mixins);
             $attributes = $xmlRoot->mixins->attributes();
             if (isset($attributes['inherit'])) {
-                $class->setInheritMixins($attributes['inherit']);
+                $class->setInheritMixins((bool) $attributes['inherit']);
             }
         }
 
@@ -263,11 +260,7 @@ class XmlDriver extends FileDriver
         $class->validateClassMapping();
     }
 
-    /**
-     * @param \SimpleXMLElement $reference
-     * @param string            $type
-     */
-    private function addReferenceMapping(PhpcrClassMetadata $class, $reference, $type)
+    private function addReferenceMapping(PhpcrClassMetadata $class, \SimpleXMLElement $reference, string $type): void
     {
         $attributes = (array) $reference->attributes();
         $mapping = $attributes['@attributes'];
@@ -282,10 +275,7 @@ class XmlDriver extends FileDriver
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadMappingFile($file)
+    protected function loadMappingFile($file): array
     {
         $result = [];
         if (\PHP_VERSION_ID < 80000) {
@@ -311,11 +301,9 @@ class XmlDriver extends FileDriver
     /**
      * Gathers a list of cascade options found in the given cascade element.
      *
-     * @param \SimpleXMLElement $cascadeElement cascade element
-     *
      * @return int a bitmask of cascade options
      */
-    private function getCascadeMode(\SimpleXMLElement $cascadeElement)
+    private function getCascadeMode(\SimpleXMLElement $cascadeElement): int
     {
         $cascade = 0;
         foreach ($cascadeElement->children() as $action) {

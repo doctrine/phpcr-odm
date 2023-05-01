@@ -23,9 +23,9 @@ class PrefetchHelper
     /**
      * @param NodeInterface[] $nodes
      */
-    public function prefetch(DocumentManagerInterface $dm, $nodes, $locale = null)
+    public function prefetch(DocumentManagerInterface $dm, iterable $nodes, ?string $locale = null): void
     {
-        if (!count($nodes)) {
+        if (0 === count($nodes)) {
             return;
         }
         $uuids = [];
@@ -42,21 +42,20 @@ class PrefetchHelper
             $paths = array_merge($paths, $this->collectPrefetchHierarchy($class, $node, $locale));
         }
 
-        if (count($uuids)) {
-            $node->getSession()->getNodesByIdentifier($uuids);
+        if (count($uuids) > 0) {
+            $node->getSession()->getNodesByIdentifier($uuids); /* @phpstan-ignore-line */
         }
-        if (count($paths)) {
-            $node->getSession()->getNodes($paths);
+        if (count($paths) > 0) {
+            $node->getSession()->getNodes($paths); /* @phpstan-ignore-line */
         }
     }
 
     /**
      * Prefetch all mapped ReferenceOne annotations.
      *
-     * @param ClassMetadata $class the metadata about the document to know what to do
-     * @param NodeInterface $node  the node to prefetch parent and childs for
+     * @param NodeInterface $node the node to prefetch parent and children for
      */
-    public function prefetchReferences(ClassMetadata $class, NodeInterface $node)
+    public function prefetchReferences(ClassMetadata $class, NodeInterface $node): void
     {
         $prefetch = $this->collectPrefetchReferences($class, $node);
         if (count($prefetch)) {
@@ -67,12 +66,9 @@ class PrefetchHelper
     /**
      * Prefetch all Child mappings and the ParentDocument if annotations exist.
      *
-     * @param ClassMetadata $class  the metadata about the document to know what to do
-     * @param NodeInterface $node   the node to prefetch parent and childs for
-     * @param string|null   $locale the locale to also prefetch the translation
-     *                              child if applicable
+     * @param NodeInterface $node the node to prefetch parent and children for
      */
-    public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, $locale = null)
+    public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, string $locale = null): void
     {
         $prefetch = $this->collectPrefetchHierarchy($class, $node, $locale);
         if (count($prefetch)) {
@@ -83,12 +79,11 @@ class PrefetchHelper
     /**
      * Gather all UUIDs to pre-fetch nodes in MANY_TO_ONE mappings.
      *
-     * @param ClassMetadata $class the metadata about the document to know what to do
-     * @param NodeInterface $node  the node to prefetch parent and childs for
+     * @param NodeInterface $node the node to prefetch parent and children for
      *
-     * @return array list of UUID to fetch in one go
+     * @return string[] list of UUID to fetch in one go
      */
-    public function collectPrefetchReferences(ClassMetadata $class, NodeInterface $node)
+    public function collectPrefetchReferences(ClassMetadata $class, NodeInterface $node): array
     {
         $refNodeUUIDs = [];
         foreach ($class->referenceMappings as $fieldName) {
@@ -111,14 +106,13 @@ class PrefetchHelper
      * Gather the parent and all child mappings so they can be fetched in one
      * go.
      *
-     * @param ClassMetadata $class  the metadata about the document to know what to do
-     * @param NodeInterface $node   the node to prefetch parent and childs for
+     * @param NodeInterface $node   the node to prefetch parent and children for
      * @param string|null   $locale the locale to also prefetch the translation
      *                              child if applicable
      *
-     * @return array list of absolute paths to nodes that should be prefetched
+     * @return string[] list of absolute paths to nodes that should be prefetched
      */
-    public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, $locale = null)
+    public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, ?string $locale = null): array
     {
         $prefetch = [];
         if ($class->parentMapping && $node->getDepth() > 0) {

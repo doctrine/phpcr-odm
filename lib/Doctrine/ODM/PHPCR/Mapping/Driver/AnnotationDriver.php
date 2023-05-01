@@ -2,6 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
+use Doctrine\Common\Annotations\Reader;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Mapping\Annotations as ODM;
 use Doctrine\ODM\PHPCR\Mapping\Annotations\Document;
@@ -9,7 +10,7 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations\MappedSuperclass;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
+use Doctrine\Persistence\Mapping\Driver\ColocatedMappingDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
@@ -20,30 +21,59 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
  * @author Daniel Barsotti <daniel.barsotti@liip.ch>
  * @author David Buchmann <david@liip.ch>
  */
-class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
+class AnnotationDriver implements MappingDriver
 {
+    use ColocatedMappingDriver;
+
     /**
-     * {@inheritdoc}
-     *
      * Document annotation classes, ordered by precedence.
+     *
+     * @var array<class-string, bool|int>
      */
-    protected $entityAnnotationClasses = [
+    private array $documentAnnotationClasses = [
         Document::class => 0,
         MappedSuperclass::class => 1,
     ];
 
+    private Reader $reader;
+
     /**
-     * {@inheritdoc}
+     * Initializes a new AnnotationDriver that uses the given AnnotationReader for reading
+     * docblock annotations.
      *
+     * @param Reader               $reader the AnnotationReader to use, duck-typed
+     * @param string|string[]|null $paths  one or multiple paths where mapping classes can be found
+     */
+    public function __construct(Reader $reader, $paths = null)
+    {
+        $this->reader = $reader;
+
+        $this->addPaths((array) $paths);
+    }
+
+    public function isTransient($className): bool
+    {
+        $classAnnotations = $this->reader->getClassAnnotations(new \ReflectionClass($className));
+
+        foreach ($classAnnotations as $annot) {
+            if (array_key_exists(get_class($annot), $this->documentAnnotationClasses)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param PhpcrClassMetadata $metadata
      */
-    public function loadMetadataForClass($className, ClassMetadata $metadata)
+    public function loadMetadataForClass($className, ClassMetadata $metadata): void
     {
         $reflClass = $metadata->getReflectionClass();
 
         $documentAnnots = [];
         foreach ($this->reader->getClassAnnotations($reflClass) as $annot) {
-            foreach ($this->entityAnnotationClasses as $annotClass => $i) {
+            foreach ($this->documentAnnotationClasses as $annotClass => $i) {
                 if ($annot instanceof $annotClass) {
                     $documentAnnots[$i] = $annot;
                 }
@@ -74,7 +104,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         }
 
         if (null !== $documentAnnot->mixins) {
-            $metadata->setMixins($documentAnnot->mixins);
+            $metadata->setMixins(is_string($documentAnnot->mixins) ? [$documentAnnot->mixins] : $documentAnnot->mixins);
         }
 
         if (null !== $documentAnnot->inheritMixins) {
@@ -97,7 +127,9 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
             $metadata->setChildClasses($documentAnnot->childClasses);
         }
 
-        $metadata->setIsLeaf($documentAnnot->isLeaf);
+        if (null !== $documentAnnot->isLeaf) {
+            $metadata->setIsLeaf($documentAnnot->isLeaf);
+        }
 
         foreach ($reflClass->getProperties() as $property) {
             if ($metadata->isInheritedField($property->name)
@@ -166,7 +198,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         }
 
         foreach ($reflClass->getMethods() as $method) {
-            if ($method->isPublic() && $method->getDeclaringClass()->getName() == $metadata->name) {
+            if ($method->isPublic() && $method->getDeclaringClass()->getName() === $metadata->name) {
                 foreach ($this->reader->getMethodAnnotations($method) as $annot) {
                     if ($annot instanceof ODM\PrePersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::prePersist);
@@ -195,7 +227,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      *
      * @return int a bitmask of cascade options
      */
-    private function getCascadeMode(array $cascadeList)
+    private function getCascadeMode(array $cascadeList): int
     {
         $cascade = 0;
         foreach ($cascadeList as $cascadeMode) {

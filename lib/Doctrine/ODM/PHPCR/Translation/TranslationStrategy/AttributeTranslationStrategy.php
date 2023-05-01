@@ -3,6 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use PHPCR\NodeInterface;
 use PHPCR\Query\QOM\ConstraintInterface;
@@ -24,11 +25,11 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
 
     public const NULLFIELDS = 'nullfields';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, ?string $locale): void
     {
+        if (null === $locale) {
+            throw new PHPCRException('locale may not be null');
+        }
         // no need to validate non-nullable condition, the UoW does that for all fields
         $nullFields = [];
         foreach ($data as $field => $propValue) {
@@ -37,7 +38,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
 
             if ($mapping['multivalue'] && $propValue) {
                 $propValue = (array) $propValue;
-                if (isset($mapping['assoc'])) {
+                if (array_key_exists('assoc', $mapping) && null !== $mapping['assoc']) {
                     $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
                     $propValue = $this->dm->getUnitOfWork()->processAssoc($node, $transMapping, $propValue);
                 }
@@ -58,12 +59,8 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     /**
      * Helper method to detect if there is any translated field at all, to
      * not null all fields if the locale does not exist.
-     *
-     * @param string $locale
-     *
-     * @return bool whether the node has any attribute of the desired locale
      */
-    private function checkHasFields(NodeInterface $node, ClassMetadata $metadata, $locale)
+    private function checkHasFields(NodeInterface $node, ClassMetadata $metadata, string $locale): bool
     {
         if ($node->hasProperty($this->prefix.':'.$locale.self::NULLFIELDS)) {
             return true;
@@ -80,10 +77,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function loadTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): bool
     {
         if (!$this->checkHasFields($node, $metadata, $locale)) {
             return false;
@@ -98,7 +92,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
             if ($node->hasProperty($propName)) {
                 $value = $node->getPropertyValue($propName);
                 if (true === $mapping['multivalue']) {
-                    if (isset($mapping['assoc'])) {
+                    if (array_key_exists('assoc', $mapping) && null !== $mapping['assoc']) {
                         $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
                         $value = $this->dm->getUnitOfWork()->createAssoc($properties, $transMapping);
                     } else {
@@ -116,10 +110,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function removeTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): void
     {
         foreach ($metadata->translatableFields as $field) {
             $mapping = $metadata->mappings[$field];
@@ -130,7 +121,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
                 $prop->remove();
 
                 $mapping = $metadata->mappings[$field];
-                if (true === $mapping['multivalue'] && isset($mapping['assoc'])) {
+                if (true === $mapping['multivalue'] && array_key_exists('assoc', $mapping) && null !== $mapping['assoc']) {
                     $transMapping = $this->getTranslatedPropertyNameAssoc($locale, $mapping);
                     $this->dm->getUnitOfWork()->removeAssoc($node, $transMapping);
                 }
@@ -142,10 +133,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata)
+    public function removeAllTranslations(object $document, NodeInterface $node, ClassMetadata $metadata): void
     {
         foreach ($this->getLocalesFor($document, $node, $metadata) as $locale) {
             foreach ($metadata->translatableFields as $field) {
@@ -157,10 +145,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
+    public function getLocalesFor(object $document, NodeInterface $node, ClassMetadata $metadata): array
     {
         $locales = [];
         foreach ($node->getProperties($this->prefix.':*') as $prop) {
@@ -176,27 +161,23 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
     }
 
     /**
-     * {@inheritdoc}
-     *
      * Translated properties are on the same node, but have a different name.
      */
-    public function getTranslatedPropertyPath($alias, $propertyName, $locale)
+    public function getTranslatedPropertyPath(string $alias, string $propertyName, string $locale): array
     {
         return [$alias, $this->getTranslatedPropertyName($locale, $propertyName)];
     }
 
     /**
-     * {@inheritdoc}
-     *
      * Nothing to do, the properties are on the same node.
      */
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,
         SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
-        $alias,
-        $locale
-    ) {
+        string $alias,
+        string $locale
+    ): void {
         // do nothing
     }
 }

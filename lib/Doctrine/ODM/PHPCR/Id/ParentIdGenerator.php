@@ -16,14 +16,14 @@ class ParentIdGenerator extends IdGenerator
      *
      * {@inheritdoc}
      */
-    public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
+    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent = null): string
     {
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
 
         $name = $class->nodename ? $class->getFieldValue($document, $class->nodename) : null;
-        $id = $class->getFieldValue($document, $class->identifier);
+        $id = $class->identifier ? $class->getFieldValue($document, $class->identifier) : null;
 
         if (empty($id)) {
             if (empty($name) && empty($parent)) {
@@ -44,7 +44,7 @@ class ParentIdGenerator extends IdGenerator
             return $id;
         }
 
-        if ($exception = $class->isValidNodename($name)) {
+        if ($class->isValidNodename($name)) {
             throw IdException::illegalName($document, $class->nodename, $name);
         }
 
@@ -52,7 +52,7 @@ class ParentIdGenerator extends IdGenerator
         return $this->buildName($document, $class, $dm, $parent, $name);
     }
 
-    protected function buildName($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent, $name)
+    protected function buildName(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent, string $name): string
     {
         // get the id of the parent document
         $id = $dm->getUnitOfWork()->getDocumentId($parent);

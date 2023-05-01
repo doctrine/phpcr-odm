@@ -1,5 +1,7 @@
 <?php
 
+namespace Doctrine\Tests\ODM\PHPCR\Id;
+
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\AssignedIdGenerator;
 use Doctrine\ODM\PHPCR\Id\IdException;
@@ -17,9 +19,10 @@ class AssignedIdGeneratorTest extends TestCase
 
         $generator = new AssignedIdGenerator();
         $cm = new ClassMetadataProxy($id);
+        $cm->identifier = 'id';
         $dm = $this->createMock(DocumentManager::class);
 
-        $this->assertEquals($id, $generator->generate(null, $cm, $dm));
+        $this->assertEquals($id, $generator->generate($this, $cm, $dm));
     }
 
     /**
@@ -34,7 +37,7 @@ class AssignedIdGeneratorTest extends TestCase
         $dm = $this->createMock(DocumentManager::class);
 
         $this->expectException(IdException::class);
-        $generator->generate(null, $cm, $dm);
+        $generator->generate($this, $cm, $dm);
     }
 }
 
@@ -47,7 +50,7 @@ class ClassMetadataProxy extends ClassMetadata
         $this->_value = $value;
     }
 
-    public function getFieldValue($document, $field)
+    public function getFieldValue(object $document, string $field)
     {
         return $this->_value;
     }

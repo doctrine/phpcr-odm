@@ -3,6 +3,7 @@
 namespace Doctrine\ODM\PHPCR\Translation\TranslationStrategy;
 
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\ODM\PHPCR\Translation\Translation;
 use PHPCR\NodeInterface;
 use PHPCR\Query\QOM\ConstraintInterface;
@@ -24,19 +25,16 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      */
     public const NAME = 'child';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function saveTranslation(array $data, NodeInterface $node, ClassMetadata $metadata, ?string $locale): void
     {
+        if (null === $locale) {
+            throw new PHPCRException('locale may not be null');
+        }
         $translationNode = $this->getTranslationNode($node, $locale);
         parent::saveTranslation($data, $translationNode, $metadata, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function loadTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): bool
     {
         $translationNode = $this->getTranslationNode($node, $locale, false);
         if (!$translationNode) {
@@ -46,19 +44,13 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
         return parent::loadTranslation($document, $translationNode, $metadata, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeTranslation($document, NodeInterface $node, ClassMetadata $metadata, $locale)
+    public function removeTranslation(object $document, NodeInterface $node, ClassMetadata $metadata, string $locale): void
     {
         $translationNode = $this->getTranslationNode($node, $locale);
         $translationNode->remove();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeAllTranslations($document, NodeInterface $node, ClassMetadata $metadata)
+    public function removeAllTranslations(object $document, NodeInterface $node, ClassMetadata $metadata): void
     {
         $locales = $this->getLocalesFor($document, $node, $metadata);
         foreach ($locales as $locale) {
@@ -66,14 +58,11 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocalesFor($document, NodeInterface $node, ClassMetadata $metadata)
+    public function getLocalesFor(object $document, NodeInterface $node, ClassMetadata $metadata): array
     {
         $translations = $node->getNodes(Translation::LOCALE_NAMESPACE.':*');
         $locales = [];
-        foreach ($translations as $name => $node) {
+        foreach ($translations as $name => $translationNode) {
             if ($p = strpos($name, ':')) {
                 $locales[] = substr($name, $p + 1);
             }
@@ -86,14 +75,13 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      * Get the child node with the translation. If create is true, the child
      * node is created if not existing.
      *
-     * @param string $locale
-     * @param bool   $create whether to create the node if it is
-     *                       not yet existing
+     * @param bool $create whether to create the node if it is
+     *                     not yet existing
      *
      * @return bool|NodeInterface the node or false if $create is false and
      *                            the node is not existing
      */
-    protected function getTranslationNode(NodeInterface $parentNode, $locale, $create = true)
+    private function getTranslationNode(NodeInterface $parentNode, string $locale, bool $create = true)
     {
         $name = Translation::LOCALE_NAMESPACE.":$locale";
         if (!$parentNode->hasNode($name)) {
@@ -114,9 +102,9 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      * We namespace the property by putting it in a different node, the name
      * itself does not change.
      */
-    public function getTranslatedPropertyName($locale, $fieldName)
+    public function getTranslatedPropertyName(string $locale, string $propertyName): string
     {
-        return $fieldName;
+        return $propertyName;
     }
 
     /**
@@ -124,7 +112,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
      *
      * We need to select the field on the joined child node.
      */
-    public function getTranslatedPropertyPath($alias, $propertyName, $locale)
+    public function getTranslatedPropertyPath(string $alias, string $propertyName, string $locale): array
     {
         $childAlias = sprintf('_%s_%s', $locale, $alias);
 
@@ -141,9 +129,9 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
         QueryObjectModelFactoryInterface $qomf,
         SourceInterface &$selector,
         ConstraintInterface &$constraint = null,
-        $alias,
-        $locale
-    ) {
+        string $alias,
+        string $locale
+    ): void {
         $childAlias = "_{$locale}_{$alias}";
 
         $selector = $qomf->join(
@@ -169,10 +157,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTranslationsForNodes($nodes, $locales, SessionInterface $session)
+    public function getTranslationsForNodes(iterable $nodes, array $locales, SessionInterface $session)
     {
         $absolutePaths = [];
 

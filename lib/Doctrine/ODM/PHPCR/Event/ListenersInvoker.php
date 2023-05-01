@@ -4,7 +4,6 @@ namespace Doctrine\ODM\PHPCR\Event;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventManager;
-use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
@@ -19,7 +18,7 @@ class ListenersInvoker
 {
     public const INVOKE_NONE = 0;
 
-    // TODO: These constants are not used in phpcr-odm
+    // TODO: implement INVOKE_LISTENERS
 
     public const INVOKE_LISTENERS = 1;
 
@@ -27,25 +26,11 @@ class ListenersInvoker
 
     public const INVOKE_MANAGER = 4;
 
-    /**
-     * The EventManager used for dispatching events.
-     *
-     * @var EventManager
-     */
-    private $eventManager;
+    private EventManager $eventManager;
 
-    /**
-     * @var DocumentManagerInterface
-     */
-    private $dm;
-
-    /**
-     * Initializes a new ListenersInvoker instance.
-     */
-    public function __construct(DocumentManagerInterface $dm)
+    public function __construct(EventManager $eventManager)
     {
-        $this->eventManager = $dm->getEventManager();
-        $this->dm = $dm;
+        $this->eventManager = $eventManager;
     }
 
     /**
@@ -55,18 +40,18 @@ class ListenersInvoker
      *
      * @return int bitmask of subscribed event systems
      */
-    public function getSubscribedSystems(ClassMetadata $metadata, $eventName)
+    public function getSubscribedSystems(ClassMetadata $metadata, string $eventName): int
     {
         $invoke = self::INVOKE_NONE;
 
-        if ($metadata && isset($metadata->lifecycleCallbacks[$eventName])) {
+        if (array_key_exists($eventName, $metadata->lifecycleCallbacks)) {
             $invoke |= self::INVOKE_CALLBACKS;
         }
 
         /*
          * Not implemented for phpcr-odm at the moment.
          *
-        if (isset($metadata->documentListeners[$eventName])) {
+        if (array_key_exists($eventName, $metadata->documentListeners)) {
             $invoke |= self::INVOKE_LISTENERS;
         }
         */
@@ -79,14 +64,11 @@ class ListenersInvoker
     }
 
     /**
-     * Dispatches the lifecycle event of the given entity.
+     * Dispatches the lifecycle event of the given document.
      *
-     * @param ClassMetadata $metadata  the entity metadata
-     * @param string        $eventName the entity lifecycle event
-     * @param object        $document  the Entity on which the event occurred
-     * @param EventArgs     $event     the Event args
+     * @param object $document the document on which the event occurred
      */
-    public function invoke(ClassMetadata $metadata, $eventName, $document, EventArgs $event, $invoke)
+    public function invoke(ClassMetadata $metadata, string $eventName, object $document, EventArgs $event, int $invoke): void
     {
         if ($invoke & self::INVOKE_CALLBACKS) {
             foreach ($metadata->lifecycleCallbacks[$eventName] as $callback) {

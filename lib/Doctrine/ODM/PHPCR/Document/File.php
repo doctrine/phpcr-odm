@@ -15,11 +15,9 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
 class File extends AbstractFile
 {
     /**
-     * @var resource
-     *
      * @PHPCRODM\Child(nodeName="jcr:content", cascade="all")
      */
-    protected $content;
+    protected Resource $content;
 
     /**
      * Set the content for this file from the given filename.
@@ -27,11 +25,9 @@ class File extends AbstractFile
      *
      * @param string $filename name of the file which contents should be used
      *
-     * @return $this
-     *
      * @throws RuntimeException if the filename does not point to a file that can be read
      */
-    public function setFileContentFromFilesystem($filename)
+    public function setFileContentFromFilesystem(string $filename): self
     {
         if (!$filename) {
             throw new RuntimeException('The filename may not be empty');
@@ -45,6 +41,9 @@ class File extends AbstractFile
             throw new RuntimeException(sprintf('Failed to open file "%s"', $filename));
         }
 
+        if (!isset($this->content)) {
+            $this->getContent(); // initialize empty content
+        }
         $this->content->setData($stream);
         $this->content->setLastModified(new \DateTime('@'.filemtime($filename)));
 
@@ -55,12 +54,7 @@ class File extends AbstractFile
         return $this;
     }
 
-    /**
-     * Set the content for this file from the given Resource.
-     *
-     * @return $this
-     */
-    public function setContent(Resource $content)
+    public function setContent(Resource $content): self
     {
         $this->content = $content;
 
@@ -71,12 +65,10 @@ class File extends AbstractFile
      * Get the resource representing the data of this file.
      *
      * Ensures the content object is created
-     *
-     * @return Resource
      */
-    public function getContent()
+    public function getContent(): Resource
     {
-        if (null === $this->content) {
+        if (!isset($this->content)) {
             $this->content = new Resource();
             $this->content->setLastModified(new \DateTime());
         }
@@ -87,11 +79,9 @@ class File extends AbstractFile
     /**
      * Set the content for this file from the given resource or string.
      *
-     * @param resource|string $content the content for the file
-     *
-     * @return $this
+     * @param mixed|string $content the content for the file as string or PHP stream
      */
-    public function setFileContent($content)
+    public function setFileContent($content): self
     {
         $this->getContent();
 
@@ -110,8 +100,6 @@ class File extends AbstractFile
 
     /**
      * Get a stream for the content of this file.
-     *
-     * @return stream the content for the file
      */
     public function getFileContentAsStream()
     {
@@ -120,10 +108,8 @@ class File extends AbstractFile
 
     /**
      * Get the content for this file as string.
-     *
-     * @return string the content for the file in a string
      */
-    public function getFileContent()
+    public function getFileContent(): string
     {
         $content = stream_get_contents($this->getContent()->getData());
 

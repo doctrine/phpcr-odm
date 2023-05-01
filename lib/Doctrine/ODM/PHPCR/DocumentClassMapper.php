@@ -13,28 +13,26 @@ use PHPCR\PropertyType;
  */
 class DocumentClassMapper implements DocumentClassMapperInterface
 {
-    private function expandClassName(DocumentManagerInterface $dm, $className = null)
+    private function expandClassName(DocumentManagerInterface $dm, string $className = null): ?string
     {
         if (null === $className) {
-            return;
+            return null;
         }
 
-        if (false !== strstr($className, ':')) {
+        if (false !== strpos($className, ':')) {
             $className = $dm->getClassMetadata($className)->getName();
         }
 
         return $className;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, $className = null)
+    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, string $className = null): string
     {
         $className = $this->expandClassName($dm, $className);
 
         if ($node->hasProperty('phpcr:class')) {
             $nodeClassName = $node->getProperty('phpcr:class')->getString();
+            \assert(is_string($nodeClassName));
 
             if (!empty($className)
                 && $nodeClassName !== $className
@@ -53,10 +51,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
         return $className;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function writeMetadata(DocumentManagerInterface $dm, NodeInterface $node, $className)
+    public function writeMetadata(DocumentManagerInterface $dm, NodeInterface $node, string $className): void
     {
         $className = $this->expandClassName($dm, $className);
 
@@ -72,10 +67,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function validateClassName(DocumentManagerInterface $dm, $document, $className)
+    public function validateClassName(DocumentManagerInterface $dm, object $document, string $className): void
     {
         $className = $this->expandClassName($dm, $className);
 

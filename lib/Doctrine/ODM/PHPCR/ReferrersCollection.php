@@ -14,15 +14,15 @@ use PHPCR\PropertyInterface;
  */
 class ReferrersCollection extends PersistentCollection
 {
-    private $document;
+    private object $document;
 
-    private $type;
+    private ?string $type;
 
-    private $name;
+    private ?string $name;
 
-    private $refClass;
+    private ?string $refClass;
 
-    private $originalReferrerPaths;
+    private ?array $originalReferrerPaths = null;
 
     /**
      * @param DocumentManagerInterface $dm       the DocumentManager the collection will be associated with
@@ -32,9 +32,9 @@ class ReferrersCollection extends PersistentCollection
      * @param string|null              $locale   the locale to use
      * @param string|null              $refClass class the referrer document must be instanceof
      */
-    public function __construct(DocumentManagerInterface $dm, $document, $type = null, $name = null, $locale = null, $refClass = null)
+    public function __construct(DocumentManagerInterface $dm, object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null)
     {
-        $this->dm = $dm;
+        parent::__construct($dm);
         $this->document = $document;
         $this->type = $type;
         $this->name = $name;
@@ -50,10 +50,8 @@ class ReferrersCollection extends PersistentCollection
      * @param string|null              $name           if set, name of the referencing property
      * @param string|null              $refClass       class the referrer document must be instanceof
      * @param bool                     $forceOverwrite If to force the database to be forced to the state of the collection
-     *
-     * @return ReferrersCollection
      */
-    public static function createFromCollection(DocumentManagerInterface $dm, $document, $collection, $type = null, $name = null, $refClass = null, $forceOverwrite = false)
+    public static function createFromCollection(DocumentManagerInterface $dm, object $document, $collection, ?string $type = null, ?string $name = null, ?string $refClass = null, bool $forceOverwrite = false): self
     {
         $referrerCollection = new self($dm, $document, $type, $name, null, $refClass);
         $referrerCollection->initializeFromCollection($collection, $forceOverwrite);
@@ -64,69 +62,67 @@ class ReferrersCollection extends PersistentCollection
     /**
      * @return PropertyInterface[]
      */
-    private function getReferrerProperties()
+    private function getReferrerProperties(): array
     {
         $uow = $this->dm->getUnitOfWork();
         $node = $this->dm->getPhpcrSession()->getNode($uow->getDocumentId($this->document));
 
         switch ($this->type) {
             case 'weak':
-                $referrerProperties = $node->getWeakReferences($this->name)->getArrayCopy();
-
-                break;
+                return iterator_to_array($node->getWeakReferences($this->name));
             case 'hard':
-                $referrerProperties = $node->getReferences($this->name)->getArrayCopy();
-
-                break;
+                return iterator_to_array($node->getReferences($this->name));
             default:
-                $referrerProperties = $node->getWeakReferences($this->name)->getArrayCopy();
-                $referrerProperties = array_merge($node->getReferences($this->name)->getArrayCopy(), $referrerProperties);
+                return array_merge(
+                    iterator_to_array($node->getReferences($this->name)),
+                    iterator_to_array($node->getWeakReferences($this->name))
+                );
         }
-
-        return $referrerProperties;
     }
 
     /**
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */
-    public function initialize()
+    public function initialize(): void
     {
-        if (!$this->isInitialized()) {
-            $uow = $this->dm->getUnitOfWork();
-
-            $referrerDocuments = [];
-            $referrerProperties = $this->getReferrerProperties();
-            $referringNodes = [];
-            foreach ($referrerProperties as $prop) {
-                $referringNodes[] = $prop->getParent();
-            }
-            $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
-
-            $uow->getPrefetchHelper()->prefetch($this->dm, $referringNodes, $locale);
-
-            $this->originalReferrerPaths = [];
-            foreach ($referrerProperties as $referrerProperty) {
-                $referrerNode = $referrerProperty->getParent();
-                $document = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
-                if (!$this->refClass || $document instanceof $this->refClass) {
-                    $referrerDocuments[] = $document;
-                    $this->originalReferrerPaths[] = $referrerNode->getPath();
-                }
-            }
-
-            $this->collection = new ArrayCollection($referrerDocuments);
-            $this->initialized = self::INITIALIZED_FROM_PHPCR;
+        if ($this->isInitialized()) {
+            return;
         }
+
+        $uow = $this->dm->getUnitOfWork();
+
+        $referrerDocuments = [];
+        $referrerProperties = $this->getReferrerProperties();
+        $referringNodes = [];
+        foreach ($referrerProperties as $prop) {
+            $referringNodes[] = $prop->getParent();
+        }
+        $locale = $this->locale ?: $uow->getCurrentLocale($this->document);
+
+        $uow->getPrefetchHelper()->prefetch($this->dm, $referringNodes, $locale);
+
+        $this->originalReferrerPaths = [];
+        foreach ($referrerProperties as $referrerProperty) {
+            $referrerNode = $referrerProperty->getParent();
+            $document = $uow->getOrCreateProxyFromNode($referrerNode, $locale);
+            if (!$this->refClass || $document instanceof $this->refClass) {
+                $referrerDocuments[] = $document;
+                $this->originalReferrerPaths[] = $referrerNode->getPath();
+            }
+        }
+
+        $this->collection = new ArrayCollection($referrerDocuments);
+        $this->initialized = self::INITIALIZED_FROM_PHPCR;
     }
 
     /**
      * Return the ordered list of referrer properties that existed when the
      * collection was initialized.
      *
-     * @return array absolute paths to the properties of this collection
+     * @return string[] absolute paths to the properties of this collection
      */
-    public function getOriginalPaths()
+    public function getOriginalPaths(): array
     {
         if (null === $this->originalReferrerPaths) {
             $this->originalReferrerPaths = [];
@@ -149,7 +145,7 @@ class ReferrersCollection extends PersistentCollection
     /**
      * Reset original referrer paths and mark the collection as non dirty.
      */
-    public function takeSnapshot()
+    public function takeSnapshot(): void
     {
         if (is_array($this->originalReferrerPaths)) {
             if ($this->isInitialized()) {

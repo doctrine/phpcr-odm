@@ -2,6 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
@@ -24,33 +26,12 @@ class DocumentRepository implements ObjectRepository
 {
     public const QUERY_REPLACE_WITH_FIELDNAMES = 1;
 
-    /**
-     * @var DocumentManagerInterface
-     */
-    protected $dm;
+    protected DocumentManagerInterface $dm;
+    protected ClassMetadata $class;
+    protected UnitOfWork $uow;
+    protected string $className;
 
-    /**
-     * @var ClassMetadata
-     */
-    protected $class;
-
-    /**
-     * @var UnitOfWork
-     */
-    protected $uow;
-
-    /**
-     * @var string
-     */
-    protected $className;
-
-    /**
-     * Initializes a new <tt>DocumentRepository</tt>.
-     *
-     * @param DocumentManagerInterface $dm            the DocumentManager to use
-     * @param ClassMetadata            $classMetadata the class descriptor
-     */
-    public function __construct($dm, ClassMetadata $class)
+    public function __construct(DocumentManagerInterface $dm, ClassMetadata $class)
     {
         $this->dm = $dm;
         $this->class = $class;
@@ -65,10 +46,8 @@ class DocumentRepository implements ObjectRepository
      * The id may either be a PHPCR path or UUID
      *
      * @param string $id document id
-     *
-     * @return object document or null
      */
-    public function find($id)
+    public function find($id): ?object
     {
         return $this->dm->find($this->className, $id);
     }
@@ -78,11 +57,11 @@ class DocumentRepository implements ObjectRepository
      *
      * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
-     * @param array $ids document ids
+     * @param string[] $ids document ids
      *
-     * @return array of document objects
+     * @return array|Collection of document objects
      */
-    public function findMany(array $ids)
+    public function findMany(array $ids): iterable
     {
         return $this->dm->findMany($this->className, $ids);
     }
@@ -90,9 +69,9 @@ class DocumentRepository implements ObjectRepository
     /**
      * Finds all documents in the repository.
      *
-     * @return array the entities
+     * @return array|Collection the entities
      */
-    public function findAll()
+    public function findAll(): iterable
     {
         return $this->findBy([]);
     }
@@ -107,9 +86,9 @@ class DocumentRepository implements ObjectRepository
      * @param int|null $limit
      * @param int|null $offset
      *
-     * @return array the objects matching the criteria
+     * @return array|Collection the objects matching the criteria
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): iterable
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -132,7 +111,7 @@ class DocumentRepository implements ObjectRepository
                     ));
                 }
 
-                $method = 'asc' == $order ? 'asc' : 'desc';
+                $method = 'asc' === $order ? 'asc' : 'desc';
 
                 $orderByNode->$method()->field('a.'.$field);
             }
@@ -167,7 +146,7 @@ class DocumentRepository implements ObjectRepository
      * @param mixed  $value The value to search for
      * @param string $alias The alias used
      */
-    protected function constraintField(ConstraintFactory $where, $field, $value, $alias)
+    protected function constraintField(ConstraintFactory $where, string $field, $value, string $alias): void
     {
         if ($field === $this->class->nodename) {
             $where->eq()->name($alias)->literal($value);
@@ -182,7 +161,7 @@ class DocumentRepository implements ObjectRepository
      * @return object|null The first document matching the criteria or null if
      *                     none found
      */
-    public function findOneBy(array $criteria)
+    public function findOneBy(array $criteria): ?object
     {
         $documents = $this->findBy($criteria, null, 1);
 
@@ -191,44 +170,31 @@ class DocumentRepository implements ObjectRepository
 
     /**
      * Refresh a document with the data from PHPCR.
-     *
-     * @param object $document
      */
-    public function refresh($document)
+    public function refresh(object $document): void
     {
         $this->dm->refresh($document);
     }
 
-    /**
-     * @param object $document
-     */
-    public function refreshDocumentForProxy($document)
+    public function refreshDocumentForProxy(Proxy $document): void
     {
         $this->uow->refreshDocumentForProxy($this->className, $document);
     }
 
     /**
      * Get the document class name this repository is for.
-     *
-     * @return string
      */
-    public function getClassName()
+    public function getClassName(): string
     {
         return $this->className;
     }
 
-    /**
-     * @return DocumentManagerInterface
-     */
-    public function getDocumentManager()
+    public function getDocumentManager(): DocumentManagerInterface
     {
         return $this->dm;
     }
 
-    /**
-     * @return ClassMetadata
-     */
-    public function getClassMetadata()
+    public function getClassMetadata(): ClassMetadata
     {
         return $this->class;
     }
@@ -236,14 +202,11 @@ class DocumentRepository implements ObjectRepository
     /**
      * Quote a string for inclusion in an SQL2 query.
      *
-     * @param string $val
-     * @param int    $type
-     *
      * @return string the quoted value
      *
      * @see \PHPCR\PropertyType
      */
-    public function quote($val, $type = null)
+    public function quote(string $val, int $type = null): string
     {
         return $this->dm->quote($val, $type);
     }
@@ -251,13 +214,11 @@ class DocumentRepository implements ObjectRepository
     /**
      * Escape the illegal characters for inclusion in an SQL2 query. Escape Character is \\.
      *
-     * @param string $string
-     *
      * @return string Escaped String
      *
      * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
      */
-    public function escapeFullText($string)
+    public function escapeFullText(string $string): string
     {
         return $this->dm->escapeFullText($string);
     }
@@ -265,13 +226,10 @@ class DocumentRepository implements ObjectRepository
     /**
      * Create a Query.
      *
-     * @param string $statement             the SQL2 statement
-     * @param string $language              (see QueryInterface for list of supported types)
-     * @param bool   $replaceWithFieldnames if * should be replaced with field names automatically
-     *
-     * @return Query
+     * @param string $statement the SQL2 statement
+     * @param string $language  (see QueryInterface for list of supported types)
      */
-    public function createQuery($statement, $language, $options = 0)
+    public function createQuery(string $statement, string $language, $options = 0): Query
     {
         // TODO: refactor this to use the odm query builder
         $qb = $this->dm->createPhpcrQueryBuilder()->setFromQuery($statement, $language);
@@ -279,7 +237,7 @@ class DocumentRepository implements ObjectRepository
             $columns = $qb->getColumns();
             if (1 === count($columns)) {
                 $column = reset($columns);
-                if ('*' === $column->getColumnName() && null == $column->getPropertyName()) {
+                if ('*' === $column->getColumnName() && null === $column->getPropertyName()) {
                     $qb->setColumns([]);
                     foreach ($this->class->getFieldNames() as $name) {
                         $qb->addSelect('a', $name);
@@ -312,10 +270,8 @@ class DocumentRepository implements ObjectRepository
      *       the class criteria.
      *
      * @param string $alias name of the alias to use, defaults to 'a'
-     *
-     * @return QueryBuilder
      */
-    public function createQueryBuilder($alias)
+    public function createQueryBuilder(string $alias): QueryBuilder
     {
         $qb = $this->dm->createQueryBuilder();
         $qb->from($alias)->document($this->className, $alias);

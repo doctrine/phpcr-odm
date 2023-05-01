@@ -98,14 +98,7 @@ class CmsUserTranslatable
 
 class CmsUserTranslatableRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    /**
-     * Generate a document id.
-     *
-     * @param object $document
-     *
-     * @return string
-     */
-    public function generateId($document, $parent = null)
+    public function generateId(object $document, ?object $parent = null): string
     {
         return '/functional/'.$document->username;
     }

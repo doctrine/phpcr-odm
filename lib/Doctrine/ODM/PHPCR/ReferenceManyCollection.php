@@ -15,35 +15,27 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 class ReferenceManyCollection extends PersistentCollection
 {
     public const REFERENCE_TYPE_PATH = 'path';
-
     public const REFERENCE_TYPE_UUID = 'uuid';
 
-    private $document;
-
-    private $property;
-
-    private $referencedNodes;
-
-    private $targetDocument;
-
-    private $originalReferencePaths;
-
-    private $referenceType;
+    private object $document;
+    private string $property;
+    private array $referencedNodes;
+    private ?string $targetDocument;
+    private ?array $originalReferencePaths = null;
+    private string $referenceType;
 
     /**
-     * Creates a new persistent collection.
-     *
      * @param DocumentManagerInterface $dm              the DocumentManager the collection will be associated with
      * @param object                   $document        The document with the references property
      * @param string                   $property        The node property name with the multivalued references
      * @param array                    $referencedNodes An array of referenced nodes (UUID or path)
-     * @param string                   $targetDocument  The class name of the target documents
-     * @param string                   $locale          The locale to use during the loading of this collection
+     * @param string|null              $targetDocument  The class name of the target documents
+     * @param string|null              $locale          The locale to use during the loading of this collection
      * @param string                   $referenceType   Identifiers used for reference nodes in this collection, either path or default uuid
      */
-    public function __construct(DocumentManagerInterface $dm, $document, $property, array $referencedNodes, $targetDocument, $locale = null, $referenceType = self::REFERENCE_TYPE_UUID)
+    public function __construct(DocumentManagerInterface $dm, object $document, string $property, array $referencedNodes, ?string $targetDocument, ?string $locale = null, string $referenceType = self::REFERENCE_TYPE_UUID)
     {
-        $this->dm = $dm;
+        parent::__construct($dm);
         $this->document = $document;
         $this->property = $property;
         $this->referencedNodes = $referencedNodes;
@@ -57,12 +49,10 @@ class ReferenceManyCollection extends PersistentCollection
      * @param object                   $document       The document with the references property
      * @param string                   $property       The node property name with the multivalued references
      * @param array|Collection         $collection     The collection to initialize with
-     * @param string                   $targetDocument The class name of the target documents
+     * @param string|null              $targetDocument The class name of the target documents
      * @param bool                     $forceOverwrite If to force the database to be forced to the state of the collection
-     *
-     * @return ReferenceManyCollection
      */
-    public static function createFromCollection(DocumentManagerInterface $dm, $document, $property, $collection, $targetDocument, $forceOverwrite = false)
+    public static function createFromCollection(DocumentManagerInterface $dm, object $document, string $property, $collection, ?string $targetDocument, bool $forceOverwrite = false): self
     {
         $referenceCollection = new self($dm, $document, $property, [], $targetDocument);
         $referenceCollection->initializeFromCollection($collection, $forceOverwrite);
@@ -70,8 +60,7 @@ class ReferenceManyCollection extends PersistentCollection
         return $referenceCollection;
     }
 
-    /** {@inheritdoc} */
-    public function refresh()
+    public function refresh(): void
     {
         try {
             $property = $this->dm->getNodeForDocument($this->document)->getProperty($this->property);
@@ -87,32 +76,34 @@ class ReferenceManyCollection extends PersistentCollection
      * Initializes the collection by loading its contents from the database
      * if the collection is not yet initialized.
      */
-    public function initialize()
+    public function initialize(): void
     {
-        if (!$this->isInitialized()) {
-            $referencedDocs = [];
-            if (self::REFERENCE_TYPE_UUID === $this->referenceType) {
-                $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
-            } else {
-                $referencedNodes = $this->dm->getPhpcrSession()->getNodes($this->referencedNodes);
-            }
-
-            $uow = $this->dm->getUnitOfWork();
-            $uow->getPrefetchHelper()->prefetch($this->dm, $referencedNodes, $this->locale);
-
-            $this->originalReferencePaths = [];
-            foreach ($referencedNodes as $referencedNode) {
-                $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
-                if ($this->targetDocument && !is_a($proxy, $this->targetDocument)) {
-                    throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$this->targetDocument}' but got '".ClassUtils::getClass($proxy)."'.");
-                }
-                $referencedDocs[] = $proxy;
-                $this->originalReferencePaths[] = $referencedNode->getPath();
-            }
-
-            $this->collection = new ArrayCollection($referencedDocs);
-            $this->initialized = self::INITIALIZED_FROM_PHPCR;
+        if ($this->isInitialized()) {
+            return;
         }
+
+        $referencedDocs = [];
+        if (self::REFERENCE_TYPE_UUID === $this->referenceType) {
+            $referencedNodes = $this->dm->getPhpcrSession()->getNodesByIdentifier($this->referencedNodes);
+        } else {
+            $referencedNodes = $this->dm->getPhpcrSession()->getNodes($this->referencedNodes);
+        }
+
+        $uow = $this->dm->getUnitOfWork();
+        $uow->getPrefetchHelper()->prefetch($this->dm, $referencedNodes, $this->locale);
+
+        $this->originalReferencePaths = [];
+        foreach ($referencedNodes as $referencedNode) {
+            $proxy = $uow->getOrCreateProxyFromNode($referencedNode, $this->locale);
+            if ($this->targetDocument && !is_a($proxy, $this->targetDocument)) {
+                throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$this->targetDocument}' but got '".ClassUtils::getClass($proxy)."'.");
+            }
+            $referencedDocs[] = $proxy;
+            $this->originalReferencePaths[] = $referencedNode->getPath();
+        }
+
+        $this->collection = new ArrayCollection($referencedDocs);
+        $this->initialized = self::INITIALIZED_FROM_PHPCR;
     }
 
     public function count(): int
@@ -136,9 +127,9 @@ class ReferenceManyCollection extends PersistentCollection
     /**
      * Return the ordered list of references that existed when the collection was initialized.
      *
-     * @return array
+     * @return string[]
      */
-    public function getOriginalPaths()
+    public function getOriginalPaths(): array
     {
         if (null === $this->originalReferencePaths) {
             $this->originalReferencePaths = [];
@@ -165,7 +156,7 @@ class ReferenceManyCollection extends PersistentCollection
     /**
      * Reset original reference paths and mark the collection as non dirty.
      */
-    public function takeSnapshot()
+    public function takeSnapshot(): void
     {
         if (is_array($this->originalReferencePaths)) {
             if ($this->isInitialized()) {

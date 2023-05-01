@@ -17,13 +17,13 @@ class AutoIdGenerator extends ParentIdGenerator
      *
      * {@inheritdoc}
      */
-    public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null)
+    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent = null): string
     {
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
         }
 
-        $id = $class->getFieldValue($document, $class->identifier);
+        $id = $class->identifier ? $class->getFieldValue($document, $class->identifier) : null;
         if (empty($id) && null === $parent) {
             throw IdException::noIdNoParent($document, $class->parentMapping);
         }

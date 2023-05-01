@@ -20,9 +20,9 @@ interface TranslationNodesWarmer
      * nodes in one request to PHPCR.
      *
      * @param NodeInterface[] $nodes
-     * @param array           $locales
+     * @param string[]        $locales
      *
      * @return mixed
      */
-    public function getTranslationsForNodes($nodes, $locales, SessionInterface $session);
+    public function getTranslationsForNodes(iterable $nodes, array $locales, SessionInterface $session);
 }

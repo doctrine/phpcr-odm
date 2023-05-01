@@ -7,8 +7,6 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 
 /**
- * Used to abstract ID generation.
- *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @author Lukas Kahwe Smith <smith@pooteeweet.org>
  */
@@ -16,12 +14,8 @@ abstract class IdGenerator
 {
     /**
      * Factory method for the predefined strategies.
-     *
-     * @param int $generatorType
-     *
-     * @return IdGenerator
      */
-    public static function create($generatorType)
+    public static function create(int $generatorType): IdGenerator
     {
         switch ($generatorType) {
             case ClassMetadata::GENERATOR_TYPE_ASSIGNED:
@@ -40,7 +34,6 @@ abstract class IdGenerator
                 $instance = new AutoIdGenerator();
 
                 break;
-
             default:
                 throw new InvalidArgumentException("ID Generator does not exist: $generatorType");
         }
@@ -50,12 +43,6 @@ abstract class IdGenerator
 
     /**
      * Generate the actual id, to be overwritten by extending classes.
-     *
-     * @param object        $document the object to create the id for
-     * @param ClassMetadata $class    class metadata of this object
-     * @param object        $parent
-     *
-     * @return string the id for this document
      */
-    abstract public function generate($document, ClassMetadata $class, DocumentManagerInterface $dm, $parent = null);
+    abstract public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, ?object $parent = null): string;
 }

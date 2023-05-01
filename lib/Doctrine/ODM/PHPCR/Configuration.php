@@ -18,15 +18,14 @@ class Configuration
 {
     /**
      * Array of attributes for this configuration instance.
-     *
-     * @var array
      */
-    private $attributes = [
+    private array $attributes = [
         'writeDoctrineMetadata' => true,
         'validateDoctrineMetadata' => true,
         'metadataDriverImpl' => null,
         'metadataCacheImpl' => null,
         'documentClassMapper' => null,
+        'documentNamespaces' => [],
         'proxyNamespace' => 'MyPHPCRProxyNS',
         'autoGenerateProxyClasses' => true,
     ];
@@ -78,7 +77,7 @@ class Configuration
      */
     public function getDocumentNamespace(string $documentNamespaceAlias): string
     {
-        if (!isset($this->attributes['documentNamespaces'][$documentNamespaceAlias])) {
+        if (!array_key_exists($documentNamespaceAlias, $this->attributes['documentNamespaces'])) {
             throw PHPCRException::unknownDocumentNamespace($documentNamespaceAlias);
         }
 
@@ -97,9 +96,6 @@ class Configuration
 
     /**
      * Sets the driver implementation that is used to retrieve mapping metadata.
-     *
-     * @todo Force parameter to be a Closure to ensure lazy evaluation
-     *       (as soon as a metadata cache is in effect, the driver never needs to initialize).
      */
     public function setMetadataDriverImpl(MappingDriver $driverImpl, bool $useBuiltInDocumentsDriver = true): void
     {
@@ -163,7 +159,7 @@ class Configuration
      */
     public function getProxyDir(): string
     {
-        if (!isset($this->attributes['proxyDir'])) {
+        if (!array_key_exists('proxyDir', $this->attributes)) {
             $this->attributes['proxyDir'] = sys_get_temp_dir();
         }
 
@@ -219,7 +215,7 @@ class Configuration
      */
     public function getClassMetadataFactoryName(): string
     {
-        if (!isset($this->attributes['classMetadataFactoryName'])) {
+        if (!array_key_exists('classMetadataFactoryName', $this->attributes)) {
             $this->attributes['classMetadataFactoryName'] = Mapping\ClassMetadataFactory::class;
         }
 

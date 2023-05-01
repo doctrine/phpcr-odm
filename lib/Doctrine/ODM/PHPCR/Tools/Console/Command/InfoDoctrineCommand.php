@@ -2,8 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
+use Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class InfoDoctrineCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('doctrine:phpcr:mapping:info')
@@ -31,10 +31,12 @@ EOT
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var $documentManager DocumentManager */
-        $documentManager = $this->getHelper('phpcr')->getDocumentManager();
+        $phpcrHelper = $this->getHelper('phpcr');
+        \assert($phpcrHelper instanceof DocumentManagerHelper);
+        $documentManager = $phpcrHelper->getDocumentManager();
+        \assert(null !== $documentManager);
 
         $documentClassNames = $documentManager->getConfiguration()
             ->getMetadataDriverImpl()
@@ -60,7 +62,13 @@ EOT
                 $output->writeln(sprintf('<comment>%s</comment>', $e->getMessage()));
 
                 if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
-                    $this->getApplication()->renderException($e, $output);
+                    $application = $this->getApplication();
+                    if (method_exists($application, 'renderThrowable')) {
+                        $application->renderThrowable($e, $output);
+                    } else {
+                        // support legacy symfony console
+                        $application->renderException($e, $output); /* @phpstan-ignore-line */
+                    }
                 }
 
                 $output->writeln('');

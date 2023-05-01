@@ -14,7 +14,9 @@ use Jackalope\ObjectManager;
 use Jackalope\Repository;
 use Jackalope\Session;
 use Jackalope\Workspace;
+use PHPCR\RepositoryInterface;
 use PHPCR\SessionInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * TODO: remove Jackalope dependency.
@@ -23,30 +25,21 @@ use PHPCR\SessionInterface;
  */
 class UnitOfWorkTest extends PHPCRTestCase
 {
-    /**
-     * @var UnitOfWork
-     */
-    private $uow;
+    private UnitOfWork $uow;
+
+    private Factory $factory;
 
     /**
-     * @var Factory
+     * @var SessionInterface&MockObject
      */
-    private $factory;
+    private SessionInterface $session;
 
     /**
-     * @var SessionInterface
+     * @var ObjectManager&MockObject
      */
-    private $session;
+    private ObjectManager $objectManager;
 
-    /**
-     * @var ObjectManager
-     */
-    private $objectManager;
-
-    /**
-     * @var string
-     */
-    private $type;
+    private string $type;
 
     public function setUp(): void
     {
@@ -74,7 +67,18 @@ class UnitOfWorkTest extends PHPCRTestCase
 
     protected function createNode($id, $username, $primaryType = 'rep:root'): Node
     {
-        $repository = $this->createMock(Repository::class);
+        $repository = $this->createMock(RepositoryInterface::class);
+        $repository
+            ->method('getDescriptor')
+            ->willReturnCallback(function (string $key) {
+                switch ($key) {
+                    case Repository::JACKALOPE_OPTION_STREAM_WRAPPER:
+                    case RepositoryInterface::OPTION_TRANSACTIONS_SUPPORTED:
+                        return false;
+                    default:
+                        throw new \RuntimeException('Implement RepositoryInterface::getDescriptor mock for key '.$key);
+                }
+            });
         $this->session
             ->method('getRepository')
             ->with()
@@ -150,7 +154,7 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $user1 = $this->uow->getOrCreateDocument($this->type, $this->createNode('/somepath', 'foo'));
 
-        $user2 = $this->uow->getDocumentById('/somepath', $this->type);
+        $user2 = $this->uow->getDocumentById('/somepath');
 
         $this->assertSame($user1, $user2);
     }

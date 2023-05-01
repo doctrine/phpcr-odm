@@ -21,33 +21,12 @@ use Doctrine\Persistence\Mapping\ReflectionService;
  */
 class ClassMetadataFactory extends AbstractClassMetadataFactory
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $cacheSalt = '__PHPCRODMCLASSMETADATA';
 
-    /**
-     * @var DocumentManagerInterface
-     */
-    private $dm;
+    private DocumentManagerInterface $dm;
+    private ?MappingDriver $driver;
+    private EventManager $evm;
 
-    /**
-     *  The used metadata driver.
-     *
-     * @var MappingDriver
-     */
-    private $driver;
-
-    /**
-     * @var EventManager
-     */
-    private $evm;
-
-    /**
-     * Creates a new factory instance that uses the given DocumentManager instance.
-     *
-     * @param DocumentManagerInterface $dm The DocumentManager instance
-     */
     public function __construct(DocumentManagerInterface $dm)
     {
         $this->dm = $dm;
@@ -61,14 +40,12 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws MappingException
      */
-    public function getMetadataFor($className)
+    public function getMetadataFor($className): ClassMetadata
     {
         $metadata = parent::getMetadataFor($className);
-        if ($metadata) {
+        if ($metadata instanceof ClassMetadata) {
             return $metadata;
         }
 
@@ -76,11 +53,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws MappingException
      */
-    public function loadMetadata($className)
+    public function loadMetadata($className): array
     {
         if (class_exists($className)) {
             return parent::loadMetadata($className);
@@ -89,18 +64,12 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         throw MappingException::classNotFound($className);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function newClassMetadataInstance($className)
+    protected function newClassMetadataInstance($className): ClassMetadata
     {
         return new ClassMetadata($className);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getFqcnFromAlias($namespaceAlias, $simpleClassName)
+    protected function getFqcnFromAlias($namespaceAlias, $simpleClassName): string
     {
         return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias).'\\'.$simpleClassName;
     }
@@ -114,7 +83,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      * @param array              $nonSuperclassParents all parent class names
      *                                                 that are not marked as mapped superclasses
      */
-    protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents)
+    protected function doLoadMetadata($class, $parent, $rootEntityFound, array $nonSuperclassParents): void
     {
         if ($parent) {
             $this->addInheritedDocumentOptions($class, $parent);
@@ -144,7 +113,7 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      *
      * This has to be done before loading the data of the subclass.
      */
-    private function addInheritedDocumentOptions(ClassMetadata $subClass, ClassMetadata $parentClass)
+    private function addInheritedDocumentOptions(ClassMetadata $subClass, ClassMetadata $parentClass): void
     {
         $subClass->setCustomRepositoryClassName($parentClass->customRepositoryClassName);
         $subClass->setTranslator($parentClass->translator);
@@ -156,14 +125,14 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      * Adds inherited fields to the subclass mapping.
      */
-    private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass)
+    private function addInheritedFields(ClassMetadata $subClass, ClassMetadata $parentClass): void
     {
         foreach ($parentClass->fieldMappings as $fieldName) {
             $subClass->mapField($parentClass->mappings[$fieldName], $parentClass);
         }
         foreach ($parentClass->referenceMappings as $fieldName) {
             $mapping = $parentClass->mappings[$fieldName];
-            if (ClassMetadata::MANY_TO_ONE == $mapping['type']) {
+            if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                 $subClass->mapManyToOne($mapping, $parentClass);
             } else {
                 $subClass->mapManyToMany($mapping, $parentClass);
@@ -222,11 +191,9 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
     /**
      * Validate runtime metadata is correctly defined.
      *
-     * @param ClassMetadata $class
-     *
      * @throws MappingException
      */
-    protected function validateRuntimeMetadata($class, $parent)
+    protected function validateRuntimeMetadata(ClassMetadata $class, $parent): void
     {
         if (!$class->reflClass) {
             // only validate if there is a reflection class instance
@@ -240,50 +207,36 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         $class->validateLifecycleCallbacks($this->getReflectionService());
         $class->validateTranslatables();
 
-        // verify inheritance
-        // TODO
+        // TODO: verify inheritance
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDriver()
+    protected function getDriver(): MappingDriver
     {
         return $this->driver;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function initialize()
+    protected function initialize(): void
     {
         $this->initialized = true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function initializeReflection(ClassMetadataInterface $class, ReflectionService $reflService)
+    protected function initializeReflection(ClassMetadataInterface $class, ReflectionService $reflService): void
     {
-        /* @var $class ClassMetadata */
+        \assert($class instanceof ClassMetadata);
         $class->initializeReflection($reflService);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function wakeupReflection(ClassMetadataInterface $class, ReflectionService $reflService)
+    protected function wakeupReflection(ClassMetadataInterface $class, ReflectionService $reflService): void
     {
-        /* @var $class ClassMetadata */
+        \assert($class instanceof ClassMetadata);
         $class->wakeupReflection($reflService);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function isEntity(ClassMetadataInterface $class)
+    protected function isEntity(ClassMetadataInterface $class): bool
     {
-        return isset($class->isMappedSuperclass) && false === $class->isMappedSuperclass;
+        \assert($class instanceof ClassMetadata);
+
+        return false === $class->isMappedSuperclass;
     }
 }
 

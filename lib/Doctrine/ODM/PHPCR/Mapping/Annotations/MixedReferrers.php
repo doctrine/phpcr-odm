@@ -11,8 +11,5 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class MixedReferrers
 {
-    /**
-     * @var string
-     */
-    public $referenceType;
+    public ?string $referenceType = null;
 }

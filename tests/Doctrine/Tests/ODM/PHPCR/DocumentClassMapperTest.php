@@ -4,12 +4,10 @@ namespace Doctrine\Tests\ODM\PHPCR;
 
 use Doctrine\ODM\PHPCR\Document\Generic;
 use Doctrine\ODM\PHPCR\DocumentClassMapper;
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\UnitOfWork;
-use Jackalope\Node;
-use Jackalope\Property;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyInterface;
 use PHPCR\PropertyType;
@@ -18,40 +16,32 @@ use PHPUnit\Framework\TestCase;
 
 class DocumentClassMapperTest extends Testcase
 {
-    public const CLASS_GENERIC = Generic::class;
-
-    public const CLASS_TEST_1 = 'Test\Class1';
-
-    public const CLASS_TEST_2 = 'Test\Class2';
-
-    public const CLASS_TEST_3 = 'Test\Class3';
+    private const CLASS_GENERIC = Generic::class;
+    private const CLASS_TEST_1 = 'Test\Class1';
+    private const CLASS_TEST_2 = 'Test\Class2';
+    private const CLASS_TEST_3 = 'Test\Class3';
 
     /**
-     * @var DocumentManager&MockObject
+     * @var DocumentManagerInterface&MockObject
      */
-    private $dm;
+    private DocumentManagerInterface $dm;
 
     /**
      * @var NodeInterface&MockObject
      */
-    private $node;
+    private NodeInterface $node;
 
     /**
      * @var ClassMetadata&MockObject
      */
-    private $metadata;
+    private ClassMetadata $metadata;
 
-    /**
-     * @var DocumentClassMapper
-     */
-    private $mapper;
+    private DocumentClassMapper $mapper;
 
     public function setUp(): void
     {
-        $this->dm = $this->createMock(DocumentManager::class);
-
+        $this->dm = $this->createMock(DocumentManagerInterface::class);
         $this->node = $this->createMock(NodeInterface::class);
-
         $this->metadata = $this->createMock(ClassMetadata::class);
 
         $this->mapper = new DocumentClassMapper();
@@ -85,7 +75,7 @@ class DocumentClassMapperTest extends Testcase
      *
      * @param string $class The phpcr:class value to use
      */
-    private function mockNodeHasClass($class): void
+    private function mockNodeHasClass(string $class): void
     {
         $property = $this->createMock(PropertyInterface::class);
         $property->expects($this->once())
@@ -99,6 +89,9 @@ class DocumentClassMapperTest extends Testcase
             ->method('getProperty')
             ->with('phpcr:class')
             ->willReturn($property);
+        $this->node
+            ->method('getPath')
+            ->willReturn('/path/to/node');
     }
 
     public function testGetClassNameNull(): void
@@ -207,7 +200,7 @@ class DocumentClassMapperTest extends Testcase
     /**
      * @dataProvider provideExpandClassName
      */
-    public function testExpandClassName($className, $fqClassName, $isAlias): void
+    public function testExpandClassName(string $className, string $fqClassName, bool $isAlias): void
     {
         if ($isAlias) {
             $this->dm->expects($this->once())

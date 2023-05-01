@@ -20,22 +20,14 @@ use PHPCR\Util\UUIDHelper;
  */
 class BasicCrudTest extends PHPCRFunctionalTestCase
 {
-    /**
-     * @var DocumentManager
-     */
-    private $dm;
+    private DocumentManager $dm;
 
     /**
      * Class name of the document class.
-     *
-     * @var string
      */
-    private $type = User::class;
+    private string $type = User::class;
 
-    /**
-     * @var NodeInterface
-     */
-    private $node;
+    private NodeInterface $node;
 
     public function setUp(): void
     {
@@ -740,14 +732,7 @@ class User6 extends User5
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
 {
-    /**
-     * Generate a document id.
-     *
-     * @param object $document
-     *
-     * @return string
-     */
-    public function generateId($document, $parent = null)
+    public function generateId(object $document, ?object $parent = null): string
     {
         return '/functional/'.$document->username;
     }

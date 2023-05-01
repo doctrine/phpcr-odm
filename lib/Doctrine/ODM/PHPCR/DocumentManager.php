@@ -3,9 +3,11 @@
 namespace Doctrine\ODM\PHPCR;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\ConverterPhpcr;
@@ -16,6 +18,7 @@ use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\Persistence\ObjectRepository;
 use PHPCR\ItemNotFoundException;
 use PHPCR\NodeInterface;
 use PHPCR\PathNotFoundException;
@@ -37,64 +40,26 @@ use PHPCR\Util\ValueConverter;
  */
 class DocumentManager implements DocumentManagerInterface
 {
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
-     * @var Configuration
-     */
-    private $config;
-
-    /**
-     * @var ClassMetadataFactory
-     */
-    private $metadataFactory;
-
-    /**
-     * @var UnitOfWork
-     */
-    private $unitOfWork = null;
-
-    /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory = null;
-
-    /**
-     * The repository factory used to create dynamic repositories.
-     *
-     * @var RepositoryFactory
-     */
-    private $repositoryFactory;
-
-    /**
-     * @var EventManager
-     */
-    private $evm;
+    private SessionInterface $session;
+    private Configuration $config;
+    private ClassMetadataFactory $metadataFactory;
+    private ?UnitOfWork $unitOfWork = null;
+    private ?ProxyFactory $proxyFactory = null;
+    private RepositoryFactory $repositoryFactory;
+    private EventManager $evm;
 
     /**
      * Whether the DocumentManager is closed or not.
-     *
-     * @var bool
      */
-    private $closed = false;
+    private bool $closed = false;
 
     /**
      * @var TranslationStrategyInterface[]
      */
-    protected $translationStrategy;
+    protected array $translationStrategy;
 
-    /**
-     * @var LocaleChooserInterface
-     */
-    protected $localeChooserStrategy;
-
-    /**
-     * @var ValueConverter
-     */
-    private $valueConverter;
+    protected LocaleChooserInterface $localeChooserStrategy;
+    private ValueConverter $valueConverter;
 
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
     {
@@ -120,38 +85,26 @@ class DocumentManager implements DocumentManagerInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
+    public function setTranslationStrategy(string $key, TranslationStrategyInterface $strategy): void
     {
         $this->translationStrategy[$key] = $strategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTranslationStrategy($key)
+    public function getTranslationStrategy(string $key): TranslationStrategyInterface
     {
-        if (!isset($this->translationStrategy[$key])) {
+        if (!array_key_exists($key, $this->translationStrategy)) {
             throw new InvalidArgumentException("You must set a valid translator strategy for a document that contains translatable fields ($key is not a valid strategy or was not previously registered)");
         }
 
         return $this->translationStrategy[$key];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasLocaleChooserStrategy()
+    public function hasLocaleChooserStrategy(): bool
     {
         return isset($this->localeChooserStrategy);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocaleChooserStrategy()
+    public function getLocaleChooserStrategy(): LocaleChooserInterface
     {
         if (!isset($this->localeChooserStrategy)) {
             throw new InvalidArgumentException('You must configure a language chooser strategy when having documents with the translatable annotation');
@@ -160,63 +113,40 @@ class DocumentManager implements DocumentManagerInterface
         return $this->localeChooserStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
+    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy): void
     {
         $this->localeChooserStrategy = $strategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getProxyFactory()
+    public function getProxyFactory(): ProxyFactory
     {
         return $this->proxyFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEventManager()
+    public function getEventManager(): EventManager
     {
         return $this->evm;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPhpcrSession()
+    public function getPhpcrSession(): SessionInterface
     {
         return $this->session;
     }
 
     /**
-     * Factory method for a Document Manager.
-     *
-     * @param Configuration $config
-     * @param EventManager  $evm
-     *
-     * @return DocumentManager
+     * Factory method to create a Document Manager.
      */
-    public static function create(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
+    public static function create(SessionInterface $session, Configuration $config = null, EventManager $evm = null): DocumentManager
     {
         return new self($session, $config, $evm);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getMetadataFactory()
+    public function getMetadataFactory(): ClassMetadataFactory
     {
         return $this->metadataFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfiguration()
+    public function getConfiguration(): Configuration
     {
         return $this->config;
     }
@@ -226,25 +156,19 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws PHPCRException if the DocumentManager is closed
      */
-    private function errorIfClosed()
+    private function errorIfClosed(): void
     {
         if ($this->closed) {
             throw PHPCRException::documentManagerClosed();
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isOpen()
+    public function isOpen(): bool
     {
         return !$this->closed;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getClassMetadata($className)
+    public function getClassMetadata($className): ClassMetadata
     {
         return $this->metadataFactory->getMetadataFor($className);
     }
@@ -266,14 +190,14 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @return object|null the document if found, otherwise null
      */
-    public function find($className, $id)
+    public function find($className, $id): ?object
     {
         try {
             if (UUIDHelper::isUUID($id)) {
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
                 } catch (ItemNotFoundException $e) {
-                    return;
+                    return null;
                 }
             } elseif (0 !== strpos($id, '/')) {
                 $id = '/'.$id;
@@ -286,12 +210,12 @@ class DocumentManager implements DocumentManagerInterface
 
                     return $document;
                 } catch (ClassMismatchException $e) {
-                    return;
+                    return null;
                 }
             }
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
-            return;
+            return null;
         }
 
         $hints = ['fallback' => true];
@@ -299,14 +223,11 @@ class DocumentManager implements DocumentManagerInterface
         try {
             return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
         } catch (ClassMismatchException $e) {
-            return;
+            return null;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findMany($className, array $ids)
+    public function findMany(?string $className, array $ids): Collection
     {
         // when loading duplicate ID's the resulting response would be a collection of unique ids,
         // but having duplicates would also cause a lot of overhead as well as break translation loading,
@@ -322,10 +243,10 @@ class DocumentManager implements DocumentManagerInterface
         }
 
         if (!empty($uuids)) {
-            $nodes = $this->session->getNodesByIdentifier(array_keys($uuids));
+            $nodesByIdentifier = $this->session->getNodesByIdentifier(array_keys($uuids));
 
             /** @var NodeInterface $node */
-            foreach ($nodes as $node) {
+            foreach ($nodesByIdentifier as $node) {
                 $id = $node->getPath();
                 $ids[$uuids[$node->getIdentifier()]] = $id;
                 unset($uuids[$id]);
@@ -344,17 +265,14 @@ class DocumentManager implements DocumentManagerInterface
         return new ArrayCollection($documents);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findTranslation($className, $id, $locale, $fallback = true)
+    public function findTranslation(?string $className, string $id, string $locale, bool $fallback = true): ?object
     {
         try {
             if (UUIDHelper::isUUID($id)) {
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
                 } catch (ItemNotFoundException $e) {
-                    return;
+                    return null;
                 }
             } elseif (0 !== strpos($id, '/')) {
                 $id = '/'.$id;
@@ -372,7 +290,7 @@ class DocumentManager implements DocumentManagerInterface
 
             $node = $this->session->getNode($id);
         } catch (PathNotFoundException $e) {
-            return;
+            return null;
         }
 
         $hints = ['locale' => $locale, 'fallback' => $fallback];
@@ -380,18 +298,12 @@ class DocumentManager implements DocumentManagerInterface
         return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRepository($className)
+    public function getRepository($className): ObjectRepository
     {
         return $this->repositoryFactory->getRepository($this, $className);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function quote($val, $type = PropertyType::STRING)
+    public function quote(string $val, int $type = PropertyType::STRING): string
     {
         if (null !== $type) {
             $val = $this->valueConverter->convertType($val, $type);
@@ -400,10 +312,7 @@ class DocumentManager implements DocumentManagerInterface
         return "'".str_replace("'", "''", $val)."'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function escapeFullText($string)
+    public function escapeFullText(string $string): string
     {
         $illegalCharacters = [
             '!' => '\\!', '(' => '\\(', ':' => '\\:', '^' => '\\^',
@@ -414,30 +323,23 @@ class DocumentManager implements DocumentManagerInterface
         return strtr($string, $illegalCharacters);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createPhpcrQuery($statement, $language)
+    public function createPhpcrQuery(string $statement, string $language): QueryInterface
     {
-        $qm = $this->session->getWorkspace()->getQueryManager();
-
-        return $qm->createQuery($statement, $language);
+        return $this->session
+            ->getWorkspace()
+            ->getQueryManager()
+            ->createQuery($statement, $language)
+        ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createQuery($statement, $language)
+    public function createQuery(string $statement, string $language): Query
     {
         $phpcrQuery = $this->createPhpcrQuery($statement, $language);
 
         return new Query($phpcrQuery, $this);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
         $qomf = $qm->getQOMFactory();
@@ -450,20 +352,14 @@ class DocumentManager implements DocumentManagerInterface
         return $builder;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createPhpcrQueryBuilder()
+    public function createPhpcrQueryBuilder(): PhpcrQueryBuilder
     {
         $qm = $this->session->getWorkspace()->getQueryManager();
 
         return new PhpcrQueryBuilder($qm->getQOMFactory());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
     {
         $this->errorIfClosed();
 
@@ -496,7 +392,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function persist($document)
+    public function persist($document): void
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -506,41 +402,20 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->scheduleInsert($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindTranslation($document, $locale)
+    public function bindTranslation(object $document, string $locale): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->bindTranslation($document, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeTranslation($document, $locale)
+    public function removeTranslation(object $document, string $locale): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->removeTranslation($document, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocalesFor($document, $includeFallbacks = false)
+    public function getLocalesFor(object $document, bool $includeFallbacks = false): array
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
 
         $metadata = $this->getClassMetadata(get_class($document));
@@ -557,25 +432,15 @@ class DocumentManager implements DocumentManagerInterface
         return $locales;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isDocumentTranslatable($document)
+    public function isDocumentTranslatable(object $document): bool
     {
         $metadata = $this->getClassMetadata(get_class($document));
 
         return $this->unitOfWork->isDocumentTranslatable($metadata);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function move($document, $targetPath)
+    public function move(object $document, string $targetPath): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         if (0 !== strpos($targetPath, '/')) {
             $targetPath = '/'.$targetPath;
         }
@@ -584,15 +449,8 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->scheduleMove($document, $targetPath);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function reorder($document, $srcName, $targetName, $before)
+    public function reorder(object $document, string $srcName, string $targetName, bool $before): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->scheduleReorder($document, $srcName, $targetName, $before);
     }
@@ -610,7 +468,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function remove($document)
+    public function remove($document): void
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -640,7 +498,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function merge($document)
+    public function merge($document): object
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -665,7 +523,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function detach($document)
+    public function detach($document): void
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -684,7 +542,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function refresh($document)
+    public function refresh($document): void
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -694,29 +552,15 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->refresh($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getChildren($document, $filter = null, $fetchDepth = -1, $locale = null)
+    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
 
         return new ChildrenCollection($this, $document, $filter, $fetchDepth, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null)
+    public function getReferrers(object $document, string $type = null, string $name = null, string $locale = null, $refClass = null): ReferrersCollection
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
 
         return new ReferrersCollection($this, $document, $type, $name, $locale, $refClass);
@@ -734,7 +578,7 @@ class DocumentManager implements DocumentManagerInterface
      * @throws InvalidArgumentException if $document is neither null nor a
      *                                  document or an array of documents
      */
-    public function flush($document = null)
+    public function flush($document = null): void
     {
         if (null !== $document && !is_object($document) && !is_array($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -744,89 +588,49 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->commit($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReference($documentName, $id)
+    public function getReference(string $documentName, $id)
     {
         return $this->unitOfWork->getOrCreateProxy($id, $documentName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkin($document)
+    public function checkin(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->checkin($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkout($document)
+    public function checkout(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->checkout($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkpoint($document)
+    public function checkpoint(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->checkpoint($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function restoreVersion($documentVersion, $removeExisting = true)
+    public function restoreVersion(object $documentVersion, bool $removeExisting = true): void
     {
         $this->errorIfClosed();
         $this->unitOfWork->restoreVersion($documentVersion, $removeExisting);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeVersion($documentVersion)
+    public function removeVersion(object $documentVersion): void
     {
         $this->errorIfClosed();
         $this->unitOfWork->removeVersion($documentVersion);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAllLinearVersions($document, $limit = -1)
+    public function getAllLinearVersions(object $document, int $limit = -1): array
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
 
         return $this->unitOfWork->getAllLinearVersions($document, $limit);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findVersionByName($className, $id, $versionName)
+    public function findVersionByName(?string $className, string $id, string $versionName): ?object
     {
         $this->errorIfClosed();
 
@@ -844,7 +648,7 @@ class DocumentManager implements DocumentManagerInterface
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function contains($document)
+    public function contains($document): bool
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -853,10 +657,7 @@ class DocumentManager implements DocumentManagerInterface
         return $this->unitOfWork->contains($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getUnitOfWork()
+    public function getUnitOfWork(): UnitOfWork
     {
         return $this->unitOfWork;
     }
@@ -866,10 +667,8 @@ class DocumentManager implements DocumentManagerInterface
      *
      * Clears the DocumentManager. All entities that are currently managed
      * by this DocumentManager become detached.
-     *
-     * @param string $className
      */
-    public function clear($className = null)
+    public function clear($className = null): void
     {
         if (null === $className) {
             $this->unitOfWork->clear();
@@ -879,23 +678,13 @@ class DocumentManager implements DocumentManagerInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * Closes the DocumentManager. All entities that are currently managed
-     * by this DocumentManager become detached. The DocumentManager may no longer
-     * be used after it is closed.
-     */
-    public function close()
+    public function close(): void
     {
         $this->clear();
         $this->closed = true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function initializeObject($document)
+    public function initializeObject($document): void
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -904,24 +693,14 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->initializeObject($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getNodeForDocument($document)
+    public function getNodeForDocument(object $document): NodeInterface
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $path = $this->unitOfWork->getDocumentId($document);
 
         return $this->session->getNode($path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDocumentId($document)
+    public function getDocumentId(object $document): ?string
     {
         return $this->unitOfWork->getDocumentId($document);
     }

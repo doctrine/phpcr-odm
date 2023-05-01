@@ -41,13 +41,13 @@ abstract class PHPCRFunctionalTestCase extends TestCase
                     $params[substr($key, strlen('jackalope.doctrine.dbal.'))] = $value;
                 }
             }
-            if (isset($params['username'])) {
+            if (array_key_exists('username', $params)) {
                 $params['user'] = $params['username'];
             }
             $GLOBALS['jackalope.doctrine_dbal_connection'] = DriverManager::getConnection($params);
         }
 
-        /** @var $factory RepositoryFactoryInterface */
+        /** @var RepositoryFactoryInterface $factory */
         $factory = new $factoryclass();
         $parameters = array_intersect_key($GLOBALS, $factory->getConfigurationKeys());
 

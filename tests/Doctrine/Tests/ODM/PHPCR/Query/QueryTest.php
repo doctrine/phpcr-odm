@@ -19,20 +19,20 @@ class QueryTest extends Testcase
     /**
      * @var QueryInterface&MockObject
      */
-    private $phpcrQuery;
+    private QueryInterface $phpcrQuery;
 
     /**
      * @var DocumentManager&MockObject
      */
-    private $dm;
+    private DocumentManager $dm;
 
     /**
-     * @var Query&MockObject
+     * @var MockObject|Query
      */
     private $query;
 
     /**
-     * @var Query&MockObject
+     * @var MockObject|Query
      */
     private $aliasQuery;
 
@@ -87,7 +87,7 @@ class QueryTest extends Testcase
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery)
-            ->willReturn(['ok']);
+            ->willReturn(new ArrayCollection(['ok']));
 
         $res = $this->query->execute();
         $this->assertEquals('ok', $res->first());
@@ -101,7 +101,7 @@ class QueryTest extends Testcase
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery, null, 'a')
-            ->willReturn(['ok']);
+            ->willReturn(new ArrayCollection(['ok']));
 
         $res = $this->aliasQuery->execute();
         $this->assertEquals('ok', $res->first());
@@ -113,7 +113,7 @@ class QueryTest extends Testcase
     public function testExecuteHydrateUnknown(): void
     {
         $this->expectException(QueryException::class);
-        $this->query->execute(null, 'unknown_hydration_mode');
+        $this->query->execute(null, 42);
     }
 
     public function testExecuteParameters(): void
@@ -211,12 +211,6 @@ class QueryTest extends Testcase
             ->willReturn(['ok1', 'ok2']);
         $this->expectException(QueryException::class);
         $this->query->getSingleResult(Query::HYDRATE_PHPCR);
-    }
-
-    public function testIterate(): void
-    {
-        $this->expectException(QueryException::class);
-        $this->query->iterate();
     }
 
     public function testGetSetMaxResults(): void

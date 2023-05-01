@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
-use PHPCR\Query\QueryInterface;
+use Doctrine\ODM\PHPCR\Query\Query;
 
 interface ConverterInterface
 {
@@ -13,8 +13,6 @@ interface ConverterInterface
      * "root" nodes append or set PHPCR QOM objects to corresponding properties
      * in this class, which are subsequently used to create a PHPCR QOM object which
      * is embedded in an ODM Query object.
-     *
-     * @return QueryInterface
      */
-    public function getQuery(QueryBuilder $queryBuilder);
+    public function getQuery(QueryBuilder $queryBuilder): Query;
 }

@@ -9,7 +9,7 @@ use Doctrine\ODM\PHPCR\PHPCRException;
  */
 class QueryException extends PHPCRException
 {
-    public static function hydrationModeNotKnown($hydrationMode)
+    public static function hydrationModeNotKnown(int $hydrationMode): self
     {
         return new self(sprintf(
             'Hydration mode "%s" not recognized, must be the value of one of '.
@@ -18,13 +18,8 @@ class QueryException extends PHPCRException
         ));
     }
 
-    public static function nonUniqueResult()
+    public static function nonUniqueResult(): self
     {
-        return new self(sprintf('Expected unique result'));
-    }
-
-    public static function notImplemented($method)
-    {
-        return new self(sprintf('Query Method "%s" is not implemented (yet)', $method));
+        return new self('Expected unique result');
     }
 }

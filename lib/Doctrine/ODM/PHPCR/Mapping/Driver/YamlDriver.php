@@ -20,20 +20,14 @@ class YamlDriver extends FileDriver
 {
     public const DEFAULT_FILE_EXTENSION = '.dcm.yml';
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($locator, $fileExtension = self::DEFAULT_FILE_EXTENSION)
     {
         parent::__construct($locator, $fileExtension);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadMetadataForClass($className, ClassMetadata $class)
+    public function loadMetadataForClass($className, ClassMetadata $class): void
     {
-        /* @var PhpcrClassMetadata $class */
+        \assert($class instanceof PhpcrClassMetadata);
         try {
             $element = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -93,7 +87,7 @@ class YamlDriver extends FileDriver
                     $mapping = [];
                     $mapping['type'] = $type;
                 }
-                if (!isset($mapping['fieldName'])) {
+                if (!array_key_exists('fieldName', $mapping)) {
                     $mapping['fieldName'] = $fieldName;
                 }
                 $class->mapField($mapping);
@@ -143,36 +137,38 @@ class YamlDriver extends FileDriver
                     $mapping = [];
                     $mapping['nodeName'] = $name;
                 }
-                if (!isset($mapping['fieldName'])) {
+                if (!array_key_exists('fieldName', $mapping)) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                $mapping['cascade'] = (isset($mapping['cascade'])) ? $this->getCascadeMode($mapping['cascade']) : 0;
+                $mapping['cascade'] = (array_key_exists('cascade', $mapping)) ? $this->getCascadeMode($mapping['cascade']) : 0;
                 $class->mapChild($mapping);
             }
         }
         if (isset($element['children'])) {
             foreach ($element['children'] as $fieldName => $mapping) {
-                // TODO should we really support this syntax?
+                if (null === $mapping) {
+                    $mapping = [];
+                }
                 if (is_string($mapping)) {
                     $filter = $mapping;
                     $mapping = [];
                     $mapping['filter'] = $filter;
                 }
-                if (!isset($mapping['fieldName'])) {
+                if (!array_key_exists('fieldName', $mapping)) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                if (!isset($mapping['filter'])) {
+                if (!array_key_exists('filter', $mapping)) {
                     $mapping['filter'] = null;
                 } elseif (is_string($mapping['filter'])) {
                     $mapping['filter'] = (array) $mapping['filter'];
                 }
-                if (!isset($mapping['fetchDepth'])) {
+                if (!array_key_exists('fetchDepth', $mapping)) {
                     $mapping['fetchDepth'] = -1;
                 }
-                if (!isset($mapping['ignoreUntranslated'])) {
+                if (!array_key_exists('ignoreUntranslated', $mapping)) {
                     $mapping['ignoreUntranslated'] = false;
                 }
-                $mapping['cascade'] = (isset($mapping['cascade'])) ? $this->getCascadeMode($mapping['cascade']) : 0;
+                $mapping['cascade'] = (array_key_exists('cascade', $mapping)) ? $this->getCascadeMode($mapping['cascade']) : 0;
                 $class->mapChildren($mapping);
             }
         }
@@ -247,7 +243,7 @@ class YamlDriver extends FileDriver
         $class->validateClassMapping();
     }
 
-    private function addMappingFromReference(ClassMetadata $class, $fieldName, $reference, $type)
+    private function addMappingFromReference(ClassMetadata $class, string $fieldName, array $reference, string $type): void
     {
         /** @var PhpcrClassMetadata $class */
         $mapping = array_merge(['fieldName' => $fieldName], $reference);
@@ -255,7 +251,7 @@ class YamlDriver extends FileDriver
         $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
         $mapping['name'] = $reference['name'] ?? null;
 
-        if (!isset($mapping['targetDocument'])) {
+        if (!array_key_exists('targetDocument', $mapping)) {
             $mapping['targetDocument'] = null;
         }
 
@@ -266,9 +262,6 @@ class YamlDriver extends FileDriver
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function loadMappingFile($file)
     {
         if (!is_file($file)) {
@@ -285,7 +278,7 @@ class YamlDriver extends FileDriver
      *
      * @return int a bitmask of cascade options
      */
-    private function getCascadeMode(array $cascadeElement)
+    private function getCascadeMode(array $cascadeElement): int
     {
         $cascade = 0;
         foreach ($cascadeElement as $cascadeMode) {

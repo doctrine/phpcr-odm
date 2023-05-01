@@ -164,7 +164,7 @@ abstract class AbstractNode
         $nodeType = $node->getNodeType();
 
         // if proposed child node is of an invalid type
-        if (!isset($cardinalityMap[$nodeType])) {
+        if (!array_key_exists($nodeType, $cardinalityMap)) {
             throw new OutOfBoundsException(sprintf(
                 'QueryBuilder node "%s" of type "%s" cannot be appended to "%s". '.
                 'Must be one type of "%s"',
@@ -175,10 +175,10 @@ abstract class AbstractNode
             ));
         }
 
-        $currentCardinality = isset($this->children[$node->getName()]) ?
+        $currentCardinality = array_key_exists($node->getName(), $this->children) ?
             count($this->children[$node->getName()]) : 0;
 
-        list($min, $max) = $cardinalityMap[$nodeType];
+        [$min, $max] = $cardinalityMap[$nodeType];
 
         // if bounded and cardinality will exceed max
         if (null !== $max && $currentCardinality + 1 > $max) {
@@ -238,11 +238,7 @@ abstract class AbstractNode
      */
     public function getChildrenOfType($type)
     {
-        if (!isset($this->children[$type])) {
-            return [];
-        }
-
-        return $this->children[$type];
+        return $this->children[$type] ?? [];
     }
 
     public function removeChildrenOfType($type)
@@ -337,7 +333,7 @@ abstract class AbstractNode
         }
 
         foreach ($typeCount as $type => $count) {
-            list($min, $max) = $cardinalityMap[$type];
+            [$min, $max] = $cardinalityMap[$type];
             if (null !== $min && $count < $min) {
                 throw new OutOfBoundsException(sprintf(
                     'QueryBuilder node "%s" must have at least "%s" '.

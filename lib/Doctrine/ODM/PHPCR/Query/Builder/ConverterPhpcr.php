@@ -10,8 +10,11 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use Doctrine\ODM\PHPCR\Query\Query;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use PHPCR\Query\QOM\LiteralInterface;
+use PHPCR\Query\QOM\PropertyValueInterface;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
 use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
+use PHPCR\Query\QOM\SelectorInterface;
 
 /**
  * Class which converts a Builder tree to a PHPCR Query.
@@ -20,20 +23,9 @@ use PHPCR\Query\QOM\QueryObjectModelFactoryInterface;
  */
 class ConverterPhpcr extends ConverterBase
 {
-    /**
-     * @var QueryObjectModelFactoryInterface
-     */
-    protected $qomf;
-
-    /**
-     * @var ClassMetadataFactory
-     */
-    protected $mdf;
-
-    /**
-     * @var DocumentManagerInterface
-     */
-    protected $dm;
+    protected QueryObjectModelFactoryInterface $qomf;
+    protected ClassMetadataFactory $mdf;
+    protected DocumentManagerInterface $dm;
 
     /**
      * When document sources are registered we put the document
@@ -41,7 +33,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var ClassMetadata[]
      */
-    protected $aliasMetadata = [];
+    protected array $aliasMetadata = [];
 
     /**
      * When document sources are registered we put the translator
@@ -49,7 +41,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var TranslationStrategyInterface[]
      */
-    protected $translator = [];
+    protected array $translator = [];
 
     /**
      * Ugly: We need to store the document source types so that we
@@ -58,20 +50,17 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var SourceDocument[]
      */
-    protected $sourceDocumentNodes;
+    protected array $sourceDocumentNodes = [];
 
     /**
      * Used to keep track of which sources are used with translated fields, to
      * tell the translation strategy to update if needed.
      *
-     * @var array keys are the alias, value is true
+     * @var array<string, boolean> keys are the alias, value is true
      */
-    protected $aliasWithTranslatedFields;
+    protected array $aliasWithTranslatedFields;
 
-    /**
-     * @var string|null
-     */
-    protected $locale;
+    protected ?string $locale = null;
 
     public function __construct(
         DocumentManagerInterface $dm,
@@ -82,20 +71,14 @@ class ConverterPhpcr extends ConverterBase
         $this->dm = $dm;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function qomf()
+    protected function qomf(): QueryObjectModelFactoryInterface
     {
         return $this->qomf;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function validateAlias($alias)
+    protected function validateAlias(string $alias): string
     {
-        if (!isset($this->aliasMetadata[$alias])) {
+        if (!array_key_exists($alias, $this->aliasMetadata)) {
             throw new InvalidArgumentException(sprintf(
                 'Alias name "%s" is not known. The following aliases '.
                 'are valid: "%s"',
@@ -107,10 +90,7 @@ class ConverterPhpcr extends ConverterBase
         return $alias;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getPhpcrProperty($originalAlias, $odmField)
+    protected function getPhpcrProperty($originalAlias, $odmField): array
     {
         $this->validateAlias($originalAlias);
         $meta = $this->aliasMetadata[$originalAlias];
@@ -142,10 +122,7 @@ class ConverterPhpcr extends ConverterBase
         return $propertyPath;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getQuery(QueryBuilder $builder)
+    public function getQuery(QueryBuilder $builder): Query
     {
         $this->aliasWithTranslatedFields = [];
         $this->locale = $builder->getLocale();
@@ -238,16 +215,12 @@ class ConverterPhpcr extends ConverterBase
         return $query;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function walkSourceDocument(SourceDocument $node)
+    protected function walkSourceDocument(SourceDocument $node): SelectorInterface
     {
         $alias = $node->getAlias();
         $documentFqn = $node->getDocumentFqn();
 
         // cache the metadata for this document
-        /** @var $meta ClassMetadata */
         $meta = $this->mdf->getMetadataFor($documentFqn);
 
         if (null === $meta->getName()) {
@@ -279,10 +252,7 @@ class ConverterPhpcr extends ConverterBase
         return $alias;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function walkOperandDynamicField(OperandDynamicField $node)
+    protected function walkOperandDynamicField(OperandDynamicField $node): PropertyValueInterface
     {
         $alias = $node->getAlias();
         $field = $node->getField();
@@ -305,7 +275,7 @@ class ConverterPhpcr extends ConverterBase
             ));
         }
 
-        list($alias, $phpcrProperty) = $this->getPhpcrProperty(
+        [$alias, $phpcrProperty] = $this->getPhpcrProperty(
             $alias,
             $field
         );
@@ -318,11 +288,11 @@ class ConverterPhpcr extends ConverterBase
         return $op;
     }
 
-    protected function walkOperandStaticLiteral(OperandStaticLiteral $node)
+    protected function walkOperandStaticLiteral(OperandStaticLiteral $node): LiteralInterface
     {
         $value = $node->getValue();
 
-        if ($field = $node->getParent()->getChildOfType(AbstractLeafNode::NT_OPERAND_DYNAMIC)) {
+        if ($field = $node->getParent()->getChildOfType(AbstractNode::NT_OPERAND_DYNAMIC)) {
             if ($field instanceof OperandDynamicField) {
                 $meta = $this->aliasMetadata[$field->getAlias()];
                 $fieldMapping = $meta->getFieldMapping($field->getField());

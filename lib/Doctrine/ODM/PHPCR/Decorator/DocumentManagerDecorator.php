@@ -2,12 +2,24 @@
 
 namespace Doctrine\ODM\PHPCR\Decorator;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\EventManager;
+use Doctrine\ODM\PHPCR\ChildrenCollection;
+use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
+use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
+use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\ReferrersCollection;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
+use Doctrine\ODM\PHPCR\UnitOfWork;
 use Doctrine\Persistence\ObjectManagerDecorator;
+use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
 use PHPCR\Query\QueryInterface;
+use PHPCR\SessionInterface;
+use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 
 /**
  * Base class for DocumentManager decorators.
@@ -26,415 +38,202 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         $this->wrapped = $wrapped;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setTranslationStrategy($key, TranslationStrategyInterface $strategy)
+    public function setTranslationStrategy(string $key, TranslationStrategyInterface $strategy): void
     {
-        return $this->wrapped->setTranslationStrategy($key, $strategy);
+        $this->wrapped->setTranslationStrategy($key, $strategy);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTranslationStrategy($key)
+    public function getTranslationStrategy(string $key): TranslationStrategyInterface
     {
         return $this->wrapped->getTranslationStrategy($key);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasLocaleChooserStrategy()
+    public function hasLocaleChooserStrategy(): bool
     {
         return $this->wrapped->hasLocaleChooserStrategy();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocaleChooserStrategy()
+    public function getLocaleChooserStrategy(): LocaleChooserInterface
     {
         return $this->wrapped->getLocaleChooserStrategy();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy)
+    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy): void
     {
-        return $this->wrapped->setLocaleChooserStrategy($strategy);
+        $this->wrapped->setLocaleChooserStrategy($strategy);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getProxyFactory()
+    public function getProxyFactory(): ProxyFactory
     {
         return $this->wrapped->getProxyFactory();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEventManager()
+    public function getEventManager(): EventManager
     {
         return $this->wrapped->getEventManager();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPhpcrSession()
+    public function getPhpcrSession(): SessionInterface
     {
         return $this->wrapped->getPhpcrSession();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getMetadataFactory()
-    {
-        return $this->wrapped->getMetadataFactory();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfiguration()
+    public function getConfiguration(): Configuration
     {
         return $this->wrapped->getConfiguration();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isOpen()
+    public function isOpen(): bool
     {
         return $this->wrapped->isOpen();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getClassMetadata($className)
-    {
-        return $this->wrapped->getClassMetadata($className);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function find($className, $id)
-    {
-        return $this->wrapped->find($className, $id);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findMany($className, array $ids)
+    public function findMany(?string $className, array $ids): Collection
     {
         return $this->wrapped->findMany($className, $ids);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findTranslation($className, $id, $locale, $fallback = true)
+    public function findTranslation(?string $className, string $id, string $locale, bool $fallback = true): ?object
     {
         return $this->wrapped->findTranslation($className, $id, $locale, $fallback);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRepository($className)
-    {
-        return $this->wrapped->getRepository($className);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quote($val, $type = PropertyType::STRING)
+    public function quote(string $val, int $type = PropertyType::STRING): string
     {
         return $this->wrapped->quote($val, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function escapeFullText($string)
+    public function escapeFullText(string $string): string
     {
         return $this->wrapped->escapeFullText($string);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createPhpcrQuery($statement, $language)
+    public function createPhpcrQuery(string $statement, string $language): QueryInterface
     {
         return $this->wrapped->createPhpcrQuery($statement, $language);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createQuery($statement, $language)
+    public function createQuery(string $statement, string $language): Query
     {
         return $this->wrapped->createQuery($statement, $language);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder
     {
         return $this->wrapped->createQueryBuilder();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createPhpcrQueryBuilder()
+    public function createPhpcrQueryBuilder(): PhpcrQueryBuilder
     {
         return $this->wrapped->createPhpcrQueryBuilder();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null)
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
     {
         return $this->wrapped->getDocumentsByPhpcrQuery($query, $className, $primarySelector);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function persist($document)
+    public function bindTranslation(object $document, string $locale): void
     {
-        $this->wrapped->persist($document);
+        $this->wrapped->bindTranslation($document, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindTranslation($document, $locale)
+    public function removeTranslation(object $document, string $locale): void
     {
-        return $this->wrapped->bindTranslation($document, $locale);
+        $this->wrapped->removeTranslation($document, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeTranslation($document, $locale)
-    {
-        return $this->wrapped->removeTranslation($document, $locale);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLocalesFor($document, $includeFallbacks = false)
+    public function getLocalesFor(object $document, bool $includeFallbacks): array
     {
         return $this->wrapped->getLocalesFor($document, $includeFallbacks);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isDocumentTranslatable($document)
+    public function isDocumentTranslatable(object $document): bool
     {
         return $this->wrapped->isDocumentTranslatable($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function move($document, $targetPath)
+    public function move(object $document, string $targetPath): void
     {
-        return $this->wrapped->move($document, $targetPath);
+        $this->wrapped->move($document, $targetPath);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function reorder($document, $srcName, $targetName, $before)
+    public function reorder(object $document, string $srcName, string $targetName, bool $before): void
     {
-        return $this->wrapped->reorder($document, $srcName, $targetName, $before);
+        $this->wrapped->reorder($document, $srcName, $targetName, $before);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function remove($document)
-    {
-        $this->wrapped->remove($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function merge($document)
-    {
-        return $this->wrapped->merge($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function detach($document)
-    {
-        $this->wrapped->detach($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function refresh($document)
-    {
-        $this->wrapped->refresh($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null)
+    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, ?string $locale = null): ChildrenCollection
     {
         return $this->wrapped->getChildren($document, $filter, $fetchDepth, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null)
+    public function getReferrers(object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null): ReferrersCollection
     {
         return $this->wrapped->getReferrers($document, $type, $name, $locale, $refClass);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function flush($document = null)
+    public function flush($document = null): void
     {
         $this->wrapped->flush($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReference($documentName, $id)
+    public function getReference(string $documentName, $id)
     {
         return $this->wrapped->getReference($documentName, $id);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkin($document)
+    public function checkin(object $document): void
     {
-        return $this->wrapped->checkin($document);
+        $this->wrapped->checkin($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkout($document)
+    public function checkout(object $document): void
     {
-        return $this->wrapped->checkout($document);
+        $this->wrapped->checkout($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkpoint($document)
+    public function checkpoint(object $document): void
     {
-        return $this->wrapped->checkpoint($document);
+        $this->wrapped->checkpoint($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function restoreVersion($documentVersion, $removeExisting = true)
+    public function restoreVersion(object $documentVersion, bool $removeExisting = true): void
     {
-        return $this->wrapped->restoreVersion($documentVersion, $removeExisting);
+        $this->wrapped->restoreVersion($documentVersion, $removeExisting);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeVersion($documentVersion)
+    public function removeVersion(object $documentVersion): void
     {
-        return $this->wrapped->removeVersion($documentVersion);
+        $this->wrapped->removeVersion($documentVersion);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAllLinearVersions($document, $limit = -1)
+    public function getAllLinearVersions(object $document, int $limit = -1): array
     {
         return $this->wrapped->getAllLinearVersions($document, $limit);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findVersionByName($className, $id, $versionName)
+    public function findVersionByName(?string $className, string $id, string $versionName): ?object
     {
         return $this->wrapped->findVersionByName($className, $id, $versionName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function contains($document)
-    {
-        return $this->wrapped->contains($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUnitOfWork()
+    public function getUnitOfWork(): UnitOfWork
     {
         return $this->wrapped->getUnitOfWork();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function clear($className = null)
+    public function close(): void
     {
-        $this->wrapped->clear($className);
+        $this->wrapped->close();
     }
 
-    public function close()
-    {
-        return $this->wrapped->close();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function initializeObject($document)
-    {
-        $this->wrapped->initializeObject($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNodeForDocument($document)
+    public function getNodeForDocument(object $document): NodeInterface
     {
         return $this->wrapped->getNodeForDocument($document);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDocumentId($document)
+    public function getDocumentId(object $document): string
     {
         return $this->wrapped->getDocumentId($document);
     }

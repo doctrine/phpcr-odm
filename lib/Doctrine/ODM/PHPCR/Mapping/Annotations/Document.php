@@ -11,53 +11,19 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Document
 {
-    /**
-     * @var string
-     */
-    public $nodeType;
+    public ?string $nodeType = null;
+    public ?string $repositoryClass = null;
+    public ?string $translator = null;
 
     /**
-     * @var string
+     * array|string.
      */
-    public $repositoryClass;
+    public $mixins = [];
 
-    /**
-     * @var string
-     */
-    public $translator;
-
-    /**
-     * @var array
-     */
-    public $mixins;
-
-    /**
-     * @var bool
-     */
-    public $inheritMixins;
-
-    /**
-     * @var string
-     */
-    public $versionable;
-
-    /**
-     * @var bool
-     */
-    public $referenceable;
-
-    /**
-     * @var bool
-     */
-    public $uniqueNodeType;
-
-    /**
-     * @var array
-     */
-    public $childClasses = [];
-
-    /**
-     * @var bool
-     */
-    public $isLeaf;
+    public ?bool $inheritMixins = null;
+    public ?string $versionable = null;
+    public ?bool $referenceable = null;
+    public ?bool $uniqueNodeType = null;
+    public array $childClasses = [];
+    public ?bool $isLeaf = null;
 }

@@ -32,7 +32,7 @@ class ParentIdGeneratorTest extends TestCase
             ->expects($this->once())
             ->method('getUnitOfWork')
             ->willReturn($uow);
-        $this->assertEquals('/miau/name', $generator->generate(null, $cm, $dm));
+        $this->assertSame('/miau/name', $generator->generate($this, $cm, $dm));
     }
 
     /**
@@ -46,7 +46,7 @@ class ParentIdGeneratorTest extends TestCase
         $cm = new ParentClassMetadataProxy(null, 'name', $id);
         $dm = $this->createMock(DocumentManager::class);
 
-        $this->assertEquals($id, $generator->generate(null, $cm, $dm));
+        $this->assertEquals($id, $generator->generate($this, $cm, $dm));
     }
 
     /**
@@ -60,7 +60,7 @@ class ParentIdGeneratorTest extends TestCase
         $cm = new ParentClassMetadataProxy(new ParentDummy(), '', $id);
         $dm = $this->createMock(DocumentManager::class);
 
-        $this->assertEquals($id, $generator->generate(null, $cm, $dm));
+        $this->assertEquals($id, $generator->generate($this, $cm, $dm));
     }
 
     public function testGenerateNoIdNoParentNoName(): void
@@ -70,7 +70,7 @@ class ParentIdGeneratorTest extends TestCase
         $dm = $this->createMock(DocumentManager::class);
 
         $this->expectException(IdException::class);
-        $generator->generate(null, $cm, $dm);
+        $generator->generate($this, $cm, $dm);
     }
 
     public function testGenerateNoIdNoParent(): void
@@ -80,7 +80,7 @@ class ParentIdGeneratorTest extends TestCase
         $dm = $this->createMock(DocumentManager::class);
 
         $this->expectException(IdException::class);
-        $generator->generate(null, $cm, $dm);
+        $generator->generate($this, $cm, $dm);
     }
 
     public function testGenerateNoIdNoName(): void
@@ -90,7 +90,7 @@ class ParentIdGeneratorTest extends TestCase
         $dm = $this->createMock(DocumentManager::class);
 
         $this->expectException(IdException::class);
-        $generator->generate(null, $cm, $dm);
+        $generator->generate($this, $cm, $dm);
     }
 
     public function testGenerateNoParentId(): void
@@ -111,7 +111,7 @@ class ParentIdGeneratorTest extends TestCase
             ->willReturn($uow);
 
         $this->expectException(IdException::class);
-        $generator->generate(null, $cm, $dm);
+        $generator->generate($this, $cm, $dm);
     }
 }
 
@@ -120,21 +120,18 @@ class ParentDummy
 }
 class ParentClassMetadataProxy extends ClassMetadata
 {
-    public $parentMapping = 'parent';
+    // change visibility
+    public ?string $parentMapping = 'parent';
+    public ?string $nodename = 'nodename';
+    public ?string $identifier = 'id';
+    public array $reflFields;
 
-    public $nodename = 'nodename';
+    // fields to check
+    protected ?object $_parent;
+    protected string $_nodename;
+    private string $_identifier;
 
-    public $identifier = 'id';
-
-    public $reflFields;
-
-    protected $_parent;
-
-    protected $_nodename;
-
-    private $_identifier;
-
-    public function __construct($parent, $nodename, $identifier, $mockField = null)
+    public function __construct(?object $parent, string $nodename, string $identifier, $mockField = null)
     {
         $this->_parent = $parent;
         $this->_nodename = $nodename;
@@ -143,7 +140,7 @@ class ParentClassMetadataProxy extends ClassMetadata
         $this->reflFields = [$this->identifier => $mockField];
     }
 
-    public function getFieldValue($document, $field)
+    public function getFieldValue(object $document, string $field)
     {
         switch ($field) {
             case $this->parentMapping:
@@ -158,19 +155,18 @@ class ParentClassMetadataProxy extends ClassMetadata
 
 class MockField
 {
-    private $p;
+    private object $p;
+    private string $id;
 
-    private $id;
-
-    public function __construct($parent, $id)
+    public function __construct(object $parent, string $id)
     {
         $this->p = $parent;
         $this->id = $id;
     }
 
-    public function getValue($parent)
+    public function getValue($parent): string
     {
-        if (!$this->p == $parent) {
+        if ($this->p !== $parent) {
             throw new \Exception('Wrong parent passed in getValue');
         }
 

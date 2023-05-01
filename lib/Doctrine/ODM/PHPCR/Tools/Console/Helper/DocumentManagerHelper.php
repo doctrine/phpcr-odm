@@ -9,19 +9,10 @@ use PHPCR\Util\Console\Helper\PhpcrHelper;
 /**
  * Helper class to make DocumentManager available to console command.
  */
-class DocumentManagerHelper extends PhpcrHelper
+final class DocumentManagerHelper extends PhpcrHelper
 {
-    /**
-     * @var DocumentManagerInterface
-     */
-    protected $dm;
+    private ?DocumentManagerInterface $dm;
 
-    /**
-     * Constructor.
-     *
-     * @param SessionInterface         $session
-     * @param DocumentManagerInterface $dm
-     */
     public function __construct(SessionInterface $session = null, DocumentManagerInterface $dm = null)
     {
         if (!$session && $dm) {
@@ -32,12 +23,12 @@ class DocumentManagerHelper extends PhpcrHelper
         $this->dm = $dm;
     }
 
-    public function getDocumentManager()
+    public function getDocumentManager(): ?DocumentManagerInterface
     {
         return $this->dm;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'phpcr';
     }

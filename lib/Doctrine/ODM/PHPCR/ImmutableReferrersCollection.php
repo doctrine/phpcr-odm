@@ -2,6 +2,8 @@
 
 namespace Doctrine\ODM\PHPCR;
 
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
+
 /**
  * Immutable referrer collection class.
  *
@@ -15,5 +17,38 @@ class ImmutableReferrersCollection extends ReferrersCollection
         parent::__construct($dm, $document, $type, null, $locale);
     }
 
-    // TODO: overwrite all methods that would modify this collection and throw exceptions
+    public function add($element): bool
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
+
+    public function clear(): void
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
+
+    public function offsetSet($offset, $value): void
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
+
+    public function offsetUnset($offset): void
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
+
+    public function remove($key)
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
+
+    public function removeElement($element): bool
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
+
+    public function set($key, $value): void
+    {
+        throw new BadMethodCallException('Can not call '.__METHOD__.' on immutable collection');
+    }
 }

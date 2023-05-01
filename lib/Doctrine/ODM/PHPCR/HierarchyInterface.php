@@ -11,18 +11,12 @@ namespace Doctrine\ODM\PHPCR;
 interface HierarchyInterface
 {
     /**
-     * Get the parent document of this document.
-     *
-     * @return object|null
+     * Get the parent document of this document, if set.
      */
-    public function getParentDocument();
+    public function getParentDocument(): ?object;
 
     /**
      * Set the parent document for this document.
-     *
-     * @param object $parent
-     *
-     * @return $this
      */
-    public function setParentDocument($parent);
+    public function setParentDocument(object $parent): self;
 }

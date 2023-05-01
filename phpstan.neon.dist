@@ -1,7 +1,9 @@
 parameters:
-    level: 1
+    level: 2
     paths:
         - lib
         - tests
-#    ignoreErrors:
-#        - '#Constructor of class Jackalope\\.* has an unused parameter \$factory.#'
+    scanDirectories:
+        - .phpstan/classes/
+includes:
+    - .phpstan/phpstan-baseline.neon

@@ -2,7 +2,7 @@
 
 namespace Doctrine\ODM\PHPCR\Tools\Console\Command;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
+use Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper;
 use Doctrine\ODM\PHPCR\Tools\Console\MetadataFilter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,10 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GenerateProxiesCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
         ->setName('doctrine:phpcr:generate-proxies')
@@ -50,13 +47,12 @@ EOT
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var $documentManager DocumentManager */
-        $documentManager = $this->getHelper('phpcr')->getDocumentManager();
+        $phpcrHelper = $this->getHelper('phpcr');
+        \assert($phpcrHelper instanceof DocumentManagerHelper);
+        $documentManager = $phpcrHelper->getDocumentManager();
+        \assert(null !== $documentManager);
 
         $metadatas = $documentManager->getMetadataFactory()->getAllMetadata();
         $metadatas = MetadataFilter::filter($metadatas, $input->getOption('filter'));
@@ -67,7 +63,9 @@ EOT
         }
 
         if (!is_dir($destPath)) {
-            mkdir($destPath, 0775, true);
+            if (!mkdir($destPath, 0775, true) && !is_dir($destPath)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $destPath));
+            }
         }
 
         $destPath = realpath($destPath);
@@ -76,7 +74,8 @@ EOT
             throw new \InvalidArgumentException(
                 sprintf("Proxies destination directory '<info>%s</info>' does not exist.", $documentManager->getConfiguration()->getProxyDir())
             );
-        } elseif (!is_writable($destPath)) {
+        }
+        if (!is_writable($destPath)) {
             throw new \InvalidArgumentException(
                 sprintf("Proxies destination directory '<info>%s</info>' does not have write permissions.", $destPath)
             );

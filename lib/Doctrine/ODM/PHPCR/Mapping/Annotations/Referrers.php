@@ -13,18 +13,13 @@ final class Referrers
 {
     /**
      * Name of the field in the other document referencing this document.
-     *
-     * @var string
      */
-    public $referencedBy;
+    public string $referencedBy;
+
+    public string $referringDocument;
 
     /**
-     * @var string
-     */
-    public $referringDocument;
-
-    /**
-     * @var array
+     * @var array or string, but we can't annotate that here, it confuses the annotation parser
      */
     public $cascade = [];
 }

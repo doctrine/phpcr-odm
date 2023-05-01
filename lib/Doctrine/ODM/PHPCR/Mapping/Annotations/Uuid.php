@@ -11,13 +11,6 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Uuid extends Property
 {
-    /**
-     * @var string
-     */
-    public $property = 'jcr:uuid';
-
-    /**
-     * @var string
-     */
-    public $type = 'string';
+    public string $property = 'jcr:uuid';
+    public string $type = 'string';
 }

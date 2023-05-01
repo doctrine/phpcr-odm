@@ -9,7 +9,7 @@ use Doctrine\ODM\PHPCR\PHPCRExceptionInterface;
  */
 class RuntimeException extends \RuntimeException implements PHPCRExceptionInterface
 {
-    public static function invalidUuid($id, $class, $uuid)
+    public static function invalidUuid(string $id, string $class, string $uuid): self
     {
         return new self(sprintf(
             'Document %s of class %s has an invalid UUID "%s"',

@@ -19,37 +19,26 @@ class DefaultRepositoryFactory implements RepositoryFactory
      *
      * @var array<ObjectRepository>
      */
-    private $repositoryList = [];
+    private array $repositoryList = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRepository(DocumentManagerInterface $dm, $documentName)
+    public function getRepository(DocumentManagerInterface $dm, string $documentClass): ObjectRepository
     {
-        $documentName = ltrim($documentName, '\\');
+        $documentClass = ltrim($documentClass, '\\');
 
-        if (isset($this->repositoryList[$documentName])) {
-            return $this->repositoryList[$documentName];
+        if (array_key_exists($documentClass, $this->repositoryList)) {
+            return $this->repositoryList[$documentClass];
         }
 
-        $repository = $this->createRepository($dm, $documentName);
+        $repository = $this->createRepository($dm, $documentClass);
 
-        $this->repositoryList[$documentName] = $repository;
+        $this->repositoryList[$documentClass] = $repository;
 
         return $repository;
     }
 
-    /**
-     * Create a new repository instance for a document class.
-     *
-     * @param DocumentManagerInterface $dm           the DocumentManager instance
-     * @param string                   $documentName the name of the document
-     *
-     * @return ObjectRepository
-     */
-    protected function createRepository(DocumentManagerInterface $dm, $documentName)
+    protected function createRepository(DocumentManagerInterface $dm, string $documentClass): ObjectRepository
     {
-        $metadata = $dm->getClassMetadata($documentName);
+        $metadata = $dm->getClassMetadata($documentClass);
         $repositoryClassName = $metadata->customRepositoryClassName;
 
         if (null === $repositoryClassName) {

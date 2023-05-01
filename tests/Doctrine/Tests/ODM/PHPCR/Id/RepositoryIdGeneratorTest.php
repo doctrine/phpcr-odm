@@ -1,9 +1,12 @@
 <?php
 
+namespace Doctrine\Tests\ODM\PHPCR\Id;
+
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdGenerator;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
+use Doctrine\Persistence\ObjectRepository;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryIdGeneratorTest extends TestCase
@@ -15,11 +18,11 @@ class RepositoryIdGeneratorTest extends TestCase
     {
         $id = 'moo';
         $cm = new RepositoryClassMetadataProxy($id);
-        $repository = $this->createMock(RepositoryIdInterface::class);
+        $repository = $this->createMock(ObjectRepositoryId::class);
         $repository
             ->expects($this->once())
             ->method('generateId')
-            ->with($this->equalTo(null))
+            ->with($this)
             ->willReturn('generatedid');
         $dm = $this->createMock(DocumentManager::class);
         $dm
@@ -29,7 +32,7 @@ class RepositoryIdGeneratorTest extends TestCase
 
         $generator = new RepositoryIdGenerator();
 
-        $this->assertEquals('generatedid', $generator->generate(null, $cm, $dm));
+        $this->assertEquals('generatedid', $generator->generate($this, $cm, $dm));
     }
 
     /**
@@ -39,12 +42,12 @@ class RepositoryIdGeneratorTest extends TestCase
     {
         $id = 'moo';
         $generator = new RepositoryIdGenerator();
-        $cm = new ClassMetadataProxy($id);
-        $repository = $this->createMock(RepositoryIdInterface::class);
+        $cm = new RepositoryClassMetadataProxy($id);
+        $repository = $this->createMock(ObjectRepositoryId::class);
         $repository
             ->expects($this->once())
             ->method('generateId')
-            ->with($this->equalTo(null))
+            ->with($this)
             ->willThrowException(new \Exception());
         $dm = $this->createMock(DocumentManager::class);
         $dm
@@ -53,7 +56,7 @@ class RepositoryIdGeneratorTest extends TestCase
             ->willReturn($repository);
 
         $this->expectException(\Exception::class);
-        $generator->generate(null, $cm, $dm);
+        $generator->generate($this, $cm, $dm);
     }
 }
 
@@ -64,10 +67,14 @@ class RepositoryClassMetadataProxy extends ClassMetadata
     public function __construct($value)
     {
         $this->_value = $value;
+        $this->name = 'Test';
     }
 
-    public function getFieldValue($document, $field)
+    public function getFieldValue(object $document, string $field)
     {
         return $this->_value;
     }
+}
+interface ObjectRepositoryId extends ObjectRepository, RepositoryIdInterface
+{
 }

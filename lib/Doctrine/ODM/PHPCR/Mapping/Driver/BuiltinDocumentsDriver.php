@@ -19,21 +19,9 @@ class BuiltinDocumentsDriver implements MappingDriver
      */
     public const NAME_SPACE = 'Doctrine\ODM\PHPCR\Document';
 
-    /**
-     * @var MappingDriver
-     */
-    private $wrappedDriver;
+    private MappingDriver $wrappedDriver;
+    private AnnotationDriver $builtinDriver;
 
-    /**
-     * @var AnnotationDriver
-     */
-    private $builtinDriver;
-
-    /**
-     * Create with a driver to wrap.
-     *
-     * @param MappingDriver $nestedDriver
-     */
     public function __construct(MappingDriver $wrappedDriver)
     {
         $this->wrappedDriver = $wrappedDriver;
@@ -42,10 +30,7 @@ class BuiltinDocumentsDriver implements MappingDriver
         $this->builtinDriver = new AnnotationDriver($reader, [realpath(__DIR__.'/../../Document')]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function loadMetadataForClass($className, ClassMetadata $class)
+    public function loadMetadataForClass($className, ClassMetadata $class): void
     {
         if (0 === strpos($className, self::NAME_SPACE)) {
             $this->builtinDriver->loadMetadataForClass($className, $class);
@@ -56,10 +41,7 @@ class BuiltinDocumentsDriver implements MappingDriver
         $this->wrappedDriver->loadMetadataForClass($className, $class);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAllClassNames()
+    public function getAllClassNames(): array
     {
         return array_merge(
             $this->builtinDriver->getAllClassNames(),
@@ -67,10 +49,7 @@ class BuiltinDocumentsDriver implements MappingDriver
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isTransient($className)
+    public function isTransient($className): bool
     {
         if (0 === strpos($className, self::NAME_SPACE)) {
             return $this->builtinDriver->isTransient($className);

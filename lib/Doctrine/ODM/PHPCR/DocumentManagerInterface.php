@@ -22,6 +22,7 @@ namespace Doctrine\ODM\PHPCR;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
@@ -35,12 +36,22 @@ use PHPCR\Query\QueryInterface;
 use PHPCR\RepositoryException;
 use PHPCR\SessionInterface;
 use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 
 /**
- * DocumentManager interface.
+ * The PHPCR-ODM document manager adds PHPCR specific methods to the object manager..
  */
 interface DocumentManagerInterface extends ObjectManager
 {
+    /**
+     * @{@inheritDoc}
+     *
+     * Overwritten to tighten return type.
+     *
+     * @return PhpcrClassMetadata
+     */
+    public function getClassMetadata($className);
+
     /**
      * Add or replace a translation strategy.
      *
@@ -50,32 +61,26 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string                       $key      the name of the translation strategy
      * @param TranslationStrategyInterface $strategy the strategy that is used with this key
      */
-    public function setTranslationStrategy($key, TranslationStrategyInterface $strategy);
+    public function setTranslationStrategy(string $key, TranslationStrategyInterface $strategy): void;
 
     /**
      * Get the translation strategy based on the strategy short name.
      *
-     * @param string $key The name of the translation strategy
-     *
-     * @return TranslationStrategyInterface
+     * @param string $key the name of the translation strategy
      *
      * @throws InvalidArgumentException if there is no strategy registered with the given key
      */
-    public function getTranslationStrategy($key);
+    public function getTranslationStrategy(string $key): TranslationStrategyInterface;
 
     /**
      * Check if a language chooser strategy is set.
-     *
-     * @return bool
      */
-    public function hasLocaleChooserStrategy();
+    public function hasLocaleChooserStrategy(): bool;
 
     /**
      * Get the assigned language chooser strategy previously set with setLocaleChooserStrategy.
-     *
-     * @return LocaleChooserInterface
      */
-    public function getLocaleChooserStrategy();
+    public function getLocaleChooserStrategy(): LocaleChooserInterface;
 
     /**
      * Set the locale chooser strategy for multilanguage documents.
@@ -83,51 +88,39 @@ interface DocumentManagerInterface extends ObjectManager
      * Note that there can be only one strategy per session. This is required if you have
      * multilanguage documents and not used if you don't have multilanguage.
      */
-    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy);
+    public function setLocaleChooserStrategy(LocaleChooserInterface $strategy): void;
 
     /**
      * Gets the proxy factory used by the DocumentManager to create document proxies.
-     *
-     * @return ProxyFactory
      */
-    public function getProxyFactory();
+    public function getProxyFactory(): ProxyFactory;
 
-    /**
-     * @return EventManager
-     */
-    public function getEventManager();
+    public function getEventManager(): EventManager;
 
     /**
      * Access the underlying PHPCR session this manager is using.
-     *
-     * @return SessionInterface
      */
-    public function getPhpcrSession();
+    public function getPhpcrSession(): SessionInterface;
 
-    /**
-     * @return Configuration
-     */
-    public function getConfiguration();
+    public function getConfiguration(): Configuration;
 
     /**
      * Check if the Document manager is open or closed.
-     *
-     * @return bool true if open, false if closed
      */
-    public function isOpen();
+    public function isOpen(): bool;
 
     /**
      * Finds many documents by id.
      *
      * @param string|null $className Only return documents that match the
      *                               specified class. All others are treated as not found.
-     * @param array       $ids       List of repository paths and/or uuids to
+     * @param string[]    $ids       List of repository paths and/or uuids to
      *                               find documents. Non-existing ids are ignored.
      *
-     * @return Collection list of documents that where found with the $ids and
-     *                    if specified the $className
+     * @return Collection<object> list of documents that where found with the $ids and
+     *                            if specified the $className
      */
-    public function findMany($className, array $ids);
+    public function findMany(?string $className, array $ids): Collection;
 
     /**
      * Load the document from the content repository in the given language.
@@ -145,40 +138,31 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param string|null $className The class name to find the translation for
      * @param string      $id        The identifier of the class (path or uuid)
-     * @param string      $locale    the language to try to load
-     * @param bool        $fallback  set to true if the language fallback mechanism should be used
+     * @param string      $locale    The language to try to load
+     * @param bool        $fallback  Set to true if the language fallback mechanism should be used
      *
-     * @return object the translated document
+     * @return object the translated document or null if not found
      *
-     * @throws PHPCRException              if $className is specified and does not match
-     *                                     the class of the document that was found at $id
      * @throws MissingTranslationException if $fallback is false and the
      *                                     translation was not found
+     * @throws PHPCRException              if $className is specified and does not match
+     *                                     the class of the document that was found at $id
      */
-    public function findTranslation($className, $id, $locale, $fallback = true);
+    public function findTranslation(?string $className, string $id, string $locale, bool $fallback = true): ?object;
 
     /**
      * Quote a string for inclusion in an SQL2 query.
      *
-     * @param string $val
-     * @param int    $type
-     *
-     * @return string
-     *
      * @see \PHPCR\PropertyType
      */
-    public function quote($val, $type = PropertyType::STRING);
+    public function quote(string $val, int $type = PropertyType::STRING): string;
 
     /**
      * Escape the illegal characters for inclusion in a fulltext statement. Escape Character is \\.
      *
-     * @param string $string
-     *
-     * @return string Escaped String
-     *
      * @see http://jackrabbit.apache.org/api/1.4/org/apache/jackrabbit/util/Text.html #escapeIllegalJcrChars
      */
-    public function escapeFullText($string);
+    public function escapeFullText(string $string): string;
 
     /**
      * Create a PHPCR Query from a query string in the specified query language to be
@@ -191,12 +175,10 @@ interface DocumentManagerInterface extends ObjectManager
      * and check your implementation documentation if you want to use a
      * different language.
      *
-     * @param string $statement The statement in the specified language
+     * @param string $statement The statement in the specified query language
      * @param string $language  The query language
-     *
-     * @return QueryInterface
      */
-    public function createPhpcrQuery($statement, $language);
+    public function createPhpcrQuery(string $statement, string $language): QueryInterface;
 
     /**
      * Create a ODM Query from a query string in the specified query language to be
@@ -206,31 +188,25 @@ interface DocumentManagerInterface extends ObjectManager
      * and check your implementation documentation if you want to use a
      * different language.
      *
-     * @param string $statement The statement in the specified language
+     * @param string $statement The statement in the specified query language
      * @param string $language  The query language
-     *
-     * @return Query
      */
-    public function createQuery($statement, $language);
+    public function createQuery(string $statement, string $language): Query;
 
     /**
      * Create the fluent query builder.
      *
      * Query returned by QueryBuilder::getQuery()
-     *
-     * @return QueryBuilder
      */
-    public function createQueryBuilder();
+    public function createQueryBuilder(): QueryBuilder;
 
     /**
      * Create lower level PHPCR query builder.
      *
      * NOTE: The ODM QueryBuilder (@see createQueryBuilder) is prefered over
      *       the PHPCR QueryBuilder when working with the ODM.
-     *
-     * @return QueryBuilder
      */
-    public function createPhpcrQueryBuilder();
+    public function createPhpcrQueryBuilder(): PhpcrQueryBuilder;
 
     /**
      * Get document results from a PHPCR query instance.
@@ -238,10 +214,8 @@ interface DocumentManagerInterface extends ObjectManager
      * @param QueryInterface $query           the query instance as acquired through createPhpcrQuery()
      * @param string|null    $className       document class
      * @param string|null    $primarySelector name of the selector for the document to return in case of a join query
-     *
-     * @return array of document instances
      */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, $className = null, $primarySelector = null);
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection;
 
     /**
      * Bind the translatable fields of the document in the specified locale.
@@ -254,7 +228,7 @@ interface DocumentManagerInterface extends ObjectManager
      * @throws InvalidArgumentException if $document is not an object or not managed
      * @throws PHPCRException           if the document is not translatable
      */
-    public function bindTranslation($document, $locale);
+    public function bindTranslation(object $document, string $locale): void;
 
     /**
      * Remove the translatable fields of the document in the specified locale.
@@ -264,33 +238,29 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function removeTranslation($document, $locale);
+    public function removeTranslation(object $document, string $locale): void;
 
     /**
      * Get the list of locales that exist for the specified document,
      * including those not yet flushed, but bound.
      *
-     * @param object $document         the document to get the locales for
-     * @param bool   $includeFallbacks whether to include the available language fallbacks
+     * @param object $document         The document to get the locales for
+     * @param bool   $includeFallbacks Whether to include the available language fallbacks
      *
-     * @return array of strings with all locales existing for this particular document
+     * @return string[] All locales existing for this particular document
      *
-     * @throws InvalidArgumentException    if $document is not an object
      * @throws MissingTranslationException if the document is not translatable
+     * @throws InvalidArgumentException    if $document is not an object
      */
-    public function getLocalesFor($document, $includeFallbacks = false);
+    public function getLocalesFor(object $document, bool $includeFallbacks): array;
 
     /**
      * Determine whether this document is translatable.
      *
      * To be translatable, it needs a translation strategy and have at least
      * one translated field.
-     *
-     * @param object $document the document to get the locales for
-     *
-     * @return bool
      */
-    public function isDocumentTranslatable($document);
+    public function isDocumentTranslatable(object $document): bool;
 
     /**
      * Move the previously persisted document and all its children in the tree.
@@ -300,12 +270,12 @@ interface DocumentManagerInterface extends ObjectManager
      * working with the manager after a move, you are probably safest calling
      * DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object $document   an already registered document
-     * @param string $targetPath the target path including the nodename
+     * @param object $document   An already registered document
+     * @param string $targetPath The target path including the nodename
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function move($document, $targetPath);
+    public function move(object $document, string $targetPath): void;
 
     /**
      * Reorder a child of the given document.
@@ -314,14 +284,14 @@ interface DocumentManagerInterface extends ObjectManager
      * If you want to continue working with the manager after a reorder, you are probably
      * safest calling DocumentManager::clear and re-loading the documents you need to use.
      *
-     * @param object $document   the parent document which must be persisted already
-     * @param string $srcName    the nodename of the child to be reordered
-     * @param string $targetName the nodename of the target of the reordering
-     * @param bool   $before     whether to move before or after the target
+     * @param object $document   The parent document which must be persisted already
+     * @param string $srcName    The nodename of the child to be reordered
+     * @param string $targetName The nodename of the target of the reordering
+     * @param bool   $before     Whether to move before or after the target
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function reorder($document, $srcName, $targetName, $before);
+    public function reorder(object $document, string $srcName, string $targetName, bool $before): void;
 
     /**
      * Get the child documents of a given document using an optional filter.
@@ -331,16 +301,16 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * Note that this method only returns children that have been flushed.
      *
-     * @param object       $document   document instance which children should be loaded
-     * @param string|array $filter     optional filter to filter on children names
-     * @param int          $fetchDepth optional fetch depth
-     * @param string       $locale     the locale to use during the loading of this collection
+     * @param object       $document   Document instance which children should be loaded
+     * @param string|array $filter     Optional filter to filter on children names
+     * @param int          $fetchDepth Optional fetch depth
+     * @param string|null  $locale     The locale to use during the loading of this collection
      *
      * @return ChildrenCollection collection of child documents
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function getChildren($document, $filter = null, $fetchDepth = null, $locale = null);
+    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, ?string $locale = null): ChildrenCollection;
 
     /**
      * Get the documents that refer a given document using an optional name.
@@ -354,17 +324,15 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * Note that this method only returns referrers that have been flushed.
      *
-     * @param object      $document the target of the references to be loaded
-     * @param string|null $type     the reference type, null|'weak'|'hard'
-     * @param string|null $name     optional PHPCR property name that holds the reference
-     * @param string      $locale   the locale to use during the loading of this collection
-     * @param string|null $refClass class the referrer document must be instanceof
-     *
-     * @return ReferrersCollection collection of referrer documents
+     * @param object      $document The target of the references to be loaded
+     * @param string|null $type     The reference type, null|'weak'|'hard'
+     * @param string|null $name     Optional PHPCR property name that holds the reference
+     * @param string|null $locale   The locale to use during the loading of this collection
+     * @param string|null $refClass Class the referrer document must be instanceof
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function getReferrers($document, $type = null, $name = null, $locale = null, $refClass = null);
+    public function getReferrers(object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null): ReferrersCollection;
 
     /**
      * Gets a reference to the document identified by the given type and identifier
@@ -374,12 +342,11 @@ interface DocumentManagerInterface extends ObjectManager
      * has its identifier populated. Otherwise a proxy is returned that automatically
      * loads itself on first access.
      *
-     * @param string        $documentName
      * @param string|object $id
      *
      * @return mixed|object the document reference
      */
-    public function getReference($documentName, $id);
+    public function getReference(string $documentName, $id);
 
     /**
      * Create a new version of the document that has been previously persisted
@@ -390,33 +357,27 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * The document is made read only until you call checkout again.
      *
+     * @throws InvalidArgumentException if $document is not managed
+     *
      * @see checkpoint
-     *
-     * @param object $document
-     *
-     * @throws InvalidArgumentException if $document is not an object
      */
-    public function checkin($document);
+    public function checkin(object $document): void;
 
     /**
      * Make a checked in document writable again.
      *
-     * @param object $document
-     *
-     * @throws InvalidArgumentException if $document is not an object
+     * @throws InvalidArgumentException if $document is not managed
      */
-    public function checkout($document);
+    public function checkout(object $document): void;
 
     /**
      * Do a checkin operation followed immediately by a checkout operation.
      *
      * A new version is created and the writable document stays in checked out state
      *
-     * @param object $document
-     *
-     * @throws InvalidArgumentException if $document is not an object
+     * @throws InvalidArgumentException if $document is not managed
      */
-    public function checkpoint($document);
+    public function checkpoint(object $document): void;
 
     /**
      * Restores the current checked out document to the values of the given
@@ -426,14 +387,14 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * The restore is immediately propagated to the backend.
      *
-     * @see findVersionByName
-     *
-     * @param string $documentVersion the version to be restored
+     * @param object $documentVersion The document version to be restored
      * @param bool   $removeExisting  How to handle conflicts with unique
      *                                identifiers. If true, existing documents with the identical
      *                                identifier will be replaced, otherwise an exception is thrown.
+     *
+     *@see findVersionByName
      */
-    public function restoreVersion($documentVersion, $removeExisting = true);
+    public function restoreVersion(object $documentVersion, bool $removeExisting = true): void;
 
     /**
      * Delete the specified version to clean up the history.
@@ -441,16 +402,16 @@ interface DocumentManagerInterface extends ObjectManager
      * Note that you can not remove the currently active version, only old
      * versions.
      *
-     * @param object $documentVersion the version document as returned by findVersionByName
+     * @param object $documentVersion The version document as returned by findVersionByName
      *
      * @throws RepositoryException when trying to remove the root version or the last version
      */
-    public function removeVersion($documentVersion);
+    public function removeVersion(object $documentVersion): void;
 
     /**
      * Get the version history information for a document.
      *
-     * labels will be an empty array.
+     * Labels will be an empty array.
      *
      * @param object $document the document of which to get the version history
      * @param int    $limit    an optional limit to only get the latest $limit information
@@ -460,7 +421,7 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function getAllLinearVersions($document, $limit = -1);
+    public function getAllLinearVersions(object $document, int $limit = -1): array;
 
     /**
      * Returns a read-only, detached document instance of the document at the
@@ -469,25 +430,22 @@ interface DocumentManagerInterface extends ObjectManager
      * The id of the returned document representing this version is not the id
      * of the original document.
      *
-     * @param string|null $className
-     * @param string      $id          id of the document
-     * @param string      $versionName the version name as given by getLinearPredecessors
+     * @param string $id          Id of the document
+     * @param string $versionName The version name as given by getLinearPredecessors
      *
-     * @return object the detached document or null if the document is not found
+     * @return object The detached document or null if the document is not found
      *
-     * @throws InvalidArgumentException                if there is a document with $id but no version with $name
      * @throws UnsupportedRepositoryOperationException if the implementation does not support versioning
+     * @throws InvalidArgumentException                if there is a document with $id but no version with $name
      */
-    public function findVersionByName($className, $id, $versionName);
+    public function findVersionByName(?string $className, string $id, string $versionName): ?object;
 
     /**
      * Client code should not access the UnitOfWork except in special
      * circumstances. Methods on UnitOfWork might be changed without special
      * notice.
-     *
-     * @return UnitOfWork
      */
-    public function getUnitOfWork();
+    public function getUnitOfWork(): UnitOfWork;
 
     /**
      * Flushes all changes to objects that have been queued up to now to the database.
@@ -497,41 +455,35 @@ interface DocumentManagerInterface extends ObjectManager
      * This is different from the ObjectManager in that it accepts an optional
      * argument to limit the flush to one or more specific documents.
      *
-     * @param object|array|null $document optionally limit to a specific
+     * @param object|array|null $document Optionally limit to a specific
      *                                    document or an array of documents
      *
      * @throws InvalidArgumentException if $document is neither null nor a
      *                                  document or an array of documents
      */
-    public function flush($document = null);
+    public function flush($document = null): void;
 
     /**
      * Closes the DocumentManager. All entities that are currently managed
      * by this DocumentManager become detached. The DocumentManager may no longer
      * be used after it is closed.
      */
-    public function close();
+    public function close(): void;
 
     /**
      * Return the node of the given object.
      *
-     * @param object $document
-     *
-     * @return NodeInterface
-     *
-     * @throws InvalidArgumentException if $document is not an object
      * @throws PHPCRException           if $document is not managed
+     * @throws InvalidArgumentException if $document is not an object
      */
-    public function getNodeForDocument($document);
+    public function getNodeForDocument(object $document): NodeInterface;
 
     /**
      * Get the document identifier phpcr-odm is using.
      *
      * @param object $document A managed document
      *
-     * @return string
-     *
      * @throws PHPCRException if $document is not managed
      */
-    public function getDocumentId($document);
+    public function getDocumentId(object $document): ?string;
 }

@@ -13,9 +13,9 @@ use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class QueryBuilderTester
+final class QueryBuilderTester
 {
-    protected $qb;
+    private QueryBuilder $qb;
 
     public function __construct(QueryBuilder $qb)
     {
@@ -33,20 +33,15 @@ class QueryBuilderTester
      *
      *     where.constraint.constraint[1].operand_static
      *
-     * @param string $path
-     *
-     * @return AbstractNode
-     *
      * @throws BadMethodCallException
      */
-    public function getNode($path)
+    public function getNode(string $path): AbstractNode
     {
         $node = $this->qb;
         $parts = explode('.', $path);
         $currentPath = [];
         $currentNode = $node;
 
-        $index = 0;
         foreach ($parts as $part) {
             if (preg_match('&^([a-z]+)\[([0-9]+)\]$&', $part, $matches)) {
                 $nodeType = $matches[1];
@@ -68,7 +63,7 @@ class QueryBuilderTester
                 ));
             }
 
-            if (!isset($children[$index])) {
+            if (!array_key_exists($index, $children)) {
                 throw new BadMethodCallException(sprintf(
                     "No node at path \"%s\". Node has following paths: \n%s",
                     implode('.', $currentPath),
@@ -87,12 +82,8 @@ class QueryBuilderTester
      *
      * Note that paths here do not include indexes. They need to be
      * inferred mentally.
-     *
-     * @param AbstractNode $node
-     *
-     * @return string
      */
-    public function dumpPaths(AbstractNode $node = null)
+    public function dumpPaths(AbstractNode $node = null): string
     {
         $children = [];
         $paths = [];
@@ -102,7 +93,7 @@ class QueryBuilderTester
         }
 
         foreach ($node->getChildren() as $child) {
-            if (!isset($children[$child->getNodeType()])) {
+            if (!array_key_exists($child->getNodeType(), $children)) {
                 $children[$child->getNodeType()] = [];
             }
 
@@ -116,14 +107,7 @@ class QueryBuilderTester
         return implode("\n", $paths);
     }
 
-    /**
-     * Get path of given node.
-     *
-     * @param AbstractNode
-     *
-     * @return string
-     */
-    public function getPath(AbstractNode $node)
+    public function getPath(AbstractNode $node): string
     {
         $path = [];
         $currentNode = $node;
@@ -143,7 +127,7 @@ class QueryBuilderTester
      *
      * @return AbstractNode[]
      */
-    public function getAllNodes(AbstractNode $node = null)
+    public function getAllNodes(AbstractNode $node = null): array
     {
         $nodes = [];
         if (!$node) {

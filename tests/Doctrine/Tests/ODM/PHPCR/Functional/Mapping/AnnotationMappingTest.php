@@ -333,7 +333,7 @@ class RepositoryIdStrategy
 }
 class Repository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId($document, $parent = null)
+    public function generateId(object $document, ?object $parent = null): string
     {
         return '/functional/'.str_replace(' ', '-', $document->title);
     }

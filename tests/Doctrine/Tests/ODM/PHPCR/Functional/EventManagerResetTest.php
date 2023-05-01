@@ -90,7 +90,7 @@ class TestResetListener
         if ($document instanceof CmsPage) {
             $contentReference = unserialize($document->content);
 
-            if (false !== $contentReference && isset($contentReference['id'])) {
+            if (false !== $contentReference && array_key_exists('id', $contentReference)) {
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();
                 $pageContent->id = 1;
@@ -119,7 +119,7 @@ class TestResetListener
         if ($document instanceof CmsPage) {
             $contentReference = unserialize($document->content);
 
-            if (false !== $contentReference && isset($contentReference['id'])) {
+            if (false !== $contentReference && array_key_exists('id', $contentReference)) {
                 // Load real object using $contentReference['id']
                 $pageContent = new CmsPageContent();
                 $pageContent->id = 1;
