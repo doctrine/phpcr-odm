@@ -62,7 +62,7 @@ jobs:
 
         steps:
             - name: Checkout project
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Install and configure PHP
               uses: shivammathur/setup-php@v2
@@ -82,7 +82,7 @@ jobs:
               run: composer require phpbench/phpbench:"^1.0" --no-update
 
             - name: Install dependencies with Composer
-              uses: ramsey/composer-install@v1
+              uses: ramsey/composer-install@v2
               with:
                   dependency-versions: ${{ matrix.dependencies }}
                   composer-options: --prefer-dist
@@ -144,7 +144,7 @@ jobs:
 
         steps:
             - name: Checkout project
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Install and configure PHP
               uses: shivammathur/setup-php@v2
@@ -157,7 +157,7 @@ jobs:
               run: composer config extra.symfony.require ${{ matrix.symfony-version }}
 
             - name: Install and configure Java
-              uses: actions/setup-java@v2
+              uses: actions/setup-java@v3
               with:
                   distribution: temurin
                   java-version: '8'
@@ -170,7 +170,7 @@ jobs:
               run: composer require phpbench/phpbench:"^1.0" --no-update
 
             - name: Install dependencies with Composer
-              uses: ramsey/composer-install@v1
+              uses: ramsey/composer-install@v2
               with:
                   dependency-versions: ${{ matrix.dependencies }}
                   composer-options: --prefer-dist
