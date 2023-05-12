@@ -588,5 +588,3 @@ Symfony bundle
 ---------------
 
 If you are using the `Symfony DoctrinePHPCRBundle <https://github.com/doctrine/DoctrinePHPCRBundle>`_, you can use the ``ValidPhpcrOdm`` validator to validate your documents.
-
-You can find an example in the `Symfony documentation <http://symfony.com/doc/master/cmf/bundles/phpcr_odm/forms.html#validator-constraint>`_.
