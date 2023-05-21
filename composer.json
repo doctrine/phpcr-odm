@@ -18,7 +18,7 @@
         {"name":"David Buchmann", "email":"david@liip.ch"},
         {"name":"Lukas Kahwe Smith", "email":"smith@pooteeweet.org"}
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true,
     "require": {
         "php": "^7.4 || ^8.0",
