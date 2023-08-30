@@ -110,8 +110,6 @@ final class LocaleChooser implements LocaleChooserInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws MissingTranslationException if the specified locale is not defined in the $localePreference array
      */
     public function setLocale(string $locale): void

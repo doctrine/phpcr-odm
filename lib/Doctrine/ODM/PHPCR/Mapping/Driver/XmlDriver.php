@@ -24,8 +24,6 @@ class XmlDriver extends FileDriver
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param PhpcrClassMetadata $class
      */
     public function loadMetadataForClass($className, ClassMetadata $class): void

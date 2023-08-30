@@ -45,17 +45,11 @@ class CmsArticle
         $this->persons->add($person);
     }
 
-    /**
-     * @param mixed $persons
-     */
     public function setPersons($persons)
     {
         $this->persons = $persons;
     }
 
-    /**
-     * @return mixed
-     */
     public function getPersons()
     {
         return $this->persons;

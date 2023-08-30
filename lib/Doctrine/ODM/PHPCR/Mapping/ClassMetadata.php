@@ -874,8 +874,8 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['property'] = $mapping['fieldName'];
         }
 
-        if ($phpcrLabel &&
-            (!array_key_exists($phpcrLabel, $mapping) || empty($mapping[$phpcrLabel]))
+        if ($phpcrLabel
+            && (!array_key_exists($phpcrLabel, $mapping) || empty($mapping[$phpcrLabel]))
         ) {
             $mapping[$phpcrLabel] = $mapping['fieldName'];
         }
@@ -1592,8 +1592,6 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Sets the specified field to the specified value on the given document.
-     *
-     * @param mixed $value
      */
     public function setFieldValue(object $document, string $field, $value): void
     {

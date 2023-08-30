@@ -21,8 +21,6 @@ interface TranslationNodesWarmer
      *
      * @param NodeInterface[] $nodes
      * @param string[]        $locales
-     *
-     * @return mixed
      */
     public function getTranslationsForNodes(iterable $nodes, array $locales, SessionInterface $session);
 }

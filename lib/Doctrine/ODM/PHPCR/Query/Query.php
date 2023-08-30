@@ -193,8 +193,6 @@ final class Query
     /**
      * Get exactly one result or null.
      *
-     * @return mixed
-     *
      * @throws QueryException if more than one result found
      */
     public function getOneOrNullResult(int $hydrationMode = null)
@@ -218,8 +216,6 @@ final class Query
      *
      * If the result is not unique, a NonUniqueResultException is thrown.
      * If there is no result, a NoResultException is thrown.
-     *
-     * @return mixed
      *
      * @throws QueryException if no result or more than one result found
      */

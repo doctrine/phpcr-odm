@@ -64,7 +64,7 @@ interface LocaleChooserInterface
      *
      * @throws MissingTranslationException
      */
-    public function getFallbackLocales(?object $document, ClassMetadata $metadata, ?string $forLocale = null): array;
+    public function getFallbackLocales(?object $document, ClassMetadata $metadata, string $forLocale = null): array;
 
     /**
      * Get the locale of the current session.

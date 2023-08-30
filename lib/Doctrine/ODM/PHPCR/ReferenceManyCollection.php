@@ -33,7 +33,7 @@ class ReferenceManyCollection extends PersistentCollection
      * @param string|null              $locale          The locale to use during the loading of this collection
      * @param string                   $referenceType   Identifiers used for reference nodes in this collection, either path or default uuid
      */
-    public function __construct(DocumentManagerInterface $dm, object $document, string $property, array $referencedNodes, ?string $targetDocument, ?string $locale = null, string $referenceType = self::REFERENCE_TYPE_UUID)
+    public function __construct(DocumentManagerInterface $dm, object $document, string $property, array $referencedNodes, ?string $targetDocument, string $locale = null, string $referenceType = self::REFERENCE_TYPE_UUID)
     {
         parent::__construct($dm);
         $this->document = $document;

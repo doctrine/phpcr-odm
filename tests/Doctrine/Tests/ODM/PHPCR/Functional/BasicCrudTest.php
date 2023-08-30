@@ -732,7 +732,7 @@ class User6 extends User5
 
 class User3Repository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId(object $document, ?object $parent = null): string
+    public function generateId(object $document, object $parent = null): string
     {
         return '/functional/'.$document->username;
     }

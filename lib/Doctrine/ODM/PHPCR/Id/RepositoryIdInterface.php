@@ -7,5 +7,5 @@ namespace Doctrine\ODM\PHPCR\Id;
  */
 interface RepositoryIdInterface
 {
-    public function generateId(object $document, ?object $parent = null): string;
+    public function generateId(object $document, object $parent = null): string;
 }

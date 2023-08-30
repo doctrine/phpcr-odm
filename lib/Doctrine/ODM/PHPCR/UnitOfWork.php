@@ -550,7 +550,7 @@ class UnitOfWork
     /**
      * Get the existing document or proxy or create a new one for this PHPCR Node.
      */
-    public function getOrCreateProxyFromNode(NodeInterface $node, ?string $locale = null): object
+    public function getOrCreateProxyFromNode(NodeInterface $node, string $locale = null): object
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
@@ -562,7 +562,7 @@ class UnitOfWork
      * Get the existing document or proxy for this id of this class, or create
      * a new one.
      */
-    public function getOrCreateProxy(string $targetId, string $className, ?string $locale = null): object
+    public function getOrCreateProxy(string $targetId, string $className, string $locale = null): object
     {
         $document = $this->getDocumentById($targetId);
 
@@ -1511,7 +1511,7 @@ class UnitOfWork
      *
      * @return object the child instance (if we are replacing a child this can be a different instance than was originally provided)
      */
-    private function computeChildChanges(array $mapping, object $child, string $parentId, string $nodename, ?object $parent = null): object
+    private function computeChildChanges(array $mapping, object $child, string $parentId, string $nodename, object $parent = null): object
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
@@ -1605,7 +1605,7 @@ class UnitOfWork
      *
      * @param int|null $overrideIdGenerator type of the id generator if not the default
      */
-    public function persistNew(ClassMetadata $class, object $document, ?int $overrideIdGenerator = null, ?object $parent = null): void
+    public function persistNew(ClassMetadata $class, object $document, int $overrideIdGenerator = null, object $parent = null): void
     {
         if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::prePersist)) {
             $this->eventListenersInvoker->invoke(
@@ -1707,7 +1707,7 @@ class UnitOfWork
     /**
      * @param array|null $assoc Information for association when necessary
      */
-    private function doMerge(object $document, array &$visited, ?object $prevManagedCopy = null, ?array $assoc = null): object
+    private function doMerge(object $document, array &$visited, object $prevManagedCopy = null, array $assoc = null): object
     {
         $oid = \spl_object_hash($document);
         if (array_key_exists($oid, $visited)) {
@@ -3180,7 +3180,7 @@ class UnitOfWork
      * If the document is not translatable, this method returns immediately
      * and without error.
      */
-    public function doLoadTranslation(object $document, ClassMetadata $metadata, ?string $locale = null, bool $fallback = false, bool $refresh = false): void
+    public function doLoadTranslation(object $document, ClassMetadata $metadata, string $locale = null, bool $fallback = false, bool $refresh = false): void
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -3545,7 +3545,7 @@ class UnitOfWork
      *
      * @return int previous fetch depth value
      */
-    public function setFetchDepth(?int $fetchDepth = null): int
+    public function setFetchDepth(int $fetchDepth = null): int
     {
         if (!$this->useFetchDepth
             || !method_exists($this->session, 'getSessionOption')

@@ -26,49 +26,31 @@ class CmsArticlePerson
         $this->articlesReferrers = new ArrayCollection();
     }
 
-    /**
-     * @param mixed $articlesReferrers
-     */
     public function setArticlesReferrers($articlesReferrers)
     {
         $this->articlesReferrers = $articlesReferrers;
     }
 
-    /**
-     * @return mixed
-     */
     public function getArticlesReferrers()
     {
         return $this->articlesReferrers;
     }
 
-    /**
-     * @param mixed $id
-     */
     public function setId($id)
     {
         $this->id = $id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $name
-     */
     public function setName($name)
     {
         $this->name = $name;
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;
@@ -77,7 +59,7 @@ class CmsArticlePerson
 
 class CmsArticlePersonRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId(object $document, ?object $parent = null): string
+    public function generateId(object $document, object $parent = null): string
     {
         return '/functional/'.$document->name;
     }

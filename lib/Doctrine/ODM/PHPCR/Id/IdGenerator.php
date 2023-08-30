@@ -44,5 +44,5 @@ abstract class IdGenerator
     /**
      * Generate the actual id, to be overwritten by extending classes.
      */
-    abstract public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, ?object $parent = null): string;
+    abstract public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent = null): string;
 }

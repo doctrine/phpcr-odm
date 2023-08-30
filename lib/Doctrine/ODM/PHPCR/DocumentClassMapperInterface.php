@@ -20,7 +20,7 @@ interface DocumentClassMapperInterface
      * @throws ClassMismatchException if $node represents a class that is not
      *                                a descendant of $className
      */
-    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, ?string $className = null): string;
+    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, string $className = null): string;
 
     /**
      * Write any relevant meta data into the node to be able to map back to a class name later.

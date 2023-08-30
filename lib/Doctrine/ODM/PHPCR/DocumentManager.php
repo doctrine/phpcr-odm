@@ -359,7 +359,7 @@ class DocumentManager implements DocumentManagerInterface
         return new PhpcrQueryBuilder($qm->getQOMFactory());
     }
 
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, string $className = null, string $primarySelector = null): Collection
     {
         $this->errorIfClosed();
 

@@ -32,7 +32,7 @@ class ReferrersCollection extends PersistentCollection
      * @param string|null              $locale   the locale to use
      * @param string|null              $refClass class the referrer document must be instanceof
      */
-    public function __construct(DocumentManagerInterface $dm, object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null)
+    public function __construct(DocumentManagerInterface $dm, object $document, string $type = null, string $name = null, string $locale = null, string $refClass = null)
     {
         parent::__construct($dm);
         $this->document = $document;
@@ -51,7 +51,7 @@ class ReferrersCollection extends PersistentCollection
      * @param string|null              $refClass       class the referrer document must be instanceof
      * @param bool                     $forceOverwrite If to force the database to be forced to the state of the collection
      */
-    public static function createFromCollection(DocumentManagerInterface $dm, object $document, $collection, ?string $type = null, ?string $name = null, ?string $refClass = null, bool $forceOverwrite = false): self
+    public static function createFromCollection(DocumentManagerInterface $dm, object $document, $collection, string $type = null, string $name = null, string $refClass = null, bool $forceOverwrite = false): self
     {
         $referrerCollection = new self($dm, $document, $type, $name, null, $refClass);
         $referrerCollection->initializeFromCollection($collection, $forceOverwrite);

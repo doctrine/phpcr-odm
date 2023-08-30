@@ -128,7 +128,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         return $this->wrapped->createPhpcrQueryBuilder();
     }
 
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, string $className = null, string $primarySelector = null): Collection
     {
         return $this->wrapped->getDocumentsByPhpcrQuery($query, $className, $primarySelector);
     }
@@ -163,12 +163,12 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         $this->wrapped->reorder($document, $srcName, $targetName, $before);
     }
 
-    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, ?string $locale = null): ChildrenCollection
+    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
     {
         return $this->wrapped->getChildren($document, $filter, $fetchDepth, $locale);
     }
 
-    public function getReferrers(object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null): ReferrersCollection
+    public function getReferrers(object $document, string $type = null, string $name = null, string $locale = null, string $refClass = null): ReferrersCollection
     {
         return $this->wrapped->getReferrers($document, $type, $name, $locale, $refClass);
     }

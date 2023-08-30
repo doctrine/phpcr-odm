@@ -215,7 +215,7 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string|null    $className       document class
      * @param string|null    $primarySelector name of the selector for the document to return in case of a join query
      */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection;
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, string $className = null, string $primarySelector = null): Collection;
 
     /**
      * Bind the translatable fields of the document in the specified locale.
@@ -310,7 +310,7 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, ?string $locale = null): ChildrenCollection;
+    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection;
 
     /**
      * Get the documents that refer a given document using an optional name.
@@ -332,7 +332,7 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function getReferrers(object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null): ReferrersCollection;
+    public function getReferrers(object $document, string $type = null, string $name = null, string $locale = null, string $refClass = null): ReferrersCollection;
 
     /**
      * Gets a reference to the document identified by the given type and identifier

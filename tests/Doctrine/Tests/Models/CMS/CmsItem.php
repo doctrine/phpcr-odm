@@ -55,7 +55,7 @@ class CmsItem
 
 class CmsItemRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId(object $document, ?object $parent = null): string
+    public function generateId(object $document, object $parent = null): string
     {
         return '/functional/'.$document->name;
     }

@@ -727,7 +727,7 @@ class ChildrenTestObj
 
 class ChildrenTestObjRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId(object $document, ?object $parent = null): string
+    public function generateId(object $document, object $parent = null): string
     {
         if ($document->id) {
             return $document->id;
