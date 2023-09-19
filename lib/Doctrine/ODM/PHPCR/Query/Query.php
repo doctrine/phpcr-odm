@@ -5,6 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
 use PHPCR\Query\QueryInterface;
+use PHPCR\Query\QueryResultInterface;
 
 /**
  * Query
@@ -228,7 +229,7 @@ class Query
      *
      * Alias for execute(null, HYDRATE_PHPCR).
      *
-     * @return array
+     * @return QueryResultInterface
      */
     public function getPhpcrNodeResult()
     {
@@ -250,8 +251,9 @@ class Query
 
         if (count($result) > 1) {
             throw QueryException::nonUniqueResult();
-        } elseif (count($result) <= 0) {
-            return;
+        }
+        if (count($result) <= 0) {
+            return null;
         }
 
         return $result->first();
