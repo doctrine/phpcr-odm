@@ -183,7 +183,7 @@ final class Query
      *
      * Alias for execute(null, HYDRATE_PHPCR).
      *
-     * @return Collection|QueryResultInterface
+     * @return QueryResultInterface
      */
     public function getPhpcrNodeResult()
     {
