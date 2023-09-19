@@ -282,7 +282,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         $result = $qb->getQuery()->getPhpcrNodeResult();
         $rows = $result->getRows();
-        $values = $rows->current()->getValues('a');
+        $values = $rows->current()->getValues();
         $values = $this->cleanValues($values);
         $this->assertInstanceOf(\Countable::class, $rows);
         $this->assertCount(1, $rows);
@@ -305,7 +305,7 @@ class QueryBuilderTest extends PHPCRFunctionalTestCase
 
         $result = $qb->getQuery()->getPhpcrNodeResult();
         $rows = $result->getRows();
-        $values = $rows->current()->getValues('a');
+        $values = $rows->current()->getValues();
         $values = $this->cleanValues($values);
 
         switch ($qb->getQuery()->getLanguage()) {
