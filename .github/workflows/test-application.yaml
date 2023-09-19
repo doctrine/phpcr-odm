@@ -47,9 +47,9 @@ jobs:
                   - php-version: '8.2'
                     dependencies: highest
                     symfony-version: '6.*'
-                  - php-version: '8.2'
+                  - php-version: '8.3'
                     dependencies: highest
-                    symfony-version: '6.*'
+                    symfony-version: '7.*'
                     jackalope-version: '2.*'
                     php-bench: true
 
@@ -129,9 +129,9 @@ jobs:
                   - php-version: '8.2'
                     dependencies: highest
                     symfony-version: '6.*'
-                  - php-version: '8.2'
+                  - php-version: '8.3'
                     dependencies: highest
-                    symfony-version: '6.*'
+                    symfony-version: '7.*'
                     jackalope-version: '2.*'
                     php-bench: true
 
