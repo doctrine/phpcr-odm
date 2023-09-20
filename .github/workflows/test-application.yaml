@@ -84,6 +84,13 @@ jobs:
                   dependency-versions: ${{ matrix.dependencies }}
                   composer-options: --prefer-dist
 
+            - name: Cache Jackrabbit
+              id: cache-jackrabbit
+              uses: actions/cache@v3
+              with:
+                path: vendor/jackalope/jackalope-jackrabbit/bin/jackrabbit-standalone-*
+                key: jackrabbit
+
             - name: Run configuration script
               run: ./tests/script_doctrine_dbal.sh
 
