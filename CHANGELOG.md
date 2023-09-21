@@ -3,6 +3,10 @@ Changelog
 
 1.x
 ===
+1.7.2
+-----
+
+* Maintenance release with doc and phpunit test cleanups.
 
 1.7.1
 -----
