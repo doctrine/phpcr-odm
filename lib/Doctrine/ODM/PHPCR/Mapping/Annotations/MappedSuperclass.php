@@ -25,6 +25,6 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("CLASS")
  */
-final class MappedSuperclass extends Document
+class MappedSuperclass extends Document
 {
 }

@@ -7,7 +7,7 @@ Changelog
 1.8.0 (unreleased)
 ------------------
 
-* Add support for PHP attributes
+* Add support for PHP attributes (only for the annotations that are not deprecated)
 * Drop support for PHP 7.
 
 1.7.2

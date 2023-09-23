@@ -25,6 +25,6 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Field extends TranslatableProperty
+class Field extends TranslatableProperty
 {
 }

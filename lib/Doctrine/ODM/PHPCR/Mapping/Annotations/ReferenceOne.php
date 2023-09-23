@@ -25,6 +25,6 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class ReferenceOne extends Reference
+class ReferenceOne extends Reference
 {
 }

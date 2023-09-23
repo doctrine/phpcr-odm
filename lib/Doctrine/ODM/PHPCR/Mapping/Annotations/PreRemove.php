@@ -25,6 +25,6 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("METHOD")
  */
-final class PreRemove
+class PreRemove
 {
 }
