@@ -3,6 +3,12 @@ Changelog
 
 1.x
 ===
+
+1.8.0 (unreleased)
+------------------
+
+* Drop support for PHP 7.
+
 1.7.2
 -----
 
