@@ -160,7 +160,7 @@ jobs:
               run: ./tests/script_jackrabbit.sh
 
             - name: Execute test cases
-              run: vendor/bin/phpunit -c tests/phpunit_jackrabbit.xml.dist || [[ ${{ matrix.php-version }} == 8.2 || ${{ matrix.php-version }} == 8.3 ]]
+              run: vendor/bin/phpunit -c tests/phpunit_jackrabbit.xml.dist
 
             - name: Execute PHPBench
               if: matrix.php-bench == true

@@ -7,7 +7,6 @@ Changelog
 1.8.0 (unreleased)
 ------------------
 
-* Add support for PHP attributes
 * Drop support for PHP 7.
 
 1.7.2
