@@ -4,8 +4,9 @@ namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
 use Attribute;
 use Doctrine\ODM\PHPCR\Mapping\Annotations\Node as BaseNode;
+use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-final class Node extends BaseNode
+final class Node extends BaseNode implements MappingAttribute
 {
 }

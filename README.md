@@ -1,4 +1,4 @@
-# PHPCR ODM for Doctrine2
+# PHPCR ODM for Doctrine
 
 [![Build Status](https://github.com/doctrine/phpcr-odm/actions/workflows/test-application.yaml/badge.svg?branch=1.x)](https://github.com/doctrine/phpcr-odm/actions/workflows/test-application.yaml)
 [![Latest Stable Version](https://poser.pugx.org/doctrine/phpcr-odm/version.png)](https://packagist.org/packages/doctrine/phpcr-odm)

@@ -3,19 +3,20 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping\Model;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * An invalid class with translated fields but no translator
  *
  * @PHPCRODM\Document()
  */
+#[PHPCR\Document]
 class TranslatorMappingObjectNoStrategy
 {
     /**
-     * The path
-     *
      * @PHPCRODM\Id
      */
+    #[PHPCR\Id]
     private $id;
 
     /**
@@ -23,6 +24,7 @@ class TranslatorMappingObjectNoStrategy
      *
      * @PHPCRODM\Locale
      */
+    #[PHPCR\Locale]
     private $doclocale;
 
     /**
@@ -30,6 +32,7 @@ class TranslatorMappingObjectNoStrategy
      *
      * @PHPCRODM\Field(type="date")
      */
+    #[PHPCR\Field(type: 'date')]
     private $publishDate;
 
     /**
@@ -37,6 +40,7 @@ class TranslatorMappingObjectNoStrategy
      *
      * @PHPCRODM\Field(type="string", translated=true)
      */
+    #[PHPCR\Field(type: 'string', translated: true)]
     private $topic;
 
     /**
@@ -44,5 +48,6 @@ class TranslatorMappingObjectNoStrategy
      *
      * @PHPCRODM\Field(type="binary", translated=true)
      */
+    #[PHPCR\Field(type: 'binary', translated: true)]
     private $image;
 }

@@ -25,6 +25,9 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ODM\PHPCR\Mapping\Annotations\Document;
+use Doctrine\ODM\PHPCR\Mapping\Annotations\MappedSuperclass;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
@@ -47,16 +50,17 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
      * Document annotation classes, ordered by precedence.
      */
     protected $entityAnnotationClasses = [
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\Document' => 0,
-        'Doctrine\\ODM\\PHPCR\\Mapping\\Annotations\\MappedSuperclass' => 1,
+        Document::class => 0,
+        MappedSuperclass::class => 1,
     ];
 
     /**
      * {@inheritdoc}
+     *
+     * @param PhpcrClassMetadata $metadata
      */
     public function loadMetadataForClass($className, ClassMetadata $metadata)
     {
-        /** @var $metadata \Doctrine\ODM\PHPCR\Mapping\ClassMetadata */
         $reflClass = $metadata->getReflectionClass();
 
         $documentAnnots = [];
@@ -184,7 +188,7 @@ class AnnotationDriver extends AbstractAnnotationDriver implements MappingDriver
         }
 
         foreach ($reflClass->getMethods() as $method) {
-            if ($method->isPublic() && $method->getDeclaringClass()->getName() == $metadata->name) {
+            if ($method->isPublic() && $method->getDeclaringClass()->getName() === $metadata->name) {
                 foreach ($this->reader->getMethodAnnotations($method) as $annot) {
                     if ($annot instanceof ODM\PrePersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::prePersist);

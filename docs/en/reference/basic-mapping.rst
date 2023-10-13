@@ -10,23 +10,23 @@ Mapping Drivers
 Doctrine provides several different ways for specifying
 object-document mapping metadata:
 
+- PHP Attributes
+- Docblock Annotations (deprecated)
+- XML
+- YAML
 
--  Docblock Annotations
--  XML
--  YAML
-
-This manual usually mentions docblock annotations in all the examples
+This manual usually mentions PHP attributes in all the examples
 that are spread throughout all chapters, however for many examples
 alternative YAML and XML examples are given as well. There are dedicated
 reference chapters for XML and YAML mapping, respectively that explain them
-in more detail. There is also an Annotation reference chapter.
+in more detail. There is also an Attribute and an Annotation reference chapter.
 
 .. note::
 
     If you're wondering which mapping driver gives the best
     performance, the answer is: They all give exactly the same performance.
     Once the metadata of a class has
-    been read from the source (annotations, xml or yaml) it is stored
+    been read from the source (attributes, xml or yaml) it is stored
     in an instance of the ``Doctrine\ODM\PHPCR\Mapping\ClassMetadata`` class
     and these instances are stored in the metadata cache. Therefore at
     the end of the day all drivers perform equally well. If you're not
@@ -35,52 +35,29 @@ in more detail. There is also an Annotation reference chapter.
     support in PHP.
 
 
-Introduction to Docblock Annotations
-------------------------------------
+Introduction to PHP Attributes
+------------------------------
 
-You've probably used docblock annotations in some form already,
-most likely to provide documentation metadata for a tool like
-``PHPDocumentor`` (@author, @link, ...). Docblock annotations are a
-tool to embed metadata inside the documentation section which can
-then be processed by some tool. Doctrine generalizes the concept
-of docblock annotations so that they can be used for any kind of
-metadata and so that it is easy to define new docblock annotations.
-In order to allow more involved annotation values and to reduce the
-chances of clashes with other docblock annotations, the Doctrine
-docblock annotations feature an alternative syntax that is heavily
-inspired by the Annotation syntax introduced in Java 5.
+PHP attributes are an official language replacement for the informal
+docblock annotations. They allow to embed metadata next to the code.
 
-The implementation of these enhanced docblock annotations is
-located in the ``Doctrine\Common\Annotations`` namespace and
-therefore part of the Common package. Doctrine docblock
-annotations support namespaces and nested annotations among other
-things. The Doctrine PHPCR-ODM defines its own set of docblock
-annotations for supplying object-document mapping metadata.
-
-.. note::
-
-    If you're not comfortable with the concept of docblock
-    annotations, don't worry, as mentioned earlier Doctrine provides
-    XML and YAML alternatives and you could easily implement your own
-    favourite mechanism for defining PHPCR-ODM metadata.
-
+The Doctrine PHPCR-ODM defines its own set of attributes to supply
+object-document mapping metadata.
 
 Persistent classes
 ------------------
 
 In order to mark a class for object-document persistence it needs
 to be designated as an document. This can be done through the
-``@Document`` marker annotation.
+``#[Document]`` marker attribute.
 
 .. configuration-block::
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Document
-         */
+        #[PHPCR\Document]
         class MyPersistentClass
         {
             //...
@@ -99,7 +76,7 @@ to be designated as an document. This can be done through the
         MyPersistentClass:
             # ...
 
-There is a couple of options you can specify for the document mapping.
+There is a couple of parameters you can specify for the document mapping.
 Some of them are explained here, the rest in the chapters on :ref:`References <association-mapping_referenceable>`,
 :doc:`Multilanguage <multilang>` and :doc:`Versioning <versioning>`.
 
@@ -146,7 +123,7 @@ information.
 
 .. note::
 
-    DateTime types are compared by reference, not by value. Doctrine updates this values
+    DateTime types are compared by reference, not by value. Doctrine updates these values
     if the reference changes and therefore behaves as if these objects are immutable value objects.
 
 .. warning::
@@ -172,12 +149,11 @@ that hold scalar values like strings, numbers, etc, or arrays thereof.
 Although references are also stored as properties in PHPCR, they have
 their own mappings - see the chapter "Association Mapping".
 
-To mark a property for relational persistence the ``@Field``
-docblock annotation is used. This annotation requires at least 1 attribute
-to be set, the ``type``. The ``type`` attribute
-specifies the Doctrine Mapping Type to use for the field. If the
-type is not specified, PHPCR-ODM will try to let the PHPCR implementation determine
-a suitable type.
+To mark a property for relational persistence the ``#[Field]`` attribute
+is used. This attribute requires at least the ``type`` parameter to be set.
+The ``type`` parameter specifies the Doctrine Mapping Type to use for the
+field. If the type is not specified, PHPCR-ODM will try to let the PHPCR
+implementation determine a suitable type.
 
 Example:
 
@@ -185,21 +161,15 @@ Example:
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Document
-         */
+        #[PHPCR\Document]
         class MyPersistentClass
         {
-            /**
-             * @PHPCR\Field(type="long")
-             */
+            #[PHPCR\Field(type: 'long')]
             private $count;
 
-            /**
-             * @PHPCR\Field(type="string")
-             */
+            #[PHPCR\Field(type: 'string')]
             private $name; // type defaults to string
             //...
         }
@@ -231,19 +201,16 @@ as the field names.
 Mapping to a differently named PHPCR property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To specify a different name for the column, you
-can use the ``property`` attribute of the Column annotation as
-follows:
+To specify a different name for the column, you can use the ``property``
+parameter of the Column attribute follows:
 
 .. configuration-block::
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Field(property="db_name")
-         */
+        #[PHPCR\Field(property: 'db_name'"')]
         private $myField;
 
     .. code-block:: xml
@@ -276,11 +243,9 @@ Unless specified as true, properties are considered single value.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Field(type="string", multivalue=true)
-         */
+        #[PHPCR\Field(type: 'string', multivalue: true)]
         private $names;
 
     .. code-block:: xml
@@ -311,16 +276,12 @@ the list keys.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Field(type="string", assoc="")
-         */
+        #[PHPCR\Field(type: 'string', assoc: '')]
         private $names;
 
-        /**
-         * @PHPCR\Field(type="string", assoc="listArraykeys")
-         */
+        #[PHPCR\Field(type: 'string', assoc: 'listArraykeys')]
         private $list;
 
     .. code-block:: xml
@@ -345,7 +306,7 @@ the list keys.
 Summary
 ~~~~~~~
 
-These are all attributes of the Property annotation. The ORM knows quite a few validation attributes
+These are all parameters of the property mapping. The ORM knows quite a few validation parameters
 because they are used to generate the database schema. As PHPCR-ODM does not (yet) generate PHPCR
 node type definitions, there is no need for validation.
 
@@ -374,18 +335,21 @@ Every document has an identifier. The id in PHPCR-ODM is the PHPCR path.
 
 .. note::
 
-    The id being the path, it is not totally immutable. When the document is moved either explicitly
-    with DocumentManager::move() or by assignment of a different @Field(type="name") or @ParentDocument, the
-    id will change. This was discussed thoroughly and is considered the best solution.
+    The id being the path, it is not totally immutable. When the document is
+    moved either explicitly with ``DocumentManager::move()`` or by assignment
+    of a different ``#[Field(type: 'name')]`` or ``#[ParentDocument]``, the id
+    will change. This was discussed thoroughly and is considered the best solution.
 
-    If you need to reference a document reliably even when moving, look at the @ReferenceOne and the @Uuid
-    annotations explained in the :doc:`next chapter <association-mapping>`.
+    If you need to reference a document reliably even when moving, look at the
+    ``#[ReferenceOne]`` and the ``#[Uuid]`` attributes explained in the
+    :doc:`next chapter <attributes-mapping>`.
 
-While you can manually assign the id, this is not recommended. When manually assigning, you need
-to ensure that the parent document resulting from the assigned path exists. The recommended way
-is to use the @Parentdocument and @Nodename annotations to place the document in the tree.
-When using that strategy, you need not have a property with the @Id annotation - though you can
-if you want to have access to the path for something.
+While you can manually assign the id, this is not recommended. When manually
+assigning, you need to ensure that the parent document defined in the assigned
+path exists. The recommended way is to use the ``#[ParentDocument]`` and
+``#[Nodename]`` attributes to place the document in the tree. When using that
+strategy, you need not have a property with the ``#[Id]`` attribute - though if
+you need access to the path for something, you can also map the id.
 
 .. _basicmapping_identifier_generation_strategies:
 
@@ -397,13 +361,13 @@ You can specify one of them explicitly on the id mapping, or let the PHPCR-ODM
 pick a fitting one. The order is:
 
 - Explicitly specified strategy on the ``id`` mapping, for example
-  ``@Id(strategy="repository");``
-- If the document has a @ParentDocument and a @Nodename field, the
+  ``#[PHPCR\Id(strategy: 'repository')]``
+- If the document has a ``#[ParentDocument]`` and a ``#[Nodename]`` field, the
   ``parent`` is used to determine the id from this information. This
   is the most failsave strategy as it will ensure that there is a PHPCR parent
   existing for the document;
-- If only an @ParentDocument field is present, the ``auto`` takes
-  the path from the @ParentDocument as the parent id generator does, but
+- If only an ``#[ParentDocument]`` field is present, the ``auto`` takes
+  the path from the ``#[ParentDocument]`` as the parent id generator does, but
   generates the node name automatically using the PHPCR ``addNodeAutoNamed``
   method;
 - If there is only an id field, the ``assigned`` is used. It expects
@@ -418,11 +382,11 @@ implement any logic you might need.
 Parent and name strategy (recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This strategy uses the @Nodename (name of this node) and
-@ParentDocument (PHPCR-ODM document that is the parent). The id is generated
+This strategy uses the ``#[Nodename]`` (name of this node) and
+``#[ParentDocument]`` (PHPCR-ODM document that is the parent). The id is generated
 as the id of the parent concatenated with '/' and the Nodename.
 
-If you supply a ParentDocument annotation, the strategy is automatically set to
+If you supply a ParentDocument attribute, the strategy is automatically set to
 parent. This strategy will check the parent and the name and will fall back to
 the assigned id if either is missing.
 
@@ -431,16 +395,12 @@ the assigned id if either is missing.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Parentdocument
-         */
+        #[PHPCR\ParentDocument]
         private $parent;
 
-        /**
-         * @PHPCR\Nodename
-         */
+        #[PHPCR\Nodename]
         private $nodename;
 
     .. code-block:: xml
@@ -480,11 +440,9 @@ representing any PHPCR-ODM document, though.)
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Id
-         */
+        #[PHPCR\Id]
         private $id;
 
     .. code-block:: xml
@@ -521,11 +479,9 @@ This gives you full control how you want to build the id path.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Id(strategy="repository")
-         */
+        #[PHPCR\Id(strategy: 'repository')]
         private $id;
 
     .. code-block:: xml
@@ -545,40 +501,33 @@ This gives you full control how you want to build the id path.
                 generator:
                     strategy: repository
 
-The corresponding code could look like this::
+The document code could look like this::
+
+    namespace Demo;
+
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+
+    #[PHPCR\Document(repositoryClass: DocumentRepository::class)]
+    class Document
+    {
+        #[PHPCR\Id(strategy: 'repository')]
+        private $id;
+
+        #[PHPCR\Field(type: 'string')]
+        private $title;
+        //...
+    }
+
+And the corresponding repository like this::
 
     namespace Demo;
 
     use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
     use Doctrine\ODM\PHPCR\DocumentRepository as BaseDocumentRepository;
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
-
-    /**
-     * @PHPCR\Document(repositoryClass="Demo\DocumentRepository")
-     */
-    class Document
-    {
-        /**
-         * @PHPCR\Id(strategy="repository")
-         */
-        private $id;
-
-        /**
-         * @PHPCR\Field(type="string")
-         */
-        private $title;
-        //...
-    }
 
     class DocumentRepository extends BaseDocumentRepository implements RepositoryIdInterface
     {
-        /**
-         * Generate a document id
-         *
-         * @param object $document
-         * @return string
-         */
-        public function generateId($document, $parent = null)
+        public function generateId(Document $document, object $parent = null): string
         {
             return '/functional/'.$document->getTitle();
         }

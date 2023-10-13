@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping\Model;
 
 use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * A class that represents a parent class for the purposes
@@ -17,8 +18,16 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *   versionable="simple"
  * )
  */
+#[PHPCR\Document(
+    nodeType: 'nt:test',
+    repositoryClass: DocumentRepository::class,
+    translator: 'foo',
+    mixins: ['mix:foo', 'mix:bar'],
+    referenceable: true,
+)]
 class ClassInheritanceParentMappingObject
 {
     /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 }

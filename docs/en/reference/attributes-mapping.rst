@@ -1,53 +1,41 @@
-Annotation Mapping
+Attributes Mapping
 ==================
 
-In this chapter a reference of every PHPCR-ODM annotation is given with short
+In this chapter a reference of every PHPCR-ODM attribute is listed. with short
 explanations on their context and usage.
-
-.. warning::
-
-    Annotations have been deprecated in favor of :doc:`Attributes<attributes-mapping>`
 
 Note on usage
 -------------
 
 Note that the code examples are given without their namespaces, however it is
-normally necessary to import the annotation namespace into your class, and to
-prefix each annotation with the namespace as demonstrated in the following example::
+normally necessary to import the attribute namespace into your class, and to
+prefix each attribute with the namespace as demonstrated in the following example::
 
     namespace MyProject\Bundle\BlogBundle\Document;
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document()
-     */
+    #[PHPCR\Document]
     class Post
     {
-        /**
-         * @PHPCR\Id()
-         */
+        #[PHPCR\Id]
         protected $id;
 
-        /**
-         * @PHPCR\ParentDocument()
-         */
+        #[PHPCR\ParentDocument]
         protected $parent;
 
-        /**
-         * @PHPCR\Nodename
-         */
+        #[PHPCR\Nodename]
         protected $title;
     }
 
 Document
 --------
 
-.. _annref_document:
+.. _attref_document:
 
-@Document
-~~~~~~~~~
+#[Document]
+~~~~~~~~~~~
 
-Optional attributes:
+Optional parameters:
 
 - **nodeType**: PHPCR type for this node, default ``nt:unstructured``.
 - **uniqueNodeType**: If this document has a unique node type, set to ``true``
@@ -77,11 +65,9 @@ Optional attributes:
 
 Minimal example::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document()
-     */
+    #[PHPCR\Document]
     class User
     {
         // ...
@@ -89,18 +75,16 @@ Minimal example::
 
 Full example::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document(
-     *   repositoryClass="MyProject\UserRepository",
-     *   versionable="full",
-     *   referenceable=true,
-     *   translator="child",
-     *   mixins={"mix:created", "mix:lastModified"}
-     *   childClasses={"App\Documents\Article", "App\Documents\Page"}
-     * )
-     */
+    #[PHPCR\Document(
+        repositoryClass: UserRepository::class,
+        versionable: 'full',
+        referenceable: true,
+        translator: 'child',
+        mixins: ['mix:created', 'mix:lastModified'],
+        childClasses: [Article::class, Page::class]
+    )]
     class Article
     {
         // ...
@@ -110,10 +94,10 @@ Full example::
 
    The ``uniqueNodeType`` attribute is not supported with the sqlite database.
 
-.. _annref_mappedsuperclass:
+.. _attref_mappedsuperclass:
 
-@MappedSuperclass
-~~~~~~~~~~~~~~~~~
+#[MappedSuperclass]
+~~~~~~~~~~~~~~~~~~~
 
 A mapped superclass is an abstract or concrete class that provides
 persistent document state and mapping information for its subclasses
@@ -126,7 +110,7 @@ but which is not itself a document.
     superclasses in special situations. See also :doc:`Inheritance Mapping <inheritance-mapping>`.
 
 
-Optional attributes:
+Optional parameters:
 
 -  **nodeType**: PHPCR type for this node. Default ``nt:unstructured``.
 -  **repositoryClass**: Fully qualified name of the repository to use for
@@ -136,19 +120,15 @@ Optional attributes:
 
 .. code-block:: php
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\MappedSuperclass()
-     */
+    #[PHPCR\MappedSuperclass]
     class MappedSuperclassBase
     {
         // ... fields and methods
     }
 
-    /**
-     * @PHPCR\Document()
-     */
+    #[PHPCR\Document]
     class DocumentSubClassFoo extends MappedSuperclassBase
     {
         // ... fields and methods
@@ -158,131 +138,109 @@ Optional attributes:
 Mapping Fields
 --------------
 
-You can annotate an instance variable with the ``@Field`` anotation to make it
+You can attribute an instance variable with the ``#[Field]`` attributeto make it
 "persistent".
 
-.. note::
-
-    Until PHPCR-ODM 1.2, the recommended way to map fields with annotations was using type specific
-    annotations like ``@Binary``, ``@Boolean``, ``@Date``, ``@Decimal``, ``@Double``, ``@Float``,
-    ``@Int``, ``@Long``, ``@Name``, ``@Path``, ``@String`` and ``@Uri``. These were deprecated in
-    the 1.3 release in favor of the newly added ``@Field(type="...")`` annotation to fix
-    incompatibilities with PHP 7. In 2.0, the old annotations have been removed.
-
-.. _annref_field:
+.. _attref_field:
 
 
-@Field
-~~~~~~
+#[Field]
+~~~~~~~~
 
-Attributes:
+parameters:
 
 - **property**: The PHPCR property name to which this field is stored.
   Defaults to the field name.
 - **assoc**: Specify that this attribute should be an associative array. The value should
   be a string which will be used by the PHPCR node. Set to an empty string to automatically
-  use the name of the annotated variable appended by "Keys".
+  use the name of the property with that attribute appended by "Keys".
 - **multivalue**: ``true`` to specify that this property should be treated as a simple array.
   See :ref:`Mapping multivalue properties <basicmapping_mappingmultivalueproperties>`.
 - **translated**: ``true`` to specify that the property should be translatable, requires the
-  ``translator`` attribute to be specified in :ref:`@Document<annref_document>`.
+  ``translator`` attribute to be specified in :ref:`#[Document]<annref_document>`.
 - **nullable**: ``true`` to specifiy that this property doesn't have a required value, used
   when loading a translation, to allow loading a node with a missing translated property.
 - **type**: Type of the field, see table below.
 
 Types:
 
-- **binary**: Sets the type of the annotated instance variable to binary.
-- **boolean**: Sets the type of the annotated instance variable to boolean.
-- **date**: Sets the type of the annotated instance variable to DateTime.
-- **decimal**: Sets the type of the annotated instance variable to decimal,
+- **binary**: Sets the type of the property to binary.
+- **boolean**: Sets the type of the property to boolean.
+- **date**: Sets the type of the property to DateTime.
+- **decimal**: Sets the type of the property to decimal,
   the decimal field uses the BCMath library which supports numbers of any size
   or precision.
-- **double**: Sets the type of the annotated instance variable to double. The PHP type will be **float**.
-- **long**: Sets the type of the annotated instance variable to long. The PHP type will be **integer**.
-- **name**: The annotated instance variable must be a valid XML CNAME value
+- **double**: Sets the type of the property to double. The PHP type will be **float**.
+- **long**: Sets the type of the property to long. The PHP type will be **integer**.
+- **name**: The property must be a valid XML CNAME value
   and can be used to store a valid node name.
-- **path**: The annotated instance variable must be a valid PHPCR node path
+- **path**: The property must be a valid PHPCR node path
   and can be used to store an arbitrary reference to another node.
-- **string**: Sets the type of the annotated instance variable to string.
-- **uri**: The annotated instance variable will be validated as an URI.
+- **string**: Sets the type of the property to string.
+- **uri**: The property will be validated as an URI.
 
 Examples::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Field(type="string")
-     */
+    #[PHPCR\Field(type: 'string')]
     protected $author;
 
-    /**
-     * @PHPCR\Field(type="string", translated=true)
-     */
+    #[PHPCR\Field(type: 'string', translated: true)]
     protected $title;
 
-    /**
-     * @PHPCR\Field(type="string", translated=true, nullable=true)
-     */
+    #[PHPCR\Field(type: 'string', translated: true, nullable: true)]
     protected $subTitle;
 
-    /**
-     * @PHPCR\Field(type="boolean")
-     */
+    #[PHPCR\Field(type: 'boolean')]
     protected $enabled;
 
-    /**
-     * @PHPCR\Field(type="string", multivalue=true)
-     */
+    #[PHPCR\Field(type: 'string', multivalue: true)]
     protected $keywords; // e.g. ['dog', 'cat', 'mouse']
 
-    /**
-     * @PHPCR\Field(type="double", assoc="")
-     */
+    #[PHPCR\Field(type: 'double', assoc: '')]
     protected $exchangeRates; // e.g. ['GBP' => 0.810709, 'EUR' => 1, 'USD' => 1.307460]
 
 Hierarchy
 ---------
 
-These mappings mark the annotated instance variables to contain instances of Documents
+These mappings mark the properties to contain instances of Documents
 above or below the current Document in the document hierarchy, or information
 about the state of the document within the hierarchy. They need to be
 specified inside the instance variables associated PHP DocBlock comment.
 
-.. _annref_child:
+.. _attref_child:
 
-@Child
-~~~~~~
+#[Child]
+~~~~~~~~
 
-The annotated instance variable will be populated with the named document
+The property will be populated with the named document
 directly below the instance variables document class in the document hierarchy.
 
-Required attributes:
+Required parameters:
 
 - **nodeName**: PHPCR Node name of the child document to map, this should be a string.
 
-Optional attributes:
+Optional parameters:
 
 - **cascade**: |cascade_definition| See :ref:`assocmap_cascading`
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\Child(name="Preferences")
-    */
+   #[PHPCR\Child(name: 'Preferences')]
    protected $preferences;
 
-.. _annref_children:
+.. _attref_children:
 
-@Children
-~~~~~~~~~
+#[Children]
+~~~~~~~~~~~
 
-The annotated instance variable will be populated with Documents directly below the
+The property will be populated with Documents directly below the
 instance variables document class in the document hierarchy.
 
-Optional attributes:
+Optional parameters:
 
 - **filter**: Child name filter; only return children whose names match the given filter.
 - **fetchDepth**: Performance optimisation, number of levels to pre-fetch and cache,
@@ -293,45 +251,39 @@ Optional attributes:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Children(filter="a*", fetchDepth=3)
-     */
+    #[PHPCR\Children(filter: 'a*', fetchDepth: 3)]
     private $children;
 
-.. _annref_depth:
+.. _attref_depth:
 
-@Depth
-~~~~~~
+#[Depth]
+~~~~~~~~
 
-The annotated instance variable will be populated with an integer value
+The property will be populated with an integer value
 representing the depth of the document within the document hierarchy::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Depth()
-     */
+    #[PHPCR\Depth]
     private $depth;
 
-.. _annref_parentdocument:
+.. _attref_parentdocument:
 
-@ParentDocument
-~~~~~~~~~~~~~~~
+#[ParentDocument]
+~~~~~~~~~~~~~~~~~
 
-Optional attributes:
+Optional parameters:
 
 - **cascade**: |cascade_definition| See :ref:`assocmap_cascading`
 
-The annotated instance variable will contain the nodes parent document. Assigning
+The property will contain the nodes parent document. Assigning
 a different parent will result in a move operation::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\ParentDocument
-    */
+   #[PHPCR\ParentDocument]
    private $parent;
 
 Identification
@@ -339,200 +291,178 @@ Identification
 
 These mappings help to manage the identification of the document class.
 
-.. _annref_id:
+.. _attref_id:
 
-@Id
-~~~
+#[Id]
+~~~~~
 
-The annotated instance variable will be marked with the documents
+The property will be marked with the documents
 identifier. The ID is the **full path** to the document in the document hierarchy.
 See :ref:`identifiers <basicmapping_identifiers>`.
 
-Required attributes:
+Required parameters:
 
 - **strategy**: How to generate IDs, one of ``NONE``, ``REPOSITORY``, ``ASSIGNED`` or ``PARENT``, default
   is ``PARENT`` See :ref:`generation strategies <basicmapping_identifier_generation_strategies>`.
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\Id()
-    */
+   #[PHPCR\Id]
    protected $id; // e.g. /path/to/mydocument
 
-.. _annref_nodename:
+.. _attref_nodename:
 
-@Nodename
-~~~~~~~~~
+#[Nodename]
+~~~~~~~~~~~
 
-Mark the annotated instance variable as representing the name of the node. The name
+Mark the property as representing the name of the node. The name
 of the node is the last part of the :ref:`ID <annref_id>`. Changing the marked variable will update
 the nodes ID::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\Id()
-    */
+   #[PHPCR\Id]
    protected $id; // e.g. /path/to/mydocument
 
-   /**
-    * @PHPCR\Nodename()
-    */
+   #[PHPCR\Nodename]
    protected $nodeName; // e.g. mydocument
 
-.. _annref_uuid:
+.. _attref_uuid:
 
-@Uuid
-~~~~~
+#[Uuid]
+~~~~~~~
 
-The annotated instance variable will be populated with a UUID
+The property will be populated with a UUID
 (Universally Unique Identifier). The UUID is immutable. For
 this field to be reliably populated the document should be
 *referenceable*::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\Uuid()
-    */
+   #[PHPCR\Uuid]
    protected $uuid; // e.g. 508d6621-0c20-4972-bf0e-0278ccabe6e5
 
 Lifcycle callbacks
 ------------------
 
-These annotations, applied to a method, will cause the method to be called automatically
-by the ODM on the :ref:`lifecycle event <events_lifecyclecallbacks>` corresponding to the name
-of the annotation.
+These attributes are used to map information on methods of a document.
+The method is called automatically by the ODM on the
+:ref:`lifecycle event <events_lifecyclecallbacks>` corresponding to the attribute.
 
 .. note::
 
-   Unlike the Doctrine ORM it is **not** necessary to specify a ``@HasLifecycleCallbacks``
-   annotation.
+   Unlike the Doctrine ORM it is **not** necessary to specify a ``#[HasLifecycleCallbacks]``
+   attribute.
 
-.. _annref_postload:
+.. _attref_postload:
 
-@PostLoad
-~~~~~~~~~
+#[PostLoad]
+~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``postLoad``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PostLoad
-     */
+    #[PHPCR\PostLoad]
     public function doSomethingOnPostLoad()
     {
        // ... do something after the Document has been loaded
     }
 
-.. _annref_postpersist:
+.. _attref_postpersist:
 
-@PostPersist
-~~~~~~~~~~~~
+#[PostPersist]
+~~~~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``postPersist``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PostPersist
-     */
+    #[PHPCR\PostPersist]
     public function doSomethingOnPostPersist()
     {
       // ... do something after the document has been persisted
     }
 
-.. _annref_postremove:
+.. _attref_postremove:
 
-@PostRemove
-~~~~~~~~~~~
+#[PostRemove]
+~~~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``postRemove``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PostRemove
-     */
+    #[PHPCR\PostRemove]
     public function doSomethingOnPostRemove()
     {
       // ... do something after the document has been removed
     }
 
-.. _annref_postupdate:
+.. _attref_postupdate:
 
-@PostUpdate
-~~~~~~~~~~~
+#[PostUpdate]
+~~~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``postUpdate``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PostUpdate
-     */
+    #[PHPCR\PostUpdate]
     public function doSomethingOnPostUpdate()
     {
       // ... do something after the document has been updated
     }
 
-.. _annref_prepersist:
+.. _attref_prepersist:
 
-@PrePersist
-~~~~~~~~~~~
+#[PrePersist]
+~~~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``prePersist``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PrePersist
-     */
+    #[PHPCR\PrePersist]
     public function doSomethingOnPrePersist()
     {
       // ... do something before the document has been persisted
     }
 
-.. _annref_preremove:
+.. _attref_preremove:
 
-@PreRemove
-~~~~~~~~~~
+#[PreRemove]
+~~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``preRemove``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PreRemove
-     */
+    #[PHPCR\PreRemove]
     public function doSomethingOnPreRemove()
     {
       // ... do something before the document has been removed
     }
 
-.. _annref_preupdate:
+.. _attref_preupdate:
 
-@PreUpdate
-~~~~~~~~~~
+#[PreUpdate]
+~~~~~~~~~~~~
 
 Life cycle callback. The marked method will be called automatically on the ``preUpdate``
 event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further explanations::
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\PreUpdate
-     */
+    #[PHPCR\PreUpdate]
     public function doSomethingOnPreUpdate()
     {
       // ... do something before the document has been updated
@@ -541,23 +471,23 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
 PHPCR
 -----
 
-.. _annref_node:
+.. _attref_node:
 
-@Node
-~~~~~
+#[Node]
+~~~~~~~
 
-The annotated instance variable will be populated with the underlying
+The property will be populated with the underlying
 PHPCR node. See :ref:`node field mapping <phpcraccess_nodefieldmapping>`.
 
 References
 ----------
 
-.. _annref_referencemany:
+.. _attref_referencemany:
 
-@ReferenceMany
-~~~~~~~~~~~~~~
+#[ReferenceMany]
+~~~~~~~~~~~~~~~~
 
-Optional attributes:
+Optional parameters:
 
 -  **targetDocument**: Specify type of target document class. Note that this
    is an optional parameter and by default you can associate *any* document.
@@ -565,20 +495,18 @@ Optional attributes:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\ReferenceMany(targetDocument="Phonenumber", strategy="hard")
-    */
-    protected $phonenumbers;
+   #[PHPCR\ReferenceMany(targetDocument: PhoneNumber::class, strategy: 'hard')]
+   protected $phoneNumbers;
 
-.. _annref_referenceone:
-.. _annref_reference:
+.. _attref_referenceone:
+.. _attref_reference:
 
-@ReferenceOne
-~~~~~~~~~~~~~
+#[ReferenceOne]
+~~~~~~~~~~~~~~~
 
-Optional attributes:
+Optional parameters:
 
 -  **targetDocument**: Specify type of target document class. Note that this
    is an optional parameter and by default you can associate *any* document.
@@ -587,137 +515,119 @@ Optional attributes:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\ReferenceOne(targetDocument="Contact", strategy="hard")
-    */
-    protected $contact;
+   #[PHPCR\ReferenceOne(targetDocument: Contact::class, strategy: 'hard')]
+   protected $contact;
 
-.. _annref_referrers:
+.. _attref_referrers:
 
-@Referrers
-~~~~~~~~~~
+#[Referrers]
+~~~~~~~~~~~~
 
-Mark the annotated instance variable to contain a collection of the documents
+Mark the property to contain a collection of the documents
 of the given document class which refer to this document.
 
-Required attributes:
+Required parameters:
 
 - **referringDocument**: Full class name of referring document, the instances
-  of which should be collected in the annotated property.
+  of which should be collected in the property.
 - **referencedBy**: Name of the property from the referring document class
   which refers to this document class.
 
-Optional attributes:
+Optional parameters:
 
 - **cascade**: |cascade_definition| See :ref:`assocmap_cascading`
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\Referrers(referringDocument="Address", referencedBy="addressbook")
-    */
+   #[PHPCR\Referrers(referringDocument: Address::class, referencedBy: 'addressbook')]
    protected $addresses;
 
-@MixedReferrers
-~~~~~~~~~~~~~~~
+#[MixedReferrers]
+~~~~~~~~~~~~~~~~~
 
-Mark the annotated instance variable to hold a collection of *all* documents
+Mark the property to hold a collection of *all* documents
 which refer to this document, regardless of document class.
 
-Optional attributes:
+Optional parameters:
 
 -  **referenceType**: One of ``weak`` or ``hard``.
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-   /**
-    * @PHPCR\MixedReferrers()
-    */
+   #[PHPCR\MixedReferrers]
    protected $referrers;
 
 Translation
 -----------
 
-These annotations only apply to documents where the ``translator`` attribute is
-specified in :ref:`@Document<annref_document>`.
+These attributes only apply to documents where the ``translator`` attribute is
+specified in :ref:`#[Document]<annref_document>`.
 
 Example::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document(translator="attribute")
-     */
+    #[PHPCR\Document(translator: 'attribute')]
     class MyDocument
     {
-       /**
-        * @PHPCR\Locale
-        */
+       #[PHPCR\Locale]
        protected $locale;
 
-       /**
-        * @PHPCR\Field(type="string", translated=true)
-        */
+       #[PHPCR\Field(type: 'string', translated: true)]
        protected $title;
     }
 
-.. _annref_locale:
+.. _attref_locale:
 
-@Locale
-~~~~~~~
+#[Locale]
+~~~~~~~~~
 
-Identifies the annotated instance variable as the field in which to store
+Identifies the property as the field in which to store
 the documents current locale.
 
 Versioning
 ----------
 
-These annotations only apply to documents where the ``versionable`` attribute is
-specified in :ref:`@Document<annref_document>`.
+These attributes only apply to documents where the ``versionable`` attribute is
+specified in :ref:`#[Document]<annref_document>`.
 
 See :ref:`versioning mappings <versioning_mappings>`.
 
 Example::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document(versionable="simple")
-     */
+    #[PHPCR\Document(versionable: 'simple')]
     class MyPersistentClass
     {
-        /**
-         * @PHPCR\VersionName
-         */
+        #[PHPCR\VersionName]
         private $versionName;
 
-        /**
-         * @PHPCR\VersionCreated
-         */
+        #[PHPCR\VersionCreated]
         private $versionCreated;
     }
 
-.. _annref_versioncreated:
+.. _attref_versioncreated:
 
-@VersionCreated
-~~~~~~~~~~~~~~~
+#[VersionCreated]
+~~~~~~~~~~~~~~~~~
 
-The annotated instance variable will be populated with the date
+The property will be populated with the date
 that the current document version was created. Applies only to
 documents with the versionable attribute.
 
-.. _annref_versionname:
+.. _attref_versionname:
 
-@VersionName
-~~~~~~~~~~~~
+#[VersionName]
+~~~~~~~~~~~~~~
 
-The annotated instance variable will be populated with the name
+The property will be populated with the name
 of the current version as given by PHPCR.
 
 .. |cascade_definition| replace:: One of ``persist``, ``remove``, ``merge``, ``detach``, ``refresh``, ``translation`` or ``all``.

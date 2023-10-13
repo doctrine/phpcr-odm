@@ -28,6 +28,8 @@ use Doctrine\Common\Annotations\Annotation;
 class Children
 {
     /**
+     * This actually can be null too, but the legacy doctrine annotation driver gets confused if we declare a union type.
+     *
      * @var array
      */
     public $filter;

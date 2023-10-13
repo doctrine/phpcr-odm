@@ -25,16 +25,16 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 class Reference
 {
     /**
+     * @var string
+     */
+    public $targetDocument;
+
+    /**
      * The PHPCR property name to use
      *
      * @var string
      */
     public $property;
-
-    /**
-     * @var string
-     */
-    public $targetDocument;
 
     /**
      * @var string
