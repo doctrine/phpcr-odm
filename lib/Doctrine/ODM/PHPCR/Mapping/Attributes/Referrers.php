@@ -14,10 +14,10 @@ final class Referrers extends BaseReferrers implements MappingAttribute
     public function __construct(
         string $referencedBy,
         string $referringDocument,
-        array $cascade = []
+        array|string $cascade = []
     ) {
         $this->referencedBy = $referencedBy;
         $this->referringDocument = $referringDocument;
-        $this->cascade = $cascade;
+        $this->cascade = (array) $cascade;
     }
 }

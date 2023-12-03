@@ -12,11 +12,11 @@ final class Children extends BaseChildren implements MappingAttribute
         array|string $filter = null,
         int $fetchDepth = -1,
         bool $ignoreUntranslated = true,
-        array $cascade = [],
+        array|string $cascade = [],
     ) {
         $this->filter = $filter ? (array) $filter : null;
         $this->fetchDepth = $fetchDepth;
         $this->ignoreUntranslated = $ignoreUntranslated;
-        $this->cascade = $cascade;
+        $this->cascade = (array) $cascade;
     }
 }

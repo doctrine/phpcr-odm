@@ -3,20 +3,17 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 
 /**
  * This class represents a JCR file, aka nt:file.
  *
  * @see http://wiki.apache.org/jackrabbit/nt:file
- *
- * @PHPCRODM\Document(nodeType="nt:file", mixins={}, referenceable=true)
  */
+#[ODM\Document(nodeType: 'nt:file', mixins: [], referenceable: true)]
 class File extends AbstractFile
 {
-    /**
-     * @PHPCRODM\Child(nodeName="jcr:content", cascade="all")
-     */
+    #[ODM\Child(nodeName: 'jcr:content', cascade: 'all')]
     protected Resource $content;
 
     /**
@@ -79,7 +76,7 @@ class File extends AbstractFile
     /**
      * Set the content for this file from the given resource or string.
      *
-     * @param mixed|string $content the content for the file as string or PHP stream
+     * @param resource|string $content the content for the file
      */
     public function setFileContent($content): self
     {
@@ -100,6 +97,8 @@ class File extends AbstractFile
 
     /**
      * Get a stream for the content of this file.
+     *
+     * @return resource the content for the file
      */
     public function getFileContentAsStream()
     {

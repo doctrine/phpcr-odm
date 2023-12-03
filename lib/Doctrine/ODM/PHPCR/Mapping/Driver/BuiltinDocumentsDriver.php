@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
@@ -20,19 +19,19 @@ class BuiltinDocumentsDriver implements MappingDriver
     public const NAME_SPACE = 'Doctrine\ODM\PHPCR\Document';
 
     private MappingDriver $wrappedDriver;
-    private AnnotationDriver $builtinDriver;
+
+    private AttributeDriver $builtinDriver;
 
     public function __construct(MappingDriver $wrappedDriver)
     {
         $this->wrappedDriver = $wrappedDriver;
 
-        $reader = new AnnotationReader();
-        $this->builtinDriver = new AnnotationDriver($reader, [realpath(__DIR__.'/../../Document')]);
+        $this->builtinDriver = new AttributeDriver([realpath(__DIR__.'/../../Document')]);
     }
 
     public function loadMetadataForClass($className, ClassMetadata $class): void
     {
-        if (0 === strpos($className, self::NAME_SPACE)) {
+        if (str_starts_with($className, self::NAME_SPACE)) {
             $this->builtinDriver->loadMetadataForClass($className, $class);
 
             return;
@@ -51,7 +50,7 @@ class BuiltinDocumentsDriver implements MappingDriver
 
     public function isTransient($className): bool
     {
-        if (0 === strpos($className, self::NAME_SPACE)) {
+        if (str_starts_with($className, self::NAME_SPACE)) {
             return $this->builtinDriver->isTransient($className);
         }
 

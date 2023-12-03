@@ -4,7 +4,8 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 use PHPCR\NodeInterface;
 
 /**
@@ -12,39 +13,35 @@ use PHPCR\NodeInterface;
  *
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
- *
- * @PHPCRODM\Document()
  */
+#[ODM\Document]
 class Generic
 {
     /**
-     * @PHPCRODM\Id(strategy="parent")
+     * Id (path) of this document.
      */
+    #[ODM\Id(strategy: 'parent')]
     protected string $id;
 
-    /**
-     * @PHPCRODM\Node
-     */
+    #[ODM\Node]
     protected NodeInterface $node;
 
-    /**
-     * @PHPCRODM\Nodename
-     */
+    #[ODM\Nodename]
     protected string $nodename = '';
 
-    /**
-     * @PHPCRODM\ParentDocument
-     */
-    protected ?object $parent = null;
+    #[ODM\ParentDocument]
+    protected object $parent;
 
     /**
-     * @PHPCRODM\Children
+     * @var Collection<object>
      */
+    #[ODM\Children]
     protected Collection $children;
 
     /**
-     * @PHPCRODM\MixedReferrers
+     * @var Collection<object>
      */
+    #[ODM\MixedReferrers]
     protected Collection $referrers;
 
     public function __construct()
@@ -54,10 +51,13 @@ class Generic
     }
 
     /**
-     * Id (path) of this document.
+     * Id (path) of this document
      */
     public function getId(): string
     {
+        if (!isset($this->id)) {
+            throw new BadMethodCallException('Do not call getId on unsaved objects.');
+        }
         return $this->id;
     }
 
@@ -90,8 +90,11 @@ class Generic
     /**
      * The parent document of this document.
      */
-    public function getParentDocument(): ?object
+    public function getParentDocument(): object
     {
+        if (!isset($this->parent)) {
+            throw new BadMethodCallException('Do not call getParentDocument on unsaved objects before setting the parent.');
+        }
         return $this->parent;
     }
 

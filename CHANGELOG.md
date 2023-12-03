@@ -30,6 +30,11 @@ Dropped support for PHP < 7.4 and Symfony < 5.4.
 1.x
 ===
 
+1.8.1 (unreleased)
+------------------
+
+* Convert provided documents to use attributes instead of annotations.
+
 1.8.0
 -----
 

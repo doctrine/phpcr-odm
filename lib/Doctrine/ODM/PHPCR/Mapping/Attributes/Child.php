@@ -10,9 +10,9 @@ final class Child extends BaseChild implements MappingAttribute
 {
     public function __construct(
         string $nodeName = null,
-        array $cascade = [],
+        array|string $cascade = [],
     ) {
         $this->nodeName = $nodeName;
-        $this->cascade = $cascade;
+        $this->cascade = (array) $cascade;
     }
 }
