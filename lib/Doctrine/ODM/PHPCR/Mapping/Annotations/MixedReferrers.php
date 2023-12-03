@@ -25,7 +25,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class MixedReferrers
+class MixedReferrers
 {
     /**
      * @var string

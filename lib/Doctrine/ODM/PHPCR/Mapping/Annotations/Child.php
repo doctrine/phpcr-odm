@@ -25,7 +25,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Child
+class Child
 {
     /**
      * PHPCR node name of the child to map

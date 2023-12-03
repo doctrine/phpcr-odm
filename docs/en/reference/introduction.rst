@@ -94,13 +94,13 @@ your project root directory::
         throw new RuntimeException('Install dependencies with composer.');
     }
 
-    $params = array(
+    $params = [
         'driver'    => 'pdo_mysql',
         'host'      => 'localhost',
         'user'      => 'root',
         'password'  => '',
         'dbname'    => 'phpcr_odm_tutorial',
-    );
+    ];
 
     $workspace = 'default';
     $user = 'admin';
@@ -109,7 +109,7 @@ your project root directory::
     /* --- transport implementation specific code begin --- */
     // for more options, see https://github.com/jackalope/jackalope-doctrine-dbal#bootstrapping
     $dbConn = \Doctrine\DBAL\DriverManager::getConnection($params);
-    $parameters = array('jackalope.doctrine_dbal_connection' => $dbConn);
+    $parameters = ['jackalope.doctrine_dbal_connection' => $dbConn];
     $repository = \Jackalope\RepositoryFactoryDoctrineDBAL::getRepository($parameters);
     $credentials = new \PHPCR\SimpleCredentials(null, null);
     /* --- transport implementation specific code  ends --- */
@@ -117,20 +117,15 @@ your project root directory::
     $session = $repository->login($credentials, $workspace);
 
     /* prepare the doctrine configuration */
-    use Doctrine\Common\Annotations\AnnotationRegistry;
-    use Doctrine\Common\Annotations\AnnotationReader;
-    use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+    use Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver;
     use Doctrine\ODM\PHPCR\Configuration;
     use Doctrine\ODM\PHPCR\DocumentManager;
 
-    AnnotationRegistry::registerLoader(array($autoload, 'loadClass'));
-
-    $reader = new AnnotationReader();
-    $driver = new AnnotationDriver($reader, array(
+    $driver = new AttributeDriver([
         // this is a list of all folders containing document classes
         'vendor/doctrine/phpcr-odm/lib/Doctrine/ODM/PHPCR/Document',
         'src/Demo',
-    ));
+    ]);
 
     $config = new Configuration();
     $config->setMetadataDriverImpl($driver);
@@ -156,46 +151,32 @@ Building the model
 ------------------
 
 Models are plain PHP classes. Note that you have several ways to define the mapping.
-For easy readability, we use the annotation mapping with PHPCR namespace in this tutorial::
+For easy readability, we use the attribute mapping with PHPCR namespace in this tutorial::
 
     // src/Demo/Document.php
     namespace Demo;
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document
-     */
+    #[PHPCR\Document]
     class MyDocument
     {
-        /**
-         * @PHPCR\Id
-         */
+        #[PHPCR\Id]
         private $id;
 
-        /**
-         * @PHPCR\ParentDocument
-         */
+        #[PHPCR\ParentDocument]
         private $parent;
 
-        /**
-         * @PHPCR\Nodename
-         */
+        #[PHPCR\Nodename]
         private $name;
 
-        /**
-         * @PHPCR\Children
-         */
+        #[PHPCR\Children]
         private $children;
 
-        /**
-         * @PHPCR\Field(type="string")
-         */
+        #[PHPCR\Field(type: 'string')]
         private $title;
 
-        /**
-         * @PHPCR\Field(type="string")
-         */
+        #[PHPCR\Field(type: 'string')]
         private $content;
 
         public function getId()
@@ -234,7 +215,7 @@ For easy readability, we use the annotation mapping with PHPCR namespace in this
     }
 
 If you are familiar with Doctrine ORM, this code should look pretty familiar to you. The
-only important difference are the hierarchy related annotations ParentDocument, Name and Children.
+only important difference are the hierarchy related mappings ``ParentDocument``, ``Name`` and ``Children``.
 In PHPCR, data is stored in trees. Every document has a parent and its own name. The id is
 built from this structure, resulting in path strings. The recommended way to generate the
 id is by assigning a name and a parent to the document. See the section on identifier
@@ -315,7 +296,7 @@ This script will simply echo the data to the console::
 
     require_once '../bootstrap.php';
 
-    $doc = $documentManager->find(null, "/doc");
+    $doc = $documentManager->find(null, '/doc');
 
     echo 'Found '.$doc->getId() ."\n";
     echo 'Title: '.$doc->getTitle()."\n";
@@ -329,15 +310,15 @@ Tree traversal
 
 PHPCR is a tree based store. Every document must have a parent, and
 can have children. We already used this when creating the document.
-The ``@ParentDocument`` maps the parent of a document and is used
-to determine the position in the tree, together with ``@Nodename``.
+The ``ParentDocument`` maps the parent of a document and is used
+to determine the position in the tree, together with ``Nodename``.
 
-As the children of our sample document are mapped with ``@Children``,
+As the children of our sample document are mapped with ``Children``,
 we can traverse them::
 
     use Demo\MyDocument;
 
-    $doc = $documentManager->find(null, "/doc");
+    $doc = $documentManager->find(null, '/doc');
 
     foreach($doc->getChildren() as $child) {
         if ($child instanceof MyDocument) {
@@ -371,12 +352,12 @@ Add references
 
 PHPCR-ODM supports arbitrary links between documents. The referring
 document does not need to know what class it links to. Use
-``ReferenceOne`` resp. ``@ReferenceMany`` to map the link
+``ReferenceOne`` resp. ``ReferenceMany`` to map the link
 to a document or a collection of links to documents.
 
-You can also map the inverse relation. ``@Referrers`` needs the
+You can also map the inverse relation. ``Referrers`` needs the
 referring class but can be used to add referencing documents.
-``@MixedReferrers`` maps all documents referencing this document,
+``MixedReferrers`` maps all documents referencing this document,
 but is readonly.
 
 Lets look at an example of document ``A`` referencing ``B``::
@@ -385,29 +366,21 @@ Lets look at an example of document ``A`` referencing ``B``::
 
     namespace Demo;
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document
-     */
+    #[PHPCR\Document]
     class A
     {
-        /**
-         * @PHPCR\ReferenceOne
-         */
+        #[PHPCR\ReferenceOne]
         private $ref;
 
         ...
     }
 
-    /**
-     * @PHPCR\Document
-     */
+    #[PHPCR\Document]
     class B
     {
-        /**
-         * @PHPCR\Referrers(referringDocument="Demo\A", referencedBy="ref")
-         */
+        #[PHPCR\Referrers(referringDocument: A::class, referencedBy: 'ref')]
         private $referrers;
     }
 

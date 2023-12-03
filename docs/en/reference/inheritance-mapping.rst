@@ -13,7 +13,7 @@ to semantically broken data structures.
 
     Overwriting mixins works as overwriting any other setting. This means that
     if your mapping has any mixins, you need to explicitly repeat any mixins
-    from anchestor classes that you want to keep.
+    from ancestor classes that you want to keep.
 
 Typically, the purpose of such inheritance is to model the is-a relationship in
 your models and to reuse the mappings and functions of the base class.

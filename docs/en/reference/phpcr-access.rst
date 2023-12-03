@@ -31,16 +31,12 @@ This field is populated on find, and as soon as you register the document with t
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Document
-         */
+        #[PHPCR\Document]
         class MyPersistentClass
         {
-            /**
-             * @PHPCR\Node
-             */
+            #[PHPCR\Node]
             private $node;
         }
 

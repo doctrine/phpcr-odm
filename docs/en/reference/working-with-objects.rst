@@ -99,31 +99,21 @@ want.
 Take the following example of a single ``Article`` document fetched
 from newly opened DocumentManager::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document
-     */
+    #[PHPCR\Document]
     class Article
     {
-        /**
-         * @PHPCR\Id
-         */
+        #[PHPCR\Id]
         private $id;
 
-        /**
-         * @PHPCR\Field(type="string")
-         */
+        #[PHPCR\Field(type: 'string')]
         private $headline;
 
-        /**
-         * @PHPCR\ReferenceOne
-         */
+        #[PHPCR\ReferenceOne]
         private $author;
 
-        /**
-         * @PHPCR\Referrers(referrerDocument="Comment", referencedBy="article")
-         */
+        #[PHPCR\Referrers(referrerDocument: Comment::class, referencedBy: 'article')]
         private $comments;
 
         public function __construct {
@@ -254,7 +244,7 @@ as follows:
 *  If X is a pre-existing managed document, it is ignored by the
    persist operation. However, the persist operation is cascaded to
    documents referenced by X if the relationships from X to these
-   other documents are mapped with ``cascade=PERSIST`` or ``cascade=ALL`` (see
+   other documents are mapped with ``cascade: 'PERSIST'`` or ``cascade: 'ALL'`` (see
    "Transitive Persistence");
 *  If X is a removed document, it becomes managed;
 *  If X is a detached document, an exception will be thrown on
@@ -292,11 +282,11 @@ as follows:
 *  If X is a new document, it is ignored by the remove operation.
    However, the remove operation is cascaded to documents referenced by
    X, if the relationship from X to these other documents is mapped
-   with ``cascade=REMOVE`` or ``cascade=ALL`` (see "Transitive Persistence");
+   with ``cascade: 'REMOVE'`` or ``cascade: 'ALL'`` (see "Transitive Persistence");
 *  If X is a managed document, the remove operation causes it to
    become removed. The remove operation is cascaded to documents
    referenced by X, if the relationships from X to these other
-   documents is mapped with ``cascade=REMOVE`` or ``cascade=ALL`` (see
+   documents is mapped with ``cascade: 'REMOVE'`` or ``cascade: 'ALL'`` (see
    "Transitive Persistence");
 *  If X is a detached document, an ``InvalidArgumentException`` will be
    thrown;
@@ -313,7 +303,7 @@ the document explicitly removed.
 
 By default, references and referring documents are not deleted. You can enable
 this by configuring cascading removal on the association mapping. If an association
-is marked as ``CASCADE=REMOVE``, PHPCR-ODM will follow this association. If
+is marked as ``cascade: 'REMOVE'``, PHPCR-ODM will follow this association. If
 its a Single association it will pass this document to
 ``DocumentManager::remove()``. If the association is a collection, Doctrine
 will loop over all its elements and pass them to``DocumentManager::remove()``.
@@ -349,14 +339,14 @@ as follows:
 *  If X is a managed document, the detach operation causes it to
    become detached. The detach operation is cascaded to documents
    referenced by X, if the relationships from X to these other
-   documents is mapped with ``cascade=DETACH`` or ``cascade=ALL`` (see
+   documents is mapped with ``cascade: 'DETACH'`` or ``cascade: 'ALL'`` (see
    "Transitive Persistence"). Documents which previously referenced X
    will continue to reference X;
 *  If X is a new or detached document, it is ignored by the detach
    operation;
 *  If X is a removed document, the detach operation is cascaded to
    documents referenced by X, if the relationships from X to these
-   other documents is mapped with ``cascade=DETACH`` or ``cascade=ALL`` (see
+   other documents is mapped with ``cascade: 'DETACH'`` or ``cascade: 'ALL'`` (see
    "Transitive Persistence"). Documents which previously referenced X
    will continue to reference X.
 
@@ -409,7 +399,7 @@ as follows:
    For all such Y referenced by X, X' is set to reference Y'. (Note
    that if X is managed then X is the same object as X'.);
 *  If X is a document merged to X', with a reference to another
-   document Y, where ``cascade=MERGE`` or ``cascade=ALL`` is not specified, then
+   document Y, where ``cascade: 'MERGE'`` or ``cascade: 'ALL'`` is not specified, then
    navigation of the same association from X' yields a reference to a
    managed object Y' with the same persistent identity as Y.
 
@@ -619,7 +609,7 @@ identifier (PHPCR path) using the
 example::
 
     /** @var $em DocumentManager */
-    $user = $em->find('MyProject\Domain\User', $id);
+    $user = $em->find(User::class, $id);
 
 The return value is either the found document instance or null if no
 instance could be found with the given identifier.
@@ -644,25 +634,25 @@ methods on a repository as follows::
     /** @var $dm DocumentManager */
 
     // All users that are 20 years old
-    $users = $dm->getRepository('MyProject\Domain\User')->findBy(array('age' => 20));
+    $users = $dm->getRepository(User::Class)->findBy(['age' => 20]);
 
     // All users that are 20 years old and have a surname of 'Miller'
-    $users = $dm->getRepository('MyProject\Domain\User')->findBy(array('age' => 20, 'surname' => 'Miller'));
+    $users = $dm->getRepository(User::Class)->findBy(['age' => 20, 'surname' => 'Miller']);
 
     // A single user by its nickname
-    $user = $dm->getRepository('MyProject\Domain\User')->findOneBy(array('nickname' => 'romanb'));
+    $user = $dm->getRepository(User::Class)->findOneBy(['nickname' => 'romanb']);
 
 .. warning::
 
     Note that due to the nature of PHPCR, the primary identifier is no field.
-    You can thus not use ``findBy(array('id' => '/my/path'))`` but should
+    You can thus not use ``findBy(['id' => '/my/path'])`` but should
     pass the ID into the ``find`` method. There is also findMany if you
     need to fetch several documents.
 
 You can also query by references through the repository::
 
-    $number = $dm->find('MyProject\Domain\Phonenumber', '/path/to/phone/number');
-    $user = $dm->getRepository('MyProject\Domain\User')->findOneBy(array('phone' => $number->getUuid()));
+    $number = $dm->find(PhoneNumber::class, '/path/to/phone/number');
+    $user = $dm->getRepository(User::Class)->findOneBy(['phone' => $number->getUuid()]);
 
 Be careful that this only works by passing the uuid of the associated
 document, not yet by passing the associated document itself.
@@ -671,8 +661,8 @@ The ``DocumentRepository::findBy()`` method additionally accepts orderings,
 limit and offset as second to fourth parameters::
 
     $tenUsers = $dm
-        ->getRepository('MyProject\Domain\User')
-        ->findBy(array('age' => 20), array('name' => 'ASC'), 10, 0);
+        ->getRepository(User::Class)
+        ->findBy(['age' => 20], ['name' => 'ASC'], 10, 0);
 
 .. note::
 
@@ -685,10 +675,10 @@ calls through its use of ``__call``. Thus, the following two
 examples are equivalent::
 
     // A single user by its nickname
-    $user = $dm->getRepository('MyProject\Domain\User')->findOneBy(array('nickname' => 'romanb'));
+    $user = $dm->getRepository(User::Class)->findOneBy(['nickname' => 'romanb']);
 
     // A single user by its nickname (__call magic)
-    $user = $dm->getRepository('MyProject\Domain\User')->findOneByNickname('romanb');
+    $user = $dm->getRepository(User::Class)->findOneByNickname('romanb');
 
 
 By Lazy Loading
@@ -738,9 +728,7 @@ in a central location::
 
     use Doctrine\ODM\PHPCR\DocumentRepository;
 
-    /**
-     * @PHPCR\Document(repositoryClass="MyDomain\Model\UserRepository")
-     */
+    #[PHPCR\Document(repositoryClass: UserRepository::class)]
     class User
     {
 
@@ -760,4 +748,4 @@ You can access your repository now by calling::
 
     /** @var $dm DocumentManager */
 
-    $admins = $dm->getRepository('MyDomain\Model\User')->getAllAdminUsers();
+    $admins = $dm->getRepository(User::class)->getAllAdminUsers();

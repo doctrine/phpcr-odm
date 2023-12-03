@@ -25,7 +25,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Referrers
+class Referrers
 {
     /**
      * Name of the field in the other document referencing this document
