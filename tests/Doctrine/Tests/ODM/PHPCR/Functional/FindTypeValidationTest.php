@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
@@ -135,38 +135,34 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class TypeUser
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $note;
 
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    #[PHPCR\Field(type: 'long', multivalue: true, nullable: true)]
     public $numbers;
 
-    /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
+    #[PHPCR\Field(type: 'string', assoc: '', nullable: true)]
     public $parameters;
 
-    /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
+    #[PHPCR\Field(type: 'long', assoc: '', nullable: true)]
     public $assocNumbers;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class TypeTeamUser extends TypeUser
 {
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 }

@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\MixinMappingObject;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
@@ -118,17 +118,16 @@ class MixinTest extends PHPCRFunctionalTestCase
 
 /**
  * A class that contains mapped children via properties
- *
- * @PHPCRODM\Document(mixins={"mix:created"})
  */
+#[PHPCR\Document(mixins: ['mix:created'])]
 class TestObject
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
+    #[PHPCR\Field(property: 'jcr:created', type: 'date')]
     public $created;
 
-    /** @PHPCRODM\Field(type="string", property="change_me") */
+    #[PHPCR\Field(property: 'change_me', type: 'string')]
     public $changeMe;
 }

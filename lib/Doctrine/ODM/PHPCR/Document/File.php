@@ -20,20 +20,20 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * This class represents a JCR file, aka nt:file.
  *
  * @see http://wiki.apache.org/jackrabbit/nt:file
  */
-#[ODM\Document(nodeType: 'nt:file', mixins: [], referenceable: true)]
+#[PHPCR\Document(nodeType: 'nt:file', mixins: [], referenceable: true)]
 class File extends AbstractFile
 {
     /**
      * @var Resource
      */
-    #[ODM\Child(nodeName: 'jcr:content', cascade: 'all')]
+    #[PHPCR\Child(nodeName: 'jcr:content', cascade: 'all')]
     protected $content;
 
     /**
