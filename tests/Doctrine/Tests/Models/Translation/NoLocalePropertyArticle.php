@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * Translatable document that does not provide an explicit locale field.
@@ -13,27 +13,25 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  * This class is supposed to throw an exception when it is read by the ODM !!!
  */
 
-/**
- * @PHPCRODM\Document(translator="attribute")
- */
+#[PHPCR\Document(translator: 'attribute')]
 class NoLocalePropertyArticle
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
     // untranslated:
 
-    /** @PHPCRODM\Field(type="date") */
+    #[PHPCR\Field(type: 'date')]
     public $publishDate;
 
     // untranslated:
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $author;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $topic;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $text;
 }

@@ -6,31 +6,27 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsAddressRepository", referenceable=true)
- */
+#[PHPCR\Document(repositoryClass: CmsAddressRepository::class, referenceable: true)]
 class CmsAddress
 {
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $country;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $zip;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $city;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
+    #[PHPCR\ReferenceOne(targetDocument: CmsUser::class)]
     public $user;
 
-    /**
-     * @PHPCRODM\Uuid
-     */
+    #[PHPCR\Uuid]
     public $uuid;
 
     public function getId()

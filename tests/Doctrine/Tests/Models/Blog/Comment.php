@@ -4,20 +4,19 @@ namespace Documents;
 
 namespace Doctrine\Tests\Models\Blog;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * Comment will be a child of the Post in the test scenario
  *
  * Used for Join tests
- *
- * @PHPCRODM\Document()
  */
+#[PHPCR\Document]
 class Comment
 {
-    /** @PHPCRODM\Id() */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $title;
 }

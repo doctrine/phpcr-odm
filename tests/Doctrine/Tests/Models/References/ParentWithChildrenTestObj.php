@@ -2,22 +2,20 @@
 
 namespace Doctrine\Tests\Models\References;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ParentWithChildrenTestObj
 {
-    /** @PHPCRODM\Id(strategy="parent") */
+    #[PHPCR\Id(strategy: 'parent')]
     public $id;
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
-    /** @PHPCRODM\Children() */
+    #[PHPCR\Children]
     public $children;
 
     public function getParentDocument()

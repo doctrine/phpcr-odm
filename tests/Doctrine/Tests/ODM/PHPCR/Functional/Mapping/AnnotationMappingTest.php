@@ -10,7 +10,6 @@ use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
-use PHPCR\NodeInterface;
 
 /**
  * @group functional
@@ -24,7 +23,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager([__DIR__]);
+        $this->dm = $this->createDocumentManager([__DIR__], true);
         $this->resetFunctionalNode($this->dm);
     }
 

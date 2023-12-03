@@ -2,19 +2,17 @@
 
 namespace Doctrine\Tests\Models\References;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class RefDifTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefType1TestObj", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: RefType1TestObj::class, cascade: 'persist')]
     public $referenceType1;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefType2TestObj", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: RefType2TestObj::class, cascade: 'persist')]
     public $referenceType2;
 }

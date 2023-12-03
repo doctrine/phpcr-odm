@@ -197,6 +197,7 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
 
         $doc = $this->dm->find(null, '/functional/thename');
 
+        $this->assertInstanceOf(ParentObj::class, $doc->child);
         $this->assertEquals('french', $doc->child->children['c1']->text);
     }
 }

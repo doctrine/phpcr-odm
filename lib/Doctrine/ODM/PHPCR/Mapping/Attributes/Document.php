@@ -14,12 +14,12 @@ class Document extends BaseDocument implements MappingAttribute
         string $repositoryClass = null,
         string $translator = null,
         array $mixins = null,
-        bool $inheritMixins = true,
+        bool|null $inheritMixins = null,
         string $versionable = null,
-        bool $referenceable = false,
-        bool $uniqueNodeType = false,
-        array $childClasses = [],
-        bool $isLeaf = false,
+        bool|null $referenceable = null,
+        bool|null $uniqueNodeType = null,
+        string|array|null $childClasses = null,
+        bool|null $isLeaf = null,
     ) {
         $this->nodeType = $nodeType;
         $this->repositoryClass = $repositoryClass;
@@ -29,7 +29,7 @@ class Document extends BaseDocument implements MappingAttribute
         $this->versionable = $versionable;
         $this->referenceable = $referenceable;
         $this->uniqueNodeType = $uniqueNodeType;
-        $this->childClasses = $childClasses;
+        $this->childClasses = $childClasses ? (array) $childClasses : null;
         $this->isLeaf = $isLeaf;
     }
 }

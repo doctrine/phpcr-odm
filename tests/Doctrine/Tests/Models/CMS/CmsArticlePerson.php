@@ -5,20 +5,18 @@ namespace Doctrine\Tests\Models\CMS;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsArticlePersonRepository", referenceable=true)
- */
+#[PHPCR\Document(repositoryClass: CmsArticlePersonRepository::class, referenceable: true)]
 class CmsArticlePerson
 {
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $name;
 
-    /** @PHPCRODM\Referrers(referencedBy="persons", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
+    #[PHPCR\Referrers(referencedBy: 'persons', referringDocument: CmsArticle::class, cascade: 'persist')]
     public $articlesReferrers;
 
     public function __construct()

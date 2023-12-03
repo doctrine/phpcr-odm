@@ -2,17 +2,15 @@
 
 namespace Doctrine\Tests\Models\References;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class RefManyWithParentTestObjForCascade
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceMany(cascade="all") */
+    #[PHPCR\ReferenceMany(cascade: 'all')]
     public $references;
 
     public function setReferences($references)
