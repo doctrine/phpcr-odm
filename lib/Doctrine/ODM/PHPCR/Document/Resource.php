@@ -20,63 +20,45 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 use PHPCR\NodeInterface;
 
 /**
  * This class represents a jcr nt:resource and is used by the File document
  *
  * @see http://wiki.apache.org/jackrabbit/nt:resource
- *
- * @PHPCRODM\Document(nodeType="nt:resource")
  */
+#[ODM\Document(nodeType: 'nt:resource')]
 class Resource
 {
-    /**
-     * @PHPCRODM\Id
-     */
+    #[ODM\Id]
     protected $id;
 
     /**
      * @var NodeInterface
-     *
-     * @PHPCRODM\Node
      */
+    #[ODM\Node]
     protected $node;
 
-    /**
-     * @PHPCRODM\Nodename
-     */
+    #[ODM\Nodename]
     protected $nodename;
 
-    /**
-     * @PHPCRODM\ParentDocument
-     */
+    #[ODM\ParentDocument]
     protected $parent;
 
-    /**
-     * @PHPCRODM\Field(type="binary", property="jcr:data")
-     */
+    #[ODM\Field(property: 'jcr:data', type: 'binary')]
     protected $data;
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:mimeType")
-     */
+    #[ODM\Field(property: 'jcr:mimeType', type: 'string')]
     protected $mimeType = 'application/octet-stream';
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:encoding", nullable=true)
-     */
+    #[ODM\Field(property: 'jcr:encoding', type: 'string', nullable: true)]
     protected $encoding;
 
-    /**
-     * @PHPCRODM\Field(type="date", property="jcr:lastModified")
-     */
+    #[ODM\Field(property: 'jcr:lastModified', type: 'date')]
     protected $lastModified;
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy")
-     */
+    #[ODM\Field(property: 'jcr:lastModifiedBy', type: 'string')]
     protected $lastModifiedBy;
 
     /**
@@ -97,7 +79,7 @@ class Resource
      *
      * @param string $name the name of the resource
      *
-     * @return $this
+     * @return self
      */
     public function setNodename($name)
     {
@@ -131,7 +113,7 @@ class Resource
      *
      * @param object $parent document that is the parent of this node
      *
-     * @return $this
+     * @return self
      */
     public function setParentDocument($parent)
     {
@@ -153,9 +135,9 @@ class Resource
     /**
      * Set the data from a binary stream.
      *
-     * @param stream $data the contents of this resource
+     * @param resource $data the contents of this resource
      *
-     * @return $this
+     * @return self
      */
     public function setData($data)
     {
@@ -167,7 +149,7 @@ class Resource
     /**
      * Get the binary data stream of this resource.
      *
-     * @param stream
+     * @return resource
      */
     public function getData()
     {
@@ -201,7 +183,7 @@ class Resource
      *
      * @param string $mimeType
      *
-     * @return $this
+     * @return self
      */
     public function setMimeType($mimeType)
     {
@@ -225,7 +207,7 @@ class Resource
      *
      * @param string $encoding
      *
-     * @return $this
+     * @return self
      */
     public function setEncoding($encoding)
     {
@@ -252,7 +234,7 @@ class Resource
      *
      * @param \DateTime $lastModified
      *
-     * @return $this
+     * @return self
      */
     public function setLastModified($lastModified)
     {
@@ -279,7 +261,7 @@ class Resource
      *
      * @param string $lastModifiedBy
      *
-     * @return $this
+     * @return self
      */
     public function setLastModifiedBy($lastModifiedBy)
     {

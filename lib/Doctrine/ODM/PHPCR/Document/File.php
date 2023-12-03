@@ -20,21 +20,20 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 
 /**
  * This class represents a JCR file, aka nt:file.
  *
  * @see http://wiki.apache.org/jackrabbit/nt:file
- *
- * @PHPCRODM\Document(nodeType="nt:file", mixins={}, referenceable=true)
  */
+#[ODM\Document(nodeType: 'nt:file', mixins: [], referenceable: true)]
 class File extends AbstractFile
 {
     /**
-     * @var resource
-     * @PHPCRODM\Child(nodeName="jcr:content", cascade="all")
+     * @var Resource
      */
+    #[ODM\Child(nodeName: 'jcr:content', cascade: 'all')]
     protected $content;
 
     /**
@@ -45,7 +44,7 @@ class File extends AbstractFile
      *
      * @throws RuntimeException if the filename does not point to a file that can be read
      *
-     * @return $this
+     * @return self
      */
     public function setFileContentFromFilesystem($filename)
     {
@@ -74,9 +73,9 @@ class File extends AbstractFile
     /**
      * Set the content for this file from the given Resource.
      *
-     * @param resource $content
+     * @param Resource $content
      *
-     * @return $this
+     * @return self
      */
     public function setContent(Resource $content)
     {
@@ -107,7 +106,7 @@ class File extends AbstractFile
      *
      * @param resource|string $content the content for the file
      *
-     * @return $this
+     * @return self
      */
     public function setFileContent($content)
     {
@@ -129,7 +128,7 @@ class File extends AbstractFile
     /**
      * Get a stream for the content of this file.
      *
-     * @return stream the content for the file
+     * @return resource the content for the file
      */
     public function getFileContentAsStream()
     {

@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Driver;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
@@ -24,27 +23,17 @@ class BuiltinDocumentsDriver implements MappingDriver
      */
     const NAME_SPACE = 'Doctrine\ODM\PHPCR\Document';
 
-    /**
-     * @var MappingDriver
-     */
-    private $wrappedDriver;
-
-    /**
-     * @var AnnotationDriver
-     */
-    private $builtinDriver;
+    private MappingDriver $wrappedDriver;
+    private AttributeDriver $builtinDriver;
 
     /**
      * Create with a driver to wrap
-     *
-     * @param MappingDriver $nestedDriver
      */
     public function __construct(MappingDriver $wrappedDriver)
     {
         $this->wrappedDriver = $wrappedDriver;
 
-        $reader = new AnnotationReader();
-        $this->builtinDriver = new AnnotationDriver($reader, [realpath(__DIR__.'/../../Document')]);
+        $this->builtinDriver = new AttributeDriver([realpath(__DIR__.'/../../Document')]);
     }
 
     /**
@@ -52,7 +41,7 @@ class BuiltinDocumentsDriver implements MappingDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $class)
     {
-        if (0 === strpos($className, self::NAME_SPACE)) {
+        if (str_starts_with($className, self::NAME_SPACE)) {
             $this->builtinDriver->loadMetadataForClass($className, $class);
 
             return;

@@ -22,7 +22,7 @@ namespace Doctrine\ODM\PHPCR\Document;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\PHPCR\HierarchyInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 
 /**
  * This class represents a Folder in the repository, aka nt:folder
@@ -31,21 +31,20 @@ use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
  *
  * To add files or folders to a folder, create the new File/Folder and set
  * this document as parent, then persist the new File/Folder.
- *
- * @PHPCRODM\Document(nodeType="nt:folder", mixins={})
  */
+#[ODM\Document(nodeType: 'nt:folder', mixins: [])]
 class Folder extends AbstractFile
 {
     /**
      * @var ArrayCollection
-     * @PHPCRODM\Children(cascade="all")
      */
+    #[ODM\Children(cascade: 'all')]
     protected $children;
 
     /**
      * @var AbstractFile
-     * @PHPCRODM\Child(cascade="all")
      */
+    #[ODM\Child(cascade: 'all')]
     protected $child;
 
     /**
@@ -63,7 +62,7 @@ class Folder extends AbstractFile
      *
      * @param $children ArrayCollection
      *
-     * @return $this
+     * @return self
      */
     public function setChildren(ArrayCollection $children)
     {
@@ -78,7 +77,7 @@ class Folder extends AbstractFile
      *
      * @param $child HierarchyInterface
      *
-     * @return $this
+     * @return self
      */
     public function addChild(HierarchyInterface $child)
     {

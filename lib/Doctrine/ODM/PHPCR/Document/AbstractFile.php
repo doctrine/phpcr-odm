@@ -20,31 +20,30 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\HierarchyInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 
 /**
  * This class represents an abstract "file"
- *
- * @PHPCRODM\MappedSuperclass(mixins="mix:created")
  */
+#[ODM\MappedSuperclass(mixins: ['mix:created'])]
 abstract class AbstractFile implements HierarchyInterface
 {
-    /** @PHPCRODM\Id(strategy="parent") */
+    #[ODM\Id(strategy: 'parent')]
     protected $id;
 
-    /** @PHPCRODM\Node */
+    #[ODM\Node]
     protected $node;
 
-    /** @PHPCRODM\Nodename */
+    #[ODM\Nodename]
     protected $nodename;
 
-    /** @PHPCRODM\ParentDocument */
+    #[ODM\ParentDocument]
     protected $parent;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
+    #[ODM\Field(property: 'jcr:created', type: 'date')]
     protected $created;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
+    #[ODM\Field(property: 'jcr:createdBy', type: 'string')]
     protected $createdBy;
 
     /**
@@ -52,7 +51,7 @@ abstract class AbstractFile implements HierarchyInterface
      *
      * @param string $id of the node
      *
-     * @return $this
+     * @return self
      */
     public function setId($id)
     {
@@ -86,7 +85,7 @@ abstract class AbstractFile implements HierarchyInterface
      *
      * @param string $name the name of the file
      *
-     * @return $this
+     * @return self
      */
     public function setNodename($name)
     {
@@ -121,7 +120,7 @@ abstract class AbstractFile implements HierarchyInterface
      * @param object $parent Document that is the parent of this node. Could be
      *                       a Folder or otherwise resolve to nt:folder
      *
-     * @return $this
+     * @return self
      */
     public function setParentDocument($parent)
     {

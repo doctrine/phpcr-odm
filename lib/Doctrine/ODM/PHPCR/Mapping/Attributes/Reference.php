@@ -14,11 +14,11 @@ abstract class Reference extends BaseReference implements MappingAttribute
         string $property = null,
         string $targetDocument = null,
         string $strategy = 'weak',
-        array $cascade = []
+        array|string $cascade = []
     ) {
         $this->property = $property;
         $this->targetDocument = $targetDocument;
         $this->strategy = $strategy;
-        $this->cascade = $cascade;
+        $this->cascade = (array) $cascade;
     }
 }
