@@ -20,30 +20,30 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\HierarchyInterface;
-use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * This class represents an abstract "file"
  */
-#[ODM\MappedSuperclass(mixins: ['mix:created'])]
+#[PHPCR\MappedSuperclass(mixins: ['mix:created'])]
 abstract class AbstractFile implements HierarchyInterface
 {
-    #[ODM\Id(strategy: 'parent')]
+    #[PHPCR\Id(strategy: 'parent')]
     protected $id;
 
-    #[ODM\Node]
+    #[PHPCR\Node]
     protected $node;
 
-    #[ODM\Nodename]
+    #[PHPCR\Nodename]
     protected $nodename;
 
-    #[ODM\ParentDocument]
+    #[PHPCR\ParentDocument]
     protected $parent;
 
-    #[ODM\Field(property: 'jcr:created', type: 'date')]
+    #[PHPCR\Field(property: 'jcr:created', type: 'date')]
     protected $created;
 
-    #[ODM\Field(property: 'jcr:createdBy', type: 'string')]
+    #[PHPCR\Field(property: 'jcr:createdBy', type: 'string')]
     protected $createdBy;
 
     /**

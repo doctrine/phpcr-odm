@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use PHPCR\NodeInterface;
 
 /**
@@ -30,31 +30,31 @@ use PHPCR\NodeInterface;
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
  */
-#[ODM\Document]
+#[PHPCR\Document]
 class Generic
 {
-    #[ODM\Id(strategy: 'parent')]
+    #[PHPCR\Id(strategy: 'parent')]
     protected $id;
 
-    #[ODM\Node]
+    #[PHPCR\Node]
     protected $node;
 
-    #[ODM\Nodename]
+    #[PHPCR\Nodename]
     protected $nodename;
 
-    #[ODM\ParentDocument]
+    #[PHPCR\ParentDocument]
     protected $parent;
 
     /**
      * @var Collection
      */
-    #[ODM\Children]
+    #[PHPCR\Children]
     protected $children;
 
     /**
      * @var Collection
      */
-    #[ODM\MixedReferrers]
+    #[PHPCR\MixedReferrers]
     protected $referrers;
 
     /**

@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
@@ -90,18 +90,16 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class SomeEntity
 {
-    /** @PHPCRODM\Id() */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $status;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $text;
 }
 

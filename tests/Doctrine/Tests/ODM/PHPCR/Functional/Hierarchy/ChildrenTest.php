@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\ChildrenCollection;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -696,9 +696,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCR\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy\ChildrenTestObjRepository")
- */
+#[PHPCR\Document(repositoryClass: ChildrenTestObjRepository::class)]
 class ChildrenTestObj
 {
     public function __construct()
@@ -707,19 +705,19 @@ class ChildrenTestObj
         $this->allChildren = new ArrayCollection();
     }
 
-    /** @PHPCR\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCR\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $name;
 
-    /** @PHPCR\Children(filter="*A", fetchDepth=1, cascade="persist") */
+    #[PHPCR\Children(filter: '*A', fetchDepth: 1, cascade: 'persist')]
     public $aChildren;
 
     /**
      * @var ChildrenCollection
-     * @PHPCR\Children(fetchDepth=2, cascade="persist")
      */
+    #[PHPCR\Children(fetchDepth: 2, cascade: 'persist')]
     public $allChildren;
 }
 
@@ -744,66 +742,52 @@ class ChildrenTestObjRepository extends DocumentRepository implements Repository
     }
 }
 
-/**
- * @PHPCR\Document()
- */
+#[PHPCR\Document]
 class ChildrenAutonameTestObj
 {
-    /** @PHPCR\Id(strategy="auto") */
+    #[PHPCR\Id(strategy: 'auto')]
     public $id;
 
-    /** @PHPCR\ParentDocument() */
+    #[PHPCR\ParentDocument]
     public $parent;
 }
 
-/**
- * @PHPCR\Document()
- */
+#[PHPCR\Document]
 class ChildrenParentAndNameTestObj
 {
-    /**
-     * @PHPCR\ParentDocument
-     */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /**
-     * @PHPCR\Id(strategy="parent")
-     */
+    #[PHPCR\Id(strategy: 'parent')]
     public $id;
 
-    /**
-     * @PHPCR\Nodename
-     */
+    #[PHPCR\Nodename]
     public $name;
 }
 
-/**
- * @PHPCR\Document()
- */
+#[PHPCR\Document]
 class ChildrenReferrerTestObj
 {
-    /** @PHPCR\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCR\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCR\ReferenceOne(targetDocument="ChildrenReferenceableTestObj", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ChildrenReferenceableTestObj::class, cascade: 'persist')]
     public $reference;
 }
 
-/**
- * @PHPCR\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ChildrenReferenceableTestObj
 {
-    /** @PHPCR\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCR\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCR\Children(cascade="persist") */
+    #[PHPCR\Children(cascade: 'persist')]
     public $allChildren;
 }
 

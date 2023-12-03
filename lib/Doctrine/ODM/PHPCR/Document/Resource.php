@@ -20,7 +20,7 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use PHPCR\NodeInterface;
 
 /**
@@ -28,37 +28,37 @@ use PHPCR\NodeInterface;
  *
  * @see http://wiki.apache.org/jackrabbit/nt:resource
  */
-#[ODM\Document(nodeType: 'nt:resource')]
+#[PHPCR\Document(nodeType: 'nt:resource')]
 class Resource
 {
-    #[ODM\Id]
+    #[PHPCR\Id]
     protected $id;
 
     /**
      * @var NodeInterface
      */
-    #[ODM\Node]
+    #[PHPCR\Node]
     protected $node;
 
-    #[ODM\Nodename]
+    #[PHPCR\Nodename]
     protected $nodename;
 
-    #[ODM\ParentDocument]
+    #[PHPCR\ParentDocument]
     protected $parent;
 
-    #[ODM\Field(property: 'jcr:data', type: 'binary')]
+    #[PHPCR\Field(property: 'jcr:data', type: 'binary')]
     protected $data;
 
-    #[ODM\Field(property: 'jcr:mimeType', type: 'string')]
+    #[PHPCR\Field(property: 'jcr:mimeType', type: 'string')]
     protected $mimeType = 'application/octet-stream';
 
-    #[ODM\Field(property: 'jcr:encoding', type: 'string', nullable: true)]
+    #[PHPCR\Field(property: 'jcr:encoding', type: 'string', nullable: true)]
     protected $encoding;
 
-    #[ODM\Field(property: 'jcr:lastModified', type: 'date')]
+    #[PHPCR\Field(property: 'jcr:lastModified', type: 'date')]
     protected $lastModified;
 
-    #[ODM\Field(property: 'jcr:lastModifiedBy', type: 'string')]
+    #[PHPCR\Field(property: 'jcr:lastModifiedBy', type: 'string')]
     protected $lastModifiedBy;
 
     /**
