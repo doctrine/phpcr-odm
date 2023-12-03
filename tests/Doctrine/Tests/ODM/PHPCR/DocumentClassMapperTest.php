@@ -145,9 +145,9 @@ class DocumentClassMapperTest extends Testcase
     {
         $parentClasses = [self::CLASS_TEST_2, self::CLASS_TEST_3];
 
-        $this->node->expects($this->at(0))
+        $this->node
             ->method('setProperty')
-            ->with('phpcr:class', self::CLASS_TEST_1, PropertyType::STRING);
+            ->withConsecutive(['phpcr:class', self::CLASS_TEST_1, PropertyType::STRING], ['phpcr:classparents', $parentClasses, PropertyType::STRING]);
 
         $this->dm->expects($this->once())
             ->method('getClassMetadata')
@@ -157,11 +157,6 @@ class DocumentClassMapperTest extends Testcase
         $this->metadata->expects($this->once())
             ->method('getParentClasses')
             ->willReturn($parentClasses);
-
-        // Assert that we set the correct parent classes
-        $this->node->expects($this->at(1))
-            ->method('setProperty')
-            ->with('phpcr:classparents', $parentClasses, PropertyType::STRING);
 
         $this->mapper->writeMetadata($this->dm, $this->node, self::CLASS_TEST_1);
     }

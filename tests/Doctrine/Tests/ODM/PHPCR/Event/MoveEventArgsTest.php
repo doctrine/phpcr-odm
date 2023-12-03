@@ -18,7 +18,7 @@ class MoveEventArgsTest extends TestCase
     public function setUp(): void
     {
         $this->dm = $this->createMock(DocumentManager::class);
-        $this->object = new \stdClass();
+        $this->object = new stdClass();
 
         $this->eventArgs = new MoveEventArgs(
             $this->object,

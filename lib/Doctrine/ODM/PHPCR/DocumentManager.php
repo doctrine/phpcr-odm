@@ -107,7 +107,7 @@ class DocumentManager implements DocumentManagerInterface
     public function getLocaleChooserStrategy(): LocaleChooserInterface
     {
         if (!isset($this->localeChooserStrategy)) {
-            throw new InvalidArgumentException('You must configure a language chooser strategy when having documents with the translatable annotation');
+            throw new InvalidArgumentException('You must configure a language chooser strategy when having documents with the translatable mapping');
         }
 
         return $this->localeChooserStrategy;

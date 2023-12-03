@@ -51,7 +51,7 @@ class PrefetchHelper
     }
 
     /**
-     * Prefetch all mapped ReferenceOne annotations.
+     * Prefetch all mapped ReferenceOne fields.
      *
      * @param NodeInterface $node the node to prefetch parent and children for
      */
@@ -64,7 +64,7 @@ class PrefetchHelper
     }
 
     /**
-     * Prefetch all Child mappings and the ParentDocument if annotations exist.
+     * Prefetch all Child mappings and the ParentDocument if mapping exist.
      *
      * @param NodeInterface $node the node to prefetch parent and children for
      */

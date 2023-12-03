@@ -89,6 +89,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $this->dm->find($this->type, '/functional/parent/Child D');
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf(ChildrenTestObj::class, $parent);
         $col = $this->dm->getChildren($parent);
         $this->assertEquals('Child A', $col->key());
 
@@ -96,6 +97,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $this->dm->find($this->type, '/functional/parent/Child D');
         $parent = $this->dm->find($this->type, '/functional/parent');
+        $this->assertInstanceOf(ChildrenTestObj::class, $parent);
         $this->assertEquals('Child A', $parent->allChildren->key());
     }
 
@@ -630,6 +632,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
 
         $parent = $this->dm->find($this->type, '/functional/parent');
         $child = $parent->allChildren->first();
+        $this->assertInstanceOf(ChildrenParentAndNameTestObj::class, $child);
         $this->assertEquals('original', $child->name);
 
         $child->name = 'different';

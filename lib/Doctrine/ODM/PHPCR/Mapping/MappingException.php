@@ -25,7 +25,7 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
     }
 
     /**
-     * Non-annotation mappings could specify a fieldName that does not exist on the class.
+     * XML/YAML mappings can specify a fieldName that does not exist on the class.
      */
     public static function classHasNoField(string $documentClass, string $fieldName): self
     {

@@ -11,7 +11,6 @@ class RefCascadeManyTestObj
     #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj", cascade="persist") */
     #[PHPCR\ReferenceMany(targetDocument: RefRefTestObj::class, cascade: 'persist')]
     public $references;
 

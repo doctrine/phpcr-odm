@@ -123,6 +123,7 @@ class EventManagerTest extends PHPCRFunctionalTestCase
 
         $pageId = $this->dm->getUnitOfWork()->getDocumentId($page);
         $itemId = $this->dm->getUnitOfWork()->getDocumentId($item);
+        $this->assertIsString($itemId);
         $this->dm->clear();
 
         $page = $this->dm->find(null, $pageId);

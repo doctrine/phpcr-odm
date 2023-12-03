@@ -661,7 +661,7 @@ class WeakReferrerTestObj
     public $id;
 
     /**
-     * Should implicitly default to strategy="weak"
+     * Should implicitly default to strategy="weak".
      */
     #[PHPCR\ReferenceOne(targetDocument: WeakReferrerRefTestObj::class, cascade: 'persist')]
     public $referenceToWeak;

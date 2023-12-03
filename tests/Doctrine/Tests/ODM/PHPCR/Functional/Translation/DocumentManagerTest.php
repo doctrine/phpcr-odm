@@ -796,7 +796,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $a->topic = 'Hello';
         $a->text = 'This is an article in English';
         $this->dm->persist($a);
-        $this->expectException(\Doctrine\ODM\PHPCR\Exception\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Translation "de" already exists');
         $this->dm->flush();
 

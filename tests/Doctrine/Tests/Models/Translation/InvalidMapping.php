@@ -3,7 +3,7 @@
 /**
  * !!! WARNING !!!
  *
- * This class is invalid as it uses an invalid key for the @PHPCRODM\Document(translator) annotation.
+ * This class is invalid as it uses an invalid key for the #[PHPCR\Document](translator) attribute.
  * This class is supposed to throw an exception when it is read by the ODM !!!
  */
 

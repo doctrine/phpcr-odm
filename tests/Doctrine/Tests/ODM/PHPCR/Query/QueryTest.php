@@ -118,12 +118,10 @@ class QueryTest extends Testcase
 
     public function testExecuteParameters(): void
     {
-        $this->phpcrQuery->expects($this->at(0))
+        $this->phpcrQuery
             ->method('bindValue')
-            ->with('foo', 'bar');
-        $this->phpcrQuery->expects($this->at(1))
-            ->method('bindValue')
-            ->with('bar', 'foo');
+            ->withConsecutive(['foo', 'bar'], ['bar', 'foo'])
+        ;
         $this->query->execute(['foo' => 'bar', 'bar' => 'foo']);
     }
 

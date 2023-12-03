@@ -2,10 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Locale as BaseLocale;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Locale extends BaseLocale implements MappingAttribute
+final class Locale implements MappingAttribute
 {
 }

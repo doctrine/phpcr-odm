@@ -77,6 +77,8 @@ class File extends AbstractFile
      * Set the content for this file from the given resource or string.
      *
      * @param resource|string $content the content for the file
+     *
+     * @phpstan-param closed-resource|string $content
      */
     public function setFileContent($content): self
     {
@@ -99,6 +101,8 @@ class File extends AbstractFile
      * Get a stream for the content of this file.
      *
      * @return resource the content for the file
+     *
+     * @phpstan-return closed-resource
      */
     public function getFileContentAsStream()
     {

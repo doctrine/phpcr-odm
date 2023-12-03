@@ -54,8 +54,8 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
 
         $this->assertInstanceOf('stdClass', $entity->status);
         $this->assertObjectHasProperty('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'active');
-        $this->assertObjectNotHasAttribute('foo', $entity->status);
+        $this->assertSame('active', $entity->status->value);
+        $this->assertObjectNotHasProperty('foo', $entity->status);
 
         $entity->status->value = 'inactive';
         $entity->status->foo = 'bar2';
@@ -65,9 +65,9 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
 
         $this->assertInstanceOf('stdClass', $entity->status);
         $this->assertObjectHasProperty('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'inactive');
-        $this->assertObjectNotHasAttribute('foo', $entity->status);
-        $this->assertEquals($entity->text, 'test2');
+        $this->assertSame('inactive', $entity->status->value);
+        $this->assertObjectNotHasProperty('foo', $entity->status);
+        $this->assertSame('test2', $entity->text);
 
         $this->dm->clear();
 
@@ -75,9 +75,9 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
 
         $this->assertInstanceOf('stdClass', $entity->status);
         $this->assertObjectHasProperty('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'inactive');
-        $this->assertObjectNotHasAttribute('foo', $entity->status);
-        $this->assertEquals($entity->text, 'test2');
+        $this->assertSame('inactive', $entity->status->value);
+        $this->assertObjectNotHasProperty('foo', $entity->status);
+        $this->assertSame('test2', $entity->text);
 
         $entity->status->value = 'active';
 
@@ -85,8 +85,8 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
 
         $this->assertInstanceOf('stdClass', $entity->status);
         $this->assertObjectHasProperty('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'active');
-        $this->assertEquals($entity->text, 'test2');
+        $this->assertSame('active', $entity->status->value);
+        $this->assertSame('test2', $entity->text);
     }
 }
 

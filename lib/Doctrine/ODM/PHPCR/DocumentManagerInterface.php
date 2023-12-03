@@ -153,7 +153,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Quote a string for inclusion in an SQL2 query.
      *
-     * @see \PHPCR\PropertyType
+     * @see PropertyType
      */
     public function quote(string $val, int $type = PropertyType::STRING): string;
 

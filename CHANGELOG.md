@@ -15,7 +15,7 @@ Changelog
 * DocumentManager::flush no longer saves the PHPCR session if there are no changes
   on the ODM layer.
 
-* Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
+* Removed annotation mappings. Use attributes (or XML or YAML) instead.
 
 ### New Features
 

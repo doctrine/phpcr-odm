@@ -241,7 +241,7 @@ class UnitOfWork
      *
      * Supported hints are
      * - refresh: reload the fields from the database if set
-     * - locale: use this locale instead of the one from the annotation or the default
+     * - locale: use this locale instead of the one from the mapping or the default
      * - fallback: whether to try other languages or throw a not found
      *      exception if the desired locale is not found. defaults to true if
      *      not set and locale is not given either.
@@ -264,7 +264,7 @@ class UnitOfWork
      *
      * Supported hints are
      * - refresh: reload the fields from the database if set
-     * - locale: use this locale instead of the one from the annotation or the default
+     * - locale: use this locale instead of the one from the mapping or the default
      * - fallback: whether to try other languages or throw a not found
      *      exception if the desired locale is not found. defaults to true if
      *      not set and locale is not given either.
@@ -418,7 +418,10 @@ class UnitOfWork
                     try {
                         $referencedNode = $node->getProperty($mapping['property'])->getNode();
                         $proxy = $this->getOrCreateProxyFromNode($referencedNode, $locale);
-                        if (array_key_exists('targetDocument', $mapping) && !$proxy instanceof $mapping['targetDocument']) {
+                        if (array_key_exists('targetDocument', $mapping)
+                            && null !== $mapping['targetDocument']
+                            && !$proxy instanceof $mapping['targetDocument']
+                        ) {
                             throw new PHPCRException("Unexpected class for referenced document at '{$referencedNode->getPath()}'. Expected '{$mapping['targetDocument']}' but got '".ClassUtils::getClass($proxy)."'.");
                         }
                     } catch (RepositoryException $e) {
@@ -2396,7 +2399,7 @@ class UnitOfWork
                                     $refClass = $this->dm->getClassMetadata(get_class($fv));
                                     $this->setMixins($refClass, $associatedNode, $fv);
                                     if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                        throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fv)));
+                                        throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Set referenceable to true in Document mapping: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fv)));
                                     }
                                     $refNodesIds[] = $associatedNode->getIdentifier();
                                 }
@@ -2415,7 +2418,7 @@ class UnitOfWork
                                 $refClass = $this->dm->getClassMetadata(get_class($fieldValue));
                                 $this->setMixins($refClass, $associatedNode, $document);
                                 if (!$associatedNode->isNodeType('mix:referenceable')) {
-                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Use referenceable=true in Document annotation: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fieldValue)));
+                                    throw new PHPCRException(sprintf('Referenced document %s is not referenceable. Set referenceable to true in Document mapping: '.self::objToStr($document, $this->dm), ClassUtils::getClass($fieldValue)));
                                 }
                                 $node->setProperty($mapping['property'], $associatedNode->getIdentifier(), $strategy);
                             }
@@ -2492,7 +2495,7 @@ class UnitOfWork
                                     break;
                                 default:
                                     // in class metadata we only did a santiy check but not look at the actual mapping
-                                    throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer annotation: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], ClassUtils::getClass($fv)));
+                                    throw new MappingException(sprintf('Field "%s" of document "%s" is not a reference field. Error in referrer mapping: '.self::objToStr($document, $this->dm), $mapping['referencedBy'], ClassUtils::getClass($fv)));
                             }
                         }
                     }
@@ -2729,7 +2732,6 @@ class UnitOfWork
         $this->documentHistory[$oid] = $history;
         $this->documentVersion[$oid] = $version;
 
-        // Set the annotations
         $metadata = $this->dm->getClassMetadata(get_class($frozenDocument));
         if ($metadata->versionNameField) {
             $metadata->reflFields[$metadata->versionNameField]->setValue($frozenDocument, $versionName);

@@ -4,7 +4,6 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
-use mysql_xdevapi\CrudOperationBindable;
 
 #[PHPCR\Document]
 class CmsArticle

@@ -125,11 +125,13 @@ class AttributeDriver implements MappingDriver
             $metadata->setTranslator($documentAttribute->translator);
         }
 
-        if ($documentAttribute->childClasses) {
+        if (null !== $documentAttribute->childClasses) {
             $metadata->setChildClasses($documentAttribute->childClasses);
         }
 
-        $metadata->setIsLeaf($documentAttribute->isLeaf);
+        if (null !== $documentAttribute->isLeaf) {
+            $metadata->setIsLeaf($documentAttribute->isLeaf);
+        }
 
         foreach ($reflectionClass->getProperties() as $property) {
             if ($metadata->isInheritedField($property->name)
@@ -227,8 +229,12 @@ class AttributeDriver implements MappingDriver
      *
      * @return int a bitmask of cascade options
      */
-    private function getCascadeMode(array $cascadeList)
+    private function getCascadeMode(?array $cascadeList): int
     {
+        if (!$cascadeList) {
+            return 0;
+        }
+
         $cascade = 0;
         foreach ($cascadeList as $cascadeMode) {
             $constantName = 'Doctrine\ODM\PHPCR\Mapping\ClassMetadata::CASCADE_'.strtoupper($cascadeMode);

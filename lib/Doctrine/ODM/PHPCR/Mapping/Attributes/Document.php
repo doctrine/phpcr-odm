@@ -2,33 +2,27 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Document as BaseDocument;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class Document extends BaseDocument implements MappingAttribute
+class Document implements MappingAttribute
 {
+    public array|null $mixins;
+    public array|null $childClasses;
+
     public function __construct(
-        string $nodeType = null,
-        string $repositoryClass = null,
-        string $translator = null,
-        array $mixins = null,
-        bool|null $inheritMixins = null,
-        string $versionable = null,
-        bool|null $referenceable = null,
-        bool|null $uniqueNodeType = null,
-        string|array|null $childClasses = null,
-        bool|null $isLeaf = null,
+        public null|string $nodeType = null,
+        public null|string $repositoryClass = null,
+        public null|string $translator = null,
+        string|array $mixins = null,
+        public bool|null $inheritMixins = null,
+        public null|string $versionable = null,
+        public null|bool $referenceable = null,
+        public null|bool $uniqueNodeType = null,
+        string|array $childClasses = null,
+        public bool|null $isLeaf = null,
     ) {
-        $this->nodeType = $nodeType;
-        $this->repositoryClass = $repositoryClass;
-        $this->translator = $translator;
-        $this->mixins = $mixins;
-        $this->inheritMixins = $inheritMixins;
-        $this->versionable = $versionable;
-        $this->referenceable = $referenceable;
-        $this->uniqueNodeType = $uniqueNodeType;
-        $this->childClasses = $childClasses ? (array) $childClasses : null;
-        $this->isLeaf = $isLeaf;
+        $this->mixins = null === $mixins ? null : (array) $mixins;
+        $this->childClasses = null === $childClasses ? null : (array) $childClasses;
     }
 }

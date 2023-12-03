@@ -2,19 +2,15 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Id as BaseId;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Id extends BaseId implements MappingAttribute
+final class Id implements MappingAttribute
 {
     public function __construct(
-        bool $id = true,
-        string $type = 'string',
-        string $strategy = null,
+        public bool $id = true,
+        public string $type = 'string',
+        public null|string $strategy = null,
     ) {
-        $this->id = $id;
-        $this->type = $type;
-        $this->strategy = $strategy;
     }
 }
