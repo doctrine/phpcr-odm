@@ -53,10 +53,10 @@ class TranslationTest extends PHPCRFunctionalTestCase
         $this->assertFieldMetadataEquals(true, $metadata, 'text', 'translated');
         $this->assertFieldMetadataEquals(true, $metadata, 'assoc', 'translated');
 
-        $this->assertObjectHasAttribute('translator', $metadata);
+        $this->assertObjectHasProperty('translator', $metadata);
         $this->assertEquals('attribute', $metadata->translator);
 
-        $this->assertObjectHasAttribute('localeMapping', $metadata);
+        $this->assertObjectHasProperty('localeMapping', $metadata);
         $this->assertEquals('locale', $metadata->localeMapping);
     }
 

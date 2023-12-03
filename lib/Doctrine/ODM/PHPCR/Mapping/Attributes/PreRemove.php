@@ -2,11 +2,10 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Attribute;
 use Doctrine\ODM\PHPCR\Mapping\Annotations\PreRemove as BasePreRemove;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
-#[Attribute(Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class PreRemove extends BasePreRemove implements MappingAttribute
 {
 }

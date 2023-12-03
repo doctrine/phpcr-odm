@@ -37,7 +37,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
 
         $user = $this->dm->getReference(get_class($user), $user->id);
 
-        $this->assertObjectHasAttribute('name', $user, 'User is not set on demand');
+        $this->assertObjectHasProperty('name', $user, 'User is not set on demand');
         $this->assertEquals('Dominik', $user->name, 'User is not loaded on demand');
     }
 

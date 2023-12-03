@@ -314,7 +314,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testNodenameMapping(ClassMetadata $class): void
     {
-        $this->assertObjectHasAttribute('nodename', $class);
+        $this->assertObjectHasProperty('nodename', $class);
         $this->assertEquals('namefield', $class->nodename);
     }
 
@@ -331,7 +331,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testParentDocumentMapping(ClassMetadata $class): void
     {
-        $this->assertObjectHasAttribute('parentMapping', $class);
+        $this->assertObjectHasProperty('parentMapping', $class);
         $this->assertEquals('parent', $class->parentMapping);
     }
 
@@ -348,7 +348,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testDepthMapping(ClassMetadata $class): void
     {
-        $this->assertObjectHasAttribute('depthMapping', $class);
+        $this->assertObjectHasProperty('depthMapping', $class);
         $this->assertSame('depth', $class->depthMapping);
     }
 
@@ -788,7 +788,7 @@ abstract class AbstractMappingDriverTest extends TestCase
      */
     public function testUuidMapping(ClassMetadata $class): void
     {
-        $this->assertObjectHasAttribute('uuidFieldName', $class);
+        $this->assertObjectHasProperty('uuidFieldName', $class);
         $this->assertEquals('uuid', $class->uuidFieldName);
         $this->assertEquals('string', $class->mappings['uuid']['type']);
         $this->assertEquals('jcr:uuid', $class->mappings['uuid']['property']);

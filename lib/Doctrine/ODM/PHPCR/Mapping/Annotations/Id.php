@@ -12,5 +12,5 @@ class Id
 {
     public bool $id = true;
     public string $type = 'string';
-    public string $strategy;
+    public ?string $strategy = null;
 }

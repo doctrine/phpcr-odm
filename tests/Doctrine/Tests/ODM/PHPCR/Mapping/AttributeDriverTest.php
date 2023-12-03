@@ -10,7 +10,7 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
  */
 class AttributeDriverTest extends AbstractMappingDriverTest
 {
-    protected function loadDriver(): MappingDriver
+    protected function loadDriver(): AttributeDriver
     {
         return new AttributeDriver([]);
     }

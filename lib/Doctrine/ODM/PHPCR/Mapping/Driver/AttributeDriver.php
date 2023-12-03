@@ -28,7 +28,6 @@ use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\ClassMetadata as PersistenceClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\ColocatedMappingDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
-use ReflectionClass;
 
 /**
  * Read mapping metadata from PHP attributes.
@@ -65,7 +64,7 @@ class AttributeDriver implements MappingDriver
 
     public function isTransient($className)
     {
-        $classAttributes = $this->reader->getClassAttributes(new ReflectionClass($className));
+        $classAttributes = $this->reader->getClassAttributes(new \ReflectionClass($className));
 
         foreach ($classAttributes as $a) {
             if (array_key_exists($a::class, self::DOCUMENT_ATTRIBUTE_CLASSES)) {
@@ -203,7 +202,7 @@ class AttributeDriver implements MappingDriver
                 foreach ($this->reader->getMethodAttributes($method) as $methodAttribute) {
                     if ($methodAttribute instanceof ODM\PrePersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::prePersist);
-                    } elseif ($methodAttribute instanceof  ODM\PostPersist) {
+                    } elseif ($methodAttribute instanceof ODM\PostPersist) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postPersist);
                     } elseif ($methodAttribute instanceof ODM\PreUpdate) {
                         $metadata->addLifecycleCallback($method->getName(), Event::preUpdate);
@@ -213,7 +212,7 @@ class AttributeDriver implements MappingDriver
                         $metadata->addLifecycleCallback($method->getName(), Event::preRemove);
                     } elseif ($methodAttribute instanceof ODM\PostRemove) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postRemove);
-                    } elseif ($methodAttribute instanceof  ODM\PostLoad) {
+                    } elseif ($methodAttribute instanceof ODM\PostLoad) {
                         $metadata->addLifecycleCallback($method->getName(), Event::postLoad);
                     }
                 }
@@ -225,8 +224,6 @@ class AttributeDriver implements MappingDriver
 
     /**
      * Gathers a list of cascade options found in the given cascade element.
-     *
-     * @param array $cascadeList
      *
      * @return int a bitmask of cascade options
      */
