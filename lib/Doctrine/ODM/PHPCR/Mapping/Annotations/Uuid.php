@@ -8,7 +8,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Uuid extends Property
+class Uuid extends Property
 {
     public string $property = 'jcr:uuid';
     public string $type = 'string';

@@ -21,10 +21,10 @@
     "minimum-stability": "beta",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.0",
         "doctrine/collections": "^1.0 || ^2.0",
         "doctrine/common": "^2.4 || ^3.0",
-        "doctrine/annotations": "^1.13 || ^2.0",
+        "doctrine/annotations": "^1.14.3 || ^2.0",
         "doctrine/data-fixtures": "^1.0",
         "doctrine/event-manager": "^1.0 || ^2.0",
         "doctrine/persistence": "^2.4",

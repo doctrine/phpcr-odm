@@ -52,8 +52,9 @@ Bootstrap will roughly look like this::
     $workspace = 'default';
     $user = 'admin';
     $pass = 'admin';
-    $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository(
-                        array('jackalope.jackrabbit_uri' => 'http://localhost:8080/server'));
+    $repository = \Jackalope\RepositoryFactoryJackrabbit::getRepository([
+        'jackalope.jackrabbit_uri' => 'http://localhost:8080/server',
+    ]);
     $credentials = new \PHPCR\SimpleCredentials($user, $pass);
     $session = $repository->login($credentials, $workspace);
 
@@ -75,20 +76,20 @@ Bootstrap will roughly look like this when using mysql as storage backend::
     $user = 'admin';
     $pass = 'admin';
 
-    $params = array(
+    $params = [
         'driver'    => 'pdo_mysql', // or pdo_pgsql
         'host'      => 'localhost',
         'user'      => $user,
         'password'  => $pass,
         'dbname'    => 'phpcr_odm_tutorial',
-    );
+    ];
 
     // Bootstrap Doctrine DBAL
     $dbConn = \Doctrine\DBAL\DriverManager::getConnection($params);
 
-    $repository = \Jackalope\RepositoryFactoryDoctrineDBAL::getRepository(
-        array('jackalope.doctrine_dbal_connection' => $dbConn)
-    );
+    $repository = \Jackalope\RepositoryFactoryDoctrineDBAL::getRepository([
+        'jackalope.doctrine_dbal_connection' => $dbConn,
+    ]);
     // dummy credentials to comply with the API
     $credentials = new \PHPCR\SimpleCredentials(null, null);
     $session = $repository->login($credentials, $workspace);
@@ -99,11 +100,11 @@ credentials are ignored.
 
 Jackalope Doctrine DBAL also works with sqlite. Use the following parameters::
 
-    $params = array(
+    $params = [
         'driver' => 'pdo_sqlite',
         'dbname' => 'odm',
         'path' => '/tmp/jackalope.db',
-    );
+    ];
 
 
 Install Midgard2 PHPCR provider
@@ -123,7 +124,7 @@ Bootstrap will roughly look like this when using mysql as storage backend::
     $user = 'admin';
     $pass = 'password';
 
-    $params = array(
+    $params = [
         'midgard2.configuration.db.type' => 'MySQL',
         'midgard2.configuration.db.name' => 'phpcr',
         'midgard2.configuration.db.host' => 'localhost',
@@ -131,7 +132,7 @@ Bootstrap will roughly look like this when using mysql as storage backend::
         'midgard2.configuration.db.password' => 'midgard',
         'midgard2.configuration.blobdir' => '/some/path/for/blobs',
         'midgard2.configuration.db.init' => true,
-    );
+    ];
     $repository = \Midgard\PHPCR\RepositoryFactory::getRepository($params);
 
     $credentials = new \PHPCR\SimpleCredentials($user, $pass);
@@ -149,13 +150,13 @@ mysql driver of midgard to connect to the database.
 
 Midgard can also use sqlite, with the following parameters::
 
-    $params = array(
+    $params = [
         'midgard2.configuration.db.type' => 'SQLite',
         'midgard2.configuration.db.name' => 'odm',
         'midgard2.configuration.db.dir' => '/tmp',
         'midgard2.configuration.blobdir' => '/tmp/blobs'
         'midgard2.configuration.db.init' => true,
-    );
+    ];
 
 Configuration
 =============
@@ -198,39 +199,20 @@ Prepare the mapping driver
 
 In order to make PHPCR-ODM understand your documents, you need to provide mappings.
 
-You can choose between the drivers for annotations, xml and yml configuration files.
+You can choose between the drivers for attributes, xml and yml configuration files.
 Add the respective code right after the autoloading.
 
 See later in this chapter for more options with the mapping drivers.
 
-Annotation Mapping Driver
+Attributes Mapping Driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-With the annotation driver, you can annotate the fields in your document
+With the attributes driver, you can add attributes to your document
 classes with the mapping metadata::
 
-    use Doctrine\Common\Annotations\AnnotationRegistry;
-    use Doctrine\Common\Annotations\AnnotationReader;
-    use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+    use Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver;
 
-    AnnotationRegistry::registerLoader(array($autoload, 'loadClass'));
-
-    $reader = new AnnotationReader();
-    $driver = new AnnotationDriver($reader, array('/path/to/your/document/classes'));
-
-.. note::
-
-    Since PHPCR-ODM 1.1, the annotations are autoloaded like any other class.
-
-    With version 1.0, you needed to register the annotation file::
-
-        use Doctrine\Common\Annotations\AnnotationRegistry;
-
-        AnnotationRegistry::registerLoader(function($class) use ($autoload) {
-            $autoload->loadClass($class);
-            return class_exists($class, false);
-        });
-        AnnotationRegistry::registerFile(__DIR__.'/vendor/doctrine/phpcr-odm/lib/Doctrine/ODM/PHPCR/Mapping/Annotations/DoctrineAnnotations.php');
+    $driver = new AttributeDriver(['/path/to/your/document/classes']);
 
 XML Mapping Driver
 ^^^^^^^^^^^^^^^^^^
@@ -240,7 +222,7 @@ documents and PHPCR::
 
     use Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver;
 
-    $driver = new XmlDriver(array('/path/to/your/xml-mapping/files'));
+    $driver = new XmlDriver(['/path/to/your/xml-mapping/files']);
 
 YML Mapping Driver
 ^^^^^^^^^^^^^^^^^^
@@ -249,7 +231,7 @@ Your project must require symfony/yaml in composer.json::
 
     use Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver;
 
-    $driver = new YamlDriver(array('/path/to/your/yml-mapping/files'));
+    $driver = new YamlDriver(['/path/to/your/yml-mapping/files']);
 
 
 Quick Configuration Example
@@ -265,15 +247,15 @@ A complete configuration could look like this::
 
     /* --- see above for sample bootstrapping code of other repository implementations --- */
 
-    $params = array(
+    $params = [
         'driver'    => 'pdo_mysql',
         'host'      => 'localhost',
         'user'      => $user,
         'password'  => $pass,
         'dbname'    => 'phpcr_odm_tutorial',
-    );
+    ];
     $dbConn = \Doctrine\DBAL\DriverManager::getConnection($params);
-    $parameters = array('jackalope.doctrine_dbal_connection' => $dbConn);
+    $parameters = ['jackalope.doctrine_dbal_connection' => $dbConn];
     $repository = \Jackalope\RepositoryFactoryDoctrineDBAL::getRepository($parameters);
     $credentials = new \PHPCR\SimpleCredentials(null, null);
 
@@ -283,12 +265,10 @@ A complete configuration could look like this::
     $session = $repository->login($credentials, $workspace);
 
     /* prepare the doctrine configuration */
-    use Doctrine\Common\Annotations\AnnotationReader;
-    use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+    use Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver;
     use Doctrine\ODM\PHPCR\DocumentManager;
 
-    $reader = new AnnotationReader();
-    $driver = new AnnotationDriver($reader, array('/path/to/your/document/classes'));
+    $driver = new AttributeDriver(['/path/to/your/document/classes']);
 
     $config = new \Doctrine\ODM\PHPCR\Configuration();
     $config->setMetadataDriverImpl($driver);
@@ -349,20 +329,19 @@ classes.
 
 There are currently 4 implementations available:
 
--  ``Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver``
+-  ``Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver``
 -  ``Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver``
 -  ``Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver``
 -  ``Doctrine\ODM\PHPCR\Mapping\Driver\DriverChain``
 
-Throughout the most part of this manual the AnnotationDriver is
+Throughout the most part of this manual the AttributeDriver is
 used in the examples. For information on the usage of the XmlDriver
 or YamlDriver please refer to the dedicated chapters
 ``XML Mapping`` and ``YAML Mapping``.
 
-When you manually instantiate the annotation driver, you need to tell it the
-path to the entities. All metadata drivers accept either a single directory as
-a string or an array of directories. With this feature a single driver can
-support multiple directories of Documents.
+When you manually instantiate the attribute driver, you need to tell it the
+path to the entities. All metadata drivers accept an array of directories.
+With this feature a single driver can support multiple directories of Documents.
 
 Metadata Cache (***RECOMMENDED***)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -374,7 +353,7 @@ Metadata Cache (***RECOMMENDED***)
 
 Gets or sets the cache implementation to use for caching metadata
 information, that is, all the information you supply via
-annotations, xml or yaml, so that they do not need to be parsed and
+attributes, xml or yaml, so that they do not need to be parsed and
 loaded from scratch on every single request which is a waste of
 resources. The cache implementation must implement the
 ``Doctrine\Common\Cache\Cache`` interface.
@@ -515,27 +494,6 @@ each time you change anything on your class or mapping:
 .. note::
 
     This command is only available since PHPCR-ODM 1.1.
-
-Autoloading Proxies
-~~~~~~~~~~~~~~~~~~~
-
-When you deserialize proxy objects from the session or any other storage
-it is necessary to have an autoloading mechanism in place for these classes.
-For implementation reasons Proxy class names are not PSR-0 compliant. This
-means that you have to register a special autoloader for these classes::
-
-    use Doctrine\ORM\Proxy\Autoloader;
-
-    $proxyDir = '/path/to/proxies';
-    $proxyNamespace = 'MyProxies';
-
-    Autoloader::register($proxyDir, $proxyNamespace);
-
-If you want to execute additional logic to intercept the proxy file not found
-state you can pass a closure as the third argument. It will be called with
-the arguments proxydir, namespace and className when the proxy file could not
-be found.
-
 
 Multiple Metadata Sources
 ~~~~~~~~~~~~~~~~~~~~~~~~~

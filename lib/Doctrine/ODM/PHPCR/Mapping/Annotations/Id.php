@@ -8,7 +8,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Id
+class Id
 {
     public bool $id = true;
     public string $type = 'string';

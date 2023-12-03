@@ -518,6 +518,8 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Registers a custom repository class for the document class.
+     *
+     * @param class-string $repositoryClassName the class name of the custom repository
      */
     public function setCustomRepositoryClassName(?string $repositoryClassName): void
     {

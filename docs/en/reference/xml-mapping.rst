@@ -2,9 +2,9 @@ XML Mapping
 ===========
 
 This chapter gives a brief overview of the XML mapping by example. In general,
-the attributes correspond to their annotation counterparts with the difference that
-the attribute names are slugified as opposed to being camelCase
-(``referring-document`` instead of ``referringDocument``). See :doc:`annotations-mapping`.
+the attributes correspond to their attribute counterparts with the difference that
+the parameter names are slugified as opposed to being camelCase
+(``referring-document`` instead of ``referringDocument``). See :doc:`attributes-mapping`.
 
 The following example implements all of the possible XML mapping elements:
 

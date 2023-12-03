@@ -8,7 +8,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class MixedReferrers
+class MixedReferrers
 {
     public ?string $referenceType = null;
 }

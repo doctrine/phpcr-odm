@@ -8,7 +8,9 @@ namespace Doctrine\ODM\PHPCR\Mapping\Annotations;
 class Reference
 {
     /**
-     * The PHPCR property name to use.
+     * The PHPCR property name to use
+     *
+     * @var string
      */
     public string $property;
 

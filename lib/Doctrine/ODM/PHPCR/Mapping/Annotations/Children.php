@@ -8,10 +8,12 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class Children
+class Children
 {
     /**
-     * @var array or string or null, but we can't annotate that here, it confuses the annotation parser
+     * This actually can be null too, but the legacy doctrine annotation driver gets confused if we declare a union type.
+     *
+     * @var array
      */
     public $filter;
     public int $fetchDepth = -1;

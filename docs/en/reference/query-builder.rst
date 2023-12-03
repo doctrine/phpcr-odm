@@ -10,7 +10,7 @@ An example query::
 
     $qb = $documentManager->createQueryBuilder();
 
-    $qb->from()->document('Blog\User', 'u');
+    $qb->from()->document(User::class, 'u');
     $qb->where()->eq()->field('u.name')->literal('dtl');
 
     $query = $qb->getQuery();
@@ -35,7 +35,7 @@ Alternatively the above query can be written more fluently by the using
 
     $qb = $documentManager->createQueryBuilder();
     $qb->from()
-        ->document('Blog\User')
+        ->document(User::class)
       ->end()
       ->where()
         ->eq()
@@ -163,7 +163,7 @@ Aliases and fields
 The term "alias" refers to the string that is assigned to a document source,
 either a ``SourceFrom`` or a ``SourceJoin``::
 
-    $qb->from('Blog\Post', 'post');
+    $qb->from(Post::class, 'post');
 
 In the example above, "post" is the alias. The alias is subsequently used
 whenever the source is referenced. The following example show some instances
@@ -201,7 +201,7 @@ You can also instantiate a ``QueryBuilder`` from a ``DocumentRepsitory``
 instance, doing so will automatically select only those records which are
 associated with the ``DocumentRepository``::
 
-   $postsRepository = $dm->getRepository('Blog\Post');
+   $postsRepository = $dm->getRepository(Post::class);
    $qb = $postsRepository->createQueryBuilder('p');
    $posts = $qb->getQuery()->execute();
 
@@ -254,8 +254,7 @@ From Single Source
 
 .. code-block:: php
 
-    // select documents of class Foo\Bar.
-    $qb->from()->document('Blog\Post', 'p');
+    $qb->from()->document(Post::class, 'p');
 
 The above example will setup the query builder to select documents only of class
 ``Blog\Post`` using the *alias name* "p". The alias name is the alias used
@@ -274,8 +273,8 @@ The following will retrieve a collection of ``Blog\Post`` documents for active u
 
     // select documents from a join
     $qb->from('p')->joinInner()
-        ->left()->document('Blog\Post', 'p')->end()
-        ->right()->document('Blog\User', 'u')->end()
+        ->left()->document(Post::class, 'p')->end()
+        ->right()->document(User::class', 'u')->end()
         ->condition()->equi('p.username', 'u.username');
 
     $qb->where()
@@ -297,9 +296,12 @@ Joining with an Association
 The following is another example which joins on an *association*.  The
 ``CmsUser`` class is associated with a single address::
 
-    $qb->fromDocument('Doctrine\Tests\Models\CMS\CmsUser', 'u');
+    use Doctrine\Tests\Models\CMS\CmsAddress;
+    use Doctrine\Tests\Models\CMS\CmsUser;
+
+    $qb->fromDocument(CmsUser::class, 'u');
         ->addJoinInner()
-        ->right()->document('Doctrine\Tests\Models\CMS\CmsAddress', 'a')->end()
+        ->right()->document(CmsAddress::class, 'a')->end()
         ->condition()->equi('u.address', 'a.uuid');
         ->where()->eq()->field('a.city')->literal('Lyon');
     $users = $qb->getQuery()->execute();
@@ -319,7 +321,7 @@ node, this is currently only useful when :ref:`hydrating to PHPCR nodes
 <queryref_hydration>`. The default (object) hydration will *always* hydrate
 all fields regardless of what you specify::
 
-   $qb->from('Demo\User', 'u');
+   $qb->from(User::class, 'u');
    $qb->select()
      ->field('u.firstname')
      ->field('u.lastname');
@@ -355,7 +357,7 @@ Specifying selection criteria
 You can specify selection criteria using the ``where`` factory node::
 
    // setup our document source with alias "u"
-   $qb->from('Blog\User', 'u');
+   $qb->from(User::class, 'u');
 
    // where name is "daniel"
    $qb->where()
@@ -434,7 +436,7 @@ Querying translated documents
 
 If your documents contain :doc:`translated fields <multilang>`, the
 query builder automatically handles them both for ``where`` and ``orderBy``
-when using the annotation or child translation strategy.
+when using the attribute or child translation strategy.
 
 It will use the "current" locale according to the LocaleChooser. If you want
 to query in a different locale, you can also specify the locale explicitly::
@@ -443,7 +445,7 @@ to query in a different locale, you can also specify the locale explicitly::
     $qb
         ->setLocale('fr')
         ->from()
-            ->document('Demo\Document', 'd')
+            ->document(Document::class, 'd')
         ->end()
         ->where()->fieldIsset('d.title')->end()
         ->orderBy()

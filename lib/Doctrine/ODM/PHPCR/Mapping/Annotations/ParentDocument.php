@@ -11,7 +11,7 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  */
-final class ParentDocument
+class ParentDocument
 {
     /**
      * @var array or string, but we can't annotate that here, it confuses the annotation parser

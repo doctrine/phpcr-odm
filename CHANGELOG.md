@@ -30,6 +30,17 @@ Dropped support for PHP < 7.4 and Symfony < 5.4.
 1.x
 ===
 
+1.8.0
+-----
+
+* Add support for PHP attributes (only for the annotations that are not deprecated)
+* Drop support for PHP 7.
+
+1.7.2
+-----
+
+* Maintenance release with doc and phpunit test cleanups.
+
 1.7.1
 -----
 
