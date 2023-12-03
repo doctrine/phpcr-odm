@@ -4,6 +4,11 @@ Changelog
 1.x
 ===
 
+1.8.1 (unreleased)
+------------------
+
+* Convert provided documents to use attributes instead of annotations.
+
 1.8.0
 -----
 

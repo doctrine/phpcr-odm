@@ -21,7 +21,7 @@ namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
 use PHPCR\NodeInterface;
 
 /**
@@ -29,39 +29,38 @@ use PHPCR\NodeInterface;
  *
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
- *
- * @PHPCRODM\Document()
  */
+#[ODM\Document]
 class Generic
 {
-    /** @PHPCRODM\Id(strategy="parent") */
+    #[ODM\Id(strategy: 'parent')]
     protected $id;
 
-    /** @PHPCRODM\Node */
+    #[ODM\Node]
     protected $node;
 
-    /** @PHPCRODM\Nodename */
+    #[ODM\Nodename]
     protected $nodename;
 
-    /** @PHPCRODM\ParentDocument */
+    #[ODM\ParentDocument]
     protected $parent;
 
     /**
      * @var Collection
-     * @PHPCRODM\Children
      */
+    #[ODM\Children]
     protected $children;
 
     /**
      * @var Collection
-     * @PHPCRODM\MixedReferrers
      */
+    #[ODM\MixedReferrers]
     protected $referrers;
 
     /**
      * Id (path) of this document
      *
-     * @return string the id
+     * @return string
      */
     public function getId()
     {
@@ -93,7 +92,7 @@ class Generic
      *
      * @param string $name the name of the document
      *
-     * @return $this
+     * @return self
      */
     public function setNodename($name)
     {
@@ -127,7 +126,7 @@ class Generic
      *
      * @param object $parent Document that is the parent of this node..
      *
-     * @return $this
+     * @return self
      */
     public function setParentDocument($parent)
     {
@@ -164,7 +163,7 @@ class Generic
      *
      * @param $children ArrayCollection
      *
-     * @return $this
+     * @return self
      */
     public function setChildren(ArrayCollection $children)
     {
@@ -178,7 +177,7 @@ class Generic
      *
      * @param $child
      *
-     * @return $this
+     * @return self
      */
     public function addChild($child)
     {
@@ -209,7 +208,7 @@ class Generic
      *
      * @param $referrers ArrayCollection
      *
-     * @return $this;
+     * @return self;
      */
     public function setReferrers(ArrayCollection $referrers)
     {
@@ -223,7 +222,7 @@ class Generic
      *
      * @param $referrer
      *
-     * @return $this;
+     * @return self;
      */
     public function addReferrer($referrer)
     {
