@@ -4,8 +4,8 @@ Changelog
 1.x
 ===
 
-1.8.0 (unreleased)
-------------------
+1.8.0
+-----
 
 * Add support for PHP attributes (only for the annotations that are not deprecated)
 * Drop support for PHP 7.
