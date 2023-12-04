@@ -380,7 +380,7 @@ maintenance release of the 1.0 family with bugfixes
   - Doctrine\Common\Persistence\Event\LifecycleEventArgs
   Only the MoveEventArgs remain specific to PHPCR-ODM.
 * **2013-09-27**: Removed deprecated legacy handling for the mapping that
-  allowed using "name" instead of "property" to configure PHCPR property in mapping.
+  allowed using "name" instead of "property" to configure PHPCR property in mapping.
 
 * **2013-09-26**: [Model] add HierarchyInterface for objects that resolve to
   nt:HierarchyNode, the method AbstractFile::addChild is

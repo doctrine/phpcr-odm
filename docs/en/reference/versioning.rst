@@ -125,7 +125,7 @@ Note that all fields of a document are automatically versioned, you can not
 exclude anything from being versioned. Referenced documents are not versioned
 at the same time, but it is stored to which document the reference pointed at
 this time. Children and parents are not versioned by default. Children can be
-versioned by defining a PHCPR node type that specifies to cascade versioning.
+versioned by defining a PHPCR node type that specifies to cascade versioning.
 This feature however is untested with PHPCR-ODM, if you have feedback please
 tell us.
 
