@@ -39,7 +39,7 @@ storage. You can force one of the available providers in your projects composer.
 Each of the providers requires some additional setup. The following sections will briefly list
 how to set each of them up. Please refer to the documentation of the provider you choose for details.
 
-Install Jackalope-Jackrabbit PHCPR provider
+Install Jackalope-Jackrabbit PHPCR provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Jackalope-Jackrabbit uses the Java backend jackrabbit for storage.
