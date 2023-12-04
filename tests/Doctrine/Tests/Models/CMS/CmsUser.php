@@ -5,47 +5,45 @@ namespace Doctrine\Tests\Models\CMS;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsUserRepository", referenceable=true)
- */
+#[PHPCR\Document(repositoryClass: CmsUserRepository::class, referenceable: true)]
 class CmsUser
 {
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $status;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsAddress", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: CmsAddress::class, cascade: 'persist')]
     public $address;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticle", cascade="persist") */
+    #[PHPCR\ReferenceMany(targetDocument: CmsArticle::class, cascade: 'persist')]
     public $articles;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="CmsGroup") */
+    #[PHPCR\ReferenceMany(targetDocument: CmsGroup::class)]
     public $groups;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="CmsProfile") */
+    #[PHPCR\ReferenceMany(targetDocument: CmsProfile::class)]
     public $profiles;
 
-    /** @PHPCRODM\Children() */
+    #[PHPCR\Children]
     public $children;
 
-    /** @PHPCRODM\Child(nodeName="assistant", cascade="persist") */
+    #[PHPCR\Child(nodeName: 'assistant', cascade: 'persist')]
     public $child;
 
-    /** @PHPCRODM\Referrers(referencedBy="user", referringDocument="Doctrine\Tests\Models\CMS\CmsArticle", cascade="persist") */
+    #[PHPCR\Referrers(referencedBy: 'user', referringDocument: CmsArticle::class, cascade: 'persist')]
     public $articlesReferrers;
 
     public function __construct()

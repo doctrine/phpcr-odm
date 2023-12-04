@@ -4,26 +4,24 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsPageRepository", referenceable=true)
- */
+#[PHPCR\Document(repositoryClass: CmsPageRepository::class, referenceable: true)]
 class CmsPage
 {
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $content;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $title;
 
-    /** @PHPCRODM\MixedReferrers(referenceType="hard") */
+    #[PHPCR\MixedReferrers(referenceType: 'hard')]
     public $items = [];
 
     public function getId()

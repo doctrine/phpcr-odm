@@ -126,7 +126,7 @@ class AttributeDriver implements MappingDriver
             $metadata->setTranslator($documentAttribute->translator);
         }
 
-        if ([] !== $documentAttribute->childClasses) {
+        if ($documentAttribute->childClasses) {
             $metadata->setChildClasses($documentAttribute->childClasses);
         }
 

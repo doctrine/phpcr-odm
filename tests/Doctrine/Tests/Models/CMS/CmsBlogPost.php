@@ -4,19 +4,17 @@ namespace Documents;
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(isLeaf=true)
- */
+#[PHPCR\Document(isLeaf: true)]
 class CmsBlogPost
 {
-    /** @PHPCRODM\Id(strategy="parent") */
+    #[PHPCR\Id(strategy: 'parent')]
     public $id;
 
-    /** @PHPCRODM\NodeName() */
+    #[PHPCR\Nodename]
     public $name;
 
-    /** @PHPCRODM\ParentDocument() */
+    #[PHPCR\ParentDocument]
     public $parent;
 }

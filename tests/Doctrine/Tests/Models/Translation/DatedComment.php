@@ -2,15 +2,11 @@
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(translator="attribute")
- */
+#[PHPCR\Document(translator: 'attribute')]
 class DatedComment extends Comment
 {
-    /**
-     * @PHPCRODM\Date
-     */
+    #[PHPCR\Field(type: 'date')]
     public $date;
 }

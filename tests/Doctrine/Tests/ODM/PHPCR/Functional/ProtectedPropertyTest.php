@@ -124,7 +124,7 @@ class ProtectedPropertyTestObj
     public $changeme;
 }
 
-#[PHPCR\Document(nodeType: 'test:proctected_property_test2')]
+#[PHPCR\Document(nodeType: 'test:protected_property_test2')]
 class ProtectedPropertyTestObj2
 {
     #[PHPCR\Id]
