@@ -3,31 +3,30 @@
 namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+use mysql_xdevapi\CrudOperationBindable;
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class CmsArticle
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $topic;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $text;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser") */
+    #[PHPCR\ReferenceOne(targetDocument: CmsUser::class)]
     public $user;
 
     public $comments;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="CmsArticlePerson") */
+    #[PHPCR\ReferenceMany(targetDocument: CmsArticlePerson::class)]
     public $persons;
 
-    /** @PHPCRODM\Field(type="binary", nullable=true) */
+    #[PHPCR\Field(type: 'binary', nullable: true)]
     public $attachments;
 
     public function __construct()

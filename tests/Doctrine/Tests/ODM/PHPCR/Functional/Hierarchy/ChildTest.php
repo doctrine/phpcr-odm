@@ -5,7 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Hierarchy;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\IdException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
@@ -439,68 +439,60 @@ class ChildTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ChildChildTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ChildTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
+    #[PHPCR\Child(nodeName: 'test', cascade: 'persist')]
     public $child;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ChildReferrerTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="ChildReferenceableTestObj", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ChildReferenceableTestObj::class, cascade: 'persist')]
     public $reference;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ChildReferenceableTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\Child(nodeName="test", cascade="persist") */
+    #[PHPCR\Child(nodeName: 'test', cascade: 'persist')]
     public $aChild;
 }

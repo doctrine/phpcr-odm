@@ -9,21 +9,17 @@
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(translator="some_unexisting_strategy")
- */
+#[PHPCR\Document(translator: 'some_unexisting_strategy')]
 class InvalidMapping
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /**
-     * @PHPCRODM\Locale
-     */
+    #[PHPCR\Locale]
     public $locale = 'en';
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $topic;
 }

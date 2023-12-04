@@ -3,20 +3,19 @@
 namespace Doctrine\Tests\Models\References;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class RefCascadeManyTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
     /** @PHPCRODM\ReferenceMany(targetDocument="RefRefTestObj", cascade="persist") */
+    #[PHPCR\ReferenceMany(targetDocument: RefRefTestObj::class, cascade: 'persist')]
     public $references;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
     public function __construct()

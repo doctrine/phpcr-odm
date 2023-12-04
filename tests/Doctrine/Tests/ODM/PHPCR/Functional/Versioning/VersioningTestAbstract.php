@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
 use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
@@ -399,17 +399,15 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ReferenceTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string", property="username") */
+    #[PHPCR\Field(property: 'username', type: 'string')]
     public $content;
 }

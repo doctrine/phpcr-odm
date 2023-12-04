@@ -23,7 +23,7 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager([__DIR__]);
+        $this->dm = $this->createDocumentManager([__DIR__], true);
         $this->resetFunctionalNode($this->dm);
     }
 

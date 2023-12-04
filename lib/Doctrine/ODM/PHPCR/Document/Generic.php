@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Document;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Mapping\Attributes as ODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use PHPCR\NodeInterface;
 
 /**
@@ -14,34 +14,34 @@ use PHPCR\NodeInterface;
  * It is used as a default document, for example with the ParentDocument annotation.
  * You can not use this to create nodes as it has no type annotation.
  */
-#[ODM\Document]
+#[PHPCR\Document]
 class Generic
 {
     /**
      * Id (path) of this document.
      */
-    #[ODM\Id(strategy: 'parent')]
+    #[PHPCR\Id(strategy: 'parent')]
     protected string $id;
 
-    #[ODM\Node]
+    #[PHPCR\Node]
     protected NodeInterface $node;
 
-    #[ODM\Nodename]
+    #[PHPCR\Nodename]
     protected string $nodename = '';
 
-    #[ODM\ParentDocument]
+    #[PHPCR\ParentDocument]
     protected object $parent;
 
     /**
      * @var Collection<object>
      */
-    #[ODM\Children]
+    #[PHPCR\Children]
     protected Collection $children;
 
     /**
      * @var Collection<object>
      */
-    #[ODM\MixedReferrers]
+    #[PHPCR\MixedReferrers]
     protected Collection $referrers;
 
     public function __construct()

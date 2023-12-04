@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\Models\CMS\CmsUser;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
@@ -152,44 +152,38 @@ class ProxyTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ParentDoc
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Children(cascade="persist") */
+    #[PHPCR\Children(cascade: 'persist')]
     public $children;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class DocWithoutId
 {
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ChildWithFields
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $title;
 }

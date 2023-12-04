@@ -2,30 +2,24 @@
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(translator="attribute")
- */
+#[PHPCR\Document(translator: 'attribute')]
 class Comment
 {
-    /** @PHPCRODM\Id(strategy="parent") */
+    #[PHPCR\Id(strategy: 'parent')]
     public $id;
 
-    /**
-     * @PHPCRODM\Nodename()
-     */
+    #[PHPCR\Nodename]
     public $name;
 
-    /**
-     * @PHPCRODM\Locale
-     */
+    #[PHPCR\Locale]
     public $locale = 'en';
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Field(type="string", translated=true,nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true, translated: true)]
     private $text;
 
     /**

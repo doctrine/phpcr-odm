@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrategy;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -635,192 +635,165 @@ class ReferrerTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class HardReferrerTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="hard") */
+    #[PHPCR\ReferenceOne(targetDocument: HardReferrerRefTestObj::class, strategy: 'hard')]
     public $referenceToHard;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", strategy="hard") */
+    #[PHPCR\ReferenceOne(targetDocument: WeakReferrerRefTestObj::class, strategy: 'hard')]
     public $referenceToWeak;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="hard") */
+    #[PHPCR\ReferenceOne(targetDocument: AllReferrerRefTestObj::class, strategy: 'hard')]
     public $referenceToAll;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class WeakReferrerTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
     /**
-     * Should implicitly default to strategy="weak".
-     *
-     * @PHPCRODM\ReferenceOne(targetDocument="WeakReferrerRefTestObj", cascade="persist")
+     * Should implicitly default to strategy="weak"
      */
+    #[PHPCR\ReferenceOne(targetDocument: WeakReferrerRefTestObj::class, cascade: 'persist')]
     public $referenceToWeak;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="HardReferrerRefTestObj", strategy="weak", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: HardReferrerRefTestObj::class, strategy: 'weak', cascade: 'persist')]
     public $referenceToHard;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="AllReferrerRefTestObj", strategy="weak", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: AllReferrerRefTestObj::class, strategy: 'weak', cascade: 'persist')]
     public $referenceToAll;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class WeakReferrerRefTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\MixedReferrers(referenceType="weak") */
+    #[PHPCR\MixedReferrers(referenceType: 'weak')]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class HardReferrerRefTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\MixedReferrers(referenceType="hard") */
+    #[PHPCR\MixedReferrers(referenceType: 'hard')]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class AllReferrerRefTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\MixedReferrers() */
+    #[PHPCR\MixedReferrers]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class AllReferrerRefNamedPropTestObj extends ReferrerRefTestObj
 {
-    /** @PHPCRODM\Referrers(referencedBy="namedReference",referringDocument="ReferrerNamedPropTestObj") */
+    #[PHPCR\Referrers(referencedBy: 'namedReference', referringDocument: ReferrerNamedPropTestObj::class)]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ReferrerTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ReferrerRefTestObj::class, cascade: 'persist')]
     public $reference;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class OtherReferrerTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ReferrerRefTestObj::class, property: 'named-reference', cascade: 'persist')]
     public $namedReference;
 }
 
-/**
- * @PHPCRODM\Document(translator="attribute")
- */
+#[PHPCR\Document(translator: 'attribute')]
 class ReferrerTestObjMultilang
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ReferrerRefTestObj::class, cascade: 'persist')]
     public $reference;
 
-    /** @PHPCRODM\Locale */
+    #[PHPCR\Locale]
     protected $locale;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ReferrerNamedPropTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj", property="named-reference", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ReferrerRefTestObj::class, property: 'named-reference', cascade: 'persist')]
     public $namedReference;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ReferrerRefTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\MixedReferrers() */
+    #[PHPCR\MixedReferrers]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ReferrerRefTestObj2
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Referrers(referringDocument="ReferrerTestObj2", referencedBy="reference", cascade={"persist", "remove"}) */
+    #[PHPCR\Referrers(referencedBy: 'reference', referringDocument: ReferrerTestObj2::class, cascade: ['persist', 'remove'])]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ReferrerTestObj2
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="ReferrerRefTestObj2", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: ReferrerRefTestObj2::class, cascade: 'persist')]
     public $reference;
 }

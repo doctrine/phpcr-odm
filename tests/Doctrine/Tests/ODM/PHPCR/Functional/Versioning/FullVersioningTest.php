@@ -2,32 +2,30 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(versionable="full")
- */
+#[PHPCR\Document(versionable: 'full')]
 class FullVersionTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\VersionName */
+    #[PHPCR\VersionName]
     public $versionName;
 
-    /** @PHPCRODM\VersionCreated */
+    #[PHPCR\VersionCreated]
     public $versionCreated;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 
-    /** @PHPCRODM\Field(type="long", multivalue=true) */
+    #[PHPCR\Field(type: 'long', multivalue: true)]
     public $numbers;
 
-    /** @PHPCRODM\ReferenceOne(strategy="weak") */
+    #[PHPCR\ReferenceOne(strategy: 'weak')]
     public $reference;
 }
 

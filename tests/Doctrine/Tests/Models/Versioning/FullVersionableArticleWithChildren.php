@@ -3,16 +3,12 @@
 namespace Doctrine\Tests\Models\Versioning;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(versionable="full")
- */
+#[PHPCR\Document(versionable: 'full')]
 class FullVersionableArticleWithChildren extends FullVersionableArticle
 {
-    /**
-     * @PHPCRODM\Children
-     */
+    #[PHPCR\Children]
     public $childArticles;
 
     public function __construct()

@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use Jackalope\Session;
 use PHPCR\NodeType\ConstraintViolationException;
@@ -106,44 +106,40 @@ CND;
     }
 }
 
-/**
- * @PHPCRODM\Document(nodeType="test:protected_property_test")
- */
+#[PHPCR\Document(nodeType: 'test:protected_property_test')]
 class ProtectedPropertyTestObj
 {
-    /** @PHPCRODM\Id() */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceOne(strategy="hard") */
+    #[PHPCR\ReferenceOne(strategy: 'hard')]
     public $reference;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
+    #[PHPCR\Field(property: 'jcr:created', type: 'date')]
     public $created;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
+    #[PHPCR\Field(property: 'jcr:createdBy', type: 'string')]
     public $createdBy;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $changeme;
 }
 
-/**
- * @PHPCRODM\Document(nodeType="test:protected_property_test2")
- */
+#[PHPCR\Document(nodeType: 'test:protected_property_test2')]
 class ProtectedPropertyTestObj2
 {
-    /** @PHPCRODM\Id() */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceOne(strategy="hard") */
+    #[PHPCR\ReferenceOne(strategy: 'hard')]
     public $reference;
 
-    /** @PHPCRODM\ReferenceOne(strategy="hard") */
+    #[PHPCR\ReferenceOne(strategy: 'hard')]
     public $reference2;
 
-    /** @PHPCRODM\Field(type="date", property="jcr:created") */
+    #[PHPCR\Field(property: 'jcr:created', type: 'date')]
     public $created;
 
-    /** @PHPCRODM\Field(type="string", property="jcr:createdBy") */
+    #[PHPCR\Field(property: 'jcr:createdBy', type: 'string')]
     public $createdBy;
 }

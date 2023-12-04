@@ -2,24 +2,14 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(
- *     childClasses={
- *         "Doctrine\Tests\Models\CMS\CmsBlogPost"
- *     }
- * )
- */
+#[PHPCR\Document(childClasses: CmsBlogPost::class)]
 class CmsBlogFolder
 {
-    /**
-     * @PHPCRODM\Id()
-     */
+    #[PHPCR\Id]
     public $id;
 
-    /**
-     * @PHPCRODM\Children()
-     */
+    #[PHPCR\Children]
     public $posts;
 }

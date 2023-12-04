@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Translation;
 
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
 use Doctrine\Tests\Models\Translation\Article;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -193,48 +193,45 @@ class TranslationHierarchyTest extends PHPCRFunctionalTestCase
 
         $doc = $this->dm->find(null, '/functional/thename');
 
+        $this->assertInstanceOf(ParentObj::class, $doc->child);
         $this->assertEquals('french', $doc->child->children['c1']->text);
     }
 }
 
-/**
- * @PHPCRODM\Document(translator="child", referenceable=true)
- */
+#[PHPCR\Document(translator: 'child', referenceable: true)]
 class ParentObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Locale */
+    #[PHPCR\Locale]
     public $locale;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $name;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Children(cascade={"all"}) */
+    #[PHPCR\Children(cascade: 'all')]
     public $children;
 }
 
-/**
- * @PHPCRODM\Document(translator="child", referenceable=true)
- */
+#[PHPCR\Document(translator: 'child', referenceable: true)]
 class ChildObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Locale */
+    #[PHPCR\Locale]
     public $locale;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $name;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $text;
 }
