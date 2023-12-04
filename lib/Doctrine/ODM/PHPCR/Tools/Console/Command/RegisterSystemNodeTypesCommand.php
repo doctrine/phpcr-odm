@@ -25,7 +25,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Command to register the phcpr-odm required node types.
+ * Command to register the phpcr-odm required node types.
  *
  * This command registers the necessary node types to get phpcr odm working
  */

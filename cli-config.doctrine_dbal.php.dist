@@ -2,7 +2,7 @@
 /**
  * The config file is responsible to make class loading work and initialize a
  * DocumentManagerHelper that contains the doctrine document manager with a
- * Session of your phcpr implementation.
+ * Session of your phpcr implementation.
  * The array $extraCommands can be used to inject implementation specific commands.
  * Add instances of commands for eventual implementation specific commands to this array.
  */
