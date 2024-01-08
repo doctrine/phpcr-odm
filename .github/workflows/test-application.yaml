@@ -27,7 +27,6 @@ jobs:
 
             matrix:
                 php-version:
-                    - '8.0'
                     - '8.1'
                     - '8.2'
                     - '8.3'
@@ -35,12 +34,9 @@ jobs:
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
                 include:
-                  - php-version: '8.0'
+                  - php-version: '8.1'
                     dependencies: lowest
                     symfony-version: '*'
-                  - php-version: '8.0'
-                    dependencies: highest
-                    symfony-version: '6.*'
                   - php-version: '8.1'
                     dependencies: highest
                     symfony-version: '5.4.*'
@@ -109,7 +105,6 @@ jobs:
 
             matrix:
                 php-version:
-                    - '8.0'
                     - '8.1'
                     - '8.2'
                     - '8.3'
@@ -117,12 +112,9 @@ jobs:
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
                 include:
-                  - php-version: '8.0'
+                  - php-version: '8.1'
                     dependencies: lowest
                     symfony-version: '*'
-                  - php-version: '8.0'
-                    dependencies: highest
-                    symfony-version: '6.*'
                   - php-version: '8.1'
                     dependencies: highest
                     symfony-version: 5.4.*

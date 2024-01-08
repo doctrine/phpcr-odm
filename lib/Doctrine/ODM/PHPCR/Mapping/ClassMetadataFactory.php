@@ -69,11 +69,6 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
         return new ClassMetadata($className);
     }
 
-    protected function getFqcnFromAlias($namespaceAlias, $simpleClassName): string
-    {
-        return $this->dm->getConfiguration()->getDocumentNamespace($namespaceAlias).'\\'.$simpleClassName;
-    }
-
     /**
      * Actually loads PHPCR-ODM metadata from the underlying metadata.
      *

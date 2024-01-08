@@ -333,6 +333,12 @@ we can traverse them::
     Children can be of any class. Be careful when looping over children
     to be sure they are of the expected class.
 
+The children collection supports iterating over the children and also direct
+access by index or child name. To get a segment of the collection, you have the
+normal ``slice()`` that works on indexes. Additionally, the
+``ChildrenCollection`` offers the ``sliceByChildName()`` method, where you can
+specify the child name from which to start the slice.
+
 Even if children are not mapped, you can use the document manager to get all
 flushed children of a document::
 
@@ -367,6 +373,7 @@ Lets look at an example of document ``A`` referencing ``B``::
     namespace Demo;
 
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ReferrersCollection;
 
     #[PHPCR\Document]
     class A
@@ -381,7 +388,7 @@ Lets look at an example of document ``A`` referencing ``B``::
     class B
     {
         #[PHPCR\Referrers(referringDocument: A::class, referencedBy: 'ref')]
-        private $referrers;
+        private ReferrersCollection $referrers;
     }
 
 We can now create a reference with the following code::

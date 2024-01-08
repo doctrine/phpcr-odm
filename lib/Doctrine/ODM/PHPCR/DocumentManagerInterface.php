@@ -39,18 +39,18 @@ use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 
 /**
- * The PHPCR-ODM document manager adds PHPCR specific methods to the object manager..
+ * The PHPCR-ODM document manager adds PHPCR specific methods to the object manager.
  */
 interface DocumentManagerInterface extends ObjectManager
 {
     /**
      * @{@inheritDoc}
      *
-     * Overwritten to tighten return type.
+     * Overwritten to tighten return type. We can't tighten the return type declaration because of Doctrine\Persistence\ObjectManagerDecorator.
      *
      * @return PhpcrClassMetadata
      */
-    public function getClassMetadata($className);
+    public function getClassMetadata(string $className);
 
     /**
      * Add or replace a translation strategy.
@@ -141,7 +141,7 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string      $locale    The language to try to load
      * @param bool        $fallback  Set to true if the language fallback mechanism should be used
      *
-     * @return object the translated document or null if not found
+     * @return object|null the translated document or null if not found
      *
      * @throws MissingTranslationException if $fallback is false and the
      *                                     translation was not found
@@ -301,16 +301,16 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * Note that this method only returns children that have been flushed.
      *
-     * @param object       $document   Document instance which children should be loaded
-     * @param string|array $filter     Optional filter to filter on children names
-     * @param int          $fetchDepth Optional fetch depth
-     * @param string|null  $locale     The locale to use during the loading of this collection
+     * @param object            $document   Document instance which children should be loaded
+     * @param array|string|null $filter     Optional filter to filter on children names
+     * @param int               $fetchDepth Optional fetch depth
+     * @param string|null       $locale     The locale to use during the loading of this collection
      *
      * @return ChildrenCollection collection of child documents
      *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection;
+    public function getChildren(object $document, array|string $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection;
 
     /**
      * Get the documents that refer a given document using an optional name.
@@ -342,11 +342,9 @@ interface DocumentManagerInterface extends ObjectManager
      * has its identifier populated. Otherwise a proxy is returned that automatically
      * loads itself on first access.
      *
-     * @param string|object $id
-     *
      * @return mixed|object the document reference
      */
-    public function getReference(string $documentName, $id);
+    public function getReference(string $documentName, object|string $id): mixed;
 
     /**
      * Create a new version of the document that has been previously persisted
@@ -433,7 +431,7 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string $id          Id of the document
      * @param string $versionName The version name as given by getLinearPredecessors
      *
-     * @return object The detached document or null if the document is not found
+     * @return object|null The detached document or null if the document is not found
      *
      * @throws UnsupportedRepositoryOperationException if the implementation does not support versioning
      * @throws InvalidArgumentException                if there is a document with $id but no version with $name
@@ -461,7 +459,7 @@ interface DocumentManagerInterface extends ObjectManager
      * @throws InvalidArgumentException if $document is neither null nor a
      *                                  document or an array of documents
      */
-    public function flush($document = null): void;
+    public function flush(object|array $document = null): void;
 
     /**
      * Closes the DocumentManager. All entities that are currently managed

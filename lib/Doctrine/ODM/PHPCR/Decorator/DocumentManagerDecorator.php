@@ -163,7 +163,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         $this->wrapped->reorder($document, $srcName, $targetName, $before);
     }
 
-    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
+    public function getChildren(object $document, array|string $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
     {
         return $this->wrapped->getChildren($document, $filter, $fetchDepth, $locale);
     }
@@ -173,12 +173,12 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         return $this->wrapped->getReferrers($document, $type, $name, $locale, $refClass);
     }
 
-    public function flush($document = null): void
+    public function flush(object|array $document = null): void
     {
         $this->wrapped->flush($document);
     }
 
-    public function getReference(string $documentName, $id)
+    public function getReference(string $documentName, object|string $id): mixed
     {
         return $this->wrapped->getReference($documentName, $id);
     }

@@ -518,6 +518,7 @@ collection of related documents. Say we have a User document that
 contains a collection of groups::
 
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ReferenceManyCollection;
 
     #[PHPCR\Document]
     class User
@@ -525,7 +526,7 @@ contains a collection of groups::
         #[PHPCR\ReferenceMany]
         private $groups;
 
-        public function getGroups()
+        public function getGroups(): ReferenceManyCollection
         {
             return $this->groups;
         }

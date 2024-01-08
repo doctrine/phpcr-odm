@@ -59,12 +59,12 @@ abstract class PersistentCollection implements Collection
         return new ArrayCollection();
     }
 
-    public function add($element): bool
+    public function add($element): void
     {
         $this->initialize();
         $this->isDirty = true;
 
-        return $this->collection->add($element);
+        $this->collection->add($element);
     }
 
     public function clear(): void
@@ -95,7 +95,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->count();
     }
 
-    public function current()
+    public function current(): mixed
     {
         $this->initialize();
 
@@ -116,11 +116,25 @@ abstract class PersistentCollection implements Collection
         return $this->collection->filter($p);
     }
 
-    public function first()
+    public function first(): mixed
     {
         $this->initialize();
 
         return $this->collection->first();
+    }
+
+    public function findFirst(\Closure $p): mixed
+    {
+        $this->initialize();
+
+        return $this->collection->findFirst($p);
+    }
+
+    public function reduce(\Closure $func, $initial = null)
+    {
+        $this->initialize();
+
+        return $this->collection->reduce($func);
     }
 
     public function forAll(\Closure $p): bool
@@ -130,7 +144,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->forAll($p);
     }
 
-    public function get($key)
+    public function get($key): mixed
     {
         $this->initialize();
 
@@ -158,7 +172,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->getValues();
     }
 
-    public function indexOf($element)
+    public function indexOf($element): bool|int|string
     {
         $this->initialize();
 
@@ -172,14 +186,14 @@ abstract class PersistentCollection implements Collection
         return $this->collection->isEmpty();
     }
 
-    public function key()
+    public function key(): int|null|string
     {
         $this->initialize();
 
         return $this->collection->key();
     }
 
-    public function last()
+    public function last(): mixed
     {
         $this->initialize();
 
@@ -193,7 +207,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->map($func);
     }
 
-    public function next()
+    public function next(): mixed
     {
         $this->initialize();
 
@@ -207,8 +221,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->offsetExists($offset);
     }
 
-    #[\ReturnTypeWillChange] // type mixed is not available for older php versions
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         $this->initialize();
 
@@ -238,7 +251,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->partition($p);
     }
 
-    public function remove($key)
+    public function remove($key): mixed
     {
         $this->initialize();
         $this->isDirty = true;
@@ -261,7 +274,7 @@ abstract class PersistentCollection implements Collection
         $this->collection->set($key, $value);
     }
 
-    public function slice($offset, $length = null)
+    public function slice(int $offset, $length = null): array
     {
         $this->initialize();
 
@@ -322,10 +335,9 @@ abstract class PersistentCollection implements Collection
     }
 
     /**
-     * @param array|Collection $collection     The collection to initialize with
-     * @param bool             $forceOverwrite If to force the database to be forced to the state of the collection
+     * @param bool $forceOverwrite Whether to force the database to be updated with $collection
      */
-    protected function initializeFromCollection($collection, bool $forceOverwrite = false): void
+    protected function initializeFromCollection(array|Collection $collection, bool $forceOverwrite = false): void
     {
         $this->collection = is_array($collection) ? new ArrayCollection($collection) : $collection;
         $this->initialized = $forceOverwrite ? self::INITIALIZED_FROM_COLLECTION_FORCE : self::INITIALIZED_FROM_COLLECTION;

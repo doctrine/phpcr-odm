@@ -17,10 +17,7 @@ class ChildrenCollection extends PersistentCollection
 {
     private object $document;
 
-    /**
-     * @var array|string|null
-     */
-    private $filter;
+    private string|array|null $filter;
 
     private int $fetchDepth;
 
@@ -34,14 +31,14 @@ class ChildrenCollection extends PersistentCollection
     /**
      * Creates a new persistent collection.
      *
-     * @param object       $document   The parent document instance
-     * @param string|array $filter     Filter string or array of filter string
-     * @param int          $fetchDepth Optional fetch depth, -1 to not override
-     * @param string|null  $locale     The locale to use during the loading of this collection
+     * @param object            $document   The parent document instance
+     * @param array|string|null $filter     Filter string for child names or array of filter strings
+     * @param int               $fetchDepth Optional fetch depth, -1 to not override
+     * @param string|null       $locale     The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManagerInterface $dm, object $document, $filter = null, int $fetchDepth = -1, string $locale = null)
+    public function __construct(DocumentManagerInterface $dm, object $document, array|string $filter = null, int $fetchDepth = -1, string $locale = null)
     {
-        $this->dm = $dm;
+        parent::__construct($dm);
         $this->document = $document;
         $this->filter = $filter;
         $this->fetchDepth = $fetchDepth;
@@ -159,20 +156,13 @@ class ChildrenCollection extends PersistentCollection
         return parent::isEmpty();
     }
 
-    public function slice($offset, $length = null)
+    public function slice(int $offset, $length = null): array
     {
         if (!$this->isInitialized()) {
             $nodeNames = $this->getOriginalNodeNames();
-            if (!is_numeric($offset)) {
-                $offset = array_search($offset, $nodeNames, true);
-                if (false === $offset) {
-                    return new ArrayCollection();
-                }
-            }
-
             $nodeNames = array_slice($nodeNames, $offset, $length);
             $parentPath = $this->getNode($this->fetchDepth)->getPath();
-            array_walk($nodeNames, function (&$nodeName) use ($parentPath) {
+            array_walk($nodeNames, static function (&$nodeName) use ($parentPath) {
                 $nodeName = "$parentPath/$nodeName";
             });
 
@@ -181,12 +171,25 @@ class ChildrenCollection extends PersistentCollection
             return $this->getChildren($childNodes);
         }
 
-        if (!is_numeric($offset)) {
-            $nodeNames = $this->collection->getKeys();
-            $offset = array_search($offset, $nodeNames, true);
+        return parent::slice($offset, $length);
+    }
+
+    public function sliceByChildName(string $firstChild, $length = null): array
+    {
+        if (!$this->isInitialized()) {
+            $nodeNames = $this->getOriginalNodeNames();
+            $offset = array_search($firstChild, $nodeNames, true);
             if (false === $offset) {
-                return new ArrayCollection();
+                return [];
             }
+
+            return $this->slice($offset, $length);
+        }
+
+        $nodeNames = $this->collection->getKeys();
+        $offset = array_search($firstChild, $nodeNames, true);
+        if (false === $offset) {
+            return [];
         }
 
         return parent::slice($offset, $length);

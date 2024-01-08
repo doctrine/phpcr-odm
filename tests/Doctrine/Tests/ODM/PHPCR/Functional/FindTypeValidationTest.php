@@ -64,10 +64,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
 
     public function testFindWithNamespace(): void
     {
-        $config = $this->dm->getConfiguration();
-        $config->addDocumentNamespace('Foobar', 'Doctrine\Tests\ODM\PHPCR\Functional');
-
-        $user = $this->dm->find('Foobar:TypeUser', 'functional/user');
+        $user = $this->dm->find(TypeUser::class, 'functional/user');
         $this->assertNotNull($user);
     }
 

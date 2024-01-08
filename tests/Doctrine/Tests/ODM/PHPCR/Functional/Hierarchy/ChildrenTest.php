@@ -106,11 +106,11 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->createChildren();
 
         $parent = $this->dm->find($this->type, '/functional/parent');
-        $collection = $parent->allChildren->slice('Child B', 2);
+        $collection = $parent->allChildren->sliceByChildName('Child B', 2);
         $this->assertEquals(['Child B', 'Child C'], array_keys($collection));
 
         $parent->allChildren->initialize();
-        $collection = $parent->allChildren->slice('Child B', 2);
+        $collection = $parent->allChildren->sliceByChildName('Child B', 2);
         $this->assertEquals(['Child B', 'Child C'], array_keys($collection));
     }
 
@@ -138,8 +138,8 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertCount(4, $parent->allChildren);
         $this->assertFalse($parent->aChildren->contains(new ChildrenTestObj()));
         $this->assertTrue($parent->allChildren->containsKey('Child D'));
-        $this->assertEquals('Child B', key($parent->allChildren->slice('Child B', 2)));
-        $this->assertCount(2, $parent->allChildren->slice('Child B', 2));
+        $this->assertEquals('Child B', key($parent->allChildren->sliceByChildName('Child B', 2)));
+        $this->assertCount(2, $parent->allChildren->sliceByChildName('Child B', 2));
         $this->assertFalse($parent->aChildren->isInitialized());
         $this->assertFalse($parent->allChildren->isInitialized());
 
