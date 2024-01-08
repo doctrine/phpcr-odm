@@ -25,7 +25,7 @@ Changelog
 
 * Allow using `doctrine/persistence`
 
-Dropped support for PHP < 7.4 and Symfony < 5.4.
+* Added support for Symfony 7. Dropped support for PHP < 8.0 and Symfony < 5.4.
 
 1.x
 ===
