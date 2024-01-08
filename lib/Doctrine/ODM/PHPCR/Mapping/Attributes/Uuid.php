@@ -11,8 +11,7 @@ final class Uuid extends Field
         bool $multivalue = false,
         string $assoc = null,
         bool $nullable = false,
-        bool $translated = false,
     ) {
-        parent::__construct($property, $type, $multivalue, $assoc, $nullable, $translated);
+        parent::__construct($property, $type, $multivalue, $assoc, $nullable, false);
     }
 }

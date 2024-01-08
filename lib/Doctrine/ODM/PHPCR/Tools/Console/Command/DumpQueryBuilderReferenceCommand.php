@@ -393,7 +393,7 @@ HERE
 
                 if (!array_key_exists(1, $matches)) {
                     throw new \Exception(sprintf(
-                        'Expected annotation for factoryMethod "%s" to declare a child type.',
+                        'Expected mapping for factoryMethod "%s" to declare a child type.',
                         $rMethod->name
                     ));
                 }

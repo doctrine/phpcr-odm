@@ -24,7 +24,7 @@ class AttributeDriverTest extends AbstractMappingDriverTest
     }
 
     /**
-     * Overwriting private parent properties isn't supported with annotations.
+     * Overwriting private parent properties isn't supported with attributes.
      *
      * @doesNotPerformAssertions
      */

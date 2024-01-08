@@ -117,7 +117,7 @@ class MixinTest extends PHPCRFunctionalTestCase
 }
 
 /**
- * A class that contains mapped children via properties
+ * A class that contains mapped children via properties.
  */
 #[PHPCR\Document(mixins: ['mix:created'])]
 class TestObject

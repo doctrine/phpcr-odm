@@ -116,7 +116,7 @@ abstract class AbstractMappingDriverTest extends TestCase
     /**
      * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\XmlDriver::loadMetadataForClass
      * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\YamlDriver::loadMetadataForClass
-     * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver::loadMetadataForClass
+     * @covers \Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver::loadMetadataForClass
      *
      * @doesNotPerformAssertions
      */

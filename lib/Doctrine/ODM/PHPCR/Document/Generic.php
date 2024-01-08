@@ -11,8 +11,8 @@ use PHPCR\NodeInterface;
 /**
  * This class represents an arbitrary node.
  *
- * It is used as a default document, for example with the ParentDocument annotation.
- * You can not use this to create nodes as it has no type annotation.
+ * It is used as a default document, for example with the ParentDocument mapping.
+ * You can not use this to create nodes as it has no type mapping.
  */
 #[PHPCR\Document]
 class Generic
@@ -30,7 +30,7 @@ class Generic
     protected string $nodename = '';
 
     #[PHPCR\ParentDocument]
-    protected object $parent;
+    protected ?object $parent;
 
     /**
      * @var Collection<object>
@@ -51,13 +51,14 @@ class Generic
     }
 
     /**
-     * Id (path) of this document
+     * Id (path) of this document.
      */
     public function getId(): string
     {
         if (!isset($this->id)) {
             throw new BadMethodCallException('Do not call getId on unsaved objects.');
         }
+
         return $this->id;
     }
 
@@ -95,6 +96,7 @@ class Generic
         if (!isset($this->parent)) {
             throw new BadMethodCallException('Do not call getParentDocument on unsaved objects before setting the parent.');
         }
+
         return $this->parent;
     }
 

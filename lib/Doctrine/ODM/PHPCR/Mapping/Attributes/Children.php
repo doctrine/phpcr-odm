@@ -2,21 +2,25 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Children as BaseChildren;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Children extends BaseChildren implements MappingAttribute
+final class Children implements MappingAttribute
 {
+    public array|null $filter;
+    public array|null $cascade;
+
+    /**
+     * @param string[]|string $filter
+     * @param string[]|string $cascade
+     */
     public function __construct(
         array|string $filter = null,
-        int $fetchDepth = -1,
-        bool $ignoreUntranslated = true,
-        array|string $cascade = [],
+        public int $fetchDepth = -1,
+        public bool $ignoreUntranslated = true,
+        array|string $cascade = null,
     ) {
-        $this->filter = $filter ? (array) $filter : null;
-        $this->fetchDepth = $fetchDepth;
-        $this->ignoreUntranslated = $ignoreUntranslated;
-        $this->cascade = (array) $cascade;
+        $this->filter = null === $filter ? null : (array) $filter;
+        $this->cascade = null === $cascade ? null : (array) $cascade;
     }
 }

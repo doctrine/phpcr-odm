@@ -13,12 +13,10 @@ use PHPCR\NodeInterface;
  */
 #[PHPCR\Document(nodeType: 'nt:resource')]
 class Resource
-{   #[PHPCR\Id]
+{
+    #[PHPCR\Id]
     protected string $id;
 
-    /**
-     * @var NodeInterface
-     */
     #[PHPCR\Node]
     protected NodeInterface $node;
 
@@ -30,6 +28,8 @@ class Resource
 
     /**
      * @var resource
+     *
+     * @phpstan-var closed-resource
      */
     #[PHPCR\Field(property: 'jcr:data', type: 'binary')]
     protected $data;
@@ -88,8 +88,10 @@ class Resource
 
     /**
      * Set the data from a binary stream.
-
+     *
      * @param resource $data the contents of this resource
+     *
+     * @phpstan-param closed-resource $data the contents of this resource
      */
     public function setData($data): self
     {
@@ -102,6 +104,8 @@ class Resource
      * Get the binary data stream of this resource.
      *
      * @return resource
+     *
+     * @phpstan-return closed-resource
      */
     public function getData()
     {

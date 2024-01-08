@@ -16,7 +16,7 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\SessionInterface;
 
-class AnnotationsTest extends PHPCRFunctionalTestCase
+class AttributesTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
@@ -35,27 +35,27 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test the annotations pertaining to versioning are correctly loaded.
+     * Test the attributes pertaining to versioning are correctly loaded.
      */
-    public function testLoadAnnotations(): void
+    public function testLoadAttributes(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
-        // Check the annotation is correctly read if it is present
+        // Check the attribute is correctly read if it is present
         $metadata = $factory->getMetadataFor(VersionableArticle::class);
         $this->assertInstanceOf(ClassMetadata::class, $metadata);
         $this->assertEquals('simple', $metadata->versionable);
 
-        // Check the annotation is not set if it is not present
+        // Check the attribute is not set if it is not present
         $metadata = $factory->getMetadataFor(NonVersionableArticle::class);
         $this->assertInstanceOf(ClassMetadata::class, $metadata);
         $this->assertFalse($metadata->versionable);
     }
 
     /**
-     * Test that using an invalid versionable annotation will not work.
+     * Test that using an invalid versionable attribute will not work.
      */
-    public function testLoadInvalidAnnotation(): void
+    public function testLoadInvalidAttributes(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
@@ -64,9 +64,9 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test that using the Version annotation on non-versionable documents will not work.
+     * Test that using the Version attribute on non-versionable documents will not work.
      */
-    public function testLoadInconsistentAnnotations(): void
+    public function testLoadInconsistentAttributes(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 
@@ -77,7 +77,7 @@ class AnnotationsTest extends PHPCRFunctionalTestCase
     /**
      * Check that persisting a node with the versionable type will add the correct mixin to the node.
      */
-    public function testAnnotationOnPersist(): void
+    public function testAttributeOnPersist(): void
     {
         $repository = $this->dm->getPhpcrSession()->getRepository();
         if (!$repository->getDescriptor('option.versioning.supported')) {

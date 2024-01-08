@@ -2,17 +2,20 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Child as BaseChild;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Child extends BaseChild implements MappingAttribute
+final class Child implements MappingAttribute
 {
+    public array|null $cascade;
+
+    /**
+     * @param string[]|string $cascade
+     */
     public function __construct(
-        string $nodeName = null,
-        array|string $cascade = [],
+        public null|string $nodeName = null,
+        array|string $cascade = null,
     ) {
-        $this->nodeName = $nodeName;
-        $this->cascade = (array) $cascade;
+        $this->cascade = null === $cascade ? null : (array) $cascade;
     }
 }

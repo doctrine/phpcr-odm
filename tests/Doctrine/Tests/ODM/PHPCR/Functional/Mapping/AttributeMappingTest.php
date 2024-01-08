@@ -5,7 +5,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Mapping;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooser;
@@ -14,7 +14,7 @@ use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 /**
  * @group functional
  */
-class AnnotationMappingTest extends PHPCRFunctionalTestCase
+class AttributeMappingTest extends PHPCRFunctionalTestCase
 {
     /**
      * @var DocumentManager
@@ -23,11 +23,11 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
 
     public function setUp(): void
     {
-        $this->dm = $this->createDocumentManager([__DIR__], true);
+        $this->dm = $this->createDocumentManager([__DIR__]);
         $this->resetFunctionalNode($this->dm);
     }
 
-    public function testAnnotationInheritance(): void
+    public function testAttributeInheritance(): void
     {
         $extending = new ExtendingClass();
         $extending->id = '/functional/extending';
@@ -195,140 +195,116 @@ class AnnotationMappingTest extends PHPCRFunctionalTestCase
     // then a test per mapping implementation extending the abstract test and providing documents with the mapping
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class Testclass
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $text;
 
-    /** @PHPCRODM\Depth */
+    #[PHPCR\Depth]
     public $depth;
 
-    public $callback_run = 0;
+    public int $callback_run = 0;
 
-    /**
-     * @PHPCRODM\PostPersist
-     */
+    #[PHPCR\PostPersist]
     public function callback(): void
     {
         ++$this->callback_run;
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ExtendingClass extends Testclass
 {
-    /** @PHPCRODM\ReferenceOne */
+    #[PHPCR\ReferenceOne]
     public $reference;
 
-    public $extending_run = 0;
+    public int $extending_run = 0;
 
-    /**
-     * @PHPCRODM\PostPersist
-     */
+    #[PHPCR\PostPersist]
     public function extendingCallback(): void
     {
         ++$this->extending_run;
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class SecondLevel extends ExtendingClass
 {
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class SecondLevelWithDuplicate extends ExtendingClass
 {
-    /** @PHPCRODM\Field(type="long") */
+    #[PHPCR\Field(type: 'long')]
     public $text;
 }
 
-/**
- * @PHPCRODM\Document(translator="attribute")
- */
+#[PHPCR\Document(translator: 'attribute')]
 class SecondLevelWithDuplicateOverwrite extends ExtendingClass
 {
-    /** @PHPCRODM\Locale */
+    #[PHPCR\Locale]
     public $locale;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $text;
 }
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class ParentIdStrategy
 {
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $name;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 }
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class ParentIdStrategyDifferentOrder
 {
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $name;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 }
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class AutoNameIdStrategy
 {
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 }
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class AssignedIdStrategy
 {
-    /** @PHPCRODM\Id(strategy="assigned") */
+    #[PHPCR\Id(strategy: 'assigned')]
     public $id;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $name;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 }
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\Mapping\Repository")
- */
+#[PHPCR\Document(repositoryClass: Repository::class)]
 class RepositoryIdStrategy
 {
     public $title;
 
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 }
 class Repository extends DocumentRepository implements RepositoryIdInterface
@@ -340,44 +316,39 @@ class Repository extends DocumentRepository implements RepositoryIdInterface
 }
 
 /**
- * @PHPCRODM\Document
- *
- * Invalid document missing a parent mapping for the id strategy
+ * Invalid document missing a parent mapping for the id strategy.
  */
+#[PHPCR\Document]
 class ParentIdNoParentStrategy
 {
-    /** @PHPCRODM\Id(strategy="parent") */
+    #[PHPCR\Id(strategy: 'parent')]
     public $id;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $name;
 }
 
 /**
- * @PHPCRODM\Document
- *
  * Invalid document not having a parent mapping.
  */
+#[PHPCR\Document]
 class AutoNameIdNoParentStrategy
 {
-    /** @PHPCRODM\Id(strategy="auto") */
+    #[PHPCR\Id(strategy: 'auto')]
     public $id;
 }
 
 /**
- * @PHPCRODM\Document
- *
  * Invalid document not having an id at all.
  */
+#[PHPCR\Document]
 class NoId
 {
 }
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class StandardCase
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 }

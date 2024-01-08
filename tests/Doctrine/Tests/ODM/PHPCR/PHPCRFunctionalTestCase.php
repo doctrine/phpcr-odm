@@ -2,11 +2,9 @@
 
 namespace Doctrine\Tests\ODM\PHPCR;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver;
 use Jackalope\RepositoryFactoryDoctrineDBAL;
 use Jackalope\RepositoryFactoryJackrabbit;
@@ -23,18 +21,13 @@ abstract class PHPCRFunctionalTestCase extends TestCase
      */
     private $sessions = [];
 
-    public function createDocumentManager(array $paths = null, bool $annotations = false): DocumentManager
+    public function createDocumentManager(array $paths = null): DocumentManager
     {
-        AnnotationReader::addGlobalIgnoredName('group');
-
         if (empty($paths)) {
             $paths = [__DIR__.'/../../Models'];
         }
 
-        $metaDriver = $annotations
-            ? new AnnotationDriver(new AnnotationReader(), $paths)
-            : new AttributeDriver($paths)
-        ;
+        $metaDriver = new AttributeDriver($paths);
 
         $factoryclass = $GLOBALS['DOCTRINE_PHPCR_FACTORY'] ?? RepositoryFactoryJackrabbit::class;
 

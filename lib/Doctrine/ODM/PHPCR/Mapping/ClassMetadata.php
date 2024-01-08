@@ -73,7 +73,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public const GENERATOR_TYPE_AUTO = 4;
 
-    protected static $validVersionableAnnotations = ['simple', 'full'];
+    protected static $validVersionableMappings = ['simple', 'full'];
 
     /**
      * READ-ONLY: The ReflectionProperty instances of the mapped class.
@@ -233,7 +233,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * READ-ONLY: Whether this document should be versioned. If this is not false, it will
-     * be one of the values from self::validVersionableAnnotations.
+     * be one of the values from self::validVersionableMappings.
      *
      * @var bool|string
      */
@@ -287,10 +287,8 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Initializes a new ClassMetadata instance that will hold the object-document mapping
      * metadata of the class with the given name.
-     *
-     * @param string $className the name of the document class the new instance is used for
      */
-    public function __construct($className)
+    public function __construct(string $className)
     {
         $this->name = $className;
     }
@@ -572,13 +570,13 @@ class ClassMetadata implements ClassMetadataInterface
     }
 
     /**
-     * @param string|bool $versionable a valid versionable annotation or false to disable versioning
+     * @param string|bool $versionable a valid versionable mapping or false to disable versioning
      */
     public function setVersioned($versionable): void
     {
-        if ($versionable && !in_array($versionable, self::$validVersionableAnnotations, true)) {
+        if ($versionable && !in_array($versionable, self::$validVersionableMappings, true)) {
             throw new MappingException(sprintf(
-                'Invalid value in "%s" for the versionable annotation: "%s"',
+                'Invalid value in "%s" for the versionable mapping: "%s"',
                 $this->name,
                 $versionable
             ));
@@ -687,7 +685,7 @@ class ClassMetadata implements ClassMetadataInterface
         if (true === ($mapping['id'] ?? false)) {
             $mapping['type'] = 'string';
             $this->setIdentifier($mapping['fieldName']);
-            if (array_key_exists('strategy', $mapping)) {
+            if (array_key_exists('strategy', $mapping) && null !== $mapping['strategy']) {
                 $this->setIdGenerator($mapping['strategy']);
             }
         }
@@ -979,7 +977,7 @@ class ClassMetadata implements ClassMetadataInterface
 
         if (!empty($this->versionNameField) && !$this->versionable) {
             throw new MappingException(sprintf(
-                'You cannot use the @VersionName annotation on the non-versionable document %s (field = %s)',
+                'You cannot use the @VersionName mapping on the non-versionable document %s (field = %s)',
                 $this->name,
                 $this->versionNameField
             ));
@@ -987,7 +985,7 @@ class ClassMetadata implements ClassMetadataInterface
 
         if (!empty($this->versionCreatedField) && !$this->versionable) {
             throw new MappingException(sprintf(
-                'You cannot use the @VersionCreated annotation on the non-versionable document %s (field = %s)',
+                'You cannot use the @VersionCreated mapping on the non-versionable document %s (field = %s)',
                 $this->name,
                 $this->versionCreatedField
             ));
@@ -1084,10 +1082,8 @@ class ClassMetadata implements ClassMetadataInterface
 
     /**
      * Sets the ID generator used to generate IDs for instances of this class.
-     *
-     * @param string|int $generator
      */
-    protected function setIdGenerator($generator): void
+    protected function setIdGenerator(int|string $generator): void
     {
         if (is_string($generator)) {
             $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_'.strtoupper($generator));
@@ -1606,7 +1602,7 @@ class ClassMetadata implements ClassMetadataInterface
      * @return mixed|null the value of this field for the document or null if
      *                    not found
      */
-    public function getFieldValue(object $document, string $field)
+    public function getFieldValue(object $document, string $field): mixed
     {
         if (array_key_exists($field, $this->reflFields) && $this->reflFields[$field]->isInitialized($document)) {
             return $this->reflFields[$field]->getValue($document);
@@ -1662,7 +1658,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function fullyQualifiedClassName(?string $className): ?string
     {
-        if (null !== $className && false === strpos($className, '\\') && '' !== $this->namespace) {
+        if ('' !== $this->namespace && null !== $className && !str_contains($className, '\\')) {
             return $this->namespace.'\\'.$className;
         }
 

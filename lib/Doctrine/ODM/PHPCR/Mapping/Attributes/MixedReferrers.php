@@ -2,14 +2,13 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\MixedReferrers as BaseMixedReferrers;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class MixedReferrers extends BaseMixedReferrers implements MappingAttribute
+final class MixedReferrers implements MappingAttribute
 {
-    public function __construct(string $referenceType = null)
-    {
-        $this->referenceType = $referenceType;
+    public function __construct(
+        public null|string $referenceType = null
+    ) {
     }
 }

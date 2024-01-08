@@ -5,7 +5,7 @@ namespace Doctrine\Tests\Models\Versioning;
 use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
- * This document has a Version annotated field but it is not marked as versionable
+ * This document has a Version annotated field but it is not marked as versionable.
  */
 #[PHPCR\Document]
 class InconsistentVersionableArticle

@@ -2,23 +2,24 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Reference as BaseReference;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
-abstract class Reference extends BaseReference implements MappingAttribute
+abstract class Reference implements MappingAttribute
 {
+    public array|null $cascade;
+
     /**
-     * @param string[] $cascade
+     * @param string[]|string $cascade
      */
     public function __construct(
-        string $property = null,
-        string $targetDocument = null,
-        string $strategy = 'weak',
-        array|string $cascade = []
+        /**
+         * The PHPCR property name to use.
+         */
+        public null|string $property = null,
+        public null|string $targetDocument = null,
+        public string $strategy = 'weak',
+        array|string $cascade = null
     ) {
-        $this->property = $property;
-        $this->targetDocument = $targetDocument;
-        $this->strategy = $strategy;
-        $this->cascade = (array) $cascade;
+        $this->cascade = null === $cascade ? null : (array) $cascade;
     }
 }

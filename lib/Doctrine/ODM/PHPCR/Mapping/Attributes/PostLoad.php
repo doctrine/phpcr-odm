@@ -2,10 +2,9 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\PostLoad as BasePostLoad;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_METHOD)]
-final class PostLoad extends BasePostLoad implements MappingAttribute
+final class PostLoad implements MappingAttribute
 {
 }

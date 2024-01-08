@@ -3,8 +3,8 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\HierarchyInterface;
-use PHPCR\NodeInterface;
 use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+use PHPCR\NodeInterface;
 
 /**
  * This class represents an abstract "file".

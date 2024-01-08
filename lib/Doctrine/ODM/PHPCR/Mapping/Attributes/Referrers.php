@@ -2,22 +2,21 @@
 
 namespace Doctrine\ODM\PHPCR\Mapping\Attributes;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations\Referrers as BaseReferrers;
 use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Referrers extends BaseReferrers implements MappingAttribute
+final class Referrers implements MappingAttribute
 {
+    public array|null $cascade;
+
     /**
-     * @param string[] $cascade
+     * @param string[]|string $cascade
      */
     public function __construct(
-        string $referencedBy,
-        string $referringDocument,
-        array|string $cascade = []
+        public string $referencedBy,
+        public string $referringDocument,
+        array|string $cascade = null
     ) {
-        $this->referencedBy = $referencedBy;
-        $this->referringDocument = $referringDocument;
-        $this->cascade = (array) $cascade;
+        $this->cascade = null === $cascade ? null : (array) $cascade;
     }
 }

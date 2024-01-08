@@ -50,7 +50,7 @@ class ClassMetadataProxy extends ClassMetadata
         $this->_value = $value;
     }
 
-    public function getFieldValue(object $document, string $field)
+    public function getFieldValue(object $document, string $field): mixed
     {
         return $this->_value;
     }
