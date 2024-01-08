@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Exception\RuntimeException;
 use Doctrine\ODM\PHPCR\Id\IdException;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
@@ -652,81 +652,71 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class User
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $note;
 
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    #[PHPCR\Field(type: 'long', multivalue: true, nullable: true)]
     public $numbers;
 
-    /** @PHPCRODM\Field(type="string", assoc="", nullable=true) */
+    #[PHPCR\Field(type: 'string', assoc: '', nullable: true)]
     public $parameters;
 
-    /** @PHPCRODM\Field(type="long", assoc="", nullable=true) */
+    #[PHPCR\Field(type: 'long', assoc: '', nullable: true)]
     public $assocNumbers;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class User2
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 }
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\ODM\PHPCR\Functional\User3Repository")
- */
+#[PHPCR\Document(repositoryClass: User3Repository::class)]
 class User3
 {
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class User5
 {
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
 
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    #[PHPCR\Field(type: 'long', multivalue: true, nullable: true)]
     public $numbers;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class User6 extends User5
 {
-    /** @PHPCRODM\Id(strategy="auto") */
+    #[PHPCR\Id(strategy: 'auto')]
     public $id;
 }
 
@@ -738,56 +728,48 @@ class User3Repository extends DocumentRepository implements RepositoryIdInterfac
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class TeamUser extends User
 {
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 }
 
-/**
- * @PHPCRODM\Document(versionable="full")
- */
+#[PHPCR\Document(versionable: 'full')]
 class VersionTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\VersionName */
+    #[PHPCR\VersionName]
     public $versionName;
 
-    /** @PHPCRODM\VersionCreated */
+    #[PHPCR\VersionCreated]
     public $versionCreated;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $username;
 
-    /** @PHPCRODM\Field(type="long", multivalue=true, nullable=true) */
+    #[PHPCR\Field(type: 'long', multivalue: true, nullable: true)]
     public $numbers;
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class UserWithUuid extends User
 {
-    /** @PHPCRODM\Uuid */
+    #[PHPCR\Uuid]
     public $uuid;
 }
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class DepthMappingObject
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Depth */
+    #[PHPCR\Depth]
     public $depth;
 }

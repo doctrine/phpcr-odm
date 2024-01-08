@@ -6,20 +6,18 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class CmsGroup
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="CmsUser", cascade="persist") */
+    #[PHPCR\ReferenceMany(targetDocument: CmsUser::class, cascade: 'persist')]
     public $users;
 
     public function setName($name)

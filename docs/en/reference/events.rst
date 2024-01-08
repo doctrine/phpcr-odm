@@ -41,7 +41,7 @@ the life-time of their registered documents.
   all references to documents have been removed from the unit of work. This
   event is not a lifecycle callback;
 - loadClassMetadata - occurs after mapping metadata for a class has been loaded
-  from a mapping source (annotations/xml/yaml). This event is not a lifecycle
+  from a mapping source (attributes/annotations/xml/yaml). This event is not a lifecycle
   callback.
 - postLoadTranslation - occurs when a translation of a document has been loaded
   from the repository.
@@ -142,81 +142,61 @@ event occurs.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\PrePersist
-         */
+        #[PHPCR\PrePersist]
         public function doStuffOnPrePersist()
         {
             $this->createdAt = date('Y-m-d H:m:s');
         }
 
-        /**
-         * @PHPCR\PrePersist
-         */
+        #[PHPCR\PrePersist]
         public function doOtherStuffOnPrePersist()
         {
             $this->value = 'changed from prePersist callback!';
         }
 
-        /**
-         * @PHPCR\PostPersist
-         */
+        #[PHPCR\PostPersist]
         public function doStuffOnPostPersist()
         {
             $this->value = 'changed from postPersist callback!';
         }
 
-        /**
-         * @PHPCR\PostLoad
-         */
+        #[PHPCR\PostLoad]
         public function doStuffOnPostLoad()
         {
             $this->value = 'changed from postLoad callback!';
         }
 
-        /**
-         * @PHPCR\PreUpdate
-         */
+        #[PHPCR\PreUpdate]
         public function doStuffOnPreUpdate()
         {
             $this->value = 'changed from preUpdate callback!';
         }
 
-        /**
-         * @PHPCR\PreBindTranslation
-         */
+        #[PHPCR\PreBindTranslation]
         public function doStuffOnPreBindTranslation()
         {
             $this->value = 'changed from preBindTranslation callback!';
         }
 
-        /**
-         * @PHPCR\PostBindTranslation
-         */
+        #[PHPCR\PostBindTranslation]
         public function doStuffOnPostBindTranslation()
         {
             $this->value = 'changed from postBindTranslation callback!';
         }
 
-        /**
-         * @PHPCR\postLoadTranslation
-         */
+        #[PHPCR\postLoadTranslation]
         public function doStuffOnPostLoadTranslation()
         {
             $this->value = 'changed from postLoadTranslation callback!';
         }
-        /**
-         * @PHPCR\PreRemoveTranslation
-         */
+        #[PHPCR\PreRemoveTranslation]
         public function doStuffOnPreRemoveTranslation()
         {
             $this->value = 'changed from preRemoveTranslation callback!';
         }
-        /**
-         * @PHPCR\PostRemoveTranslation
-         */
+        #[PHPCR\PostRemoveTranslation]
         public function doStuffOnPostRemoveTranslation()
         {
             $this->value = 'changed from postRemoveTranslation callback!';
@@ -251,7 +231,7 @@ listed in the previous Lifecycle Events section.
 
 .. note::
 
-    Contrary to the ORM, PHPCR-ODM does **not** use the @HasLifecycleCallbacks marker.
+    Contrary to the ORM, PHPCR-ODM does **not** use the ``HasLifecycleCallbacks`` marker.
 
 
 Listening to Lifecycle Events

@@ -14,7 +14,7 @@ Hierarchy mappings
 ------------------
 
 We have already seen the ``ParentDocument`` in the previous chapter in the section about
-identifier generation. The field with this annotation maps the parent document of this document
+identifier generation. The field with this mapping contains the parent document of this document
 (``PHPCR\NodeInterface::getParent()``). If the repository can determine the document class of the
 parent, it will use it, otherwise ``Doctrine\ODM\PHPCR\Document\Generic`` is used.
 
@@ -51,21 +51,15 @@ Some sample mappings:
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Parentdocument
-         */
+        #[PHPCR\ParentDocument]
         private $parent;
 
-        /**
-         * @PHPCR\Child
-         */
+        #[PHPCR\Child]
         private $mychild;
 
-        /**
-         * @PHPCR\Children(filter="a*", fetchDepth=3)
-         */
+        #[PHPCR\Children(filter: 'a*', fetchDepth: 3)]
         private $children;
 
     .. code-block:: xml
@@ -100,9 +94,7 @@ document is not allowed to have children (i.e. that it is a leaf node).
     .. code-block:: php
 
         <?php
-        /**
-         * @Document(childClasses={"App\Documents\Article", "App\Documents\Page"})
-         */
+        #[Document(childClasses: [Article::class, Page::class])]
         class ContentFolder
         {
             // ...
@@ -112,8 +104,8 @@ document is not allowed to have children (i.e. that it is a leaf node).
 
         <doctrine-mapping>
             <document class="ContentFolder">
-                <child-class>Article</child-class>
-                <child-class>Page</child-class>
+                <child-class>Fqn\Article</child-class>
+                <child-class>Fqn\Page</child-class>
                 <!-- ... -->
             </document>
         </doctrine-mapping>
@@ -122,7 +114,7 @@ document is not allowed to have children (i.e. that it is a leaf node).
 
         ContentFolder:
             # ...
-            child_classes: [ "Article", "Page" ]
+            child_classes: [ "Fqn\Article", "Fqn\Page" ]
 
 To specify that a document can have no children:
 
@@ -131,9 +123,7 @@ To specify that a document can have no children:
     .. code-block:: php
 
         <?php
-        /**
-         * @Document(isLeaf=true)
-         */
+        #[Document(isLeaf: true)]
         class LeafDocument
         {
             // ...
@@ -183,16 +173,12 @@ id standard and is guaranteed to be unique for the whole PHPCR repository (all w
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Document(referenceable=true)
-         */
+        #[PHPCR\Document(referenceable: true)]
         class MyPersistentClass
         {
-            /**
-             * @PHPCR\Uuid
-             **/
+            #[PHPCR\Uuid]
             private $uuid;
 
         }
@@ -242,36 +228,24 @@ A path reference will never ensure referential integrity.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\ReferenceOne(strategy="weak")
-         */
+        #[PHPCR\ReferenceOne(strategy: 'weak')]
         private $weakTarget;
 
-        /**
-         * @PHPCR\ReferenceOne(strategy="hard")
-         */
+        #[PHPCR\ReferenceOne(strategy: 'hard')]
         private $hardTarget;
 
-        /**
-         * @PHPCR\ReferenceOne(strategy="path")
-         */
+        #[PHPCR\ReferenceOne(strategy: 'path')]
         private $pathTarget;
 
-        /**
-         * @PHPCR\ReferenceMany(strategy="weak")
-         */
+        #[PHPCR\ReferenceMany(strategy: 'weak')]
         private $weakGroup;
 
-        /**
-         * @PHPCR\ReferenceMany(strategy="hard")
-         */
+        #[PHPCR\ReferenceMany(strategy: 'hard')]
         private $hardGroup;
 
-        /**
-         * @PHPCR\ReferenceMany(strategy="path")
-         */
+        #[PHPCR\ReferenceMany(strategy: 'path')]
         private $pathGroup;
 
     .. code-block:: xml
@@ -361,16 +335,12 @@ will contain the referenced document.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Referrers(referringDocument="FQN\Class\Name", referencedBy="otherFieldName")
-         */
+        #[PHPCR\Referrers(referringDocument: ClassName::class, referencedBy: 'otherFieldName')]
         private $specificReferrers;
 
-        /**
-         * @PHPCR\Referrers(referringDocument="Other\Class\Name", referencedBy="someFieldName", cascade="persist, remove")
-         */
+        #[PHPCR\Referrers(referringDocument: OtherClassName::class, referencedBy: 'someFieldName', cascade: 'persist, remove')]
         private $cascadedReferrers;
 
     .. code-block:: xml
@@ -429,16 +399,12 @@ An example for this is the `Generic` document provided by phpcr-odm itself.
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\MixedReferrers
-         */
+        #[PHPCR\MixedReferrers]
         private $allReferrers;
 
-        /**
-         * @PHPCR\MixedReferrers(referenceType="hard")
-         */
+        #[PHPCR\MixedReferrers(referenceType: 'hard')]
         private $hardReferrers;
 
     .. code-block:: xml
@@ -551,16 +517,12 @@ You have to be careful when using document fields that contain a
 collection of related documents. Say we have a User document that
 contains a collection of groups::
 
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document
-     */
+    #[PHPCR\Document]
     class User
     {
-        /**
-         * @PHPCR\ReferenceMany
-         */
+        #[PHPCR\ReferenceMany]
         private $groups;
 
         public function getGroups()
@@ -579,16 +541,12 @@ This is why we recommend to initialize all collection fields to an
 empty ``ArrayCollection`` in your documents constructor::
 
     use Doctrine\Common\Collections\ArrayCollection;
-    use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-    /**
-     * @PHPCR\Document
-     */
+    #[PHPCR\Document]
     class User
     {
-        /**
-         * @PHPCR\ReferenceMany
-         */
+        #[PHPCR\ReferenceMany]
         private $groups;
 
         public function __construct()

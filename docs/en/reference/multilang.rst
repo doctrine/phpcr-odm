@@ -32,9 +32,14 @@ soon as at least one field in that locale exists.
 Mapping
 -------
 
-To make a document translated, you need to define the ``translator`` attribute on the document
-configuration, and you need to map the ``locale`` field. Then you can use the ``translated``
-attribute on all fields that should be different depending on the locale.
+To make a document translated, you need to define the ``translator`` parameter
+on the document mapping, and you need to map the ``locale`` field. Then you
+can use the ``translated`` parameter on all fields that should be different
+depending on the locale.
+
+PHPCR-ODM does not restrict what fields may be translatable - if you need e.g.
+a date to be different depending on the language, you can simply specify the
+``translated: true`` parameter.
 
 .. configuration-block::
 
@@ -42,33 +47,29 @@ attribute on all fields that should be different depending on the locale.
 
         use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
 
-        /**
-         * @PHPCR\Document(translator="attribute")
+        #[PHPCR\Document(translator: 'attribute')]
          */
         class MyPersistentClass
         {
-            /**
-             * The language this document currently is in
-             * @Locale
-             */
+            #[PHPCR\Locale]
             private $locale;
 
             /**
              * Untranslated property
-             * @PHPCR\Field(type="date")
              */
+            #[PHPCR\Field(type: 'date')]
             private $publishDate;
 
             /**
              * Translated property
-             * @PHPCR\Field(type="string", translated=true)
              */
+            #[PHPCR\Field(type: 'string', translated: true)]
             private $topic;
 
             /**
              * Language specific image
-             * @PHPCR\Field(type="binary", translated=true)
              */
+            #[PHPCR\Field(type: 'binary', translated: true)]
             private $image;
         }
 
@@ -215,11 +216,11 @@ any translatable documents::
 
     use Doctrine\ODM\PHPCR\DocumentManager;
 
-    $localePrefs = array(
-        'en' => array('de', 'fr'),
-        'fr' => array('de', 'en'),
-        'it' => array('de', 'en'),
-    );
+    $localePrefs = [
+        'en' => ['de', 'fr'],
+        'fr' => ['de', 'en'],
+        'it' => ['de', 'en'],
+    ];
 
     $dm = new DocumentManager($session, $config);
     $dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));
@@ -239,10 +240,10 @@ Full Example
 
     // bootstrap the DocumentManager as required (see above)
 
-    $localePrefs = array(
-        'en' => array('fr'),
-        'fr' => array('en'),
-    );
+    $localePrefs = [
+        'en' => ['fr'],
+        'fr' => ['en'],
+    ];
 
     $dm = new DocumentManager($session, $config);
     $dm->setLocaleChooserStrategy(new LocaleChooser($localePrefs, 'en'));

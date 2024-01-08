@@ -2,13 +2,11 @@
 
 namespace Doctrine\Tests\Models\References;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class RefAnnotationTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 }

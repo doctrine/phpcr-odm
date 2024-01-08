@@ -74,21 +74,15 @@ Due to implementation limitations, the Locale field is `required` on all transla
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Document(versionable="full")
-         */
+        #[PHPCR\Document(versionable: 'full')]
         class MyPersistentClass
         {
-            /**
-             * @PHPCR\VersionName
-             */
+            #[PHPCR\VersionName]
             private $versionName;
 
-            /**
-             * @PHPCR\VersionCreated
-             */
+            #[PHPCR\VersionCreated]
             private $versionCreated;
         }
 
@@ -117,8 +111,8 @@ Be aware that these two are different things:
     You get this document with the findVersionByName method. It is read-only.
     The document class you use needs not be the same. You can define a *version*
     document that is the same as your base document, but all fields are read
-    only and you use the VersionName and VersionCreated annotations on it. It
-    also does not need the versionable document attribute. (You do not create
+    only and you use the VersionName and VersionCreated mappings on it. The document
+    mapping also does not need the versionable document parameter. (You do not create
     versions of old versions, you only create versions of the main document.)
 
 You can track some information about old versions in PHPCR-ODM. Both are only
@@ -131,7 +125,7 @@ Note that all fields of a document are automatically versioned, you can not
 exclude anything from being versioned. Referenced documents are not versioned
 at the same time, but it is stored to which document the reference pointed at
 this time. Children and parents are not versioned by default. Children can be
-versioned by defining a PHCPR node type that specifies to cascade versioning.
+versioned by defining a PHPCR node type that specifies to cascade versioning.
 This feature however is untested with PHPCR-ODM, if you have feedback please
 tell us.
 

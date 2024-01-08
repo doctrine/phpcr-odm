@@ -3,48 +3,35 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\HierarchyInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use PHPCR\NodeInterface;
 
 /**
  * This class represents an abstract "file".
- *
- * @PHPCRODM\MappedSuperclass(mixins="mix:created")
  */
+#[PHPCR\MappedSuperclass(mixins: ['mix:created'])]
 abstract class AbstractFile implements HierarchyInterface
 {
-    /**
-     * @PHPCRODM\Id(strategy="parent")
-     */
+    #[PHPCR\Id(strategy: 'parent')]
     protected string $id;
 
-    /**
-     * @PHPCRODM\Node
-     */
+    #[PHPCR\Node]
     protected NodeInterface $node;
 
-    /**
-     * @PHPCRODM\Nodename
-     */
+    #[PHPCR\Nodename]
     protected string $nodename = '';
 
-    /**
-     * @PHPCRODM\ParentDocument
-     */
+    #[PHPCR\ParentDocument]
     protected ?object $parent;
 
-    /**
-     * @PHPCRODM\Field(type="date", property="jcr:created")
-     */
+    #[PHPCR\Field(property: 'jcr:created', type: 'date')]
     protected ?\DateTimeInterface $created = null;
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:createdBy")
-     */
+    #[PHPCR\Field(property: 'jcr:createdBy', type: 'string')]
     protected ?string $createdBy = null;
 
     /**
-     * Set the id (the PHPCR path).
+     *  Set the id (the PHPCR path).
      */
     public function setId(string $id): self
     {

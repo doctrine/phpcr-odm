@@ -2,11 +2,9 @@
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(translator="child")
- */
+#[PHPCR\Document(translator: 'child')]
 class ChildTranslationComment extends Comment
 {
 }

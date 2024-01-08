@@ -39,9 +39,9 @@ class TranslationTest extends PHPCRFunctionalTestCase
     }
 
     /**
-     * Test the annotations pertaining to translations are correctly loaded.
+     * Test the attributes pertaining to translations are correctly loaded.
      */
-    public function testLoadAnnotations(): void
+    public function testLoadAttributes(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
         $metadata = $factory->getMetadataFor(Article::class);
@@ -53,17 +53,17 @@ class TranslationTest extends PHPCRFunctionalTestCase
         $this->assertFieldMetadataEquals(true, $metadata, 'text', 'translated');
         $this->assertFieldMetadataEquals(true, $metadata, 'assoc', 'translated');
 
-        $this->assertObjectHasAttribute('translator', $metadata);
+        $this->assertObjectHasProperty('translator', $metadata);
         $this->assertEquals('attribute', $metadata->translator);
 
-        $this->assertObjectHasAttribute('localeMapping', $metadata);
+        $this->assertObjectHasProperty('localeMapping', $metadata);
         $this->assertEquals('locale', $metadata->localeMapping);
     }
 
     /**
-     * Test loading of a translatable document missing the Locale annotation.
+     * Test loading of a translatable document missing the Locale attribute.
      */
-    public function testLoadMissingLocaleAnnotation(): void
+    public function testLoadMissingLocaleAttribute(): void
     {
         $factory = new ClassMetadataFactory($this->dm);
 

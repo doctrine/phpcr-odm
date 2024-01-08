@@ -15,7 +15,7 @@ Changelog
 * DocumentManager::flush no longer saves the PHPCR session if there are no changes
   on the ODM layer.
 
-* Removed deprecated annotations for fields. Use `@Field(type="...")` instead.
+* Removed annotation mappings. Use attributes (or XML or YAML) instead.
 
 ### New Features
 
@@ -29,6 +29,22 @@ Dropped support for PHP < 7.4 and Symfony < 5.4.
 
 1.x
 ===
+
+1.8.1 (unreleased)
+------------------
+
+* Convert provided documents to use attributes instead of annotations.
+
+1.8.0
+-----
+
+* Add support for PHP attributes (only for the annotations that are not deprecated)
+* Drop support for PHP 7.
+
+1.7.2
+-----
+
+* Maintenance release with doc and phpunit test cleanups.
 
 1.7.1
 -----
@@ -364,7 +380,7 @@ maintenance release of the 1.0 family with bugfixes
   - Doctrine\Common\Persistence\Event\LifecycleEventArgs
   Only the MoveEventArgs remain specific to PHPCR-ODM.
 * **2013-09-27**: Removed deprecated legacy handling for the mapping that
-  allowed using "name" instead of "property" to configure PHCPR property in mapping.
+  allowed using "name" instead of "property" to configure PHPCR property in mapping.
 
 * **2013-09-26**: [Model] add HierarchyInterface for objects that resolve to
   nt:HierarchyNode, the method AbstractFile::addChild is

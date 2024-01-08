@@ -4,21 +4,15 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(repositoryClass="Doctrine\Tests\Models\CMS\CmsTeamUserRepository")
- */
+#[PHPCR\Document(repositoryClass: CmsTeamUserRepository::class)]
 class CmsTeamUser extends CmsUser
 {
-    /**
-     * @PHPCRODM\ParentDocument
-     */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /**
-     * @PHPCRODM\Nodename
-     */
+    #[PHPCR\Nodename]
     public $nodename;
 
     public function setParentDocument($parent)

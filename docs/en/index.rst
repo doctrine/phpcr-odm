@@ -36,7 +36,8 @@ Mapping Objects onto a Document Repository
   :doc:`Inheritance <reference/inheritance-mapping>`
 
 * **Mapping Driver References**:
-  :doc:`Docblock Annotations <reference/annotations-mapping>` |
+  :doc:`PHP Attributes <reference/attributes-mapping>` |
+  :doc:`Docblock Annotations (deprecated) <reference/annotations-mapping>` |
   :doc:`XML <reference/xml-mapping>` |
   :doc:`YAML <reference/yml-mapping>` |
   :doc:`Metadata Drivers <reference/metadata-drivers>`

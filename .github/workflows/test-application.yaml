@@ -27,38 +27,31 @@ jobs:
 
             matrix:
                 php-version:
-                    - '7.4'
                     - '8.0'
                     - '8.1'
                     - '8.2'
+                    - '8.3'
                 dependencies: [highest]
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
                 include:
-                    - php-version: '7.4'
-                      dependencies: lowest
-                      symfony-version: '*'
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: '5.4.*'
-                      php-bench: true
-                    - php-version: '8.0'
-                      dependencies: lowest
-                      symfony-version: '*'
-                    - php-version: '8.0'
-                      dependencies: highest
-                      symfony-version: '6.*'
-                    - php-version: '8.1'
-                      dependencies: highest
-                      symfony-version: '5.4.*'
-                    - php-version: '8.2'
-                      dependencies: highest
-                      symfony-version: '6.*'
-                    - php-version: '8.2'
-                      dependencies: highest
-                      symfony-version: '6.*'
-                      jackalope-version: '2.*'
-                      php-bench: true
+                  - php-version: '8.0'
+                    dependencies: lowest
+                    symfony-version: '*'
+                  - php-version: '8.0'
+                    dependencies: highest
+                    symfony-version: '6.*'
+                  - php-version: '8.1'
+                    dependencies: highest
+                    symfony-version: '5.4.*'
+                  - php-version: '8.2'
+                    dependencies: highest
+                    symfony-version: '6.*'
+                  - php-version: '8.2'
+                    dependencies: highest
+                    symfony-version: '6.*'
+                    jackalope-version: '2.*'
+                    php-bench: true
 
         steps:
             - name: Checkout project
@@ -116,38 +109,31 @@ jobs:
 
             matrix:
                 php-version:
-                    - '7.4'
                     - '8.0'
                     - '8.1'
                     - '8.2'
+                    - '8.3'
                 dependencies: [highest]
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
                 include:
-                    - php-version: '7.4'
-                      dependencies: lowest
-                      symfony-version: '*'
-                    - php-version: '7.4'
-                      dependencies: highest
-                      symfony-version: '5.4.*'
-                      php-bench: true
-                    - php-version: '8.0'
-                      dependencies: lowest
-                      symfony-version: '*'
-                    - php-version: '8.0'
-                      dependencies: highest
-                      symfony-version: '6.*'
-                    - php-version: '8.1'
-                      dependencies: highest
-                      symfony-version: 5.4.*
-                    - php-version: '8.2'
-                      dependencies: highest
-                      symfony-version: '6.*'
-                    - php-version: '8.2'
-                      dependencies: highest
-                      symfony-version: '6.*'
-                      jackalope-version: '2.*'
-                      php-bench: true
+                  - php-version: '8.0'
+                    dependencies: lowest
+                    symfony-version: '*'
+                  - php-version: '8.0'
+                    dependencies: highest
+                    symfony-version: '6.*'
+                  - php-version: '8.1'
+                    dependencies: highest
+                    symfony-version: 5.4.*
+                  - php-version: '8.2'
+                    dependencies: highest
+                    symfony-version: '6.*'
+                  - php-version: '8.2'
+                    dependencies: highest
+                    symfony-version: '6.*'
+                    jackalope-version: '2.*'
+                    php-bench: true
 
         steps:
             - name: Checkout project

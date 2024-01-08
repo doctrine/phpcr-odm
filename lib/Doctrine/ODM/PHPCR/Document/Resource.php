@@ -3,64 +3,48 @@
 namespace Doctrine\ODM\PHPCR\Document;
 
 use Doctrine\ODM\PHPCR\Exception\BadMethodCallException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use PHPCR\NodeInterface;
 
 /**
  * This class represents a jcr nt:resource and is used by the File document.
  *
  * @see http://wiki.apache.org/jackrabbit/nt:resource
- *
- * @PHPCRODM\Document(nodeType="nt:resource")
  */
+#[PHPCR\Document(nodeType: 'nt:resource')]
 class Resource
 {
-    /**
-     * @PHPCRODM\Id
-     */
+    #[PHPCR\Id]
     protected string $id;
 
-    /**
-     * @PHPCRODM\Node
-     */
+    #[PHPCR\Node]
     protected NodeInterface $node;
 
-    /**
-     * @PHPCRODM\Nodename
-     */
-    protected string $nodename = '';
+    #[PHPCR\Nodename]
+    protected string $nodename;
 
-    /**
-     * @PHPCRODM\ParentDocument
-     */
+    #[PHPCR\ParentDocument]
     protected object $parent;
 
     /**
-     * A PHP resource.
+     * @var resource
      *
-     * @PHPCRODM\Field(type="binary", property="jcr:data")
+     * @phpstan-var closed-resource
      */
+    #[PHPCR\Field(property: 'jcr:data', type: 'binary')]
     protected $data;
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:mimeType")
-     */
+    #[PHPCR\Field(property: 'jcr:mimeType', type: 'string')]
     protected string $mimeType = 'application/octet-stream';
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:encoding", nullable=true)
-     */
-    protected ?string $encoding = null;
+    #[PHPCR\Field(property: 'jcr:encoding', type: 'string', nullable: true)]
+    protected string $encoding;
 
-    /**
-     * @PHPCRODM\Field(type="date", property="jcr:lastModified")
-     */
-    protected ?\DateTimeInterface $lastModified = null;
+    #[PHPCR\Field(property: 'jcr:lastModified', type: 'date')]
+    protected \DateTimeInterface $lastModified;
 
-    /**
-     * @PHPCRODM\Field(type="string", property="jcr:lastModifiedBy")
-     */
-    protected ?string $lastModifiedBy = null;
+    #[PHPCR\Field(property: 'jcr:lastModifiedBy', type: 'string')]
+    protected string $lastModifiedBy;
 
     /**
      * The node name of the file.
@@ -104,6 +88,10 @@ class Resource
 
     /**
      * Set the data from a binary stream.
+     *
+     * @param resource $data the contents of this resource
+     *
+     * @phpstan-param closed-resource $data the contents of this resource
      */
     public function setData($data): self
     {
@@ -114,6 +102,10 @@ class Resource
 
     /**
      * Get the binary data stream of this resource.
+     *
+     * @return resource
+     *
+     * @phpstan-return closed-resource
      */
     public function getData()
     {
@@ -135,7 +127,7 @@ class Resource
      */
     public function getSize(): int
     {
-        if (null === $this->node) {
+        if (!isset($this->node)) {
             throw new BadMethodCallException('Do not call Resource::getSize on unsaved objects, as it only reads the stored size.');
         }
 

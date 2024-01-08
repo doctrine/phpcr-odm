@@ -140,7 +140,7 @@ class ParentClassMetadataProxy extends ClassMetadata
         $this->reflFields = [$this->identifier => $mockField];
     }
 
-    public function getFieldValue(object $document, string $field)
+    public function getFieldValue(object $document, string $field): mixed
     {
         switch ($field) {
             case $this->parentMapping:
@@ -149,6 +149,8 @@ class ParentClassMetadataProxy extends ClassMetadata
                 return $this->_nodename;
             case $this->identifier:
                 return $this->_identifier;
+            default:
+                throw new \InvalidArgumentException("Unknown field $field");
         }
     }
 }

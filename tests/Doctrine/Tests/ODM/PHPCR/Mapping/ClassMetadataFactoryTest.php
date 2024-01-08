@@ -2,12 +2,11 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadataFactory;
-use Doctrine\ODM\PHPCR\Mapping\Driver\AnnotationDriver;
+use Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Event\LoadClassMetadataEventArgs;
 use Doctrine\Persistence\Mapping\Driver\PHPDriver;
@@ -35,14 +34,10 @@ class ClassMetadataFactoryTest extends TestCase
 
     protected function getMetadataFor(string $fqn): ClassMetadata
     {
-        $reader = new AnnotationReader();
-        $annotationDriver = new AnnotationDriver($reader);
-        $annotationDriver->addPaths([__DIR__.'/Model']);
-        $this->dm->getConfiguration()->setMetadataDriverImpl($annotationDriver);
+        $attributeDriver = new AttributeDriver([__DIR__.'/Model']);
+        $this->dm->getConfiguration()->setMetadataDriverImpl($attributeDriver);
 
-        $cmf = new ClassMetadataFactory($this->dm);
-
-        return $cmf->getMetadataFor($fqn);
+        return (new ClassMetadataFactory($this->dm))->getMetadataFor($fqn);
     }
 
     public function setUp(): void

@@ -84,7 +84,7 @@ to specify an array of parameters as the first argument::
     // is equivalenet to
 
     $query = // get new query
-    $docs = $query->execute(array(), Query::HYDRATE_DOCUMENT);
+    $docs = $query->execute([], Query::HYDRATE_DOCUMENT);
 
 .. note::
 
@@ -131,4 +131,3 @@ should be retrieved::
     $query->setOffset(50);
     $query->setMaxResults(150);
     $res = $query->getResult(); // will return a maximum of 100 results from result index 50
-

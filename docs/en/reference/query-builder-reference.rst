@@ -818,7 +818,7 @@ This is the node which is returned when a query builder is asked for::
 
     $dm = // get document manager
     $qb = $dm->createQueryBuilder();
-    $qb->fromDocument('Blog\Post', 'p');
+    $qb->fromDocument(BlogPost::class, 'p');
     $qb->where()->eq()->field('p.title')->literal('My Post');
     $docs = $qb->getQuery()->execute();
 
@@ -948,7 +948,7 @@ source as the left operand::
 
 Note that for outer joins to work correctly, documents being joined to must be mapped with
 a node type that is unique to the repository workspace, and the ``uniqueNodeType`` property
-must be set to ``true`` for the document (see :ref:`<_annref_document>`). Otherwise, the join
+must be set to ``true`` for the document (see :ref:`<_attref_document>`). Otherwise, the join
 will behave as an inner join.
 
 **Adds**: :ref:`select <qbref_node_select>` (Select)
@@ -973,7 +973,7 @@ source as the left operand::
 
 Note that for outer joins to work correctly, documents being joined to must be mapped with
 a node type that is unique to the repository workspace, and the ``uniqueNodeType`` property
-must be set to ``true`` for the document (see :ref:`<_annref_document>`). Otherwise, the join
+must be set to ``true`` for the document (see :ref:`<_attref_document>`). Otherwise, the join
 will behave as an inner join.
 
 **Adds**: :ref:`select <qbref_node_select>` (Select)
@@ -998,7 +998,7 @@ source as the left operand::
 
 Note that for outer joins to work correctly, documents being joined to must be mapped with
 a node type that is unique to the repository workspace, and the ``uniqueNodeType`` property
-must be set to ``true`` for the document (see :ref:`<_annref_document>`). Otherwise, the join
+must be set to ``true`` for the document (see :ref:`<_attref_document>`). Otherwise, the join
 will behave as an inner join.
 
 **Adds**: :ref:`select <qbref_node_select>` (Select)
@@ -1320,5 +1320,3 @@ Factory node for appending additional "wheres" with an OR
 
 **Child Cardinality**:
     * **1..1** :ref:`constraint <qbref_type_constraint>`
-
-

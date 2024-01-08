@@ -2,28 +2,27 @@
 
 namespace Doctrine\Tests\Models\Versioning;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
 /**
  * This document has a Version annotated field but it is not marked as versionable.
- *
- * @PHPCRODM\Document
  */
+#[PHPCR\Document]
 class InconsistentVersionableArticle
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $author;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $topic;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     private $text;
 
-    /** @PHPCRODM\VersionName */
+    #[PHPCR\VersionName]
     public $versionName;
 
     public function getText()

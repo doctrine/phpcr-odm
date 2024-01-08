@@ -2,16 +2,14 @@
 
 namespace Doctrine\Tests\Models\References;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class WeakRefTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="RefRefTestObj", strategy="weak", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: RefRefTestObj::class, strategy: 'weak', cascade: 'persist')]
     public $reference;
 }

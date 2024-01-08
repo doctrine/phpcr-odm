@@ -13,9 +13,3 @@ $files = array_filter([
 if ($files) {
     require_once current($files);
 }
-
-use Doctrine\Common\Annotations\AnnotationRegistry;
-
-if (method_exists(AnnotationRegistry::class, 'registerLoader')) {
-    AnnotationRegistry::registerLoader([$autoload, 'loadClass']);
-}

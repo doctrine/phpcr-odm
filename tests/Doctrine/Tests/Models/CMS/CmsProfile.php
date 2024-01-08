@@ -4,28 +4,21 @@ namespace Doctrine\Tests\Models\CMS;
 
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Id\RepositoryIdInterface;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(
- *     nodeType="phpcr:cms_profile",
- *     referenceable=true,
- *     repositoryClass="Doctrine\Tests\Models\CMS\CmsProfileRepository",
- *     uniqueNodeType=true
- * )
- */
+#[PHPCR\Document(nodeType: 'phpcr:cms_profile', repositoryClass: CmsProfileRepository::class, referenceable: true, uniqueNodeType: true)]
 class CmsProfile
 {
-    /** @PHPCRODM\Id(strategy="repository") */
+    #[PHPCR\Id(strategy: 'repository')]
     public $id;
 
-    /** @PHPCRODM\Uuid */
+    #[PHPCR\Uuid]
     public $uuid;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $data;
 
-    /** @PHPCRODM\ReferenceOne(targetDocument="CmsUser", cascade="persist") */
+    #[PHPCR\ReferenceOne(targetDocument: CmsUser::class, cascade: 'persist')]
     public $user;
 
     public function getId()

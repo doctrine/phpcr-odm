@@ -2,19 +2,17 @@
 
 namespace Doctrine\Tests\Models\CMS;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document
- */
+#[PHPCR\Document]
 class CmsAuditItem
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $message;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $username;
 }

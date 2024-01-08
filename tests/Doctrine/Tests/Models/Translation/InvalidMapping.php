@@ -3,27 +3,23 @@
 /**
  * !!! WARNING !!!
  *
- * This class is invalid as it uses an invalid key for the @PHPCRODM\Document(translator) annotation.
+ * This class is invalid as it uses an invalid key for the #[PHPCR\Document](translator) attribute.
  * This class is supposed to throw an exception when it is read by the ODM !!!
  */
 
 namespace Doctrine\Tests\Models\Translation;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(translator="some_unexisting_strategy")
- */
+#[PHPCR\Document(translator: 'some_unexisting_strategy')]
 class InvalidMapping
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /**
-     * @PHPCRODM\Locale
-     */
+    #[PHPCR\Locale]
     public $locale = 'en';
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $topic;
 }

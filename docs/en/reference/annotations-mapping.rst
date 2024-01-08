@@ -4,6 +4,10 @@ Annotation Mapping
 In this chapter a reference of every PHPCR-ODM annotation is given with short
 explanations on their context and usage.
 
+.. warning::
+
+    Annotations have been deprecated in favor of :doc:`Attributes<attributes-mapping>`
+
 Note on usage
 -------------
 
@@ -230,12 +234,12 @@ Examples::
     /**
      * @PHPCR\Field(type="string", multivalue=true)
      */
-    protected $keywords; // e.g. array('dog', 'cat', 'mouse')
+    protected $keywords; // e.g. ['dog', 'cat', 'mouse']
 
     /**
      * @PHPCR\Field(type="double", assoc="")
      */
-    protected $exchangeRates; // e.g. array('GBP' => 0.810709, 'EUR' => 1, 'USD' => 1.307460)
+    protected $exchangeRates; // e.g. ['GBP' => 0.810709, 'EUR' => 1, 'USD' => 1.307460]
 
 Hierarchy
 ---------

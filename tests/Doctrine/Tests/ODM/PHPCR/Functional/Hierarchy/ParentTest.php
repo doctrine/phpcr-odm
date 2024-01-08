@@ -6,7 +6,7 @@ use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\Document\Generic;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Id\IdException;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 use PHPCR\NodeInterface;
@@ -274,35 +274,31 @@ class ParentTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class NameDoc
 {
-    /** @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
 
-    /** @PHPCRODM\Children(cascade="persist") */
+    #[PHPCR\Children(cascade: 'persist')]
     public $children;
 
-    /** @PHPCRODM\Child(cascade="persist") */
+    #[PHPCR\Child(cascade: 'persist')]
     public $child;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class NameDocWithRef extends NameDoc
 {
-    /** @PHPCRODM\ReferenceOne(cascade="persist") */
+    #[PHPCR\ReferenceOne(cascade: 'persist')]
     public $ref;
 }

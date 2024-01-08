@@ -4,7 +4,7 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Event;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
 
@@ -53,9 +53,9 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertInstanceOf('stdClass', $entity->status);
-        $this->assertObjectHasAttribute('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'active');
-        $this->assertObjectNotHasAttribute('foo', $entity->status);
+        $this->assertObjectHasProperty('value', $entity->status);
+        $this->assertSame('active', $entity->status->value);
+        $this->assertObjectNotHasProperty('foo', $entity->status);
 
         $entity->status->value = 'inactive';
         $entity->status->foo = 'bar2';
@@ -64,44 +64,42 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->assertInstanceOf('stdClass', $entity->status);
-        $this->assertObjectHasAttribute('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'inactive');
-        $this->assertObjectNotHasAttribute('foo', $entity->status);
-        $this->assertEquals($entity->text, 'test2');
+        $this->assertObjectHasProperty('value', $entity->status);
+        $this->assertSame('inactive', $entity->status->value);
+        $this->assertObjectNotHasProperty('foo', $entity->status);
+        $this->assertSame('test2', $entity->text);
 
         $this->dm->clear();
 
         $entity = $this->dm->find(null, $entity->id);
 
         $this->assertInstanceOf('stdClass', $entity->status);
-        $this->assertObjectHasAttribute('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'inactive');
-        $this->assertObjectNotHasAttribute('foo', $entity->status);
-        $this->assertEquals($entity->text, 'test2');
+        $this->assertObjectHasProperty('value', $entity->status);
+        $this->assertSame('inactive', $entity->status->value);
+        $this->assertObjectNotHasProperty('foo', $entity->status);
+        $this->assertSame('test2', $entity->text);
 
         $entity->status->value = 'active';
 
         $this->dm->flush();
 
         $this->assertInstanceOf('stdClass', $entity->status);
-        $this->assertObjectHasAttribute('value', $entity->status);
-        $this->assertEquals($entity->status->value, 'active');
-        $this->assertEquals($entity->text, 'test2');
+        $this->assertObjectHasProperty('value', $entity->status);
+        $this->assertSame('active', $entity->status->value);
+        $this->assertSame('test2', $entity->text);
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class SomeEntity
 {
-    /** @PHPCRODM\Id() */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $status;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $text;
 }
 

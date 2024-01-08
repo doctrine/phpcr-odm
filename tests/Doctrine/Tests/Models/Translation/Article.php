@@ -3,73 +3,64 @@
 namespace Doctrine\Tests\Models\Translation;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(translator="attribute", referenceable=true)
- */
+#[PHPCR\Document(translator: 'attribute', referenceable: true)]
 class Article
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /**
-     * @PHPCRODM\Locale
-     */
+    #[PHPCR\Locale]
     public $locale = 'en';
 
-    /** @PHPCRODM\Node */
+    #[PHPCR\Node]
     public $node;
 
-    /** @PHPCRODM\Nodename */
+    #[PHPCR\Nodename]
     public $nodename;
 
-    /**
-     * @PHPCRODM\ParentDocument */
+    #[PHPCR\ParentDocument]
     public $parent;
 
     // untranslated:
 
-    /** @PHPCRODM\Field(type="date", nullable=true) */
+    #[PHPCR\Field(type: 'date', nullable: true)]
     public $publishDate;
 
     // untranslated:
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $author;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $topic;
 
-    /** @PHPCRODM\Field(type="string", translated=true) */
+    #[PHPCR\Field(type: 'string', translated: true)]
     public $text;
 
-    /** @PHPCRODM\Children() */
+    #[PHPCR\Children]
     public $children;
 
-    /** @PHPCRODM\Child */
+    #[PHPCR\Child]
     public $child;
 
-    /** @PHPCRODM\ReferenceMany() */
+    #[PHPCR\ReferenceMany]
     public $relatedArticles = [];
 
-    /** @PHPCRODM\Field(type="string", translated=true, nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true, translated: true)]
     public $nullable;
 
-    /** @PHPCRODM\Field(type="string", translated=true, nullable=true, property="custom-property-name") */
+    #[PHPCR\Field(property: 'custom-property-name', type: 'string', nullable: true, translated: true)]
     public $customPropertyName;
 
-    /** @PHPCRODM\Field(type="string", translated=true, assoc="", nullable=true)*/
+    #[PHPCR\Field(type: 'string', assoc: '', nullable: true, translated: true)]
     public $assoc;
 
-    /**
-     * @PHPCRODM\Field(type="string", assoc="", translated=true, nullable=true)
-     */
+    #[PHPCR\Field(type: 'string', assoc: '', nullable: true, translated: true)]
     protected $settings;
 
-    /**
-     * @PHPCRODM\Field(type="string", assoc="", property="custom-settings", translated=true, nullable=true)
-     */
+    #[PHPCR\Field(property: 'custom-settings', type: 'string', assoc: '', nullable: true, translated: true)]
     public $customNameSettings;
 
     public function __construct()

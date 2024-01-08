@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\Tests\Models\References\RefType1TestObj;
 use Doctrine\Tests\Models\References\RefType2TestObj;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -82,32 +82,28 @@ class TargetDocumentTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ReferenceManyObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string") */
+    #[PHPCR\Field(type: 'string')]
     public $name;
 
-    /** @PHPCRODM\ReferenceMany(cascade="persist") */
+    #[PHPCR\ReferenceMany(cascade: 'persist')]
     public $references;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ReferenceOneObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Field(type="string", nullable=true) */
+    #[PHPCR\Field(type: 'string', nullable: true)]
     public $name;
 
-    /** @PHPCRODM\ReferenceOne(cascade="persist") */
+    #[PHPCR\ReferenceOne(cascade: 'persist')]
     public $reference;
 }

@@ -2,19 +2,17 @@
 
 namespace Doctrine\Tests\Models\References;
 
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class UuidTestTwoUuidFieldsObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Uuid */
+    #[PHPCR\Uuid]
     public $uuid1;
 
-    /** @PHPCRODM\Uuid */
+    #[PHPCR\Uuid]
     public $uuid2;
 }

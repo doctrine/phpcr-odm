@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
 use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCRODM;
+use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 use Doctrine\ODM\PHPCR\PHPCRException;
 use Doctrine\Tests\Models\References\HardRefTestObj;
 use Doctrine\Tests\Models\References\NonRefTestObj;
@@ -1351,26 +1351,22 @@ class ReferenceTest extends PHPCRFunctionalTestCase
     }
 }
 
-/**
- * @PHPCRODM\Document(referenceable=true)
- */
+#[PHPCR\Document(referenceable: true)]
 class ReferenceRefTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\Referrers(referringDocument="ReferenceTestObj", referencedBy="reference", cascade={"persist"}) */
+    #[PHPCR\Referrers(referencedBy: 'reference', referringDocument: ReferenceTestObj::class, cascade: 'persist')]
     public $referrers;
 }
 
-/**
- * @PHPCRODM\Document()
- */
+#[PHPCR\Document]
 class ReferenceTestObj
 {
-    /** @PHPCRODM\Id */
+    #[PHPCR\Id]
     public $id;
 
-    /** @PHPCRODM\ReferenceMany(targetDocument="ReferenceRefTestObj", cascade={"persist", "remove"}) */
+    #[PHPCR\ReferenceMany(targetDocument: ReferenceRefTestObj::class, cascade: ['persist', 'remove'])]
     public $reference;
 }
