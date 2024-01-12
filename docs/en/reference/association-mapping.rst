@@ -52,15 +52,16 @@ Some sample mappings:
     .. code-block:: php
 
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+        use Doctrine\ODM\PHPCR\ChildrenCollection;
 
         #[PHPCR\ParentDocument]
-        private $parent;
+        private object $parent;
 
         #[PHPCR\Child]
-        private $mychild;
+        private object $mychild;
 
         #[PHPCR\Children(filter: 'a*', fetchDepth: 3)]
-        private $children;
+        private ChildrenCollection $children;
 
     .. code-block:: xml
 
@@ -94,6 +95,9 @@ document is not allowed to have children (i.e. that it is a leaf node).
     .. code-block:: php
 
         <?php
+        use Fqn\Article;
+        use Fqn\Page;
+
         #[Document(childClasses: [Article::class, Page::class])]
         class ContentFolder
         {
@@ -179,7 +183,7 @@ id standard and is guaranteed to be unique for the whole PHPCR repository (all w
         class MyPersistentClass
         {
             #[PHPCR\Uuid]
-            private $uuid;
+            private string $uuid;
 
         }
 
@@ -229,24 +233,25 @@ A path reference will never ensure referential integrity.
     .. code-block:: php
 
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+        use Doctrine\ODM\PHPCR\ReferenceManyCollection;
 
         #[PHPCR\ReferenceOne(strategy: 'weak')]
-        private $weakTarget;
+        private object $weakTarget;
 
         #[PHPCR\ReferenceOne(strategy: 'hard')]
-        private $hardTarget;
+        private object $hardTarget;
 
         #[PHPCR\ReferenceOne(strategy: 'path')]
-        private $pathTarget;
+        private object $pathTarget;
 
         #[PHPCR\ReferenceMany(strategy: 'weak')]
-        private $weakGroup;
+        private ReferenceManyCollection $weakGroup;
 
         #[PHPCR\ReferenceMany(strategy: 'hard')]
-        private $hardGroup;
+        private ReferenceManyCollection $hardGroup;
 
         #[PHPCR\ReferenceMany(strategy: 'path')]
-        private $pathGroup;
+        private ReferenceManyCollection $pathGroup;
 
     .. code-block:: xml
 
@@ -336,12 +341,13 @@ will contain the referenced document.
     .. code-block:: php
 
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+        use Doctrine\ODM\PHPCR\ReferrersCollection;
 
         #[PHPCR\Referrers(referringDocument: ClassName::class, referencedBy: 'otherFieldName')]
-        private $specificReferrers;
+        private ReferrersCollection $specificReferrers;
 
         #[PHPCR\Referrers(referringDocument: OtherClassName::class, referencedBy: 'someFieldName', cascade: 'persist, remove')]
-        private $cascadedReferrers;
+        private ReferrersCollection $cascadedReferrers;
 
     .. code-block:: xml
 
@@ -400,12 +406,13 @@ An example for this is the `Generic` document provided by phpcr-odm itself.
     .. code-block:: php
 
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+        use Doctrine\ODM\PHPCR\ReferrersCollection;
 
         #[PHPCR\MixedReferrers]
-        private $allReferrers;
+        private ReferrersCollection $allReferrers;
 
         #[PHPCR\MixedReferrers(referenceType: 'hard')]
-        private $hardReferrers;
+        private ReferrersCollection $hardReferrers;
 
     .. code-block:: xml
 
@@ -524,7 +531,7 @@ contains a collection of groups::
     class User
     {
         #[PHPCR\ReferenceMany]
-        private $groups;
+        private ReferenceManyCollection $groups;
 
         public function getGroups(): ReferenceManyCollection
         {
@@ -541,6 +548,7 @@ fresh instance of the User. When your user document is still new
 This is why we recommend to initialize all collection fields to an
 empty ``ArrayCollection`` in your documents constructor::
 
+    use Doctrine\Common\Collections\Collection;
     use Doctrine\Common\Collections\ArrayCollection;
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
@@ -548,14 +556,14 @@ empty ``ArrayCollection`` in your documents constructor::
     class User
     {
         #[PHPCR\ReferenceMany]
-        private $groups;
+        private Collection $groups;
 
         public function __construct()
         {
             $this->groups = new ArrayCollection();
         }
 
-        public function getGroups()
+        public function getGroups(): Collection
         {
             return $this->groups;
         }

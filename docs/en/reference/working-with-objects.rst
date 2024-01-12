@@ -100,28 +100,35 @@ Take the following example of a single ``Article`` document fetched
 from newly opened DocumentManager::
 
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ReferrerCollection;
 
     #[PHPCR\Document]
     class Article
     {
         #[PHPCR\Id]
-        private $id;
+        private string $id;
 
         #[PHPCR\Field(type: 'string')]
-        private $headline;
+        private string $headline;
 
         #[PHPCR\ReferenceOne]
-        private $author;
+        private Author $author;
 
         #[PHPCR\Referrers(referrerDocument: Comment::class, referencedBy: 'article')]
-        private $comments;
+        private ReferrersCollection $comments;
 
         public function __construct {
             $this->comments = new ArrayCollection();
         }
 
-        public function getAuthor() { return $this->author; }
-        public function getComments() { return $this->comments; }
+        public function getAuthor(): Author
+        {
+            return $this->author;
+        }
+        public function getComments(): ReferrersCollection
+        {
+            return $this->comments;
+        }
     }
 
     $article = $em->find(null, '/cms/article/hello-world');
@@ -718,7 +725,7 @@ By default the ``DocumentManager`` returns a default implementation of
 ``Doctrine\ODM\PHPCR\DocumentRepository`` when you call
 ``DocumentManager::getRepository($documentClass)``. You can overwrite
 this behaviour by specifying the class name of your own Document
-Repository in the Annotation, XML or YAML metadata.
+Repository in the mapping (PHP Attribute, XML or YAML metadata).
 
 In applications that require lots of specialized queries, using a
 custom repository is the recommended way of grouping these queries
@@ -727,16 +734,16 @@ in a central location::
     namespace MyDomain\Model;
 
     use Doctrine\ODM\PHPCR\DocumentRepository;
+    use Doctrine\Common\Collections\Collection;
 
     #[PHPCR\Document(repositoryClass: UserRepository::class)]
     class User
     {
-
     }
 
     class UserRepository extends DocumentRepository
     {
-        public function getAllAdminUsers()
+        public function getAllAdminUsers(): Collection
         {
             $qb = $this->dm->getQueryBuilder();
             // ... build some fancy query

@@ -157,58 +157,59 @@ For easy readability, we use the attribute mapping with PHPCR namespace in this 
     namespace Demo;
 
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ChildrenCollection;
 
     #[PHPCR\Document]
     class MyDocument
     {
         #[PHPCR\Id]
-        private $id;
+        private string $id;
 
         #[PHPCR\ParentDocument]
-        private $parent;
+        private object $parent;
 
         #[PHPCR\Nodename]
-        private $name;
+        private string $name;
 
         #[PHPCR\Children]
-        private $children;
+        private ChildrenCollection $children;
 
         #[PHPCR\Field(type: 'string')]
-        private $title;
+        private string $title;
 
         #[PHPCR\Field(type: 'string')]
-        private $content;
+        private string $content;
 
-        public function getId()
+        public function getId(): string
         {
             return $this->id;
         }
-        public function getChildren()
+        public function getChildren(): ChildrenCollection
         {
             return $this->children;
         }
-        public function setParent($parent)
+        public function setParent(object $parent): void
         {
             $this->parent = $parent;
         }
-        public function setName($name)
+        public function setName(string $name): void
         {
             $this->name = $name;
         }
 
-        public function setTitle($title)
+        public function setTitle(string $title): void
         {
             $this->title = $title;
         }
-        public function getTitle()
+        public function getTitle(): string
         {
             return $this->title;
         }
-        public function setContent($content)
+        public function setContent(string $content): void
         {
             $this->content = $content;
         }
-        public function getContent()
+        public function getContent(): string
         {
             return $this->content;
         }
@@ -379,7 +380,7 @@ Lets look at an example of document ``A`` referencing ``B``::
     class A
     {
         #[PHPCR\ReferenceOne]
-        private $ref;
+        private object $ref;
 
         ...
     }

@@ -19,37 +19,30 @@ An example mapper from the `symfony cmf sandbox`_
 
     use Doctrine\ODM\PHPCR\DocumentClassMapper;
     use Doctrine\ODM\PHPCR\DocumentManager;
+    use Doctrine\ODM\PHPCR\Document\Generic;
 
     use PHPCR\NodeInterface;
     use PHPCR\PropertyType;
 
     class MagnoliaDocumentClassMapper extends DocumentClassMapper
     {
-        private $templateMap;
-
-        /**
-         * @param array $templateMap map from mgnl:template values to document class names
-         */
-        public function __construct($templateMap)
-        {
-            $this->templateMap = $templateMap;
+        public function __construct(
+            /**
+             * @var array<string, string> map from mgnl:template values to document class names
+             */
+            private array $templateMap
+        ) {
         }
 
         /**
          * Determine the class name from a given node
          *
-         * @param DocumentManager
-         * @param NodeInterface $node
-         * @param string $className
-         *
-         * @return string
-         *
          * @throws \RuntimeException if no class name could be determined
          */
-        public function getClassName(DocumentManager $dm, NodeInterface $node, $className = null)
+        public function getClassName(DocumentManager $dm, NodeInterface $node, string $className = null): string
         {
             $className = parent::getClassName($dm, $node, $className);
-            if ('Doctrine\ODM\PHPCR\Document\Generic' == $className) {
+            if (Generic::class === $className) {
                 if ($node->hasNode('MetaData')) {
                     $metaData = $node->getNode('MetaData');
                     if ($metaData->hasProperty('mgnl:template')) {
@@ -70,7 +63,7 @@ custom mapper::
     /* prepare the doctrine configuration */
     $config = new \Doctrine\ODM\PHPCR\Configuration();
     $map = array(
-        'standard-templating-kit:pages/stkSection' => 'Sandbox\MagnoliaBundle\Document\Section',
+        'standard-templating-kit:pages/stkSection' => \Sandbox\MagnoliaBundle\Document\Section::class,
     );
     $mapper = new MagnoliaDocumentClassMapper($map);
     $config->setDocumentClassMapper($mapper);
@@ -127,6 +120,8 @@ of instantiating the default one. An example from the `symfony cmf sandbox`_
 
         use Symfony\Component\DependencyInjection\Definition;
         use Symfony\Component\DependencyInjection\Reference;
+        use Sandbox\MagnoliaBundle\Document\MagnoliaDocumentClassMapper;
+        use Sandbox\MagnoliaBundle\Document\Section;
 
         $container
             ->register('doctrine.odm_configuration', '%doctrine_phpcr.odm.configuration.class%')
@@ -136,10 +131,10 @@ of instantiating the default one. An example from the `symfony cmf sandbox`_
         ;
 
         $container ->setDefinition('sandbox_amgnolia.odm_mapper', new Definition(
-            'Sandbox\MagnoliaBundle\Document\MagnoliaDocumentClassMapper',
+            MagnoliaDocumentClassMapper::class,
             array(
                 array(
-                    'standard-templating-kit:pages/stkSection' => 'Sandbox\MagnoliaBundle\Document\Section',
+                    'standard-templating-kit:pages/stkSection' => Section::class,
                 ),
             ),
         ));

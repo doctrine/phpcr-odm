@@ -32,12 +32,13 @@ This field is populated on find, and as soon as you register the document with t
     .. code-block:: php
 
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+        use PHPCR\NodeInterface;
 
         #[PHPCR\Document]
         class MyPersistentClass
         {
             #[PHPCR\Node]
-            private $node;
+            private NodeInterface $node;
         }
 
     .. code-block:: xml

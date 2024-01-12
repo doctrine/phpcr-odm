@@ -41,7 +41,7 @@ the life-time of their registered documents.
   all references to documents have been removed from the unit of work. This
   event is not a lifecycle callback;
 - loadClassMetadata - occurs after mapping metadata for a class has been loaded
-  from a mapping source (attributes/annotations/xml/yaml). This event is not a lifecycle
+  from a mapping source (attributes/xml/yaml). This event is not a lifecycle
   callback.
 - postLoadTranslation - occurs when a translation of a document has been loaded
   from the repository.
@@ -145,59 +145,59 @@ event occurs.
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\PrePersist]
-        public function doStuffOnPrePersist()
+        public function doStuffOnPrePersist(): void
         {
             $this->createdAt = date('Y-m-d H:m:s');
         }
 
         #[PHPCR\PrePersist]
-        public function doOtherStuffOnPrePersist()
+        public function doOtherStuffOnPrePersist(): void
         {
             $this->value = 'changed from prePersist callback!';
         }
 
         #[PHPCR\PostPersist]
-        public function doStuffOnPostPersist()
+        public function doStuffOnPostPersist(): void
         {
             $this->value = 'changed from postPersist callback!';
         }
 
         #[PHPCR\PostLoad]
-        public function doStuffOnPostLoad()
+        public function doStuffOnPostLoad(): void
         {
             $this->value = 'changed from postLoad callback!';
         }
 
         #[PHPCR\PreUpdate]
-        public function doStuffOnPreUpdate()
+        public function doStuffOnPreUpdate(): void
         {
             $this->value = 'changed from preUpdate callback!';
         }
 
         #[PHPCR\PreBindTranslation]
-        public function doStuffOnPreBindTranslation()
+        public function doStuffOnPreBindTranslation(): void
         {
             $this->value = 'changed from preBindTranslation callback!';
         }
 
         #[PHPCR\PostBindTranslation]
-        public function doStuffOnPostBindTranslation()
+        public function doStuffOnPostBindTranslation(): void
         {
             $this->value = 'changed from postBindTranslation callback!';
         }
 
         #[PHPCR\postLoadTranslation]
-        public function doStuffOnPostLoadTranslation()
+        public function doStuffOnPostLoadTranslation(): void
         {
             $this->value = 'changed from postLoadTranslation callback!';
         }
         #[PHPCR\PreRemoveTranslation]
-        public function doStuffOnPreRemoveTranslation()
+        public function doStuffOnPreRemoveTranslation(): void
         {
             $this->value = 'changed from preRemoveTranslation callback!';
         }
         #[PHPCR\PostRemoveTranslation]
-        public function doStuffOnPostRemoveTranslation()
+        public function doStuffOnPostRemoveTranslation(): void
         {
             $this->value = 'changed from postRemoveTranslation callback!';
         }

@@ -18,13 +18,13 @@ prefix each attribute with the namespace as demonstrated in the following exampl
     class Post
     {
         #[PHPCR\Id]
-        protected $id;
+        private string $id;
 
         #[PHPCR\ParentDocument]
-        protected $parent;
+        private object $parent;
 
         #[PHPCR\Nodename]
-        protected $title;
+        private string $title;
     }
 
 Document
@@ -184,22 +184,22 @@ Examples::
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\Field(type: 'string')]
-    protected $author;
+    private string $author;
 
     #[PHPCR\Field(type: 'string', translated: true)]
-    protected $title;
+    private string $title;
 
     #[PHPCR\Field(type: 'string', translated: true, nullable: true)]
-    protected $subTitle;
+    private ?string $subTitle;
 
     #[PHPCR\Field(type: 'boolean')]
-    protected $enabled;
+    private bool $enabled;
 
     #[PHPCR\Field(type: 'string', multivalue: true)]
-    protected $keywords; // e.g. ['dog', 'cat', 'mouse']
+    private array $keywords; // e.g. ['dog', 'cat', 'mouse']
 
     #[PHPCR\Field(type: 'double', assoc: '')]
-    protected $exchangeRates; // e.g. ['GBP' => 0.810709, 'EUR' => 1, 'USD' => 1.307460]
+    private array $exchangeRates; // e.g. ['GBP' => 0.810709, 'EUR' => 1, 'USD' => 1.307460]
 
 Hierarchy
 ---------
@@ -230,7 +230,7 @@ Optional parameters:
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
    #[PHPCR\Child(name: 'Preferences')]
-   protected $preferences;
+   private object $preferences;
 
 .. _attref_children:
 
@@ -251,10 +251,11 @@ Optional parameters:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ChildrenCollection;
 
     #[PHPCR\Children(filter: 'a*', fetchDepth: 3)]
-    private $children;
+    private ChildrenCollection $children;
 
 .. _attref_depth:
 
@@ -267,7 +268,7 @@ representing the depth of the document within the document hierarchy::
     use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\Depth]
-    private $depth;
+    private int $depth;
 
 .. _attref_parentdocument:
 
@@ -284,7 +285,7 @@ a different parent will result in a move operation::
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
    #[PHPCR\ParentDocument]
-   private $parent;
+   private object $parent;
 
 Identification
 --------------
@@ -310,7 +311,7 @@ Required parameters:
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
    #[PHPCR\Id]
-   protected $id; // e.g. /path/to/mydocument
+   private string $id; // e.g. /path/to/mydocument
 
 .. _attref_nodename:
 
@@ -324,10 +325,10 @@ the nodes ID::
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
    #[PHPCR\Id]
-   protected $id; // e.g. /path/to/mydocument
+   private string $id; // e.g. /path/to/mydocument
 
    #[PHPCR\Nodename]
-   protected $nodeName; // e.g. mydocument
+   private string $nodeName; // e.g. mydocument
 
 .. _attref_uuid:
 
@@ -342,7 +343,7 @@ this field to be reliably populated the document should be
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
    #[PHPCR\Uuid]
-   protected $uuid; // e.g. 508d6621-0c20-4972-bf0e-0278ccabe6e5
+   private string $uuid; // e.g. 508d6621-0c20-4972-bf0e-0278ccabe6e5
 
 Lifcycle callbacks
 ------------------
@@ -367,7 +368,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PostLoad]
-    public function doSomethingOnPostLoad()
+    public function doSomethingOnPostLoad(): void
     {
        // ... do something after the Document has been loaded
     }
@@ -383,7 +384,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PostPersist]
-    public function doSomethingOnPostPersist()
+    public function doSomethingOnPostPersist(): void
     {
       // ... do something after the document has been persisted
     }
@@ -399,7 +400,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PostRemove]
-    public function doSomethingOnPostRemove()
+    public function doSomethingOnPostRemove(): void
     {
       // ... do something after the document has been removed
     }
@@ -415,7 +416,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PostUpdate]
-    public function doSomethingOnPostUpdate()
+    public function doSomethingOnPostUpdate(): void
     {
       // ... do something after the document has been updated
     }
@@ -431,7 +432,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PrePersist]
-    public function doSomethingOnPrePersist()
+    public function doSomethingOnPrePersist(): void
     {
       // ... do something before the document has been persisted
     }
@@ -447,7 +448,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PreRemove]
-    public function doSomethingOnPreRemove()
+    public function doSomethingOnPreRemove(): void
     {
       // ... do something before the document has been removed
     }
@@ -463,7 +464,7 @@ event. See :ref:`lifecycle callbacks <events_lifecyclecallbacks>` for further ex
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
     #[PHPCR\PreUpdate]
-    public function doSomethingOnPreUpdate()
+    public function doSomethingOnPreUpdate(): void
     {
       // ... do something before the document has been updated
     }
@@ -495,10 +496,11 @@ Optional parameters:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ReferenceManyCollection;
 
-   #[PHPCR\ReferenceMany(targetDocument: PhoneNumber::class, strategy: 'hard')]
-   protected $phoneNumbers;
+    #[PHPCR\ReferenceMany(targetDocument: PhoneNumber::class, strategy: 'hard')]
+    private ReferenceManyCollection $phoneNumbers;
 
 .. _attref_referenceone:
 .. _attref_reference:
@@ -518,7 +520,7 @@ Optional parameters:
    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
    #[PHPCR\ReferenceOne(targetDocument: Contact::class, strategy: 'hard')]
-   protected $contact;
+   private object $contact;
 
 .. _attref_referrers:
 
@@ -541,10 +543,11 @@ Optional parameters:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ReferrersCollection;
 
-   #[PHPCR\Referrers(referringDocument: Address::class, referencedBy: 'addressbook')]
-   protected $addresses;
+    #[PHPCR\Referrers(referringDocument: Address::class, referencedBy: 'addressbook')]
+    private ReferrersCollection $addresses;
 
 #[MixedReferrers]
 ~~~~~~~~~~~~~~~~~
@@ -558,10 +561,11 @@ Optional parameters:
 
 .. code-block:: php
 
-   use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
+    use Doctrine\ODM\PHPCR\ReferrersCollection;
 
-   #[PHPCR\MixedReferrers]
-   protected $referrers;
+    #[PHPCR\MixedReferrers]
+    private ReferrersCollection $referrers;
 
 Translation
 -----------
@@ -577,10 +581,10 @@ Example::
     class MyDocument
     {
        #[PHPCR\Locale]
-       protected $locale;
+       private string $locale;
 
        #[PHPCR\Field(type: 'string', translated: true)]
-       protected $title;
+       private string $title;
     }
 
 .. _attref_locale:
@@ -607,10 +611,10 @@ Example::
     class MyPersistentClass
     {
         #[PHPCR\VersionName]
-        private $versionName;
+        private string $versionName;
 
         #[PHPCR\VersionCreated]
-        private $versionCreated;
+        private \DateTimeInterface $versionCreated;
     }
 
 .. _attref_versioncreated:
