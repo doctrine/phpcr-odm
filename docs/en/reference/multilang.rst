@@ -45,26 +45,25 @@ a date to be different depending on the language, you can simply specify the
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\Document(translator: 'attribute')]
-         */
         class MyPersistentClass
         {
             #[PHPCR\Locale]
-            private $locale;
+            private string $locale;
 
             /**
              * Untranslated property
              */
             #[PHPCR\Field(type: 'date')]
-            private $publishDate;
+            private \DateTimeInterface $publishDate;
 
             /**
              * Translated property
              */
             #[PHPCR\Field(type: 'string', translated: true)]
-            private $topic;
+            private string $topic;
 
             /**
              * Language specific image
@@ -107,7 +106,7 @@ When you manually change the Locale after loading a document, it will be saved a
 
 You can set any type of property as translatable, but should only set those that are actually language
 specific. All other properties should not have that annotation, then they are the same in all languages.
-However, you can not set any association annotations to translatable and translations will not propagate
+However, you can not map any associations to translatable fields, and translations will not propagate
 through associations (see the section "Limitations" for an explanation).
 
 Having at least one property marked as translatable will require the whole document to
@@ -264,7 +263,7 @@ Full Example
     $doc->topic = 'Un sujet intéressant';
     $dm->bindTranslation($doc, 'fr');
 
-    // locale is updated automatically if there is such an annotation
+    // locale is updated automatically if mapped
     echo $doc->locale; // fr
 
     // Flush to write the changes to the phpcr backend

@@ -37,7 +37,6 @@ Mapping Objects onto a Document Repository
 
 * **Mapping Driver References**:
   :doc:`PHP Attributes <reference/attributes-mapping>` |
-  :doc:`Docblock Annotations (deprecated) <reference/annotations-mapping>` |
   :doc:`XML <reference/xml-mapping>` |
   :doc:`YAML <reference/yml-mapping>` |
   :doc:`Metadata Drivers <reference/metadata-drivers>`

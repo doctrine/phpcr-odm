@@ -80,10 +80,10 @@ Due to implementation limitations, the Locale field is `required` on all transla
         class MyPersistentClass
         {
             #[PHPCR\VersionName]
-            private $versionName;
+            private string $versionName;
 
             #[PHPCR\VersionCreated]
-            private $versionCreated;
+            private \DateTimeInterface $versionCreated;
         }
 
     .. code-block:: xml

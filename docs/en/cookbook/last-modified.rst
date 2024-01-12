@@ -15,34 +15,22 @@ you can get timestamps on your documents by simply adding the mixins:
 
     .. code-block:: php
 
-        use Doctrine\ODM\PHPCR\Mapping\Annotations as PHPCR;
+        use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
-        /**
-         * @PHPCR\Document(
-         *   mixins={"mix:created", "mix:lastModified"}
-         * )
-         */
+        #[PHPCR\Document(mixins: ["mix:created", "mix:lastModified"])]
         class SomeDocument
         {
-            /**
-             * @PHPCR\Field(type="date", property="jcr:created")
-             */
-            private $created;
+            #[PHPCR\Field(type: 'date', property: 'jcr:created')]
+            private ?\DateTimeInterface $created;
 
-            /**
-             * @PHPCR\Field(type="string", property="jcr:createdBy")
-             */
-            private $createdBy;
+            #[PHPCR\Field(type: 'string', property: 'jcr:createdBy')]
+            private ?string $createdBy;
 
-            /**
-             * @PHPCR\Field(type="date", property="jcr:lastModified")
-             */
-            private $lastModified;
+            #[PHPCR\Field(type: 'date', property: 'jcr:lastModified')]
+            private ?\DateTimeInterface $lastModified;
 
-            /**
-             * @PHPCR\Field(type="string", property="jcr:lastModifiedBy")
-             */
-            private $lastModifiedBy;
+            #[PHPCR\Field(type: 'string', property: 'jcr:lastModifiedBy')]
+            private ?string $lastModifiedBy;
         }
 
     .. code-block:: xml
@@ -113,18 +101,12 @@ date, write an event listener as follows and register it with the EventManager::
      */
     class LastModified
     {
-        /**
-         * @param LifecycleEventArgs $e
-         */
-        public function prePersist(LifecycleEventArgs $e)
+        public function prePersist(LifecycleEventArgs $e): void
         {
             $this->updateLastModifiedProperty($e);
         }
 
-        /**
-         * @param LifecycleEventArgs $e
-         */
-        public function preUpdate(LifecycleEventArgs $e)
+        public function preUpdate(LifecycleEventArgs $e): void
         {
             $this->updateLastModifiedProperty($e);
         }
@@ -132,10 +114,8 @@ date, write an event listener as follows and register it with the EventManager::
         /**
          * If the document has the mixin mix:lastModified then update the field
          * that is mapped to jcr:lastModified.
-         *
-         * @param LifecycleEventArgs $e
          */
-        protected function updateLastModifiedProperty(LifecycleEventArgs $e)
+        private function updateLastModifiedProperty(LifecycleEventArgs $e): void
         {
             $document = $e->getObject();
 

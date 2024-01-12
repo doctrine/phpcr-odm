@@ -11,7 +11,6 @@ Doctrine provides several different ways for specifying
 object-document mapping metadata:
 
 - PHP Attributes
-- Docblock Annotations (deprecated)
 - XML
 - YAML
 
@@ -19,7 +18,7 @@ This manual usually mentions PHP attributes in all the examples
 that are spread throughout all chapters, however for many examples
 alternative YAML and XML examples are given as well. There are dedicated
 reference chapters for XML and YAML mapping, respectively that explain them
-in more detail. There is also an Attribute and an Annotation reference chapter.
+in more detail. There is also a PHP Attributes reference chapter.
 
 .. note::
 
@@ -167,10 +166,10 @@ Example:
         class MyPersistentClass
         {
             #[PHPCR\Field(type: 'long')]
-            private $count;
+            private int $count;
 
             #[PHPCR\Field(type: 'string')]
-            private $name; // type defaults to string
+            private string $name; // type defaults to string
             //...
         }
 
@@ -211,7 +210,7 @@ parameter of the Column attribute follows:
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\Field(property: 'db_name'"')]
-        private $myField;
+        private string $myField;
 
     .. code-block:: xml
 
@@ -246,7 +245,7 @@ Unless specified as true, properties are considered single value.
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\Field(type: 'string', multivalue: true)]
-        private $names;
+        private array $names;
 
     .. code-block:: xml
 
@@ -279,10 +278,10 @@ the list keys.
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\Field(type: 'string', assoc: '')]
-        private $names;
+        private array $names;
 
         #[PHPCR\Field(type: 'string', assoc: 'listArraykeys')]
-        private $list;
+        private array $list;
 
     .. code-block:: xml
 
@@ -398,10 +397,10 @@ the assigned id if either is missing.
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\ParentDocument]
-        private $parent;
+        private object $parent;
 
         #[PHPCR\Nodename]
-        private $nodename;
+        private string $nodename;
 
     .. code-block:: xml
 
@@ -443,7 +442,7 @@ representing any PHPCR-ODM document, though.)
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\Id]
-        private $id;
+        private string $id;
 
     .. code-block:: xml
 
@@ -482,7 +481,7 @@ This gives you full control how you want to build the id path.
         use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
 
         #[PHPCR\Id(strategy: 'repository')]
-        private $id;
+        private string $id;
 
     .. code-block:: xml
 
@@ -511,10 +510,10 @@ The document code could look like this::
     class Document
     {
         #[PHPCR\Id(strategy: 'repository')]
-        private $id;
+        private string $id;
 
         #[PHPCR\Field(type: 'string')]
-        private $title;
+        private string $title;
         //...
     }
 
