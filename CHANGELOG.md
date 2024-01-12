@@ -12,6 +12,10 @@ Changelog
 * Removed deprecated methods HierarchyInterface::getParent/setParent.
   Use getParentDocument/setParentDocument instead.
 
+* ``DocumentManager::find`` requires to specify the class name. To find any
+  document without restricting the class name, use the new 
+  ``DocumentManager::findDocument`` method.
+
 * DocumentManager::flush no longer saves the PHPCR session if there are no changes
   on the ODM layer.
 

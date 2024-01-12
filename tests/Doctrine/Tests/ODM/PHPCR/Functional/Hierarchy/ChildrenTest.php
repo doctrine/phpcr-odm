@@ -175,7 +175,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
 
         $this->assertCount(1, $referrer->reference->allChildren);
         $this->assertEquals('childrenTestObj', $referrer->reference->allChildren->first()->name);
@@ -243,7 +243,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     public function testInsertExistingNamedChild(): void
     {
-        $parent = $this->dm->find(null, '/functional/parent');
+        $parent = $this->dm->findDocument('/functional/parent');
 
         $child = new ChildrenParentAndNameTestObj();
         $child->name = 'explicit';
@@ -255,7 +255,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/explicit', $child->id);
 
         $this->dm->clear();
-        $parent = $this->dm->find(null, '/functional/parent');
+        $parent = $this->dm->findDocument('/functional/parent');
         $this->assertCount(1, $parent->allChildren);
     }
 
@@ -277,7 +277,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->assertEquals('/functional/parent/new/explicit', $child->id);
 
         $this->dm->clear();
-        $parent = $this->dm->find(null, '/functional/parent/new');
+        $parent = $this->dm->findDocument('/functional/parent/new');
         $this->assertCount(1, $parent->allChildren);
     }
 
@@ -310,14 +310,14 @@ class ChildrenTest extends PHPCRFunctionalTestCase
      */
     public function testInsertExistingAutoname(): void
     {
-        $parent = $this->dm->find(null, '/functional/parent');
+        $parent = $this->dm->findDocument('/functional/parent');
         $this->assertInstanceOf(ChildrenTestObj::class, $parent);
         $parent->allChildren->add(new ChildrenAutonameTestObj());
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/parent');
+        $parent = $this->dm->findDocument('/functional/parent');
         $this->assertCount(1, $parent->allChildren);
     }
 
@@ -335,7 +335,7 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/parent/new');
+        $parent = $this->dm->findDocument('/functional/parent/new');
         $this->assertInstanceOf(ChildrenTestObj::class, $parent);
         $this->assertCount(1, $parent->allChildren);
     }
@@ -659,9 +659,9 @@ class ChildrenTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $child = $this->dm->find(null, '/functional/elsewhere');
+        $child = $this->dm->findDocument('/functional/elsewhere');
         $this->assertInstanceOf($this->type, $child);
-        $parent = $this->dm->find(null, '/functional/parent');
+        $parent = $this->dm->findDocument('/functional/parent');
         $this->assertInstanceOf($this->type, $parent);
         $this->assertCount(3, $parent->allChildren);
     }

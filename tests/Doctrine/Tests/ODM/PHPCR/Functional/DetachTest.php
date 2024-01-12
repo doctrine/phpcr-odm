@@ -112,7 +112,7 @@ class DetachTest extends PHPCRFunctionalTestCase
 
     public function testDetachWithChildren(): void
     {
-        $parent = $this->dm->find(null, '/functional');
+        $parent = $this->dm->findDocument('/functional');
 
         $this->dm->detach($parent);
     }

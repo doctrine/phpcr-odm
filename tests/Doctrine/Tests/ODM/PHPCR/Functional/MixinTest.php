@@ -50,7 +50,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $mixin = $this->dm->find(null, '/functional/mixin');
+        $mixin = $this->dm->findDocument('/functional/mixin');
         $this->assertNotEquals($lastModified, $mixin->lastModified);
         $lastModified = $mixin->node->getPropertyValue('jcr:lastModified');
         $this->assertNotNull($lastModified);
@@ -70,7 +70,7 @@ class MixinTest extends PHPCRFunctionalTestCase
 
         $created = $this->node->getNode('protected')->getProperty('jcr:created')->getDate();
 
-        $test = $this->dm->find(null, '/functional/protected');
+        $test = $this->dm->findDocument('/functional/protected');
         $test->changeMe = 'changed';
 
         $this->dm->flush();
@@ -89,7 +89,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $test = $this->dm->find(null, '/functional/protected');
+        $test = $this->dm->findDocument('/functional/protected');
         $test->changeMe = 'changed';
         $test->created = new \DateTime();
 
@@ -107,7 +107,7 @@ class MixinTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $test = $this->dm->find(null, '/functional/protected');
+        $test = $this->dm->findDocument('/functional/protected');
         $test->changeMe = 'changed';
         $test->created = null;
 

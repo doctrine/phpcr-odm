@@ -71,7 +71,7 @@ class EventObjectUpdateTest extends PHPCRFunctionalTestCase
 
         $this->dm->clear();
 
-        $entity = $this->dm->find(null, $entity->id);
+        $entity = $this->dm->findDocument($entity->id);
 
         $this->assertInstanceOf('stdClass', $entity->status);
         $this->assertObjectHasProperty('value', $entity->status);

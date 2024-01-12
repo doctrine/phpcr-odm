@@ -124,7 +124,7 @@ have a translator strategy and a Locale field.
 Interacting with translations
 -----------------------------
 
-When reading, ``DocumentManager::find()`` uses the default locale (see below how to set that). This means
+When reading, the ``DocumentManager::find*`` methods use the default locale (see below how to set that). This means
 your reading code does not need to be aware of content translations happening.
 
 If you need to access a document with an explicit locale that might be different from the default locale,
@@ -271,7 +271,7 @@ Full Example
 
     // Get the document in default language
     // (English if you bootstrapped as in the example)
-    $doc = $dm->find(null, '/my_test_node');
+    $doc = $dm->findDocument('/my_test_node');
 
     // Get the document in French
     $doc = $dm->findTranslation(null, '/my_test_node', 'fr');

@@ -258,7 +258,7 @@ We write a simple PHP script to generate some sample data::
     require_once '../bootstrap.php';
 
     // get the root node to add our data to it
-    $rootDocument = $documentManager->find(null, '/');
+    $rootDocument = $documentManager->findDocument('/');
 
     // create a new document
     $doc = new \Demo\Document();
@@ -297,14 +297,14 @@ This script will simply echo the data to the console::
 
     require_once '../bootstrap.php';
 
-    $doc = $documentManager->find(null, '/doc');
+    $doc = $documentManager->findDocument('/doc');
 
     echo 'Found '.$doc->getId() ."\n";
     echo 'Title: '.$doc->getTitle()."\n";
     echo 'Content: '.$doc->getContent()."\n";
 
 The DocumentManager will automatically determine the document class when
-you pass ``null`` as first argument to ``find()``.
+you call ``findDocument()`` instead of ``find()``.
 
 Tree traversal
 --------------
@@ -319,7 +319,7 @@ we can traverse them::
 
     use Demo\MyDocument;
 
-    $doc = $documentManager->find(null, '/doc');
+    $doc = $documentManager->findDocument('/doc');
 
     foreach($doc->getChildren() as $child) {
         if ($child instanceof MyDocument) {
@@ -394,7 +394,7 @@ Lets look at an example of document ``A`` referencing ``B``::
 
 We can now create a reference with the following code::
 
-    $parent = $dm->find(null, '/');
+    $parent = $dm->findDocument('/');
     $a = new A();
     $a->setParent($parent);
     $a->setNodename('a');
@@ -408,7 +408,7 @@ We can now create a reference with the following code::
     $dm->flush();
     $dm->clear();
 
-    $b = $dm->find(null, '/b');
+    $b = $dm->findDocument('/b');
 
     // output Demo\A
     var_dump(get_class($b->getReferrers()));
@@ -429,7 +429,7 @@ To delete a document, call the ``remove`` method on the ``DocumentManager``::
     require_once '../bootstrap.php';
 
     // remove a document
-    $doc = $documentManager->find(null, '/doc');
+    $doc = $documentManager->findDocument('/doc');
     $documentManager->remove($doc);
 
     // persist all operations
@@ -448,7 +448,7 @@ by assignment. The latter is for example handy with Symfony forms::
     require_once '../bootstrap.php';
 
     // we move a node
-    $child = $documentManager->find(null, '/doc/child');
+    $child = $documentManager->findDocument('/doc/child');
     $documentManager->move($child, '/newpath');
 
     // persist all operations

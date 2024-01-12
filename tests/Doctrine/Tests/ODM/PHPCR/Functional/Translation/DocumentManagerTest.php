@@ -165,7 +165,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->assertEquals(['fr'], $this->dm->getLocalesFor($this->doc));
 
         $this->dm->clear();
-        $this->doc = $this->dm->find(null, $this->doc->id);
+        $this->doc = $this->dm->findDocument($this->doc->id);
 
         $this->assertEquals(['fr'], $this->dm->getLocalesFor($this->doc));
 
@@ -433,7 +433,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $this->dm->getLocaleChooserStrategy()->setLocale('it');
-        $doc = $this->dm->find(null, '/functional/fallback-nullable');
+        $doc = $this->dm->findDocument('/functional/fallback-nullable');
 
         $this->assertNotNull($doc);
         $this->assertEquals('fr', $doc->locale);
@@ -498,7 +498,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $doc = $this->dm->find(null, $path);
+        $doc = $this->dm->findDocument($path);
         $this->assertInstanceOf(Comment::class, $doc);
         $this->assertNull($doc->getText());
     }
@@ -517,7 +517,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
         $this->dm->clear();
 
-        $doc = $this->dm->find(null, $this->node->getPath().'/find');
+        $doc = $this->dm->findDocument($this->node->getPath().'/find');
         $this->assertInstanceOf(Article::class, $doc);
 
         $this->assertEquals('en', $doc->locale);
@@ -537,7 +537,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->getPhpcrSession()->save();
         $this->dm->clear();
 
-        $doc = $this->dm->find(null, $this->node->getPath().'/find');
+        $doc = $this->dm->findDocument($this->node->getPath().'/find');
         $this->assertInstanceOf(Article::class, $doc);
 
         $this->assertEquals('en', $doc->locale);
@@ -834,7 +834,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $a = $this->dm->find(null, '/functional/'.$this->testNodeName);
+        $a = $this->dm->findDocument('/functional/'.$this->testNodeName);
         $a->topic = 'Hallo';
 
         // this would kill the $a->text and set it back to the english text
@@ -857,7 +857,7 @@ class DocumentManagerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $a = $this->dm->find(null, '/functional/'.$this->testNodeName);
+        $a = $this->dm->findDocument('/functional/'.$this->testNodeName);
         $this->assertEquals($assoc, $a->assoc);
     }
 

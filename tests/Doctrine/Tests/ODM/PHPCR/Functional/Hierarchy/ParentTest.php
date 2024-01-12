@@ -210,7 +210,7 @@ class ParentTest extends PHPCRFunctionalTestCase
 
     public function testChildOfRoot(): void
     {
-        $root = $this->dm->find(null, '/');
+        $root = $this->dm->findDocument('/');
         $child = new NameDoc();
         $child->parent = $root;
         $child->nodename = 'childOfRoot';
@@ -233,7 +233,7 @@ class ParentTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find(null, '/functional/referrer');
+        $referrer = $this->dm->findDocument('/functional/referrer');
         $this->assertInstanceOf(Generic::class, $referrer->ref->parent);
     }
 

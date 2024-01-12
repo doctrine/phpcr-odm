@@ -54,7 +54,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->assertCount(1, $reference->referrers);
         $this->assertEquals('/functional/referrerTestObj', $reference->referrers->first()->id);
@@ -75,10 +75,10 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $tmpReferrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $tmpReferrer = $this->dm->findDocument('/functional/referrerTestObj');
         $tmpReferrer->name = 'new referrer name';
 
-        $tmpReference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $tmpReference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         // persist referenced document again
         $this->dm->persist($tmpReference);
@@ -86,7 +86,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->assertEquals('new referrer name', $reference->referrers->first()->name);
     }
@@ -100,7 +100,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $document = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $document = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->assertCount(0, $document->referrers);
     }
@@ -125,7 +125,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
         $this->assertInstanceOf(ReferrerRefTestObj::class, $reference);
 
         $this->assertCount($max, $reference->referrers);
@@ -159,7 +159,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
         $this->dm->flush();
 
         $this->assertFalse($reference->referrers->isInitialized());
@@ -180,13 +180,13 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
         $reference->referrers->first()->name = 'referrer changed';
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
         $this->assertEquals('referrer changed', $referrer->name);
     }
 
@@ -208,7 +208,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $i = 0;
         $names = [];
@@ -224,7 +224,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $tmpNames = [];
         for ($i = 0; $i < $max; ++$i) {
-            $tmpNames[] = $this->dm->find(null, "/functional/referrerTestObj$i")->name;
+            $tmpNames[] = $this->dm->findDocument("/functional/referrerTestObj$i")->name;
         }
 
         foreach ($names as $name) {
@@ -250,7 +250,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $i = 0;
         $names = [];
@@ -270,7 +270,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $tmpNames = [];
         for ($i = 0; $i < $max; ++$i) {
-            $tmpNames[] = $this->dm->find(null, "/functional/referrerTestObj$i")->name;
+            $tmpNames[] = $this->dm->findDocument("/functional/referrerTestObj$i")->name;
         }
 
         foreach ($names as $name) {
@@ -293,20 +293,20 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->assertCount(1, $reference->referrers);
         $this->assertEquals('/functional/referrerTestObj', $reference->referrers->first()->id);
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
         $this->dm->remove($referrer);
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertNull($this->dm->find(null, '/functional/referrerTestObj'));
+        $this->assertNull($this->dm->findDocument('/functional/referrerTestObj'));
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->assertCount(0, $reference->referrers);
         $this->assertFalse($reference->referrers->first());
@@ -333,14 +333,14 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         $delete = 2;
-        $delRef = $this->dm->find(null, "/functional/referrerTestObj$delete");
+        $delRef = $this->dm->findDocument("/functional/referrerTestObj$delete");
         $this->dm->remove($delRef);
         unset($ids[$delete]);
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->assertCount($max - 1, $reference->referrers);
 
@@ -372,20 +372,20 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush(); // breaks during flush. dm not properly cleaned up?
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
         $reference->referrers[0]->name = 'referenced changed';
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
         $referrer->reference = null;
 
         $this->dm->remove($reference);
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
         $this->assertNull($reference);
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
         $this->assertEquals('referenced changed', $referrer->name);
     }
 
@@ -410,7 +410,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefManyTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefManyTestObj');
 
         $names = [];
         $i = 0;
@@ -423,7 +423,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->assertEquals($max, $i);
 
         for ($i = 0; $i < $max; ++$i) {
-            $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
+            $referrer = $this->dm->findDocument("/functional/referrerTestObj$i");
             $referrer->reference = null;
         }
 
@@ -433,7 +433,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
 
         $refNames = [];
         for ($i = 0; $i < $max; ++$i) {
-            $referrer = $this->dm->find(null, "/functional/referrerTestObj$i");
+            $referrer = $this->dm->findDocument("/functional/referrerTestObj$i");
             $refNames[] = $referrer->name;
         }
         $this->assertEquals($max, $i);
@@ -458,14 +458,14 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $reference = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $reference = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $this->dm->remove($reference->referrers[0]);
 
         $this->dm->flush();
         $this->dm->clear();
 
-        $this->assertCount(0, $this->dm->find(null, '/functional/referrerRefTestObj')->referrers);
+        $this->assertCount(0, $this->dm->findDocument('/functional/referrerRefTestObj')->referrers);
         $this->assertFalse($this->session->getNode('/functional')->hasNode('referrerTestObj'));
     }
 
@@ -501,15 +501,15 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $weakReferrerRefTestObj = $this->dm->find(null, '/functional/weakReferrerRefTestObj');
+        $weakReferrerRefTestObj = $this->dm->findDocument('/functional/weakReferrerRefTestObj');
         $this->assertCount(1, $weakReferrerRefTestObj->referrers);
         $this->assertEquals('weakReferrerTestObj', $weakReferrerRefTestObj->referrers[0]->name);
 
-        $hardReferrerRefTestObj = $this->dm->find(null, '/functional/hardReferrerRefTestObj');
+        $hardReferrerRefTestObj = $this->dm->findDocument('/functional/hardReferrerRefTestObj');
         $this->assertCount(1, $hardReferrerRefTestObj->referrers);
         $this->assertEquals('hardReferrerTestObj', $hardReferrerRefTestObj->referrers[0]->name);
 
-        $allReferrerRefTestObj = $this->dm->find(null, '/functional/allReferrerRefTestObj');
+        $allReferrerRefTestObj = $this->dm->findDocument('/functional/allReferrerRefTestObj');
         $this->assertCount(2, $allReferrerRefTestObj->referrers);
 
         $tmpNames = [];
@@ -546,7 +546,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referenced = $this->dm->find(null, '/functional/allReferrerRefNamedPropTestObj');
+        $referenced = $this->dm->findDocument('/functional/allReferrerRefNamedPropTestObj');
 
         $this->assertCount(1, $referenced->referrers);
         $this->assertEquals('referrerNamedPropTestObj', $referenced->referrers[0]->name);
@@ -560,7 +560,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referenced = $this->dm->find(null, '/functional/allReferrerRefNamedPropTestObj');
+        $referenced = $this->dm->findDocument('/functional/allReferrerRefNamedPropTestObj');
 
         // the other ref is a different class and should get filtered out
         $this->assertCount(1, $referenced->referrers);
@@ -593,8 +593,8 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
-        $referenced = $this->dm->find(null, '/functional/referrerRefTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
+        $referenced = $this->dm->findDocument('/functional/referrerRefTestObj');
 
         $referrer->name = 'changed';
         $this->assertEquals('changed', $referrer->name);
@@ -621,7 +621,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referenced = $this->dm->find(null, '/functional/referrerRefManyTestObj');
+        $referenced = $this->dm->findDocument('/functional/referrerRefManyTestObj');
         $this->assertCount($max, $referenced->referrers);
         $referenced->referrers->remove(0);
         $referenced->referrers->remove(3);
@@ -630,7 +630,7 @@ class ReferrerTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referenced = $this->dm->find(null, '/functional/referrerRefManyTestObj');
+        $referenced = $this->dm->findDocument('/functional/referrerRefManyTestObj');
         $this->assertCount($max - 2, $referenced->referrers);
     }
 }

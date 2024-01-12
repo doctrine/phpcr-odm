@@ -34,7 +34,7 @@ class DocumentManagerTest extends PHPCRTestCase
 
         $dm = DocumentManager::create($session, $config);
 
-        $nonExistent = $dm->find(null, $fakeUuid);
+        $nonExistent = $dm->findDocument($fakeUuid);
 
         $this->assertNull($nonExistent);
     }

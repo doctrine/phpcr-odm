@@ -70,7 +70,7 @@ class FindTypeValidationTest extends PHPCRFunctionalTestCase
 
     public function testFindAutoclass(): void
     {
-        $user = $this->dm->find(null, '/functional/user');
+        $user = $this->dm->findDocument('/functional/user');
 
         $this->assertInstanceOf($this->type, $user);
     }

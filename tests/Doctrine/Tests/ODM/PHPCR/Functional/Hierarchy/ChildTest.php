@@ -93,7 +93,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $doc = $this->dm->find(null, '/functional/childtest');
+        $doc = $this->dm->findDocument('/functional/childtest');
         $this->assertInstanceOf($this->type, $doc);
         $this->assertInstanceOf(Proxy::class, $doc->child);
     }
@@ -154,7 +154,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/childtest');
+        $parent = $this->dm->findDocument('/functional/childtest');
         $this->assertInstanceOf($this->type, $parent);
         $this->assertInstanceOf($this->childType, $parent->child);
 
@@ -162,7 +162,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/childtest');
+        $parent = $this->dm->findDocument('/functional/childtest');
         $this->assertInstanceOf($this->type, $parent);
         $this->assertNull($parent->child);
     }
@@ -433,7 +433,7 @@ class ChildTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referrer = $this->dm->find(null, '/functional/referrerTestObj');
+        $referrer = $this->dm->findDocument('/functional/referrerTestObj');
 
         $this->assertEquals('childTestObj', $referrer->reference->aChild->name);
     }

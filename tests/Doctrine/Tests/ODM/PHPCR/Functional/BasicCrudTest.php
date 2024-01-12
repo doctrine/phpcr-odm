@@ -89,14 +89,14 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $user->setProperty('phpcr:class', $this->type, PropertyType::STRING);
         $this->dm->getPhpcrSession()->save();
 
-        $userWithAlias = $this->dm->find(null, '/functional/userWithAlias');
+        $userWithAlias = $this->dm->findDocument('/functional/userWithAlias');
 
         $this->assertEquals('dbu', $userWithAlias->username);
     }
 
     public function testFindById(): void
     {
-        $user = $this->dm->find(null, '/functional/bogus');
+        $user = $this->dm->findDocument('/functional/bogus');
         $this->assertNull($user);
 
         $newUser = new User();
@@ -107,7 +107,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $foundUser = $this->dm->find(null, '/functional/test');
+        $foundUser = $this->dm->findDocument('/functional/test');
         $this->assertNotNull($foundUser);
         $this->assertEquals($newUser->username, $foundUser->username);
     }
@@ -116,7 +116,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
     {
         $generator = $this->dm->getConfiguration()->getUuidGenerator();
 
-        $user = $this->dm->find(null, $generator());
+        $user = $this->dm->findDocument($generator());
         $this->assertNull($user);
 
         $newUser = new UserWithUuid();
@@ -127,7 +127,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $foundUser = $this->dm->find(null, $newUser->uuid);
+        $foundUser = $this->dm->findDocument($newUser->uuid);
         $this->assertNotNull($foundUser);
         $this->assertEquals('test', $foundUser->username);
         $this->assertEquals('/functional/test', $foundUser->id);
@@ -162,7 +162,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $flushedUser = $this->dm->find(null, '/functional/test');
+        $flushedUser = $this->dm->findDocument('/functional/test');
 
         $this->assertEquals($uuidPostPersist, $flushedUser->uuid);
     }
@@ -185,7 +185,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $flushedUser = $this->dm->find(null, '/functional/test');
+        $flushedUser = $this->dm->findDocument('/functional/test');
 
         $this->assertEquals($testUuid, $flushedUser->uuid);
     }
@@ -459,7 +459,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
 
     public function testNoIdProperty(): void
     {
-        $functional = $this->dm->find(null, '/functional');
+        $functional = $this->dm->findDocument('/functional');
 
         $user = new User5();
         $user->username = 'test';
@@ -485,7 +485,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
 
     public function testAutoId(): void
     {
-        $functional = $this->dm->find(null, '/functional');
+        $functional = $this->dm->findDocument('/functional');
 
         $user = new User6();
         $user->username = 'test';
@@ -512,7 +512,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, '/functional/test');
+        $user = $this->dm->findDocument('/functional/test');
 
         $this->assertNotNull($user);
         $this->assertEquals($user->parameters, $assocArray);
@@ -523,7 +523,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, '/functional/test');
+        $user = $this->dm->findDocument('/functional/test');
 
         $this->assertNotNull($user);
         $this->assertEquals($user->parameters, $assocArray);
@@ -538,7 +538,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, '/functional/test');
+        $user = $this->dm->findDocument('/functional/test');
 
         $this->assertNotNull($user);
         $this->assertEquals($user->parameters, $assocArray);
@@ -556,7 +556,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, '/functional/test');
+        $user = $this->dm->findDocument('/functional/test');
 
         $this->assertNotNull($user);
         $this->assertEquals($user->assocNumbers, $assocArray);
@@ -573,7 +573,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $userNew = $this->dm->find(null, '/functional/test');
+        $userNew = $this->dm->findDocument('/functional/test');
         $this->assertNotNull($userNew, 'Have to hydrate user object!');
         $this->assertEquals($user->username, $userNew->username);
         $this->assertEquals($user->numbers, $userNew->numbers);
@@ -587,7 +587,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $object = $this->dm->find(null, '/functional/test');
+        $object = $this->dm->findDocument('/functional/test');
         $this->assertEquals(2, $object->depth);
 
         NodeHelper::createPath($this->dm->getPhpcrSession(), '/functional/newtest/foobar');
@@ -602,7 +602,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
      */
     public function testIllegalNodename(): void
     {
-        $functional = $this->dm->find(null, '/functional');
+        $functional = $this->dm->findDocument('/functional');
 
         $user = new User5();
         $user->username = 'test';
@@ -620,7 +620,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
      */
     public function testIllegalNodenameMove(): void
     {
-        $functional = $this->dm->find(null, '/functional');
+        $functional = $this->dm->findDocument('/functional');
 
         $user = new User5();
         $user->username = 'test';
@@ -642,7 +642,7 @@ class BasicCrudTest extends PHPCRFunctionalTestCase
         $user->getProperty('username')->remove();
         $this->dm->getPhpcrSession()->save();
 
-        $userDoc = $this->dm->find(null, $user->getPath());
+        $userDoc = $this->dm->findDocument($user->getPath());
 
         $this->assertInstanceOf($this->type, $userDoc);
         $this->assertNull($userDoc->username);

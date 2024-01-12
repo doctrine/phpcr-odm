@@ -84,7 +84,7 @@ class RefreshTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $child = $this->dm->find(null, '/functional/parent/child');
+        $child = $this->dm->findDocument('/functional/parent/child');
         $this->assertInstanceOf(Proxy::class, $child->parent);
         $this->assertInstanceOf(ParentTestObj::class, $child->parent);
         $child->parent->name = 'x';

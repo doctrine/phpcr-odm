@@ -94,7 +94,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
     public function testMoveParentNoNodeName(): void
     {
-        $root = $this->dm->find(null, 'functional');
+        $root = $this->dm->findDocument('functional');
 
         $parent1 = new ParentTestObj();
         $parent1->nodename = 'root1';
@@ -130,7 +130,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
     public function testMoveChildThroughNodeNameChangeWithPreUpdateListener(): void
     {
         // preparing
-        $functional = $this->dm->find(null, 'functional');
+        $functional = $this->dm->findDocument('functional');
         $root = new ParentWithChildrenTestObj();
         $root->nodename = 'root';
         $root->name = 'root';
@@ -156,9 +156,9 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/root/parent');
+        $parent = $this->dm->findDocument('/functional/root/parent');
         $parent->children->toArray(); // force container init
-        $child2 = $this->dm->find(null, '/functional/root/parent/child2');
+        $child2 = $this->dm->findDocument('/functional/root/parent/child2');
 
         // testing
         $this->dm->getEventManager()->addEventSubscriber(new class() implements EventSubscriber {
@@ -176,7 +176,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
         $this->dm->flush();
 
-        $movedChild = $this->dm->find(null, '/functional/root/parent/moved-child2');
+        $movedChild = $this->dm->findDocument('/functional/root/parent/moved-child2');
         $this->assertInstanceOf(ParentTestObj::class, $movedChild);
     }
 
@@ -188,7 +188,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
     public function testComputeChangeSetForTranslatableDocument(): void
     {
-        $root = $this->dm->find(null, 'functional');
+        $root = $this->dm->findDocument('functional');
         $c1 = new Comment();
         $c1->name = 'c1';
         $c1->parent = $root;
@@ -218,7 +218,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $parent = new ParentTestObj();
         $parent->nodename = 'parent';
         $parent->name = 'parent';
-        $parent->parent = $this->dm->find(null, 'functional');
+        $parent->parent = $this->dm->findDocument('functional');
 
         $child = new ParentTestObj();
         $child->nodename = 'child';
@@ -348,7 +348,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $postFolder = $this->dm->find(null, '/functional/posts');
+        $postFolder = $this->dm->findDocument('/functional/posts');
 
         $post = new CmsBlogInvalidChild();
         $post->name = 'wolrd';

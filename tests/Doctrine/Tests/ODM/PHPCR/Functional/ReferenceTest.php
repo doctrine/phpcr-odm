@@ -424,18 +424,18 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(1, $refManyTestObj->references);
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         unset($refManyTestObj->references[0]);
         $this->assertCount(0, $refManyTestObj->references);
         $this->assertNotNull($refManyTestObj->references);
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertNotNull($refManyTestObj->references);
         $this->assertCount(0, $refManyTestObj->references);
     }
@@ -461,18 +461,18 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(2, $refManyTestObj->references);
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         unset($refManyTestObj->references[0]);
         $this->assertNotNull($refManyTestObj->references);
         $this->assertCount(1, $refManyTestObj->references);
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(1, $refManyTestObj->references);
         unset($refManyTestObj->references[0]);
         $this->assertNotNull($refManyTestObj->references);
@@ -480,7 +480,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertNotNull($refManyTestObj->references);
         $this->assertCount(0, $refManyTestObj->references);
     }
@@ -506,18 +506,18 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(2, $refManyTestObj->references);
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         unset($refManyTestObj->references[0], $refManyTestObj->references[1]);
 
         $this->assertCount(0, $refManyTestObj->references);
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(0, $refManyTestObj->references);
     }
 
@@ -539,21 +539,21 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(0, $refManyTestObj->references);
         $refManyTestObj->references[] = $refRefTestObjA;
         $this->assertCount(1, $refManyTestObj->references);
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(1, $refManyTestObj->references);
         $refManyTestObj->references[] = $refRefTestObjB;
         $this->assertCount(2, $refManyTestObj->references);
         $this->dm->flush();
         $this->dm->clear();
 
-        $refManyTestObj = $this->dm->find(null, '/functional/refTestObj');
+        $refManyTestObj = $this->dm->findDocument('/functional/refTestObj');
         $this->assertCount(2, $refManyTestObj->references);
     }
 
@@ -1337,7 +1337,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referred = $this->dm->find(null, '/functional/referenceTestObj');
+        $referred = $this->dm->findDocument('/functional/referenceTestObj');
         $this->assertCount($max, $referred->reference);
         $referred->reference->remove(0);
         $referred->reference->remove(3);
@@ -1346,7 +1346,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $referred = $this->dm->find(null, '/functional/referenceTestObj');
+        $referred = $this->dm->findDocument('/functional/referenceTestObj');
         $this->assertCount($max - 2, $referred->reference);
     }
 }

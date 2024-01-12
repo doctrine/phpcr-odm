@@ -180,26 +180,41 @@ class DocumentManager implements DocumentManagerInterface
      *
      * Will return null if the document was not found. A document is considered
      * not found if the data at $id is not instance of of the specified
-     * $className. To get the document regardless of its class, pass null.
+     * $className.
+     *
+     * To get a document regardless of its class, use the ``findDocument`` method.
      *
      * If the document is translatable, then the language chooser strategy is
      * used to load the best suited language for the translatable fields.
      *
-     * @param string|null $className optional object class name to use
-     * @param string      $id        the path or uuid of the document to find
+     * @param string $id the path or uuid of the document to find
      *
      * @return object|null the document if found, otherwise null
      */
-    public function find($className, $id): ?object
+    public function find(string $className, mixed $id): ?object
+    {
+        if (!is_string($id)) {
+            throw new \InvalidArgumentException('PHPCR-ODM ids must be of type string (either uuid or path), you passed '.gettype($id));
+        }
+
+        return $this->doFind($className, $id);
+    }
+
+    public function findDocument(string $id): ?object
+    {
+        return $this->doFind(null, $id);
+    }
+
+    private function doFind(?string $className, mixed $id): ?object
     {
         try {
             if (UUIDHelper::isUUID($id)) {
                 try {
                     $id = $this->session->getNodeByIdentifier($id)->getPath();
-                } catch (ItemNotFoundException $e) {
+                } catch (ItemNotFoundException) {
                     return null;
                 }
-            } elseif (0 !== strpos($id, '/')) {
+            } elseif (!str_starts_with($id, '/')) {
                 $id = '/'.$id;
             }
 
@@ -209,7 +224,7 @@ class DocumentManager implements DocumentManagerInterface
                     $this->unitOfWork->validateClassName($document, $className);
 
                     return $document;
-                } catch (ClassMismatchException $e) {
+                } catch (ClassMismatchException) {
                     return null;
                 }
             }
@@ -222,7 +237,7 @@ class DocumentManager implements DocumentManagerInterface
 
         try {
             return $this->unitOfWork->getOrCreateDocument($className, $node, $hints);
-        } catch (ClassMismatchException $e) {
+        } catch (ClassMismatchException) {
             return null;
         }
     }

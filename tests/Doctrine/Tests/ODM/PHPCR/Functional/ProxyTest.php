@@ -75,8 +75,8 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, $user->id);
-        $assistant = $this->dm->find(null, $user->id.'/assistant');
+        $user = $this->dm->findDocument($user->id);
+        $assistant = $this->dm->findDocument($user->id.'/assistant');
 
         $this->assertSame($assistant, $user->child);
     }
@@ -97,7 +97,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, $parentId);
+        $parent = $this->dm->findDocument($parentId);
         $doc = $parent->children->current();
         $this->assertInstanceOf(Proxy::class, $doc);
         $this->assertInstanceOf(DocWithoutId::class, $doc);
@@ -122,7 +122,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, $parentId);
+        $parent = $this->dm->findDocument($parentId);
         $child = $parent->children->current();
         $this->assertFalse($child->__isInitialized__);
         $this->assertEquals('child', $child->title);
@@ -145,7 +145,7 @@ class ProxyTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, $parentId);
+        $parent = $this->dm->findDocument($parentId);
         $child = $parent->children->current();
         $this->assertFalse($child->__isInitialized__);
         $this->assertEquals('foo', $child->nodename);

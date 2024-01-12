@@ -2822,7 +2822,7 @@ class UnitOfWork
         $oid = \spl_object_hash($documentVersion);
         $history = $this->documentHistory[$oid];
         $version = $this->documentVersion[$oid];
-        $document = $this->dm->find(null, $history->getVersionableIdentifier());
+        $document = $this->dm->findDocument($history->getVersionableIdentifier());
         $vm = $this->session->getWorkspace()->getVersionManager();
 
         $vm->restore($removeExisting, $version);

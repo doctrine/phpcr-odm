@@ -572,7 +572,7 @@ empty ``ArrayCollection`` in your documents constructor::
 Now the following code will be working even if the Document hasn't
 been associated with a DocumentManager yet::
 
-    $group = $documentManager->find(null, $groupId);
+    $group = $documentManager->findDocument($groupId);
     $user = new User();
     $user->getGroups()->add($group);
 

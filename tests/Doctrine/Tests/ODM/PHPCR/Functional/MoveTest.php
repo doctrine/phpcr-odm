@@ -223,20 +223,20 @@ class MoveTest extends PHPCRFunctionalTestCase
     {
         $user2 = new CmsTeamUser();
         $user2->username = 'dbu';
-        $user2->parent = $this->dm->find(null, '/functional/lsmith');
+        $user2->parent = $this->dm->findDocument('/functional/lsmith');
         $this->dm->persist($user2);
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, '/functional/lsmith/dbu');
+        $user = $this->dm->findDocument('/functional/lsmith/dbu');
         $this->assertInstanceOf(CmsTeamUser::class, $user);
-        $root = $this->dm->find(null, '/');
+        $root = $this->dm->findDocument('/');
         $user->setParentDocument($root);
         $this->dm->persist($user);
         $this->dm->flush();
         $this->dm->clear();
 
-        $user = $this->dm->find(null, '/dbu');
+        $user = $this->dm->findDocument('/dbu');
         $this->assertInstanceOf(CmsTeamUser::class, $user);
     }
 }

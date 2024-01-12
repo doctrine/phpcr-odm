@@ -302,7 +302,7 @@ class FlushTest extends PHPCRFunctionalTestCase
         $this->assertCount(4, $group->getUsers());
         $this->dm->clear();
 
-        $group = $this->dm->find(null, '/functional/group');
+        $group = $this->dm->findDocument('/functional/group');
         $group->getUsers()->first();
         $this->assertCount(2, $group->getUsers());
         $this->assertInstanceOf(NodeInterface::class, $group->getUsers()->first()->node);

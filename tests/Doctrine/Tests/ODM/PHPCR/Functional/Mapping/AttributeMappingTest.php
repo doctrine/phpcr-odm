@@ -160,22 +160,22 @@ class AttributeMappingTest extends PHPCRFunctionalTestCase
     {
         $doc = new ParentIdStrategy();
         $doc->name = 'parent-strategy';
-        $doc->parent = $this->dm->find(null, '/functional');
+        $doc->parent = $this->dm->findDocument('/functional');
         $this->dm->persist($doc);
         $this->dm->flush();
         $this->dm->clear();
-        $this->assertInstanceOf(ParentIdStrategy::class, $this->dm->find(null, '/functional/parent-strategy'));
+        $this->assertInstanceOf(ParentIdStrategy::class, $this->dm->findDocument('/functional/parent-strategy'));
     }
 
     public function testPersistAutoNameId(): void
     {
         $doc = new AutoNameIdStrategy();
-        $doc->parent = $this->dm->find(null, '/functional');
+        $doc->parent = $this->dm->findDocument('/functional');
         $this->dm->persist($doc);
         $this->dm->flush();
         $id = $this->dm->getUnitOfWork()->getDocumentId($doc);
         $this->dm->clear();
-        $this->assertInstanceOf(AutoNameIdStrategy::class, $this->dm->find(null, $id));
+        $this->assertInstanceOf(AutoNameIdStrategy::class, $this->dm->findDocument($id));
     }
 
     public function testPersistRepository(): void
@@ -186,7 +186,7 @@ class AttributeMappingTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $id = $this->dm->getUnitOfWork()->getDocumentId($doc);
         $this->dm->clear();
-        $this->assertInstanceOf(RepositoryIdStrategy::class, $this->dm->find(null, $id));
+        $this->assertInstanceOf(RepositoryIdStrategy::class, $this->dm->findDocument($id));
     }
 
     // TODO comprehensive test for all possible mapped fields in an abstract test, trying to persist and check if properly set

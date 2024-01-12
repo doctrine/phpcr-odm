@@ -421,7 +421,7 @@ the assigned id if either is missing.
 To create a new document, you do something like this::
 
     $doc = new Document();
-    $doc->setParent($dm->find(null, '/test'));
+    $doc->setParent($dm->findDocument('/test'));
     $doc->setNodename('mynode');
     // document is persisted with id /test/mynode
 

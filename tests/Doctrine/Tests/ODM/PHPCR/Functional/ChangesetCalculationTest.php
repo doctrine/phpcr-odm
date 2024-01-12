@@ -59,8 +59,8 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->assertEquals(0, $this->listener->count);
         $this->dm->clear();
 
-        $user1 = $this->dm->find(null, $user1->id);
-        $this->dm->find(null, $user2->id);
+        $user1 = $this->dm->findDocument($user1->id);
+        $this->dm->findDocument($user2->id);
 
         $user1->status = 'changed';
         $this->dm->flush();
@@ -97,8 +97,8 @@ class ChangesetCalculationTest extends PHPCRFunctionalTestCase
         $this->assertEquals(0, $this->listener->count);
         $this->dm->clear();
 
-        $user1 = $this->dm->find(null, $user1->id);
-        $this->dm->find(null, $user2->id);
+        $user1 = $this->dm->findDocument($user1->id);
+        $this->dm->findDocument($user2->id);
 
         $user1->status = 'changed';
         $this->dm->flush();

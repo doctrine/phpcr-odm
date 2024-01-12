@@ -30,7 +30,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
             $this->markTestSkipped('PHPCR repository doesn\'t support orderable child nodes');
         }
         $node = $this->resetFunctionalNode($this->dm);
-        $parent = $this->dm->find(null, $node->getPath());
+        $parent = $this->dm->findDocument($node->getPath());
 
         $node1 = new Generic();
         $node1->setParentDocument($parent);
@@ -56,7 +56,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
 
     public function testReorder(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
 
         $children = $parent->getChildren();
 
@@ -66,13 +66,13 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->assertSame(['second', 'first', 'third', 'fourth'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderMultiple(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
 
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
@@ -81,13 +81,13 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->assertSame(['second', 'first', 'fourth', 'third'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderNoop(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
@@ -98,7 +98,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
 
     public function testReorderBeforeFirst(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
@@ -106,13 +106,13 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->assertSame(['second', 'first', 'third', 'fourth'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderAfterLast(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
@@ -120,13 +120,13 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
         $this->dm->clear();
 
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->assertSame(['second', 'third', 'fourth', 'first'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderUpdatesChildren(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $children = $parent->getChildren();
         $this->assertSame($this->childrenNames, $this->getChildrenNames($children));
 
@@ -134,46 +134,46 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $this->dm->clear();
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->assertSame(['second', 'first', 'third', 'fourth'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderBeforeMove(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->move($parent, '/functional/target/new');
         $this->dm->flush();
 
-        $parent = $this->dm->find(null, '/functional/target/new');
+        $parent = $this->dm->findDocument('/functional/target/new');
         $this->assertSame(['second', 'first', 'third', 'fourth'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testReorderAfterMove(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->dm->move($parent, '/functional/target/new');
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->flush();
 
-        $parent = $this->dm->find(null, '/functional/target/new');
+        $parent = $this->dm->findDocument('/functional/target/new');
         $this->assertSame(['second', 'first', 'third', 'fourth'], $this->getChildrenNames($parent->getChildren()));
     }
 
     public function testRemoveAfterReorder(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->remove($parent);
         $this->dm->flush();
 
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->assertNull($parent);
     }
 
     public function testReorderAfterRemove(): void
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $this->dm->remove($parent);
         $this->expectException(InvalidArgumentException::class);
         $this->dm->reorder($parent, 'first', 'second', false);
@@ -181,7 +181,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
 
     public function testReorderParentProxy(): void
     {
-        $first = $this->dm->find(null, '/functional/source/first');
+        $first = $this->dm->findDocument('/functional/source/first');
         $parent = $first->getParentDocument();
         $this->dm->reorder($parent, 'first', 'second', false);
         $this->dm->flush();
@@ -190,7 +190,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
 
     public function testNumericNodes()
     {
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
 
         // The ChildrenCollection calls getKeys when taking a snapshot, and that can convert numeric string
         // node names into integer node names
@@ -206,7 +206,7 @@ class ReorderTest extends PHPCRFunctionalTestCase
         $this->dm->clear();
 
         // Force the numeric children to load and take a snapshot.
-        $parent = $this->dm->find(null, '/functional/source');
+        $parent = $this->dm->findDocument('/functional/source');
         $parent->getChildren()->initialize();
         $parent->getChildren()->takeSnapshot();
 

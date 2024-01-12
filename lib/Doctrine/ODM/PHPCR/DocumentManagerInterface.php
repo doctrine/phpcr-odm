@@ -110,6 +110,18 @@ interface DocumentManagerInterface extends ObjectManager
     public function isOpen(): bool;
 
     /**
+     * Finds an object by its identifier.
+     *
+     * This is an alternative to ``find`` that does not require you to specify the class name.
+     * If the PHPCR node at $id does not have the PHPCR-ODM metadata, this method returns null.
+     *
+     * Apart from the class name, it has the same semantics as `find`.
+     *
+     * @param string $id the identity of the object to find
+     */
+    public function findDocument(string $id): ?object;
+
+    /**
      * Finds many documents by id.
      *
      * @param string|null $className Only return documents that match the

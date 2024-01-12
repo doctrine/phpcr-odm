@@ -126,8 +126,8 @@ class EventManagerTest extends PHPCRFunctionalTestCase
         $this->assertIsString($itemId);
         $this->dm->clear();
 
-        $page = $this->dm->find(null, $pageId);
-        $item = $this->dm->find(null, $itemId);
+        $page = $this->dm->findDocument($pageId);
+        $item = $this->dm->findDocument($itemId);
         $this->assertEquals('long story is now short story', $page->content);
 
         $this->dm->remove($item);

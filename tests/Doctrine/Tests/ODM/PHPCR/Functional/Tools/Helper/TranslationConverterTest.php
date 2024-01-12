@@ -86,13 +86,13 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         );
         $this->assertFalse($comment->hasProperty($field), 'old property was not removed');
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceOf($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
 
         $this->dm->clear();
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceOf($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
     }
@@ -128,14 +128,14 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         );
         $this->assertFalse($comment->hasProperty($field), 'old property was not removed');
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to translated', $article->nullable);
         $this->assertEquals('Lorem ipsum...', $article->getText());
 
         $this->dm->clear();
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to translated', $article->nullable);
         $this->assertEquals('Lorem ipsum...', $article->getText());
@@ -172,14 +172,14 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         );
         $this->assertFalse($comment->hasProperty($field), 'old property was not removed');
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to translated', $article->nullable);
         $this->assertNull($article->getText()); // we lost this because we did not specify to only convert $field
 
         $this->dm->clear();
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to translated', $article->nullable);
         $this->assertNull($article->getText());
@@ -204,13 +204,13 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
         $this->assertTrue($comment->getNode('phpcr_locale:en')->hasProperty($field), 'new property was not created');
         $this->assertFalse($comment->hasProperty($field), 'old property was not removed');
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
 
         $this->dm->clear();
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
     }
@@ -242,13 +242,13 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             'old property was not removed'
         );
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
 
         $this->dm->clear();
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->getText());
     }
@@ -280,13 +280,13 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             'old property was not removed'
         );
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->title);
 
         $this->dm->clear();
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->title);
     }
@@ -331,14 +331,14 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             'old property was not removed'
         );
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to untranslated', $article->author);
         $this->assertEquals('Lorem ipsum...', $article->getText());
 
         $this->dm->clear();
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to untranslated', $article->author);
         $this->assertEquals('Lorem ipsum...', $article->getText());
@@ -368,13 +368,13 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             'old property was not removed'
         );
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->title);
 
         $this->dm->clear();
 
-        $commentDoc = $this->dm->find(null, '/functional/convert');
+        $commentDoc = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $commentDoc);
         $this->assertEquals('Lorem ipsum...', $commentDoc->title);
     }
@@ -418,14 +418,14 @@ class TranslationConverterTest extends PHPCRFunctionalTestCase
             'old property was not removed'
         );
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to untranslated', $article->author);
         $this->assertEquals('Lorem ipsum...', $article->getText());
 
         $this->dm->clear();
 
-        $article = $this->dm->find(null, '/functional/convert');
+        $article = $this->dm->findDocument('/functional/convert');
         $this->assertInstanceof($class, $article);
         $this->assertEquals('Move to untranslated', $article->author);
         $this->assertEquals('Lorem ipsum...', $article->getText());

@@ -37,20 +37,22 @@ Every document has an identifier, which is its PHPCR path. The path is unique
 inside the workspace. Take the following example, where you find an article
 with the headline "Hello World" with the ID ``/cms/article/hello-world``::
 
-    $article = $documentManager->find(null, '/cms/article/hello-world');
+    $article = $documentManager->findDocument('/cms/article/hello-world');
     $article->setHeadline('Hello World dude!');
 
-    $article2 = $documentManager->find(null, '/cms/article/hello-world');
+    $article2 = $documentManager->findDocument('/cms/article/hello-world');
     echo $article2->getHeadline(); // Hello World dude!
 
 .. note::
 
-    The first argument to ``find()`` is the document class name. While the ORM
-    has a table per class and thus always needs the document class name,
-    PHPCR-ODM has one tree for all documents. The above call will find you
-    whatever document is at that path. Note that you may optionally specify
-    the class name to have PHPCR-ODM detect if the document is not of the
-    expected type.
+    The first argument to ``find()`` is the document class name. Since PHPCR-ODM
+    2.0, the class name is required. But while the ORM has a table per class and
+    thus always needs the document class name, PHPCR-ODM uses one tree for all
+    documents. ``findDocument()`` finds you whatever document is at the specified
+    path. If you want to only get the document if it is of your expected type,
+    e.g. for type safety, use the ``find()`` method with its class name argument.
+    When using ``find``, PHPCR-ODM will return null if the path exists but the
+    document is not of the requested class.
 
 In this case, the article is retrieved from the document manager twice,
 but modified in between. Doctrine 2 realizes that it is the same ID and will
@@ -131,7 +133,7 @@ from newly opened DocumentManager::
         }
     }
 
-    $article = $em->find(null, '/cms/article/hello-world');
+    $article = $em->findDocument('/cms/article/hello-world');
 
 This code retrieves an ``Article`` instance with ID
 ``/cms/article/hello-world``, executing a single ``getNode()`` operation
@@ -154,7 +156,7 @@ access these proxies for the first time they will go through the
 This lazy-loading process happens behind the scenes, hidden from
 your code. Have a look at the following example::
 
-    $article = $em->find(null, '/cms/article/hello-world');
+    $article = $em->findDocument('/cms/article/hello-world');
 
     // accessing a method of the user instance triggers the lazy-load
     echo "Author: " . $article->getAuthor()->getName() . "\n";
@@ -612,23 +614,26 @@ By Primary Key
 
 The most basic way to query for a persisted document is by its
 identifier (PHPCR path) using the
-``DocumentManager::find(null, $id)`` method. Here is an
+``DocumentManager::find($className, $id)`` method. Here is an
 example::
 
     /** @var $em DocumentManager */
     $user = $em->find(User::class, $id);
 
 The return value is either the found document instance or null if no
-instance could be found with the given identifier.
+instance of the specified class can be found with the given identifier.
+
+If you do not want to specify the class, you can use the ``findDocument($id)``
+method instead.
 
 If you need several documents and know their paths, you can have a considerable
 performance gain by using ``DocumentManager::findMany(null, $ids)`` as then
 all those documents are loaded from the repository in one request.
 
 You can also specify the class name instead of null to filter to only find
-instances of that class. If you go through the repository for a document class
-this is equivalent to calling find on the ``DocumentManager`` with that document
-class.
+instances of that class. If you call ``find`` on the repository of a document
+class, this is equivalent to calling ``find`` on the ``DocumentManager`` with
+that document class.
 
 
 By Simple Conditions

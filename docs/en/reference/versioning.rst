@@ -144,7 +144,7 @@ See the Phpdoc for full details on those methods.
 
 **Reading**:
 
-- ``DocumentManager::find()`` works as normal, always gives you the current latest version.
+- ``DocumentManager::find*`` methods work as normal, always giving you the current latest version.
 - ``DocumentManager::getAllLinearVersions($document)``  returns an array with all version names for this document,
   ordered from most recent to oldest version. You can specify an optional limit to only get that many most recent versions.
 - ``DocumentManager::findVersionByName($id, $versionName)`` get a detached read-only document for a specific version.
@@ -184,7 +184,7 @@ Full Example
     echo $oldVersion->topic; // "Test"
 
     // find the head version
-    $article = $dm->find('/test');
+    $article = $dm->findDocument('/test');
     echo $article->topic; // "Newvalue"
 
     // restore the head to the old version
