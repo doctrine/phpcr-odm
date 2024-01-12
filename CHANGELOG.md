@@ -17,6 +17,16 @@ Changelog
 
 * Removed annotation mappings. Use attributes (or XML or YAML) instead.
 
+* `ChildrenCollection::slice` no longer accepts a node name as offset. If you
+  want a slice starting from a node name, use `ChildrenCollection::sliceByChildName`
+  instead.
+
+* Removed `DocumentManager::merge()`
+
+* Removed support for short namespace aliases. ``ClassMetadataFactory::getFqcnFromAlias`` and the namespace registering
+  on `Configuration` are removed. `ClassMetadataFactory` methods now require their `$className` argument to be an
+  actual FQCN.
+
 ### New Features
 
 * `DocumentManager::getDocumentId()` to get the id of a managed document
@@ -25,7 +35,7 @@ Changelog
 
 * Allow using `doctrine/persistence`
 
-* Added support for Symfony 7. Dropped support for PHP < 8.0 and Symfony < 5.4.
+* Added support for Symfony 7. Dropped support for PHP < 8.1 and Symfony < 5.4.
 
 1.x
 ===

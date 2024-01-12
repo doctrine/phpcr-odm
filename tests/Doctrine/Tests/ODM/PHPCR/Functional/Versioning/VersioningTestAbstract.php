@@ -5,7 +5,6 @@ namespace Doctrine\Tests\ODM\PHPCR\Functional\Versioning;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\Attributes as PHPCR;
-use Doctrine\Tests\Models\Versioning\FullVersionableArticle;
 use Doctrine\Tests\Models\Versioning\FullVersionableArticleWithChildren;
 use Doctrine\Tests\Models\Versioning\NonVersionableArticle;
 use Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase;
@@ -84,24 +83,6 @@ abstract class VersioningTestAbstract extends PHPCRFunctionalTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The document at path \'/functional/referenceTestObj\' is not versionable');
         $this->dm->checkin($contentNode);
-    }
-
-    public function testMergeVersionable(): void
-    {
-        $versionableArticle = new FullVersionableArticle();
-        $versionableArticle->setText('very interesting content');
-        $versionableArticle->author = 'greg0ire';
-        $versionableArticle->topic = 'whatever';
-        $versionableArticle->id = '/functional/whatever';
-        $versionableArticle->versionName = 'v1';
-
-        $this->dm->persist($versionableArticle);
-        $this->dm->flush();
-        $this->dm->clear();
-        $versionableArticle->versionName = 'v2';
-
-        $mergedVersionableArticle = $this->dm->merge($versionableArticle);
-        $this->assertEquals('v2', $mergedVersionableArticle->versionName);
     }
 
     public function testCheckin(): void

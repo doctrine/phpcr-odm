@@ -481,37 +481,6 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      *
-     * Merge the state of the detached object into the persistence context of
-     * this ObjectManager and returns the managed copy of the object.
-     *
-     * This will copy all fields of $document over the fields of the managed
-     * document and then cascade the merge to relations as configured.
-     *
-     * The object passed to merge will *not* become associated/managed with
-     * this ObjectManager.
-     *
-     * @param object $document the document to merge over a persisted document
-     *                         with the same id
-     *
-     * @return object The managed document where $document has been merged
-     *                into. This is *not* the same instance as the parameter.
-     *
-     * @throws InvalidArgumentException if $document is not an object
-     */
-    public function merge($document): object
-    {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
-        $this->errorIfClosed();
-
-        return $this->unitOfWork->merge($document);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
      * Detaches an object from the ObjectManager
      *
      * If there are any not yet flushed changes on this object (including
@@ -552,7 +521,7 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->refresh($document);
     }
 
-    public function getChildren(object $document, $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
+    public function getChildren(object $document, array|string $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
     {
         $this->errorIfClosed();
 
@@ -578,7 +547,7 @@ class DocumentManager implements DocumentManagerInterface
      * @throws InvalidArgumentException if $document is neither null nor a
      *                                  document or an array of documents
      */
-    public function flush($document = null): void
+    public function flush(object|array $document = null): void
     {
         if (null !== $document && !is_object($document) && !is_array($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -588,7 +557,7 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->commit($document);
     }
 
-    public function getReference(string $documentName, $id)
+    public function getReference(string $documentName, object|string $id): mixed
     {
         return $this->unitOfWork->getOrCreateProxy($id, $documentName);
     }

@@ -25,7 +25,6 @@ class Configuration
         'metadataDriverImpl' => null,
         'metadataCacheImpl' => null,
         'documentClassMapper' => null,
-        'documentNamespaces' => [],
         'proxyNamespace' => 'MyPHPCRProxyNS',
         'autoGenerateProxyClasses' => true,
     ];
@@ -60,38 +59,6 @@ class Configuration
     public function getWriteDoctrineMetadata(): bool
     {
         return $this->attributes['writeDoctrineMetadata'];
-    }
-
-    /**
-     * Adds a namespace with the specified alias.
-     */
-    public function addDocumentNamespace(string $alias, string $namespace): void
-    {
-        $this->attributes['documentNamespaces'][$alias] = $namespace;
-    }
-
-    /**
-     * Resolves a registered namespace alias to the full namespace.
-     *
-     * @throws PHPCRException
-     */
-    public function getDocumentNamespace(string $documentNamespaceAlias): string
-    {
-        if (!array_key_exists($documentNamespaceAlias, $this->attributes['documentNamespaces'])) {
-            throw PHPCRException::unknownDocumentNamespace($documentNamespaceAlias);
-        }
-
-        return trim($this->attributes['documentNamespaces'][$documentNamespaceAlias], '\\');
-    }
-
-    /**
-     * Set the document alias map.
-     *
-     * @param array<string, string> $documentNamespaces
-     */
-    public function setDocumentNamespaces(array $documentNamespaces): void
-    {
-        $this->attributes['documentNamespaces'] = $documentNamespaces;
     }
 
     /**
