@@ -88,6 +88,11 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         return $this->wrapped->isOpen();
     }
 
+    public function find(?string $className, $id): ?object
+    {
+        return $this->wrapped->find($className, $id);
+    }
+
     public function findMany(?string $className, array $ids): Collection
     {
         return $this->wrapped->findMany($className, $ids);

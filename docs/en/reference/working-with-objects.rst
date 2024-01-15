@@ -49,11 +49,12 @@ with the headline "Hello World" with the ID ``/cms/article/hello-world``::
     has a table per class and thus always needs the document class name,
     PHPCR-ODM has one tree for all documents. The above call will find you
     whatever document is at that path. Note that you may optionally specify
-    the class name to have PHPCR-ODM detect if the document is not of the
-    expected type.
+    the class name to have PHPCR-ODM check if the document is not of the
+    expected type. On a class mismatch, PHPCR-ODM treats the lookup as a not
+    found and returns ``null``.
 
 In this case, the article is retrieved from the document manager twice,
-but modified in between. Doctrine 2 realizes that it is the same ID and will
+but modified in between. Doctrine realizes that it is the same ID and will
 only ever give you access to one instance of the Article with ID
 ``/cms/article/hello-world``, no matter how often do you retrieve it from
 the ``DocumentManager`` and even no matter what kind of Query method you are
@@ -619,16 +620,16 @@ example::
     $user = $em->find(User::class, $id);
 
 The return value is either the found document instance or null if no
-instance could be found with the given identifier.
+instance of the specified class can be found with the given identifier.
 
 If you need several documents and know their paths, you can have a considerable
 performance gain by using ``DocumentManager::findMany(null, $ids)`` as then
 all those documents are loaded from the repository in one request.
 
 You can also specify the class name instead of null to filter to only find
-instances of that class. If you go through the repository for a document class
-this is equivalent to calling find on the ``DocumentManager`` with that document
-class.
+instances of that class. If you call ``find`` on the repository of a document
+class, this is equivalent to calling ``find`` on the ``DocumentManager`` with
+that document class.
 
 
 By Simple Conditions
