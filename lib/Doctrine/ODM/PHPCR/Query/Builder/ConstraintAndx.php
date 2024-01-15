@@ -14,12 +14,12 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintAndx extends ConstraintFactory
 {
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }
 
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_CONSTRAINT => [1, null],

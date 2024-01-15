@@ -4,13 +4,13 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class SourceJoinConditionSameDocument extends AbstractLeafNode
 {
-    protected $alias1Name;
+    private string $alias1Name;
 
-    protected $alias2Name;
+    private string $alias2Name;
 
-    protected $alias2Path;
+    private string $alias2Path;
 
-    public function __construct($parent, $alias1Name, $alias2Name, $alias2Path)
+    public function __construct(AbstractNode $parent, string $alias1Name, string $alias2Name, string $alias2Path)
     {
         $this->alias1Name = $alias1Name;
         $this->alias2Name = $alias2Name;
@@ -18,22 +18,22 @@ class SourceJoinConditionSameDocument extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getAlias1Name()
+    public function getAlias1Name(): string
     {
         return $this->alias1Name;
     }
 
-    public function getAlias2Name()
+    public function getAlias2Name(): string
     {
         return $this->alias2Name;
     }
 
-    public function getAlias2Path()
+    public function getAlias2Path(): string
     {
         return $this->alias2Path;
     }

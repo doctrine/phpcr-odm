@@ -56,9 +56,9 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * @var TranslationStrategyInterface[]
      */
-    protected array $translationStrategy;
+    private array $translationStrategy;
 
-    protected LocaleChooserInterface $localeChooserStrategy;
+    private LocaleChooserInterface $localeChooserStrategy;
     private ValueConverter $valueConverter;
 
     public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
@@ -182,7 +182,7 @@ class DocumentManager implements DocumentManagerInterface
                 } catch (ItemNotFoundException $e) {
                     return null;
                 }
-            } elseif (0 !== strpos($id, '/')) {
+            } elseif (!str_starts_with($id, '/')) {
                 $id = '/'.$id;
             }
 
@@ -220,7 +220,7 @@ class DocumentManager implements DocumentManagerInterface
         foreach ($ids as $key => $id) {
             if (UUIDHelper::isUUID($id)) {
                 $uuids[$id] = $key;
-            } elseif (0 !== strpos($id, '/')) {
+            } elseif (!str_starts_with($id, '/')) {
                 $ids[$key] = '/'.$id;
             }
         }
@@ -257,7 +257,7 @@ class DocumentManager implements DocumentManagerInterface
                 } catch (ItemNotFoundException $e) {
                     return null;
                 }
-            } elseif (0 !== strpos($id, '/')) {
+            } elseif (!str_starts_with($id, '/')) {
                 $id = '/'.$id;
             }
 
@@ -424,7 +424,7 @@ class DocumentManager implements DocumentManagerInterface
 
     public function move(object $document, string $targetPath): void
     {
-        if (0 !== strpos($targetPath, '/')) {
+        if (!str_starts_with($targetPath, '/')) {
             $targetPath = '/'.$targetPath;
         }
 

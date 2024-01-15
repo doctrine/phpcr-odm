@@ -12,12 +12,12 @@ use Doctrine\ODM\PHPCR\Exception\RuntimeException;
  */
 abstract class AbstractLeafNode extends AbstractNode
 {
-    public function getNext()
+    public function getNext(): ?AbstractNode
     {
         return $this->getParent();
     }
 
-    public function getChildren()
+    public function getChildren(): array
     {
         throw new RuntimeException(sprintf(
             'Cannot call getChildren on leaf node "%s"',
@@ -25,7 +25,7 @@ abstract class AbstractLeafNode extends AbstractNode
         ));
     }
 
-    public function addChild(AbstractNode $node)
+    public function addChild(AbstractNode $node): static
     {
         throw new RuntimeException(sprintf(
             'Cannot call addChild to leaf node "%s"',
@@ -33,7 +33,7 @@ abstract class AbstractLeafNode extends AbstractNode
         ));
     }
 
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         // no children , no cardinality map...
         return [];
@@ -47,15 +47,13 @@ abstract class AbstractLeafNode extends AbstractNode
      *
      * e.g. my_alias.first_name
      *
-     * @param string $field
-     *
-     * @return array
+     * @return string[] with exactly 2 elements
      */
-    protected function explodeField($field)
+    protected function explodeField(string $field): array
     {
         $parts = explode('.', $field);
 
-        if (2 == count($parts)) {
+        if (2 === count($parts)) {
             return $parts;
         }
 

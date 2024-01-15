@@ -6,13 +6,13 @@ use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 
 class SourceDocument extends AbstractLeafNode
 {
-    protected $documentFqn;
+    private string $documentFqn;
 
-    protected $alias;
+    private string $alias;
 
-    public function __construct(AbstractNode $parent, $documentFqn, $alias)
+    public function __construct(AbstractNode $parent, string $documentFqn, string $alias)
     {
-        if (!is_string($alias) || empty($alias)) {
+        if ('' === $alias) {
             throw new InvalidArgumentException(sprintf(
                 'The alias for %s must be a non-empty string.',
                 $documentFqn
@@ -24,17 +24,17 @@ class SourceDocument extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getDocumentFqn()
+    public function getDocumentFqn(): string
     {
         return $this->documentFqn;
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE;
     }

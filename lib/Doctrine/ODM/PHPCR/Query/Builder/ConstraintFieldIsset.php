@@ -17,9 +17,8 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintFieldIsset extends AbstractLeafNode
 {
-    protected $field;
-
-    protected $alias;
+    private string $field;
+    private string $alias;
 
     public function __construct(AbstractNode $parent, $field)
     {
@@ -29,17 +28,17 @@ class ConstraintFieldIsset extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }
 
-    public function getField()
+    public function getField(): string
     {
         return $this->field;
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }

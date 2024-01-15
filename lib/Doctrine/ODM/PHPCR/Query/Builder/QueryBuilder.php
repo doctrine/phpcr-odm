@@ -30,32 +30,24 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  */
 class QueryBuilder extends AbstractNode
 {
-    protected $converter;
-
-    protected $firstResult;
-
-    protected $maxResults;
-
-    protected $locale;
-
-    protected $primaryAlias;
+    private ?ConverterInterface $converter = null;
+    private int $firstResult = 0;
+    private ?int $maxResults = null;
+    private ?string $locale = null;
+    private ?string $primaryAlias;
 
     /**
-     * @return string the locale for this query
+     * @return string|null the locale for this query or null if not set
      */
-    public function getLocale()
+    public function getLocale(): ?string
     {
         return $this->locale;
     }
 
     /**
      * Set the locale to use in this query.
-     *
-     * @param string $locale
-     *
-     * @return $this
      */
-    public function setLocale($locale)
+    public function setLocale(?string $locale): self
     {
         $this->locale = $locale;
 
@@ -67,28 +59,22 @@ class QueryBuilder extends AbstractNode
      *
      * This is an NT_BUILDER
      */
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_BUILDER;
     }
 
-    /**
-     * @return Query
-     */
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->getConverter()->getQuery($this);
     }
 
-    public function setConverter(ConverterInterface $converter)
+    public function setConverter(ConverterInterface $converter): void
     {
         $this->converter = $converter;
     }
 
-    /**
-     * @return ConverterInterface
-     */
-    protected function getConverter()
+    protected function getConverter(): ConverterInterface
     {
         if (!$this->converter) {
             throw new RuntimeException('No query converter has been set on Builder node.');
@@ -97,7 +83,7 @@ class QueryBuilder extends AbstractNode
         return $this->converter;
     }
 
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_SELECT => [0, null],    // 1..*
@@ -119,10 +105,8 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod Where
-     *
-     * @return Where
      */
-    public function where($void = null)
+    public function where($void = null): Where
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -133,10 +117,8 @@ class QueryBuilder extends AbstractNode
      * Add additional selection criteria using the AND operator.
      *
      * @factoryMethod WhereAnd
-     *
-     * @return WhereAnd
      */
-    public function andWhere($void = null)
+    public function andWhere($void = null): WhereAnd
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -147,10 +129,8 @@ class QueryBuilder extends AbstractNode
      * Add additional selection criteria using the OR operator.
      *
      * @factoryMethod WhereOr
-     *
-     * @return WhereOr
      */
-    public function orWhere($void = null)
+    public function orWhere($void = null): WhereOr
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -172,13 +152,11 @@ class QueryBuilder extends AbstractNode
      * ->end();
      * </code>
      *
-     * @param string $primaryAlias - Alias to use as primary source (optional for single sources)
+     * @param string|null $primaryAlias - Alias to use as primary source (optional for single sources)
      *
      * @factoryMethod From
-     *
-     * @return From
      */
-    public function from($primaryAlias = null)
+    public function from(string $primaryAlias = null): From
     {
         $this->primaryAlias = $primaryAlias;
 
@@ -206,10 +184,8 @@ class QueryBuilder extends AbstractNode
      * @param string $primaryAlias - Alias for document source and primary alias when using multiple sources
      *
      * @factoryMethod From
-     *
-     * @return QueryBuilder
      */
-    public function fromDocument($documentFqn, $primaryAlias)
+    public function fromDocument(string $documentFqn, string $primaryAlias): QueryBuilder
     {
         $this->primaryAlias = $primaryAlias;
 
@@ -225,7 +201,7 @@ class QueryBuilder extends AbstractNode
      * factory methods should have no arguments (thus it is easier to determine
      * which nodes are leaf nodes).
      */
-    private function addJoin($joinType)
+    private function addJoin(string $joinType): SourceJoin
     {
         $from = $this->getChildOfType(QBConstants::NT_FROM);
         $curSource = $from->getChild();
@@ -256,10 +232,8 @@ class QueryBuilder extends AbstractNode
      * will behave as an inner join.
      *
      * @factoryMethod Select
-     *
-     * @return SourceJoin
      */
-    public function addJoinLeftOuter($void = null)
+    public function addJoinLeftOuter($void = null): SourceJoin
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -285,10 +259,8 @@ class QueryBuilder extends AbstractNode
      * will behave as an inner join.
      *
      * @factoryMethod Select
-     *
-     * @return SourceJoin
      */
-    public function addJoinRightOuter($void = null)
+    public function addJoinRightOuter($void = null): SourceJoin
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -314,10 +286,8 @@ class QueryBuilder extends AbstractNode
      * will behave as an inner join.
      *
      * @factoryMethod Select
-     *
-     * @return SourceJoin
      */
-    public function addJoinInner($void = null)
+    public function addJoinInner($void = null): SourceJoin
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -339,10 +309,8 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod Select
-     *
-     * @return Select
      */
-    public function select($void = null)
+    public function select($void = null): Select
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -364,10 +332,8 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod SelectAdd
-     *
-     * @return SelectAdd
      */
-    public function addSelect($void = null)
+    public function addSelect($void = null): SelectAdd
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -387,10 +353,8 @@ class QueryBuilder extends AbstractNode
      * </code>
      *
      * @factoryMethod OrderBy
-     *
-     * @return OrderBy
      */
-    public function orderBy($void = null)
+    public function orderBy($void = null): OrderBy
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -401,10 +365,8 @@ class QueryBuilder extends AbstractNode
      * Add additional orderings to the builder tree.
      *
      * @factoryMethod OrderByAdd
-     *
-     * @return OrderByAdd
      */
-    public function addOrderBy($void = null)
+    public function addOrderBy($void = null): OrderByAdd
     {
         $this->ensureNoArguments(__METHOD__, $void);
 
@@ -413,55 +375,45 @@ class QueryBuilder extends AbstractNode
 
     /**
      * Return the offset of the first result in the resultset.
-     *
-     * @return int
      */
-    public function getFirstResult()
+    public function getFirstResult(): int
     {
         return $this->firstResult;
     }
 
     /**
      * Set the offset of the first result in the resultset.
-     *
-     * @param int $firstResult
      */
-    public function setFirstResult($firstResult)
+    public function setFirstResult(int $firstResult): void
     {
         $this->firstResult = $firstResult;
     }
 
     /**
      * Return the maximum number of results to be imposed on the generated query.
-     *
-     * @return int
      */
-    public function getMaxResults()
+    public function getMaxResults(): ?int
     {
         return $this->maxResults;
     }
 
     /**
      * Set the maximum number of results to be returned by the generated query.
-     *
-     * @param int $maxResults
      */
-    public function setMaxResults($maxResults)
+    public function setMaxResults(?int $maxResults): void
     {
         $this->maxResults = $maxResults;
     }
 
     /**
      * Creates an SQL2 representation of the PHPCR query built by this builder.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->getQuery()->getStatement();
+        return $this->getQuery()->getStatement();
     }
 
-    public function getPrimaryAlias()
+    public function getPrimaryAlias(): ?string
     {
         return $this->primaryAlias;
     }

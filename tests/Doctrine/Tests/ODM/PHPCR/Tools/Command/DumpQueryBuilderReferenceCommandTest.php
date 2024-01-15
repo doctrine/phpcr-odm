@@ -8,15 +8,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class DumpQueryBuilderReferenceCommandTest extends TestCase
 {
-    /**
-     * @var DumpQueryBuilderReferenceCommand
-     */
-    private $command;
-
-    /**
-     * @var CommandTester
-     */
-    private $commandTester;
+    private DumpQueryBuilderReferenceCommand $command;
+    private CommandTester $commandTester;
 
     public function setUp(): void
     {

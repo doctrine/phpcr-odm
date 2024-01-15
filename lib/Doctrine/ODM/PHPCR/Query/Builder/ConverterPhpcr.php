@@ -23,9 +23,9 @@ use PHPCR\Query\QOM\SelectorInterface;
  */
 class ConverterPhpcr extends ConverterBase
 {
-    protected QueryObjectModelFactoryInterface $qomf;
-    protected ClassMetadataFactory $mdf;
-    protected DocumentManagerInterface $dm;
+    private QueryObjectModelFactoryInterface $qomf;
+    private ClassMetadataFactory $mdf;
+    private DocumentManagerInterface $dm;
 
     /**
      * When document sources are registered we put the document
@@ -33,7 +33,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var ClassMetadata[]
      */
-    protected array $aliasMetadata = [];
+    private array $aliasMetadata = [];
 
     /**
      * When document sources are registered we put the translator
@@ -41,7 +41,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var TranslationStrategyInterface[]
      */
-    protected array $translator = [];
+    private array $translator = [];
 
     /**
      * Ugly: We need to store the document source types so that we
@@ -50,7 +50,7 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var SourceDocument[]
      */
-    protected array $sourceDocumentNodes = [];
+    private array $sourceDocumentNodes = [];
 
     /**
      * Used to keep track of which sources are used with translated fields, to
@@ -58,9 +58,9 @@ class ConverterPhpcr extends ConverterBase
      *
      * @var array<string, boolean> keys are the alias, value is true
      */
-    protected array $aliasWithTranslatedFields;
+    private array $aliasWithTranslatedFields;
 
-    protected ?string $locale = null;
+    private ?string $locale = null;
 
     public function __construct(
         DocumentManagerInterface $dm,
@@ -244,12 +244,10 @@ class ConverterPhpcr extends ConverterBase
         }
 
         // get the PHPCR Alias
-        $alias = $this->qomf->selector(
+        return $this->qomf->selector(
             $alias,
             $nodeType
         );
-
-        return $alias;
     }
 
     protected function walkOperandDynamicField(OperandDynamicField $node): PropertyValueInterface
@@ -292,7 +290,7 @@ class ConverterPhpcr extends ConverterBase
     {
         $value = $node->getValue();
 
-        if ($field = $node->getParent()->getChildOfType(AbstractNode::NT_OPERAND_DYNAMIC)) {
+        if ($field = $node->getParent()?->getChildOfType(AbstractNode::NT_OPERAND_DYNAMIC)) {
             if ($field instanceof OperandDynamicField) {
                 $meta = $this->aliasMetadata[$field->getAlias()];
                 $fieldMapping = $meta->getFieldMapping($field->getField());

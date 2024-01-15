@@ -13,13 +13,11 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintFullTextSearch extends AbstractLeafNode
 {
-    protected $alias;
+    private string $alias;
+    private string $field;
+    private string $fullTextSearchExpression;
 
-    protected $field;
-
-    protected $fullTextSearchExpression;
-
-    public function __construct(AbstractNode $parent, $field, $fullTextSearchExpression)
+    public function __construct(AbstractNode $parent, string $field, string $fullTextSearchExpression)
     {
         [$alias, $field] = $this->explodeField($field);
         $this->alias = $alias;
@@ -28,22 +26,22 @@ class ConstraintFullTextSearch extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }
 
-    public function getField()
+    public function getField(): string
     {
         return $this->field;
     }
 
-    public function getFullTextSearchExpression()
+    public function getFullTextSearchExpression(): string
     {
         return $this->fullTextSearchExpression;
     }

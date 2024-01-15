@@ -60,11 +60,11 @@ abstract class AbstractNode
 
     public const NT_WHERE_OR = 'where_or';
 
-    protected $children = [];
+    private array $children = [];
 
-    protected $parent;
+    private ?AbstractNode $parent;
 
-    public function __construct(self $parent = null)
+    public function __construct(AbstractNode $parent = null)
     {
         $this->parent = $parent;
     }
@@ -73,17 +73,13 @@ abstract class AbstractNode
      * Return the type of node.
      *
      * Must be one of self::NT_*
-     *
-     * @return string
      */
-    abstract public function getNodeType();
+    abstract public function getNodeType(): string;
 
     /**
      * Return the parent of this node.
-     *
-     * @return AbstractNode
      */
-    public function getParent()
+    public function getParent(): ?AbstractNode
     {
         return $this->parent;
     }
@@ -93,15 +89,12 @@ abstract class AbstractNode
      *
      * <strike>This should only be used when generating exceptions</strike>
      * This is also used to determine the dispatching method -- should it be?
-     *
-     * @return string
      */
-    final public function getName()
+    final public function getName(): string
     {
         $refl = new \ReflectionClass($this);
-        $short = $refl->getShortName();
 
-        return $short;
+        return $refl->getShortName();
     }
 
     /**
@@ -123,9 +116,9 @@ abstract class AbstractNode
      *         self::NT_PROPERTY => array(null, 1), // require none to 1 properties
      *     );
      *
-     * @return array
+     * @return array<string, array<int|null>>
      */
-    abstract public function getCardinalityMap();
+    abstract public function getCardinalityMap(): array;
 
     /**
      * Remove any previous children and add
@@ -133,10 +126,8 @@ abstract class AbstractNode
      *
      * @see removeChildrenOfType
      * @see addChild
-     *
-     * @return AbstractNode
      */
-    public function setChild(self $node)
+    public function setChild(AbstractNode $node): AbstractNode
     {
         $this->removeChildrenOfType($node->getNodeType());
 
@@ -154,11 +145,9 @@ abstract class AbstractNode
      * The given node will be returned EXCEPT when the current
      * node is a leaf node, in which case we return the parent.
      *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException
      */
-    public function addChild(self $node)
+    public function addChild(AbstractNode $node): AbstractNode
     {
         $cardinalityMap = $this->getCardinalityMap();
         $nodeType = $node->getNodeType();
@@ -199,12 +188,10 @@ abstract class AbstractNode
 
     /**
      * Return the next object in the fluid interface
-     * chain. Leaf nodes always return the parent, deafult
+     * chain. Leaf nodes always return the parent, default
      * behavior is to return /this/ class.
-     *
-     * @return AbstractNode
      */
-    public function getNext()
+    public function getNext(): ?AbstractNode
     {
         return $this;
     }
@@ -217,7 +204,7 @@ abstract class AbstractNode
      *
      * @return AbstractNode[]
      */
-    public function getChildren()
+    public function getChildren(): array
     {
         $children = [];
         foreach ($this->children as $type) {
@@ -232,16 +219,14 @@ abstract class AbstractNode
     /**
      * Return children of specified type.
      *
-     * @param string $type the type name
-     *
      * @return AbstractNode[]
      */
-    public function getChildrenOfType($type)
+    public function getChildrenOfType(string $type): array
     {
         return $this->children[$type] ?? [];
     }
 
-    public function removeChildrenOfType($type)
+    public function removeChildrenOfType(string $type): void
     {
         unset($this->children[$type]);
     }
@@ -249,19 +234,14 @@ abstract class AbstractNode
     /**
      * Return child of node, there must be exactly one child of any type.
      *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException if there are more than one or none
      */
-    public function getChild()
+    public function getChild(): AbstractNode
     {
         $children = $this->getChildren();
 
         if (!$children) {
-            throw new OutOfBoundsException(sprintf(
-                'Expected exactly one child, got "%s"',
-                count($children)
-            ));
+            throw new OutOfBoundsException('Expected exactly one child, got none');
         }
 
         if (count($children) > 1) {
@@ -279,21 +259,16 @@ abstract class AbstractNode
      *
      * Note: This does not take inheritance into account.
      *
-     * @param string $type the name of the type
-     *
-     * @return AbstractNode
-     *
      * @throws OutOfBoundsException if there are more than one or none
      */
-    public function getChildOfType($type)
+    public function getChildOfType(string $type): AbstractNode
     {
         $children = $this->getChildrenOfType($type);
 
         if (!$children) {
             throw new OutOfBoundsException(sprintf(
-                'Expected exactly one child of type "%s", got "%s"',
+                'Expected exactly one child of type "%s", got none',
                 $type,
-                count($children)
             ));
         }
 
@@ -313,13 +288,13 @@ abstract class AbstractNode
      * Validation is performed both when the query is being
      * built and when the dev explicitly calls "end()".
      *
-     * This method simply checks the minimum boundries are satisfied,
-     * the addChild() method already validates maximum boundries and
+     * This method simply checks the minimum boundaries are satisfied,
+     * the addChild() method already validates maximum boundaries and
      * types.
      *
      * @throws OutOfBoundsException
      */
-    public function validate()
+    public function validate(): void
     {
         $cardinalityMap = $this->getCardinalityMap();
         $typeCount = [];
@@ -351,10 +326,8 @@ abstract class AbstractNode
      * Validates this node and returns its parent.
      * This should be used if the developer wants to
      * define the entire Query in a fluid manner.
-     *
-     * @return AbstractNode
      */
-    public function end()
+    public function end(): ?AbstractNode
     {
         $this->validate();
 
@@ -370,7 +343,7 @@ abstract class AbstractNode
      *
      * @throws BadMethodCallException if an unknown method is called
      */
-    public function __call($methodName, $args)
+    public function __call(string $methodName, array $args): never
     {
         throw new BadMethodCallException(sprintf(
             'Unknown method "%s" called on node "%s", did you mean one of: "%s"',
@@ -380,7 +353,7 @@ abstract class AbstractNode
         ));
     }
 
-    public function ensureNoArguments($method, $void)
+    public function ensureNoArguments(string $method, $void): void
     {
         if ($void) {
             throw new InvalidArgumentException(sprintf(
@@ -390,17 +363,18 @@ abstract class AbstractNode
         }
     }
 
-    public function getFactoryMethods()
+    /**
+     * @return string[]
+     */
+    public function getFactoryMethods(): array
     {
         $refl = new \ReflectionClass($this);
 
         $fMethods = [];
         foreach ($refl->getMethods() as $rMethod) {
             $comment = $rMethod->getDocComment();
-            if ($comment) {
-                if (false !== strpos($comment, '@factoryMethod')) {
-                    $fMethods[] = $rMethod->name;
-                }
+            if ($comment && str_contains($comment, '@factoryMethod')) {
+                $fMethods[] = $rMethod->name;
             }
         }
 

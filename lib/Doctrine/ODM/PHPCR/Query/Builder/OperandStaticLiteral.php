@@ -4,7 +4,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class OperandStaticLiteral extends AbstractLeafNode
 {
-    protected $value;
+    private $value;
 
     public function __construct(AbstractNode $parent, $value)
     {
@@ -17,7 +17,7 @@ class OperandStaticLiteral extends AbstractLeafNode
         return $this->value;
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_OPERAND_STATIC;
     }

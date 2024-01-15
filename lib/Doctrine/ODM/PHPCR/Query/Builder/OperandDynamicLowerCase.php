@@ -9,14 +9,14 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class OperandDynamicLowerCase extends OperandDynamicFactory
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_OPERAND_DYNAMIC => [1, 1],    // 1..*
         ];
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_OPERAND_DYNAMIC;
     }

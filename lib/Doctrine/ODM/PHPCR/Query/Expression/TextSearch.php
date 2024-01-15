@@ -7,22 +7,21 @@ use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 
 class TextSearch implements Expression
 {
-    protected $field;
+    private string $field;
+    private string $search;
 
-    protected $search;
-
-    public function __construct($field, $search)
+    public function __construct(string $field, string $search)
     {
         $this->field = $field;
         $this->search = $search;
     }
 
-    public function getField()
+    public function getField(): string
     {
         return $this->field;
     }
 
-    public function getSearch()
+    public function getSearch(): string
     {
         return $this->search;
     }

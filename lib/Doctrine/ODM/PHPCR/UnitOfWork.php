@@ -2582,7 +2582,7 @@ class UnitOfWork
 
             // update all cached children of the document to reflect the move (path id changes)
             foreach ($this->documentIds as $childOid => $id) {
-                if (0 !== strpos($id, $sourcePath)) {
+                if (!str_starts_with($id, $sourcePath)) {
                     continue;
                 }
 

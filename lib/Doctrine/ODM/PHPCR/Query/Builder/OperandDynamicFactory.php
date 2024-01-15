@@ -11,12 +11,12 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class OperandDynamicFactory extends AbstractNode
 {
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_OPERAND_DYNAMIC_FACTORY;
     }
 
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_OPERAND_DYNAMIC => [1, 1],
@@ -45,10 +45,8 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicFullTextSearchScore
-     *
-     * @return OperandDynamicFactory
      */
-    public function fullTextSearchScore($alias)
+    public function fullTextSearchScore(string $alias): OperandDynamicFactory
     {
         return $this->addChild(new OperandDynamicFullTextSearchScore($this, $alias));
     }
@@ -70,10 +68,8 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $field - Name of field to check
      *
      * @factoryMethod OperandDynamicLength
-     *
-     * @return OperandDynamicFactory
      */
-    public function length($field)
+    public function length(string $field): OperandDynamicFactory
     {
         return $this->addChild(new OperandDynamicLength($this, $field));
     }
@@ -91,10 +87,8 @@ class OperandDynamicFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod OperandDynamicLowerCase
-     *
-     * @return OperandDynamicLowerCase
      */
-    public function lowerCase()
+    public function lowerCase(): OperandDynamicLowerCase
     {
         return $this->addChild(new OperandDynamicLowerCase($this));
     }
@@ -112,10 +106,8 @@ class OperandDynamicFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod OperandDynamicUpperCase
-     *
-     * @return OperandDynamicUpperCase
      */
-    public function upperCase()
+    public function upperCase(): OperandDynamicUpperCase
     {
         return $this->addChild(new OperandDynamicUpperCase($this));
     }
@@ -141,10 +133,8 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicLocalName
-     *
-     * @return OperandDynamicFactory
      */
-    public function localName($alias)
+    public function localName(string $alias): OperandDynamicFactory
     {
         return $this->addChild(new OperandDynamicLocalName($this, $alias));
     }
@@ -169,10 +159,8 @@ class OperandDynamicFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod OperandDynamicName
-     *
-     * @return OperandDynamicFactory
      */
-    public function name($alias)
+    public function name(string $alias): OperandDynamicFactory
     {
         return $this->addChild(new OperandDynamicName($this, $alias));
     }
@@ -189,13 +177,11 @@ class OperandDynamicFactory extends AbstractNode
      * ->end();
      * </code>
      *
-     * @param string $field - name of field to check, including alias name
+     * @param string $field name of field to check, including alias name
      *
      * @factoryMethod OperandDynamicField
-     *
-     * @return OperandDynamicFactory
      */
-    public function field($field)
+    public function field(string $field): OperandDynamicFactory
     {
         return $this->addChild(new OperandDynamicField($this, $field));
     }

@@ -10,28 +10,27 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintSame extends AbstractLeafNode
 {
-    protected $alias;
+    private string $alias;
+    private string $path;
 
-    protected $path;
-
-    public function __construct(AbstractNode $parent, $alias, $path)
+    public function __construct(AbstractNode $parent, string $alias, string $path)
     {
         $this->alias = $alias;
         $this->path = $path;
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }

@@ -10,14 +10,14 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class From extends SourceFactory
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_SOURCE => [1, 1],
         ];
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_FROM;
     }

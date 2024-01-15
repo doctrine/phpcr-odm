@@ -73,7 +73,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public const GENERATOR_TYPE_AUTO = 4;
 
-    protected static $validVersionableMappings = ['simple', 'full'];
+    private static $validVersionableMappings = ['simple', 'full'];
 
     /**
      * READ-ONLY: The ReflectionProperty instances of the mapped class.
@@ -837,7 +837,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @throws MappingException
      */
-    protected function validateAndCompleteFieldMapping(array $mapping, self $inherited = null, bool $isField = true, $phpcrLabel = 'property'): array
+    private function validateAndCompleteFieldMapping(array $mapping, self $inherited = null, bool $isField = true, $phpcrLabel = 'property'): array
     {
         if ($inherited) {
             if (!array_key_exists('inherited', $mapping)) {
@@ -916,10 +916,7 @@ class ClassMetadata implements ClassMetadataInterface
         return $mapping;
     }
 
-    /**
-     * @param string|bool $phpcrLabel
-     */
-    protected function validateAndCompleteAssociationMapping(array $mapping, self $inherited = null, $phpcrLabel = 'property'): array
+    private function validateAndCompleteAssociationMapping(array $mapping, self $inherited = null, bool|string $phpcrLabel = 'property'): array
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, $phpcrLabel);
         if ($inherited) {
@@ -1083,7 +1080,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * Sets the ID generator used to generate IDs for instances of this class.
      */
-    protected function setIdGenerator(int|string $generator): void
+    private function setIdGenerator(int|string $generator): void
     {
         if (is_string($generator)) {
             $generator = constant('Doctrine\ODM\PHPCR\Mapping\ClassMetadata::GENERATOR_TYPE_'.strtoupper($generator));

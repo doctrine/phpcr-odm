@@ -4,11 +4,10 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class Field extends AbstractLeafNode
 {
-    protected $field;
+    private string $field;
+    private string $alias;
 
-    protected $alias;
-
-    public function __construct(AbstractNode $parent, $field)
+    public function __construct(AbstractNode $parent, string $field)
     {
         [$alias, $field] = $this->explodeField($field);
         $this->field = $field;
@@ -16,17 +15,17 @@ class Field extends AbstractLeafNode
         parent::__construct($parent);
     }
 
-    public function getField()
+    public function getField(): string
     {
         return $this->field;
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_PROPERTY;
     }

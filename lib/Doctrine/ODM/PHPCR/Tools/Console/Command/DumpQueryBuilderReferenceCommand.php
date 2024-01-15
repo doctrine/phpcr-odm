@@ -84,9 +84,9 @@ HERE
                 $out = [];
                 $indent = 0;
                 foreach (explode("\n", $string) as $line) {
-                    if (false !== strpos($line, '<code>')) {
+                    if (str_contains($line, '<code>')) {
                         $indent = 4;
-                    } elseif (false !== strpos($line, '</code>')) {
+                    } elseif (str_contains($line, '</code>')) {
                         $indent = 0;
                         $out[] = '';
                     } elseif ('' === $line) {
@@ -329,7 +329,7 @@ HERE
         // parse @params
         $docParams = [];
         foreach (explode("\n", $docComment) as $line) {
-            if (preg_match('&@param +([a-zA-Z]+) ?\$([a-zA-Z0-9_]+) +(.*)&', $line, $matches)) {
+            if (preg_match('&@param +([a-zA-Z|]+) ?\$([a-zA-Z0-9_]+) +(.*)&', $line, $matches)) {
                 $docParams[$matches[2]] = ['type' => $matches[1], 'doc' => $matches[3]];
             }
         }
@@ -341,7 +341,7 @@ HERE
 
             if (!array_key_exists($reflParam->name, $docParams)) {
                 throw new \Exception(sprintf(
-                    'Undocummented parameter "%s" in "%s" for method "%s"',
+                    'Undocumented parameter "%s" in "%s" for method "%s"',
                     $reflParam->name,
                     $reflMethod->class,
                     $reflMethod->name
@@ -358,15 +358,15 @@ HERE
     {
         $out = [];
         foreach (explode("\n", $comment) as $line) {
-            if (false !== strpos($line, '/**')) {
+            if (str_contains($line, '/**')) {
                 continue;
             }
 
-            if (false !== strpos($line, '*/')) {
+            if (str_contains($line, '*/')) {
                 break;
             }
 
-            if (false !== strpos($line, '@')) {
+            if (str_contains($line, '@')) {
                 continue;
             }
 
@@ -412,6 +412,16 @@ HERE
 
                     $returnType = $matches[1];
                     $fMethods[$rMethod->name]['returnType'] = $returnType;
+                } elseif ($returnType = $rMethod->getReturnType()) {
+                    $fMethods[$rMethod->name]['returnType'] = match (get_class($returnType)) {
+                        \ReflectionNamedType::class => $returnType->getName(),
+                        \ReflectionUnionType::class => implode('|', array_map(static function (\ReflectionNamedType $type): string {
+                            return $type->getName();
+                        }, $returnType->getTypes())),
+                        \ReflectionIntersectionType::class => implode('&', array_map(static function (\ReflectionNamedType $type): string {
+                            return $type->getName();
+                        }, $returnType->getTypes())),
+                    };
                 }
             }
         }

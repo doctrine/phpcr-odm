@@ -4,30 +4,27 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class SourceJoinConditionDescendant extends AbstractLeafNode
 {
-    protected $path;
+    private string $descendantAlias;
+    private string $ancestorAliasNode;
 
-    protected $descendantAlias;
-
-    protected $ancestorAliasNode;
-
-    public function __construct($parent, $descendantAlias, $ancestorAlias)
+    public function __construct(AbstractNode $parent, string $descendantAlias, string $ancestorAlias)
     {
-        $this->ancestorAliasNode = (string) $ancestorAlias;
-        $this->descendantAlias = (string) $descendantAlias;
+        $this->ancestorAliasNode = $ancestorAlias;
+        $this->descendantAlias = $descendantAlias;
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getDescendantAlias()
+    public function getDescendantAlias(): string
     {
         return $this->descendantAlias;
     }
 
-    public function getAncestorAlias()
+    public function getAncestorAlias(): string
     {
         return $this->ancestorAliasNode;
     }
