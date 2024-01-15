@@ -24,9 +24,15 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintComparison extends OperandFactory
 {
-    protected $operator;
+    private string $operator;
 
-    public function getCardinalityMap()
+    public function __construct(AbstractNode $parent, string $operator)
+    {
+        $this->operator = $operator;
+        parent::__construct($parent);
+    }
+
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_OPERAND_DYNAMIC => ['1', '1'],
@@ -34,18 +40,12 @@ class ConstraintComparison extends OperandFactory
         ];
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }
 
-    public function __construct(AbstractNode $parent, $operator)
-    {
-        $this->operator = $operator;
-        parent::__construct($parent);
-    }
-
-    public function getOperator()
+    public function getOperator(): string
     {
         return $this->operator;
     }

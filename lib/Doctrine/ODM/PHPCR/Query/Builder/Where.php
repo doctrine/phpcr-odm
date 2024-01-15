@@ -9,7 +9,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class Where extends ConstraintFactory
 {
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_WHERE;
     }

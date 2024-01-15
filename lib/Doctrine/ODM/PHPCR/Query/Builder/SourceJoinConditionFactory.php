@@ -11,14 +11,14 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class SourceJoinConditionFactory extends AbstractNode
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_SOURCE_JOIN_CONDITION => [1, 1],
         ];
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE_JOIN_CONDITION_FACTORY;
     }
@@ -41,10 +41,8 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $ancestorAlias   - Name of alias to match for ancestor documents
      *
      * @factoryMethod SourceJoinConditionDescendant
-     *
-     * @return SourceJoinConditionFactory
      */
-    public function descendant($descendantAlias, $ancestorAlias)
+    public function descendant(string $descendantAlias, string $ancestorAlias): SourceJoinConditionFactory
     {
         return $this->addChild(new SourceJoinConditionDescendant(
             $this,
@@ -72,10 +70,8 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $field2 - Field name for second field
      *
      * @factoryMethod SourceJoinConditionEqui
-     *
-     * @return SourceJoinConditionFactory
      */
-    public function equi($field1, $field2)
+    public function equi(string $field1, string $field2): SourceJoinConditionFactory
     {
         return $this->addChild(new SourceJoinConditionEqui(
             $this,
@@ -101,10 +97,8 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $parentAlias - Name of alias to match for parent documents
      *
      * @factoryMethod SourceJoinConditionChildDocument
-     *
-     * @return SourceJoinConditionFactory
      */
-    public function child($childAlias, $parentAlias)
+    public function child(string $childAlias, string $parentAlias): SourceJoinConditionFactory
     {
         return $this->addChild(new SourceJoinConditionChildDocument(
             $this,
@@ -133,10 +127,8 @@ class SourceJoinConditionFactory extends AbstractNode
      * @param string $alias2Path - Path for documents of second alias
      *
      * @factoryMethod SourceJoinConditionSameDocument
-     *
-     * @return SourceJoinConditionFactory
      */
-    public function same($alias1, $alias2, $alias2Path)
+    public function same(string $alias1, string $alias2, string $alias2Path): SourceJoinConditionFactory
     {
         return $this->addChild(new SourceJoinConditionSameDocument(
             $this,

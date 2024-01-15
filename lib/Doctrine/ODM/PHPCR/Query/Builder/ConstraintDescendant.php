@@ -10,28 +10,27 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintDescendant extends AbstractLeafNode
 {
-    protected $alias;
+    private string $alias;
+    private string $ancestorPath;
 
-    protected $ancestorPath;
-
-    public function __construct(AbstractNode $parent, $alias, $ancestorPath)
+    public function __construct(AbstractNode $parent, string $alias, string $ancestorPath)
     {
         $this->alias = $alias;
         $this->ancestorPath = $ancestorPath;
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }
 
-    public function getAncestorPath()
+    public function getAncestorPath(): string
     {
         return $this->ancestorPath;
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }

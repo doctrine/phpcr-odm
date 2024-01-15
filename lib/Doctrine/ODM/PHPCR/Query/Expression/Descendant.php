@@ -7,14 +7,14 @@ use Doctrine\Common\Collections\Expr\ExpressionVisitor;
 
 class Descendant implements Expression
 {
-    protected $path;
+    private string $path;
 
-    public function __construct($path)
+    public function __construct(string $path)
     {
         $this->path = $path;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }

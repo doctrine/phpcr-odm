@@ -13,14 +13,14 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class ConstraintOrx extends ConstraintFactory
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_CONSTRAINT => [1, null],
         ];
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT;
     }

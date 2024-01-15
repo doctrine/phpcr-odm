@@ -4,27 +4,27 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class Ordering extends OperandDynamicFactory
 {
-    protected $order;
+    private string $order;
 
-    public function __construct(AbstractNode $parent, $order)
+    public function __construct(AbstractNode $parent, string $order)
     {
         $this->order = $order;
         parent::__construct($parent);
     }
 
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_OPERAND_DYNAMIC => [1, 1],
         ];
     }
 
-    public function getOrder()
+    public function getOrder(): string
     {
         return $this->order;
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_ORDERING;
     }

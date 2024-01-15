@@ -19,7 +19,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  */
 abstract class SourceFactory extends AbstractNode
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_SOURCE => [1, 1],
@@ -34,14 +34,9 @@ abstract class SourceFactory extends AbstractNode
      * $qb->from('my_alias')->document('My/Document/Class', 'my_alias')->end();
      * </code>
      *
-     * @param string $documentFqn - Fully qualified class name for document
-     * @param string $alias       - Alias name
-     *
      * @factoryMethod SourceDocument
-     *
-     * @return SourceDocument
      */
-    public function document($documentFqn, $alias)
+    public function document(string $documentFqn, string $alias): SourceFactory
     {
         return $this->addChild(new SourceDocument($this, $documentFqn, $alias));
     }
@@ -60,10 +55,8 @@ abstract class SourceFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod SourceJoin
-     *
-     * @return SourceJoin
      */
-    public function joinInner()
+    public function joinInner(): SourceJoin
     {
         return $this->addChild(new SourceJoin(
             $this,
@@ -85,10 +78,8 @@ abstract class SourceFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod SourceJoin
-     *
-     * @return SourceJoin
      */
-    public function joinLeftOuter()
+    public function joinLeftOuter(): SourceJoin
     {
         return $this->addChild(new SourceJoin(
             $this,
@@ -110,10 +101,8 @@ abstract class SourceFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod SourceJoin
-     *
-     * @return SourceJoin
      */
-    public function joinRightOuter()
+    public function joinRightOuter(): SourceJoin
     {
         return $this->addChild(new SourceJoin(
             $this,

@@ -9,7 +9,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class SourceJoinLeft extends From
 {
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE_JOIN_LEFT;
     }

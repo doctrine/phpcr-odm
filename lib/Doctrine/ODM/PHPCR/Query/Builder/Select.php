@@ -11,7 +11,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class Select extends AbstractNode
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_PROPERTY => [0, null],
@@ -31,15 +31,13 @@ class Select extends AbstractNode
      * @param string $field - name of field to check, including alias name
      *
      * @factoryMethod
-     *
-     * @return Select
      */
-    public function field($field)
+    public function field(string $field): Select
     {
         return $this->addChild(new Field($this, $field));
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SELECT;
     }

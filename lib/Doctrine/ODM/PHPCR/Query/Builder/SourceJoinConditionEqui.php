@@ -4,15 +4,15 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class SourceJoinConditionEqui extends AbstractLeafNode
 {
-    protected $property1;
+    private string $property1;
 
-    protected $alias1;
+    private string $alias1;
 
-    protected $property2;
+    private string $property2;
 
-    protected $alias2;
+    private string $alias2;
 
-    public function __construct($parent, $field1, $field2)
+    public function __construct(AbstractNode $parent, string $field1, string $field2)
     {
         [$alias1, $property1] = $this->explodeField($field1);
         [$alias2, $property2] = $this->explodeField($field2);
@@ -23,27 +23,27 @@ class SourceJoinConditionEqui extends AbstractLeafNode
         $this->alias2 = $alias2;
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE_JOIN_CONDITION;
     }
 
-    public function getProperty1()
+    public function getProperty1(): string
     {
         return $this->property1;
     }
 
-    public function getAlias1()
+    public function getAlias1(): string
     {
         return $this->alias1;
     }
 
-    public function getProperty2()
+    public function getProperty2(): string
     {
         return $this->property2;
     }
 
-    public function getAlias2()
+    public function getAlias2(): string
     {
         return $this->alias2;
     }

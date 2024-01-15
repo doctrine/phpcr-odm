@@ -7,15 +7,15 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
  */
 class SourceJoin extends AbstractNode
 {
-    protected $joinType;
+    private string $joinType;
 
-    public function __construct($parent, $joinType)
+    public function __construct(AbstractNode $parent, string $joinType)
     {
         $this->joinType = $joinType;
         parent::__construct($parent);
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_SOURCE;
     }
@@ -24,10 +24,8 @@ class SourceJoin extends AbstractNode
      * Specify the document source for the "left" side of a join.
      *
      * @factoryMethod
-     *
-     * @return SourceJoinLeft
      */
-    public function left()
+    public function left(): SourceJoinLeft
     {
         return $this->addChild(new SourceJoinLeft($this));
     }
@@ -36,10 +34,8 @@ class SourceJoin extends AbstractNode
      * Specify the document source for the "right" side of a join.
      *
      * @factoryMethod
-     *
-     * @return SourceJoinRight
      */
-    public function right()
+    public function right(): SourceJoinRight
     {
         return $this->addChild(new SourceJoinRight($this));
     }
@@ -48,20 +44,18 @@ class SourceJoin extends AbstractNode
      * Specify the join condition.
      *
      * @factoryMethod
-     *
-     * @return SourceJoinConditionFactory
      */
-    public function condition()
+    public function condition(): SourceJoinConditionFactory
     {
         return $this->addChild(new SourceJoinConditionFactory($this));
     }
 
-    public function getJoinType()
+    public function getJoinType(): string
     {
         return $this->joinType;
     }
 
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_SOURCE_JOIN_CONDITION_FACTORY => [1, 1],

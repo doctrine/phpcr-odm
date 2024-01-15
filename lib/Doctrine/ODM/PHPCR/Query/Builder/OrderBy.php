@@ -16,7 +16,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  */
 class OrderBy extends AbstractNode
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_ORDERING => [0, null],
@@ -31,10 +31,8 @@ class OrderBy extends AbstractNode
      * </code>
      *
      * @factoryMethod Ordering
-     *
-     * @return Ordering
      */
-    public function asc()
+    public function asc(): Ordering
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_ASCENDING));
     }
@@ -47,15 +45,13 @@ class OrderBy extends AbstractNode
      * </code>
      *
      * @factoryMethod Ordering
-     *
-     * @return Ordering
      */
-    public function desc()
+    public function desc(): Ordering
     {
         return $this->addChild(new Ordering($this, QOMConstants::JCR_ORDER_DESCENDING));
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_ORDER_BY;
     }

@@ -4,20 +4,20 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 class OperandStaticParameter extends AbstractLeafNode
 {
-    protected $variableName;
+    private string $variableName;
 
-    public function __construct(AbstractNode $parent, $variableName)
+    public function __construct(AbstractNode $parent, string $variableName)
     {
         $this->variableName = $variableName;
         parent::__construct($parent);
     }
 
-    public function getVariableName()
+    public function getVariableName(): string
     {
         return $this->variableName;
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_OPERAND_STATIC;
     }

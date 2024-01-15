@@ -14,14 +14,14 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  */
 class ConstraintFactory extends AbstractNode
 {
-    public function getCardinalityMap()
+    public function getCardinalityMap(): array
     {
         return [
             self::NT_CONSTRAINT => [1, 1],
         ];
     }
 
-    public function getNodeType()
+    public function getNodeType(): string
     {
         return self::NT_CONSTRAINT_FACTORY;
     }
@@ -71,10 +71,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintAndx
-     *
-     * @return ConstraintAndx
      */
-    public function andX()
+    public function andX(): ConstraintAndx
     {
         return $this->addChild(new ConstraintAndx($this));
     }
@@ -94,10 +92,8 @@ class ConstraintFactory extends AbstractNode
      * As with "andX", "orX" allows one to many operands.
      *
      * @factoryMethod ConstraintOrx
-     *
-     * @return ConstraintOrx
      */
-    public function orX()
+    public function orX(): ConstraintOrx
     {
         return $this->addChild(new ConstraintOrx($this));
     }
@@ -112,10 +108,8 @@ class ConstraintFactory extends AbstractNode
      * @param string $field - Field to check
      *
      * @factoryMethod ConstraintFieldIsset
-     *
-     * @return ConstraintFactory
      */
-    public function fieldIsset($field)
+    public function fieldIsset(string $field): ConstraintFactory
     {
         return $this->addChild(new ConstraintFieldIsset($this, $field));
     }
@@ -131,10 +125,8 @@ class ConstraintFactory extends AbstractNode
      * @param string $fullTextSearchExpression - Search expression
      *
      * @factoryMethod ConstraintFullTextSearch
-     *
-     * @return ConstraintFactory
      */
-    public function fullTextSearch($field, $fullTextSearchExpression)
+    public function fullTextSearch(string $field, string $fullTextSearchExpression): ConstraintFactory
     {
         return $this->addChild(new ConstraintFullTextSearch($this, $field, $fullTextSearchExpression));
     }
@@ -152,10 +144,8 @@ class ConstraintFactory extends AbstractNode
      * @param string $alias - Name of alias to use
      *
      * @factoryMethod ConstraintSame
-     *
-     * @return ConstraintFactory
      */
-    public function same($path, $alias)
+    public function same(string $path, string $alias): ConstraintFactory
     {
         return $this->addChild(new ConstraintSame($this, $alias, $path));
     }
@@ -173,10 +163,8 @@ class ConstraintFactory extends AbstractNode
      * @param string $alias        - Name of alias to use
      *
      * @factoryMethod ConstraintDescendant
-     *
-     * @return ConstraintFactory
      */
-    public function descendant($ancestorPath, $alias)
+    public function descendant(string $ancestorPath, string $alias): ConstraintFactory
     {
         return $this->addChild(new ConstraintDescendant($this, $alias, $ancestorPath));
     }
@@ -194,10 +182,8 @@ class ConstraintFactory extends AbstractNode
      * @param string $alias      - Name of alias to use
      *
      * @factoryMethod ConstraintChild
-     *
-     * @return ConstraintFactory
      */
-    public function child($parentPath, $alias)
+    public function child(string $parentPath, string $alias): ConstraintFactory
     {
         return $this->addChild(new ConstraintChild($this, $alias, $parentPath));
     }
@@ -205,9 +191,9 @@ class ConstraintFactory extends AbstractNode
     /**
      * Inverts the truth of the given appended constraint.
      *
-     * @return ConstraintFactory
+     * @factoryMethod ConstraintNot
      */
-    public function not()
+    public function not(): ConstraintFactory
     {
         return $this->addChild(new ConstraintNot($this));
     }
@@ -224,10 +210,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function eq()
+    public function eq(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,
@@ -247,10 +231,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function neq()
+    public function neq(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,
@@ -270,10 +252,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function lt()
+    public function lt(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,
@@ -293,10 +273,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function lte()
+    public function lte(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,
@@ -316,10 +294,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function gt()
+    public function gt(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,
@@ -339,10 +315,8 @@ class ConstraintFactory extends AbstractNode
      * </code>
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function gte()
+    public function gte(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,
@@ -366,10 +340,8 @@ class ConstraintFactory extends AbstractNode
      * The above example will match "foo" and "foobar" but not "barfoo".
      *
      * @factoryMethod ConstraintComparison
-     *
-     * @return ConstraintComparison
      */
-    public function like()
+    public function like(): ConstraintComparison
     {
         return $this->addChild(new ConstraintComparison(
             $this,

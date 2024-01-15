@@ -58,20 +58,16 @@ class DocumentRepository implements ObjectRepository
      * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
      * @param string[] $ids document ids
-     *
-     * @return array|Collection of document objects
      */
-    public function findMany(array $ids): iterable
+    public function findMany(array $ids): Collection
     {
         return $this->dm->findMany($this->className, $ids);
     }
 
     /**
      * Finds all documents in the repository.
-     *
-     * @return array|Collection the entities
      */
-    public function findAll(): iterable
+    public function findAll(): Collection
     {
         return $this->findBy([]);
     }
@@ -83,12 +79,9 @@ class DocumentRepository implements ObjectRepository
      * an InvalidArgumentException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param int|null $limit
-     * @param int|null $offset
-     *
-     * @return array|Collection the objects matching the criteria
+     * @return Collection the objects matching the criteria
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): iterable
+    public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): Collection
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -146,7 +139,7 @@ class DocumentRepository implements ObjectRepository
      * @param mixed  $value The value to search for
      * @param string $alias The alias used
      */
-    protected function constraintField(ConstraintFactory $where, string $field, $value, string $alias): void
+    protected function constraintField(ConstraintFactory $where, string $field, mixed $value, string $alias): void
     {
         if ($field === $this->class->nodename) {
             $where->eq()->name($alias)->literal($value);

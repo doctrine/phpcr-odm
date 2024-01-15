@@ -19,7 +19,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
             return null;
         }
 
-        if (false !== strpos($className, ':')) {
+        if (str_contains($className, ':')) {
             $className = $dm->getClassMetadata($className)->getName();
         }
 
