@@ -110,6 +110,27 @@ interface DocumentManagerInterface extends ObjectManager
     public function isOpen(): bool;
 
     /**
+     * {@inheritdoc}
+     *
+     * Overwritten to make the $className argument nullable.
+     *
+     * Find the Document with the given id.
+     *
+     * Will return null if the document was not found. A document is also
+     * considered not found if the data at $id is not instance of the specified
+     * $className. To get the document regardless of its class, pass null.
+     *
+     * If the document is translatable, then the language chooser strategy is
+     * used to load the best suited language for the translatable fields.
+     *
+     * @param string|null $className optional object class name to use
+     * @param string      $id        the path or uuid of the document to find
+     *
+     * @return object|null the document if found, otherwise null
+     */
+    public function find(?string $className, $id): ?object;
+
+    /**
      * Finds many documents by id.
      *
      * @param string|null $className Only return documents that match the

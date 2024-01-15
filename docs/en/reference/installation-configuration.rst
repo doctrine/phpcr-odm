@@ -421,7 +421,7 @@ Proxy Objects
 
 A proxy object is an object that is put in place or used instead of
 the "real" object. A proxy object can add behavior to the object
-being proxied without that object being aware of it. In Doctrine 2,
+being proxied without that object being aware of it. In Doctrine,
 proxy objects are used to realize several features but mainly for
 transparent lazy-loading.
 
@@ -431,7 +431,7 @@ of the objects. This is an essential property as without it there
 would always be fragile partial objects at the outer edges of your
 object graph.
 
-Doctrine 2 implements a variant of the proxy pattern where it
+Doctrine implements a variant of the proxy pattern where it
 generates classes that extend your entity classes and adds
 lazy-loading capabilities to them. Doctrine can then give you an
 instance of such a proxy class whenever you request an object of
@@ -498,7 +498,7 @@ each time you change anything on your class or mapping:
 Multiple Metadata Sources
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When using different components using Doctrine 2 you may end up
+When using different components using Doctrine you may end up
 with them using two different metadata drivers, for example XML and
 YAML. You can use the DriverChain Metadata implementations to
 aggregate these drivers based on namespaces::
