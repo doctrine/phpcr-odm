@@ -16,7 +16,7 @@ use PHPCR\Query\QueryResultInterface;
  *
  * @author Daniel Leech <daniel@dantleech.comqq
  */
-final class Query
+class Query
 {
     public const HYDRATE_DOCUMENT = 1;
 
