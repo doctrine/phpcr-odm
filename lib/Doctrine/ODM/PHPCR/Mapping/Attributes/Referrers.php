@@ -7,7 +7,7 @@ use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class Referrers implements MappingAttribute
 {
-    public array|null $cascade;
+    public ?array $cascade;
 
     /**
      * @param string[]|string $cascade
@@ -15,7 +15,7 @@ final class Referrers implements MappingAttribute
     public function __construct(
         public string $referencedBy,
         public string $referringDocument,
-        array|string $cascade = null
+        array|string|null $cascade = null
     ) {
         $this->cascade = null === $cascade ? null : (array) $cascade;
     }

@@ -82,6 +82,7 @@ Bootstrap will roughly look like this when using mysql as storage backend::
         'user'      => $user,
         'password'  => $pass,
         'dbname'    => 'phpcr_odm_tutorial',
+        'charset'   => 'utf8mb4', // only when using MySQL
     ];
 
     // Bootstrap Doctrine DBAL
@@ -253,6 +254,7 @@ A complete configuration could look like this::
         'user'      => $user,
         'password'  => $pass,
         'dbname'    => 'phpcr_odm_tutorial',
+        'charset'   => 'utf8mb4',
     ];
     $dbConn = \Doctrine\DBAL\DriverManager::getConnection($params);
     $parameters = ['jackalope.doctrine_dbal_connection' => $dbConn];

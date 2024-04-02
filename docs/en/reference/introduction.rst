@@ -100,6 +100,7 @@ your project root directory::
         'user'      => 'root',
         'password'  => '',
         'dbname'    => 'phpcr_odm_tutorial',
+        'charset'   => 'utf8mb4',
     ];
 
     $workspace = 'default';

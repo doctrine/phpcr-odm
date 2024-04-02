@@ -24,7 +24,7 @@ class DocumentConvertTranslationCommand extends Command
 {
     private ?TranslationConverter $translationConverter;
 
-    public function __construct($name = null, TranslationConverter $translationConverter = null)
+    public function __construct($name = null, ?TranslationConverter $translationConverter = null)
     {
         parent::__construct($name);
         $this->translationConverter = $translationConverter;

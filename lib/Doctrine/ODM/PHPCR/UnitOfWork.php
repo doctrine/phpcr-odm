@@ -273,7 +273,7 @@ class UnitOfWork
      *
      * @param \Iterator|array $nodes
      *
-     * @throws Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @throws PHPCRException
      */
     public function getOrCreateDocuments(?string $className, iterable $nodes, array $hints = []): array
@@ -553,7 +553,7 @@ class UnitOfWork
     /**
      * Get the existing document or proxy or create a new one for this PHPCR Node.
      */
-    public function getOrCreateProxyFromNode(NodeInterface $node, string $locale = null): object
+    public function getOrCreateProxyFromNode(NodeInterface $node, ?string $locale = null): object
     {
         $targetId = $node->getPath();
         $className = $this->documentClassMapper->getClassName($this->dm, $node);
@@ -565,7 +565,7 @@ class UnitOfWork
      * Get the existing document or proxy for this id of this class, or create
      * a new one.
      */
-    public function getOrCreateProxy(string $targetId, string $className, string $locale = null): object
+    public function getOrCreateProxy(string $targetId, string $className, ?string $locale = null): object
     {
         $document = $this->getDocumentById($targetId);
 
@@ -1085,7 +1085,7 @@ class UnitOfWork
     }
 
     /**
-     * @throws Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @throws PHPCRException
      */
     private function computeAssociationChanges(object $document, ClassMetadata $class, string $oid, bool $isNew, array $changeSet, string $assocType): void
@@ -1514,7 +1514,7 @@ class UnitOfWork
      *
      * @return object the child instance (if we are replacing a child this can be a different instance than was originally provided)
      */
-    private function computeChildChanges(array $mapping, object $child, string $parentId, string $nodename, object $parent = null): object
+    private function computeChildChanges(array $mapping, object $child, string $parentId, string $nodename, ?object $parent = null): object
     {
         $targetClass = $this->dm->getClassMetadata(get_class($child));
         $state = $this->getDocumentState($child);
@@ -1608,7 +1608,7 @@ class UnitOfWork
      *
      * @param int|null $overrideIdGenerator type of the id generator if not the default
      */
-    public function persistNew(ClassMetadata $class, object $document, int $overrideIdGenerator = null, object $parent = null): void
+    public function persistNew(ClassMetadata $class, object $document, ?int $overrideIdGenerator = null, ?object $parent = null): void
     {
         if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::prePersist)) {
             $this->eventListenersInvoker->invoke(
@@ -1710,7 +1710,7 @@ class UnitOfWork
     /**
      * @param array|null $assoc Information for association when necessary
      */
-    private function doMerge(object $document, array &$visited, object $prevManagedCopy = null, array $assoc = null): object
+    private function doMerge(object $document, array &$visited, ?object $prevManagedCopy = null, ?array $assoc = null): object
     {
         $oid = \spl_object_hash($document);
         if (array_key_exists($oid, $visited)) {
@@ -2945,7 +2945,7 @@ class UnitOfWork
      * Try to determine the document id first by looking into the document,
      * but if not mapped, look into the document id cache.
      */
-    public function determineDocumentId(object $document, ClassMetadata $metadata = null): ?string
+    public function determineDocumentId(object $document, ?ClassMetadata $metadata = null): ?string
     {
         if (!$metadata) {
             $metadata = $this->dm->getClassMetadata(get_class($document));
@@ -3182,7 +3182,7 @@ class UnitOfWork
      * If the document is not translatable, this method returns immediately
      * and without error.
      */
-    public function doLoadTranslation(object $document, ClassMetadata $metadata, string $locale = null, bool $fallback = false, bool $refresh = false): void
+    public function doLoadTranslation(object $document, ClassMetadata $metadata, ?string $locale = null, bool $fallback = false, bool $refresh = false): void
     {
         if (!$this->isDocumentTranslatable($metadata)) {
             return;
@@ -3398,7 +3398,7 @@ class UnitOfWork
      *
      * @return string|null the current locale of $document or null if it is not translatable
      */
-    public function getCurrentLocale(object $document, ClassMetadata $metadata = null): ?string
+    public function getCurrentLocale(object $document, ?ClassMetadata $metadata = null): ?string
     {
         if (null === $metadata) {
             $metadata = $this->dm->getClassMetadata(get_class($document));
@@ -3434,7 +3434,7 @@ class UnitOfWork
             && 0 !== count($metadata->translatableFields);
     }
 
-    private static function objToStr(object $obj, DocumentManagerInterface $dm = null)
+    private static function objToStr(object $obj, ?DocumentManagerInterface $dm = null)
     {
         $string = method_exists($obj, '__toString')
             ? (string) $obj
@@ -3547,7 +3547,7 @@ class UnitOfWork
      *
      * @return int previous fetch depth value
      */
-    public function setFetchDepth(int $fetchDepth = null): int
+    public function setFetchDepth(?int $fetchDepth = null): int
     {
         if (!$this->useFetchDepth
             || !method_exists($this->session, 'getSessionOption')

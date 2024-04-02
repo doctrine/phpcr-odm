@@ -28,7 +28,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class QueryBuilder extends AbstractNode
+class QueryBuilder extends QBConstants
 {
     private ?ConverterInterface $converter = null;
     private int $firstResult = 0;
@@ -156,7 +156,7 @@ class QueryBuilder extends AbstractNode
      *
      * @factoryMethod From
      */
-    public function from(string $primaryAlias = null): From
+    public function from(?string $primaryAlias = null): From
     {
         $this->primaryAlias = $primaryAlias;
 

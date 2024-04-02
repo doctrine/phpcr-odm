@@ -81,7 +81,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @return Collection the objects matching the criteria
      */
-    public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): Collection
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): Collection
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -199,7 +199,7 @@ class DocumentRepository implements ObjectRepository
      *
      * @see \PHPCR\PropertyType
      */
-    public function quote(string $val, int $type = null): string
+    public function quote(string $val, ?int $type = null): string
     {
         return $this->dm->quote($val, $type);
     }

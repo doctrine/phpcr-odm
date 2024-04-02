@@ -9,7 +9,7 @@ final class Uuid extends Field
         string $property = 'jcr:uuid',
         string $type = 'string',
         bool $multivalue = false,
-        string $assoc = null,
+        ?string $assoc = null,
         bool $nullable = false,
     ) {
         parent::__construct($property, $type, $multivalue, $assoc, $nullable, false);

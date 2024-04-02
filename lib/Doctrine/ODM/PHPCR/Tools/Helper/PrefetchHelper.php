@@ -23,7 +23,7 @@ class PrefetchHelper
     /**
      * @param NodeInterface[] $nodes
      */
-    public function prefetch(DocumentManagerInterface $dm, iterable $nodes, string $locale = null): void
+    public function prefetch(DocumentManagerInterface $dm, iterable $nodes, ?string $locale = null): void
     {
         if (0 === count($nodes)) {
             return;
@@ -68,7 +68,7 @@ class PrefetchHelper
      *
      * @param NodeInterface $node the node to prefetch parent and children for
      */
-    public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, string $locale = null): void
+    public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, ?string $locale = null): void
     {
         $prefetch = $this->collectPrefetchHierarchy($class, $node, $locale);
         if (count($prefetch)) {
@@ -112,7 +112,7 @@ class PrefetchHelper
      *
      * @return string[] list of absolute paths to nodes that should be prefetched
      */
-    public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, string $locale = null): array
+    public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, ?string $locale = null): array
     {
         $prefetch = [];
         if ($class->parentMapping && $node->getDepth() > 0) {

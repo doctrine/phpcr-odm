@@ -83,7 +83,7 @@ final class QueryBuilderTester
      * Note that paths here do not include indexes. They need to be
      * inferred mentally.
      */
-    public function dumpPaths(AbstractNode $node = null): string
+    public function dumpPaths(?AbstractNode $node = null): string
     {
         $children = [];
         $paths = [];
@@ -127,7 +127,7 @@ final class QueryBuilderTester
      *
      * @return AbstractNode[]
      */
-    public function getAllNodes(AbstractNode $node = null): array
+    public function getAllNodes(?AbstractNode $node = null): array
     {
         $nodes = [];
         if (!$node) {

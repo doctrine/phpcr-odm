@@ -117,7 +117,7 @@ abstract class ConverterBase implements ConverterInterface
      *
      * @return object|array - PHPCR QOM object or array of objects
      */
-    public function dispatch(AbstractNode $node)
+    public function dispatch(QBConstants $node)
     {
         $methodName = sprintf('walk%s', $node->getName());
 
@@ -134,7 +134,7 @@ abstract class ConverterBase implements ConverterInterface
     /**
      * @return ColumnInterface[]
      */
-    public function walkSelect(AbstractNode $node): array
+    public function walkSelect(QBConstants $node): array
     {
         $columns = [];
 
@@ -175,7 +175,7 @@ abstract class ConverterBase implements ConverterInterface
         return $this->columns;
     }
 
-    public function walkFrom(AbstractNode $node): SourceInterface
+    public function walkFrom(QBConstants $node): SourceInterface
     {
         $source = $node->getChild();
         $res = $this->dispatch($source);
@@ -302,7 +302,7 @@ abstract class ConverterBase implements ConverterInterface
         );
     }
 
-    protected function doWalkConstraintComposite(AbstractNode $node, $method)
+    protected function doWalkConstraintComposite(QBConstants $node, $method)
     {
         $children = $node->getChildren();
 

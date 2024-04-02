@@ -36,7 +36,7 @@ class ChildrenCollection extends PersistentCollection
      * @param int               $fetchDepth Optional fetch depth, -1 to not override
      * @param string|null       $locale     The locale to use during the loading of this collection
      */
-    public function __construct(DocumentManagerInterface $dm, object $document, array|string $filter = null, int $fetchDepth = -1, string $locale = null)
+    public function __construct(DocumentManagerInterface $dm, object $document, array|string|null $filter = null, int $fetchDepth = -1, ?string $locale = null)
     {
         parent::__construct($dm);
         $this->document = $document;

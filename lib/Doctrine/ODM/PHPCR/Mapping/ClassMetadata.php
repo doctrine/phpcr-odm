@@ -680,7 +680,7 @@ class ClassMetadata implements ClassMetadataInterface
         return $this->namespace;
     }
 
-    public function mapId(array $mapping, self $inherited = null): void
+    public function mapId(array $mapping, ?self $inherited = null): void
     {
         if (true === ($mapping['id'] ?? false)) {
             $mapping['type'] = 'string';
@@ -693,21 +693,21 @@ class ClassMetadata implements ClassMetadataInterface
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
     }
 
-    public function mapNode(array $mapping, self $inherited = null): void
+    public function mapNode(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = 'node';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false);
         $this->node = $mapping['fieldName'];
     }
 
-    public function mapNodename(array $mapping, self $inherited = null): void
+    public function mapNodename(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = 'nodename';
         $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->nodename = $mapping['fieldName'];
     }
 
-    public function mapParentDocument(array $mapping, self $inherited = null): void
+    public function mapParentDocument(array $mapping, ?self $inherited = null): void
     {
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -717,7 +717,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->parentMapping = $mapping['fieldName'];
     }
 
-    public function mapChild(array $mapping, self $inherited = null): void
+    public function mapChild(array $mapping, ?self $inherited = null): void
     {
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -730,7 +730,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->childMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapChildren(array $mapping, self $inherited = null): void
+    public function mapChildren(array $mapping, ?self $inherited = null): void
     {
         if (empty($mapping['cascade'])) {
             $mapping['cascade'] = 0;
@@ -749,7 +749,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->childrenMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapReferrers(array $mapping, self $inherited = null): void
+    public function mapReferrers(array $mapping, ?self $inherited = null): void
     {
         if (empty($mapping['referencedBy'])) {
             throw MappingException::referrerWithoutReferencedBy($this->name, $mapping['fieldName']);
@@ -772,7 +772,7 @@ class ClassMetadata implements ClassMetadataInterface
         $this->referrersMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapMixedReferrers(array $mapping, self $inherited = null): void
+    public function mapMixedReferrers(array $mapping, ?self $inherited = null): void
     {
         if (!(array_key_exists('referenceType', $mapping) && in_array($mapping['referenceType'], [null, 'weak', 'hard'], true))) {
             throw new MappingException(sprintf(
@@ -797,28 +797,28 @@ class ClassMetadata implements ClassMetadataInterface
         $this->mixedReferrersMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapLocale(array $mapping, self $inherited = null): void
+    public function mapLocale(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = 'locale';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->localeMapping = $mapping['fieldName'];
     }
 
-    public function mapDepth(array $mapping, self $inherited = null): void
+    public function mapDepth(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = 'depth';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->depthMapping = $mapping['fieldName'];
     }
 
-    public function mapVersionName(array $mapping, self $inherited = null): void
+    public function mapVersionName(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = 'versionname';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
         $this->versionNameField = $mapping['fieldName'];
     }
 
-    public function mapVersionCreated(array $mapping, self $inherited = null): void
+    public function mapVersionCreated(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = 'versioncreated';
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, false);
@@ -837,7 +837,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @throws MappingException
      */
-    private function validateAndCompleteFieldMapping(array $mapping, self $inherited = null, bool $isField = true, $phpcrLabel = 'property'): array
+    private function validateAndCompleteFieldMapping(array $mapping, ?self $inherited = null, bool $isField = true, $phpcrLabel = 'property'): array
     {
         if ($inherited) {
             if (!array_key_exists('inherited', $mapping)) {
@@ -916,7 +916,7 @@ class ClassMetadata implements ClassMetadataInterface
         return $mapping;
     }
 
-    private function validateAndCompleteAssociationMapping(array $mapping, self $inherited = null, bool|string $phpcrLabel = 'property'): array
+    private function validateAndCompleteAssociationMapping(array $mapping, ?self $inherited = null, bool|string $phpcrLabel = 'property'): array
     {
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited, false, $phpcrLabel);
         if ($inherited) {
@@ -1063,14 +1063,14 @@ class ClassMetadata implements ClassMetadataInterface
         ));
     }
 
-    public function mapManyToOne(array $mapping, self $inherited = null): void
+    public function mapManyToOne(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = self::MANY_TO_ONE;
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
         $this->referenceMappings[$mapping['fieldName']] = $mapping['fieldName'];
     }
 
-    public function mapManyToMany(array $mapping, self $inherited = null): void
+    public function mapManyToMany(array $mapping, ?self $inherited = null): void
     {
         $mapping['type'] = self::MANY_TO_MANY;
         $mapping = $this->validateAndCompleteAssociationMapping($mapping, $inherited);
@@ -1360,7 +1360,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param array $mapping the mapping information
      */
-    public function mapField(array $mapping, self $inherited = null): void
+    public function mapField(array $mapping, ?self $inherited = null): void
     {
         $parentMapping = array_key_exists('fieldName', $mapping) && array_key_exists($mapping['fieldName'], $this->mappings)
             ? $this->mappings[$mapping['fieldName']]
@@ -1629,7 +1629,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @param mixed[]|null $arguments the arguments to pass to the callback
      */
-    public function invokeLifecycleCallbacks(string $lifecycleEvent, object $document, array $arguments = null): void
+    public function invokeLifecycleCallbacks(string $lifecycleEvent, object $document, ?array $arguments = null): void
     {
         foreach ($this->lifecycleCallbacks[$lifecycleEvent] as $callback) {
             if (null !== $arguments) {

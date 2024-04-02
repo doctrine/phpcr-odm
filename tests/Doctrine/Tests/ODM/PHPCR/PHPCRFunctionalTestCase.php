@@ -21,7 +21,7 @@ abstract class PHPCRFunctionalTestCase extends TestCase
      */
     private $sessions = [];
 
-    public function createDocumentManager(array $paths = null): DocumentManager
+    public function createDocumentManager(?array $paths = null): DocumentManager
     {
         if (empty($paths)) {
             $paths = [__DIR__.'/../../Models'];
