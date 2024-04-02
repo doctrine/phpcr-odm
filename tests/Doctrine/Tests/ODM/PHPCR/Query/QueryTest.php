@@ -122,9 +122,9 @@ class QueryTest extends TestCase
             ->method('bindValue')
             ->with(
                 $this->callback(function (string $key): bool {
-                    return $key === 'kfoo' || $key === 'kbar';
+                    return 'kfoo' === $key || 'kbar' === $key;
                 }), $this->callback(function (string $value): bool {
-                    return $value === 'bar' || $value === 'foo';
+                    return 'bar' === $value || 'foo' === $value;
                 })
             )
         ;

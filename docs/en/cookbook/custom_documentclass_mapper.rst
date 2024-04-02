@@ -62,9 +62,9 @@ custom mapper::
 
     /* prepare the doctrine configuration */
     $config = new \Doctrine\ODM\PHPCR\Configuration();
-    $map = array(
+    $map = [
         'standard-templating-kit:pages/stkSection' => \Sandbox\MagnoliaBundle\Document\Section::class,
-    );
+    ];
     $mapper = new MagnoliaDocumentClassMapper($map);
     $config->setDocumentClassMapper($mapper);
 
@@ -125,18 +125,18 @@ of instantiating the default one. An example from the `symfony cmf sandbox`_
 
         $container
             ->register('doctrine.odm_configuration', '%doctrine_phpcr.odm.configuration.class%')
-            ->addMethodCall('setDocumentClassMapper', array(
+            ->addMethodCall('setDocumentClassMapper', [
                 new Reference('sandbox_magnolia.odm_mapper'),
-            ))
+            ])
         ;
 
         $container ->setDefinition('sandbox_amgnolia.odm_mapper', new Definition(
             MagnoliaDocumentClassMapper::class,
-            array(
-                array(
+            [
+                [
                     'standard-templating-kit:pages/stkSection' => Section::class,
-                ),
-            ),
+                ],
+            ],
         ));
 
 .. _`symfony cmf sandbox`: https://github.com/symfony-cmf/cmf-sandbox/tree/magnolia_integration
