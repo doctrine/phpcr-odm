@@ -27,9 +27,7 @@ abstract base class or interface. A document class must not be final
 or contain final methods. Additionally it must not implement
 **clone** nor **wakeup**.
 
-.. todo: or :doc:`do so safely <../cookbook/implementing-wakeup-or-clone>`.
-
-See the :doc:`architecture chapter <../reference/architecture>` for a full list of the restrictions
+See the :doc:`architecture chapter <architecture>` for a full list of the restrictions
 that your entities need to comply with.
 
 A document contains persistable properties. A persistable property
@@ -54,29 +52,13 @@ We do not build a web interface but simple run scripts on the command line to ke
 Setup Project
 -------------
 
-Create a file composer.json in your project directory.
-
-.. code-block:: javascript
-
-    {
-        "minimum-stability": "dev",
-        "require": {
-            "doctrine/phpcr-odm": "~1.2",
-            "jackalope/jackalope-doctrine-dbal": "~1.1"
-        },
-        "autoload": {
-          "psr-0": { "Demo\\": "src/" }
-        }
-    }
-
-Then run the following commands on your command line
+Use composer to install PHPCR-ODM and a PHPCR implementation:
 
 .. code-block:: bash
 
-    $ curl -s http://getcomposer.org/installer | php --
-    $ php composer.phar install
+    composer require doctrine/phpcr-odm jackalope/jackalope-doctrine-dbal
 
-This will download the dependencies into the vendor/ folder and generate ``vendor/autoload.php``.
+See :doc:`../cookbook/choosing-phpcr-implementation` for alternatives to the Jackalope Doctrine-DBAL implementation.
 
 .. _intro-bootstrap:
 
