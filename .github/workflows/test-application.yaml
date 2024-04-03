@@ -37,6 +37,7 @@ jobs:
                   - php-version: '8.1'
                     dependencies: lowest
                     symfony-version: '*'
+                    jackalope-version: '1.*'
                   - php-version: '8.1'
                     dependencies: highest
                     symfony-version: '5.4.*'
@@ -115,6 +116,7 @@ jobs:
                   - php-version: '8.1'
                     dependencies: lowest
                     symfony-version: '*'
+                    jackalope-version: '1.*'
                   - php-version: '8.1'
                     dependencies: highest
                     symfony-version: 5.4.*
