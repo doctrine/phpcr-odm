@@ -1,4 +1,11 @@
-<phpunit colors="true" bootstrap="bootstrap.php" backupGlobals="false" cacheTokens="true">
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit 
+    colors="true"
+    bootstrap="bootstrap.php"
+    backupGlobals="false"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+>
     <php>
         <!-- Disable E_USER_DEPRECATED until 3.0 -->
         <!-- php -r 'echo -1 & ~E_USER_DEPRECATED;' -->
@@ -22,9 +29,9 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
-            <directory>../lib/Doctrine/ODM/PHPCR</directory>
-        </whitelist>
-    </filter>
+    <coverage includeUncoveredFiles="true">
+        <include>
+            <directory>../lib/Doctrine/ODM/PHPCR/</directory>
+        </include>
+    </coverage>
 </phpunit>
