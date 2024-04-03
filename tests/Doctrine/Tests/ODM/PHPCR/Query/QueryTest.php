@@ -122,9 +122,13 @@ class QueryTest extends TestCase
             ->method('bindValue')
             ->with(
                 $this->callback(function (string $key): bool {
-                    return 'kfoo' === $key || 'kbar' === $key;
+                    $this->assertContains($key, ['kfoo', 'kbar']);
+
+                    return true;
                 }), $this->callback(function (string $value): bool {
-                    return 'bar' === $value || 'foo' === $value;
+                    $this->assertContains($value, ['bar', 'foo']);
+
+                    return true;
                 })
             )
         ;
