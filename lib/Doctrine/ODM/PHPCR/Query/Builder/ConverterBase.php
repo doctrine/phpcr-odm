@@ -3,7 +3,6 @@
 namespace Doctrine\ODM\PHPCR\Query\Builder;
 
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
-use Doctrine\ODM\PHPCR\Query\Builder\AbstractNode as QBConstants;
 use PHPCR\Query\QOM\BindVariableValueInterface;
 use PHPCR\Query\QOM\ChildNodeInterface;
 use PHPCR\Query\QOM\ChildNodeJoinConditionInterface;
@@ -234,11 +233,11 @@ abstract class ConverterBase implements ConverterInterface
 
     protected function walkSourceJoin(SourceJoin $node): JoinInterface
     {
-        $left = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_LEFT));
+        $left = $this->dispatch($node->getChildOfType(AbstractNode::NT_SOURCE_JOIN_LEFT));
         \assert($left instanceof SourceInterface);
-        $right = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_RIGHT));
+        $right = $this->dispatch($node->getChildOfType(AbstractNode::NT_SOURCE_JOIN_RIGHT));
         \assert($right instanceof SourceInterface);
-        $cond = $this->dispatch($node->getChildOfType(QBConstants::NT_SOURCE_JOIN_CONDITION_FACTORY));
+        $cond = $this->dispatch($node->getChildOfType(AbstractNode::NT_SOURCE_JOIN_CONDITION_FACTORY));
         \assert($cond instanceof JoinConditionInterface);
 
         return $this->qomf()->join($left, $right, $node->getJoinType(), $cond);
@@ -391,10 +390,10 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkConstraintComparison(ConstraintComparison $node): ComparisonInterface
     {
         $dynOp = $node->getChildOfType(
-            QBConstants::NT_OPERAND_DYNAMIC
+            AbstractNode::NT_OPERAND_DYNAMIC
         );
         $statOp = $node->getChildOfType(
-            QBConstants::NT_OPERAND_STATIC
+            AbstractNode::NT_OPERAND_STATIC
         );
 
         $phpcrDynOp = $this->dispatch($dynOp);
@@ -412,7 +411,7 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkConstraintNot(ConstraintNot $node): ConstraintInterface
     {
         $con = $node->getChildOfType(
-            QBConstants::NT_CONSTRAINT
+            AbstractNode::NT_CONSTRAINT
         );
 
         $phpcrCon = $this->dispatch($con);
@@ -464,7 +463,7 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkOperandDynamicLowerCase(OperandDynamicLowerCase $node): LowerCaseInterface
     {
         $child = $node->getChildOfType(
-            QBConstants::NT_OPERAND_DYNAMIC
+            AbstractNode::NT_OPERAND_DYNAMIC
         );
 
         $phpcrChild = $this->dispatch($child);
@@ -478,7 +477,7 @@ abstract class ConverterBase implements ConverterInterface
     protected function walkOperandDynamicUpperCase(OperandDynamicUpperCase $node): UpperCaseInterface
     {
         $child = $node->getChildOfType(
-            QBConstants::NT_OPERAND_DYNAMIC
+            AbstractNode::NT_OPERAND_DYNAMIC
         );
 
         $phpcrChild = $this->dispatch($child);
@@ -513,7 +512,7 @@ abstract class ConverterBase implements ConverterInterface
         foreach ($orderings as $ordering) {
             \assert($ordering instanceof Ordering);
             $dynOp = $ordering->getChildOfType(
-                QBConstants::NT_OPERAND_DYNAMIC
+                AbstractNode::NT_OPERAND_DYNAMIC
             );
 
             $phpcrDynOp = $this->dispatch($dynOp);

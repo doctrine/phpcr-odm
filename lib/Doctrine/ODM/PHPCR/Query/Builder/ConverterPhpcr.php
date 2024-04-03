@@ -56,7 +56,7 @@ class ConverterPhpcr extends ConverterBase
      * Used to keep track of which sources are used with translated fields, to
      * tell the translation strategy to update if needed.
      *
-     * @var array<string, boolean> keys are the alias, value is true
+     * @var array<string, bool> keys are the alias, value is true
      */
     private array $aliasWithTranslatedFields;
 
@@ -290,7 +290,7 @@ class ConverterPhpcr extends ConverterBase
     {
         $value = $node->getValue();
 
-        if ($field = $node->getParent()?->getChildOfType(AbstractNode::NT_OPERAND_DYNAMIC)) {
+        if ($field = $node->getParent()?->getChildOfType(QBConstants::NT_OPERAND_DYNAMIC)) {
             if ($field instanceof OperandDynamicField) {
                 $meta = $this->aliasMetadata[$field->getAlias()];
                 $fieldMapping = $meta->getFieldMapping($field->getField());

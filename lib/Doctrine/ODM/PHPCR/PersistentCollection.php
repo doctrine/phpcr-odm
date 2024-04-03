@@ -186,7 +186,7 @@ abstract class PersistentCollection implements Collection
         return $this->collection->isEmpty();
     }
 
-    public function key(): int|null|string
+    public function key(): int|string|null
     {
         $this->initialize();
 

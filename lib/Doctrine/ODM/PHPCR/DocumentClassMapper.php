@@ -13,7 +13,7 @@ use PHPCR\PropertyType;
  */
 class DocumentClassMapper implements DocumentClassMapperInterface
 {
-    private function expandClassName(DocumentManagerInterface $dm, string $className = null): ?string
+    private function expandClassName(DocumentManagerInterface $dm, ?string $className = null): ?string
     {
         if (null === $className) {
             return null;
@@ -26,7 +26,7 @@ class DocumentClassMapper implements DocumentClassMapperInterface
         return $className;
     }
 
-    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, string $className = null): string
+    public function getClassName(DocumentManagerInterface $dm, NodeInterface $node, ?string $className = null): string
     {
         $className = $this->expandClassName($dm, $className);
 

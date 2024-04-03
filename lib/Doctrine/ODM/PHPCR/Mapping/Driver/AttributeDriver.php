@@ -82,12 +82,12 @@ class AttributeDriver implements MappingDriver
         $classAttributes = $this->reader->getClassAttributes($reflectionClass);
 
         // Evaluate document attribute
-        if (array_key_exists(ODM\Document::class, $classAttributes)) {
-            $documentAttribute = $classAttributes[ODM\Document::class];
-            \assert($documentAttribute instanceof ODM\Document);
-        } elseif (isset($classAttributes[ODM\MappedSuperclass::class])) {
-            $documentAttribute = $classAttributes[ODM\MappedSuperclass::class];
-            \assert($documentAttribute instanceof ODM\MappedSuperclass);
+        if (array_key_exists(Document::class, $classAttributes)) {
+            $documentAttribute = $classAttributes[Document::class];
+            \assert($documentAttribute instanceof Document);
+        } elseif (isset($classAttributes[MappedSuperclass::class])) {
+            $documentAttribute = $classAttributes[MappedSuperclass::class];
+            \assert($documentAttribute instanceof MappedSuperclass);
             $metadata->isMappedSuperclass = true;
         } else {
             throw MappingException::classIsNotAValidDocument($className);

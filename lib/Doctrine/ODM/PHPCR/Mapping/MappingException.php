@@ -32,7 +32,7 @@ class MappingException extends BaseMappingException implements PHPCRExceptionInt
         return new self("Invalid mapping: The class '$documentClass' does not have a field named '$fieldName'");
     }
 
-    public static function illegalChildName(string $documentClass, string $fieldName, string $nodeName, \Throwable $previous = null): self
+    public static function illegalChildName(string $documentClass, string $fieldName, string $nodeName, ?\Throwable $previous = null): self
     {
         return new self("Invalid mapping: The field '$fieldName' of '$documentClass' is configured to the illegal PHPCR node name '$nodeName'.", 0, $previous);
     }

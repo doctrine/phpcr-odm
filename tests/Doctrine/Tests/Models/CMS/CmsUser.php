@@ -108,7 +108,7 @@ class CmsUser
 
 class CmsUserRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId(object $document, object $parent = null): string
+    public function generateId(object $document, ?object $parent = null): string
     {
         return '/functional/'.$document->username;
     }

@@ -128,7 +128,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
     public function alterQueryForTranslation(
         QueryObjectModelFactoryInterface $qomf,
         SourceInterface &$selector,
-        ConstraintInterface &$constraint = null,
+        ?ConstraintInterface &$constraint,
         string $alias,
         string $locale
     ): void {

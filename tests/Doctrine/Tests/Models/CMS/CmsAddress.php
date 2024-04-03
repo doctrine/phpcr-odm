@@ -65,7 +65,7 @@ class CmsAddress
 
 class CmsAddressRepository extends DocumentRepository implements RepositoryIdInterface
 {
-    public function generateId(object $document, object $parent = null): string
+    public function generateId(object $document, ?object $parent = null): string
     {
         return '/functional/'.$document->city.'_'.$document->zip;
     }

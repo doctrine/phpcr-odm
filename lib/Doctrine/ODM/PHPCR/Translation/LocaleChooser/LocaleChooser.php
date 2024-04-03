@@ -84,7 +84,7 @@ final class LocaleChooser implements LocaleChooserInterface
         $this->localePreference[$locale] = $order;
     }
 
-    public function getFallbackLocales(?object $document, ClassMetadata $metadata, string $forLocale = null): array
+    public function getFallbackLocales(?object $document, ClassMetadata $metadata, ?string $forLocale = null): array
     {
         if (is_null($forLocale)) {
             return $this->localePreference[$this->getLocale()];

@@ -10,7 +10,7 @@ final class Id implements MappingAttribute
     public function __construct(
         public bool $id = true,
         public string $type = 'string',
-        public null|string $strategy = null,
+        public ?string $strategy = null,
     ) {
     }
 }

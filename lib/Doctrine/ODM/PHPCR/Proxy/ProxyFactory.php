@@ -139,7 +139,7 @@ class ProxyFactory extends AbstractProxyFactory
      *
      * @throws UnexpectedValueException
      */
-    private function createCloner(PhpcrClassMetadata $classMetadata, \ReflectionProperty $reflectionId = null): \Closure
+    private function createCloner(PhpcrClassMetadata $classMetadata, ?\ReflectionProperty $reflectionId = null): \Closure
     {
         $className = $classMetadata->getName();
         $documentManager = $this->documentManager;

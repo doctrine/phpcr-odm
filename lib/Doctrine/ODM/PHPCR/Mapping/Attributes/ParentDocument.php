@@ -12,10 +12,10 @@ use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class ParentDocument implements MappingAttribute
 {
-    public array|null $cascade;
+    public ?array $cascade;
 
     public function __construct(
-        string|array $cascade = null
+        string|array|null $cascade = null
     ) {
         $this->cascade = null === $cascade ? null : (array) $cascade;
     }

@@ -61,7 +61,7 @@ class DocumentManager implements DocumentManagerInterface
     private LocaleChooserInterface $localeChooserStrategy;
     private ValueConverter $valueConverter;
 
-    public function __construct(SessionInterface $session, Configuration $config = null, EventManager $evm = null)
+    public function __construct(SessionInterface $session, ?Configuration $config = null, ?EventManager $evm = null)
     {
         $this->session = $session;
         $this->config = $config ?: new Configuration();
@@ -136,7 +136,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * Factory method to create a Document Manager.
      */
-    public static function create(SessionInterface $session, Configuration $config = null, EventManager $evm = null): DocumentManager
+    public static function create(SessionInterface $session, ?Configuration $config = null, ?EventManager $evm = null): DocumentManager
     {
         return new self($session, $config, $evm);
     }
@@ -342,7 +342,7 @@ class DocumentManager implements DocumentManagerInterface
         return new PhpcrQueryBuilder($qm->getQOMFactory());
     }
 
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, string $className = null, string $primarySelector = null): Collection
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
     {
         $this->errorIfClosed();
 
@@ -504,14 +504,14 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork->refresh($document);
     }
 
-    public function getChildren(object $document, array|string $filter = null, int $fetchDepth = -1, string $locale = null): ChildrenCollection
+    public function getChildren(object $document, array|string|null $filter = null, int $fetchDepth = -1, ?string $locale = null): ChildrenCollection
     {
         $this->errorIfClosed();
 
         return new ChildrenCollection($this, $document, $filter, $fetchDepth, $locale);
     }
 
-    public function getReferrers(object $document, string $type = null, string $name = null, string $locale = null, $refClass = null): ReferrersCollection
+    public function getReferrers(object $document, ?string $type = null, ?string $name = null, ?string $locale = null, $refClass = null): ReferrersCollection
     {
         $this->errorIfClosed();
 
@@ -530,7 +530,7 @@ class DocumentManager implements DocumentManagerInterface
      * @throws InvalidArgumentException if $document is neither null nor a
      *                                  document or an array of documents
      */
-    public function flush(object|array $document = null): void
+    public function flush(object|array|null $document = null): void
     {
         if (null !== $document && !is_object($document) && !is_array($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');

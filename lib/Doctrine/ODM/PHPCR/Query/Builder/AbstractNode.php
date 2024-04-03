@@ -64,7 +64,7 @@ abstract class AbstractNode
 
     private ?AbstractNode $parent;
 
-    public function __construct(AbstractNode $parent = null)
+    public function __construct(?AbstractNode $parent = null)
     {
         $this->parent = $parent;
     }

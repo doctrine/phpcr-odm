@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @group unit
  */
-class QueryTest extends Testcase
+class QueryTest extends TestCase
 {
     /**
      * @var QueryInterface&MockObject
@@ -120,9 +120,15 @@ class QueryTest extends Testcase
     {
         $this->phpcrQuery
             ->method('bindValue')
-            ->withConsecutive(['foo', 'bar'], ['bar', 'foo'])
+            ->with(
+                $this->callback(function (string $key): bool {
+                    return 'kfoo' === $key || 'kbar' === $key;
+                }), $this->callback(function (string $value): bool {
+                    return 'bar' === $value || 'foo' === $value;
+                })
+            )
         ;
-        $this->query->execute(['foo' => 'bar', 'bar' => 'foo']);
+        $this->query->execute(['kfoo' => 'bar', 'kbar' => 'foo']);
     }
 
     public function testExecuteMaxResults(): void

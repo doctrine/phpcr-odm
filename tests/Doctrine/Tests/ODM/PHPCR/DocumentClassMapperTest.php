@@ -14,7 +14,7 @@ use PHPCR\PropertyType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class DocumentClassMapperTest extends Testcase
+class DocumentClassMapperTest extends TestCase
 {
     private const CLASS_GENERIC = Generic::class;
     private const CLASS_TEST_1 = 'Test\Class1';

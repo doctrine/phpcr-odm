@@ -16,7 +16,7 @@ class ParentIdGenerator extends IdGenerator
      *
      * {@inheritdoc}
      */
-    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent = null): string
+    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, ?object $parent = null): string
     {
         if (null === $parent) {
             $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;

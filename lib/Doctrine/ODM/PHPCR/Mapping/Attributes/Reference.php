@@ -6,7 +6,7 @@ use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 
 abstract class Reference implements MappingAttribute
 {
-    public array|null $cascade;
+    public ?array $cascade;
 
     /**
      * @param string[]|string $cascade
@@ -15,10 +15,10 @@ abstract class Reference implements MappingAttribute
         /**
          * The PHPCR property name to use.
          */
-        public null|string $property = null,
-        public null|string $targetDocument = null,
+        public ?string $property = null,
+        public ?string $targetDocument = null,
         public string $strategy = 'weak',
-        array|string $cascade = null
+        array|string|null $cascade = null
     ) {
         $this->cascade = null === $cascade ? null : (array) $cascade;
     }

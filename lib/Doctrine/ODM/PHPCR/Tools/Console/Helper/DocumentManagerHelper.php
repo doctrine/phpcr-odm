@@ -13,7 +13,7 @@ final class DocumentManagerHelper extends PhpcrHelper
 {
     private ?DocumentManagerInterface $dm;
 
-    public function __construct(SessionInterface $session = null, DocumentManagerInterface $dm = null)
+    public function __construct(?SessionInterface $session = null, ?DocumentManagerInterface $dm = null)
     {
         if (!$session && $dm) {
             $session = $dm->getPhpcrSession();

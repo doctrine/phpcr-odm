@@ -124,7 +124,7 @@ class Query
      *
      * @throws QueryException if $hydrationMode is not known
      */
-    public function execute(array $parameters = null, int $hydrationMode = null)
+    public function execute(?array $parameters = null, ?int $hydrationMode = null)
     {
         if (!empty($parameters)) {
             $this->setParameters($parameters);
@@ -195,7 +195,7 @@ class Query
      *
      * @throws QueryException if more than one result found
      */
-    public function getOneOrNullResult(int $hydrationMode = null)
+    public function getOneOrNullResult(?int $hydrationMode = null)
     {
         $result = $this->execute(null, $hydrationMode);
 
@@ -219,7 +219,7 @@ class Query
      *
      * @throws QueryException if no result or more than one result found
      */
-    public function getSingleResult(int $hydrationMode = null)
+    public function getSingleResult(?int $hydrationMode = null)
     {
         $result = $this->getOneOrNullResult($hydrationMode);
 

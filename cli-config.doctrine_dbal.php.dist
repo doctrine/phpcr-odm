@@ -7,16 +7,17 @@
  * Add instances of commands for eventual implementation specific commands to this array.
  */
 
-$extraCommands = array();
+$extraCommands = [];
 $extraCommands[] = new \Jackalope\Tools\Console\Command\InitDoctrineDbalCommand();
 
-$params = array(
+$params = [
     'driver'    => 'pdo_mysql',
     'host'      => '127.0.0.1',
     'user'      => 'root',
     'password'  => '',
     'dbname'    => 'phpcr_odm_tests',
-);
+    'charset'   => 'utf8mb4',
+];
 
 $dbConn = \Doctrine\DBAL\DriverManager::getConnection($params);
 
@@ -31,7 +32,7 @@ if (isset($argv[1])
     && $argv[1] != 'help'
 ) {
     $factory = new \Jackalope\RepositoryFactoryDoctrineDBAL();
-    $repository = $factory->getRepository(array('jackalope.doctrine_dbal_connection' => $dbConn));
+    $repository = $factory->getRepository(['jackalope.doctrine_dbal_connection' => $dbConn]);
     $credentials = new \PHPCR\SimpleCredentials(null, null);
     $session = $repository->login($credentials, $workspace);
 
@@ -44,11 +45,11 @@ if (isset($argv[1])
 
     $dm = \Doctrine\ODM\PHPCR\DocumentManager::create($session, $config);
 
-    $helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
+    $helperSet = new \Symfony\Component\Console\Helper\HelperSet([
         'phpcr' => new \PHPCR\Util\Console\Helper\PhpcrHelper($session),
         'phpcr_console_dumper' => new \PHPCR\Util\Console\Helper\PhpcrConsoleDumperHelper(),
         'dm' => new \Doctrine\ODM\PHPCR\Tools\Console\Helper\DocumentManagerHelper(null, $dm),
-    ));
+    ]);
 
     if (class_exists('Symfony\Component\Console\Helper\QuestionHelper')) {
         $helperSet->set(new \Symfony\Component\Console\Helper\QuestionHelper(), 'question');
@@ -57,7 +58,7 @@ if (isset($argv[1])
     }
 } elseif (isset($argv[1]) && $argv[1] == 'jackalope:init:dbal') {
     // special case: the init command needs the db connection, but a session is impossible if the db is not yet initialized
-    $helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
+    $helperSet = new \Symfony\Component\Console\Helper\HelperSet([
         'connection' => new \Jackalope\Tools\Console\Helper\DoctrineDbalHelper($dbConn)
-    ));
+    ]);
 }

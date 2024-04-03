@@ -8,7 +8,7 @@ use Doctrine\ODM\PHPCR\Mapping\MappingAttribute;
 final class MixedReferrers implements MappingAttribute
 {
     public function __construct(
-        public null|string $referenceType = null
+        public ?string $referenceType = null
     ) {
     }
 }
