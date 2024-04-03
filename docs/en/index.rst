@@ -77,14 +77,11 @@ Cookbook
 --------
 
 * **Tricks**:
+  :doc:`Chosing a PHPCR implementation <cookbook/choosing-phpcr-implementation>` |
+  :doc:`Running Jackrabbit <cookbook/running-jackrabbit>` |
   :doc:`Last modification timestamp <cookbook/last-modified>` |
   :doc:`Custom Document Class Mapper <cookbook/custom_documentclass_mapper>` |
   :doc:`Convert documents between translated and untranslated <cookbook/refactoring-multilang>`
 
-.. TODO: write these
-  |
-  :doc:`Blending ORM and PHPCR-ODM <cookbook/blending-orm-and-phpcr-odm>` |
-  :doc:`Mapping classes to ORM and PHPCR-ODM <cookbook/mapping-classes-to-orm-and-phpcr-odm>` |
-
-Also have a look at the `Doctrine ORM cookbook <http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/#cookbook>`_,
+Also have a look at the `Doctrine ORM cookbook <https://www.doctrine-project.org/projects/doctrine-orm/en/latest/#cookbook>`_,
 notably the entries in the *Implementation* section apply to PHPCR-ODM as well.
