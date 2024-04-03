@@ -242,4 +242,9 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     {
         return $this->wrapped->getDocumentId($document);
     }
+
+    public function isUninitializedObject(mixed $value): bool
+    {
+        return $this->wrapped->isUninitializedObject($value);
+    }
 }

@@ -19,7 +19,9 @@ class DocumentManagerDecoratorTest extends PHPCRTestCase
         sort($dmMethods);
 
         $dmiMethods = get_class_methods(DocumentManagerInterface::class);
-        $dmiMethods = array_diff($dmiMethods, ['__construct']);
+        if (!in_array('isUninitializedObject', $dmiMethods)) {
+            $dmiMethods[] = 'isUninitializedObject'; // this method will only be added i ORM 4.*
+        }
         sort($dmiMethods);
 
         $dmdMethods = get_class_methods(OwnDocumentManager::class);
