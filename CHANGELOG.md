@@ -4,6 +4,11 @@ Changelog
 2.x
 ===
 
+2.0.1
+-----
+
+* Added `DocumentManager::isUninitializedObject` method to avoid warning and be ready for Doctrine ORM 4.*.
+
 2.0.0
 -----
 
