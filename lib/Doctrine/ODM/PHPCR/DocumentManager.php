@@ -19,6 +19,7 @@ use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\AttributeTranslationStrat
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\ChildTranslationStrategy;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\Persistence\ObjectRepository;
+use Doctrine\Persistence\Proxy;
 use PHPCR\ItemNotFoundException;
 use PHPCR\NodeInterface;
 use PHPCR\PathNotFoundException;
@@ -655,5 +656,10 @@ class DocumentManager implements DocumentManagerInterface
     public function getDocumentId(object $document): ?string
     {
         return $this->unitOfWork->getDocumentId($document);
+    }
+
+    public function isUninitializedObject(mixed $value): bool
+    {
+        return $value instanceof Proxy && !$value->__isInitialized();
     }
 }
