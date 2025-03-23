@@ -5,7 +5,7 @@ namespace Doctrine\ODM\PHPCR\Query\Builder;
 /**
  * Factory node for join conditions.
  *
- * @IgnoreAnnotation('factoryMethod');
+ * @IgnoreAnnotation("factoryMethod");
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */

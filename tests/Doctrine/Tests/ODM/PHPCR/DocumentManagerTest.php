@@ -15,7 +15,6 @@ use PHPCR\Query\QueryManagerInterface;
 use PHPCR\SessionInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\WorkspaceInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @group unit
@@ -195,7 +194,6 @@ class DocumentManagerTest extends PHPCRTestCase
 
     public function testGetDocumentIdForNonManagedDocumentsReturnsNull(): void
     {
-        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $obj = new \stdClass();

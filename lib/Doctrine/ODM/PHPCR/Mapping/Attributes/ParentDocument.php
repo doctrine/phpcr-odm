@@ -15,7 +15,7 @@ final class ParentDocument implements MappingAttribute
     public ?array $cascade;
 
     public function __construct(
-        string|array|null $cascade = null
+        string|array|null $cascade = null,
     ) {
         $this->cascade = null === $cascade ? null : (array) $cascade;
     }

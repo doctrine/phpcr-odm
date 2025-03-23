@@ -18,7 +18,7 @@ abstract class Reference implements MappingAttribute
         public ?string $property = null,
         public ?string $targetDocument = null,
         public string $strategy = 'weak',
-        array|string|null $cascade = null
+        array|string|null $cascade = null,
     ) {
         $this->cascade = null === $cascade ? null : (array) $cascade;
     }

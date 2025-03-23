@@ -176,7 +176,7 @@ class AttributeTranslationStrategy extends AbstractTranslationStrategy
         SourceInterface &$selector,
         ?ConstraintInterface &$constraint,
         string $alias,
-        string $locale
+        string $locale,
     ): void {
         // do nothing
     }

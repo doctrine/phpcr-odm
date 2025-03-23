@@ -40,7 +40,6 @@ use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UniqueNodeTypeMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\UuidMappingObject;
 use Doctrine\Tests\ODM\PHPCR\Mapping\Model\VersionableMappingObject;
 use PHPCR\SessionInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 abstract class AbstractMappingDriverTest extends TestCase
@@ -363,7 +362,6 @@ abstract class AbstractMappingDriverTest extends TestCase
         $this->assertNotNull($class->identifier);
         $this->assertEmpty($class->fieldMappings);
 
-        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());
@@ -767,7 +765,6 @@ abstract class AbstractMappingDriverTest extends TestCase
     public function testStringExtendedMapping(): void
     {
         $this->loadMetadataForClassname(StringMappingObject::class);
-        /** @var SessionInterface|MockObject $session */
         $session = $this->createMock(SessionInterface::class);
         $dm = DocumentManager::create($session);
         $dm->getConfiguration()->setMetadataDriverImpl($this->loadDriver());

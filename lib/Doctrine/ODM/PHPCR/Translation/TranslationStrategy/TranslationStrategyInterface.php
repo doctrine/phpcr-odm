@@ -109,6 +109,6 @@ interface TranslationStrategyInterface
         SourceInterface &$selector,
         ?ConstraintInterface &$constraint,
         string $alias,
-        string $locale
+        string $locale,
     ): void;
 }
