@@ -161,7 +161,7 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
         $child2 = $this->dm->find(null, '/functional/root/parent/child2');
 
         // testing
-        $this->dm->getEventManager()->addEventSubscriber(new class() implements EventSubscriber {
+        $this->dm->getEventManager()->addEventSubscriber(new class implements EventSubscriber {
             public function getSubscribedEvents()
             {
                 return [Event::preUpdate];

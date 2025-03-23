@@ -90,7 +90,7 @@ class NonTranslatedStrategy implements TranslationStrategyInterface
         SourceInterface &$selector,
         ?ConstraintInterface &$constraint,
         string $alias,
-        string $locale
+        string $locale,
     ): void {
         // nothing to alter
     }

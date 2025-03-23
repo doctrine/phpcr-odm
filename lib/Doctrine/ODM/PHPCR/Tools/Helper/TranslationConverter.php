@@ -91,7 +91,7 @@ class TranslationConverter
         string $documentClass,
         array $locales,
         array $fields = [],
-        string $previousStrategyName = NonTranslatedStrategy::NAME
+        string $previousStrategyName = NonTranslatedStrategy::NAME,
     ): bool {
         $currentMeta = $this->dm->getClassMetadata($documentClass);
         $currentStrategyName = $currentMeta->translator ?: NonTranslatedStrategy::NAME;
@@ -234,7 +234,7 @@ class TranslationConverter
         ClassMetadata $currentMeta,
         array $fields,
         array $locales,
-        bool $partialUntranslate
+        bool $partialUntranslate,
     ): void {
         $node = $this->dm->getNodeForDocument($document);
 

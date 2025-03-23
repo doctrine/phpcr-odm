@@ -47,7 +47,6 @@ class AbstractNodeTest extends TestCase
     protected function addChildrenToNode1($data): void
     {
         foreach ($data as $className) {
-            /** @var AbstractNode|MockObject $childNode */
             $childNode = $this->getMockForAbstractClass(AbstractNode::class, [], $className);
             $childNode->expects($this->once())
                 ->method('getNodeType')

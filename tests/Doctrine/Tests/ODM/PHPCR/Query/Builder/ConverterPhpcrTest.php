@@ -104,7 +104,6 @@ class ConverterPhpcrTest extends TestCase
                 return $meta;
             });
 
-        /** @var DocumentManager|MockObject $dm */
         $dm = $this->createMock(DocumentManager::class);
 
         $dm->expects($this->once())

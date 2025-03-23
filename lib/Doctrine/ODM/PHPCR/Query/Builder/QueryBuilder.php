@@ -24,7 +24,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  * is to be fulfilled. The PHPCR converter walks over the query builder node
  * hierarchy and converts the object graph the PHPCR QOM object graph.
  *
- * @IgnoreException('factoryMethod')
+ * @IgnoreException("factoryMethod")
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */

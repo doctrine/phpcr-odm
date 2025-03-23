@@ -130,7 +130,7 @@ class ChildTranslationStrategy extends AttributeTranslationStrategy implements T
         SourceInterface &$selector,
         ?ConstraintInterface &$constraint,
         string $alias,
-        string $locale
+        string $locale,
     ): void {
         $childAlias = "_{$locale}_{$alias}";
 

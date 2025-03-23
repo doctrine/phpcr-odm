@@ -64,7 +64,7 @@ class ConverterPhpcr extends ConverterBase
 
     public function __construct(
         DocumentManagerInterface $dm,
-        QueryObjectModelFactoryInterface $qomf
+        QueryObjectModelFactoryInterface $qomf,
     ) {
         $this->qomf = $qomf;
         $this->mdf = $dm->getMetadataFactory();

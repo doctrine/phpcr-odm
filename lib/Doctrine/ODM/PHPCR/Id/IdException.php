@@ -72,7 +72,7 @@ class IdException extends PHPCRException
         string $parentFieldName,
         string $fieldNodeName,
         object $childDocument,
-        string $childNodeName
+        string $childNodeName,
     ): self {
         $message = sprintf(
             '%s discovered as new child of %s in field "%s" has a node name '.
