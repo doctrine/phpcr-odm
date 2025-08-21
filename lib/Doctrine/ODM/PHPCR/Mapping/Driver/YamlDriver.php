@@ -262,7 +262,7 @@ class YamlDriver extends FileDriver
         }
     }
 
-    protected function loadMappingFile($file)
+    protected function loadMappingFile($file): array
     {
         if (!is_file($file)) {
             throw new InvalidArgumentException(sprintf('File "%s" not found', $file));

@@ -45,13 +45,11 @@ use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
 interface DocumentManagerInterface extends ObjectManager
 {
     /**
-     * @{@inheritDoc}
+     * {@inheritdoc}
      *
-     * Overwritten to tighten return type. We can't tighten the return type declaration because of Doctrine\Persistence\ObjectManagerDecorator.
-     *
-     * @return PhpcrClassMetadata
+     * Overwritten to tighten the return type.
      */
-    public function getClassMetadata(string $className);
+    public function getClassMetadata(string $className): PhpcrClassMetadata;
 
     /**
      * Add or replace a translation strategy.

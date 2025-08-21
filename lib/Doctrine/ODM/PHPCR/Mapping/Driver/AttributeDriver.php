@@ -63,7 +63,7 @@ class AttributeDriver implements MappingDriver
         $this->addPaths($paths);
     }
 
-    public function isTransient($className)
+    public function isTransient($className): bool
     {
         $classAttributes = $this->reader->getClassAttributes(new \ReflectionClass($className));
 
