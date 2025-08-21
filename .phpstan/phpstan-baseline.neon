@@ -40,3 +40,24 @@ parameters:
             message: "#^Call to an undefined method Doctrine\\\\ODM\\\\PHPCR\\\\Query\\\\Builder\\\\AbstractNode\\:\\:setConverter\\(\\)\\.$#"
             count: 1
             path: ../tests/Doctrine/Tests/ODM/PHPCR/Query/Builder/QueryBuilderTest.php
+
+        -
+            message: '#^Access to an undefined property Doctrine\\ODM\\PHPCR\\Mapping\\Driver\\AttributeDriver\:\:\$classLocator\.$#'
+            identifier: property.notFound
+            count: 1
+            path: ../lib/Doctrine/ODM/PHPCR/Mapping/Driver/AttributeDriver.php
+            reportUnmatched: false
+
+        -
+            message: '#^Class Doctrine\\Persistence\\Mapping\\Driver\\ClassLocator not found\.$#'
+            identifier: class.notFound
+            count: 1
+            path: ../lib/Doctrine/ODM/PHPCR/Mapping/Driver/AttributeDriver.php
+            reportUnmatched: false
+
+        -
+            message: '#^Parameter \$paths of method Doctrine\\ODM\\PHPCR\\Mapping\\Driver\\AttributeDriver\:\:__construct\(\) has invalid type Doctrine\\Persistence\\Mapping\\Driver\\ClassLocator\.$#'
+            identifier: class.notFound
+            count: 2
+            path: ../lib/Doctrine/ODM/PHPCR/Mapping/Driver/AttributeDriver.php
+            reportUnmatched: false
