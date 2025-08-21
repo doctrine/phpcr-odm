@@ -10,7 +10,7 @@ jobs:
     phpunit-doctrine_dbal:
         name: 'PHP ${{ matrix.php-version }} Doctrine DBAL ${{ matrix.jackalope-version }} ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
 
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
 
         services:
             mysql:
@@ -30,6 +30,7 @@ jobs:
                     - '8.1'
                     - '8.2'
                     - '8.3'
+                    - '8.4'
                 dependencies: [highest]
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
@@ -44,7 +45,7 @@ jobs:
                   - php-version: '8.2'
                     dependencies: highest
                     symfony-version: '6.*'
-                  - php-version: '8.3'
+                  - php-version: '8.4'
                     dependencies: highest
                     symfony-version: '7.*'
                     jackalope-version: '2.*'
@@ -52,7 +53,7 @@ jobs:
 
         steps:
             - name: Checkout project
-              uses: actions/checkout@v3
+              uses: actions/checkout@v5
 
             - name: Install and configure PHP
               uses: shivammathur/setup-php@v2
@@ -99,7 +100,7 @@ jobs:
     phpunit-jackrabbit:
         name: 'PHP ${{ matrix.php-version }} Jackrabbit ${{ matrix.jackalope-version }} ${{ matrix.dependencies }} Symfony ${{ matrix.symfony-version }}'
 
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
 
         strategy:
             fail-fast: false
@@ -109,6 +110,7 @@ jobs:
                     - '8.1'
                     - '8.2'
                     - '8.3'
+                    - '8.4'
                 dependencies: [highest]
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
@@ -123,7 +125,7 @@ jobs:
                   - php-version: '8.2'
                     dependencies: highest
                     symfony-version: '6.*'
-                  - php-version: '8.3'
+                  - php-version: '8.4'
                     dependencies: highest
                     symfony-version: '7.*'
                     jackalope-version: '2.*'
