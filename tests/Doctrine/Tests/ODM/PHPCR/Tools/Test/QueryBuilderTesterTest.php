@@ -39,8 +39,7 @@ where.constraint.constraint.operand_static (OperandStaticLiteral)
 where.constraint.constraint (ConstraintComparison)
 where.constraint.constraint.operand_dynamic (OperandDynamicField)
 where.constraint.constraint.operand_static (OperandStaticLiteral)
-HERE
-            , $res);
+HERE, $res);
     }
 
     public function testGetNode(): void
