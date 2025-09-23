@@ -4,8 +4,8 @@ Changelog
 2.x
 ===
 
-2.1
----
+2.1.0
+-----
 
 * Removed accidentally added unused dependency to `doctrine/data-fixtures`.
 
