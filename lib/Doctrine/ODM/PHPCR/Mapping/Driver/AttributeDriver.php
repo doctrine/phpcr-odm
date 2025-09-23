@@ -27,6 +27,7 @@ use Doctrine\ODM\PHPCR\Mapping\Attributes\MappedSuperclass;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\ClassMetadata as PersistenceClassMetadata;
+use Doctrine\Persistence\Mapping\Driver\ClassLocator;
 use Doctrine\Persistence\Mapping\Driver\ColocatedMappingDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
@@ -55,15 +56,20 @@ class AttributeDriver implements MappingDriver
     private AttributeReader $reader;
 
     /**
-     * @param array<string> $paths
+     * @param array<string>|ClassLocator $paths directory paths or class locator
      */
-    public function __construct(array $paths)
+    public function __construct(array|ClassLocator $paths)
     {
         $this->reader = new AttributeReader();
-        $this->addPaths($paths);
+
+        if ($paths instanceof ClassLocator) {
+            $this->classLocator = $paths;
+        } else {
+            $this->addPaths($paths);
+        }
     }
 
-    public function isTransient($className)
+    public function isTransient($className): bool
     {
         $classAttributes = $this->reader->getClassAttributes(new \ReflectionClass($className));
 

@@ -7,6 +7,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\ChildrenCollection;
 use Doctrine\ODM\PHPCR\Configuration;
 use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
 use Doctrine\ODM\PHPCR\Proxy\ProxyFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
@@ -36,6 +37,12 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
     public function __construct(DocumentManagerInterface $wrapped)
     {
         $this->wrapped = $wrapped;
+    }
+
+    /** @noinspection SenselessMethodDuplicationInspection - return type is made more specific to match {@see DocumentManagerInterface::getClassMetadata()} */
+    public function getClassMetadata(string $className): PhpcrClassMetadata
+    {
+        return $this->wrapped->getClassMetadata($className);
     }
 
     public function setTranslationStrategy(string $key, TranslationStrategyInterface $strategy): void

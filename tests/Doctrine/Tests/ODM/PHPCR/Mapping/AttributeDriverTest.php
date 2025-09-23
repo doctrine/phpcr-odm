@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\ODM\PHPCR\Mapping;
 
 use Doctrine\ODM\PHPCR\Mapping\Driver\AttributeDriver;
+use Doctrine\Persistence\Mapping\Driver\FileClassLocator;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
@@ -10,17 +11,20 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
  */
 class AttributeDriverTest extends AbstractMappingDriverTest
 {
-    protected function loadDriver(): AttributeDriver
+    /** @param list<string> $paths */
+    protected function loadDriver(array $paths = []): AttributeDriver
     {
-        return new AttributeDriver([]);
+        // Available in Doctrine Persistence 4.1+
+        if (class_exists(FileClassLocator::class)) {
+            $paths = FileClassLocator::createFromDirectories($paths);
+        }
+
+        return new AttributeDriver($paths);
     }
 
     protected function loadDriverForTestMappingDocuments(): MappingDriver
     {
-        $attributeDriver = $this->loadDriver();
-        $attributeDriver->addPaths([__DIR__.'/Model']);
-
-        return $attributeDriver;
+        return $this->loadDriver([__DIR__.'/Model']);
     }
 
     /**

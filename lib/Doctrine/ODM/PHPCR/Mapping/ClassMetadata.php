@@ -1317,7 +1317,7 @@ class ClassMetadata implements ClassMetadataInterface
         return $this->mappings[$fieldName]['targetDocument'];
     }
 
-    public function getAssociationMappedByTargetField($assocName)
+    public function getAssociationMappedByTargetField($assocName): string
     {
         throw new BadMethodCallException(sprintf(
             '%s not yet implemented in "%s"',
@@ -1326,7 +1326,7 @@ class ClassMetadata implements ClassMetadataInterface
         ));
     }
 
-    public function isAssociationInverseSide($assocName)
+    public function isAssociationInverseSide($assocName): bool
     {
         throw new BadMethodCallException(sprintf(
             '%s not yet implemented in "%s"',
