@@ -51,6 +51,11 @@ jobs:
                     symfony-version: '7.*'
                     jackalope-version: '2.*'
                     php-bench: true
+                  - php-version: '8.5'
+                    dependencies: highest
+                    symfony-version: '8.*'
+                    jackalope-version: '2.*'
+                    php-bench: true
 
         steps:
             - name: Checkout project
@@ -130,6 +135,11 @@ jobs:
                   - php-version: '8.5'
                     dependencies: highest
                     symfony-version: '7.*'
+                    jackalope-version: '2.*'
+                    php-bench: true
+                  - php-version: '8.5'
+                    dependencies: highest
+                    symfony-version: '8.*'
                     jackalope-version: '2.*'
                     php-bench: true
 
