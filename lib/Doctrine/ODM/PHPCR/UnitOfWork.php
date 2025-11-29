@@ -376,7 +376,7 @@ class UnitOfWork
 
             foreach ($class->fieldMappings as $fieldName) {
                 $mapping = $class->mappings[$fieldName];
-                if (array_key_exists($mapping['property'], $properties)) {
+                if (null !== $mapping['property'] && array_key_exists($mapping['property'], $properties)) {
                     if (true === $mapping['multivalue']) {
                         if (array_key_exists('assoc', $mapping) && null !== $mapping['assoc']) {
                             $documentState[$fieldName] = $this->createAssoc($properties, $mapping);
@@ -580,7 +580,8 @@ class UnitOfWork
         }
 
         $metadata = $this->dm->getClassMetadata($className);
-        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, [$metadata->identifier => $targetId]);
+        // TODO: what should happen when identifier is null?
+        $proxyDocument = $this->dm->getProxyFactory()->getProxy($className, [(string) $metadata->identifier => $targetId]);
 
         // register the document under its own id
         $this->registerDocument($proxyDocument, $targetId);
@@ -1378,6 +1379,7 @@ class UnitOfWork
             $destPath = $destName = false;
 
             if (array_key_exists($oid, $this->originalData)
+                && null !== $class->parentMapping
                 && array_key_exists($class->parentMapping, $this->originalData[$oid])
                 && array_key_exists($class->parentMapping, $changeSet)
                 && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
@@ -1386,6 +1388,7 @@ class UnitOfWork
             }
 
             if (array_key_exists($oid, $this->originalData)
+                && null !== $class->nodename
                 && array_key_exists($class->nodename, $this->originalData[$oid])
                 && array_key_exists($class->nodename, $changeSet)
                 && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
@@ -1397,7 +1400,7 @@ class UnitOfWork
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = array_key_exists($class->parentMapping, $changeSet)
+                    $destPath = null !== $class->parentMapping && array_key_exists($class->parentMapping, $changeSet)
                         ? $this->getDocumentId($changeSet[$class->parentMapping])
                         : PathHelper::getParentPath($this->getDocumentId($document));
                 }
@@ -1419,6 +1422,7 @@ class UnitOfWork
             }
 
             if (array_key_exists($oid, $this->originalData)
+                && null !== $class->identifier
                 && array_key_exists($class->identifier, $this->originalData[$oid])
                 && array_key_exists($class->identifier, $changeSet)
                 && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
@@ -2926,7 +2930,7 @@ class UnitOfWork
     public function getDocumentId($document, bool $throw = true): ?string
     {
         $oid = is_object($document) ? \spl_object_hash($document) : $document;
-        if (empty($this->documentIds[$oid])) {
+        if (null === $oid || empty($this->documentIds[$oid])) {
             if (!$throw) {
                 return null;
             }
@@ -3195,6 +3199,7 @@ class UnitOfWork
             // current locale is already loaded and not removed
             if (!$refresh
                 && array_key_exists($oid, $this->documentTranslations)
+                && null !== $currentLocale
                 && array_key_exists($currentLocale, $this->documentTranslations[$oid])
             ) {
                 return;

@@ -315,7 +315,6 @@ class ClassMetadata implements ClassMetadataInterface
             $reflField = array_key_exists('declared', $this->mappings[$fieldName])
                 ? new \ReflectionProperty($this->mappings[$fieldName]['declared'], $fieldName)
                 : $this->reflClass->getProperty($fieldName);
-            $reflField->setAccessible(true);
             $this->reflFields[$fieldName] = $reflField;
         }
     }
@@ -888,7 +887,7 @@ class ClassMetadata implements ClassMetadataInterface
             $mapping['assocNulls'] = $mapping['property'].'Nulls';
         }
 
-        if (array_key_exists($mapping['fieldName'], $this->mappings)) {
+        if ($mapping['fieldName'] && array_key_exists($mapping['fieldName'], $this->mappings)) {
             if (!$isField
                 || empty($mapping['type'])
                 || empty($this->mappings[$mapping['fieldName']])
@@ -909,7 +908,6 @@ class ClassMetadata implements ClassMetadataInterface
         }
 
         $reflProp = $this->reflClass->getProperty($mapping['fieldName']);
-        $reflProp->setAccessible(true);
         $this->reflFields[$mapping['fieldName']] = $reflProp;
         $this->mappings[$mapping['fieldName']] = $mapping;
 
@@ -1212,7 +1210,7 @@ class ClassMetadata implements ClassMetadataInterface
             || $this->versionCreatedField === $fieldName;
     }
 
-    public function hasAssociation($fieldName): bool
+    public function hasAssociation(string $fieldName): bool
     {
         return array_key_exists($fieldName, $this->mappings)
             && in_array($this->mappings[$fieldName]['type'], [self::MANY_TO_ONE, self::MANY_TO_MANY, 'referrers', 'mixedreferrers', 'children', 'child', 'parent'], true);
@@ -1232,14 +1230,14 @@ class ClassMetadata implements ClassMetadataInterface
         return $this->mappings[$fieldName];
     }
 
-    public function isSingleValuedAssociation($fieldName): bool
+    public function isSingleValuedAssociation(string $fieldName): bool
     {
         return array_key_exists($fieldName, $this->childMappings)
             || $fieldName === $this->parentMapping
             || array_key_exists($fieldName, $this->referenceMappings) && self::MANY_TO_ONE === $this->mappings[$fieldName]['type'];
     }
 
-    public function isCollectionValuedAssociation($fieldName): bool
+    public function isCollectionValuedAssociation(string $fieldName): bool
     {
         return array_key_exists($fieldName, $this->referenceMappings) && self::MANY_TO_MANY === $this->mappings[$fieldName]['type']
             || array_key_exists($fieldName, $this->referrersMappings)
@@ -1362,7 +1360,7 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function mapField(array $mapping, ?self $inherited = null): void
     {
-        $parentMapping = array_key_exists('fieldName', $mapping) && array_key_exists($mapping['fieldName'], $this->mappings)
+        $parentMapping = array_key_exists('fieldName', $mapping) && null !== $mapping['fieldName'] && array_key_exists($mapping['fieldName'], $this->mappings)
             ? $this->mappings[$mapping['fieldName']]
             : null;
 
@@ -1547,7 +1545,7 @@ class ClassMetadata implements ClassMetadataInterface
 
     public function setIdentifierValue(object $document, string $id): void
     {
-        if (array_key_exists($this->identifier, $this->reflFields)) {
+        if (null !== $this->identifier && array_key_exists($this->identifier, $this->reflFields)) {
             $this->reflFields[$this->identifier]->setValue($document, $id);
         }
     }
