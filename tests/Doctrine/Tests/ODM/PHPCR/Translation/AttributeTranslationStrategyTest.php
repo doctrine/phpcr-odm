@@ -30,7 +30,6 @@ class AttributeTranslationStrategyTest extends PHPCRTestCase
 
         $class = new \ReflectionClass(AttributeTranslationStrategy::class);
         $this->method = $class->getMethod('getTranslatedPropertyName');
-        $this->method->setAccessible(true);
     }
 
     public function testSetPrefixAndGetPropertyName(): void

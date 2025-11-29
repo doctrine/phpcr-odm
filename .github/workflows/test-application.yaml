@@ -31,6 +31,7 @@ jobs:
                     - '8.2'
                     - '8.3'
                     - '8.4'
+                    - '8.5'
                 dependencies: [highest]
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
@@ -45,7 +46,7 @@ jobs:
                   - php-version: '8.2'
                     dependencies: highest
                     symfony-version: '6.*'
-                  - php-version: '8.4'
+                  - php-version: '8.5'
                     dependencies: highest
                     symfony-version: '7.*'
                     jackalope-version: '2.*'
@@ -111,6 +112,7 @@ jobs:
                     - '8.2'
                     - '8.3'
                     - '8.4'
+                    - '8.5'
                 dependencies: [highest]
                 symfony-version: ['*']
                 jackalope-version: ['1.*']
@@ -125,7 +127,7 @@ jobs:
                   - php-version: '8.2'
                     dependencies: highest
                     symfony-version: '6.*'
-                  - php-version: '8.4'
+                  - php-version: '8.5'
                     dependencies: highest
                     symfony-version: '7.*'
                     jackalope-version: '2.*'

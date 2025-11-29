@@ -134,9 +134,7 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->assertEquals('foo', $user->username);
 
         $method = new \ReflectionMethod($this->uow, 'getDocumentState');
-        $method->setAccessible(true);
         $state = $method->invoke($this->uow, $user);
-        $method->setAccessible(false);
 
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $state);
         $this->assertEquals('/somepath', $this->uow->getDocumentId($user));
@@ -190,17 +188,13 @@ class UnitOfWorkTest extends PHPCRTestCase
         $this->uow->scheduleRemove($object);
 
         $method = new \ReflectionMethod($this->uow, 'getDocumentState');
-        $method->setAccessible(true);
         $state = $method->invoke($this->uow, $object);
-        $method->setAccessible(false);
 
         $this->assertEquals(UnitOfWork::STATE_REMOVED, $state);
 
         $this->uow->scheduleInsert($object);
 
-        $method->setAccessible(true);
         $state = $method->invoke($this->uow, $object);
-        $method->setAccessible(false);
 
         $this->assertEquals(UnitOfWork::STATE_MANAGED, $state);
     }
@@ -209,7 +203,6 @@ class UnitOfWorkTest extends PHPCRTestCase
     {
         $class = new \ReflectionClass(UnitOfWork::class);
         $method = $class->getMethod('generateUuid');
-        $method->setAccessible(true);
 
         $this->assertIsString($method->invoke($this->uow));
 

@@ -15,7 +15,7 @@ use PHPCR\NodeInterface;
  * You can not use this to create nodes as it has no type mapping.
  */
 #[PHPCR\Document]
-class Generic
+class Generic implements \Stringable
 {
     /**
      * Id (path) of this document.

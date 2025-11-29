@@ -169,7 +169,6 @@ class ProxyFactory extends AbstractProxyFactory
                 $propertyName = $reflectionProperty->getName();
 
                 if ($classMetadata->hasField($propertyName) || $classMetadata->hasAssociation($propertyName)) {
-                    $reflectionProperty->setAccessible(true);
                     $reflectionProperty->setValue($cloned, $reflectionProperty->getValue($original));
                 }
             }

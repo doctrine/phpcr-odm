@@ -10,7 +10,7 @@ use PHPCR\NodeInterface;
  * This class represents an abstract "file".
  */
 #[PHPCR\MappedSuperclass(mixins: ['mix:created'])]
-abstract class AbstractFile implements HierarchyInterface
+abstract class AbstractFile implements \Stringable, HierarchyInterface
 {
     #[PHPCR\Id(strategy: 'parent')]
     protected string $id;

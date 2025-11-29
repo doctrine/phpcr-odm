@@ -82,7 +82,6 @@ class DocumentManagerTest extends PHPCRTestCase
         $factory = $dm->getMetadataFactory();
         $reflection = new \ReflectionClass($factory);
         $property = $reflection->getProperty('dm');
-        $property->setAccessible(true);
         $this->assertSame($dm, $property->getValue($factory));
     }
 
@@ -114,9 +113,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $uow = $dm->getUnitOfWork();
 
         $method = new \ReflectionMethod($uow, 'registerDocument');
-        $method->setAccessible(true);
         $method->invoke($uow, $obj, '/foo');
-        $method->setAccessible(false);
 
         $this->assertTrue($dm->contains($obj));
     }
@@ -185,9 +182,7 @@ class DocumentManagerTest extends PHPCRTestCase
         $uow = $dm->getUnitOfWork();
 
         $reflectionProperty = new \ReflectionProperty($uow, 'documentIds');
-        $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($uow, [spl_object_hash($obj) => '/foo']);
-        $reflectionProperty->setAccessible(false);
 
         $this->assertSame('/foo', $dm->getDocumentId($obj));
     }
