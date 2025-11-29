@@ -46,7 +46,6 @@ class AbstractLeafNodeTest extends TestCase
         }
 
         $method = $this->refl->getMethod('explodeField');
-        $method->setAccessible(true);
         $res = $method->invoke($this->leafNode, $fieldSpec);
 
         if (false === $xpctdExceptionMessage) {

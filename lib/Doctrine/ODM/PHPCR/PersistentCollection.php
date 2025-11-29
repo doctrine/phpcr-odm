@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-abstract class PersistentCollection implements Collection
+abstract class PersistentCollection implements \Stringable, Collection
 {
     protected const INITIALIZED_NONE = 'not initialized';
 

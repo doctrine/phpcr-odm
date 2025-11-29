@@ -28,7 +28,7 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as QOMConstants;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class QueryBuilder extends QBConstants
+class QueryBuilder extends QBConstants implements \Stringable
 {
     private ?ConverterInterface $converter = null;
     private int $firstResult = 0;
