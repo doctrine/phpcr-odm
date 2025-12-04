@@ -107,7 +107,6 @@ class QueryBuilderTest extends NodeTestCase
     {
         $reflection = new \ReflectionClass(get_class($this->node));
         $property = $reflection->getProperty('converter');
-        $property->setAccessible(true);
 
         $this->node->setConverter($this->createMock(ConverterInterface::class));
 

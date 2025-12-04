@@ -209,7 +209,6 @@ class DocumentClassMapperTest extends TestCase
 
         $refl = new \ReflectionClass($this->mapper);
         $method = $refl->getMethod('expandClassName');
-        $method->setAccessible(true);
         $res = $method->invoke($this->mapper, $this->dm, $className);
 
         $this->assertEquals($fqClassName, $res);

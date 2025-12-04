@@ -12,7 +12,7 @@ use PHPCR\NodeInterface;
  * @see http://wiki.apache.org/jackrabbit/nt:resource
  */
 #[PHPCR\Document(nodeType: 'nt:resource')]
-class Resource
+class Resource implements \Stringable
 {
     #[PHPCR\Id]
     protected string $id;

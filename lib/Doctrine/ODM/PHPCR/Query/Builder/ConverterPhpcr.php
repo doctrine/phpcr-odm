@@ -307,7 +307,7 @@ class ConverterPhpcr extends ConverterBase
                     'uuid' => 'string',
                 ];
 
-                if (array_key_exists($type, $typeMapping)) {
+                if ($type && array_key_exists($type, $typeMapping)) {
                     settype($value, $typeMapping[$type]);
                 }
             }
