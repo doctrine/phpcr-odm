@@ -188,19 +188,14 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
      *
      * @throws MappingException
      */
-    protected function validateRuntimeMetadata(ClassMetadata $class, $parent): void
+    protected function validateRuntimeMetadata(ClassMetadata $metadata, $parent): void
     {
-        if (!$class->reflClass) {
-            // only validate if there is a reflection class instance
-            return;
-        }
-
-        $class->validateIdentifier();
-        $class->validateReferenceable();
-        $class->validateReferences();
-        $class->validateChildClasses();
-        $class->validateLifecycleCallbacks($this->getReflectionService());
-        $class->validateTranslatables();
+        $metadata->validateIdentifier();
+        $metadata->validateReferenceable();
+        $metadata->validateReferences();
+        $metadata->validateChildClasses();
+        $metadata->validateLifecycleCallbacks($this->getReflectionService());
+        $metadata->validateTranslatables();
 
         // TODO: verify inheritance
     }

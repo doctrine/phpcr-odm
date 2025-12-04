@@ -26,18 +26,15 @@ class DocumentRepository implements ObjectRepository
 {
     public const QUERY_REPLACE_WITH_FIELDNAMES = 1;
 
-    protected DocumentManagerInterface $dm;
-    protected ClassMetadata $class;
     protected UnitOfWork $uow;
     protected string $className;
 
-    public function __construct(DocumentManagerInterface $dm, ClassMetadata $class)
-    {
-        $this->dm = $dm;
-        $this->class = $class;
-
+    public function __construct(
+        private readonly DocumentManagerInterface $dm,
+        private readonly ClassMetadata $metadata,
+    ) {
         $this->uow = $this->dm->getUnitOfWork();
-        $this->className = $class->name;
+        $this->className = $metadata->name;
     }
 
     /**
@@ -141,7 +138,7 @@ class DocumentRepository implements ObjectRepository
      */
     protected function constraintField(ConstraintFactory $where, string $field, mixed $value, string $alias): void
     {
-        if ($field === $this->class->nodename) {
+        if ($field === $this->metadata->nodename) {
             $where->eq()->name($alias)->literal($value);
         } else {
             $where->eq()->field($alias.'.'.$field)->literal($value);
@@ -189,7 +186,7 @@ class DocumentRepository implements ObjectRepository
 
     public function getClassMetadata(): ClassMetadata
     {
-        return $this->class;
+        return $this->metadata;
     }
 
     /**
@@ -232,7 +229,7 @@ class DocumentRepository implements ObjectRepository
                 $column = reset($columns);
                 if ('*' === $column->getColumnName() && null === $column->getPropertyName()) {
                     $qb->setColumns([]);
-                    foreach ($this->class->getFieldNames() as $name) {
+                    foreach ($this->metadata->getFieldNames() as $name) {
                         $qb->addSelect('a', $name);
                     }
                 }

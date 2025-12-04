@@ -79,12 +79,12 @@ class ProxyFactory extends AbstractProxyFactory
     /**
      * Generates a closure capable of initializing a proxy.
      */
-    private function createInitializer(PhpcrClassMetadata $classMetadata): \Closure
+    private function createInitializer(PhpcrClassMetadata $metadata): \Closure
     {
-        $className = $classMetadata->getName();
+        $className = $metadata->getName();
         $documentManager = $this->documentManager;
 
-        if ($classMetadata->getReflectionClass()->hasMethod('__wakeup')) {
+        if ($metadata->getReflectionClass()->hasMethod('__wakeup')) {
             return static function (Proxy $proxy) use ($className, $documentManager) {
                 $proxy->__setInitializer(null);
                 $proxy->__setCloner(null);
@@ -139,12 +139,12 @@ class ProxyFactory extends AbstractProxyFactory
      *
      * @throws UnexpectedValueException
      */
-    private function createCloner(PhpcrClassMetadata $classMetadata, ?\ReflectionProperty $reflectionId = null): \Closure
+    private function createCloner(PhpcrClassMetadata $metadata, ?\ReflectionProperty $reflectionId = null): \Closure
     {
-        $className = $classMetadata->getName();
+        $className = $metadata->getName();
         $documentManager = $this->documentManager;
 
-        return static function (Proxy $cloned) use ($className, $classMetadata, $documentManager, $reflectionId) {
+        return static function (Proxy $cloned) use ($className, $metadata, $documentManager, $reflectionId) {
             if ($cloned->__isInitialized()) {
                 return;
             }
@@ -165,10 +165,10 @@ class ProxyFactory extends AbstractProxyFactory
                 ));
             }
 
-            foreach ($classMetadata->getReflectionClass()->getProperties() as $reflectionProperty) {
+            foreach ($metadata->getReflectionClass()->getProperties() as $reflectionProperty) {
                 $propertyName = $reflectionProperty->getName();
 
-                if ($classMetadata->hasField($propertyName) || $classMetadata->hasAssociation($propertyName)) {
+                if ($metadata->hasField($propertyName) || $metadata->hasAssociation($propertyName)) {
                     $reflectionProperty->setValue($cloned, $reflectionProperty->getValue($original));
                 }
             }

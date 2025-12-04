@@ -15,9 +15,9 @@ class AssignedIdGenerator extends IdGenerator
      *
      * {@inheritdoc}
      */
-    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, ?object $parent = null): string
+    public function generate(object $document, ClassMetadata $metadata, DocumentManagerInterface $dm, ?object $parent = null): string
     {
-        if (!$class->identifier || !$id = $class->getFieldValue($document, $class->identifier)) {
+        if (!$metadata->identifier || !$id = $metadata->getFieldValue($document, $metadata->identifier)) {
             throw new IdException('ID could not be read from the document instance using the AssignedIdGenerator.');
         }
 
