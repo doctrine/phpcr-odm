@@ -25,9 +25,9 @@ class YamlDriver extends FileDriver
         parent::__construct($locator, $fileExtension);
     }
 
-    public function loadMetadataForClass($className, ClassMetadata $class): void
+    public function loadMetadataForClass($className, ClassMetadata $metadata): void
     {
-        \assert($class instanceof PhpcrClassMetadata);
+        \assert($metadata instanceof PhpcrClassMetadata);
         try {
             $element = $this->getElement($className);
         } catch (DoctrineMappingException $e) {
@@ -41,23 +41,23 @@ class YamlDriver extends FileDriver
         $element['type'] = $element['type'] ?? 'document';
 
         if (isset($element['repositoryClass'])) {
-            $class->setCustomRepositoryClassName($element['repositoryClass']);
+            $metadata->setCustomRepositoryClassName($element['repositoryClass']);
         }
 
         if (isset($element['translator'])) {
-            $class->setTranslator($element['translator']);
+            $metadata->setTranslator($element['translator']);
         }
 
         if (isset($element['versionable']) && $element['versionable']) {
-            $class->setVersioned($element['versionable']);
+            $metadata->setVersioned($element['versionable']);
         }
 
         if (isset($element['referenceable']) && $element['referenceable']) {
-            $class->setReferenceable($element['referenceable']);
+            $metadata->setReferenceable($element['referenceable']);
         }
 
         if (isset($element['uniqueNodeType']) && $element['uniqueNodeType']) {
-            $class->setUniqueNodeType($element['uniqueNodeType']);
+            $metadata->setUniqueNodeType($element['uniqueNodeType']);
         }
 
         if (isset($element['mixins'])) {
@@ -65,19 +65,19 @@ class YamlDriver extends FileDriver
             foreach ($element['mixins'] as $mixin) {
                 $mixins[] = $mixin;
             }
-            $class->setMixins($mixins);
+            $metadata->setMixins($mixins);
         }
 
         if (isset($element['inheritMixins'])) {
-            $class->setInheritMixins($element['inheritMixins']);
+            $metadata->setInheritMixins($element['inheritMixins']);
         }
 
         if (isset($element['nodeType'])) {
-            $class->setNodeType($element['nodeType']);
+            $metadata->setNodeType($element['nodeType']);
         }
 
         if ('mappedSuperclass' === $element['type']) {
-            $class->isMappedSuperclass = true;
+            $metadata->isMappedSuperclass = true;
         }
 
         if (isset($element['fields'])) {
@@ -90,7 +90,7 @@ class YamlDriver extends FileDriver
                 if (!array_key_exists('fieldName', $mapping)) {
                     $mapping['fieldName'] = $fieldName;
                 }
-                $class->mapField($mapping);
+                $metadata->mapField($mapping);
             }
         }
 
@@ -99,7 +99,7 @@ class YamlDriver extends FileDriver
                 'fieldName' => $element['uuid'],
                 'uuid' => true,
             ];
-            $class->mapField($mapping);
+            $metadata->mapField($mapping);
         }
         if (isset($element['id'])) {
             if (is_array($element['id'])) {
@@ -114,13 +114,13 @@ class YamlDriver extends FileDriver
             if (isset($element['id']['generator']['strategy'])) {
                 $mapping['strategy'] = $element['id']['generator']['strategy'];
             }
-            $class->mapId($mapping);
+            $metadata->mapId($mapping);
         }
         if (isset($element['node'])) {
-            $class->mapNode(['fieldName' => $element['node']]);
+            $metadata->mapNode(['fieldName' => $element['node']]);
         }
         if (isset($element['nodename'])) {
-            $class->mapNodename(['fieldName' => $element['nodename']]);
+            $metadata->mapNodename(['fieldName' => $element['nodename']]);
         }
         if (isset($element['parentdocument'])) {
             $mapping = [
@@ -128,7 +128,7 @@ class YamlDriver extends FileDriver
                 'cascade' => (isset($element['cascade'])) ? $this->getCascadeMode($element['cascade']) : 0,
             ];
 
-            $class->mapParentDocument($mapping);
+            $metadata->mapParentDocument($mapping);
         }
         if (isset($element['child'])) {
             foreach ($element['child'] as $fieldName => $mapping) {
@@ -141,7 +141,7 @@ class YamlDriver extends FileDriver
                     $mapping['fieldName'] = $fieldName;
                 }
                 $mapping['cascade'] = (array_key_exists('cascade', $mapping)) ? $this->getCascadeMode($mapping['cascade']) : 0;
-                $class->mapChild($mapping);
+                $metadata->mapChild($mapping);
             }
         }
         if (isset($element['children'])) {
@@ -169,26 +169,26 @@ class YamlDriver extends FileDriver
                     $mapping['ignoreUntranslated'] = false;
                 }
                 $mapping['cascade'] = (array_key_exists('cascade', $mapping)) ? $this->getCascadeMode($mapping['cascade']) : 0;
-                $class->mapChildren($mapping);
+                $metadata->mapChildren($mapping);
             }
         }
         if (isset($element['referenceOne'])) {
             foreach ($element['referenceOne'] as $fieldName => $reference) {
-                $this->addMappingFromReference($class, $fieldName, $reference, 'one');
+                $this->addMappingFromReference($metadata, $fieldName, $reference, 'one');
             }
         }
         if (isset($element['referenceMany'])) {
             foreach ($element['referenceMany'] as $fieldName => $reference) {
-                $this->addMappingFromReference($class, $fieldName, $reference, 'many');
+                $this->addMappingFromReference($metadata, $fieldName, $reference, 'many');
             }
         }
 
         if (isset($element['locale'])) {
-            $class->mapLocale(['fieldName' => $element['locale']]);
+            $metadata->mapLocale(['fieldName' => $element['locale']]);
         }
 
         if (isset($element['depth'])) {
-            $class->mapDepth(['fieldName' => $element['depth']]);
+            $metadata->mapDepth(['fieldName' => $element['depth']]);
         }
 
         if (isset($element['mixedReferrers'])) {
@@ -197,7 +197,7 @@ class YamlDriver extends FileDriver
                     'fieldName' => $name,
                     'referenceType' => $attributes['referenceType'] ?? null,
                 ];
-                $class->mapMixedReferrers($mapping);
+                $metadata->mapMixedReferrers($mapping);
             }
         }
         if (isset($element['referrers'])) {
@@ -214,38 +214,37 @@ class YamlDriver extends FileDriver
                     'referringDocument' => $attributes['referringDocument'],
                     'cascade' => (isset($attributes['cascade'])) ? $this->getCascadeMode($attributes['cascade']) : 0,
                 ];
-                $class->mapReferrers($mapping);
+                $metadata->mapReferrers($mapping);
             }
         }
         if (isset($element['versionName'])) {
-            $class->mapVersionName(['fieldName' => $element['versionName']]);
+            $metadata->mapVersionName(['fieldName' => $element['versionName']]);
         }
         if (isset($element['versionCreated'])) {
-            $class->mapVersionCreated(['fieldName' => $element['versionCreated']]);
+            $metadata->mapVersionCreated(['fieldName' => $element['versionCreated']]);
         }
 
         if (isset($element['lifecycleCallbacks'])) {
             foreach ($element['lifecycleCallbacks'] as $type => $methods) {
                 foreach ($methods as $method) {
-                    $class->addLifecycleCallback($method, constant('Doctrine\ODM\PHPCR\Event::'.$type));
+                    $metadata->addLifecycleCallback($method, constant('Doctrine\ODM\PHPCR\Event::'.$type));
                 }
             }
         }
 
         if (isset($element['child_classes'])) {
-            $class->setChildClasses($element['child_classes']);
+            $metadata->setChildClasses($element['child_classes']);
         }
 
         if (isset($element['is_leaf'])) {
-            $class->setIsLeaf($element['is_leaf']);
+            $metadata->setIsLeaf($element['is_leaf']);
         }
 
-        $class->validateClassMapping();
+        $metadata->validateClassMapping();
     }
 
-    private function addMappingFromReference(ClassMetadata $class, string $fieldName, array $reference, string $type): void
+    private function addMappingFromReference(PhpcrClassMetadata $metadata, string $fieldName, array $reference, string $type): void
     {
-        /** @var PhpcrClassMetadata $class */
         $mapping = array_merge(['fieldName' => $fieldName], $reference);
 
         $mapping['cascade'] = (isset($reference['cascade'])) ? $this->getCascadeMode($reference['cascade']) : 0;
@@ -256,9 +255,9 @@ class YamlDriver extends FileDriver
         }
 
         if ('many' === $type) {
-            $class->mapManyToMany($mapping);
+            $metadata->mapManyToMany($mapping);
         } elseif ('one' === $type) {
-            $class->mapManyToOne($mapping);
+            $metadata->mapManyToOne($mapping);
         }
     }
 

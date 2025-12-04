@@ -29,15 +29,15 @@ class BuiltinDocumentsDriver implements MappingDriver
         $this->builtinDriver = new AttributeDriver([realpath(__DIR__.'/../../Document')]);
     }
 
-    public function loadMetadataForClass($className, ClassMetadata $class): void
+    public function loadMetadataForClass($className, ClassMetadata $metadata): void
     {
         if (str_starts_with($className, self::NAME_SPACE)) {
-            $this->builtinDriver->loadMetadataForClass($className, $class);
+            $this->builtinDriver->loadMetadataForClass($className, $metadata);
 
             return;
         }
 
-        $this->wrappedDriver->loadMetadataForClass($className, $class);
+        $this->wrappedDriver->loadMetadataForClass($className, $metadata);
     }
 
     public function getAllClassNames(): array

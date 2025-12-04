@@ -16,26 +16,26 @@ class ParentIdGenerator extends IdGenerator
      *
      * {@inheritdoc}
      */
-    public function generate(object $document, ClassMetadata $class, DocumentManagerInterface $dm, ?object $parent = null): string
+    public function generate(object $document, ClassMetadata $metadata, DocumentManagerInterface $dm, ?object $parent = null): string
     {
         if (null === $parent) {
-            $parent = $class->parentMapping ? $class->getFieldValue($document, $class->parentMapping) : null;
+            $parent = $metadata->parentMapping ? $metadata->getFieldValue($document, $metadata->parentMapping) : null;
         }
 
-        $name = $class->nodename ? $class->getFieldValue($document, $class->nodename) : null;
-        $id = $class->identifier ? $class->getFieldValue($document, $class->identifier) : null;
+        $name = $metadata->nodename ? $metadata->getFieldValue($document, $metadata->nodename) : null;
+        $id = $metadata->identifier ? $metadata->getFieldValue($document, $metadata->identifier) : null;
 
         if (empty($id)) {
             if (empty($name) && empty($parent)) {
-                throw IdException::noIdentificationParameters($document, $class->parentMapping, $class->nodename);
+                throw IdException::noIdentificationParameters($document, $metadata->parentMapping, $metadata->nodename);
             }
 
             if (empty($parent)) {
-                throw IdException::noIdNoParent($document, $class->parentMapping);
+                throw IdException::noIdNoParent($document, $metadata->parentMapping);
             }
 
             if (empty($name)) {
-                throw IdException::noIdNoName($document, $class->nodename);
+                throw IdException::noIdNoName($document, $metadata->nodename);
             }
         }
 
@@ -44,20 +44,20 @@ class ParentIdGenerator extends IdGenerator
             return $id;
         }
 
-        if ($class->isValidNodename($name)) {
-            throw IdException::illegalName($document, $class->nodename, $name);
+        if ($metadata->isValidNodename($name)) {
+            throw IdException::illegalName($document, $metadata->nodename, $name);
         }
 
         // determine ID based on the path and the node name
-        return $this->buildName($document, $class, $dm, $parent, $name);
+        return $this->buildName($document, $metadata, $dm, $parent, $name);
     }
 
-    protected function buildName(object $document, ClassMetadata $class, DocumentManagerInterface $dm, object $parent, string $name): string
+    protected function buildName(object $document, ClassMetadata $metadata, DocumentManagerInterface $dm, object $parent, string $name): string
     {
         // get the id of the parent document
         $id = $dm->getUnitOfWork()->getDocumentId($parent);
         if (!$id) {
-            throw IdException::parentIdCouldNotBeDetermined($document, $class->parentMapping, $parent);
+            throw IdException::parentIdCouldNotBeDetermined($document, $metadata->parentMapping, $parent);
         }
 
         // edge case parent is root

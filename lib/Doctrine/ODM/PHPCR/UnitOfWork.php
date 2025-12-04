@@ -645,24 +645,24 @@ class UnitOfWork
         $this->doBindTranslation($document, $locale, $class);
     }
 
-    private function doBindTranslation(object $document, string $locale, ClassMetadata $class): void
+    private function doBindTranslation(object $document, string $locale, ClassMetadata $metadata): void
     {
         $oid = \spl_object_hash($document);
 
         // only trigger the events if we bind a new translation
         if (empty($this->documentTranslations[$oid][$locale])
-            && $invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preCreateTranslation)
+            && $invoke = $this->eventListenersInvoker->getSubscribedSystems($metadata, Event::preCreateTranslation)
         ) {
             $this->eventListenersInvoker->invoke(
-                $class,
+                $metadata,
                 Event::preCreateTranslation,
                 $document,
                 new LifecycleEventArgs($document, $this->dm),
                 $invoke
             );
-        } elseif ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::preUpdateTranslation)) {
+        } elseif ($invoke = $this->eventListenersInvoker->getSubscribedSystems($metadata, Event::preUpdateTranslation)) {
             $this->eventListenersInvoker->invoke(
-                $class,
+                $metadata,
                 Event::preUpdateTranslation,
                 $document,
                 new LifecycleEventArgs($document, $this->dm),
@@ -670,10 +670,10 @@ class UnitOfWork
             );
         }
 
-        $this->setLocale($document, $class, $locale);
+        $this->setLocale($document, $metadata, $locale);
 
-        foreach ($class->translatableFields as $field) {
-            $this->documentTranslations[$oid][$locale][$field] = $class->getFieldValue($document, $field);
+        foreach ($metadata->translatableFields as $field) {
+            $this->documentTranslations[$oid][$locale][$field] = $metadata->getFieldValue($document, $field);
         }
     }
 
@@ -732,15 +732,15 @@ class UnitOfWork
         $this->cascadeScheduleInsert($class, $document, $visited);
     }
 
-    private function cascadeScheduleInsert(ClassMetadata $class, object $document, array &$visited): void
+    private function cascadeScheduleInsert(ClassMetadata $metadata, object $document, array &$visited): void
     {
-        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach (array_merge($metadata->referenceMappings, $metadata->referrersMappings) as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_PERSIST)) {
                 continue;
             }
 
-            $related = $class->getFieldValue($document, $fieldName);
+            $related = $metadata->getFieldValue($document, $fieldName);
             if (null !== $related) {
                 if (ClassMetadata::MANY_TO_ONE === $mapping['type']) {
                     if (is_array($related) || $related instanceof Collection) {
@@ -787,16 +787,16 @@ class UnitOfWork
         }
     }
 
-    private function cascadeScheduleParentInsert(ClassMetadata $class, object $document, array &$visited): void
+    private function cascadeScheduleParentInsert(ClassMetadata $metadata, object $document, array &$visited): void
     {
-        if ($class->parentMapping) {
-            $parent = $class->getFieldValue($document, $class->parentMapping);
+        if ($metadata->parentMapping) {
+            $parent = $metadata->getFieldValue($document, $metadata->parentMapping);
             if (null !== $parent && self::STATE_NEW === $this->getDocumentState($parent)) {
                 if (!is_object($parent)) {
                     throw new PHPCRException(sprintf(
                         'A parent field may only contain mapped documents, found <%s> in field "%s" of "%s"',
                         gettype($parent),
-                        $class->parentMapping,
+                        $metadata->parentMapping,
                         self::objToStr($document, $this->dm)
                     ));
                 }
@@ -901,15 +901,15 @@ class UnitOfWork
         $this->cascadeRemove($class, $document, $visited);
     }
 
-    private function cascadeRemove(ClassMetadata $class, object $document, array &$visited): void
+    private function cascadeRemove(ClassMetadata $metadata, object $document, array &$visited): void
     {
-        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach (array_merge($metadata->referenceMappings, $metadata->referrersMappings) as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_REMOVE)) {
                 continue;
             }
 
-            $related = $class->getFieldValue($document, $fieldName);
+            $related = $metadata->getFieldValue($document, $fieldName);
             if ($related instanceof Collection || is_array($related)) {
                 // If its a PersistentCollection initialization is intended! No unwrap!
                 foreach ($related as $relatedDocument) {
@@ -1029,13 +1029,13 @@ class UnitOfWork
     /**
      * Get a documents actual data, flattening all the objects to arrays.
      */
-    private function getDocumentActualData(ClassMetadata $class, object $document): array
+    private function getDocumentActualData(ClassMetadata $metadata, object $document): array
     {
         $actualData = [];
-        foreach ($class->reflFields as $fieldName => $reflProperty) {
+        foreach ($metadata->reflFields as $fieldName => $reflProperty) {
             // do not set the version info fields if they have values, they are not to be managed by the user in write scenarios.
-            if ($fieldName === $class->versionNameField
-                || $fieldName === $class->versionCreatedField
+            if ($fieldName === $metadata->versionNameField
+                || $fieldName === $metadata->versionCreatedField
             ) {
                 continue;
             }
@@ -1089,16 +1089,16 @@ class UnitOfWork
      * @throws InvalidArgumentException
      * @throws PHPCRException
      */
-    private function computeAssociationChanges(object $document, ClassMetadata $class, string $oid, bool $isNew, array $changeSet, string $assocType): void
+    private function computeAssociationChanges(object $document, ClassMetadata $metadata, string $oid, bool $isNew, array $changeSet, string $assocType): void
     {
         switch ($assocType) {
             case 'reference':
-                $mappings = $class->referenceMappings;
+                $mappings = $metadata->referenceMappings;
                 $computeMethod = 'computeReferenceChanges';
 
                 break;
             case 'referrer':
-                $mappings = $class->referrersMappings;
+                $mappings = $metadata->referrersMappings;
                 $computeMethod = 'computeReferrerChanges';
 
                 break;
@@ -1107,7 +1107,7 @@ class UnitOfWork
         }
 
         foreach ($mappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+            $mapping = $metadata->mappings[$fieldName];
 
             if ((ClassMetadata::MANY_TO_MANY === $mapping['type'] && 'reference' === $assocType)
                 || ('referrers' === $mapping['type'] && 'referrer' === $assocType)
@@ -1159,7 +1159,7 @@ class UnitOfWork
                             break;
                     }
 
-                    $class->setFieldValue($document, $fieldName, $changeSet[$fieldName]);
+                    $metadata->setFieldValue($document, $fieldName, $changeSet[$fieldName]);
                     $this->originalData[$oid][$fieldName] = $changeSet[$fieldName];
                 }
 
@@ -1192,11 +1192,11 @@ class UnitOfWork
         }
     }
 
-    private function computeChildrenChanges(object $document, ClassMetadata $class, string $oid, bool $isNew, array $changeSet): void
+    private function computeChildrenChanges(object $document, ClassMetadata $metadata, string $oid, bool $isNew, array $changeSet): void
     {
         $id = $this->getDocumentId($document, false);
 
-        foreach ($class->childrenMappings as $fieldName) {
+        foreach ($metadata->childrenMappings as $fieldName) {
             if ($changeSet[$fieldName] instanceof PersistentCollection) {
                 if (!$changeSet[$fieldName]->isInitialized()) {
                     continue;
@@ -1226,11 +1226,11 @@ class UnitOfWork
                     !$isNew
                 );
 
-                $class->setFieldValue($document, $fieldName, $changeSet[$fieldName]);
+                $metadata->setFieldValue($document, $fieldName, $changeSet[$fieldName]);
                 $this->originalData[$oid][$fieldName] = $changeSet[$fieldName];
             }
 
-            $mapping = $class->mappings[$fieldName];
+            $mapping = $metadata->mappings[$fieldName];
             $childNames = $movedChildNames = [];
 
             $coid = \spl_object_hash($changeSet[$fieldName]);
@@ -1300,7 +1300,7 @@ class UnitOfWork
         }
     }
 
-    public function computeChangeSet(ClassMetadata $class, object $document): void
+    public function computeChangeSet(ClassMetadata $metadata, object $document): void
     {
         if ($document instanceof Proxy && !$document->__isInitialized()) {
             return;
@@ -1313,7 +1313,7 @@ class UnitOfWork
 
         $this->changesetComputed[] = $oid;
 
-        $changeSet = $actualData = $this->getDocumentActualData($class, $document);
+        $changeSet = $actualData = $this->getDocumentActualData($metadata, $document);
         $id = $this->getDocumentId($document, false);
         $isNew = !array_key_exists($oid, $this->originalData);
 
@@ -1326,9 +1326,9 @@ class UnitOfWork
             }
         }
 
-        if ($class->parentMapping
-            && array_key_exists($class->parentMapping, $changeSet)
-            && null !== $parent = $changeSet[$class->parentMapping]
+        if ($metadata->parentMapping
+            && array_key_exists($metadata->parentMapping, $changeSet)
+            && null !== $parent = $changeSet[$metadata->parentMapping]
         ) {
             $parentClass = $this->dm->getClassMetadata(get_class($parent));
             $state = $this->getDocumentState($parent);
@@ -1338,7 +1338,7 @@ class UnitOfWork
             }
         }
 
-        foreach ($class->childMappings as $fieldName) {
+        foreach ($metadata->childMappings as $fieldName) {
             if ($changeSet[$fieldName]) {
                 if (is_array($changeSet[$fieldName]) || $changeSet[$fieldName] instanceof Collection) {
                     throw PHPCRException::childFieldIsArray(
@@ -1355,15 +1355,15 @@ class UnitOfWork
                     );
                 }
 
-                $mapping = $class->mappings[$fieldName];
+                $mapping = $metadata->mappings[$fieldName];
                 $changeSet[$fieldName] = $this->computeChildChanges($mapping, $changeSet[$fieldName], $id, $mapping['nodeName']);
             }
         }
 
-        $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'reference');
-        $this->computeAssociationChanges($document, $class, $oid, $isNew, $changeSet, 'referrer');
+        $this->computeAssociationChanges($document, $metadata, $oid, $isNew, $changeSet, 'reference');
+        $this->computeAssociationChanges($document, $metadata, $oid, $isNew, $changeSet, 'referrer');
 
-        foreach ($class->mixedReferrersMappings as $fieldName) {
+        foreach ($metadata->mixedReferrersMappings as $fieldName) {
             if ($changeSet[$fieldName]
                 && $changeSet[$fieldName] instanceof PersistentCollection
                 && $changeSet[$fieldName]->isDirty()
@@ -1372,47 +1372,47 @@ class UnitOfWork
             }
         }
 
-        $this->computeChildrenChanges($document, $class, $oid, $isNew, $changeSet);
+        $this->computeChildrenChanges($document, $metadata, $oid, $isNew, $changeSet);
 
         if (!$isNew) {
             // collect assignment move operations
             $destPath = $destName = false;
 
             if (array_key_exists($oid, $this->originalData)
-                && null !== $class->parentMapping
-                && array_key_exists($class->parentMapping, $this->originalData[$oid])
-                && array_key_exists($class->parentMapping, $changeSet)
-                && $this->originalData[$oid][$class->parentMapping] !== $changeSet[$class->parentMapping]
+                && null !== $metadata->parentMapping
+                && array_key_exists($metadata->parentMapping, $this->originalData[$oid])
+                && array_key_exists($metadata->parentMapping, $changeSet)
+                && $this->originalData[$oid][$metadata->parentMapping] !== $changeSet[$metadata->parentMapping]
             ) {
-                $destPath = $this->getDocumentId($changeSet[$class->parentMapping]);
+                $destPath = $this->getDocumentId($changeSet[$metadata->parentMapping]);
             }
 
             if (array_key_exists($oid, $this->originalData)
-                && null !== $class->nodename
-                && array_key_exists($class->nodename, $this->originalData[$oid])
-                && array_key_exists($class->nodename, $changeSet)
-                && $this->originalData[$oid][$class->nodename] !== $changeSet[$class->nodename]
+                && null !== $metadata->nodename
+                && array_key_exists($metadata->nodename, $this->originalData[$oid])
+                && array_key_exists($metadata->nodename, $changeSet)
+                && $this->originalData[$oid][$metadata->nodename] !== $changeSet[$metadata->nodename]
             ) {
-                $destName = $changeSet[$class->nodename];
+                $destName = $changeSet[$metadata->nodename];
             }
 
             // there was assignment move
             if ($destPath || $destName) {
                 // add the other field if only one was changed
                 if (false === $destPath) {
-                    $destPath = null !== $class->parentMapping && array_key_exists($class->parentMapping, $changeSet)
-                        ? $this->getDocumentId($changeSet[$class->parentMapping])
+                    $destPath = null !== $metadata->parentMapping && array_key_exists($metadata->parentMapping, $changeSet)
+                        ? $this->getDocumentId($changeSet[$metadata->parentMapping])
                         : PathHelper::getParentPath($this->getDocumentId($document));
                 }
                 if (false === $destName) {
-                    $destName = null !== $class->nodename && $changeSet[$class->nodename]
-                        ? $changeSet[$class->nodename]
+                    $destName = null !== $metadata->nodename && $changeSet[$metadata->nodename]
+                        ? $changeSet[$metadata->nodename]
                         : PathHelper::getNodeName($this->getDocumentId($document));
                 }
 
                 // make sure destination nodename is okay
-                if ($exception = $class->isValidNodename($destName)) {
-                    throw IdException::illegalName($document, $class->nodename, $destName);
+                if ($exception = $metadata->isValidNodename($destName)) {
+                    throw IdException::illegalName($document, $metadata->nodename, $destName);
                 }
 
                 // prevent path from becoming "//foobar" when moving to root node.
@@ -1422,23 +1422,23 @@ class UnitOfWork
             }
 
             if (array_key_exists($oid, $this->originalData)
-                && null !== $class->identifier
-                && array_key_exists($class->identifier, $this->originalData[$oid])
-                && array_key_exists($class->identifier, $changeSet)
-                && $this->originalData[$oid][$class->identifier] !== $changeSet[$class->identifier]
+                && null !== $metadata->identifier
+                && array_key_exists($metadata->identifier, $this->originalData[$oid])
+                && array_key_exists($metadata->identifier, $changeSet)
+                && $this->originalData[$oid][$metadata->identifier] !== $changeSet[$metadata->identifier]
             ) {
-                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$class->identifier].' !== '.$changeSet[$class->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
+                throw new PHPCRException('The Id is immutable ('.$this->originalData[$oid][$metadata->identifier].' !== '.$changeSet[$metadata->identifier].'). Please use DocumentManager::move to move the document: '.self::objToStr($document, $this->dm));
             }
         }
 
-        $fields = array_intersect_key($changeSet, $class->mappings);
+        $fields = array_intersect_key($changeSet, $metadata->mappings);
 
-        if ($this->isDocumentTranslatable($class)) {
-            $locale = $this->getCurrentLocale($document, $class);
+        if ($this->isDocumentTranslatable($metadata)) {
+            $locale = $this->getCurrentLocale($document, $metadata);
 
             // ensure we do not bind a previously removed translation
             if (!$this->isTranslationRemoved($document, $locale)) {
-                $this->doBindTranslation($document, $locale, $class);
+                $this->doBindTranslation($document, $locale, $metadata);
             }
         }
 
@@ -1450,7 +1450,7 @@ class UnitOfWork
         }
 
         $translationChanges = false;
-        if ($this->isDocumentTranslatable($class)) {
+        if ($this->isDocumentTranslatable($metadata)) {
             $oid = \spl_object_hash($document);
             if (array_key_exists($oid, $this->documentTranslations)) {
                 foreach ($this->documentTranslations[$oid] as $localeToCheck => $data) {
@@ -1478,8 +1478,8 @@ class UnitOfWork
             }
 
             // ensure that locale changes are not considered a change in the document
-            if ($class->localeMapping && array_key_exists($class->localeMapping, $fields)) {
-                unset($fields[$class->localeMapping]);
+            if ($metadata->localeMapping && array_key_exists($metadata->localeMapping, $fields)) {
+                unset($fields[$metadata->localeMapping]);
             }
         }
 
@@ -1612,11 +1612,11 @@ class UnitOfWork
      *
      * @param int|null $overrideIdGenerator type of the id generator if not the default
      */
-    public function persistNew(ClassMetadata $class, object $document, ?int $overrideIdGenerator = null, ?object $parent = null): void
+    public function persistNew(ClassMetadata $metadata, object $document, ?int $overrideIdGenerator = null, ?object $parent = null): void
     {
-        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($class, Event::prePersist)) {
+        if ($invoke = $this->eventListenersInvoker->getSubscribedSystems($metadata, Event::prePersist)) {
             $this->eventListenersInvoker->invoke(
-                $class,
+                $metadata,
                 Event::prePersist,
                 $document,
                 new LifecycleEventArgs($document, $this->dm),
@@ -1624,20 +1624,20 @@ class UnitOfWork
             );
         }
 
-        $generator = $this->getIdGenerator($overrideIdGenerator ?: $class->idGenerator);
-        $id = $generator->generate($document, $class, $this->dm, $parent);
+        $generator = $this->getIdGenerator($overrideIdGenerator ?: $metadata->idGenerator);
+        $id = $generator->generate($document, $metadata, $this->dm, $parent);
         $this->registerDocument($document, $id);
 
         if (!$generator instanceof AssignedIdGenerator) {
-            $class->setIdentifierValue($document, $id);
+            $metadata->setIdentifierValue($document, $id);
         }
 
         // If the UUID is mapped, generate it early resp. validate if already present.
-        $uuidFieldName = $class->getUuidFieldName();
+        $uuidFieldName = $metadata->getUuidFieldName();
         if ($uuidFieldName) {
-            $existingUuid = $class->getFieldValue($document, $uuidFieldName);
+            $existingUuid = $metadata->getFieldValue($document, $uuidFieldName);
             if (!$existingUuid) {
-                $class->setFieldValue($document, $uuidFieldName, $this->generateUuid());
+                $metadata->setFieldValue($document, $uuidFieldName, $this->generateUuid());
             } elseif (!UUIDHelper::isUUID($existingUuid)) {
                 throw RuntimeException::invalidUuid($id, ClassUtils::getClass($document), $existingUuid);
             }
@@ -1891,14 +1891,14 @@ class UnitOfWork
     /**
      * Cascades a merge operation to associated entities.
      */
-    private function cascadeMerge(ClassMetadata $class, object $document, object $managedCopy, array &$visited): void
+    private function cascadeMerge(ClassMetadata $metadata, object $document, object $managedCopy, array &$visited): void
     {
-        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach (array_merge($metadata->referenceMappings, $metadata->referrersMappings) as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_MERGE)) {
                 continue;
             }
-            $related = $class->getFieldValue($document, $fieldName);
+            $related = $metadata->getFieldValue($document, $fieldName);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
                     // Unwrap so that foreach () does not initialize
@@ -1947,15 +1947,15 @@ class UnitOfWork
         }
     }
 
-    private function cascadeRefresh(ClassMetadata $class, object $document, array &$visited): void
+    private function cascadeRefresh(ClassMetadata $metadata, object $document, array &$visited): void
     {
-        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach (array_merge($metadata->referenceMappings, $metadata->referrersMappings) as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_REFRESH)) {
                 continue;
             }
 
-            $related = $class->getFieldValue($document, $fieldName);
+            $related = $metadata->getFieldValue($document, $fieldName);
             if ($related instanceof Collection || is_array($related)) {
                 if ($related instanceof PersistentCollection) {
                     // Unwrap so that foreach () does not initialize
@@ -1973,14 +1973,14 @@ class UnitOfWork
     /**
      * Cascades a detach operation to associated documents.
      */
-    private function cascadeDetach(ClassMetadata $class, object $document, array &$visited): void
+    private function cascadeDetach(ClassMetadata $metadata, object $document, array &$visited): void
     {
-        foreach ($class->childrenMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach ($metadata->childrenMappings as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_DETACH)) {
                 continue;
             }
-            $related = $class->getFieldValue($document, $fieldName);
+            $related = $metadata->getFieldValue($document, $fieldName);
             if ($related instanceof Collection || is_array($related)) {
                 foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
@@ -1990,12 +1990,12 @@ class UnitOfWork
             }
         }
 
-        foreach (array_merge($class->referenceMappings, $class->referrersMappings) as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach (array_merge($metadata->referenceMappings, $metadata->referrersMappings) as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!($mapping['cascade'] & ClassMetadata::CASCADE_DETACH)) {
                 continue;
             }
-            $related = $class->getFieldValue($document, $fieldName);
+            $related = $metadata->getFieldValue($document, $fieldName);
             if ($related instanceof Collection || is_array($related)) {
                 foreach ($related as $relatedDocument) {
                     $this->doDetach($relatedDocument, $visited);
@@ -2152,7 +2152,6 @@ class UnitOfWork
 
         foreach ($oids as $oid => $id) {
             $document = $documents[$oid];
-            /** @var ClassMetadata $class */
             $class = $this->dm->getClassMetadata(get_class($document));
 
             // PHPCR does not validate nullable unless we would start to
@@ -2265,24 +2264,24 @@ class UnitOfWork
     /**
      * Identify whether a PHPCR property is autocreated or not.
      */
-    private function isAutocreatedProperty(ClassMetadata $class, string $fieldName): bool
+    private function isAutocreatedProperty(ClassMetadata $metadata, string $fieldName): bool
     {
-        $field = $class->getFieldMapping($fieldName);
+        $field = $metadata->getFieldMapping($fieldName);
         if ('jcr:uuid' === $field['property']) {
             // jackrabbit at least does not identify this as auto created
             // it is strictly speaking no property
             return true;
         }
         $ntm = $this->session->getWorkspace()->getNodeTypeManager();
-        $nodeType = $ntm->getNodeType($class->getNodeType());
+        $nodeType = $ntm->getNodeType($metadata->getNodeType());
         $propertyDefinitions = $nodeType->getPropertyDefinitions();
-        foreach ($class->getMixins() as $mixinTypeName) {
+        foreach ($metadata->getMixins() as $mixinTypeName) {
             $nodeType = $ntm->getNodeType($mixinTypeName);
             $propertyDefinitions = array_merge($propertyDefinitions, $nodeType->getPropertyDefinitions());
         }
 
         foreach ($propertyDefinitions as $property) {
-            if ($class->mappings[$fieldName]['property'] === $property->getName()
+            if ($metadata->mappings[$fieldName]['property'] === $property->getName()
                 && $property->isAutoCreated()
             ) {
                 return true;
@@ -3697,15 +3696,11 @@ class UnitOfWork
      * If the parent node has child restrictions, ensure that the given
      * class name is within them.
      */
-    private function validateChildClass(NodeInterface $parentNode, ClassMetadata $class): void
+    private function validateChildClass(NodeInterface $parentNode, ClassMetadata $metadata): void
     {
         $parentClass = $this->documentClassMapper->getClassName($this->dm, $parentNode);
 
-        if (null === $parentClass) {
-            return;
-        }
-
-        $metadata = $this->dm->getClassMetadata($parentClass);
-        $metadata->assertValidChildClass($class);
+        $parentMetadata = $this->dm->getClassMetadata($parentClass);
+        $parentMetadata->assertValidChildClass($metadata);
     }
 }

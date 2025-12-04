@@ -55,9 +55,9 @@ class PrefetchHelper
      *
      * @param NodeInterface $node the node to prefetch parent and children for
      */
-    public function prefetchReferences(ClassMetadata $class, NodeInterface $node): void
+    public function prefetchReferences(ClassMetadata $metadata, NodeInterface $node): void
     {
-        $prefetch = $this->collectPrefetchReferences($class, $node);
+        $prefetch = $this->collectPrefetchReferences($metadata, $node);
         if (count($prefetch)) {
             $node->getSession()->getNodesByIdentifier($prefetch);
         }
@@ -68,9 +68,9 @@ class PrefetchHelper
      *
      * @param NodeInterface $node the node to prefetch parent and children for
      */
-    public function prefetchHierarchy(ClassMetadata $class, NodeInterface $node, ?string $locale = null): void
+    public function prefetchHierarchy(ClassMetadata $metadata, NodeInterface $node, ?string $locale = null): void
     {
-        $prefetch = $this->collectPrefetchHierarchy($class, $node, $locale);
+        $prefetch = $this->collectPrefetchHierarchy($metadata, $node, $locale);
         if (count($prefetch)) {
             $node->getSession()->getNodes($prefetch);
         }
@@ -83,11 +83,11 @@ class PrefetchHelper
      *
      * @return string[] list of UUID to fetch in one go
      */
-    public function collectPrefetchReferences(ClassMetadata $class, NodeInterface $node): array
+    public function collectPrefetchReferences(ClassMetadata $metadata, NodeInterface $node): array
     {
         $refNodeUUIDs = [];
-        foreach ($class->referenceMappings as $fieldName) {
-            $mapping = $class->mappings[$fieldName];
+        foreach ($metadata->referenceMappings as $fieldName) {
+            $mapping = $metadata->mappings[$fieldName];
             if (!$node->hasProperty($mapping['property'])) {
                 continue;
             }
@@ -112,17 +112,17 @@ class PrefetchHelper
      *
      * @return string[] list of absolute paths to nodes that should be prefetched
      */
-    public function collectPrefetchHierarchy(ClassMetadata $class, NodeInterface $node, ?string $locale = null): array
+    public function collectPrefetchHierarchy(ClassMetadata $metadata, NodeInterface $node, ?string $locale = null): array
     {
         $prefetch = [];
-        if ($class->parentMapping && $node->getDepth() > 0) {
+        if ($metadata->parentMapping && $node->getDepth() > 0) {
             $prefetch[] = PathHelper::getParentPath($node->getPath());
         }
-        foreach ($class->childMappings as $fieldName) {
-            $childName = $class->mappings[$fieldName]['nodeName'];
+        foreach ($metadata->childMappings as $fieldName) {
+            $childName = $metadata->mappings[$fieldName]['nodeName'];
             $prefetch[] = PathHelper::absolutizePath($childName, $node->getPath());
         }
-        if ($locale && count($prefetch) && 'child' === $class->translator) {
+        if ($locale && count($prefetch) && 'child' === $metadata->translator) {
             $prefetch[] = $node->getPath().'/phpcr_locale:'.$locale;
         }
 
