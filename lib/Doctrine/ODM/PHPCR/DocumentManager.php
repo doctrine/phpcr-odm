@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Exception\ClassMismatchException;
@@ -211,7 +210,7 @@ class DocumentManager implements DocumentManagerInterface
         }
     }
 
-    public function findMany(?string $className, array $ids): Collection
+    public function findMany(?string $className, array $ids): array
     {
         // when loading duplicate ID's the resulting response would be a collection of unique ids,
         // but having duplicates would also cause a lot of overhead as well as break translation loading,
@@ -244,9 +243,8 @@ class DocumentManager implements DocumentManagerInterface
 
         $nodes = $this->session->getNodes($ids);
         $hints = ['fallback' => true];
-        $documents = $this->unitOfWork->getOrCreateDocuments($className, $nodes, $hints);
 
-        return new ArrayCollection($documents);
+        return $this->unitOfWork->getOrCreateDocuments($className, $nodes, $hints);
     }
 
     public function findTranslation(?string $className, string $id, string $locale, bool $fallback = true): ?object
@@ -343,7 +341,7 @@ class DocumentManager implements DocumentManagerInterface
         return new PhpcrQueryBuilder($qm->getQOMFactory());
     }
 
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): array
     {
         $this->errorIfClosed();
 
@@ -372,11 +370,9 @@ class DocumentManager implements DocumentManagerInterface
      *      for the default language and that is used to store. The field is
      *      updated with the locale.
      *
-     * @param object $document the document to persist
-     *
      * @throws InvalidArgumentException if $document is not an object
      */
-    public function persist($document): void
+    public function persist(object $document): void
     {
         if (!is_object($document)) {
             throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
@@ -447,17 +443,9 @@ class DocumentManager implements DocumentManagerInterface
      * Be aware of the PHPCR tree structure: this removes all nodes with a path under
      * the path of this object, even if there are no Parent / Child mappings
      * that make the relationship explicit.
-     *
-     * @param object $document
-     *
-     * @throws InvalidArgumentException if $document is not an object
      */
-    public function remove($document): void
+    public function remove(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->scheduleRemove($document);
     }
@@ -471,17 +459,9 @@ class DocumentManager implements DocumentManagerInterface
      * removal of the object) will not be synchronized to the database.
      * Objects which previously referenced the detached object will continue to
      * reference it.
-     *
-     * @param object $document the object to detach
-     *
-     * @throws InvalidArgumentException if $document is not an object
      */
-    public function detach($document): void
+    public function detach(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->detach($document);
     }
@@ -490,17 +470,9 @@ class DocumentManager implements DocumentManagerInterface
      * {@inheritdoc}
      *
      * Refresh the given document by querying the PHPCR to get the current state.
-     *
-     * @param object $document
-     *
-     * @throws InvalidArgumentException if $document is not an object
      */
-    public function refresh($document): void
+    public function refresh(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->errorIfClosed();
         $this->unitOfWork->refresh($document);
     }
@@ -594,19 +566,9 @@ class DocumentManager implements DocumentManagerInterface
      * {@inheritdoc}
      *
      * Check if this repository contains the object
-     *
-     * @param object $document
-     *
-     * @return bool true if the repository contains the object, false otherwise
-     *
-     * @throws InvalidArgumentException if $document is not an object
      */
-    public function contains($document): bool
+    public function contains(object $document): bool
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         return $this->unitOfWork->contains($document);
     }
 
@@ -637,12 +599,8 @@ class DocumentManager implements DocumentManagerInterface
         $this->closed = true;
     }
 
-    public function initializeObject($document): void
+    public function initializeObject(object $document): void
     {
-        if (!is_object($document)) {
-            throw new InvalidArgumentException('Parameter $document needs to be an object, '.gettype($document).' given');
-        }
-
         $this->unitOfWork->initializeObject($document);
     }
 

@@ -2,13 +2,13 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata;
 use Doctrine\ODM\PHPCR\Query\Builder\ConstraintFactory;
 use Doctrine\ODM\PHPCR\Query\Builder\QueryBuilder;
 use Doctrine\ODM\PHPCR\Query\Query;
+use Doctrine\ODM\PHPCR\Query\QueryException;
 use Doctrine\Persistence\ObjectRepository;
 use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
 
@@ -21,6 +21,10 @@ use PHPCR\Query\QOM\QueryObjectModelConstantsInterface as Constants;
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
  * @author Pascal Helfenstein <nicam@nicam.ch>
+ *
+ * @template T of object
+ *
+ * @template-implements ObjectRepository<T>
  */
 class DocumentRepository implements ObjectRepository
 {
@@ -43,6 +47,8 @@ class DocumentRepository implements ObjectRepository
      * The id may either be a PHPCR path or UUID
      *
      * @param string $id document id
+     *
+     * @phpstan-return T
      */
     public function find($id): ?object
     {
@@ -55,16 +61,20 @@ class DocumentRepository implements ObjectRepository
      * The ids may either be PHPCR paths or UUID's, but all must be of the same type
      *
      * @param string[] $ids document ids
+     *
+     * @phpstan-return list<T>
      */
-    public function findMany(array $ids): Collection
+    public function findMany(array $ids): array
     {
         return $this->dm->findMany($this->className, $ids);
     }
 
     /**
      * Finds all documents in the repository.
+     *
+     * @phpstan-return list<T>
      */
-    public function findAll(): Collection
+    public function findAll(): array
     {
         return $this->findBy([]);
     }
@@ -76,9 +86,13 @@ class DocumentRepository implements ObjectRepository
      * an InvalidArgumentException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @return Collection the objects matching the criteria
+     * @return array<object> the documents matching the criteria
+     *
+     * @phpstan-return list<T>
+     *
+     * @throws QueryException
      */
-    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): Collection
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -126,7 +140,7 @@ class DocumentRepository implements ObjectRepository
             }
         }
 
-        return $qb->getQuery()->execute();
+        return $qb->getQuery()->execute()->toArray();
     }
 
     /**
@@ -150,16 +164,22 @@ class DocumentRepository implements ObjectRepository
      *
      * @return object|null The first document matching the criteria or null if
      *                     none found
+     *
+     * @phpstan-return T
+     *
+     * @throws QueryException
      */
     public function findOneBy(array $criteria): ?object
     {
         $documents = $this->findBy($criteria, null, 1);
 
-        return $documents->isEmpty() ? null : $documents->first();
+        return \count($documents) ? reset($documents) : null;
     }
 
     /**
      * Refresh a document with the data from PHPCR.
+     *
+     * @phpstan-param T $document
      */
     public function refresh(object $document): void
     {
@@ -173,6 +193,8 @@ class DocumentRepository implements ObjectRepository
 
     /**
      * Get the document class name this repository is for.
+     *
+     * @phpstan-return class-string<T>
      */
     public function getClassName(): string
     {

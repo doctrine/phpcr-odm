@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\ODM\PHPCR\Functional;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\ODM\PHPCR\DocumentRepository;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
@@ -93,7 +92,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         // read second document into memory
         $usersRepository->find($user2->id);
         $users = $usersRepository->findMany([$user1->id, $user2->id]);
-        $this->assertEquals('/functional/beberlei', $users->key(), 'Documents are not returned in the order they were requested');
+        $this->assertEquals('/functional/beberlei', array_keys($users)[0], 'Documents are not returned in the order they were requested');
     }
 
     public function testFindBy(): void
@@ -125,17 +124,14 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->assertCount(1, $users3);
 
         $users4 = $userRepository->findBy(['status' => 'active'], ['name' => 'asc'], 2, 0);
-        $this->assertInstanceOf(Collection::class, $users4);
-        $this->assertEquals('/functional/beberlei', $users4->key());
+        $this->assertSame('/functional/beberlei', array_key_first($users4));
 
         $users5 = $userRepository->findBy(['status' => 'active'], ['name' => 'asc'], 2, 1);
-        $this->assertInstanceOf(Collection::class, $users5);
-        $this->assertEquals('/functional/lsmith', $users5->key());
+        $this->assertSame('/functional/lsmith', array_key_first($users5));
 
         // test descending order
         $users6 = $userRepository->findBy(['status' => 'active'], ['name' => 'desc']);
-        $this->assertInstanceOf(Collection::class, $users6);
-        $this->assertEquals('/functional/lsmith', $users6->key());
+        $this->assertSame('/functional/lsmith', array_key_first($users6));
     }
 
     public function testFindByOnNodename(): void
@@ -200,6 +196,7 @@ class DocumentRepositoryTest extends PHPCRFunctionalTestCase
         $this->dm->flush();
 
         $users1 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' => 'beberlei']);
+        $this->assertInstanceOf(CmsUser::class, $users1);
         $this->assertEquals($user1->username, $users1->username);
 
         $users2 = $this->dm->getRepository(CmsUser::class)->findOneBy(['username' => 'obama']);

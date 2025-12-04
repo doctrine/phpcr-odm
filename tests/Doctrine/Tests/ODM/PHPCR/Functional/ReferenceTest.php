@@ -108,7 +108,7 @@ class ReferenceTest extends PHPCRFunctionalTestCase
         $this->assertInstanceOf($this->referencedType, $document);
 
         $documents = $this->dm->findMany($this->referencedType, [$node->getIdentifier()]);
-        $this->assertInstanceOf($this->referencedType, $documents->first());
+        $this->assertInstanceOf($this->referencedType, reset($documents));
     }
 
     public function testCreateByPath(): void

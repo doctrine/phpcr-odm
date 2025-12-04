@@ -20,7 +20,6 @@
 
 namespace Doctrine\ODM\PHPCR;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\Exception\InvalidArgumentException;
 use Doctrine\ODM\PHPCR\Mapping\ClassMetadata as PhpcrClassMetadata;
@@ -125,7 +124,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string|null $className optional object class name to use
      * @param string      $id        the path or uuid of the document to find
      *
+     * @phpstan-param class-string<T>|null $className
+     *
      * @return object|null the document if found, otherwise null
+     *
+     * @phpstan-return T|null
+     *
+     * @template T of object
      */
     public function find(?string $className, $id): ?object;
 
@@ -137,10 +142,16 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string[]    $ids       List of repository paths and/or uuids to
      *                               find documents. Non-existing ids are ignored.
      *
-     * @return Collection<object> list of documents that where found with the $ids and
-     *                            if specified the $className
+     * @phpstan-param class-string<T>|null $className
+     *
+     * @return array<object> list of documents that where found with the $ids and
+     *                       if specified the $className
+     *
+     * @phpstan-return array<T>
+     *
+     * @template T of object
      */
-    public function findMany(?string $className, array $ids): Collection;
+    public function findMany(?string $className, array $ids): array;
 
     /**
      * Load the document from the content repository in the given language.
@@ -161,12 +172,18 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string      $locale    The language to try to load
      * @param bool        $fallback  Set to true if the language fallback mechanism should be used
      *
+     * @phpstan-param class-string<T>|null $className
+     *
      * @return object|null the translated document or null if not found
+     *
+     * @phpstan-return T|null
      *
      * @throws MissingTranslationException if $fallback is false and the
      *                                     translation was not found
      * @throws PHPCRException              if $className is specified and does not match
      *                                     the class of the document that was found at $id
+     *
+     * @template T of object
      */
     public function findTranslation(?string $className, string $id, string $locale, bool $fallback = true): ?object;
 
@@ -234,8 +251,16 @@ interface DocumentManagerInterface extends ObjectManager
      * @param QueryInterface $query           the query instance as acquired through createPhpcrQuery()
      * @param string|null    $className       document class
      * @param string|null    $primarySelector name of the selector for the document to return in case of a join query
+     *
+     * @phpstan-param class-string<T>|null $className
+     *
+     * @return array<object>
+     *
+     * @phpstan-return array<T>
+     *
+     * @template T of object
      */
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection;
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): array;
 
     /**
      * Bind the translatable fields of the document in the specified locale.
@@ -245,8 +270,12 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not an object or not managed
      * @throws PHPCRException           if the document is not translatable
+     *
+     * @template T of object
      */
     public function bindTranslation(object $document, string $locale): void;
 
@@ -256,7 +285,11 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document the document to persist a translation of
      * @param string $locale   the locale this document currently has
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function removeTranslation(object $document, string $locale): void;
 
@@ -267,10 +300,14 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document         The document to get the locales for
      * @param bool   $includeFallbacks Whether to include the available language fallbacks
      *
+     * @phpstan-param T $document
+     *
      * @return string[] All locales existing for this particular document
      *
      * @throws MissingTranslationException if the document is not translatable
      * @throws InvalidArgumentException    if $document is not an object
+     *
+     * @template T of object
      */
     public function getLocalesFor(object $document, bool $includeFallbacks): array;
 
@@ -279,6 +316,10 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * To be translatable, it needs a translation strategy and have at least
      * one translated field.
+     *
+     * @phpstan-param T $document
+     *
+     * @template T of object
      */
     public function isDocumentTranslatable(object $document): bool;
 
@@ -293,7 +334,11 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document   An already registered document
      * @param string $targetPath The target path including the nodename
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function move(object $document, string $targetPath): void;
 
@@ -309,7 +354,11 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string $targetName The nodename of the target of the reordering
      * @param bool   $before     Whether to move before or after the target
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function reorder(object $document, string $srcName, string $targetName, bool $before): void;
 
@@ -326,9 +375,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @param int               $fetchDepth Optional fetch depth
      * @param string|null       $locale     The locale to use during the loading of this collection
      *
+     * @phpstan-param T $document
+     *
      * @return ChildrenCollection collection of child documents
      *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function getChildren(object $document, array|string|null $filter = null, int $fetchDepth = -1, ?string $locale = null): ChildrenCollection;
 
@@ -350,7 +403,11 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string|null $locale   The locale to use during the loading of this collection
      * @param string|null $refClass Class the referrer document must be instanceof
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function getReferrers(object $document, ?string $type = null, ?string $name = null, ?string $locale = null, ?string $refClass = null): ReferrersCollection;
 
@@ -362,7 +419,11 @@ interface DocumentManagerInterface extends ObjectManager
      * has its identifier populated. Otherwise a proxy is returned that automatically
      * loads itself on first access.
      *
+     * @phpstan-param T|string $id
+     *
      * @return mixed|object the document reference
+     *
+     * @template T of object
      */
     public function getReference(string $documentName, object|string $id): mixed;
 
@@ -375,16 +436,24 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * The document is made read only until you call checkout again.
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not managed
      *
      * @see checkpoint
+     *
+     * @template T of object
      */
     public function checkin(object $document): void;
 
     /**
      * Make a checked in document writable again.
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not managed
+     *
+     * @template T of object
      */
     public function checkout(object $document): void;
 
@@ -393,7 +462,11 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * A new version is created and the writable document stays in checked out state
      *
+     * @phpstan-param T $document
+     *
      * @throws InvalidArgumentException if $document is not managed
+     *
+     * @template T of object
      */
     public function checkpoint(object $document): void;
 
@@ -410,7 +483,11 @@ interface DocumentManagerInterface extends ObjectManager
      *                                identifiers. If true, existing documents with the identical
      *                                identifier will be replaced, otherwise an exception is thrown.
      *
-     *@see findVersionByName
+     * @phpstan-param T $documentVersion
+     *
+     * @see findVersionByName
+     *
+     * @template T of object
      */
     public function restoreVersion(object $documentVersion, bool $removeExisting = true): void;
 
@@ -422,7 +499,11 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $documentVersion The version document as returned by findVersionByName
      *
+     * @phpstan-param T $documentVersion
+     *
      * @throws RepositoryException when trying to remove the root version or the last version
+     *
+     * @template T of object
      */
     public function removeVersion(object $documentVersion): void;
 
@@ -434,10 +515,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object $document the document of which to get the version history
      * @param int    $limit    an optional limit to only get the latest $limit information
      *
-     * @return array of <versionname> => array("name" => <versionname>, "labels" => <array of labels>, "created" => <DateTime>)
-     *               oldest version first
+     * @phpstan-param T $document
+     *
+     * @return array<string, array{name: string, labels: array<string>, created: \DateTimeInterface}> Array keys are the version name
      *
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function getAllLinearVersions(object $document, int $limit = -1): array;
 
@@ -451,10 +535,16 @@ interface DocumentManagerInterface extends ObjectManager
      * @param string $id          Id of the document
      * @param string $versionName The version name as given by getLinearPredecessors
      *
+     * @phpstan-param class-string<T>|null $className
+     *
      * @return object|null The detached document or null if the document is not found
+     *
+     * @phpstan-return T|null
      *
      * @throws UnsupportedRepositoryOperationException if the implementation does not support versioning
      * @throws InvalidArgumentException                if there is a document with $id but no version with $name
+     *
+     * @template T of object
      */
     public function findVersionByName(?string $className, string $id, string $versionName): ?object;
 
@@ -476,8 +566,12 @@ interface DocumentManagerInterface extends ObjectManager
      * @param object|array|null $document Optionally limit to a specific
      *                                    document or an array of documents
      *
+     * @phpstan-param T|array|null $document
+     *
      * @throws InvalidArgumentException if $document is neither null nor a
      *                                  document or an array of documents
+     *
+     * @template T of object
      */
     public function flush(object|array|null $document = null): void;
 
@@ -491,8 +585,12 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Return the node of the given object.
      *
+     * @phpstan-param T $document
+     *
      * @throws PHPCRException           if $document is not managed
      * @throws InvalidArgumentException if $document is not an object
+     *
+     * @template T of object
      */
     public function getNodeForDocument(object $document): NodeInterface;
 
@@ -501,7 +599,11 @@ interface DocumentManagerInterface extends ObjectManager
      *
      * @param object $document A managed document
      *
+     * @phpstan-param T $document
+     *
      * @throws PHPCRException if $document is not managed
+     *
+     * @template T of object
      */
     public function getDocumentId(object $document): ?string;
 }

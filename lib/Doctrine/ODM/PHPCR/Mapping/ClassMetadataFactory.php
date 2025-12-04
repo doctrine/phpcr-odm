@@ -21,7 +21,7 @@ use Doctrine\Persistence\Mapping\ReflectionService;
  */
 class ClassMetadataFactory extends AbstractClassMetadataFactory
 {
-    protected $cacheSalt = '__PHPCRODMCLASSMETADATA';
+    protected string $cacheSalt = '__PHPCRODMCLASSMETADATA';
 
     private DocumentManagerInterface $dm;
     private ?MappingDriver $driver;

@@ -116,7 +116,7 @@ abstract class ConverterBase implements ConverterInterface
      *
      * @return object|array - PHPCR QOM object or array of objects
      */
-    public function dispatch(AbstractNode $node)
+    public function dispatch(AbstractNode $node): object|array
     {
         $methodName = sprintf('walk%s', $node->getName());
 

@@ -7,6 +7,15 @@ Changelog
 3.0.0 (unreleased)
 ------------------
 
+* Compatibility with Doctrine Persistence 4.
+
+### BC Breaks
+
+* DocumentManagerInterface method signatures changed from Collection to array.
+* Doctrine\ODM\PHPCR\Query\Expression\Comparison no longer extends the Doctrine\Common\Collections\Expr\Comparison.
+  Replace any usage except for ::LIKE with the class from collections.
+* Doctrine\ODM\PHPCR\Query\Expression\NodeLocalName no longer extends Comparison. You can access the comparison with getComparison. 
+
 2.x
 ===
 

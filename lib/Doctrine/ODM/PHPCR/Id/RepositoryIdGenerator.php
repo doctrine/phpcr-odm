@@ -19,7 +19,7 @@ class RepositoryIdGenerator extends IdGenerator
             $parent = $metadata->parentMapping ? $metadata->getFieldValue($document, $metadata->parentMapping) : null;
         }
         $repository = $dm->getRepository($metadata->name);
-        if (!($repository instanceof RepositoryIdInterface)) {
+        if (!$repository instanceof RepositoryIdInterface) {
             throw new IdException("ID could not be determined. Make sure the that the Repository '".ClassUtils::getClass($repository)."' implements RepositoryIdInterface");
         }
 

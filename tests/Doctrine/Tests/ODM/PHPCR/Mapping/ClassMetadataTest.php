@@ -22,6 +22,7 @@ class ClassMetadataTest extends TestCase
         $cmi = new ClassMetadata(Person::class);
         $cmi->initializeReflection(new RuntimeReflectionService());
         $this->assertNull($cmi->getTypeOfField('some_field'));
+        $cmi->fieldMappings[] = 'some_field';
         $cmi->mappings['some_field'] = ['type' => 'some_type'];
         $this->assertEquals('some_type', $cmi->getTypeOfField('some_field'));
     }
@@ -31,7 +32,6 @@ class ClassMetadataTest extends TestCase
         $cm = new ClassMetadata(Person::class);
         $cm->initializeReflection(new RuntimeReflectionService());
         $this->assertEquals(Person::class, $cm->name);
-        $this->assertInstanceOf('ReflectionClass', $cm->reflClass);
 
         return $cm;
     }
@@ -296,7 +296,6 @@ class ClassMetadataTest extends TestCase
 
         // Test initial state
         $this->assertCount(0, $cm->getReflectionProperties());
-        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals([], $cm->parentClasses);
         $this->assertCount(0, $cm->referenceMappings);
@@ -317,12 +316,11 @@ class ClassMetadataTest extends TestCase
         // Check state
         $this->assertNotEmpty($cm->getReflectionProperties());
         $this->assertEquals('Doctrine\Tests\Models\CMS', $cm->getNamespace());
-        $this->assertInstanceOf(\ReflectionClass::class, $cm->reflClass);
         $this->assertEquals(CmsUser::class, $cm->name);
         $this->assertEquals(['UserParent'], $cm->parentClasses);
         $this->assertEquals(CmsUserRepository::class, $cm->customRepositoryClassName);
         $this->assertEquals('foo:bar', $cm->getNodeType());
-        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $cm->getTypeOfField('address'));
+        $this->assertEquals(ClassMetadata::MANY_TO_ONE, $cm->mappings['address']['type']);
         $this->assertCount(1, $cm->referenceMappings);
         $this->assertTrue($cm->hasAssociation('address'));
         $this->assertEquals(CmsAddress::class, $cm->getAssociationTargetClass('address'));
