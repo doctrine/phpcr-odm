@@ -2,7 +2,6 @@
 
 namespace Doctrine\ODM\PHPCR\Decorator;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventManager;
 use Doctrine\ODM\PHPCR\ChildrenCollection;
 use Doctrine\ODM\PHPCR\Configuration;
@@ -15,6 +14,7 @@ use Doctrine\ODM\PHPCR\ReferrersCollection;
 use Doctrine\ODM\PHPCR\Translation\LocaleChooser\LocaleChooserInterface;
 use Doctrine\ODM\PHPCR\Translation\TranslationStrategy\TranslationStrategyInterface;
 use Doctrine\ODM\PHPCR\UnitOfWork;
+use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectManagerDecorator;
 use PHPCR\NodeInterface;
 use PHPCR\PropertyType;
@@ -26,13 +26,15 @@ use PHPCR\Util\QOM\QueryBuilder as PhpcrQueryBuilder;
  * Base class for DocumentManager decorators.
  *
  * @since 1.3
+ *
+ * @extends ObjectManagerDecorator<DocumentManagerInterface>
  */
 abstract class DocumentManagerDecorator extends ObjectManagerDecorator implements DocumentManagerInterface
 {
     /**
      * @var DocumentManagerInterface
      */
-    protected $wrapped;
+    protected ObjectManager $wrapped;
 
     public function __construct(DocumentManagerInterface $wrapped)
     {
@@ -100,7 +102,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         return $this->wrapped->find($className, $id);
     }
 
-    public function findMany(?string $className, array $ids): Collection
+    public function findMany(?string $className, array $ids): array
     {
         return $this->wrapped->findMany($className, $ids);
     }
@@ -140,7 +142,7 @@ abstract class DocumentManagerDecorator extends ObjectManagerDecorator implement
         return $this->wrapped->createPhpcrQueryBuilder();
     }
 
-    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): Collection
+    public function getDocumentsByPhpcrQuery(QueryInterface $query, ?string $className = null, ?string $primarySelector = null): array
     {
         return $this->wrapped->getDocumentsByPhpcrQuery($query, $className, $primarySelector);
     }

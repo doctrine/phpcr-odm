@@ -16,25 +16,13 @@ use PHPUnit\Framework\TestCase;
  */
 class QueryTest extends TestCase
 {
-    /**
-     * @var QueryInterface&MockObject
-     */
-    private QueryInterface $phpcrQuery;
+    private QueryInterface&MockObject $phpcrQuery;
 
-    /**
-     * @var DocumentManager&MockObject
-     */
-    private DocumentManager $dm;
+    private DocumentManager&MockObject $dm;
 
-    /**
-     * @var MockObject|Query
-     */
-    private $query;
+    private Query $query;
 
-    /**
-     * @var MockObject|Query
-     */
-    private $aliasQuery;
+    private Query $aliasQuery;
 
     public function setUp(): void
     {
@@ -87,7 +75,7 @@ class QueryTest extends TestCase
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery)
-            ->willReturn(new ArrayCollection(['ok']));
+            ->willReturn(['ok']);
 
         $res = $this->query->execute();
         $this->assertEquals('ok', $res->first());
@@ -101,7 +89,7 @@ class QueryTest extends TestCase
         $this->dm->expects($this->exactly(2))
             ->method('getDocumentsByPhpcrQuery')
             ->with($this->phpcrQuery, null, 'a')
-            ->willReturn(new ArrayCollection(['ok']));
+            ->willReturn(['ok']);
 
         $res = $this->aliasQuery->execute();
         $this->assertEquals('ok', $res->first());
@@ -155,13 +143,19 @@ class QueryTest extends TestCase
 
     public function testGetResult(): void
     {
-        $res = $this->query->getResult(Query::HYDRATE_PHPCR);
+        $this->phpcrQuery->expects($this->once())
+            ->method('execute')
+            ->willReturn(['ok']);
+        $this->query->getResult(Query::HYDRATE_PHPCR);
         $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 
     public function testGetPhpcrNodeResult(): void
     {
-        $res = $this->query->getPhpcrNodeResult();
+        $this->phpcrQuery->expects($this->once())
+            ->method('execute')
+            ->willReturn(['ok']);
+        $this->query->getPhpcrNodeResult();
         $this->assertEquals(Query::HYDRATE_PHPCR, $this->query->getHydrationMode());
     }
 

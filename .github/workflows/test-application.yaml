@@ -59,7 +59,7 @@ jobs:
 
         steps:
             - name: Checkout project
-              uses: actions/checkout@v5
+              uses: actions/checkout@v6
 
             - name: Install and configure PHP
               uses: shivammathur/setup-php@v2
@@ -83,13 +83,6 @@ jobs:
               with:
                   dependency-versions: ${{ matrix.dependencies }}
                   composer-options: --prefer-dist
-
-            - name: Cache Jackrabbit
-              id: cache-jackrabbit
-              uses: actions/cache@v3
-              with:
-                path: vendor/jackalope/jackalope-jackrabbit/bin/jackrabbit-standalone-*
-                key: jackrabbit
 
             - name: Run configuration script
               run: ./tests/script_doctrine_dbal.sh
@@ -175,6 +168,13 @@ jobs:
               with:
                   dependency-versions: ${{ matrix.dependencies }}
                   composer-options: --prefer-dist
+
+            - name: Cache Jackrabbit
+              id: cache-jackrabbit
+              uses: actions/cache@v3
+              with:
+                path: tests/jackrabbit-standalone-*
+                key: jackrabbit
 
             - name: Run configuration script
               run: ./tests/script_jackrabbit.sh

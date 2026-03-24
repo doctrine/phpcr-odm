@@ -241,8 +241,8 @@ class UnitOfWorkTest extends PHPCRFunctionalTestCase
 
         /* @var $child ParentTestObj */
         /* @var $parent ParentTestObj */
-        $child = $documents->first();
-        $parent = $documents->last();
+        $child = reset($documents);
+        $parent = end($documents);
 
         $this->assertSame($child->parent, $parent);
         $this->assertSame('parent', $parent->nodename);

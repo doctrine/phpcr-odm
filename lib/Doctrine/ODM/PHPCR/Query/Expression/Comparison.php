@@ -2,14 +2,12 @@
 
 namespace Doctrine\ODM\PHPCR\Query\Expression;
 
-use Doctrine\Common\Collections\Expr\Comparison as BaseComparison;
-
 /**
- * This class purpose is to provide  provide a place
- * for the LIKE constant. Everything  else is handled
+ * This class purpose is to provide provide a place
+ * for the LIKE constant. Everything else is handled
  * in Doctrine\Common\Collections\Expr\Comparison.
  */
-class Comparison extends BaseComparison
+final class Comparison
 {
     public const LIKE = 'like';
 }

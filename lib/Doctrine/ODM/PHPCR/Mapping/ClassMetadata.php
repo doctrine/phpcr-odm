@@ -102,7 +102,7 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * READ-ONLY: The name of the document class that is stored in the phpcr:class property.
      */
-    public ?string $name;
+    public string $name;
 
     /**
      * READ-ONLY: The namespace the document class is contained in.
@@ -832,11 +832,11 @@ class ClassMetadata implements ClassMetadataInterface
     /**
      * @param ClassMetadata|null $inherited  Metadata of this field in the parent class, if any
      * @param bool               $isField    Whether this is a simple field or an association to another document
-     * @param string|bool        $phpcrLabel The name for the PHPCR thing. Usually "property", except for child where this is "name". Referrers use false to not set anything.
+     * @param bool|string        $phpcrLabel The name for the PHPCR thing. Usually "property", except for child where this is "name". Referrers use false to not set anything.
      *
      * @throws MappingException
      */
-    private function validateAndCompleteFieldMapping(array $mapping, ?self $inherited = null, bool $isField = true, $phpcrLabel = 'property'): array
+    private function validateAndCompleteFieldMapping(array $mapping, ?self $inherited = null, bool $isField = true, bool|string $phpcrLabel = 'property'): array
     {
         if ($inherited) {
             if (!array_key_exists('inherited', $mapping)) {
@@ -1160,7 +1160,7 @@ class ClassMetadata implements ClassMetadataInterface
         return self::GENERATOR_TYPE_NONE === $this->idGenerator;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -1292,27 +1292,23 @@ class ClassMetadata implements ClassMetadataInterface
         return $associations;
     }
 
-    /**
-     * PHPCR-ODM uses integer codes for relation types.
-     *
-     * @return int|string|null
-     */
-    public function getTypeOfField($fieldName)
+    public function getTypeOfField($fieldName): ?string
     {
-        return $this->mappings[$fieldName]['type'] ?? null;
+        // only for fields, not for associations.
+        return in_array($fieldName, $this->fieldMappings) ? $this->mappings[$fieldName]['type'] : null;
     }
 
-    public function getAssociationTargetClass($fieldName): ?string
+    public function getAssociationTargetClass($assocName): ?string
     {
-        if (empty($this->mappings[$fieldName]['targetDocument'])) {
+        if (empty($this->mappings[$assocName]['targetDocument'])) {
             throw new MappingException(sprintf(
                 'Association name expected, "%s" is not an association in "%s".',
-                $fieldName,
+                $assocName,
                 $this->name
             ));
         }
 
-        return $this->mappings[$fieldName]['targetDocument'];
+        return $this->mappings[$assocName]['targetDocument'];
     }
 
     public function getAssociationMappedByTargetField($assocName): string
@@ -1338,7 +1334,7 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * @return string|bool class name if the field is inherited, FALSE otherwise
      */
-    public function isInheritedField(string $fieldName)
+    public function isInheritedField(string $fieldName): bool|string
     {
         return $this->inheritedFields[$fieldName] ?? false;
     }
@@ -1571,10 +1567,8 @@ class ClassMetadata implements ClassMetadataInterface
      *
      * If there is no identifier mapped, returns an empty array as per the
      * specification.
-     *
-     * @param object $document
      */
-    public function getIdentifierValues($document): array
+    public function getIdentifierValues(object $document): array
     {
         try {
             return [$this->identifier => $this->getIdentifierValue($document)];

@@ -85,10 +85,7 @@ class Query
         return $this;
     }
 
-    /**
-     * @return mixed|null the value of the bound parameter
-     */
-    public function getParameter(string $key)
+    public function getParameter(string $key): mixed
     {
         return $this->parameters[$key] ?? null;
     }
@@ -124,7 +121,7 @@ class Query
      *
      * @throws QueryException if $hydrationMode is not known
      */
-    public function execute(?array $parameters = null, ?int $hydrationMode = null)
+    public function execute(?array $parameters = null, ?int $hydrationMode = null): Collection|QueryResultInterface
     {
         if (!empty($parameters)) {
             $this->setParameters($parameters);
@@ -170,10 +167,8 @@ class Query
      * Gets the list of results for the query.
      *
      * Alias for execute(null, $hydrationMode = HYDRATE_DOCUMENT).
-     *
-     * @return Collection|QueryResultInterface
      */
-    public function getResult(int $hydrationMode = self::HYDRATE_DOCUMENT)
+    public function getResult(int $hydrationMode = self::HYDRATE_DOCUMENT): Collection|QueryResultInterface
     {
         return $this->execute(null, $hydrationMode);
     }
@@ -182,10 +177,8 @@ class Query
      * Gets the phpcr node results for the query.
      *
      * Alias for execute(null, HYDRATE_PHPCR).
-     *
-     * @return QueryResultInterface
      */
-    public function getPhpcrNodeResult()
+    public function getPhpcrNodeResult(): Collection|QueryResultInterface
     {
         return $this->execute(null, self::HYDRATE_PHPCR);
     }

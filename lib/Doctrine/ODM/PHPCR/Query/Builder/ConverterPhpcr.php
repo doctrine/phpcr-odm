@@ -222,8 +222,7 @@ class ConverterPhpcr extends ConverterBase
 
         // cache the metadata for this document
         $meta = $this->mdf->getMetadataFor($documentFqn);
-
-        if (null === $meta->getName()) {
+        if ('' === $meta->getName()) {
             throw new \RuntimeException(sprintf(
                 '%s is not a mapped document',
                 $documentFqn
